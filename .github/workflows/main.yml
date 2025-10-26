@@ -1,0 +1,46 @@
+name: Deploy to S3 and CloudFront
+on:
+  push:
+    branches:
+      - development  # Deploy only from development branch
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Inject Environment Variables
+      env:
+        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_REACT_APP_API_ROUTE }}
+        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
+      run: |
+        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.production
+        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.production
+
+    - name: Build Vite React App
+      run: npm run build -- --mode production
+
+    - name: Sync to S3
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_ACCESS_REGION }}
+      run: |
+        aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete
+
+    - name: Invalidate CloudFront Cache
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+
