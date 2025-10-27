@@ -192,7 +192,7 @@ jobs:
             "attachments": [{
               "color": "good",
               "fields": [
-                {"title": "Status", "value": "✅  Success", "short": true},
+                {"title": "Status", "value": "✅ Success", "short": true},
                 {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
                 {"title": "Branch", "value": "`main`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
