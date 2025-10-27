@@ -45,7 +45,7 @@ jobs:
       run: |
         DEPLOYMENT_URL="${{ steps.deploy-vercel.outputs.deployment_url }}"
         vercel promote $DEPLOYMENT_URL --token=$VERCEL_TOKEN --yes
-        echo "✅ Promoted Development to Production: gmaxepayfrontend.vercel.app"
+        echo "✅ Promoted Development. to Production: gmaxepayfrontend.vercel.app"
 
     - name: Clean Up Old Deployments
       env:
