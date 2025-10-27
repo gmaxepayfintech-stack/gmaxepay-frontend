@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - development  # Triggers on development branch
-      - main         # Triggers on main/production branch (optional)
+      - main         # Triggers on main/production branch
 
 jobs:
   deploy-development:
@@ -25,7 +25,8 @@ jobs:
         echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
         echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
 
-    - name: Deploy to Vercel
+    - name: Deploy to Vercel (Preview)
+      id: deploy-vercel
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
@@ -34,7 +35,32 @@ jobs:
         npm install -g vercel
         vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
         vercel build --token=$VERCEL_TOKEN
-        vercel deploy --prebuilt --token=$VERCEL_TOKEN
+        DEPLOYMENT_URL=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+        echo "deployment_url=$DEPLOYMENT_URL" >> $GITHUB_OUTPUT
+        echo "✅ Deployed to preview: $DEPLOYMENT_URL"
+
+    - name: Promote to Production
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      run: |
+        DEPLOYMENT_URL="${{ steps.deploy-vercel.outputs.deployment_url }}"
+        vercel promote $DEPLOYMENT_URL --token=$VERCEL_TOKEN --yes
+        echo "✅ Promoted to production: gmaxepayfrontend.vercel.app"
+
+    - name: Clean Up Old Deployments
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      run: |
+        # Get all deployments and keep only latest 3
+        vercel ls --token=$VERCEL_TOKEN > deployments.txt
+        
+        # Extract deployment URLs (skip first 3 lines which are headers and latest deployments)
+        tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
+          if [ ! -z "$deployment_url" ]; then
+            echo "Deleting old deployment: $deployment_url"
+            vercel rm $deployment_url --token=$VERCEL_TOKEN --yes || echo "Failed to delete $deployment_url"
+          fi
+        done
 
   deploy-production:
     if: github.ref == 'refs/heads/main'
