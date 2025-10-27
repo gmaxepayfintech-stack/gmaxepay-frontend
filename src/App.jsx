@@ -4,7 +4,7 @@ function App() {
   const [count, setCount] = useState(0)
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-blue-600 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br bg-red-600 flex items-center justify-center p-4">
       <div className="max-w-4xl w-full text-center space-y-8">
         {/* Logo Section */}
         <div className="flex justify-center items-center gap-8 mb-8">
