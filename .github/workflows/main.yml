@@ -33,32 +33,22 @@ jobs:
         npm install -g vercel
         vercel pull --yes --environment=production --token=$VERCEL_TOKEN
         vercel build --prod --token=$VERCEL_TOKEN
-        DEPLOYMENT_URL=$(vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN)
-        echo "DEPLOYMENT_URL=$DEPLOYMENT_URL" >> $GITHUB_ENV
+        vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
         echo "✅ Deployed Development to Production: gmaxepayfrontend.vercel.app"
 
-    - name: Clean Up Old Development Deployments
+    - name: Clean Up Old Deployments
       continue-on-error: true
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
-        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       run: |
-        # Get current deployment URL (just deployed)
-        CURRENT_DEPLOYMENT="${DEPLOYMENT_URL}"
+        # List deployments with proper scope
+        vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
         
-        # List all deployments for this project
-        DEPLOYMENTS=$(vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID 2>/dev/null || echo "")
-        
-        if [ -z "$DEPLOYMENTS" ]; then
-          echo "No deployments found or error listing deployments"
-          exit 0
-        fi
-        
-        # Get deployment URLs (skip header, keep last 3, delete the rest)
-        echo "$DEPLOYMENTS" | tail -n +2 | awk '{print $1}' | tail -n +4 | while read -r deployment_url; do
-          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ] && [ "$deployment_url" != "$CURRENT_DEPLOYMENT" ]; then
-            echo "Deleting old development deployment: $deployment_url"
+        # Extract and delete old deployments (keep last 3)
+        tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
+          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
+            echo "Deleting old deployment: $deployment_url"
             vercel rm $deployment_url --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --yes || echo "Failed to delete $deployment_url"
           fi
         done
