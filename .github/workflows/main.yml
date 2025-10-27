@@ -20,7 +20,6 @@ jobs:
     - name: Inject Development Environment Variables
       env:
         VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
-        # VITE_REACT_APP_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_ROUTE }}
       run: |
         echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
         echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
@@ -42,23 +41,34 @@ jobs:
     - name: Promote to Production
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       run: |
         DEPLOYMENT_URL="${{ steps.deploy-vercel.outputs.deployment_url }}"
-        vercel promote $DEPLOYMENT_URL --token=$VERCEL_TOKEN --yes
-        echo "✅ Promoted Development. to Production: gmaxepayfrontend.vercel.app"
+        # Extract deployment ID from URL (last part after the last dash)
+        DEPLOYMENT_ID=$(echo $DEPLOYMENT_URL | grep -oP '[^-]+$')
+        
+        # Promote using the correct scope
+        vercel promote $DEPLOYMENT_URL \
+          --token=$VERCEL_TOKEN \
+          --scope=$VERCEL_ORG_ID \
+          --yes
+        
+        echo "✅ Promoted Development to Production: gmaxepayfrontend.vercel.app"
 
     - name: Clean Up Old Deployments
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       run: |
-        # Get all deployments and keep only latest 3
-        vercel ls --token=$VERCEL_TOKEN > deployments.txt
+        # List deployments with proper scope
+        vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
         
-        # Extract deployment URLs (skip first 3 lines which are headers and latest deployments)
+        # Extract and delete old deployments (keep last 3)
         tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
-          if [ ! -z "$deployment_url" ]; then
+          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
             echo "Deleting old deployment: $deployment_url"
-            vercel rm $deployment_url --token=$VERCEL_TOKEN --yes || echo "Failed to delete $deployment_url"
+            vercel rm $deployment_url --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --yes || echo "Failed to delete $deployment_url"
           fi
         done
 
