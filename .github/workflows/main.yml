@@ -40,18 +40,23 @@ jobs:
       continue-on-error: true
       env:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
-        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
       run: |
-        # List deployments with proper scope
-        vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
+        echo "🧹 Cleaning up old deployments..."
         
-        # Extract and delete old deployments (keep last 3)
-        tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
-          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
-            echo "Deleting old deployment: $deployment_url"
-            vercel rm $deployment_url --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --yes || echo "Failed to delete $deployment_url"
+        # Fetch all deployments and delete all except the latest 3
+        curl -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+          "https://api.vercel.com/v6/deployments?projectId=$VERCEL_PROJECT_ID&limit=100" | \
+        jq -r '.deployments[3:][].uid' | \
+        while read -r uid; do
+          if [ ! -z "$uid" ]; then
+            echo "🗑️  Deleting: $uid"
+            curl -X DELETE -s -H "Authorization: Bearer $VERCEL_TOKEN" \
+              "https://api.vercel.com/v13/deployments/$uid" > /dev/null 2>&1 || true
           fi
         done
+        
+        echo "✅ Cleanup completed"
 
   deploy-production:
     if: github.ref == 'refs/heads/main'

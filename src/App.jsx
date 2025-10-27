@@ -44,7 +44,7 @@ function App() {
 
         {/* Info Section */}
         <p className="text-gray-400 text-sm">
-          Click on the Vite and React logos to learn more
+          Click on the Vite and Reacts logos to learn more
         </p>
 
         {/* Additional Info */}
