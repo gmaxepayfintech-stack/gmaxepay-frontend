@@ -14,7 +14,6 @@ function App() {
             rel="noopener noreferrer"
             className="transition-transform hover:scale-110"
           >
-
           </a>
           <a 
             href="https://react.dev" 
@@ -50,7 +49,7 @@ function App() {
 
         {/* Additional Info */}
         <div className="mt-12 text-gray-500 text-xs">
-          <p>Built with ❤️ using Vite, React, and Tailwind CSS</p>
+          <p>Built with using Vite, React, and Tailwind CSS</p>
         </div>
       </div>
     </div>
