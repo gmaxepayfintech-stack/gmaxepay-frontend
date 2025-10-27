@@ -61,7 +61,7 @@ const LoginDesign1 = () => {
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Left Side - Visual Design (700x1024 aspect ratio) */}
       {/* Mobile: Show background image at top, full width */}
-      <div className="relative w-full h-64 lg:hidden">
+      <div className="relative w-full h-56 sm:h-64 md:h-72 lg:hidden">
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
@@ -92,13 +92,13 @@ const LoginDesign1 = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-6 lg:px-8 xl:px-12 py-8 lg:py-0 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-6 md:px-12 lg:px-8 xl:px-12 py-6 sm:py-8 md:py-12 lg:py-0 overflow-y-auto">
         <div 
-          className="w-full"
+          className="w-full md:max-w-md"
           style={{ maxWidth: '534px' }}
         >
           {/* Welcome Section */}
-          <div className="mb-6 md:mb-8 text-center">
+          <div className="mb-6 sm:mb-7 md:mb-8 text-center">
             <h1 className="text-gray-900 mb-1 text-2xl sm:text-3xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '100%' }}>
               Welcome Back!
             </h1>
@@ -108,7 +108,7 @@ const LoginDesign1 = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
             {/* Phone Number Field */}
             <div>
               <label htmlFor="phone" className="block text-gray-700 mb-1.5 text-sm sm:text-base md:text-lg" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}>
@@ -131,7 +131,7 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Number"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-lg h-12 md:h-14 lg:h-[60px]"
+                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
                   style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}
                   required
                 />
@@ -160,7 +160,7 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-lg h-12 md:h-14 lg:h-[60px]"
+                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
                   style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}
                   required
                 />
@@ -182,7 +182,7 @@ const LoginDesign1 = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:bg-opacity-90 h-12 md:h-14 lg:h-[60px] md:max-w-[534px] md:mx-auto lg:max-w-[534px]"
+              className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:bg-opacity-90 h-12 sm:h-14 md:h-16 lg:h-[60px] sm:max-w-md md:max-w-[534px] sm:mx-auto"
               style={{ backgroundColor: '#039155', borderRadius: '14px' }}
               onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#027a4a')}
               onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#039155')}
