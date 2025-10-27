@@ -1,4 +1,4 @@
-name: Deploy to Environments (Webhook Method)
+name: Deploy to Environments
 on:
   push:
     branches:
@@ -11,54 +11,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify Slack - Deployment Started
-      uses: slackapi/slack-github-action@v1.25.0
-      if: always()
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "🚀 Deployment Started",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "🚀 Development Deployment Started"
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Repository:*\n${{ github.repository }}"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Branch:*\n`development`"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Commit:*\n`${{ github.sha }}`"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Triggered by:*\n${{ github.actor }}"
-                  }
-                ]
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*Commit Message:*\n```${{ github.event.head_commit.message }}```"
-                }
-              }
-            ]
-          }
-
     - name: Checkout Code
       uses: actions/checkout@v3
 
@@ -68,7 +20,6 @@ jobs:
     - name: Inject Development Environment Variables
       env:
         VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
-        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
       run: |
         echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
         echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
@@ -91,7 +42,10 @@ jobs:
         VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
         VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
       run: |
+        # List deployments with proper scope
         vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
+        
+        # Extract and delete old deployments (keep last 3)
         tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
           if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
             echo "Deleting old deployment: $deployment_url"
@@ -99,153 +53,11 @@ jobs:
           fi
         done
 
-    - name: Notify Slack - Deployment Success
-      if: success()
-      uses: slackapi/slack-github-action@v1.25.0
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "✅ Development Deployment Successful",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "✅ Development Deployment Successful"
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Status:*\n✅ Success"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Environment:*\nDevelopment (Vercel)"
-                  }
-                ]
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*Live URL:*\nhttps://gmaxepayfrontend.vercel.app"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Deployment"
-                    },
-                    "url": "https://gmaxepayfrontend.vercel.app",
-                    "style": "primary"
-                  }
-                ]
-              }
-            ]
-          }
-
-    - name: Notify Slack - Deployment Failed
-      if: failure()
-      uses: slackapi/slack-github-action@v1.25.0
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "❌ Development Deployment Failed",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "❌ Development Deployment Failed"
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Status:*\n❌ Failed"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Branch:*\n`development`"
-                  }
-                ]
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Failed Workflow"
-                    },
-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                    "style": "danger"
-                  }
-                ]
-              }
-            ]
-          }
-
   deploy-production:
     if: github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
 
     steps:
-    - name: Notify Slack - Deployment Started
-      uses: slackapi/slack-github-action@v1.25.0
-      if: always()
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "🚀 Production Deployment Started",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "🚀 Production Deployment Started"
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Repository:*\n${{ github.repository }}"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Branch:*\n`main`"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Commit:*\n`${{ github.sha }}`"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Triggered by:*\n${{ github.actor }}"
-                  }
-                ]
-              }
-            ]
-          }
-
     - name: Checkout Code
       uses: actions/checkout@v3
 
@@ -281,70 +93,3 @@ jobs:
         aws cloudfront create-invalidation \
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
           --paths "/*"
-
-    - name: Notify Slack - Deployment Success
-      if: success()
-      uses: slackapi/slack-github-action@v1.25.0
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "✅ Production Deployment Successful",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "✅ Production Deployment Successful"
-                }
-              },
-              {
-                "type": "section",
-                "fields": [
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Status:*\n✅ Success"
-                  },
-                  {
-                    "type": "mrkdwn",
-                    "text": "*Environment:*\nProduction (S3 + CloudFront)"
-                  }
-                ]
-              }
-            ]
-          }
-
-    - name: Notify Slack - Deployment Failed
-      if: failure()
-      uses: slackapi/slack-github-action@v1.25.0
-      with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        webhookUrl: ${{ secrets.SLACK_WEBHOOK_URL }}
-        payload: |
-          {
-            "text": "❌ Production Deployment Failed",
-            "blocks": [
-              {
-                "type": "header",
-                "text": {
-                  "type": "plain_text",
-                  "text": "❌ Production Deployment Failed"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Failed Workflow"
-                    },
-                    "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}",
-                    "style": "danger"
-                  }
-                ]
-              }
-            ]
-          }
