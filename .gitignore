@@ -22,3 +22,7 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Deployment temporary files  
+# Note: Temp files created during deployment are cleaned up automatically
+.vercel

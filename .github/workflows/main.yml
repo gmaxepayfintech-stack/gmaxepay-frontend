@@ -1,11 +1,13 @@
-name: Deploy to S3 and CloudFront
+name: Deploy to Environments
 on:
   push:
     branches:
-      - development  # Deploy only from development branch
+      - development  # Triggers on development branch
+      - main         # Triggers on main/production branch (optional)
 
 jobs:
-  deploy:
+  deploy-development:
+    if: github.ref == 'refs/heads/development'
     runs-on: ubuntu-latest
 
     steps:
@@ -15,12 +17,37 @@ jobs:
     - name: Install Dependencies
       run: npm install
 
-    - name: Configure AWS CLI
+    - name: Inject Development Environment Variables
+      env:
+        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
+        # VITE_REACT_APP_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_ROUTE }}
       run: |
-        aws --version
-        aws configure list || echo "AWS CLI not configured yet"
+        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
+        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
 
-    - name: Inject Environment Variables
+    - name: Deploy to Vercel
+      env:
+        VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        npm install -g vercel
+        vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+        vercel build --token=$VERCEL_TOKEN
+        vercel deploy --prebuilt --token=$VERCEL_TOKEN
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Inject Production Environment Variables
       env:
         VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_REACT_APP_API_ROUTE }}
         VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
@@ -39,23 +66,13 @@ jobs:
       run: |
         aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --region ${{ secrets.AWS_REGION }}
 
-    - name: Verify AWS Credentials and Distribution
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      run: |
-        echo "Checking AWS credentials..."
-        aws sts get-caller-identity
-        echo "Distribution ID from secret: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
-        aws cloudfront list-distributions --query 'DistributionList.Items[*].[Id,Status]' --output table || echo "Failed to list distributions"
-
     - name: Invalidate CloudFront Cache
+      continue-on-error: true
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_REGION: ${{ secrets.AWS_REGION }}
       run: |
-        echo "Creating CloudFront invalidation for distribution: ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }}"
         aws cloudfront create-invalidation \
           --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
-          --paths "/*" || echo "Invalidation failed - continuing anyway (non-critical)"
-
+          --paths "/*"

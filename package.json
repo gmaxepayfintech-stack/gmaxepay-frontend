@@ -7,7 +7,12 @@
     "dev": "vite",
     "build": "vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "deploy": "bash scripts/deploy.sh",
+    "deploy:prod": "bash scripts/deploy.sh production",
+    "invalidate": "bash scripts/invalidate-cache.sh",
+    "status": "bash scripts/check-status.sh",
+    "domain": "bash scripts/setup-custom-domain.sh"
   },
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
