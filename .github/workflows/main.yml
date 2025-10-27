@@ -15,8 +15,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.25.0
       if: always()
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "🚀 Deployment Started",
@@ -103,8 +102,7 @@ jobs:
       if: success()
       uses: slackapi/slack-github-action@v1.25.0
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "✅ Development Deployment Successful",
@@ -157,8 +155,7 @@ jobs:
       if: failure()
       uses: slackapi/slack-github-action@v1.25.0
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "❌ Development Deployment Failed",
@@ -209,8 +206,7 @@ jobs:
       uses: slackapi/slack-github-action@v1.25.0
       if: always()
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "🚀 Production Deployment Started",
@@ -286,8 +282,7 @@ jobs:
       if: success()
       uses: slackapi/slack-github-action@v1.25.0
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "✅ Production Deployment Successful",
@@ -319,8 +314,7 @@ jobs:
       if: failure()
       uses: slackapi/slack-github-action@v1.25.0
       with:
-        channel-id: ${{ secrets.SLACK_CHANNEL }}
-        slack-token: ${{ secrets.SLACK_BOT_TOKEN }}
+        webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
         payload: |
           {
             "text": "❌ Production Deployment Failed",
