@@ -1,59 +1,354 @@
-import { useState } from 'react'
+import { useNotification } from '@/context/NotificationContext';
+import {
+  AdminDashboard,
+  ApiUserDashboard,
+  Auth,
+  CustomerCareDashboard,
+  Dashboard,
+  DistributerDashboard,
+  MasterDistributerDashboard,
+  RetailerDashboard,
+  SalesExecutiveDashboard,
+  SalesManagerDashboard,
+  SubAdminDashboard,
+  EmployeeDashboard,
+} from '@/layouts';
+import '@/styles/globals.css';
+import { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { BrowserRouter, Navigate, Route, Routes } from 'react-router-dom';
+import PrivacyPolicy from './mainPage/privacyPolicy';
+import RefundAndCancel from './mainPage/refundAndCancel';
+import TermsCondition from './mainPage/termsCondition';
+import NotFound from './pages/notFound';
+import ProtectedAuthRoute from './ProtectedAuthRoute';
+import ProtectedRoute from './ProtectedRoute';
+import Loader from './widgets/layout/loader';
+import HeadUpdater from './components/HeadUpdater';
+import { useCompany } from './context/CompanyContext';
+import { getHomePageComponent } from './util/domainToHomePage';
+import { restoreAuth } from './redux/action/authAction';
+import PaymentSuccess from './mainPage/paymentSuccess';
+import PaymentFailure from './mainPage/paymentFailure';
+import PaymentHandle from './mainPage/paymentHandle';
 
 function App() {
-  const [count, setCount] = useState(0)
+  const { showNotification } = useNotification();
+  const { loading } = useCompany();
+  const dispatch = useDispatch();
+  const error = useSelector(state => state?.error?.error || null);
+  const success = useSelector(state => state?.employee?.success || null);
+  const userSuccess = useSelector(state => state?.user?.success || null);
+  const slabSuccess = useSelector(state => state?.slabMaster?.success || null);
+  const fundOrderSuccess = useSelector(state => state?.fundOrder?.success || null);
+  const apiSwitchSuccess = useSelector(state => state?.apiSwitch?.success || null);
+  const bankSuccess = useSelector(state => state?.bankMaster?.success || null);
+  const specialDomSuccess = useSelector(state => state?.recharge?.success || null);
+  const operatorSuccess = useSelector(state => state?.operatorM?.success || null);
+  const specialDomfailure = useSelector(state => state?.recharge?.specialData || null);
+  const moneyTransfer = useSelector(state => state?.moneyTransfer?.success || null);
+  const rangeMasterSuccess = useSelector(state => state?.rangeMaster?.success || null);
+  const AdminShoppingSucess = useSelector(
+    state => state?.adminShoppingReducer?.success || null
+  );
+  const prepaidRechargeSucess = useSelector(
+    state => state?.rechargeReducer?.success || null
+  );
+  const complaintSuccess = useSelector(state => state?.complain?.success || null);
+  const creditCardSuccess = useSelector(state => state?.creditCard?.success || null);
+  const logoutMessage = useSelector(state => state?.auth?.success || null);
+  const isLoading = useSelector(state => state?.loading?.isLoading || false);
+
+  useEffect(() => {
+    dispatch(restoreAuth());
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (AdminShoppingSucess) {
+      showNotification({
+        type: 'success',
+        message: success.message,
+      });
+    }
+  }, [AdminShoppingSucess]);
+
+  useEffect(() => {
+    if (error) {
+      showNotification({
+        type: 'error',
+        message: error.message,
+      });
+    }
+  }, [error]);
+
+  useEffect(() => {
+    if (success) {
+      showNotification({
+        type: 'success',
+        message: success.message,
+      });
+    }
+  }, [success]);
+
+  useEffect(() => {
+    if (specialDomSuccess) {
+      showNotification({
+        type: 'success',
+        message: specialDomSuccess.message,
+      });
+    }
+  }, [specialDomSuccess]);
+
+  useEffect(() => {
+    if (operatorSuccess) {
+      showNotification({
+        type: 'success',
+        message: operatorSuccess.message,
+      });
+    }
+  }, [operatorSuccess]);
+
+  useEffect(() => {
+    if (
+      specialDomfailure === 'commAmt must be greater than zero' ||
+      specialDomfailure === 'Range must Not be empty' ||
+      specialDomfailure === 'Validation isIn on commType failed' ||
+      specialDomfailure === 'Validation isIn on amtType failed' ||
+      specialDomfailure === 'Circle not found'
+    ) {
+      showNotification({
+        type: 'error',
+        message: specialDomfailure,
+      });
+    }
+  }, [specialDomfailure]);
+
+  useEffect(() => {
+    if (userSuccess) {
+      showNotification({
+        type: 'success',
+        message: userSuccess.message,
+      });
+    }
+  }, [userSuccess]);
+
+  useEffect(() => {
+    if (slabSuccess) {
+      showNotification({
+        type: 'success',
+        message: slabSuccess.message,
+      });
+    }
+  }, [slabSuccess]);
+
+  useEffect(() => {
+    if (fundOrderSuccess) {
+      showNotification({
+        type: 'success',
+        message: fundOrderSuccess.message,
+      });
+    }
+  }, [fundOrderSuccess]);
+
+  useEffect(() => {
+    if (apiSwitchSuccess) {
+      showNotification({
+        type: 'success',
+        message: apiSwitchSuccess.message,
+      });
+    }
+  }, [apiSwitchSuccess]);
+
+  useEffect(() => {
+    if (bankSuccess) {
+      showNotification({
+        type: 'success',
+        message: bankSuccess.message,
+      });
+    }
+  }, [bankSuccess]);
+
+  useEffect(() => {
+    if (moneyTransfer) {
+      showNotification({
+        type: 'success',
+        message: moneyTransfer.message,
+      });
+    }
+  }, [moneyTransfer]);
+
+  useEffect(() => {
+    if (rangeMasterSuccess) {
+      showNotification({
+        type: 'success',
+        message: rangeMasterSuccess.message,
+      });
+    }
+  }, [rangeMasterSuccess]);
+
+  useEffect(() => {
+    if (prepaidRechargeSucess) {
+      showNotification({
+        type: 'success',
+        message: prepaidRechargeSucess?.success,
+      });
+    }
+  }, [prepaidRechargeSucess]);
+
+  useEffect(() => {
+    if (complaintSuccess) {
+      showNotification({
+        type: 'success',
+        message: complaintSuccess?.message,
+      });
+    }
+  }, [complaintSuccess]);
+
+  useEffect(() => {
+    if (creditCardSuccess) {
+      showNotification({
+        type: 'success',
+        message: creditCardSuccess?.message,
+      });
+    }
+  }, [creditCardSuccess]);
+
+  useEffect(() => {
+    if (logoutMessage) {
+      showNotification({
+        type: 'success',
+        message: logoutMessage,
+      });
+    }
+  }, [logoutMessage]);
+  if (loading) {
+    return <Loader />;
+  }
+  const currentDomain = window.location.hostname;
+  const HomePageComponent = getHomePageComponent(currentDomain);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br bg-red-600 flex items-center justify-center p-4">
-      <div className="max-w-4xl w-full text-center space-y-8">
-        {/* Logo Section */}
-        <div className="flex justify-center items-center gap-8 mb-8">
-          <a 
-            href="https://vite.dev" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="transition-transform hover:scale-110"
-          >
-          </a>
-          <a 
-            href="https://react.dev" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="transition-transform hover:scale-110"
-          >
-          </a>
-        </div>
-
-        {/* Main Heading */}
-        <h1 className="text-6xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-300 via-orange-300 to-yellow-300 mb-4">
-          Vite + React
-        </h1>
-
-        {/* Counter Card */}
-        <div className="bg-white/10 backdrop-blur-md rounded-2xl shadow-2xl p-8 border border-white/20">
-          <button 
-            onClick={() => setCount((count) => count + 1)}
-            className="bg-gradient-to-r from-red-600 to-orange-600 hover:from-red-700 hover:to-orange-700 text-white font-semibold py-4 px-8 rounded-xl shadow-lg transform transition-all duration-200 hover:scale-105 active:scale-95 mb-6 text-xl"
-          >
-            count is {count}
-          </button>
-          <p className="text-gray-200 text-lg">
-            Edit <code className="bg-white/10 px-2 py-1 rounded font-mono text-red-300">src/App.jsx</code> and save to test HMR
-          </p>
-        </div>
-
-        {/* Info Section */}
-        <p className="text-gray-400 text-sm">
-          Click on the Vite and Reacts logos to learn more
-        </p>
-
-        {/* Additional Info */}
-        <div className="mt-12 text-gray-500 text-xs">
-          <p>Built with using Vite, React, and Tailwind CSS</p>
-        </div>
-      </div>
-    </div>
-  )
+    <BrowserRouter>
+      <HeadUpdater />
+      {isLoading && <Loader />}
+      <Routes>
+        <Route
+          path='/'
+          element={
+            HomePageComponent ? (
+              <HomePageComponent />
+            ) : (
+              <Navigate to='/login' replace />
+            )
+          }
+        />
+        <Route path='/privacy' element={<PrivacyPolicy />} />
+        <Route path='/refundcancel' element={<RefundAndCancel />} />
+        <Route path='/termscondition' element={<TermsCondition />} />
+        <Route path='/payment-handle' element={<PaymentHandle />} />
+         <Route path='/payment-success' element={<PaymentSuccess />} />
+          <Route path='/payment-failure' element={<PaymentFailure/>} />
+        <Route
+          path='/dashboard/*'
+          element={
+            <ProtectedRoute role='super-admin'>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/adminDashboard/*'
+          element={
+            <ProtectedRoute role='admin'>
+              <AdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/subAdminDashboard/*'
+          element={
+            <ProtectedRoute role='sub-admin'>
+              <SubAdminDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/retailerDashboard/*'
+          element={
+            <ProtectedRoute role='retailer'>
+              <RetailerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/masterDistributerDashboard/*'
+          element={
+            <ProtectedRoute role='master-distributer'>
+              <MasterDistributerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/distributerDashboard/*'
+          element={
+            <ProtectedRoute role='distributer'>
+              <DistributerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/apiUserDashboard/*'
+          element={
+            <ProtectedRoute role='api-user'>
+              <ApiUserDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/salesManagerDashboard/*'
+          element={
+            <ProtectedRoute role='sales-manager'>
+              <SalesManagerDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/salesExecutiveDashboard/*'
+          element={
+            <ProtectedRoute role='sales-executive'>
+              <SalesExecutiveDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/customerCareDashboard/*'
+          element={
+            <ProtectedRoute role='customer-care'>
+              <CustomerCareDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/employeeDashboard/*'
+          element={
+            <ProtectedRoute role='employee'>
+              <EmployeeDashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path='/login'
+          element={
+            <ProtectedAuthRoute>
+              <Auth />
+            </ProtectedAuthRoute>
+          }
+        />
+        <Route path='/404' element={<NotFound />} />
+        <Route path='*' element={<Navigate to='/404' replace />} />
+      </Routes>
+    </BrowserRouter>
+  );
 }
 
-export default App
+export default App;

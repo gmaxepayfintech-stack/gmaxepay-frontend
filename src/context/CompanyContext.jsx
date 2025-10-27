@@ -34,12 +34,6 @@ export const CompanyProvider = ({ children }) => {
         }
       }
 
-      // If we already have company data, use it
-      if (company) {
-        setLoading(false);
-        return;
-      }
-
       // Start new API call
       isApiCallInProgress = true;
       
@@ -85,7 +79,7 @@ export const CompanyProvider = ({ children }) => {
     };
 
     fetchCompany();
-  }, [company]);
+  }, []);
 
   return (
     <CompanyContext.Provider value={{ company, loading }}>
