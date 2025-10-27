@@ -2,8 +2,8 @@ name: Deploy to Environments
 on:
   push:
     branches:
-      - development  # Triggers on development branch
-      - main         # Triggers on main/production branch
+      - development  
+      - main       
 
 jobs:
   deploy-development:
