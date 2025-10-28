@@ -228,7 +228,12 @@ function App() {
   const HomePageComponent = getHomePageComponent(currentDomain);
 
   return (
-    <BrowserRouter>
+    <BrowserRouter
+      future={{
+        v7_startTransition: true,
+        v7_relativeSplatPath: true
+      }}
+    >
       <HeadUpdater />
       {isLoading && <Loader />}
       <Routes>
