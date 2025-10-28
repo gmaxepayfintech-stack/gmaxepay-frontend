@@ -91,34 +91,34 @@ const LoginDesign1 = () => {
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-12 md:py-16 lg:py-0 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10 md:py-8 lg:py-0 overflow-y-auto">
         <div 
-          className="w-full max-w-sm sm:max-w-md md:max-w-lg"
+          className="w-full max-w-sm sm:max-w-md md:max-w-2xl"
           style={{ maxWidth: '534px' }}
         >
           {/* Welcome Section */}
-          <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-8 text-center">
+          <div className="mb-6 sm:mb-8 md:mb-6 lg:mb-8 text-center">
             {/* Logo centered above Welcome Back! */}
-            <div className="flex justify-center mb-6 sm:mb-8 md:mb-10">
+            <div className="flex justify-center mb-4 sm:mb-6 md:mb-4">
               <img 
                 src="/img/gmaxepay.png" 
                 alt="GMAXEPAY Logo" 
-                className="object-contain h-20 sm:h-24 md:h-28 lg:h-32"
+                className="object-contain h-20 sm:h-24 md:h-32 lg:h-32"
               />
             </div>
             <h1 className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '1.1' }}>
               Welcome Back!
             </h1>
-            <p className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '1.2', marginTop: '18px' }}>
+            <p className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '1.2', marginTop: '12px' }}>
               Let's Get Your Business Growing Together
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} autoComplete="off" style={{ marginTop: '32px' }}>
+          <form onSubmit={handleSubmit} autoComplete="off" style={{ marginTop: '24px' }}>
             {/* Phone Number Field */}
-            <div className="mb-6 sm:mb-7 lg:mb-7">
-              <label htmlFor="phone" className="block text-gray-700 mb-3 sm:mb-3.5" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
+            <div className="mb-5 sm:mb-6 md:mb-5 lg:mb-7">
+              <label htmlFor="phone" className="block text-gray-700 mb-2 sm:mb-3 md:mb-2" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
                 Phone Number
               </label>
               <div className="relative">
@@ -126,7 +126,7 @@ const LoginDesign1 = () => {
                   <img 
                     src={phoneNumber ? PhoneIconFilled : PhoneIcon} 
                     alt="Phone" 
-                    className="object-contain w-5 h-5 sm:w-6 sm:h-6"
+                    className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                   />
                 </div>
                 <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
@@ -139,7 +139,7 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
@@ -156,7 +156,7 @@ const LoginDesign1 = () => {
 
             {/* Password Field */}
             <div>
-              <label htmlFor="password" className="block text-gray-700 mb-3 sm:mb-3.5" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
+              <label htmlFor="password" className="block text-gray-700 mb-2 sm:mb-3 md:mb-2" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
                 Password
               </label>
               <div className="relative">
@@ -164,7 +164,7 @@ const LoginDesign1 = () => {
                   <img 
                     src={password ? NumpadIconFilled : NumpadIcon} 
                     alt="Password" 
-                    className="object-contain w-5 h-5 sm:w-6 sm:h-6"
+                    className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                   />
                 </div>
                 <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
@@ -185,7 +185,7 @@ const LoginDesign1 = () => {
                     <img 
                       src={showPassword ? '/img/EyeClosed.png' : '/img/Eye.png'}
                       alt={showPassword ? 'Hide password' : 'Show password'} 
-                      className="object-contain w-5 h-5 sm:w-6 sm:h-6"
+                      className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                     />
                   </button>
                 )}
@@ -196,7 +196,7 @@ const LoginDesign1 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
@@ -212,7 +212,7 @@ const LoginDesign1 = () => {
             </div>
 
             {/* Forgot Password Link */}
-            <div className="flex justify-end mt-7 mb-8 sm:mb-10 lg:mb-10">
+            <div className="flex justify-end mt-6 mb-6 sm:mb-7 md:mb-6 lg:mb-10">
               <button
                 type="button"
                 className="text-gray-600 hover:text-green-600 transition-colors"
@@ -227,7 +227,7 @@ const LoginDesign1 = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 lg:h-[60px] font-semibold rounded-xl shadow-green-500/20"
+                className="w-full text-white transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 md:h-20 lg:h-[60px] font-semibold rounded-xl shadow-green-500/20"
                 style={{ 
                   backgroundColor: '#039155'
                 }}
