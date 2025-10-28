@@ -160,7 +160,7 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
@@ -217,7 +217,7 @@ const LoginDesign1 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
