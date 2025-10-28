@@ -6,16 +6,26 @@ import { API_ROUTE } from '../../data/env';
 import { loginSuccess } from '../../redux/action/authAction';
 
 // Use URL paths for public assets
-const NumpadIcon = '/img/Numpad.png';
-const PhoneIcon = '/img/PhoneCall.png';
+const NumpadIcon = '/img/Numpad1.png';
+const NumpadIconFilled = '/img/Numpad2.png';
+const PhoneIcon = '/img/PhoneCall1.png';
+const PhoneIconFilled = '/img/PhoneCall2.png';
 
 const LoginDesign1 = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+
+  const handlePhoneChange = (e) => {
+    const value = e.target.value.replace(/\D/g, ''); // Only allow digits
+    if (value.length <= 10) {
+      setPhoneNumber(value);
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -103,13 +113,13 @@ const LoginDesign1 = () => {
             <h1 className="text-gray-900 mb-1 text-2xl sm:text-3xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '100%' }}>
               Welcome Back!
             </h1>
-            <p className="text-gray-600 text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', marginTop: '8px' }}>
+            <p className="text-gray-600 text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', marginTop: '18px' }}>
               Let's Get Your Business Growing Together
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} style={{ paddingTop: '18px' }}>
+          <form onSubmit={handleSubmit} style={{ paddingTop: '32px' }}>
             {/* Phone Number Field */}
             <div style={{ marginBottom: '28px' }}>
               <label htmlFor="phone" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
@@ -118,7 +128,7 @@ const LoginDesign1 = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
                   <img 
-                    src={PhoneIcon} 
+                    src={phoneNumber ? PhoneIconFilled : PhoneIcon} 
                     alt="Phone" 
                     className="object-contain"
                     style={{ width: '24px', height: '24px' }}
@@ -132,9 +142,17 @@ const LoginDesign1 = () => {
                   type="tel"
                   placeholder="Enter Your Number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={handlePhoneChange}
                   className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize', paddingLeft: '56px', border: '1px solid #1B1717' }}
+                  style={{ 
+                    fontFamily: 'Gilroy-Medium', 
+                    fontWeight: 400, 
+                    fontSize: '16px', 
+                    lineHeight: '100%', 
+                    textTransform: 'capitalize', 
+                    paddingLeft: '56px', 
+                    border: `1px solid ${phoneNumber ? '#1B1717' : 'rgba(27, 23, 23, 0.7)'}`
+                  }}
                   required
                 />
               </div>
@@ -148,7 +166,7 @@ const LoginDesign1 = () => {
               <div className="relative">
                 <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
                   <img 
-                    src={NumpadIcon} 
+                    src={password ? NumpadIconFilled : NumpadIcon} 
                     alt="Password" 
                     className="object-contain"
                     style={{ width: '24px', height: '24px' }}
@@ -157,14 +175,45 @@ const LoginDesign1 = () => {
                 <div className="absolute inset-y-0 flex items-center pointer-events-none" style={{ left: '48px', top: '18px', bottom: '18px' }}>
                   <div className="h-full bg-gray-400" style={{ width: '0.3px' }}></div>
                 </div>
+                {password && (
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center cursor-pointer"
+                    style={{ 
+                      right: '12px', 
+                      top: '18px', 
+                      bottom: '18px',
+                      background: 'transparent',
+                      border: 'none',
+                      outline: 'none'
+                    }}
+                  >
+                    <img 
+                      src={showPassword ? '/img/EyeClosed.png' : '/img/Eye.png'}
+                      alt={showPassword ? 'Hide password' : 'Show password'} 
+                      className="object-contain"
+                      style={{ width: '24px', height: '24px' }}
+                    />
+                  </button>
+                )}
                 <input
                   id="password"
-                  type="password"
+                  type={showPassword ? 'text' : 'password'}
                   placeholder="Enter Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize', paddingLeft: '56px', border: '1px solid #1B1717' }}
+                  style={{ 
+                    fontFamily: 'Gilroy-Medium', 
+                    fontWeight: 400, 
+                    fontSize: '16px', 
+                    lineHeight: '100%', 
+                    textTransform: 'capitalize', 
+                    paddingLeft: '56px',
+                    paddingRight: password ? '56px' : '12px',
+                    border: `1px solid ${password ? '#1B1717' : 'rgba(27, 23, 23, 0.7)'}`
+                  }}
                   required
                 />
               </div>
