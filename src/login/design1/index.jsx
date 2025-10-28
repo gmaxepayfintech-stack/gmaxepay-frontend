@@ -15,16 +15,19 @@ const LoginDesign1 = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handlePhoneChange = (e) => {
-    const value = e.target.value.replace(/\D/g, ''); // Only allow digits
-    if (value.length <= 10) {
-      setPhoneNumber(value);
+    let value = e.target.value.replace(/\D/g, ''); // Only allow digits
+    
+    // If user pastes or selects from autocomplete, take only the last 10 digits
+    if (value.length > 10) {
+      value = value.slice(-10);
     }
+    
+    setPhoneNumber(value);
   };
 
   const handleSubmit = async (e) => {
@@ -119,7 +122,7 @@ const LoginDesign1 = () => {
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} style={{ paddingTop: '32px' }}>
+          <form onSubmit={handleSubmit} autoComplete="off" style={{ paddingTop: '32px' }}>
             {/* Phone Number Field */}
             <div style={{ marginBottom: '28px' }}>
               <label htmlFor="phone" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
@@ -143,6 +146,7 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Number"
                   value={phoneNumber}
                   onChange={handlePhoneChange}
+                  autoComplete="off"
                   className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
@@ -203,6 +207,7 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  autoComplete="off"
                   className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
@@ -235,9 +240,7 @@ const LoginDesign1 = () => {
               <button
                 type="submit"
                 disabled={loading}
-                onMouseEnter={() => setIsHovered(true)}
-                onMouseLeave={() => setIsHovered(false)}
-                className="w-full text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
+                className="w-full text-white transition-opacity duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
                 style={{ 
                   backgroundColor: '#039155', 
                   borderRadius: '14px'
@@ -252,13 +255,8 @@ const LoginDesign1 = () => {
                     <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Loading...</span>
                   </span>
                 ) : (
-                  <span className="flex items-center text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>
+                  <span style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>
                     Next
-                    {isHovered && (
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-                      </svg>
-                    )}
                   </span>
                 )}
               </button>
