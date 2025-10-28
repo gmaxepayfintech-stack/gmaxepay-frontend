@@ -1,14 +1,15 @@
 import React from 'react';
 import { useCompany } from '../context/CompanyContext';
 import { LoginDesign1, LoginDesign2 } from '../login';
-import Loader from '../widgets/layout/loader';
+// import Loader from '../widgets/layout/loader';
 
 const Auth = () => {
   const { company, loading } = useCompany();
 
-  if (loading) {
-    return <Loader />;
-  }
+  // Removed loader for faster page load
+  // if (loading) {
+  //   return <Loader />;
+  // }
 
   // Determine which login design to show based on company's singupPageDesign
   const designNumber = company?.singupPageDesign || 1;

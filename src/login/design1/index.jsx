@@ -104,6 +104,9 @@ const LoginDesign1 = () => {
                 src="/img/gmaxepay.png" 
                 alt="GMAXEPAY Logo" 
                 className="object-contain h-20 sm:h-24 md:h-32 lg:h-32"
+                loading="eager"
+                fetchpriority="high"
+                decoding="async"
               />
             </div>
             <h1 className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '1.1' }}>

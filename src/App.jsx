@@ -221,9 +221,10 @@ function App() {
       });
     }
   }, [logoutMessage]);
-  if (loading) {
-    return <Loader />;
-  }
+  // Removed loader for faster loading
+  // if (loading) {
+  //   return <Loader />;
+  // }
   const currentDomain = window.location.hostname;
   const HomePageComponent = getHomePageComponent(currentDomain);
 
@@ -235,7 +236,8 @@ function App() {
       }}
     >
       <HeadUpdater />
-      {isLoading && <Loader />}
+      {/* Removed isLoading loader for faster loading */}
+      {/* {isLoading && <Loader />} */}
       <Routes>
         <Route
           path='/'
