@@ -39,7 +39,7 @@ const ProtectedRoute = ({ children, role }) => {
     }
   }, [userRole, role, navigate]);
   if (!token && !user) {
-    return <Navigate to='/auth/login' />;
+    return <Navigate to='/login' />;
   }
   const getRoleValue = role => {
     const roles = {
@@ -57,7 +57,7 @@ const ProtectedRoute = ({ children, role }) => {
     return children;
   }
 
-  return <Navigate to='/auth/login' />;
+  return <Navigate to='/login' />;
 };
 
 export default ProtectedRoute;

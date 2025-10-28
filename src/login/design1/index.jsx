@@ -13,12 +13,19 @@ const LoginDesign1 = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
+  const [buttonAnimating, setButtonAnimating] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setLoading(true);
+    setButtonAnimating(true);
+    
+    // Trigger animation after a short delay to show the slide effect
+    setTimeout(() => {
+      setLoading(true);
+      setButtonAnimating(false);
+    }, 300);
     
     try {
       const response = await axios.post(`${API_ROUTE}/api/v1/auth/login`, {
@@ -54,6 +61,7 @@ const LoginDesign1 = () => {
       console.error('Login error:', error);
       alert(error.response?.data?.message || 'Login failed. Please try again.');
       setLoading(false);
+      setButtonAnimating(false);
     }
   };
 
@@ -102,16 +110,16 @@ const LoginDesign1 = () => {
             <h1 className="text-gray-900 mb-1 text-2xl sm:text-3xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '100%' }}>
               Welcome Back!
             </h1>
-            <p className="text-gray-600 text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize' }}>
+            <p className="text-gray-600 text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', marginTop: '8px' }}>
               Let's Get Your Business Growing Together
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-5 md:space-y-6">
+          <form onSubmit={handleSubmit} style={{ paddingTop: '18px' }}>
             {/* Phone Number Field */}
-            <div>
-              <label htmlFor="phone" className="block text-gray-700 mb-1.5 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}>
+            <div style={{ marginBottom: '28px' }}>
+              <label htmlFor="phone" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Phone Number
               </label>
               <div className="relative">
@@ -119,7 +127,8 @@ const LoginDesign1 = () => {
                   <img 
                     src={PhoneIcon} 
                     alt="Phone" 
-                    className="w-4 h-4 object-contain"
+                    className="object-contain"
+                    style={{ width: '24px', height: '24px' }}
                   />
                 </div>
                 <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none">
@@ -132,15 +141,15 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize' }}
                   required
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-gray-700 mb-1.5 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}>
+            <div style={{ marginBottom: '0px' }}>
+              <label htmlFor="password" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Password
               </label>
               <div className="relative">
@@ -148,7 +157,8 @@ const LoginDesign1 = () => {
                   <img 
                     src={NumpadIcon} 
                     alt="Password" 
-                    className="w-4 h-4 object-contain"
+                    className="object-contain"
+                    style={{ width: '24px', height: '24px' }}
                   />
                 </div>
                 <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none">
@@ -161,44 +171,51 @@ const LoginDesign1 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize' }}
                   required
                 />
               </div>
             </div>
 
             {/* Forgot Password Link */}
-            <div className="flex justify-end">
+            <div className="flex justify-end" style={{ marginTop: '28px', marginBottom: '38px' }}>
               <button
                 type="button"
                 className="text-gray-600 hover:text-teal-600 transition-colors text-xs sm:text-sm md:text-sm lg:text-lg"
-                style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', verticalAlign: 'middle' }}
+                style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize' }}
               >
                 Forgot Password?
               </button>
             </div>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:bg-opacity-90 h-12 sm:h-14 md:h-16 lg:h-[60px] sm:max-w-md md:max-w-[534px] sm:mx-auto"
-              style={{ backgroundColor: '#039155', borderRadius: '14px' }}
-              onMouseEnter={(e) => !loading && (e.target.style.backgroundColor = '#027a4a')}
-              onMouseLeave={(e) => !loading && (e.target.style.backgroundColor = '#039155')}
-            >
-              {loading ? (
-                <span className="flex items-center text-sm sm:text-base md:text-base lg:text-lg">
-                  <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                  </svg>
-                  <span style={{ fontFamily: 'Gilroy-Medium', color: 'white' }}>Loading...</span>
-                </span>
-              ) : (
-                <span className="text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '100%', verticalAlign: 'middle', textTransform: 'capitalize', color: 'white' }}>Next</span>
-              )}
-            </button>
+            {/* Submit Button Container */}
+            <div className="overflow-hidden sm:max-w-md md:max-w-[534px] sm:mx-auto">
+              <button
+                type="submit"
+                disabled={loading || buttonAnimating}
+                className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:bg-opacity-90 h-12 sm:h-14 md:h-16 lg:h-[60px]"
+                style={{ 
+                  backgroundColor: '#039155', 
+                  borderRadius: '14px',
+                  transform: buttonAnimating ? 'translateX(100%)' : 'translateX(0)',
+                  transition: 'transform 0.3s ease-out'
+                }}
+                onMouseEnter={(e) => !loading && !buttonAnimating && (e.target.style.backgroundColor = '#027a4a')}
+                onMouseLeave={(e) => !loading && !buttonAnimating && (e.target.style.backgroundColor = '#039155')}
+              >
+                {loading ? (
+                  <span className="flex items-center text-sm sm:text-base md:text-base lg:text-lg">
+                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Loading...</span>
+                  </span>
+                ) : (
+                  <span className="text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Next</span>
+                )}
+              </button>
+            </div>
           </form>
         </div>
       </div>

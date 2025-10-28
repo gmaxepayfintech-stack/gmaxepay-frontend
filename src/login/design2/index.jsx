@@ -82,7 +82,7 @@ const LoginDesign2 = () => {
             <h1 className="text-white mb-2 text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'Gilroy-SemiBold', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
               Welcome Back
             </h1>
-            <p className="text-white/90 text-lg" style={{ fontFamily: 'Gilroy-Medium', textShadow: '0 1px 5px rgba(0,0,0,0.2)' }}>
+            <p className="text-white/90 text-lg" style={{ fontFamily: 'Gilroy-Medium', textShadow: '0 1px 5px rgba(0,0,0,0.2)', marginTop: '8px' }}>
               Sign in to your account to continue
             </p>
           </div>
@@ -92,10 +92,10 @@ const LoginDesign2 = () => {
         <div className="bg-white/95 backdrop-blur-lg rounded-3xl shadow-2xl p-8 md:p-10 border border-white/20">
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} style={{ paddingTop: '18px' }}>
             {/* Phone Number Field */}
-            <div>
-              <label htmlFor="phone" className="block text-gray-800 mb-2.5 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium' }}>
+            <div style={{ marginBottom: '28px' }}>
+              <label htmlFor="phone" className="block text-gray-800 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Phone Number
               </label>
               <div className="relative group">
@@ -103,7 +103,8 @@ const LoginDesign2 = () => {
                   <img 
                     src={PhoneIcon} 
                     alt="Phone" 
-                    className="w-5 h-5 object-contain"
+                    className="object-contain"
+                    style={{ width: '24px', height: '24px' }}
                   />
                 </div>
                 <input
@@ -113,15 +114,15 @@ const LoginDesign2 = () => {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none shadow-sm group-hover:border-gray-400"
-                  style={{ fontFamily: 'Gilroy-Medium' }}
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
                   required
                 />
               </div>
             </div>
 
             {/* Password Field */}
-            <div>
-              <label htmlFor="password" className="block text-gray-800 mb-2.5 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium' }}>
+            <div style={{ marginBottom: '0px' }}>
+              <label htmlFor="password" className="block text-gray-800 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Password
               </label>
               <div className="relative group">
@@ -129,7 +130,8 @@ const LoginDesign2 = () => {
                   <img 
                     src={NumpadIcon} 
                     alt="Password" 
-                    className="w-5 h-5 object-contain"
+                    className="object-contain"
+                    style={{ width: '24px', height: '24px' }}
                   />
                 </div>
                 <input
@@ -139,18 +141,18 @@ const LoginDesign2 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none shadow-sm group-hover:border-gray-400"
-                  style={{ fontFamily: 'Gilroy-Medium' }}
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
                   required
                 />
               </div>
             </div>
 
             {/* Forgot Password Link */}
-            <div className="flex justify-end">
+            <div className="flex justify-end" style={{ marginTop: '28px', marginBottom: '38px' }}>
               <button
                 type="button"
                 className="text-teal-600 hover:text-teal-700 transition-colors text-sm font-medium"
-                style={{ fontFamily: 'Gilroy-Medium' }}
+                style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
               >
                 Forgot Password?
               </button>
@@ -161,7 +163,7 @@ const LoginDesign2 = () => {
               type="submit"
               disabled={loading}
               className="w-full bg-gradient-to-r from-teal-600 to-green-600 hover:from-teal-700 hover:to-green-700 text-white font-semibold py-4 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02]"
-              style={{ fontFamily: 'Gilroy-SemiBold' }}
+              style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
@@ -169,10 +171,10 @@ const LoginDesign2 = () => {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                   </svg>
-                  Signing in...
+                  <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}>Signing in...</span>
                 </span>
               ) : (
-                'Sign In'
+                <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}>Sign In</span>
               )}
             </button>
           </form>

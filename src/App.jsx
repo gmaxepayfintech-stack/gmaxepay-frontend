@@ -238,7 +238,7 @@ function App() {
             HomePageComponent ? (
               <HomePageComponent />
             ) : (
-              <Navigate to='/auth/login' replace />
+              <Navigate to='/login' replace />
             )
           }
         />
@@ -337,7 +337,7 @@ function App() {
           }
         />
         <Route
-          path='/auth/login'
+          path='/login'
           element={
             <ProtectedAuthRoute>
               <Auth />
