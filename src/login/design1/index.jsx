@@ -49,6 +49,7 @@ const LoginDesign1 = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     setLoading(true);
     
     try {
@@ -224,6 +225,9 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   autoComplete="off"
+                  minLength={10}
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px]"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 

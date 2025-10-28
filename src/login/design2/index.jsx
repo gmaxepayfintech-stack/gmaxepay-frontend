@@ -19,8 +19,30 @@ const LoginDesign2 = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
 
+  const handlePhoneChange = (e) => {
+    let value = e.target.value.replace(/\D/g, ''); // Only allow digits
+    
+    // If user pastes or selects from autocomplete, take only the last 10 digits
+    if (value.length > 10) {
+      value = value.slice(-10);
+    }
+    
+    setPhoneNumber(value);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Validate phone number is exactly 10 digits
+    if (phoneNumber.length !== 10) {
+      showNotification({
+        type: 'error',
+        message: 'Please enter a valid 10-digit phone number.',
+        duration: 4000,
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -130,7 +152,10 @@ const LoginDesign2 = () => {
                   type="tel"
                   placeholder="Enter your phone number"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={handlePhoneChange}
+                  minLength={10}
+                  maxLength={10}
+                  pattern="[0-9]{10}"
                   className="block w-full pl-12 pr-4 py-3.5 bg-white border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-teal-500/20 focus:border-teal-500 transition-all outline-none shadow-sm group-hover:border-gray-400"
                   style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
                   required
