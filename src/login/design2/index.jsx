@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_ROUTE } from '../../data/env';
 import { loginSuccess } from '../../redux/action/authAction';
+import { getLocationAndIP } from '../../util/getLocationAndIP';
+import { useNotification } from '../../context/NotificationContext';
 
 // Use URL paths for public assets
 const NumpadIcon = '/img/Numpad.png';
@@ -15,15 +17,31 @@ const LoginDesign2 = () => {
   const [loading, setLoading] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     
     try {
+      // Get location and IP before login
+      const locationIPData = await getLocationAndIP();
+      
+      // Only show notification if location access was denied
+      if (!locationIPData.location.latitude || !locationIPData.location.longitude) {
+        showNotification({
+          type: 'warning',
+          message: 'Location access is required! Please allow location to proceed with login.',
+          duration: 6000,
+        });
+      }
+      
       const response = await axios.post(`${API_ROUTE}/api/v1/auth/login`, {
         phoneNumber,
         password,
+        ipAddress: locationIPData.ipAddress,
+        latitude: locationIPData.location.latitude,
+        longitude: locationIPData.location.longitude,
       });
       
       if (response.data.status === 'SUCCESS') {

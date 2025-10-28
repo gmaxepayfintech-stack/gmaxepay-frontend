@@ -13,25 +13,32 @@ export const useNotification = () => {
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
 
-  const showNotification = useCallback((message, type = 'info', duration = 5000) => {
+  // Define removeNotification first
+  const removeNotification = useCallback((id) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== id));
+  }, []);
+
+  // Now define showNotification which depends on removeNotification
+  const showNotification = useCallback((messageOrConfig, type = 'info', duration = 5000) => {
+    // Handle both object config and individual parameters
+    const message = typeof messageOrConfig === 'string' ? messageOrConfig : messageOrConfig.message;
+    const notificationType = typeof messageOrConfig === 'string' ? type : (messageOrConfig.type || 'info');
+    const notificationDuration = typeof messageOrConfig === 'string' ? duration : (messageOrConfig.duration || 5000);
+    
     const id = Date.now() + Math.random();
-    const notification = { id, message, type, duration };
+    const notification = { id, message, type: notificationType, duration: notificationDuration };
     
     setNotifications((prev) => [...prev, notification]);
 
     // Auto remove after duration
-    if (duration > 0) {
+    if (notificationDuration > 0) {
       setTimeout(() => {
         removeNotification(id);
-      }, duration);
+      }, notificationDuration);
     }
 
     return id;
-  }, []);
-
-  const removeNotification = useCallback((id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
-  }, []);
+  }, [removeNotification]);
 
   const success = useCallback((message, duration) => {
     return showNotification(message, 'success', duration);
@@ -79,21 +86,44 @@ const Notification = ({ notification, onRemove }) => {
     switch (type) {
       case 'success':
         return (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-          </svg>
+          <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
         );
       case 'error':
         return (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        );
+      case 'info':
+        return (
+          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+        );
+      case 'warning':
+        return (
+          <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          </div>
         );
       default:
         return (
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          </svg>
+          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
+            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
         );
     }
   };
@@ -105,6 +135,7 @@ const Notification = ({ notification, onRemove }) => {
           bg: 'bg-green-50',
           border: 'border-green-200',
           text: 'text-green-800',
+          title: 'text-green-700',
           icon: 'text-green-600',
           hover: 'hover:bg-green-100',
         };
@@ -113,52 +144,87 @@ const Notification = ({ notification, onRemove }) => {
           bg: 'bg-red-50',
           border: 'border-red-200',
           text: 'text-red-800',
+          title: 'text-red-700',
           icon: 'text-red-600',
           hover: 'hover:bg-red-100',
         };
+      case 'info':
+        return {
+          bg: 'bg-blue-50',
+          border: 'border-blue-200',
+          text: 'text-blue-800',
+          title: 'text-blue-700',
+          icon: 'text-blue-600',
+          hover: 'hover:bg-blue-100',
+        };
+      case 'warning':
+        return {
+          bg: 'bg-yellow-50',
+          border: 'border-yellow-200',
+          text: 'text-yellow-800',
+          title: 'text-yellow-700',
+          icon: 'text-yellow-600',
+          hover: 'hover:bg-yellow-100',
+        };
       default:
         return {
-          bg: 'bg-red-50',
-          border: 'border-red-200',
-          text: 'text-red-800',
-          icon: 'text-red-600',
-          hover: 'hover:bg-red-100',
+          bg: 'bg-blue-50',
+          border: 'border-blue-200',
+          text: 'text-blue-800',
+          title: 'text-blue-700',
+          icon: 'text-blue-600',
+          hover: 'hover:bg-blue-100',
         };
     }
   };
 
   const colors = getColors();
 
+  const getTitle = () => {
+    switch (type) {
+      case 'success': return 'SUCCESS!';
+      case 'error': return 'ERROR!';
+      case 'info': return 'INFO!';
+      case 'warning': return 'WARNING!';
+      default: return 'INFO!';
+    }
+  };
+
   return (
     <div
       className={`
-        ${colors.bg} ${colors.border} ${colors.text}
-        rounded-lg shadow-lg border-2 p-4
+        ${colors.bg} ${colors.border}
+        rounded-2xl shadow-2xl border-2 px-6 py-5
         animate-slide-in-right
         backdrop-blur-sm
         transition-all duration-300
         ${colors.hover}
+        transform hover:scale-[1.01]
+        min-w-[320px]
       `}
     >
-      <div className="flex items-start gap-3">
-        <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
+      <div className="flex items-start gap-4">
+        <div className="flex-shrink-0">
           {getIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium leading-relaxed break-words">
+          <h3 className={`${colors.title} font-bold text-base mb-1`}>
+            {getTitle()}
+          </h3>
+          <p className={`${colors.text} text-sm leading-relaxed break-words font-medium`}>
             {message}
           </p>
         </div>
         <button
           onClick={() => onRemove(id)}
           className={`
-            ${colors.icon} hover:opacity-70 
-            flex-shrink-0 transition-opacity duration-200
-            focus:outline-none focus:ring-2 focus:ring-offset-2 ${colors.border} rounded
+            ${colors.icon} hover:opacity-70 hover:scale-110
+            flex-shrink-0 transition-all duration-200
+            focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full p-1
           `}
           aria-label="Close notification"
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>

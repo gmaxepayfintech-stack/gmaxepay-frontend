@@ -4,6 +4,8 @@ import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { API_ROUTE } from '../../data/env';
 import { loginSuccess } from '../../redux/action/authAction';
+import { getLocationAndIP } from '../../util/getLocationAndIP';
+import { useNotification } from '../../context/NotificationContext';
 
 // Use URL paths for public assets
 const NumpadIcon = '/img/Numpad1.png';
@@ -18,6 +20,7 @@ const LoginDesign1 = () => {
   const [showPassword, setShowPassword] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); // Only allow digits
@@ -35,9 +38,24 @@ const LoginDesign1 = () => {
     setLoading(true);
     
     try {
+      // Get location and IP before login
+      const locationIPData = await getLocationAndIP();
+    
+      // Only show notification if location access was denied
+      if (!locationIPData.location.latitude || !locationIPData.location.longitude) {
+        showNotification({
+          type: 'warning',
+          message: 'Please allow location to proceed with login.',
+          duration: 6000,
+        });
+      }
+      
       const response = await axios.post(`${API_ROUTE}/api/v1/auth/login`, {
         phoneNumber,
         password,
+        ipAddress: locationIPData.ipAddress,
+        latitude: locationIPData.location.latitude,
+        longitude: locationIPData.location.longitude,
       });
       
       if (response.data.status === 'SUCCESS') {
@@ -133,7 +151,7 @@ const LoginDesign1 = () => {
                   />
                 </div>
                 <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
-                  <div className="h-4/5 bg-gray-300" style={{ width: '1px' }}></div>
+                  <div className="h-2/5 bg-gray-300" style={{ width: '1px' }}></div>
                 </div>
                 <input
                   id="phone"
@@ -171,7 +189,7 @@ const LoginDesign1 = () => {
                   />
                 </div>
                 <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
-                  <div className="h-4/5 bg-gray-300" style={{ width: '1px' }}></div>
+                  <div className="h-2/5 bg-gray-300" style={{ width: '1px' }}></div>
                 </div>
                 {password && (
                   <button
