@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
@@ -6,6 +6,7 @@ import { API_ROUTE } from '../../data/env';
 import { loginSuccess } from '../../redux/action/authAction';
 import { getLocationAndIP } from '../../util/getLocationAndIP';
 import { useNotification } from '../../context/NotificationContext';
+import { useCompany } from '../../context/CompanyContext';
 
 // Use URL paths for public assets
 const NumpadIcon = '/img/Numpad1.png';
@@ -18,9 +19,22 @@ const LoginDesign1 = () => {
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [currentSlide, setCurrentSlide] = useState(0);
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+  const { company } = useCompany();
+
+  // Auto-rotate slider images
+  useEffect(() => {
+    if (company?.sliderImages && company.sliderImages.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % company.sliderImages.length);
+      }, 5000); // Change slide every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [company?.sliderImages]);
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); // Only allow digits
@@ -39,8 +53,10 @@ const LoginDesign1 = () => {
     
     try {
       // Get location and IP before login
+      console.log('Getting location and IP...');
       const locationIPData = await getLocationAndIP();
-    
+      console.log('Location and IP data:', locationIPData);
+      
       // Only show notification if location access was denied
       if (!locationIPData.location.latitude || !locationIPData.location.longitude) {
         showNotification({
@@ -91,22 +107,67 @@ const LoginDesign1 = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
-      {/* Desktop: Show side panel with background image - Hidden on mobile */}
-      <div 
-        className="hidden lg:flex lg:flex-1 relative overflow-hidden"
-        style={{
-          width: '50vw'
-        }}
-      >
+      {/* Desktop: Show side panel with slider - Hidden on mobile */}
+      {company?.sliderImages && company.sliderImages.length > 0 ? (
         <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+          className="hidden lg:flex lg:flex-1 relative overflow-hidden"
           style={{
-            backgroundImage: 'url(/img/background.jpg)'
+            width: '50vw'
           }}
         >
-          <div className="absolute inset-0 bg-green-900/20"></div>
+          {/* Slider Images */}
+          {company.sliderImages.map((slider, index) => (
+            <div
+              key={slider.id}
+              className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
+                index === currentSlide ? 'opacity-100' : 'opacity-0'
+              }`}
+              style={{
+                backgroundImage: `url(${slider.image})`,
+                backgroundSize: 'cover',
+                backgroundPosition: 'center',
+                backgroundRepeat: 'no-repeat'
+              }}
+            >
+              <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
+            </div>
+          ))}
+          
+          {/* Navigation Dots */}
+          {company.sliderImages.length > 1 && (
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 flex gap-3">
+              {company.sliderImages.map((_, index) => (
+                <button
+                  key={index}
+                  onClick={() => setCurrentSlide(index)}
+                  className={`transition-all duration-300 rounded-full ${
+                    index === currentSlide 
+                      ? 'w-8 h-2 bg-white shadow-lg' 
+                      : 'w-2 h-2 bg-white/50 hover:bg-white/70'
+                  }`}
+                  aria-label={`Go to slide ${index + 1}`}
+                />
+              ))}
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div 
+          className="hidden lg:flex lg:flex-1 relative overflow-hidden"
+          style={{
+            width: '50vw'
+          }}
+        >
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
+            style={{
+              backgroundImage: 'url(/img/background.jpg)'
+            }}
+          >
+            <div className="absolute inset-0 bg-green-900/20"></div>
+          </div>
+        </div>
+      )}
 
       {/* Right Side - Login Form */}
       <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10 md:py-8 lg:py-0 overflow-y-auto">
@@ -119,12 +180,15 @@ const LoginDesign1 = () => {
             {/* Logo centered above Welcome Back! */}
             <div className="flex justify-center mb-4 sm:mb-6 md:mb-4">
               <img 
-                src="/img/gmaxepay.png" 
-                alt="GMAXEPAY Logo" 
+                src={company?.logo || '/img/gmaxepay.png'} 
+                alt={company?.companyName || 'GMAXEPAY Logo'} 
                 className="object-contain h-20 sm:h-24 md:h-32 lg:h-32"
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
+                onError={(e) => {
+                  e.target.src = '/img/gmaxepay.png';
+                }}
               />
             </div>
             <h1 className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '1.1' }}>
@@ -160,7 +224,7 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px]"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
@@ -217,7 +281,7 @@ const LoginDesign1 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="off"
-                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px] focus:ring-2"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 md:h-20 lg:h-[60px]"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
