@@ -73,9 +73,9 @@ const LoginDesign1 = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
-      {/* Left Side - Visual Design (700x1024 aspect ratio) */}
-      {/* Mobile: Show background image at top, full width */}
-      <div className="relative w-full h-56 sm:h-64 md:h-72 lg:hidden">
+      {/* Left Side - Visual Design with Static Image */}
+      {/* Mobile: Show background image at top */}
+      <div className="relative w-full h-64 sm:h-80 md:h-96 lg:hidden">
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
@@ -86,59 +86,64 @@ const LoginDesign1 = () => {
         </div>
       </div>
 
-      {/* Desktop: Show side panel - half screen width */}
+      {/* Desktop: Show side panel with background image */}
       <div 
-        className="hidden lg:flex relative overflow-hidden"
+        className="hidden lg:flex lg:flex-1 relative overflow-hidden"
         style={{
           width: '50vw'
         }}
       >
-        {/* Background Image */}
         <div 
           className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
           style={{
             backgroundImage: 'url(/img/background.jpg)'
           }}
         >
-          {/* Optional overlay for better text readability */}
           <div className="absolute inset-0 bg-green-900/20"></div>
         </div>
       </div>
 
       {/* Right Side - Login Form */}
-      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-6 md:px-12 lg:px-8 xl:px-12 py-6 sm:py-8 md:py-12 lg:py-0 overflow-y-auto">
+      <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-12 md:py-16 lg:py-0 overflow-y-auto">
         <div 
-          className="w-full md:max-w-md"
+          className="w-full max-w-sm sm:max-w-md md:max-w-lg"
           style={{ maxWidth: '534px' }}
         >
           {/* Welcome Section */}
-          <div className="mb-6 sm:mb-7 md:mb-8 text-center">
-            <h1 className="text-gray-900 mb-1 text-2xl sm:text-3xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '100%' }}>
+          <div className="mb-8 sm:mb-10 md:mb-12 lg:mb-8 text-center">
+            {/* Logo centered above Welcome Back! */}
+            <div className="flex justify-center mb-6 sm:mb-8 md:mb-10">
+              <img 
+                src="/img/gmaxepay.png" 
+                alt="GMAXEPAY Logo" 
+                className="object-contain h-14 sm:h-16 md:h-20 lg:h-[60px]"
+              />
+            </div>
+            <h1 className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '1.1' }}>
               Welcome Back!
             </h1>
-            <p className="text-gray-600 text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '100%', textTransform: 'capitalize', marginTop: '18px' }}>
+            <p className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '1.2', marginTop: '12px' }}>
               Let's Get Your Business Growing Together
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} autoComplete="off" style={{ paddingTop: '32px' }}>
+          <form onSubmit={handleSubmit} autoComplete="off" className="mt-6 sm:mt-8 md:mt-10 lg:mt-8">
             {/* Phone Number Field */}
-            <div style={{ marginBottom: '28px' }}>
-              <label htmlFor="phone" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
+            <div className="mb-6 sm:mb-7 lg:mb-7">
+              <label htmlFor="phone" className="block text-gray-700 mb-3 sm:mb-3.5" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
                 Phone Number
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
+                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none z-10" style={{ left: '14px' }}>
                   <img 
                     src={phoneNumber ? PhoneIconFilled : PhoneIcon} 
                     alt="Phone" 
-                    className="object-contain"
-                    style={{ width: '24px', height: '24px' }}
+                    className="object-contain w-5 h-5 sm:w-6 sm:h-6"
                   />
                 </div>
-                <div className="absolute inset-y-0 flex items-center pointer-events-none" style={{ left: '48px', top: '18px', bottom: '18px' }}>
-                  <div className="h-full bg-gray-400" style={{ width: '0.3px' }}></div>
+                <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
+                  <div className="h-4/5 bg-gray-300" style={{ width: '1px' }}></div>
                 </div>
                 <input
                   id="phone"
@@ -147,15 +152,15 @@ const LoginDesign1 = () => {
                   value={phoneNumber}
                   onChange={handlePhoneChange}
                   autoComplete="off"
-                  className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
-                    fontSize: '16px', 
+                    fontSize: '15px', 
                     lineHeight: '100%', 
-                    textTransform: 'capitalize', 
-                    paddingLeft: '56px', 
-                    border: `1px solid ${phoneNumber ? '#1B1717' : 'rgba(27, 23, 23, 0.7)'}`
+                    paddingLeft: '60px', 
+                    paddingRight: '16px',
+                    border: `1.5px solid ${phoneNumber ? '#1B1717' : 'rgba(27, 23, 23, 0.5)'}`
                   }}
                   required
                 />
@@ -163,31 +168,28 @@ const LoginDesign1 = () => {
             </div>
 
             {/* Password Field */}
-            <div style={{ marginBottom: '0px' }}>
-              <label htmlFor="password" className="block text-gray-700 text-sm sm:text-base md:text-base lg:text-lg" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
+            <div>
+              <label htmlFor="password" className="block text-gray-700 mb-3 sm:mb-3.5" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
+                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none z-10" style={{ left: '14px' }}>
                   <img 
                     src={password ? NumpadIconFilled : NumpadIcon} 
                     alt="Password" 
-                    className="object-contain"
-                    style={{ width: '24px', height: '24px' }}
+                    className="object-contain w-5 h-5 sm:w-6 sm:h-6"
                   />
                 </div>
-                <div className="absolute inset-y-0 flex items-center pointer-events-none" style={{ left: '48px', top: '18px', bottom: '18px' }}>
-                  <div className="h-full bg-gray-400" style={{ width: '0.3px' }}></div>
+                <div className="absolute inset-y-0 flex items-center pointer-events-none z-10" style={{ left: '50px' }}>
+                  <div className="h-4/5 bg-gray-300" style={{ width: '1px' }}></div>
                 </div>
                 {password && (
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center cursor-pointer"
+                    className="absolute inset-y-0 right-0 flex items-center cursor-pointer z-20"
                     style={{ 
-                      right: '12px', 
-                      top: '18px', 
-                      bottom: '18px',
+                      right: '14px', 
                       background: 'transparent',
                       border: 'none',
                       outline: 'none'
@@ -196,8 +198,7 @@ const LoginDesign1 = () => {
                     <img 
                       src={showPassword ? '/img/EyeClosed.png' : '/img/Eye.png'}
                       alt={showPassword ? 'Hide password' : 'Show password'} 
-                      className="object-contain"
-                      style={{ width: '24px', height: '24px' }}
+                      className="object-contain w-5 h-5 sm:w-6 sm:h-6"
                     />
                   </button>
                 )}
@@ -208,16 +209,15 @@ const LoginDesign1 = () => {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   autoComplete="off"
-                  className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
+                  className="block w-full rounded-lg transition-all outline-none h-14 sm:h-16 lg:h-[60px] focus:ring-2 focus:ring-green-500/20"
                   style={{ 
                     fontFamily: 'Gilroy-Medium', 
                     fontWeight: 400, 
-                    fontSize: '16px', 
+                    fontSize: '15px', 
                     lineHeight: '100%', 
-                    textTransform: 'capitalize', 
-                    paddingLeft: '56px',
-                    paddingRight: password ? '56px' : '12px',
-                    border: `1px solid ${password ? '#1B1717' : 'rgba(27, 23, 23, 0.7)'}`
+                    paddingLeft: '60px',
+                    paddingRight: password ? '60px' : '16px',
+                    border: `1.5px solid ${password ? '#1B1717' : 'rgba(27, 23, 23, 0.5)'}`
                   }}
                   required
                 />
@@ -225,37 +225,36 @@ const LoginDesign1 = () => {
             </div>
 
             {/* Forgot Password Link */}
-            <div className="flex justify-end" style={{ marginTop: '28px', marginBottom: '38px' }}>
+            <div className="flex justify-end mt-7 mb-8 sm:mb-10 lg:mb-10">
               <button
                 type="button"
-                className="text-gray-600 hover:text-teal-600 transition-colors text-xs sm:text-sm md:text-sm lg:text-lg"
-                style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', textTransform: 'capitalize' }}
+                className="text-gray-600 hover:text-green-600 transition-colors"
+                style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '14px', lineHeight: '100%' }}
               >
                 Forgot Password?
               </button>
             </div>
 
             {/* Submit Button Container */}
-            <div className="sm:max-w-md md:max-w-[534px] sm:mx-auto">
+            <div className="w-full">
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white transition-opacity duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
+                className="w-full text-white transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 lg:h-[60px] font-semibold rounded-xl shadow-green-500/20"
                 style={{ 
-                  backgroundColor: '#039155', 
-                  borderRadius: '14px'
+                  backgroundColor: '#039155'
                 }}
               >
                 {loading ? (
-                  <span className="flex items-center text-sm sm:text-base md:text-base lg:text-lg">
-                    <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                       <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                       <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                     </svg>
-                    <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Loading...</span>
+                    <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '18px', lineHeight: '100%', color: 'white' }}>Loading...</span>
                   </span>
                 ) : (
-                  <span style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>
+                  <span style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '18px', lineHeight: '100%', color: 'white' }}>
                     Next
                   </span>
                 )}
