@@ -73,20 +73,7 @@ const LoginDesign1 = () => {
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
-      {/* Left Side - Visual Design with Static Image */}
-      {/* Mobile: Show background image at top */}
-      <div className="relative w-full h-64 sm:h-80 md:h-96 lg:hidden">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center bg-no-repeat"
-          style={{
-            backgroundImage: 'url(/img/background.jpg)'
-          }}
-        >
-          <div className="absolute inset-0 bg-green-900/20"></div>
-        </div>
-      </div>
-
-      {/* Desktop: Show side panel with background image */}
+      {/* Desktop: Show side panel with background image - Hidden on mobile */}
       <div 
         className="hidden lg:flex lg:flex-1 relative overflow-hidden"
         style={{
@@ -116,19 +103,19 @@ const LoginDesign1 = () => {
               <img 
                 src="/img/gmaxepay.png" 
                 alt="GMAXEPAY Logo" 
-                className="object-contain h-14 sm:h-16 md:h-20 lg:h-[60px]"
+                className="object-contain h-20 sm:h-24 md:h-28 lg:h-32"
               />
             </div>
             <h1 className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, lineHeight: '1.1' }}>
               Welcome Back!
             </h1>
-            <p className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '1.2', marginTop: '12px' }}>
+            <p className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, lineHeight: '1.2', marginTop: '18px' }}>
               Let's Get Your Business Growing Together
             </p>
           </div>
 
           {/* Login Form */}
-          <form onSubmit={handleSubmit} autoComplete="off" className="mt-6 sm:mt-8 md:mt-10 lg:mt-8">
+          <form onSubmit={handleSubmit} autoComplete="off" style={{ marginTop: '32px' }}>
             {/* Phone Number Field */}
             <div className="mb-6 sm:mb-7 lg:mb-7">
               <label htmlFor="phone" className="block text-gray-700 mb-3 sm:mb-3.5" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}>
