@@ -316,9 +316,20 @@ const LoginDesign1 = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full text-white transition-all duration-200 hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 md:h-20 lg:h-[60px] font-semibold rounded-xl shadow-green-500/20"
+                className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 md:h-20 lg:h-[60px] font-semibold rounded-xl"
                 style={{ 
-                  backgroundColor: '#039155'
+                  backgroundColor: company?.primaryColor || '#039155',
+                  boxShadow: '0 4px 14px 0 rgba(73, 181, 69, 0.2)'
+                }}
+                onMouseEnter={(e) => {
+                  if (!loading && company?.secondaryColor) {
+                    e.target.style.backgroundColor = company.secondaryColor;
+                  }
+                }}
+                onMouseLeave={(e) => {
+                  if (!loading && company?.primaryColor) {
+                    e.target.style.backgroundColor = company.primaryColor;
+                  }
                 }}
               >
                 {loading ? (

@@ -6,6 +6,7 @@ import { API_ROUTE } from '../../data/env';
 import { loginSuccess } from '../../redux/action/authAction';
 import { getLocationAndIP } from '../../util/getLocationAndIP';
 import { useNotification } from '../../context/NotificationContext';
+import { useCompany } from '../../context/CompanyContext';
 
 // Use URL paths for public assets
 const NumpadIcon = '/img/Numpad.png';
@@ -18,6 +19,7 @@ const LoginDesign2 = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
+  const { company } = useCompany();
 
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); // Only allow digits
@@ -205,8 +207,26 @@ const LoginDesign2 = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-gradient-to-r from-teal-600 to-green-600 hover:from-teal-700 hover:to-green-700 text-white font-semibold py-4 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02]"
-              style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
+              className="w-full text-white font-semibold py-4 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02]"
+              style={{ 
+                fontFamily: 'Gilroy-SemiBold', 
+                fontWeight: 400, 
+                fontSize: '24px', 
+                lineHeight: '100%', 
+                textTransform: 'capitalize',
+                background: company?.primaryColor ? `linear-gradient(to right, ${company.primaryColor}, ${company.primaryColor})` : 'linear-gradient(to right, #0d9488, #16a34a)',
+                boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)'
+              }}
+              onMouseEnter={(e) => {
+                if (!loading && company?.secondaryColor) {
+                  e.target.style.background = `linear-gradient(to right, ${company.secondaryColor}, ${company.secondaryColor})`;
+                }
+              }}
+              onMouseLeave={(e) => {
+                if (!loading && company?.primaryColor) {
+                  e.target.style.background = `linear-gradient(to right, ${company.primaryColor}, ${company.primaryColor})`;
+                }
+              }}
             >
               {loading ? (
                 <span className="flex items-center justify-center">
