@@ -13,19 +13,13 @@ const LoginDesign1 = () => {
   const [phoneNumber, setPhoneNumber] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [buttonAnimating, setButtonAnimating] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setButtonAnimating(true);
-    
-    // Trigger animation after a short delay to show the slide effect
-    setTimeout(() => {
-      setLoading(true);
-      setButtonAnimating(false);
-    }, 300);
+    setLoading(true);
     
     try {
       const response = await axios.post(`${API_ROUTE}/api/v1/auth/login`, {
@@ -61,7 +55,6 @@ const LoginDesign1 = () => {
       console.error('Login error:', error);
       alert(error.response?.data?.message || 'Login failed. Please try again.');
       setLoading(false);
-      setButtonAnimating(false);
     }
   };
 
@@ -123,7 +116,7 @@ const LoginDesign1 = () => {
                 Phone Number
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
                   <img 
                     src={PhoneIcon} 
                     alt="Phone" 
@@ -131,8 +124,8 @@ const LoginDesign1 = () => {
                     style={{ width: '24px', height: '24px' }}
                   />
                 </div>
-                <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none">
-                  <div className="h-8 bg-gray-400" style={{ width: '0.3px' }}></div>
+                <div className="absolute inset-y-0 flex items-center pointer-events-none" style={{ left: '48px', top: '18px', bottom: '18px' }}>
+                  <div className="h-full bg-gray-400" style={{ width: '0.3px' }}></div>
                 </div>
                 <input
                   id="phone"
@@ -140,8 +133,8 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Number"
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
-                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize' }}
+                  className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize', paddingLeft: '56px', border: '1px solid #1B1717' }}
                   required
                 />
               </div>
@@ -153,7 +146,7 @@ const LoginDesign1 = () => {
                 Password
               </label>
               <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <div className="absolute inset-y-0 left-0 flex items-center pointer-events-none" style={{ left: '12px' }}>
                   <img 
                     src={NumpadIcon} 
                     alt="Password" 
@@ -161,8 +154,8 @@ const LoginDesign1 = () => {
                     style={{ width: '24px', height: '24px' }}
                   />
                 </div>
-                <div className="absolute inset-y-0 left-10 flex items-center pointer-events-none">
-                  <div className="h-8 bg-gray-400" style={{ width: '0.3px' }}></div>
+                <div className="absolute inset-y-0 flex items-center pointer-events-none" style={{ left: '48px', top: '18px', bottom: '18px' }}>
+                  <div className="h-full bg-gray-400" style={{ width: '0.3px' }}></div>
                 </div>
                 <input
                   id="password"
@@ -170,8 +163,8 @@ const LoginDesign1 = () => {
                   placeholder="Enter Your Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-14 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-teal-500 transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
-                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize' }}
+                  className="block w-full pr-3 py-2 rounded-lg transition-all text-sm sm:text-base md:text-base lg:text-lg h-12 sm:h-14 md:h-16 lg:h-[60px] outline-none focus:ring-0"
+                  style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '16px', lineHeight: '100%', textTransform: 'capitalize', paddingLeft: '56px', border: '1px solid #1B1717' }}
                   required
                 />
               </div>
@@ -189,19 +182,17 @@ const LoginDesign1 = () => {
             </div>
 
             {/* Submit Button Container */}
-            <div className="overflow-hidden sm:max-w-md md:max-w-[534px] sm:mx-auto">
+            <div className="sm:max-w-md md:max-w-[534px] sm:mx-auto">
               <button
                 type="submit"
-                disabled={loading || buttonAnimating}
-                className="w-full text-white transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:bg-opacity-90 h-12 sm:h-14 md:h-16 lg:h-[60px]"
+                disabled={loading}
+                onMouseEnter={() => setIsHovered(true)}
+                onMouseLeave={() => setIsHovered(false)}
+                className="w-full text-white transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-14 md:h-16 lg:h-[60px]"
                 style={{ 
                   backgroundColor: '#039155', 
-                  borderRadius: '14px',
-                  transform: buttonAnimating ? 'translateX(100%)' : 'translateX(0)',
-                  transition: 'transform 0.3s ease-out'
+                  borderRadius: '14px'
                 }}
-                onMouseEnter={(e) => !loading && !buttonAnimating && (e.target.style.backgroundColor = '#027a4a')}
-                onMouseLeave={(e) => !loading && !buttonAnimating && (e.target.style.backgroundColor = '#039155')}
               >
                 {loading ? (
                   <span className="flex items-center text-sm sm:text-base md:text-base lg:text-lg">
@@ -212,7 +203,14 @@ const LoginDesign1 = () => {
                     <span style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Loading...</span>
                   </span>
                 ) : (
-                  <span className="text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>Next</span>
+                  <span className="flex items-center text-base sm:text-lg md:text-xl lg:text-2xl" style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', color: 'white' }}>
+                    Next
+                    {isHovered && (
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 ml-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                      </svg>
+                    )}
+                  </span>
                 )}
               </button>
             </div>
