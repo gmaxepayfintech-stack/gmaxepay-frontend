@@ -12,8 +12,8 @@ jobs:
 
     steps:
     - name: Notify Slack - Deployment Started
-      uses: 8398a7/action-slack@v3
       if: always()
+      uses: 8398a7/action-slack@v3
       with:
         status: custom
         custom_payload: |
@@ -123,8 +123,8 @@ jobs:
 
     steps:
     - name: Notify Slack - Deployment Started
-      uses: 8398a7/action-slack@v3
       if: always()
+      uses: 8398a7/action-slack@v3
       with:
         status: custom
         custom_payload: |
