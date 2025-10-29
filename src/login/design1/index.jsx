@@ -351,28 +351,9 @@ const LoginDesign1 = () => {
 
           {/* Contact Information */}
           <div style={{ marginTop: '28px' }}>
-            {/* Email */}
-            <div className="flex items-center justify-center gap-3">
-              <img 
-                src="/img/Chat.png" 
-                alt="Email" 
-                className="object-contain w-6 h-6"
-              />
-              <span 
-                style={{ 
-                  fontFamily: 'Gilroy-Medium', 
-                  fontWeight: 400, 
-                  fontSize: '18px', 
-                  lineHeight: '100%',
-                  color: '#1B1717'
-                }}
-              >
-                {company?.customerSupportEmail || 'support@gmaxepay.com'}
-              </span>
-            </div>
 
-            {/* Phone */}
-            <div 
+                        {/* Phone */}
+                        <div 
               className="flex items-center justify-center gap-3"
               style={{ marginTop: '12px' }}
             >
@@ -393,6 +374,26 @@ const LoginDesign1 = () => {
                 {company?.supportPhoneNumbers && Array.isArray(company.supportPhoneNumbers) && company.supportPhoneNumbers.length > 0
                   ? `91- ${company.supportPhoneNumbers.join(', ')}`
                   : '91- 08062179126, 8088651844'}
+              </span>
+            </div>
+
+            {/* Email */}
+            <div className="flex items-center justify-center gap-3">
+              <img 
+                src="/img/Chat.png" 
+                alt="Email" 
+                className="object-contain w-6 h-6"
+              />
+              <span 
+                style={{ 
+                  fontFamily: 'Gilroy-Medium', 
+                  fontWeight: 400, 
+                  fontSize: '18px', 
+                  lineHeight: '100%',
+                  color: '#1B1717'
+                }}
+              >
+                {company?.customerSupportEmail || 'support@gmaxepay.com'}
               </span>
             </div>
           </div>
