@@ -11,6 +11,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get Commit Info
+      id: commit-info
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Merge commit")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+        echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
     - name: Notify Slack - Deployment Started
       if: always()
       uses: 8398a7/action-slack@v3
@@ -26,19 +41,24 @@ jobs:
                 {"title": "Branch", "value": "`development`", "short": true},
                 {"title": "Commit", "value": "`${{ github.sha }}`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true},
-                {"title": "Commit Message", "value": "${{ github.event.head_commit.message }}", "short": false}
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Commit Message", "value": "${{ steps.commit-info.outputs.commit_message }}", "short": false}
               ]
             }]
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
     - name: Install Dependencies
       run: npm install
+
+    - name: Get Commit Info for Notifications
+      id: commit-info-notify
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
 
     - name: Inject Development Environment Variables
       env:
@@ -87,7 +107,7 @@ jobs:
               "fields": [
                 {"title": "Status", "value": "✅ Success", "short": true},
                 {"title": "Environment", "value": "Development (Vercel)", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info-notify.outputs.author_name }} <${{ steps.commit-info-notify.outputs.author_email }}>", "short": true},
                 {"title": "Live URL", "value": "https://gmaxepayfrontend.vercel.app", "short": false}
               ]
             }]
@@ -109,7 +129,7 @@ jobs:
                 {"title": "Status", "value": "❌ Failed", "short": true},
                 {"title": "Branch", "value": "`development`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info-notify.outputs.author_name }} <${{ steps.commit-info-notify.outputs.author_email }}>", "short": true},
                 {"title": "Action", "value": "Check GitHub Actions logs for details", "short": false}
               ]
             }]
@@ -122,6 +142,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get Commit Info
+      id: commit-info
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Merge commit")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+        echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
     - name: Notify Slack - Deployment Started
       if: always()
       uses: 8398a7/action-slack@v3
@@ -137,19 +172,24 @@ jobs:
                 {"title": "Branch", "value": "`main`", "short": true},
                 {"title": "Commit", "value": "`${{ github.sha }}`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true},
-                {"title": "Commit Message", "value": "${{ github.event.head_commit.message }}", "short": false}
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Commit Message", "value": "${{ steps.commit-info.outputs.commit_message }}", "short": false}
               ]
             }]
           }
       env:
         SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
 
-    - name: Checkout Code
-      uses: actions/checkout@v3
-
     - name: Install Dependencies
       run: npm install
+
+    - name: Get Commit Info for Notifications
+      id: commit-info-notify
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
 
     - name: Inject Production Environment Variables
       env:
@@ -196,7 +236,7 @@ jobs:
                 {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
                 {"title": "Branch", "value": "`main`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true}
+                {"title": "Author", "value": "${{ steps.commit-info-notify.outputs.author_name }} <${{ steps.commit-info-notify.outputs.author_email }}>", "short": true}
               ]
             }]
           }
@@ -218,7 +258,7 @@ jobs:
                 {"title": "Branch", "value": "`main`", "short": true},
                 {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ github.event.head_commit.author.name }} <${{ github.event.head_commit.author.email }}>", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info-notify.outputs.author_name }} <${{ steps.commit-info-notify.outputs.author_email }}>", "short": true},
                 {"title": "Action", "value": "Check GitHub Actions logs for details", "short": false}
               ]
             }]
