@@ -58,7 +58,7 @@ jobs:
         vercel pull --yes --environment=production --token=$VERCEL_TOKEN
         vercel build --prod --token=$VERCEL_TOKEN
         vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
-        echo "✅ Deployed Development to Production: gmaxepayfrontend.vercel.app"
+        echo "✅Deployed Development to Production: gmaxepayfrontend.vercel.app"
 
     - name: Clean Up Old Deployments
       continue-on-error: true
