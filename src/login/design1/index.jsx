@@ -362,7 +362,7 @@ const LoginDesign1 = () => {
                 style={{ 
                   fontFamily: 'Gilroy-Medium', 
                   fontWeight: 400, 
-                  fontSize: '14px', 
+                  fontSize: '18px', 
                   lineHeight: '100%',
                   color: '#1B1717'
                 }}
@@ -385,7 +385,7 @@ const LoginDesign1 = () => {
                 style={{ 
                   fontFamily: 'Gilroy-Medium', 
                   fontWeight: 400, 
-                  fontSize: '14px', 
+                  fontSize: '18px', 
                   lineHeight: '100%',
                   color: '#1B1717'
                 }}

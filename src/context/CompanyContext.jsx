@@ -41,7 +41,7 @@ export const CompanyProvider = ({ children }) => {
         try {
           const domain = window.location.hostname;
           const res = await axios.post(
-            `${API_ROUTE}/api/v1/company/getCompanyDetails?domain=${domain}`
+            `${API_ROUTE}/api/v1/company/companyDetails/get?domain=${domain}`
           );
           
           const companyData = res.data.data;
