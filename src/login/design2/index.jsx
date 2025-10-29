@@ -24,7 +24,7 @@ const LoginDesign2 = () => {
   const handlePhoneChange = (e) => {
     let value = e.target.value.replace(/\D/g, ''); 
     
-    // If user pastes or selects from autocomplete, take only the 
+    // If user pastes or selects from autocomplete, take
     if (value.length > 10) {
       value = value.slice(-10);
     }
