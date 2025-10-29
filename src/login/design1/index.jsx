@@ -183,7 +183,7 @@ const LoginDesign1 = () => {
               <img 
                 src={company?.logo || '/img/gmaxepay.png'} 
                 alt={company?.companyName || 'GMAXEPAY Logo'} 
-                className="object-contain h-20 sm:h-24 md:h-32 lg:h-32"
+                className="object-contain h-16 sm:h-20 md:h-24 lg:h-28"
                 loading="eager"
                 fetchpriority="high"
                 decoding="async"
@@ -305,7 +305,7 @@ const LoginDesign1 = () => {
               <button
                 type="button"
                 className="text-gray-600 hover:text-green-600 transition-colors"
-                style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '14px', lineHeight: '100%' }}
+                style={{ fontFamily: 'Gilroy-SemiBold', fontWeight: 400, fontSize: '16px', lineHeight: '100%' }}
               >
                 Forgot Password?
               </button>
@@ -348,6 +348,54 @@ const LoginDesign1 = () => {
               </button>
             </div>
           </form>
+
+          {/* Contact Information */}
+          <div style={{ marginTop: '28px' }}>
+            {/* Email */}
+            <div className="flex items-center justify-center gap-3">
+              <img 
+                src="/img/Chat.png" 
+                alt="Email" 
+                className="object-contain w-6 h-6"
+              />
+              <span 
+                style={{ 
+                  fontFamily: 'Gilroy-Medium', 
+                  fontWeight: 400, 
+                  fontSize: '14px', 
+                  lineHeight: '100%',
+                  color: '#1B1717'
+                }}
+              >
+                {company?.customerSupportEmail || 'support@gmaxepay.com'}
+              </span>
+            </div>
+
+            {/* Phone */}
+            <div 
+              className="flex items-center justify-center gap-3"
+              style={{ marginTop: '12px' }}
+            >
+              <img 
+                src="/img/PhoneOutgoing.png" 
+                alt="Phone" 
+                className="object-contain w-6 h-6"
+              />
+              <span 
+                style={{ 
+                  fontFamily: 'Gilroy-Medium', 
+                  fontWeight: 400, 
+                  fontSize: '14px', 
+                  lineHeight: '100%',
+                  color: '#1B1717'
+                }}
+              >
+                {company?.supportPhoneNumbers && Array.isArray(company.supportPhoneNumbers) && company.supportPhoneNumbers.length > 0
+                  ? `91- ${company.supportPhoneNumbers.join(', ')}`
+                  : '91- 08062179126, 8088651844'}
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
