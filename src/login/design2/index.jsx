@@ -22,7 +22,7 @@ const LoginDesign2 = () => {
   const { company } = useCompany();
 
   const handlePhoneChange = (e) => {
-    let value = e.target.value.replace(/\D/g, ''); // Only allow digits
+    let value = e.target.value.replace(/\D/g, ''); 
     
     // If user pastes or selects from autocomplete, take only the last 10 digits
     if (value.length > 10) {
