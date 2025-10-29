@@ -208,7 +208,8 @@ jobs:
                 {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
                 {"title": "Branch", "value": "`main`", "short": true},
                 {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
-                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true}
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Live URL", "value": "https://app.gmaxepay.com - running successfully ✅", "short": false}
               ]
             }]
           }
