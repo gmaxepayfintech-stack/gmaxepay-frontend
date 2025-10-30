@@ -31,6 +31,7 @@ import { restoreAuth } from './redux/action/authAction';
 import PaymentSuccess from './mainPage/paymentSuccess';
 import PaymentFailure from './mainPage/paymentFailure';
 import PaymentHandle from './mainPage/paymentHandle';
+import OnboardingById from './onboarding/[id]/index';
 
 function App() {
   const { showNotification } = useNotification();
@@ -252,6 +253,7 @@ function App() {
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/refundcancel' element={<RefundAndCancel />} />
         <Route path='/termscondition' element={<TermsCondition />} />
+        <Route path='/onboarding/:id' element={<OnboardingById />} />
         <Route path='/payment-handle' element={<PaymentHandle />} />
          <Route path='/payment-success' element={<PaymentSuccess />} />
           <Route path='/payment-failure' element={<PaymentFailure/>} />
