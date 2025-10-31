@@ -183,16 +183,16 @@ function OnboardingById() {
             <img 
               src={errorInfo.icon} 
               alt="Error" 
-              className="w-32 h-32 opacity-70"
+              className="w-48 h-48 opacity-70"
             />
           </div>
-          <h2 className={`text-2xl font-semibold mb-4 ${errorInfo.iconColor}`} style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <h2 className={`text-4xl font-semibold mt-6 mb-6 ${errorInfo.iconColor}`} style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.title}
           </h2>
-          <p className="text-gray-700 text-lg mb-3 font-medium" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <p className="text-gray-700 text-2xl mb-4 font-medium" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.message}
           </p>
-          <p className="text-gray-600 text-sm mb-8" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <p className="text-gray-600 text-lg mb-8" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.description}
           </p>
         </div>
