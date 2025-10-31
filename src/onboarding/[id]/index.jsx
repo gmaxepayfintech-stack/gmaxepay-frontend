@@ -178,21 +178,21 @@ function OnboardingById() {
 
     return (
       <div className="min-h-screen flex items-center justify-center px-4" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
-        <div className="w-full max-w-md text-center">
-        <div className="flex justify-center">
+        <div className="w-full max-w-4xl text-center">
+          <div className="flex justify-center">
             <img 
               src={errorInfo.icon} 
               alt="Error" 
               className="w-48 h-48 opacity-70"
             />
           </div>
-          <h2 className={`text-4xl font-semibold mt-6 mb-6 ${errorInfo.iconColor}`} style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <h2 className={`text-4xl font-semibold mt-6 mb-6 ${errorInfo.iconColor} break-words`} style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.title}
           </h2>
-          <p className="text-gray-700 text-2xl mb-4 font-medium" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <p className="text-gray-700 text-2xl mb-4 font-medium break-words" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.message}
           </p>
-          <p className="text-gray-600 text-lg mb-8" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+          <p className="text-gray-600 text-lg mb-8 break-words" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
             {errorInfo.description}
           </p>
         </div>
