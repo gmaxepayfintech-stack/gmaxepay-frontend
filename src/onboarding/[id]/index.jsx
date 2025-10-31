@@ -77,6 +77,20 @@ function OnboardingById() {
     }
   }, [onboardingState.currentStep, currentStep, dispatch]);
 
+  // Auto-refresh on error after 5 seconds
+  useEffect(() => {
+    if (onboardingState.error) {
+      const timer = setTimeout(() => {
+        const tokenFromQuery = searchParams.get('token');
+        const token = tokenFromQuery || id;
+        if (token) {
+          dispatch(fetchOnboarding(token));
+        }
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [onboardingState.error, id, searchParams, dispatch]);
+
   const next = () => {
     const newStep = Math.min(7, currentStep + 1);
     setCurrentStep(newStep);
@@ -128,24 +142,87 @@ function OnboardingById() {
     );
   }
 
+  // Function to determine error type and get appropriate message
+  const getErrorInfo = (errorMessage) => {
+    const error = errorMessage?.toLowerCase() || '';
+    
+    if (error.includes('access') || error.includes('permission') || error.includes('unauthorized')) {
+      return {
+        icon: '/img/pending-status.png',
+        title: 'Access Denied',
+        message: 'Sorry, you don\'t have access to this onboarding link.',
+        description: 'Please contact support or check if you have the correct permissions.',
+        bgColor: 'bg-red-50',
+        iconBg: 'bg-red-100',
+        iconColor: 'text-red-600'
+      };
+    }
+    
+    if (error.includes('expired') || error.includes('invalid') || error.includes('expire')) {
+      return {
+        icon: '/img/pending-status.png',
+        title: 'Link Expired',
+        message: 'This onboarding link has expired or is invalid.',
+        description: 'Please request a new onboarding link from your administrator.',
+        bgColor: 'bg-orange-50',
+        iconBg: 'bg-orange-100',
+        iconColor: 'text-orange-600'
+      };
+    }
+    
+    if (error.includes('not found') || error.includes('404')) {
+      return {
+        icon: '/img/pending-status.png',
+        title: 'Not Found',
+        message: 'The requested onboarding session could not be found.',
+        description: 'Please verify the link or contact support for assistance.',
+        bgColor: 'bg-gray-50',
+        iconBg: 'bg-gray-100',
+        iconColor: 'text-gray-600'
+      };
+    }
+    
+    // Default error
+    return {
+      icon: '/img/pending-status.png',
+      title: 'Something Went Wrong',
+      message: errorMessage || 'An error occurred while loading your onboarding data.',
+      description: 'Please refresh the page or contact support if the issue persists.',
+      bgColor: 'bg-red-50',
+      iconBg: 'bg-red-100',
+      iconColor: 'text-red-600'
+    };
+  };
+
   // Show error state
   if (onboardingState.error) {
+    const errorInfo = getErrorInfo(onboardingState.error);
+
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
-        <div className="text-center">
-          <div className="text-red-600 mb-4">⚠️</div>
-          <p className="text-gray-600 mb-4" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>{onboardingState.error}</p>
-          <button 
-            onClick={() => {
-              const tokenFromQuery = searchParams.get('token');
-              const token = tokenFromQuery || id;
-              if (token) dispatch(fetchOnboarding(token));
-            }}
-            className="bg-green-600 text-white px-4 py-2 rounded"
-            style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}
-          >
-            Retry
-          </button>
+      <div className="min-h-screen flex items-center justify-center px-4" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+        <div className={`w-full max-w-md ${errorInfo.bgColor} rounded-2xl p-8 shadow-lg`}>
+          <div className="text-center">
+            <div className={`w-20 h-20 ${errorInfo.iconBg} rounded-full flex items-center justify-center mx-auto mb-6`}>
+              <img 
+                src={errorInfo.icon} 
+                alt="Error" 
+                className={`w-12 h-12 ${errorInfo.iconColor === 'text-red-600' ? 'opacity-80' : errorInfo.iconColor === 'text-orange-600' ? 'opacity-80' : 'opacity-60'}`}
+              />
+            </div>
+            <h2 className={`text-2xl font-semibold mb-3 ${errorInfo.iconColor}`} style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+              {errorInfo.title}
+            </h2>
+            <p className="text-gray-700 text-lg mb-2 font-medium" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+              {errorInfo.message}
+            </p>
+            <p className="text-gray-600 text-sm mb-6" style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>
+              {errorInfo.description}
+            </p>
+            <div className="flex items-center justify-center gap-2 text-gray-500 text-xs">
+              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-gray-400"></div>
+              <span style={{ fontFamily: 'Gilroy-Medium, sans-serif' }}>Attempting to refresh automatically...</span>
+            </div>
+          </div>
         </div>
       </div>
     );
