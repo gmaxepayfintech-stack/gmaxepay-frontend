@@ -49,6 +49,57 @@ jobs:
                 {"title": "Commit Message", "value": "${{ steps.commit-info.outputs.commit_message }}", "short": false}
               ]
             }]
+          }name: Deploy to Environments (Bot Token Method)
+on:
+  push:
+    branches:
+      - development  
+      - main       
+
+jobs:
+  deploy-development:
+    if: github.ref == 'refs/heads/development'
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get Commit Info
+      id: commit-info
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Merge commit")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+        echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
+    - name: Notify Slack - Deployment Started
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🚀 Development  Deployment Started",
+            "attachments": [{
+              "color": "good",
+              "fields": [
+                {"title": "Repository", "value": "${{ github.repository }}", "short": true},
+                {"title": "Branch", "value": "`development`", "short": true},
+                {"title": "Commit", "value": "`${{ github.sha }}`", "short": true},
+                {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Commit Message", "value": "${{ steps.commit-info.outputs.commit_message }}", "short": false}
+              ]
+            }]
           }
 
     - name: Install Dependencies
@@ -178,6 +229,192 @@ jobs:
       run: |
         echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.production
         echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.production
+
+    - name: Build Vite React App
+      run: npm run build -- --mode production
+
+    - name: Sync to S3
+      run: |
+        aws s3 sync ./dist s3://${{ secrets.S3_BUCKET_NAME }} --delete --region ${{ secrets.AWS_REGION }}
+
+    - name: Invalidate CloudFront Cache
+      continue-on-error: true
+      run: |
+        aws cloudfront create-invalidation \
+          --distribution-id ${{ secrets.CLOUDFRONT_DISTRIBUTION_ID }} \
+          --paths "/*"
+
+    - name: Notify Slack - Deployment Success
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        custom_payload: |
+          {
+            "text": "✅ Production Deployment Successful",
+            "attachments": [{
+              "color": "good",
+              "fields": [
+                {"title": "Status", "value": "✅ Success", "short": true},
+                {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
+                {"title": "Branch", "value": "`main`", "short": true},
+                {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Live URL", "value": "https://app.gmaxepay.com - running successfully ✅", "short": false}
+              ]
+            }]
+          }
+
+    - name: Notify Slack - Deployment Failed
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        custom_payload: |
+          {
+            "text": "❌ Production Deployment Failed",
+            "attachments": [{
+              "color": "danger",
+              "fields": [
+                {"title": "Status", "value": "❌ Failed", "short": true},
+                {"title": "Branch", "value": "`main`", "short": true},
+                {"title": "Environment", "value": "Production (S3 + CloudFront)", "short": true},
+                {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Action", "value": "Check GitHub Actions logs for details", "short": false}
+              ]
+            }]
+          }
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Inject Development Environment Variables
+      env:
+        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
+        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
+      run: |
+        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
+        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
+
+    - name: Deploy to Vercel Production
+      env:
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        npm install -g vercel
+        vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+        vercel build --prod --token=$VERCEL_TOKEN
+        vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+        echo "✅Deployed Development to Production: gmaxepayfrontend.vercel.app"
+
+    - name: Clean Up Old Deployments
+      continue-on-error: true
+      run: |
+        vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
+        tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
+          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
+            echo "Deleting old deployment: $deployment_url"
+            vercel rm $deployment_url --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --yes || echo "Failed to delete $deployment_url"
+          fi
+        done
+
+    - name: Notify Slack - Deployment Success
+      if: success()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: success
+        custom_payload: |
+          {
+            "text": "✅ Development Deployment Successful",
+            "attachments": [{
+              "color": "good",
+              "fields": [
+                {"title": "Status", "value": "✅ Success", "short": true},
+                {"title": "Environment", "value": "Development (Vercel)", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Live URL", "value": "https://gmaxepayfrontend.vercel.app", "short": false}
+              ]
+            }]
+          }
+
+    - name: Notify Slack - Deployment Failed
+      if: failure()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: failure
+        custom_payload: |
+          {
+            "text": "❌ Development Deployment Failed",
+            "attachments": [{
+              "color": "danger",
+              "fields": [
+                {"title": "Status", "value": "❌ Failed", "short": true},
+                {"title": "Branch", "value": "`development`", "short": true},
+                {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Action", "value": "Check GitHub Actions logs for details", "short": false}
+              ]
+            }]
+          }
+
+  deploy-production:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      AWS_REGION: ${{ secrets.AWS_REGION }}
+      SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Get Commit Info
+      id: commit-info
+      run: |
+        COMMIT_AUTHOR_NAME=$(git log -1 --pretty=format:'%an' 2>/dev/null || echo "${{ github.actor }}")
+        COMMIT_AUTHOR_EMAIL=$(git log -1 --pretty=format:'%ae' 2>/dev/null || echo "N/A")
+        COMMIT_MESSAGE=$(git log -1 --pretty=format:'%s' 2>/dev/null || echo "Merge commit")
+        echo "author_name=$COMMIT_AUTHOR_NAME" >> $GITHUB_OUTPUT
+        echo "author_email=$COMMIT_AUTHOR_EMAIL" >> $GITHUB_OUTPUT
+        echo "commit_message=$COMMIT_MESSAGE" >> $GITHUB_OUTPUT
+
+    - name: Notify Slack - Deployment Started
+      if: always()
+      uses: 8398a7/action-slack@v3
+      with:
+        status: custom
+        custom_payload: |
+          {
+            "text": "🚀 Production Deployment Started",
+            "attachments": [{
+              "color": "warning",
+              "fields": [
+                {"title": "Repository", "value": "${{ github.repository }}", "short": true},
+                {"title": "Branch", "value": "`main`", "short": true},
+                {"title": "Commit", "value": "`${{ github.sha }}`", "short": true},
+                {"title": "Triggered by", "value": "${{ github.actor }}", "short": true},
+                {"title": "Author", "value": "${{ steps.commit-info.outputs.author_name }} <${{ steps.commit-info.outputs.author_email }}>", "short": true},
+                {"title": "Commit Message", "value": "${{ steps.commit-info.outputs.commit_message }}", "short": false}
+              ]
+            }]
+          }
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Inject Production Environment Variables
+      env:
+        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_REACT_APP_API_ROUTE }}
+        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
+        VITE_ALLOWED_ONBOARDING_DOMAIN: ${{ secrets.VITE_ALLOWED_ONBOARDING_DOMAIN }}
+      run: |
+        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.production
+        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.production
+        echo "VITE_ALLOWED_ONBOARDING_DOMAIN=${VITE_ALLOWED_ONBOARDING_DOMAIN}" >> .env.production
 
     - name: Build Vite React App
       run: npm run build -- --mode production

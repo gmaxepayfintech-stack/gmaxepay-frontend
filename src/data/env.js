@@ -1,4 +1,5 @@
 export const API_ROUTE = import.meta.env.VITE_REACT_APP_API_ROUTE;
+export const ALLOWED_ONBOARDING_DOMAIN = import.meta.env.VITE_ALLOWED_ONBOARDING_DOMAIN || 'app.gmaxepay.in';
 
 // export const APP_ROUTE = import.meta.env.VITE_REACT_APP_ROUTE;
 

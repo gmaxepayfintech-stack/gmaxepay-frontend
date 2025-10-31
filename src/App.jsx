@@ -23,6 +23,7 @@ import TermsCondition from './mainPage/termsCondition';
 import NotFound from './pages/notFound';
 import ProtectedAuthRoute from './ProtectedAuthRoute';
 import ProtectedRoute from './ProtectedRoute';
+import ProtectedOnboardingRoute from './ProtectedOnboardingRoute';
 import Loader from './widgets/layout/loader';
 import HeadUpdater from './components/HeadUpdater';
 import { useCompany } from './context/CompanyContext';
@@ -253,7 +254,14 @@ function App() {
         <Route path='/privacy' element={<PrivacyPolicy />} />
         <Route path='/refundcancel' element={<RefundAndCancel />} />
         <Route path='/termscondition' element={<TermsCondition />} />
-        <Route path='/onboarding/:id' element={<OnboardingById />} />
+        <Route 
+          path='/onboarding/:id' 
+          element={
+            <ProtectedOnboardingRoute>
+              <OnboardingById />
+            </ProtectedOnboardingRoute>
+          } 
+        />
         <Route path='/payment-handle' element={<PaymentHandle />} />
          <Route path='/payment-success' element={<PaymentSuccess />} />
           <Route path='/payment-failure' element={<PaymentFailure/>} />
