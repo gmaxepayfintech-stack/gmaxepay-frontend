@@ -36,7 +36,8 @@ const authReducer = (state = initialState, action) => {
         }
         return state;
       } catch (error) {
-        // If there's an error parsing, clear localStorage and return state
+          console.log(error);
+          
         localStorage.removeItem('auth');
         return state;
       }

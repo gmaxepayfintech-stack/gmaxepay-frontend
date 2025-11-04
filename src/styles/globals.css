@@ -96,3 +96,19 @@ code {
   opacity: 1;
 }
 
+/* Loading animation */
+@keyframes slide-circle {
+  0% {
+    left: 0;
+    transform: translateX(-100%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-circle {
+  animation: slide-circle 1.5s ease-in-out infinite;
+}
+

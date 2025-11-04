@@ -6,9 +6,9 @@ export default defineConfig({
   plugins: [
     react(),
     compression({
-      algorithm: 'brotliCompress', // You can also use 'brotliCompress'
-      ext: '.br', // File extension for the compressed files
-      deleteOriginalAssets: false // Set to true if you want to delete the original files
+      algorithm: 'brotliCompress', 
+      ext: '.br', 
+      deleteOriginalAssets: false 
     })
   ],
   resolve: {
