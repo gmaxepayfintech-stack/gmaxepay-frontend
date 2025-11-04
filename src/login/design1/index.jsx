@@ -65,7 +65,6 @@ const LoginDesign1 = () => {
         return;
       }
 
-      // default role-based redirect
       const rolePaths = {
         1: "/dashboard/home",
         2: "/adminDashBoard/home",
