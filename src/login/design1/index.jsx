@@ -5,7 +5,7 @@ import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
-import Yup from "yup";
+import * as Yup from "yup";
 import { loginStatus } from "../../redux/action/loginAction";
 
 const NumpadIcon = "/img/Numpad1.png";
