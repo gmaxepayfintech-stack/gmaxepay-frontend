@@ -3,17 +3,19 @@ import Baground2 from "../../public/img/Baground2.png";
 import Baground1 from "../../public/img/background.jpg";
 import { useCompany } from "../context/CompanyContext";
 import { useLocation } from "react-router-dom";
+import { verificationStatus } from "../redux/action/loginAction";
+import { useDispatch, useSelector } from "react-redux";
 
 const OtpVerify = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
-  const [timer, setTimer] = useState(30);
+  const [timer, setTimer] = useState(180);
   const [currentIndex, setCurrentIndex] = useState(0);
   const location = useLocation();
   const mobileNo =
     location.state?.mobileNo || localStorage.getItem("otpMobile") || "";
   const inputRefs = useRef([]);
   const { company } = useCompany();
-
+  const dispatch = useDispatch();
   const images = company?.sliderImages?.length
     ? company.sliderImages.map((img) => img.image)
     : [Baground1, Baground2];
@@ -49,8 +51,36 @@ const OtpVerify = () => {
 
   const handleSubmit = () => {
     const finalOtp = otp.join("");
+    console.log("otpppppppppp");
+
+    if (finalOtp.length !== 6) {
+      alert("Please enter a valid 6-digit OTP");
+      return;
+    }
+
     console.log("OTP Submitted:", finalOtp);
+
+    dispatch(
+      verificationStatus({
+        otp: finalOtp,
+      })
+    );
   };
+  const formatTimer = (t) => {
+    const minutes = Math.floor(t / 60);
+    const seconds = t % 60;
+
+    if (t > 60) {
+      return `${minutes}m ${seconds}s`;
+    }
+    return `${seconds}s`;
+  };
+
+  const verificationResponse = useSelector((state) => state?.loginReducer);
+
+  useEffect(() => {
+    console.log("verification response", verificationResponse);
+  }, [verificationResponse]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
@@ -118,7 +148,7 @@ const OtpVerify = () => {
               timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
             }`}
           >
-            {timer === 0 ? "Resend Now" : `Resend in 0${timer}s`}
+            {timer === 0 ? "Resend Now" : `Resend in ${formatTimer(timer)}`}
           </button>
 
           <button

@@ -1,6 +1,7 @@
-import { LOGIN_SUCCESS } from "../actionType/loginActionType";
-
-import { VERIFICATION_OTP_SUCCESS } from "../actionType/loginActionType";
+import {
+  LOGIN_SUCCESS,
+  VERIFICATION_OTP_SUCCESS,
+} from "../actionType/loginActionType";
 
 const initialState = {
   loading: false,
