@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import Baground2 from "../../public/img/Baground2.png";
 import Baground1 from "../../public/img/background.jpg";
 import { useCompany } from "../context/CompanyContext";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { verificationStatus } from "../redux/action/loginAction";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -10,16 +10,21 @@ const OtpVerify = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
   const [timer, setTimer] = useState(180);
   const [currentIndex, setCurrentIndex] = useState(0);
+
   const location = useLocation();
+  const navigate = useNavigate();
   const mobileNo =
     location.state?.mobileNo || localStorage.getItem("otpMobile") || "";
+
   const inputRefs = useRef([]);
   const { company } = useCompany();
   const dispatch = useDispatch();
+
   const images = company?.sliderImages?.length
     ? company.sliderImages.map((img) => img.image)
     : [Baground1, Baground2];
 
+  // Image Slider
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -27,6 +32,7 @@ const OtpVerify = () => {
     return () => clearInterval(interval);
   }, [images.length]);
 
+  // Timer Countdown
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
@@ -51,7 +57,6 @@ const OtpVerify = () => {
 
   const handleSubmit = () => {
     const finalOtp = otp.join("");
-    console.log("otpppppppppp");
 
     if (finalOtp.length !== 6) {
       alert("Please enter a valid 6-digit OTP");
@@ -66,6 +71,7 @@ const OtpVerify = () => {
       })
     );
   };
+
   const formatTimer = (t) => {
     const minutes = Math.floor(t / 60);
     const seconds = t % 60;
@@ -76,11 +82,25 @@ const OtpVerify = () => {
     return `${seconds}s`;
   };
 
-  const verificationResponse = useSelector((state) => state?.loginReducer);
+  const verificationResponse = useSelector(
+    (state) => state?.login?.verificationcode?.data
+  );
+
+  const verificationStatusdata = useSelector(
+    (state) => state?.login?.verificationcode?.status
+  );
 
   useEffect(() => {
     console.log("verification response", verificationResponse);
   }, [verificationResponse]);
+
+  useEffect(() => {
+    if (verificationStatusdata === "SUCCESS") {
+      navigate("/require/2fa", {
+        state: { mobileNo },
+      });
+    }
+  }, [verificationStatusdata, navigate, mobileNo]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
@@ -109,7 +129,7 @@ const OtpVerify = () => {
             />
           </div>
 
-          <h1 className="text-1B1717 text-[36px]  font-semibold text-center mb-4">
+          <h1 className="text-1B1717 text-[36px] font-semibold text-center mb-4">
             Enter Verification Code
           </h1>
           <p className="text-1B1717 opacity-70 text-center text-[24px] mb-4">
@@ -128,7 +148,7 @@ const OtpVerify = () => {
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-[50px] h-[50px] gap-4  border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
+                className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
                 style={{
                   border: digit
                     ? "1.5px solid #1B1717"

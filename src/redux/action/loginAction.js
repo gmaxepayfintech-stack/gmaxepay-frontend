@@ -12,6 +12,7 @@ import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 const commonError = "Something went wrong!";
 
 const authToken = secureLocalStorage.getItem("userToken");
+
 export const loginStatus = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
@@ -21,15 +22,12 @@ export const loginStatus = (credentials) => async (dispatch) => {
       credentials
     );
     const data = response?.data;
-    console.log("ressssssssss", data);
-
+    const token = response?.data?.data?.token;
     const { status, loginResponse } = response?.data ?? {};
-
     if (status === "SUCCESS") {
-      if (data?.token) {
-        secureLocalStorage.setItem("userToken", data.token);
+      if (token) {
+        secureLocalStorage.setItem("userToken", token);
       }
-
       dispatch({
         type: LOGIN_SUCCESS,
         payload: data,
@@ -62,7 +60,7 @@ export const verificationStatus = (credentials) => async (dispatch) => {
       {
         headers: {
           "Content-Type": "application/json",
-          "token": ` ${authToken}`,
+          token: `${authToken}`,
         },
       }
     );
