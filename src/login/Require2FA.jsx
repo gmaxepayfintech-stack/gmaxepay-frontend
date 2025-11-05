@@ -1,36 +1,83 @@
-import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useSelector } from 'react-redux';
+import React, { useEffect, useState } from "react";
+import Baground2 from "../../public/img/Baground2.png";
+import Baground1 from "../../public/img/background.jpg";
+import { useCompany } from "../context/CompanyContext";
+import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const Require2FA = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const { company } = useCompany();
   const navigate = useNavigate();
-  const loginData = useSelector((state) => state?.login?.loginResponse?.data || state?.login?.data);
+
+  const qrdata = useSelector(
+    (state) => state?.login?.verificationcode?.data?.qrCode
+  );
+
+  const images = company?.sliderImages?.length
+    ? company.sliderImages.map((img) => img.image)
+    : [Baground1, Baground2];
+
+  useEffect(() => {
+    const interval = setInterval(
+      () => setCurrentIndex((prev) => (prev + 1) % images.length),
+      4000
+    );
+    return () => clearInterval(interval);
+  }, [images.length]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-lg shadow p-6">
-        <h2 className="text-2xl font-semibold mb-4">Two-Factor Authentication Required</h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Your account requires additional verification. Follow the steps provided to complete 2FA.
-        </p>
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
+      {/* LEFT IMAGE SLIDER */}
+      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+        {images.map((src, index) => (
+          <img
+            key={index}
+            src={src}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ${
+              index === currentIndex ? "opacity-100" : "opacity-0"
+            }`}
+          />
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
+      </div>
 
-        {/* Placeholder UI - implement your 2FA flow here */}
-        <div className="mb-4">
-          <p className="text-sm text-gray-700">Check your authenticator app or SMS for a code.</p>
-        </div>
+      {/* RIGHT SIDE UI */}
+      <div className="flex-1 flex items-center justify-center bg-white px-6 sm:px-10 md:px-16 py-10">
+        <div className="w-full max-w-sm text-center">
+          <h1 className="text-[28px] font-semibold mb-6 text-[#1B1717]">
+            2-Factor Authentication
+          </h1>
 
-        <div className="flex gap-2 justify-end">
+          {/* ✅ QR Image Section */}
+          <div className="flex justify-center mb-4">
+            {qrdata ? (
+              <img
+                src={qrdata}
+                alt="QR Code"
+                className="w-[180px] h-[180px] object-contain"
+              />
+            ) : (
+              <div className="w-[180px] h-[180px] bg-gray-200 flex items-center justify-center rounded-lg text-gray-600">
+                QR Not Generated
+              </div>
+            )}
+          </div>
+
+          <p className="text-lg text-gray-700 mb-8">
+            {qrdata ? "Scan Here" : "Waiting for QR Code..."}
+          </p>
+
+          {/* ✅ NEXT BUTTON stays enabled only if qrdata exists */}
           <button
-            onClick={() => navigate('/auth/login')}
-            className="px-4 py-2 rounded bg-gray-200"
+            disabled={!qrdata}
+            onClick={() => navigate("/dashboard/home")}
+            className={`w-full h-12 rounded-lg text-white text-lg font-medium ${
+              !qrdata ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+            style={{ backgroundColor: company?.primaryColor || "#039155" }}
           >
-            Back to Login
-          </button>
-          <button
-            onClick={() => navigate('/dashboard/home')}
-            className="px-4 py-2 rounded bg-green-600 text-white"
-          >
-            I've Completed 2FA
+            Next
           </button>
         </div>
       </div>
