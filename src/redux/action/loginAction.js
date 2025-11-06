@@ -5,13 +5,13 @@ import {
   LOGIN_FAILURE,
   VERIFICATION_OTP_SUCCESS,
   VERIFICATION_OTP_FAILURE,
+  TWOFACTOR_AUTH_SUCCESS,
+  TWOFACTOR_AUTH_FAILURE,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
-
-const authToken = secureLocalStorage.getItem("userToken");
 
 export const loginStatus = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
@@ -21,13 +21,16 @@ export const loginStatus = (credentials) => async (dispatch) => {
       `${API_ROUTE}/api/v1/auth/login`,
       credentials
     );
+
     const data = response?.data;
-    const token = response?.data?.data?.token;
-    const { status, loginResponse } = response?.data ?? {};
+    const token = data?.data?.token;
+    const { status, loginResponse } = data ?? {};
+
     if (status === "SUCCESS") {
       if (token) {
         secureLocalStorage.setItem("userToken", token);
       }
+
       dispatch({
         type: LOGIN_SUCCESS,
         payload: data,
@@ -37,13 +40,13 @@ export const loginStatus = (credentials) => async (dispatch) => {
     } else {
       dispatch({
         type: LOGIN_FAILURE,
-        payload: response?.data?.message ?? commonError,
+        payload: data?.message ?? commonError,
       });
     }
   } catch (error) {
     dispatch({
       type: LOGIN_FAILURE,
-      payload: error.response ? error.response.data.message : error.message,
+      payload: error?.response?.data?.message ?? error.message,
     });
   } finally {
     dispatch({ type: LOADING_END });
@@ -52,6 +55,8 @@ export const loginStatus = (credentials) => async (dispatch) => {
 
 export const verificationStatus = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("userToken");
 
   try {
     const response = await axios.post(
@@ -66,13 +71,11 @@ export const verificationStatus = (credentials) => async (dispatch) => {
     );
 
     const data = response?.data;
-    console.log("verification data", data);
-
     const { status, verificationcode } = data ?? {};
 
     if (status === "SUCCESS") {
       if (data?.token) {
-        secureLocalStorage.setItem("userToken", data.token);
+        secureLocalStorage.setItem("userToken", data.token); // ✅ store new token if returned
       }
 
       dispatch({
@@ -90,7 +93,56 @@ export const verificationStatus = (credentials) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: VERIFICATION_OTP_FAILURE,
-      payload: error.response ? error.response.data.message : error.message,
+      payload: error?.response?.data?.message ?? error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const authOtp = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("userToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/handle-2fa`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    console.log("data",data);
+    
+    const { status, twoFactorAuth } = data ?? {};
+
+    if (status === "SUCCESS") {
+      if (data?.token) {
+        secureLocalStorage.setItem("userToken", data.token);
+      }
+
+      dispatch({
+        type: TWOFACTOR_AUTH_SUCCESS,
+        payload: data,
+        twoFactorAuth,
+        status,
+      });
+    } else {
+      dispatch({
+        type: TWOFACTOR_AUTH_FAILURE,
+        payload: data?.message ?? commonError,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: TWOFACTOR_AUTH_FAILURE,
+      payload: error?.response?.data?.message ?? error.message,
     });
   } finally {
     dispatch({ type: LOADING_END });

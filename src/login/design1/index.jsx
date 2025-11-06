@@ -49,7 +49,7 @@ const LoginDesign1 = () => {
         data?.loginResponse?.data || data?.data || OtpVerify || {};
       const requiresOtp = !!loginData?.requiresOtpVerify;
       const requires2FA = !!loginData?.requires2FA;
-      console.log("ssss", loginData, requiresOtp, requires2FA);
+      // console.log("ssss", loginData, requiresOtp, requires2FA);
 
       if (requiresOtp) {
         navigate("/auth/otpverify", {

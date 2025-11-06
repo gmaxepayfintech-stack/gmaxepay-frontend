@@ -89,7 +89,6 @@ function App() {
   );
   const logoutMessage = useSelector((state) => state?.auth?.success || null);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  
 
   useEffect(() => {
     dispatch(restoreAuth());
@@ -113,7 +112,7 @@ function App() {
     }
   }, [AdminShoppingSucess]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (LoginSuccess) {
       showNotification({
         type: "success",
@@ -304,6 +303,7 @@ function App() {
         <Route path="/termscondition" element={<TermsCondition />} />
         <Route path="/auth/otpverify" element={<OtpVerify />} />
         <Route path="/require/2fa" element={<Require2FA />} />
+
         <Route
           path="/onboarding/:id"
           element={

@@ -24,7 +24,7 @@ const OtpVerify = () => {
     ? company.sliderImages.map((img) => img.image)
     : [Baground1, Baground2];
 
-  // Image Slider
+  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -63,7 +63,7 @@ const OtpVerify = () => {
       return;
     }
 
-    console.log("OTP Submitted:", finalOtp);
+    // console.log("OTP Submitted:", finalOtp);
 
     dispatch(
       verificationStatus({
@@ -97,10 +97,10 @@ const OtpVerify = () => {
   useEffect(() => {
     if (verificationStatusdata === "SUCCESS") {
       navigate("/require/2fa", {
-        state: { mobileNo },
+        state: verificationResponse, 
       });
     }
-  }, [verificationStatusdata, navigate, mobileNo]);
+  }, [verificationResponse, navigate, mobileNo]);
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
