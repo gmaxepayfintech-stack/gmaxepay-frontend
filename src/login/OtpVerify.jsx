@@ -5,10 +5,11 @@ import { useCompany } from "../context/CompanyContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verificationStatus } from "../redux/action/loginAction";
 import { useDispatch, useSelector } from "react-redux";
+import { rescendOtp } from "../redux/action/loginAction";
 
 const OtpVerify = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));
-  const [timer, setTimer] = useState(180);
+  const [timer, setTimer] = useState(10);
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const location = useLocation();
@@ -24,7 +25,6 @@ const OtpVerify = () => {
     ? company.sliderImages.map((img) => img.image)
     : [Baground1, Baground2];
 
-  
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentIndex((prev) => (prev + 1) % images.length);
@@ -97,7 +97,7 @@ const OtpVerify = () => {
   useEffect(() => {
     if (verificationStatusdata === "SUCCESS") {
       navigate("/require/2fa", {
-        state: verificationResponse, 
+        state: verificationResponse,
       });
     }
   }, [verificationResponse, navigate, mobileNo]);
@@ -163,7 +163,11 @@ const OtpVerify = () => {
           </p>
           <button
             disabled={timer !== 0}
-            onClick={() => setTimer(30)}
+            onClick={() => {
+              dispatch(rescendOtp());
+              setTimer(10);
+              setOtp(Array(6).fill(""));
+            }}
             className={`text-sm font-semibold w-full text-center text-[18px] mt-6 ${
               timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
             }`}

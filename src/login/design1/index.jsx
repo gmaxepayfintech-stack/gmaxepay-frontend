@@ -362,7 +362,7 @@ const LoginDesign1 = () => {
                 <div className="flex justify-end mt-6 mb-6 sm:mb-7 md:mb-6 lg:mb-10">
                   <button
                     type="button"
-                    onClick={() => setShowForgot(true)}
+                    // onClick={() => setShowForgot(true)}
                     className="text-1B1717 hover:text-1B1717 transition-colors"
                     style={{
                       fontFamily: "Gilroy-SemiBold",
