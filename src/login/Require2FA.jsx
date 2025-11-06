@@ -2,17 +2,16 @@ import React, { useEffect, useState } from "react";
 import Baground2 from "../../public/img/Baground2.png";
 import Baground1 from "../../public/img/background.jpg";
 import { useCompany } from "../context/CompanyContext";
-import { useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import Auth2Factor from "./Auth2Factor";
 
 const Require2FA = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [showAuth2FA, setShowAuth2FA] = useState(false); // ✅ Toggle screen
   const { company } = useCompany();
-  const navigate = useNavigate();
+  const { state } = useLocation();
 
-  const qrdata = useSelector(
-    (state) => state?.login?.verificationcode?.data?.qrCode
-  );
+  const qrdata = state?.qrCode;
 
   const images = company?.sliderImages?.length
     ? company.sliderImages.map((img) => img.image)
@@ -25,6 +24,9 @@ const Require2FA = () => {
     );
     return () => clearInterval(interval);
   }, [images.length]);
+
+  // ✅ If user clicked Next, show Auth2Factor instead of current UI
+  if (showAuth2FA) return <Auth2Factor />;
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
@@ -49,7 +51,6 @@ const Require2FA = () => {
             2-Factor Authentication
           </h1>
 
-          {/* ✅ QR Image Section */}
           <div className="flex justify-center mb-4">
             {qrdata ? (
               <img
@@ -64,14 +65,13 @@ const Require2FA = () => {
             )}
           </div>
 
-          <p className="text-lg text-gray-700 mb-8">
+          <p className="text-lg text-1B1717 font-medium mb-8">
             {qrdata ? "Scan Here" : "Waiting for QR Code..."}
           </p>
 
-          {/* ✅ NEXT BUTTON stays enabled only if qrdata exists */}
           <button
             disabled={!qrdata}
-            onClick={() => navigate("/dashboard/home")}
+            onClick={() => setShowAuth2FA(true)} // ✅ No navigation!
             className={`w-full h-12 rounded-lg text-white text-lg font-medium ${
               !qrdata ? "opacity-50 cursor-not-allowed" : ""
             }`}

@@ -1,6 +1,7 @@
 import {
   LOGIN_SUCCESS,
   VERIFICATION_OTP_SUCCESS,
+  TWOFACTOR_AUTH_SUCCESS
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -9,6 +10,7 @@ const initialState = {
   loginResponse: null,
   Success: null,
   verificationcode: null,
+  twoFactorAuth:null,
   currentStep: 1,
 };
 
@@ -31,6 +33,15 @@ const loginReducer = (state = initialState, action) => {
         Success: action.payload,
         error: null,
       };
+    
+    case TWOFACTOR_AUTH_SUCCESS:
+      return{
+        ...state,
+        loading:true,
+        twoFactorAuth: action.payload,
+        Success: action.payload,
+        error:null,
+      }
 
     default:
       return state;

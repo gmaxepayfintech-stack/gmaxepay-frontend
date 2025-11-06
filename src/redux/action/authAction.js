@@ -1,10 +1,11 @@
 import { LOGIN_SUCCESS, LOGOUT, RESTORE_AUTH } from '../actionType/authActionType';
 
-export const loginSuccess = (user) => ({
-  type: LOGIN_SUCCESS,
-  payload: user,
-});
-
+export const loginSuccess = (user) => {
+  return {
+    type: LOGIN_SUCCESS,
+    payload: user,
+  };
+};
 export const logout = () => ({
   type: LOGOUT,
 });
