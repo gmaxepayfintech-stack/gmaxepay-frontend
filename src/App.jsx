@@ -33,8 +33,6 @@ import PaymentSuccess from "./mainPage/paymentSuccess";
 import PaymentFailure from "./mainPage/paymentFailure";
 import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
-import OtpVerify from "./login/OtpVerify";
-import Require2FA from "./login/Require2FA";
 
 function App() {
   const { showNotification } = useNotification();
@@ -301,8 +299,6 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/refundcancel" element={<RefundAndCancel />} />
         <Route path="/termscondition" element={<TermsCondition />} />
-        <Route path="/auth/otpverify" element={<OtpVerify />} />
-        <Route path="/require/2fa" element={<Require2FA />} />
 
         <Route
           path="/onboarding/:id"

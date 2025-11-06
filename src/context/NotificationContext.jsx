@@ -15,7 +15,14 @@ export const NotificationProvider = ({ children }) => {
 
   // Define removeNotification first
   const removeNotification = useCallback((id) => {
-    setNotifications((prev) => prev.filter((n) => n.id !== id));
+    setNotifications((prev) => {
+      const notification = prev.find((n) => n.id === id);
+      // Call onClose callback if provided
+      if (notification?.onClose && typeof notification.onClose === 'function') {
+        notification.onClose();
+      }
+      return prev.filter((n) => n.id !== id);
+    });
   }, []);
 
   // Now define showNotification which depends on removeNotification
@@ -24,11 +31,18 @@ export const NotificationProvider = ({ children }) => {
     const message = typeof messageOrConfig === 'string' ? messageOrConfig : messageOrConfig.message;
     const notificationType = typeof messageOrConfig === 'string' ? type : (messageOrConfig.type || 'info');
     const notificationDuration = typeof messageOrConfig === 'string' ? duration : (messageOrConfig.duration || 5000);
+    const onClose = typeof messageOrConfig === 'object' ? messageOrConfig.onClose : null;
+    const clearExisting = typeof messageOrConfig === 'object' ? (messageOrConfig.clearExisting !== false) : true;
+    
+    // Clear all existing notifications before showing new one (unless specified otherwise)
+    if (clearExisting) {
+      setNotifications([]);
+    }
     
     const id = Date.now() + Math.random();
-    const notification = { id, message, type: notificationType, duration: notificationDuration };
+    const notification = { id, message, type: notificationType, duration: notificationDuration, onClose };
     
-    setNotifications((prev) => [...prev, notification]);
+    setNotifications((prev) => clearExisting ? [notification] : [...prev, notification]);
 
     // Auto remove after duration
     if (notificationDuration > 0) {
