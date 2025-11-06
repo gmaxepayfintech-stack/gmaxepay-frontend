@@ -7,6 +7,7 @@ import { useCompany } from "../../context/CompanyContext";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { loginStatus } from "../../redux/action/loginAction";
+import ForgotPassword from "../ForgotPassword";
 
 const NumpadIcon = "/img/Numpad1.png";
 const NumpadIconFilled = "/img/Numpad2.png";
@@ -20,6 +21,8 @@ const LoginDesign1 = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { company } = useCompany();
+  const [showForgot, setShowForgot] = React.useState(false); // ✅ NEW STATE
+
   const [submittedPhone, setSubmittedPhone] = React.useState("");
 
   useEffect(() => {
@@ -116,7 +119,9 @@ const LoginDesign1 = () => {
       console.log("login slice updated:", data);
     }
   }, [data]);
-
+  if (showForgot) {
+    return <ForgotPassword onBack={() => setShowForgot(false)} />;
+  }
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {company?.sliderImages && company.sliderImages.length > 0 ? (
@@ -357,7 +362,8 @@ const LoginDesign1 = () => {
                 <div className="flex justify-end mt-6 mb-6 sm:mb-7 md:mb-6 lg:mb-10">
                   <button
                     type="button"
-                    className="text-gray-600 hover:text-green-600 transition-colors"
+                    // onClick={() => setShowForgot(true)}
+                    className="text-1B1717 hover:text-1B1717 transition-colors"
                     style={{
                       fontFamily: "Gilroy-SemiBold",
                       fontWeight: 400,

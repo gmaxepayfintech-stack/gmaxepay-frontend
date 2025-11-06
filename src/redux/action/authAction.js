@@ -13,4 +13,3 @@ export const logout = () => ({
 export const restoreAuth = () => ({
   type: RESTORE_AUTH,
 });
-
