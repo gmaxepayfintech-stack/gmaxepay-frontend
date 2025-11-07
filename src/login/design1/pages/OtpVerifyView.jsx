@@ -1,9 +1,8 @@
-import React, { useRef, useEffect } from "react";
+import React, { useEffect } from "react";
 import { useCompany } from "../../../context/CompanyContext";
 
 const OtpVerifyView = ({
   otp,
-  setOtp,
   otpTimer,
   onOtpChange,
   onOtpKeyDown,

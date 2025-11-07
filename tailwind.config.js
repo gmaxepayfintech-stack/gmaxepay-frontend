@@ -3,6 +3,9 @@ export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
+      fontFamily: {
+      gilroy: ['Gilroy', 'sans-serif'],
+    },
       colors: {
         darkBlue: '#662d91',
         pink: '#AE87CD',
