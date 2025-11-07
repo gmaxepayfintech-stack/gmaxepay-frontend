@@ -1,5 +1,5 @@
 export { default as Auth } from './Auth';
-export const Dashboard = () => <div>Dashboard</div>;
+export { default as Dashboard} from '../layouts/superAdminDashboard/index.jsx'
 export const AdminDashboard = () => <div>AdminDashboard</div>;
 export const SubAdminDashboard = () => <div>SubAdminDashboard</div>;
 export const RetailerDashboard = () => <div>RetailerDashboard</div>;

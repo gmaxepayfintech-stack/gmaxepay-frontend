@@ -135,10 +135,9 @@ const LoginDesign1 = () => {
           type: "error",
           message: verificationError,
           duration: 6000,
-          clearExisting: true, // Clear existing notifications for errors
+          clearExisting: true, 
         });
       }
-      // Also check for FAILURE status in verificationStatusdata
       else if (verificationStatusdata === "FAILURE") {
         const errorMessage = verificationResponse?.message || verificationResponse?.data?.message || "OTP verification failed. Please try again.";
         showNotification({
@@ -158,17 +157,15 @@ const LoginDesign1 = () => {
         type: "error",
         message: resetPasswordError,
         duration: 6000,
-        clearExisting: true, // Clear existing notifications for errors
+        clearExisting: true, 
       });
     }
   }, [resetPasswordError, showNotification]);
 
-  // Handle login response
   useEffect(() => {
     if (!loginData || processedLoginRef.current) return;
 
-    // Check for FAILURE status or error status codes (like 429) in login response
-    // The status can be in loginData.status or loginData.loginResponse?.status
+    
     const status = loginData.status || loginData.loginResponse?.status || loginData.data?.status;
     if (status === "FAILURE" || (typeof status === "number" && status !== 200 && status !== "SUCCESS")) {
       const errorMessage = loginData?.message || loginData?.loginResponse?.message || loginData?.data?.message || "Login failed. Please try again.";
@@ -176,7 +173,7 @@ const LoginDesign1 = () => {
         type: "error",
         message: errorMessage,
         duration: 6000,
-        clearExisting: true, // Clear existing notifications for errors
+        clearExisting: true, 
       });
       processedLoginRef.current = true;
       return;
