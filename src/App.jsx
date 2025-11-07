@@ -33,6 +33,7 @@ import PaymentSuccess from "./mainPage/paymentSuccess";
 import PaymentFailure from "./mainPage/paymentFailure";
 import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
+import SuperAdminDashboard from "./layouts/superAdminDashboard";
 
 function App() {
   const { showNotification } = useNotification();

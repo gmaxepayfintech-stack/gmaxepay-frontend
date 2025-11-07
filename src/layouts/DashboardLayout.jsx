@@ -1,7 +1,8 @@
 import { Link, useLocation } from "react-router-dom";
-import { LogOut, UserCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { UserCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
 import { useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 import MaskGroup from "../../public/img/Maskgroup.png";
 import MaskGroup1 from "../../public/img/Maskgroup1.png";
@@ -10,14 +11,28 @@ import MaskGroup3 from "../../public/img/Maskgroup3.png";
 import MaskGroup4 from "../../public/img/Maskgroup4.png";
 import MaskGroup5 from "../../public/img/Maskgroup5.png";
 import NotificationIcon from "../../public/img/NotificationIcon.png";
-
+import SuperAdmin from "../pages/superAdminDashboard/SuperAdmin";
 const DashboardLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
-  const [openDropdown, setOpenDropdown] = useState(null);
 
-  const handleToggle = (name) => {
-    setOpenDropdown(openDropdown === name ? null : name);
+  // State for open dropdowns
+  const [openDropdown, setOpenDropdown] = useState(null);
+  // State for active (highlighted) main menu item
+  const [activeMenu, setActiveMenu] = useState("Dashboard");
+
+  const handleMenuClick = (name, dropdown) => {
+    if (dropdown) {
+      // toggle dropdown open/close
+      setOpenDropdown((prev) => (prev === name ? null : name));
+      // also set it as active parent
+      setActiveMenu(name);
+    } else {
+      // close any open dropdown
+      setOpenDropdown(null);
+      // mark this as active
+      setActiveMenu(name);
+    }
   };
 
   const menuItems = [
@@ -78,11 +93,11 @@ const DashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="flex h-screen   bg-[#F5F7F8] text-[#1B1717]">
+    <div className="flex h-screen bg-[#F5F7F8] text-[#1B1717] font-[Gilroy-Medium]">
       {/* Sidebar */}
-      <aside className="w-64 bg-gradient-to-b from-[#039155]/10 to-[#039155]/5 border-r flex flex-col shadow-lg">
+      <aside className="w-[277px] bg-gradient-to-b from-[#039155]/10 to-[#039155]/5 border-r flex flex-col shadow-lg">
         {/* Logo */}
-        <div className="p-6 border-[#039155]/20 text-center">
+        <div className="p-6 text-center border-[#039155]/20">
           <img
             src={company.logo}
             alt="Company Logo"
@@ -93,18 +108,16 @@ const DashboardLayout = ({ children }) => {
         {/* Navigation */}
         <nav className="flex-1 px-4 py-6 space-y-3 overflow-y-auto">
           {menuItems.map(({ name, icon, path, dropdown, children }) => {
-            const isActive = location.pathname === path; // only direct routes
-            const isOpen = openDropdown === name; // open dropdown state
+            const isOpen = openDropdown === name;
+            const isActiveParent = activeMenu === name;
 
             return (
               <div key={name}>
-                {/* Main menu item */}
+                {/* Main Menu Item */}
                 <div
-                  onClick={() =>
-                    dropdown ? handleToggle(name) : setOpenDropdown(null)
-                  }
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition font-medium ${
-                    isActive || isOpen
+                  onClick={() => handleMenuClick(name, dropdown)}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
                       ? "bg-[#039155] text-white shadow-md"
                       : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
                   }`}
@@ -114,7 +127,7 @@ const DashboardLayout = ({ children }) => {
                       src={icon}
                       alt={name}
                       className={`w-5 h-5 ${
-                        isActive || isOpen ? "filter brightness-0 invert" : ""
+                        isActiveParent ? "filter brightness-0 invert" : ""
                       }`}
                     />
                     {dropdown ? (
@@ -126,49 +139,58 @@ const DashboardLayout = ({ children }) => {
 
                   {dropdown &&
                     (isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-white" />
+                      <ChevronUp className="w-4 h-4 text-white transition-transform duration-300" />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-500" />
+                      <ChevronDown className="w-4 h-4 text-gray-500 transition-transform duration-300" />
                     ))}
                 </div>
 
-                {/* Dropdown items */}
-                {dropdown && isOpen && (
-                  <div className=" bg-white rounded-2xl mt-2 shadow-sm py-2 px-3 space-y-1 border border-gray-100">
-                    {children.map((child) => {
-                      const isChildActive = location.pathname === child.path;
-                      return (
-                        <Link
-                          key={child.name}
-                          to={child.path}
-                          className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition ${
-                            isChildActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700 "
-                          }`}
-                        >
-                          {/* Side arrow icon */}
-                          <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="none"
-                            viewBox="0 0 24 24"
-                            strokeWidth={2}
-                            stroke={isChildActive ? "#039155" : "currentColor"}
-                            className="w-4 h-4 mr-3 transition-colors"
+                {/* Dropdown Menu */}
+                <AnimatePresence>
+                  {dropdown && isOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, y: -8 }}
+                      animate={{ opacity: 1, height: "auto", y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -8 }}
+                      transition={{ duration: 0.25, ease: "easeInOut" }}
+                      className="bg-white rounded-2xl mt-2 shadow-sm py-2 px-3 space-y-1 border border-gray-100 overflow-hidden"
+                    >
+                      {children.map((child) => {
+                        const isChildPathActive =
+                          location.pathname === child.path;
+                        return (
+                          <Link
+                            key={child.name}
+                            to={child.path}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
-                            <path
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              d="M9 5l7 7-7 7"
-                            />
-                          </svg>
-
-                          {child.name}
-                        </Link>
-                      );
-                    })}
-                  </div>
-                )}
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="none"
+                              viewBox="0 0 24 24"
+                              strokeWidth={2}
+                              stroke={
+                                isChildPathActive ? "#039155" : "currentColor"
+                              }
+                              className="w-4 h-4 mr-3 transition-colors"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                d="M9 5l7 7-7 7"
+                              />
+                            </svg>
+                            {child.name}
+                          </Link>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </div>
             );
           })}
@@ -176,11 +198,11 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 overflow-y-auto">
+      <div className="flex flex-col flex-1">
         {/* Header */}
-        <header className="bg-white border border-[#1B1717]/10 px-8 py-4 flex justify-between items-center sticky top-0 z-10">
+        <header className="relative bg-white px-8 py-4 flex justify-between items-center top-0 z-10">
           <div>
-            <h1 className="text-lg font-semibold text-[#1B1717]">
+            <h1 className="text-lg w-[177px] font-semibold text-[#1B1717]">
               Welcome Back!
             </h1>
             <p className="text-sm text-gray-500">Rohan G</p>
@@ -200,10 +222,13 @@ const DashboardLayout = ({ children }) => {
               <UserCircle className="w-8 h-8 text-gray-600" />
             </div>
           </div>
+
+          {/* Rounded bottom border line */}
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/70 opacity-80 rounded-full shadow-sm"></div>
         </header>
 
-        {/* Main Page Content */}
-        <main className="flex-1 bg-[#F9FAFB] p-6">{children}</main>
+        {/* Page Content */}
+        <main className="flex-1 bg-[#F9FAFB] p-2">{children}</main>
       </div>
     </div>
   );
