@@ -47,6 +47,9 @@ const LoginDesign1 = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { company } = useCompany();
+  
+  // Get companyId from company context (support multiple possible field names)
+  const companyId = company?._id || company?.id || company?.companyId;
 
   const otpInputRefs = useRef([]);
   const auth2FAInputRefs = useRef([]);
@@ -441,7 +444,7 @@ const LoginDesign1 = () => {
       };
       setSubmittedPhone(values.phoneNumber);
 
-      dispatch(loginStatus(payload));
+      dispatch(loginStatus(payload, companyId));
     } catch (error) {
       showNotification({
         type: "error",
@@ -509,12 +512,12 @@ const LoginDesign1 = () => {
       });
       return;
     }
-    dispatch(verificationStatus({ otp: finalOtp }));
+    dispatch(verificationStatus({ otp: finalOtp }, companyId));
   };
 
   // Resend OTP
   const handleResendOtp = () => {
-    dispatch(rescendOtp());
+    dispatch(rescendOtp(companyId));
     setOtpTimer(180);
     setOtp(Array(6).fill(""));
   };
@@ -571,7 +574,7 @@ const LoginDesign1 = () => {
       });
       return;
     }
-    dispatch(authOtp({ otp: finalOtp }));
+    dispatch(authOtp({ otp: finalOtp }, companyId));
   };
 
   // Reset password submission
@@ -581,7 +584,7 @@ const LoginDesign1 = () => {
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
       };
-      dispatch(resetPassword(payload));
+      dispatch(resetPassword(payload, companyId));
     } catch (error) {
       showNotification({
         type: "error",
