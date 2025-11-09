@@ -1,8 +1,11 @@
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { UserCircle, ChevronDown, ChevronUp } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfile } from "../redux/action/userProfileAction";
+import { useNotification } from "../context/NotificationContext";
 
 import MaskGroup from "../../public/img/Maskgroup.png";
 import MaskGroup1 from "../../public/img/Maskgroup1.png";
@@ -12,14 +15,44 @@ import MaskGroup4 from "../../public/img/Maskgroup4.png";
 import MaskGroup5 from "../../public/img/Maskgroup5.png";
 import NotificationIcon from "../../public/img/NotificationIcon.png";
 import SuperAdmin from "../pages/superAdminDashboard/SuperAdmin";
+
+// Use absolute path for public folder assets
+const defaultLogo = "/img/defaultlogo.png";
+
 const DashboardLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
+  const { profile, email, name, profileImage, unauthorized, error } = useSelector((state) => state.userProfile);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
   // State for active (highlighted) main menu item
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
+
+  // Handle unauthorized token expiration - redirect to login
+  useEffect(() => {
+    if (unauthorized) {
+      const errorMessage = error || "Invalid token. Please login again.";
+      showNotification({
+        message: errorMessage,
+        type: "error",
+        duration: 3000,
+        isCritical: true, // Mark as critical so it shows on dashboard
+      });
+      // Redirect to login after a short delay to show notification
+      setTimeout(() => {
+        navigate("/auth/login", { replace: true });
+      }, 500);
+    }
+  }, [unauthorized, error, navigate, showNotification]);
 
   const handleMenuClick = (name, dropdown) => {
     if (dropdown) {
@@ -39,7 +72,7 @@ const DashboardLayout = ({ children }) => {
     {
       name: "Dashboard",
       icon: MaskGroup,
-      path: "/dashboard/home",
+      path: "/superDashboard/home",
       dropdown: false,
     },
     {
@@ -99,7 +132,7 @@ const DashboardLayout = ({ children }) => {
         {/* Logo */}
         <div className="p-6 text-center border-[#039155]/20">
           <img
-            src={company.logo}
+            src={company?.logo || defaultLogo}
             alt="Company Logo"
             className="h-10 mx-auto mb-2"
           />
@@ -218,8 +251,26 @@ const DashboardLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Admin Panel</span>
-              <UserCircle className="w-8 h-8 text-gray-600" />
+              <span className="text-sm font-medium">
+                {name || email || "Admin Panel"}
+              </span>
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = defaultLogo;
+                  }}
+                />
+              ) : (
+                <img
+                  src={defaultLogo}
+                  alt="Profile"
+                  className="w-8 h-8 rounded-full object-cover"
+                />
+              )}
             </div>
           </div>
 

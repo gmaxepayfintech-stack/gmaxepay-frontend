@@ -217,7 +217,7 @@ const LoginDesign1 = () => {
       }
 
       const rolePaths = {
-        1: "/dashboard/home",
+        1: "/superDashboard/home",
         2: "/adminDashBoard/home",
         3: "/masterDistributerDashboard/home",
         4: "/distributerDashboard/home",
@@ -225,7 +225,7 @@ const LoginDesign1 = () => {
         6: "/employeeDashboard/home",
       };
       const userRole = loginData?.data?.userRole || loginResponse?.userRole;
-      navigate(rolePaths[userRole] || "/dashboard/home");
+      navigate(rolePaths[userRole] || "/superDashboard/home");
     }
   }, [loginData, loginResponseData, navigate, showNotification]);
 
@@ -279,7 +279,7 @@ const LoginDesign1 = () => {
                 }
               } else {
                 const rolePaths = {
-                  1: "/dashboard/home",
+                  1: "/superDashboard/home",
                   2: "/adminDashBoard/home",
                   3: "/masterDistributerDashboard/home",
                   4: "/distributerDashboard/home",
@@ -287,7 +287,7 @@ const LoginDesign1 = () => {
                   6: "/employeeDashboard/home",
                 };
                 const userRole = responseData?.userRole || verificationResponse?.userRole;
-                navigate(rolePaths[userRole] || "/dashboard/home");
+                navigate(rolePaths[userRole] || "/superDashboard/home");
               }
             } else if (currentView === VIEWS.VERIFICATION_CODE) {
               // After forgot password OTP, check if password reset is required
@@ -359,7 +359,7 @@ const LoginDesign1 = () => {
             })
           );
           const rolePaths = {
-            1: "/dashboard/home",
+            1: "/superDashboard/home",
             2: "/adminDashBoard/home",
             3: "/masterDistributerDashboard/home",
             4: "/distributerDashboard/home",
@@ -367,7 +367,7 @@ const LoginDesign1 = () => {
             6: "/employeeDashboard/home",
           };
           const userRole = usedata?.userRole;
-          navigate(rolePaths[userRole] || "/dashboard/home");
+          navigate(rolePaths[userRole] || "/superDashboard/home");
         },
       });
     }
@@ -403,14 +403,14 @@ const LoginDesign1 = () => {
           
           if (userRole) {
             const rolePaths = {
-              1: "/dashboard/home",
+              1: "/superDashboard/home",
               2: "/adminDashBoard/home",
               3: "/masterDistributerDashboard/home",
               4: "/distributerDashboard/home",
               5: "/retailerDashboard/home",
               6: "/employeeDashboard/home",
             };
-            navigate(rolePaths[userRole] || "/dashboard/home");
+            navigate(rolePaths[userRole] || "superDashboard/home");
           } else {
             setCurrentView(VIEWS.LOGIN);
           }
