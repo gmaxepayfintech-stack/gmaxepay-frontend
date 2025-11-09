@@ -9,7 +9,7 @@ const ProtectedAuthRoute = ({ children }) => {
 
   if (token && user) {
     const rolePaths = {
-      1: "/dashboard/home",
+      1: "/superDashboard/home",
       2: "/adminDashboard/home",
       3: "/masterDistributerDashboard/home",
       4: "/distributerDashboard/home",
@@ -17,7 +17,7 @@ const ProtectedAuthRoute = ({ children }) => {
       6: "/employeeDashboard/home",
     };
 
-    const defaultPath = "/dashboard/home";
+    const defaultPath = "/superDashboard/home";
     const redirectPath = rolePaths[userRole] || defaultPath;
 
     return <Navigate to={redirectPath} replace />;

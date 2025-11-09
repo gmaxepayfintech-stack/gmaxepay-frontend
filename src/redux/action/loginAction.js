@@ -17,22 +17,13 @@ import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
 
-export const loginStatus = (credentials, companyId) => async (dispatch) => {
+export const loginStatus = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-    };
-    
-    if (companyId) {
-      headers["x-company-id"] = companyId;
-    }
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/login`,
-      credentials,
-      { headers }
+      credentials
     );
 
     const data = response?.data;
@@ -71,25 +62,21 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
   }
 };
 
-export const verificationStatus = (credentials, companyId) => async (dispatch) => {
+export const verificationStatus = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-      token: `${authToken}`,
-    };
-    
-    if (companyId) {
-      headers["x-company-id"] = companyId;
-    }
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/verify-mobile-otp`,
       credentials,
-      { headers }
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -130,7 +117,7 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
   }
 };
 
-export const authOtp = (payload, companyId) => async (dispatch) => {
+export const authOtp = (payload) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -154,19 +141,15 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       return;
     }
     
-    const headers = {
-      "Content-Type": "application/json",
-      token: `${authToken}`,
-    };
-    
-    if (companyId) {
-      headers["x-company-id"] = companyId;
-    }
-    
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/handle-2fa`,
       payload,
-      { headers }
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -210,25 +193,21 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
   }
 };
 
-export const rescendOtp = (companyId) => async (dispatch) => {
+export const rescendOtp = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
 
   try {
-    const headers = {
-      "Content-Type": "application/json",
-      token: `${authToken}`,
-    };
-    
-    if (companyId) {
-      headers["x-company-id"] = companyId;
-    }
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/resend-otp`,
       {},
-      { headers }
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -261,7 +240,7 @@ export const rescendOtp = (companyId) => async (dispatch) => {
   }
 };
 
-export const resetPassword = (credentials, companyId) => async (dispatch) => {
+export const resetPassword = (credentials) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -275,19 +254,15 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
       return;
     }
 
-    const headers = {
-      "Content-Type": "application/json",
-      token: `${authToken}`,
-    };
-    
-    if (companyId) {
-      headers["x-company-id"] = companyId;
-    }
-
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/reset-password`,
       credentials,
-      { headers }
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+        },
+      }
     );
 
     const data = response?.data;
