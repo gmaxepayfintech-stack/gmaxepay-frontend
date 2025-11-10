@@ -28,6 +28,12 @@ const InitialRoute = () => {
         return;
       }
 
+      // Don't interfere if we're already on the login page
+      // This prevents redirecting away from login flow when user is in the middle of authentication
+      if (window.location.pathname === "/auth/login") {
+        return;
+      }
+
       // Check if token exists in secureLocalStorage
       const authToken = secureLocalStorage.getItem("userToken");
 
@@ -53,6 +59,11 @@ const InitialRoute = () => {
   useEffect(() => {
     // Don't redirect if already redirected or if we have a home page component
     if (hasRedirected.current) return;
+
+    // Don't interfere if we're already on the login page
+    if (window.location.pathname === "/auth/login") {
+      return;
+    }
 
     const currentDomain = window.location.hostname;
     const HomePageComponent = getHomePageComponent(currentDomain);

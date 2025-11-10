@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import secureLocalStorage from "react-secure-storage";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
@@ -117,11 +118,24 @@ const LoginDesign1 = () => {
   // Handle login errors
   useEffect(() => {
     if (loginError) {
+      const errorMessage = typeof loginError === 'object' ? loginError.message : loginError;
+      const isTokenExpired = typeof loginError === 'object' && loginError.isTokenExpired;
+      
       showNotification({
         type: "error",
-        message: loginError,
+        message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
+        onClose: () => {
+          // If token expired, go back to login step 1
+          if (isTokenExpired) {
+            secureLocalStorage.removeItem("userToken");
+            setCurrentView(VIEWS.LOGIN);
+            setOtp(Array(6).fill(""));
+            setSubmittedPhone("");
+            processedLoginRef.current = false;
+          }
+        },
       });
     }
   }, [loginError, showNotification]);
@@ -131,11 +145,25 @@ const LoginDesign1 = () => {
     if ((currentView === VIEWS.OTP_VERIFY || currentView === VIEWS.VERIFICATION_CODE)) {
       // Check for verificationError first (from reducer)
       if (verificationError) {
+        const errorMessage = typeof verificationError === 'object' ? verificationError.message : verificationError;
+        const isTokenExpired = typeof verificationError === 'object' && verificationError.isTokenExpired;
+        
         showNotification({
           type: "error",
-          message: verificationError,
+          message: errorMessage,
           duration: 6000,
           clearExisting: true, // Clear existing notifications for errors
+          onClose: () => {
+            // If token expired, go back to login step 1
+            if (isTokenExpired) {
+              secureLocalStorage.removeItem("userToken");
+              setCurrentView(VIEWS.LOGIN);
+              setOtp(Array(6).fill(""));
+              setSubmittedPhone("");
+              setPhoneNumber("");
+              processedVerificationRef.current = false;
+            }
+          },
         });
       }
       // Also check for FAILURE status in verificationStatusdata
@@ -154,11 +182,24 @@ const LoginDesign1 = () => {
   // Handle reset password errors
   useEffect(() => {
     if (resetPasswordError) {
+      const errorMessage = typeof resetPasswordError === 'object' ? resetPasswordError.message : resetPasswordError;
+      const isTokenExpired = typeof resetPasswordError === 'object' && resetPasswordError.isTokenExpired;
+      
       showNotification({
         type: "error",
-        message: resetPasswordError,
+        message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
+        onClose: () => {
+          // If token expired, go back to login step 1
+          if (isTokenExpired) {
+            secureLocalStorage.removeItem("userToken");
+            setCurrentView(VIEWS.LOGIN);
+            setOtp(Array(6).fill(""));
+            setSubmittedPhone("");
+            setPhoneNumber("");
+          }
+        },
       });
     }
   }, [resetPasswordError, showNotification]);
@@ -229,10 +270,14 @@ const LoginDesign1 = () => {
     }
   }, [loginData, loginResponseData, navigate, showNotification]);
 
-  // Reset processed flag when loginData changes
+  // Reset processed flag only when loginData actually changes (not on every status change)
   useEffect(() => {
-    processedLoginRef.current = false;
-  }, [loginData?.status]);
+    // Only reset if we're not currently on OTP_VERIFY or other intermediate views
+    // This prevents the view from resetting when we're already on step 2
+    if (currentView === VIEWS.LOGIN && loginData) {
+      processedLoginRef.current = false;
+    }
+  }, [loginData, currentView]);
 
   // Handle OTP verification response
   useEffect(() => {
@@ -376,11 +421,25 @@ const LoginDesign1 = () => {
   // Handle 2FA errors
   useEffect(() => {
     if (twoFactorAuthError && (currentView === VIEWS.AUTH_2FA || currentView === VIEWS.REQUIRE_2FA)) {
+      const errorMessage = typeof twoFactorAuthError === 'object' ? twoFactorAuthError.message : twoFactorAuthError;
+      const isTokenExpired = typeof twoFactorAuthError === 'object' && twoFactorAuthError.isTokenExpired;
+      
       showNotification({
         type: "error",
-        message: twoFactorAuthError,
+        message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
+        onClose: () => {
+          // If token expired, go back to login step 1
+          if (isTokenExpired) {
+            secureLocalStorage.removeItem("userToken");
+            setCurrentView(VIEWS.LOGIN);
+            setOtp(Array(6).fill(""));
+            setSubmittedPhone("");
+            setPhoneNumber("");
+            setQrData(null);
+          }
+        },
       });
     }
   }, [twoFactorAuthError, currentView, showNotification]);
