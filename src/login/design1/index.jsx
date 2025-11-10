@@ -228,9 +228,27 @@ const LoginDesign1 = () => {
       processedLoginRef.current = true;
       const loginResponse =
         loginData?.loginResponse?.data || loginData?.data || loginResponseData || {};
+      // Check for requiresPasswordReset in multiple possible locations
+      const requiresPasswordReset = !!(
+        loginResponse?.requiresPasswordReset || 
+        loginData?.data?.requiresPasswordReset || 
+        loginData?.loginResponse?.data?.requiresPasswordReset
+      );
       const requiresOtp = !!loginResponse?.requiresOtpVerify;
       const requires2FA = !!loginResponse?.requires2FA;
       const requiresSetup2FA = !!loginResponse?.requiresSetup2FA;
+
+      // Check for password reset requirement first
+      if (requiresPasswordReset) {
+        // Store the token from login response for password reset
+        // Token can be in: loginResponse.token, loginData.data.token, or loginData.token
+        const token = loginResponse?.token || loginData?.data?.token || loginData?.token || loginData?.loginResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        setCurrentView(VIEWS.RESET_PASSWORD);
+        return;
+      }
 
       if (requiresOtp) {
         setOtp(Array(6).fill(""));
