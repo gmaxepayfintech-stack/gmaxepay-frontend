@@ -6,6 +6,7 @@ import {
   TWOFACTOR_AUTH_SUCCESS,
   TWOFACTOR_AUTH_FAILURE,
   RESECEND_OTP_SUCCESS,
+  RESECEND_OTP_FAILURE,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE
 } from "../actionType/loginActionType";
@@ -40,7 +41,7 @@ const loginReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        error: action.payload,
+        error: typeof action.payload === 'object' ? action.payload : action.payload,
         loginResponse: null,
         Success: null,
       };
@@ -56,11 +57,12 @@ const loginReducer = (state = initialState, action) => {
       };
 
     case VERIFICATION_OTP_FAILURE:
+      const verificationErrorPayload = typeof action.payload === 'object' ? action.payload : action.payload;
       return {
         ...state,
         loading: false,
-        verificationError: action.payload,
-        verificationcode: action.payload ? { status: "FAILURE", message: action.payload } : null,
+        verificationError: verificationErrorPayload,
+        verificationcode: verificationErrorPayload ? { status: "FAILURE", message: typeof verificationErrorPayload === 'object' ? verificationErrorPayload.message : verificationErrorPayload } : null,
         Success: null,
       };
     
@@ -78,7 +80,7 @@ const loginReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        twoFactorAuthError: action.payload,
+        twoFactorAuthError: typeof action.payload === 'object' ? action.payload : action.payload,
         twoFactorAuth: null,
         error: null,
       }
@@ -91,6 +93,14 @@ const loginReducer = (state = initialState, action) => {
           Success:action.payload,
           error:null,
         }
+
+    case RESECEND_OTP_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: typeof action.payload === 'object' ? action.payload : action.payload,
+        resendStatus: null,
+      }
 
     case RESET_PASSWORD_SUCCESS:
       return {
@@ -105,7 +115,7 @@ const loginReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        resetPasswordError: action.payload,
+        resetPasswordError: typeof action.payload === 'object' ? action.payload : action.payload,
         resetPasswordResponse: null,
       };
 
