@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children, role }) => {
     if (!userRole) return;
     
     const roleRedirectPaths = {
-      1: '/superAdminDashboard/home',
+      1: '/superDashboard/home',
       2: '/adminDashboard/home',
       3: '/masterDistributerDashboard/home',
       4: '/distributerDashboard/home',

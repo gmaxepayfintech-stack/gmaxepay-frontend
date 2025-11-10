@@ -4,6 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { getUserProfile } from "../redux/action/userProfileAction";
 import { getHomePageComponent } from "../util/domainToHomePage";
+import { loginSuccess } from "../redux/action/authAction";
 
 const InitialRoute = () => {
   const navigate = useNavigate();
@@ -28,27 +29,29 @@ const InitialRoute = () => {
         return;
       }
 
-      // Don't interfere if we're already on the login page
-      // This prevents redirecting away from login flow when user is in the middle of authentication
-      if (window.location.pathname === "/auth/login") {
-        return;
-      }
-
-      // Check if JWT token and userData exist in secureLocalStorage (not login token)
-      // Only check for userToken (JWT) - loginToken is used during login flow and should not trigger profile check
+      // Check if JWT token and userData exist in secureLocalStorage
       const jwtToken = secureLocalStorage.getItem("userToken");
       const userData = secureLocalStorage.getItem("userData");
       const loginToken = secureLocalStorage.getItem("loginToken");
 
-      // If both userToken and userData exist, navigate directly to superDashboard
-      if (jwtToken && userData) {
+      // If both userToken and userData exist, navigate directly to dashboard based on role
+      // Don't redirect if loginToken exists (user is in the middle of login flow)
+      if (jwtToken && userData && !loginToken) {
         try {
-          const parsedUserData = JSON.parse(userData);
+          const parsedUserData = typeof userData === 'string' ? JSON.parse(userData) : userData;
           const userRole = parsedUserData?.userRole;
+          
+          // Dispatch loginSuccess to update Redux state
+          dispatch(
+            loginSuccess({
+              token: jwtToken,
+              user: parsedUserData,
+            })
+          );
           
           const rolePaths = {
             1: "/superDashboard/home",
-            2: "/adminDashBoard/home",
+            2: "/adminDashboard/home",
             3: "/masterDistributerDashboard/home",
             4: "/distributerDashboard/home",
             5: "/retailerDashboard/home",
@@ -57,19 +60,26 @@ const InitialRoute = () => {
           
           if (!hasRedirected.current) {
             hasRedirected.current = true;
-            navigate(rolePaths[userRole] || "/superDashboard/home", { replace: true });
+            const redirectPath = rolePaths[userRole] || "/superDashboard/home";
+            navigate(redirectPath, { replace: true });
           }
           return;
         } catch (e) {
           // If parsing fails, continue with profile check
           console.error("Error parsing userData:", e);
+          // Remove invalid data
+          secureLocalStorage.removeItem("userData");
+          secureLocalStorage.removeItem("userToken");
         }
       }
 
-      // If only loginToken exists (during login flow), don't interfere
-      // Only proceed if JWT token exists
+      // Don't interfere if we're on the login page and loginToken exists (user is in login flow)
+      if (window.location.pathname === "/auth/login" && loginToken) {
+        return;
+      }
+
+      // If no JWT token exists, redirect to login (unless loginToken exists and we're in login flow)
       if (!jwtToken) {
-        // No JWT token exists
         // If loginToken exists, user is in login flow - don't redirect
         if (loginToken) {
           // User is in the middle of login flow, don't interfere
@@ -123,10 +133,20 @@ const InitialRoute = () => {
           navigate("/auth/login", { replace: true });
         }
       } else if (profile) {
-        // Token is valid and profile loaded, redirect to dashboard
+        // Token is valid and profile loaded, redirect to dashboard based on role
         if (!hasRedirected.current) {
           hasRedirected.current = true;
-          navigate("/superDashboard/home", { replace: true });
+          const userRole = profile?.userRole;
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashboard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+          const redirectPath = rolePaths[userRole] || "/superDashboard/home";
+          navigate(redirectPath, { replace: true });
         }
       } else {
         // No profile and not unauthorized - token might be invalid or error occurred
@@ -161,4 +181,5 @@ const InitialRoute = () => {
 };
 
 export default InitialRoute;
+
 

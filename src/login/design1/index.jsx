@@ -340,7 +340,7 @@ const LoginDesign1 = () => {
                 if (jwtToken) {
                   const rolePaths = {
                     1: "/superDashboard/home",
-                    2: "/adminDashBoard/home",
+                    2: "/adminDashboard/home",
                     3: "/masterDistributerDashboard/home",
                     4: "/distributerDashboard/home",
                     5: "/retailerDashboard/home",
@@ -421,7 +421,7 @@ const LoginDesign1 = () => {
           
           const rolePaths = {
             1: "/superDashboard/home",
-            2: "/adminDashBoard/home",
+            2: "/adminDashboard/home",
             3: "/masterDistributerDashboard/home",
             4: "/distributerDashboard/home",
             5: "/retailerDashboard/home",
@@ -474,7 +474,7 @@ const LoginDesign1 = () => {
                 
                 const rolePaths = {
                   1: "/superDashboard/home",
-                  2: "/adminDashBoard/home",
+                  2: "/adminDashboard/home",
                   3: "/masterDistributerDashboard/home",
                   4: "/distributerDashboard/home",
                   5: "/retailerDashboard/home",
@@ -540,7 +540,7 @@ const LoginDesign1 = () => {
             // JWT token exists, navigate to dashboard
             const rolePaths = {
               1: "/superDashboard/home",
-              2: "/adminDashBoard/home",
+              2: "/adminDashboard/home",
               3: "/masterDistributerDashboard/home",
               4: "/distributerDashboard/home",
               5: "/retailerDashboard/home",

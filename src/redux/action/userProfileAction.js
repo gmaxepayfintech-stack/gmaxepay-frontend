@@ -28,15 +28,16 @@ export const getUserProfile = () => async (dispatch) => {
       return;
     }
 
-    const response = await axios.get(
+    const response = await axios.post(
       `${API_ROUTE}/api/v1/user/userDetails/getProfile`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
       }
-    );
+    ); 
 
     const data = response?.data;
     const { status } = data ?? {};
@@ -51,7 +52,6 @@ export const getUserProfile = () => async (dispatch) => {
       const errorMessage = data?.message || "Invalid token. Please login again.";
       
       // Clear token from storage
-      secureLocalStorage.removeItem("userToken");
       
       // Dispatch logout to clear auth state
       dispatch(logout());
