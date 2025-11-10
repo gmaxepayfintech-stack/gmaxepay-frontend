@@ -34,11 +34,21 @@ const InitialRoute = () => {
         return;
       }
 
-      // Check if token exists in secureLocalStorage
-      const authToken = secureLocalStorage.getItem("userToken");
+      // Check if JWT token exists in secureLocalStorage (not login token)
+      // Only check for userToken (JWT) - loginToken is used during login flow and should not trigger profile check
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const loginToken = secureLocalStorage.getItem("loginToken");
 
-      if (!authToken) {
-        // No token exists, redirect to login
+      // If only loginToken exists (during login flow), don't interfere
+      // Only proceed if JWT token exists
+      if (!jwtToken) {
+        // No JWT token exists
+        // If loginToken exists, user is in login flow - don't redirect
+        if (loginToken) {
+          // User is in the middle of login flow, don't interfere
+          return;
+        }
+        // No tokens at all, redirect to login
         if (!hasRedirected.current) {
           hasRedirected.current = true;
           navigate("/auth/login", { replace: true });
@@ -46,7 +56,7 @@ const InitialRoute = () => {
         return;
       }
 
-      // Token exists, validate it by fetching user profile
+      // JWT token exists, validate it by fetching user profile
       // This will automatically handle unauthorized/expired tokens
       hasStartedProfileCheck.current = true;
       dispatch(getUserProfile());
