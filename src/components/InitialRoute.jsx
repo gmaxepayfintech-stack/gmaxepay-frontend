@@ -34,11 +34,37 @@ const InitialRoute = () => {
         return;
       }
 
-      // Check if JWT token exists in secureLocalStorage (not login token)
+      // Check if JWT token and userData exist in secureLocalStorage (not login token)
       // Only check for userToken (JWT) - loginToken is used during login flow and should not trigger profile check
       const jwtToken = secureLocalStorage.getItem("userToken");
       const userData = secureLocalStorage.getItem("userData");
       const loginToken = secureLocalStorage.getItem("loginToken");
+
+      // If both userToken and userData exist, navigate directly to superDashboard
+      if (jwtToken && userData) {
+        try {
+          const parsedUserData = JSON.parse(userData);
+          const userRole = parsedUserData?.userRole;
+          
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashBoard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+          
+          if (!hasRedirected.current) {
+            hasRedirected.current = true;
+            navigate(rolePaths[userRole] || "/superDashboard/home", { replace: true });
+          }
+          return;
+        } catch (e) {
+          // If parsing fails, continue with profile check
+          console.error("Error parsing userData:", e);
+        }
+      }
 
       // If only loginToken exists (during login flow), don't interfere
       // Only proceed if JWT token exists
@@ -55,34 +81,6 @@ const InitialRoute = () => {
           navigate("/auth/login", { replace: true });
         }
         return;
-      }
-
-      // JWT token exists - check if userData also exists
-      if (jwtToken && userData) {
-        try {
-          // Parse userData to get user role
-          const parsedUserData = JSON.parse(userData);
-          const userRole = parsedUserData?.userRole;
-
-          // Navigate directly to dashboard based on role
-          const rolePaths = {
-            1: "/superDashboard/home",
-            2: "/adminDashBoard/home",
-            3: "/masterDistributerDashboard/home",
-            4: "/distributerDashboard/home",
-            5: "/retailerDashboard/home",
-            6: "/employeeDashboard/home",
-          };
-
-          if (!hasRedirected.current) {
-            hasRedirected.current = true;
-            navigate(rolePaths[userRole] || "/superDashboard/home", { replace: true });
-          }
-          return;
-        } catch (error) {
-          // If parsing fails, fall through to profile check
-          console.error("Error parsing userData:", error);
-        }
       }
 
       // JWT token exists but no userData, validate it by fetching user profile
