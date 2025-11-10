@@ -49,8 +49,10 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
 
     // Handle numeric status codes (like 429) or string status
     if (status === "SUCCESS" || status === 200) {
+      // Store login token separately (not JWT) - this is used for subsequent steps
+      // Only store JWT token after 2FA verification completes
       if (token) {
-        secureLocalStorage.setItem("userToken", token);
+        secureLocalStorage.setItem("loginToken", token);
       }
 
       dispatch({
@@ -62,6 +64,7 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
     } else {
       // Check for token expiration
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
         dispatch({
           type: LOGIN_FAILURE,
@@ -82,6 +85,7 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
   } catch (error) {
     // Check for token expiration error
     if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
       dispatch({
         type: LOGIN_FAILURE,
@@ -106,7 +110,8 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
 export const verificationStatus = (credentials, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("userToken");
+  // Use loginToken (from step 1) for OTP verification, not JWT token
+  const authToken = secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
@@ -126,11 +131,11 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
 
     // Handle numeric status codes (like 429) or string status
     if (status === "SUCCESS" || status === 200) {
-      // Store token from response - check multiple possible locations
-      // Based on API response structure: data.data.token or data.token
-      const token = data?.data?.token || data?.token || data?.accessToken || data?.data?.accessToken;
+      // Update login token if new one is provided (for subsequent steps)
+      // Don't store JWT here - JWT is only stored after 2FA verification
+      const token = data?.data?.token || data?.token;
       if (token) {
-        secureLocalStorage.setItem("userToken", token);
+        secureLocalStorage.setItem("loginToken", token);
       }
 
       dispatch({
@@ -142,6 +147,7 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
     } else {
       // Check for token expiration
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
         dispatch({
           type: VERIFICATION_OTP_FAILURE,
@@ -162,6 +168,7 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
   } catch (error) {
     // Check for token expiration error
     if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
       dispatch({
         type: VERIFICATION_OTP_FAILURE,
@@ -186,7 +193,8 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
 export const authOtp = (payload, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("userToken");
+  // Use loginToken (from step 1) for 2FA verification, not JWT token
+  const authToken = secureLocalStorage.getItem("loginToken");
 
   try {
     // Ensure payload has the otp field
@@ -224,15 +232,20 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
 
     // Handle numeric status codes (like 429) or string status
     if (status === "SUCCESS" || status === 200) {
-      // Store accessToken if available (from data.data.accessToken or data.accessToken)
-      // This is the final JWT token after 2FA verification
+      // This is the final step - store JWT token (accessToken) after 2FA verification
+      // Remove login token as it's no longer needed
       const accessToken = data?.data?.accessToken || data?.accessToken;
       const token = data?.data?.token || data?.token;
       
       if (accessToken) {
+        // Store JWT token - this is the final authentication token
         secureLocalStorage.setItem("userToken", accessToken);
+        // Remove login token as it's no longer needed
+        secureLocalStorage.removeItem("loginToken");
       } else if (token) {
+        // Fallback: if accessToken not available, use token
         secureLocalStorage.setItem("userToken", token);
+        secureLocalStorage.removeItem("loginToken");
       }
 
       dispatch({
@@ -244,6 +257,7 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
     } else {
       // Check for token expiration
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
         dispatch({
           type: TWOFACTOR_AUTH_FAILURE,
@@ -264,6 +278,7 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
   } catch (error) {
     // Check for token expiration error
     if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
       dispatch({
         type: TWOFACTOR_AUTH_FAILURE,
@@ -288,7 +303,8 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
 export const rescendOtp = (companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("userToken");
+  // Use loginToken (from step 1) for resend OTP, not JWT token
+  const authToken = secureLocalStorage.getItem("loginToken");
 
   try {
     const response = await axios.post(
@@ -307,8 +323,9 @@ export const rescendOtp = (companyId) => async (dispatch) => {
     const { status, resendStatus } = data ?? {};
 
     if (status === "SUCCESS") {
+      // Update login token if new one is provided
       if (data?.token) {
-        secureLocalStorage.setItem("userToken", data.token);
+        secureLocalStorage.setItem("loginToken", data.token);
       }
 
       dispatch({
@@ -320,6 +337,7 @@ export const rescendOtp = (companyId) => async (dispatch) => {
     } else {
       // Check for token expiration
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
         dispatch({
           type: RESECEND_OTP_FAILURE,
@@ -338,6 +356,7 @@ export const rescendOtp = (companyId) => async (dispatch) => {
   } catch (error) {
     // Check for token expiration error
     if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
       dispatch({
         type: RESECEND_OTP_FAILURE,
@@ -360,7 +379,8 @@ export const rescendOtp = (companyId) => async (dispatch) => {
 export const resetPassword = (credentials, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
-  const authToken = secureLocalStorage.getItem("userToken");
+  // Use loginToken (from step 1) for reset password, not JWT token
+  const authToken = secureLocalStorage.getItem("loginToken");
 
   try {
     if (!authToken) {
@@ -387,9 +407,17 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
     const { status } = data ?? {};
 
     if (status === "SUCCESS") {
-      const token = data?.data?.token || data?.token || data?.accessToken || data?.data?.accessToken;
-      if (token) {
-        secureLocalStorage.setItem("userToken", token);
+      // After password reset, check if we get JWT token or continue with login token
+      const accessToken = data?.data?.accessToken || data?.accessToken;
+      const token = data?.data?.token || data?.token;
+      
+      // If accessToken (JWT) is provided, store it and remove login token
+      // Otherwise, update login token for next steps
+      if (accessToken) {
+        secureLocalStorage.setItem("userToken", accessToken);
+        secureLocalStorage.removeItem("loginToken");
+      } else if (token) {
+        secureLocalStorage.setItem("loginToken", token);
       }
 
       dispatch({
@@ -400,6 +428,7 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
     } else {
       // Check for token expiration
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
         dispatch({
           type: RESET_PASSWORD_FAILURE,
@@ -418,6 +447,7 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
   } catch (error) {
     // Check for token expiration error
     if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
       dispatch({
         type: RESET_PASSWORD_FAILURE,

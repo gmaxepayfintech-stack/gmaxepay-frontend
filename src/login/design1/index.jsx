@@ -121,21 +121,22 @@ const LoginDesign1 = () => {
       const errorMessage = typeof loginError === 'object' ? loginError.message : loginError;
       const isTokenExpired = typeof loginError === 'object' && loginError.isTokenExpired;
       
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        processedLoginRef.current = false;
+      }
+      
       showNotification({
         type: "error",
         message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
-        onClose: () => {
-          // If token expired, go back to login step 1
-          if (isTokenExpired) {
-            secureLocalStorage.removeItem("userToken");
-            setCurrentView(VIEWS.LOGIN);
-            setOtp(Array(6).fill(""));
-            setSubmittedPhone("");
-            processedLoginRef.current = false;
-          }
-        },
       });
     }
   }, [loginError, showNotification]);
@@ -148,22 +149,22 @@ const LoginDesign1 = () => {
         const errorMessage = typeof verificationError === 'object' ? verificationError.message : verificationError;
         const isTokenExpired = typeof verificationError === 'object' && verificationError.isTokenExpired;
         
+        // If login token expired, immediately redirect to step 1
+        if (isTokenExpired) {
+          secureLocalStorage.removeItem("loginToken");
+          secureLocalStorage.removeItem("userToken");
+          setCurrentView(VIEWS.LOGIN);
+          setOtp(Array(6).fill(""));
+          setSubmittedPhone("");
+          setPhoneNumber("");
+          processedVerificationRef.current = false;
+        }
+        
         showNotification({
           type: "error",
           message: errorMessage,
           duration: 6000,
           clearExisting: true, // Clear existing notifications for errors
-          onClose: () => {
-            // If token expired, go back to login step 1
-            if (isTokenExpired) {
-              secureLocalStorage.removeItem("userToken");
-              setCurrentView(VIEWS.LOGIN);
-              setOtp(Array(6).fill(""));
-              setSubmittedPhone("");
-              setPhoneNumber("");
-              processedVerificationRef.current = false;
-            }
-          },
         });
       }
       // Also check for FAILURE status in verificationStatusdata
@@ -185,21 +186,21 @@ const LoginDesign1 = () => {
       const errorMessage = typeof resetPasswordError === 'object' ? resetPasswordError.message : resetPasswordError;
       const isTokenExpired = typeof resetPasswordError === 'object' && resetPasswordError.isTokenExpired;
       
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+      
       showNotification({
         type: "error",
         message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
-        onClose: () => {
-          // If token expired, go back to login step 1
-          if (isTokenExpired) {
-            secureLocalStorage.removeItem("userToken");
-            setCurrentView(VIEWS.LOGIN);
-            setOtp(Array(6).fill(""));
-            setSubmittedPhone("");
-            setPhoneNumber("");
-          }
-        },
       });
     }
   }, [resetPasswordError, showNotification]);
@@ -257,16 +258,9 @@ const LoginDesign1 = () => {
         return;
       }
 
-      const rolePaths = {
-        1: "/dashboard/home",
-        2: "/adminDashBoard/home",
-        3: "/masterDistributerDashboard/home",
-        4: "/distributerDashboard/home",
-        5: "/retailerDashboard/home",
-        6: "/employeeDashboard/home",
-      };
-      const userRole = loginData?.data?.userRole || loginResponse?.userRole;
-      navigate(rolePaths[userRole] || "/dashboard/home");
+      // Don't navigate here - wait for JWT token after 2FA verification
+      // Only navigate if we have JWT token (which comes after 2FA)
+      // For now, just proceed to next step (OTP, 2FA setup, etc.)
     }
   }, [loginData, loginResponseData, navigate, showNotification]);
 
@@ -323,16 +317,21 @@ const LoginDesign1 = () => {
                   }, 100);
                 }
               } else {
-                const rolePaths = {
-                  1: "/dashboard/home",
-                  2: "/adminDashBoard/home",
-                  3: "/masterDistributerDashboard/home",
-                  4: "/distributerDashboard/home",
-                  5: "/retailerDashboard/home",
-                  6: "/employeeDashboard/home",
-                };
-                const userRole = responseData?.userRole || verificationResponse?.userRole;
-                navigate(rolePaths[userRole] || "/dashboard/home");
+                // Check if we have JWT token (accessToken) - only navigate if JWT exists
+                const jwtToken = secureLocalStorage.getItem("userToken");
+                if (jwtToken) {
+                  const rolePaths = {
+                    1: "/dashboard/home",
+                    2: "/adminDashBoard/home",
+                    3: "/masterDistributerDashboard/home",
+                    4: "/distributerDashboard/home",
+                    5: "/retailerDashboard/home",
+                    6: "/employeeDashboard/home",
+                  };
+                  const userRole = responseData?.userRole || verificationResponse?.userRole;
+                  navigate(rolePaths[userRole] || "/dashboard/home");
+                }
+                // If no JWT token, stay on current view (might need 2FA)
               }
             } else if (currentView === VIEWS.VERIFICATION_CODE) {
               // After forgot password OTP, check if password reset is required
@@ -397,12 +396,14 @@ const LoginDesign1 = () => {
         clearExisting: false, // Don't clear existing notifications
         onClose: () => {
           // Navigate only after notification closes
+          // JWT token is already stored in secureLocalStorage by authOtp action
           dispatch(
             loginSuccess({
               token: factresponse,
               user: usedata,
             })
           );
+          // Now navigate - JWT token exists at this point
           const rolePaths = {
             1: "/dashboard/home",
             2: "/adminDashBoard/home",
@@ -424,22 +425,22 @@ const LoginDesign1 = () => {
       const errorMessage = typeof twoFactorAuthError === 'object' ? twoFactorAuthError.message : twoFactorAuthError;
       const isTokenExpired = typeof twoFactorAuthError === 'object' && twoFactorAuthError.isTokenExpired;
       
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        setQrData(null);
+      }
+      
       showNotification({
         type: "error",
         message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
-        onClose: () => {
-          // If token expired, go back to login step 1
-          if (isTokenExpired) {
-            secureLocalStorage.removeItem("userToken");
-            setCurrentView(VIEWS.LOGIN);
-            setOtp(Array(6).fill(""));
-            setSubmittedPhone("");
-            setPhoneNumber("");
-            setQrData(null);
-          }
-        },
       });
     }
   }, [twoFactorAuthError, currentView, showNotification]);
@@ -457,10 +458,13 @@ const LoginDesign1 = () => {
         clearExisting: false, // Don't clear existing notifications
         onClose: () => {
           // Navigate only after notification closes
+          // Check if we have JWT token (after password reset might get JWT or continue with login token)
+          const jwtToken = secureLocalStorage.getItem("userToken");
           const responseData = resetPasswordResponse?.data || resetPasswordResponse;
           const userRole = responseData?.userRole;
           
-          if (userRole) {
+          if (jwtToken && userRole) {
+            // JWT token exists, navigate to dashboard
             const rolePaths = {
               1: "/dashboard/home",
               2: "/adminDashBoard/home",
@@ -470,6 +474,29 @@ const LoginDesign1 = () => {
               6: "/employeeDashboard/home",
             };
             navigate(rolePaths[userRole] || "/dashboard/home");
+          } else if (userRole) {
+            // User role exists but no JWT - might need 2FA, stay on current view
+            // Check if 2FA is required
+            const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
+            const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
+            const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
+            
+            if (requiresSetup2FA || requires2FA) {
+              if (qrCode) {
+                setQrData(qrCode);
+                setOtp(Array(6).fill(""));
+                setCurrentView(VIEWS.REQUIRE_2FA);
+              } else {
+                setOtp(Array(6).fill(""));
+                setCurrentView(VIEWS.AUTH_2FA);
+                setTimeout(() => {
+                  auth2FAInputRefs.current[0]?.focus();
+                }, 100);
+              }
+            } else {
+              // No 2FA required but no JWT - go back to login
+              setCurrentView(VIEWS.LOGIN);
+            }
           } else {
             setCurrentView(VIEWS.LOGIN);
           }
