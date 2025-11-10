@@ -88,7 +88,7 @@ const LoginDesign2 = () => {
         };
         
         const userRole = response.data.data.userRole;
-        navigate(rolePaths[userRole] || '/dashboard/home');
+        navigate(rolePaths[userRole] || '/superDashboard/home');
       }
       
       setLoading(false);
