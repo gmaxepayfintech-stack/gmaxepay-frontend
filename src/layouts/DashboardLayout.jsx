@@ -15,7 +15,7 @@ const MaskGroup3 = "/img/Maskgroup3.png";
 const MaskGroup4 = "/img/Maskgroup4.png";
 const MaskGroup5 = "/img/Maskgroup5.png";
 const NotificationIcon = "/img/NotificationIcon.png";
-const defaultProfileImage = "/img/defaultprofileimage.png";
+const defaultProfileImage = "/img/defaultProfilelogo.png";
 const companyLogo = "/img/gmaxepay.png";
 
 const DashboardLayout = ({ children }) => {
@@ -265,27 +265,15 @@ const DashboardLayout = ({ children }) => {
               <span className="text-sm font-medium">
                 {name || email || "Admin Panel"}
               </span>
-              {profileImage ? (
-                <img
-                  src={profileImage}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = defaultProfileImage;
-                  }}
-                />
-              ) : (
-                <img
-                  src={defaultProfileImage}
-                  alt="Profile"
-                  className="w-8 h-8 rounded-full object-cover"
-                  onError={(e) => {
-                    e.target.onerror = null;
-                    e.target.src = companyLogo;
-                  }}
-                />
-              )}
+              <img
+                src={defaultProfileImage}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = companyLogo;
+                }}
+              />
             </div>
           </div>
 
