@@ -17,13 +17,19 @@ import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
 
-export const loginStatus = (credentials) => async (dispatch) => {
+export const loginStatus = (credentials, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   try {
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/login`,
-      credentials
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-company-id": companyId,
+        },
+      }
     );
 
     const data = response?.data;
@@ -62,7 +68,7 @@ export const loginStatus = (credentials) => async (dispatch) => {
   }
 };
 
-export const verificationStatus = (credentials) => async (dispatch) => {
+export const verificationStatus = (credentials, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -75,6 +81,7 @@ export const verificationStatus = (credentials) => async (dispatch) => {
         headers: {
           "Content-Type": "application/json",
           token: `${authToken}`,
+          "x-company-id": companyId,
         },
       }
     );
@@ -117,7 +124,7 @@ export const verificationStatus = (credentials) => async (dispatch) => {
   }
 };
 
-export const authOtp = (payload) => async (dispatch) => {
+export const authOtp = (payload, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -148,6 +155,7 @@ export const authOtp = (payload) => async (dispatch) => {
         headers: {
           "Content-Type": "application/json",
           token: `${authToken}`,
+          "x-company-id": companyId,
         },
       }
     );
@@ -193,7 +201,7 @@ export const authOtp = (payload) => async (dispatch) => {
   }
 };
 
-export const rescendOtp = () => async (dispatch) => {
+export const rescendOtp = (companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -206,6 +214,7 @@ export const rescendOtp = () => async (dispatch) => {
         headers: {
           "Content-Type": "application/json",
           token: `${authToken}`,
+          "x-company-id": companyId,
         },
       }
     );
@@ -240,7 +249,7 @@ export const rescendOtp = () => async (dispatch) => {
   }
 };
 
-export const resetPassword = (credentials) => async (dispatch) => {
+export const resetPassword = (credentials, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   const authToken = secureLocalStorage.getItem("userToken");
@@ -261,6 +270,7 @@ export const resetPassword = (credentials) => async (dispatch) => {
         headers: {
           "Content-Type": "application/json",
           token: `${authToken}`,
+          "x-company-id": companyId,
         },
       }
     );

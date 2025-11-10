@@ -47,9 +47,6 @@ const LoginDesign1 = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { company } = useCompany();
-  
-  // Get companyId from company context (support multiple possible field names)
-  const companyId = company?._id || company?.id || company?.companyId;
 
   const otpInputRefs = useRef([]);
   const auth2FAInputRefs = useRef([]);
@@ -138,9 +135,10 @@ const LoginDesign1 = () => {
           type: "error",
           message: verificationError,
           duration: 6000,
-          clearExisting: true, 
+          clearExisting: true, // Clear existing notifications for errors
         });
       }
+      // Also check for FAILURE status in verificationStatusdata
       else if (verificationStatusdata === "FAILURE") {
         const errorMessage = verificationResponse?.message || verificationResponse?.data?.message || "OTP verification failed. Please try again.";
         showNotification({
@@ -160,15 +158,17 @@ const LoginDesign1 = () => {
         type: "error",
         message: resetPasswordError,
         duration: 6000,
-        clearExisting: true, 
+        clearExisting: true, // Clear existing notifications for errors
       });
     }
   }, [resetPasswordError, showNotification]);
 
+  // Handle login response
   useEffect(() => {
     if (!loginData || processedLoginRef.current) return;
 
-    
+    // Check for FAILURE status or error status codes (like 429) in login response
+    // The status can be in loginData.status or loginData.loginResponse?.status
     const status = loginData.status || loginData.loginResponse?.status || loginData.data?.status;
     if (status === "FAILURE" || (typeof status === "number" && status !== 200 && status !== "SUCCESS")) {
       const errorMessage = loginData?.message || loginData?.loginResponse?.message || loginData?.data?.message || "Login failed. Please try again.";
@@ -176,7 +176,7 @@ const LoginDesign1 = () => {
         type: "error",
         message: errorMessage,
         duration: 6000,
-        clearExisting: true, 
+        clearExisting: true, // Clear existing notifications for errors
       });
       processedLoginRef.current = true;
       return;
@@ -217,7 +217,7 @@ const LoginDesign1 = () => {
       }
 
       const rolePaths = {
-        1: "/superDashboard/home",
+        1: "/dashboard/home",
         2: "/adminDashBoard/home",
         3: "/masterDistributerDashboard/home",
         4: "/distributerDashboard/home",
@@ -225,7 +225,7 @@ const LoginDesign1 = () => {
         6: "/employeeDashboard/home",
       };
       const userRole = loginData?.data?.userRole || loginResponse?.userRole;
-      navigate(rolePaths[userRole] || "/superDashboard/home");
+      navigate(rolePaths[userRole] || "/dashboard/home");
     }
   }, [loginData, loginResponseData, navigate, showNotification]);
 
@@ -279,7 +279,7 @@ const LoginDesign1 = () => {
                 }
               } else {
                 const rolePaths = {
-                  1: "/superDashboard/home",
+                  1: "/dashboard/home",
                   2: "/adminDashBoard/home",
                   3: "/masterDistributerDashboard/home",
                   4: "/distributerDashboard/home",
@@ -287,7 +287,7 @@ const LoginDesign1 = () => {
                   6: "/employeeDashboard/home",
                 };
                 const userRole = responseData?.userRole || verificationResponse?.userRole;
-                navigate(rolePaths[userRole] || "/superDashboard/home");
+                navigate(rolePaths[userRole] || "/dashboard/home");
               }
             } else if (currentView === VIEWS.VERIFICATION_CODE) {
               // After forgot password OTP, check if password reset is required
@@ -359,7 +359,7 @@ const LoginDesign1 = () => {
             })
           );
           const rolePaths = {
-            1: "/superDashboard/home",
+            1: "/dashboard/home",
             2: "/adminDashBoard/home",
             3: "/masterDistributerDashboard/home",
             4: "/distributerDashboard/home",
@@ -367,7 +367,7 @@ const LoginDesign1 = () => {
             6: "/employeeDashboard/home",
           };
           const userRole = usedata?.userRole;
-          navigate(rolePaths[userRole] || "/superDashboard/home");
+          navigate(rolePaths[userRole] || "/dashboard/home");
         },
       });
     }
@@ -403,14 +403,14 @@ const LoginDesign1 = () => {
           
           if (userRole) {
             const rolePaths = {
-              1: "/superDashboard/home",
+              1: "/dashboard/home",
               2: "/adminDashBoard/home",
               3: "/masterDistributerDashboard/home",
               4: "/distributerDashboard/home",
               5: "/retailerDashboard/home",
               6: "/employeeDashboard/home",
             };
-            navigate(rolePaths[userRole] || "superDashboard/home");
+            navigate(rolePaths[userRole] || "/dashboard/home");
           } else {
             setCurrentView(VIEWS.LOGIN);
           }
@@ -444,6 +444,7 @@ const LoginDesign1 = () => {
       };
       setSubmittedPhone(values.phoneNumber);
 
+      const companyId = company?._id || company?.id || company?.companyId;
       dispatch(loginStatus(payload, companyId));
     } catch (error) {
       showNotification({
@@ -512,11 +513,13 @@ const LoginDesign1 = () => {
       });
       return;
     }
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(verificationStatus({ otp: finalOtp }, companyId));
   };
 
   // Resend OTP
   const handleResendOtp = () => {
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(rescendOtp(companyId));
     setOtpTimer(180);
     setOtp(Array(6).fill(""));
@@ -574,6 +577,7 @@ const LoginDesign1 = () => {
       });
       return;
     }
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(authOtp({ otp: finalOtp }, companyId));
   };
 
@@ -584,6 +588,7 @@ const LoginDesign1 = () => {
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
       };
+      const companyId = company?._id || company?.id || company?.companyId;
       dispatch(resetPassword(payload, companyId));
     } catch (error) {
       showNotification({
