@@ -236,15 +236,25 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       // Remove login token as it's no longer needed
       const accessToken = data?.data?.accessToken || data?.accessToken;
       const token = data?.data?.token || data?.token;
+      const userData = data?.data?.user || data?.user;
       
       if (accessToken) {
         // Store JWT token - this is the final authentication token
         secureLocalStorage.setItem("userToken", accessToken);
+        // Store userData as JSON string if it exists
+        if (userData) {
+          secureLocalStorage.setItem("userData", JSON.stringify(userData));
+        }
         // Remove login token as it's no longer needed
         secureLocalStorage.removeItem("loginToken");
       } else if (token) {
         // Fallback: if accessToken not available, use token
         secureLocalStorage.setItem("userToken", token);
+        // Store userData as JSON string if it exists
+        if (userData) {
+          secureLocalStorage.setItem("userData", JSON.stringify(userData));
+        }
+        // Remove login token as it's no longer needed
         secureLocalStorage.removeItem("loginToken");
       }
 

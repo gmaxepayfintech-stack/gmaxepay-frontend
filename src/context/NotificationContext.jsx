@@ -110,7 +110,7 @@ const NotificationContainer = ({ notifications, onRemove }) => {
 
   // Check if we're on a dashboard route (use current pathname directly for accuracy)
   const pathname = currentPath || window.location.pathname;
-  const isDashboardRoute = pathname.startsWith('/dashboard') || 
+  const isDashboardRoute = pathname.startsWith('/superDashboard') || 
                           pathname.startsWith('/adminDashboard') ||
                           pathname.startsWith('/subAdminDashboard') ||
                           pathname.startsWith('/retailerDashboard') ||

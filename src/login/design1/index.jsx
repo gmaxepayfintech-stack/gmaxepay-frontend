@@ -339,7 +339,7 @@ const LoginDesign1 = () => {
                 const jwtToken = secureLocalStorage.getItem("userToken");
                 if (jwtToken) {
                   const rolePaths = {
-                    1: "/dashboard/home",
+                    1: "/superDashboard/home",
                     2: "/adminDashBoard/home",
                     3: "/masterDistributerDashboard/home",
                     4: "/distributerDashboard/home",
@@ -347,7 +347,7 @@ const LoginDesign1 = () => {
                     6: "/employeeDashboard/home",
                   };
                   const userRole = responseData?.userRole || verificationResponse?.userRole;
-                  navigate(rolePaths[userRole] || "/dashboard/home");
+                  navigate(rolePaths[userRole] || "/superDashboard/home");
                 }
                 // If no JWT token, stay on current view (might need 2FA)
               }
@@ -402,38 +402,100 @@ const LoginDesign1 = () => {
 
   // Handle 2FA response
   useEffect(() => {
-    if (factstatus === "SUCCESS" && factresponse && usedata) {
+    if (factstatus === "SUCCESS" && factresponse) {
+      // Get user data from response - check multiple possible locations
+      const userDataFromResponse = usedata || twoFactorAuthData?.data?.user || twoFactorAuthData?.user;
+      
       // Get the success message from the response
       const successMessage = twoFactorAuthData?.message || twoFactorAuthData?.data?.message || "2FA setup successful!";
       
-      // Show notification first (with onClose callback to navigate after notification closes)
-      showNotification({
-        type: "success",
-        message: successMessage,
-        duration: 3000,
-        clearExisting: false, // Don't clear existing notifications
-        onClose: () => {
-          // Navigate only after notification closes
-          // JWT token is already stored in secureLocalStorage by authOtp action
-          dispatch(
-            loginSuccess({
-              token: factresponse,
-              user: usedata,
-            })
-          );
-          // Now navigate - JWT token exists at this point
-          const rolePaths = {
-            1: "/dashboard/home",
-            2: "/adminDashBoard/home",
-            3: "/masterDistributerDashboard/home",
-            4: "/distributerDashboard/home",
-            5: "/retailerDashboard/home",
-            6: "/employeeDashboard/home",
-          };
-          const userRole = usedata?.userRole;
-          navigate(rolePaths[userRole] || "/dashboard/home");
-        },
-      });
+      // Check if token already exists in secure storage (from authOtp action)
+      const existingToken = secureLocalStorage.getItem("userToken");
+      const existingUserData = secureLocalStorage.getItem("userData");
+      
+      // If token exists, redirect immediately based on role
+      if (existingToken) {
+        let userRole;
+        
+        // Try to get role from stored userData first
+        if (existingUserData) {
+          try {
+            const parsedUserData = JSON.parse(existingUserData);
+            userRole = parsedUserData?.userRole;
+          } catch (e) {
+            // If parsing fails, try to get from response
+            userRole = userDataFromResponse?.userRole;
+          }
+        } else {
+          // If no stored userData, get from response
+          userRole = userDataFromResponse?.userRole;
+        }
+        
+        // If still no role, try to get from twoFactorAuthData
+        if (!userRole) {
+          userRole = twoFactorAuthData?.data?.user?.userRole || twoFactorAuthData?.user?.userRole;
+        }
+        
+        const rolePaths = {
+          1: "/superDashboard/home",
+          2: "/adminDashBoard/home",
+          3: "/masterDistributerDashboard/home",
+          4: "/distributerDashboard/home",
+          5: "/retailerDashboard/home",
+          6: "/employeeDashboard/home",
+        };
+        
+        // Dispatch loginSuccess with user data
+        dispatch(
+          loginSuccess({
+            token: factresponse || existingToken,
+            user: userDataFromResponse || (existingUserData ? JSON.parse(existingUserData) : null),
+          })
+        );
+        
+        // Navigate based on role
+        navigate(rolePaths[userRole] || "/superDashboard/home");
+        return;
+      }
+      
+      // If no token yet, show notification and wait for token to be stored
+      if (userDataFromResponse) {
+        showNotification({
+          type: "success",
+          message: successMessage,
+          duration: 3000,
+          clearExisting: false, // Don't clear existing notifications
+          onClose: () => {
+            // Navigate only after notification closes
+            // JWT token should be stored in secureLocalStorage by authOtp action
+            const jwtToken = secureLocalStorage.getItem("userToken");
+            const storedUserData = secureLocalStorage.getItem("userData");
+            
+            if (jwtToken) {
+              dispatch(
+                loginSuccess({
+                  token: factresponse || jwtToken,
+                  user: userDataFromResponse || (storedUserData ? JSON.parse(storedUserData) : null),
+                })
+              );
+              
+              // Get role from userData
+              const userRole = userDataFromResponse?.userRole || (storedUserData ? JSON.parse(storedUserData)?.userRole : null);
+              
+              const rolePaths = {
+                1: "/superDashboard/home",
+                2: "/adminDashBoard/home",
+                3: "/masterDistributerDashboard/home",
+                4: "/distributerDashboard/home",
+                5: "/retailerDashboard/home",
+                6: "/employeeDashboard/home",
+              };
+              
+              navigate(rolePaths[userRole] || "/superDashboard/home");
+            }
+          },
+        });
+      }
     }
   }, [factstatus, factresponse, usedata, twoFactorAuthData, dispatch, navigate, showNotification]);
 
@@ -484,14 +546,14 @@ const LoginDesign1 = () => {
           if (jwtToken && userRole) {
             // JWT token exists, navigate to dashboard
             const rolePaths = {
-              1: "/dashboard/home",
+              1: "/superDashboard/home",
               2: "/adminDashBoard/home",
               3: "/masterDistributerDashboard/home",
               4: "/distributerDashboard/home",
               5: "/retailerDashboard/home",
               6: "/employeeDashboard/home",
             };
-            navigate(rolePaths[userRole] || "/dashboard/home");
+            navigate(rolePaths[userRole] || "/superDashboard/home");
           } else if (userRole) {
             // User role exists but no JWT - might need 2FA, stay on current view
             // Check if 2FA is required
