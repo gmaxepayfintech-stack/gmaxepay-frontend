@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { UserCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -7,17 +7,16 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../redux/action/userProfileAction";
 import { useNotification } from "../context/NotificationContext";
 
-import MaskGroup from "../../public/img/Maskgroup.png";
-import MaskGroup1 from "../../public/img/Maskgroup1.png";
-import MaskGroup2 from "../../public/img/Maskgroup2.png";
-import MaskGroup3 from "../../public/img/Maskgroup3.png";
-import MaskGroup4 from "../../public/img/Maskgroup4.png";
-import MaskGroup5 from "../../public/img/Maskgroup5.png";
-import NotificationIcon from "../../public/img/NotificationIcon.png";
-import SuperAdmin from "../pages/superAdminDashboard/SuperAdmin";
-
-// Use absolute path for public folder assets
-const defaultLogo = "/img/defaultlogo.png";
+// Use absolute paths for public folder assets
+const MaskGroup = "/img/Maskgroup.png";
+const MaskGroup1 = "/img/Maskgroup1.png";
+const MaskGroup2 = "/img/Maskgroup2.png";
+const MaskGroup3 = "/img/Maskgroup3.png";
+const MaskGroup4 = "/img/Maskgroup4.png";
+const MaskGroup5 = "/img/Maskgroup5.png";
+const NotificationIcon = "/img/NotificationIcon.png";
+const defaultProfileImage = "/img/defaultprofileimage.png";
+const companyLogo = "/img/gmaxepay.png";
 
 const DashboardLayout = ({ children }) => {
   const { company } = useCompany();
@@ -132,9 +131,13 @@ const DashboardLayout = ({ children }) => {
         {/* Logo */}
         <div className="p-6 text-center border-[#039155]/20">
           <img
-            src={company?.logo || defaultLogo}
+            src={company?.logo || companyLogo}
             alt="Company Logo"
-            className="h-10 mx-auto mb-2"
+            className="h-10 mx-auto mb-2 object-contain"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = companyLogo;
+            }}
           />
         </div>
 
@@ -159,9 +162,13 @@ const DashboardLayout = ({ children }) => {
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 object-contain ${
                         isActiveParent ? "filter brightness-0 invert" : ""
                       }`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/img/gmaxepay.png";
+                      }}
                     />
                     {dropdown ? (
                       <span>{name}</span>
@@ -238,7 +245,7 @@ const DashboardLayout = ({ children }) => {
             <h1 className="text-lg w-[177px] font-semibold text-[#1B1717]">
               Welcome Back!
             </h1>
-            <p className="text-sm text-gray-500">Rohan G</p>
+            <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -246,7 +253,11 @@ const DashboardLayout = ({ children }) => {
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-8 h-8"
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/gmaxepay.png";
+                }}
               />
             </button>
 
@@ -261,14 +272,18 @@ const DashboardLayout = ({ children }) => {
                   className="w-8 h-8 rounded-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = defaultLogo;
+                    e.target.src = defaultProfileImage;
                   }}
                 />
               ) : (
                 <img
-                  src={defaultLogo}
+                  src={defaultProfileImage}
                   alt="Profile"
                   className="w-8 h-8 rounded-full object-cover"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = companyLogo;
+                  }}
                 />
               )}
             </div>

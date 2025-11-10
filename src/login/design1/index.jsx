@@ -409,56 +409,44 @@ const LoginDesign1 = () => {
       // Get the success message from the response
       const successMessage = twoFactorAuthData?.message || twoFactorAuthData?.data?.message || "2FA setup successful!";
       
-      // Check if token already exists in secure storage (from authOtp action)
+      // Check if both token and userData exist in secure storage (from authOtp action)
       const existingToken = secureLocalStorage.getItem("userToken");
       const existingUserData = secureLocalStorage.getItem("userData");
       
-      // If token exists, redirect immediately based on role
-      if (existingToken) {
-        let userRole;
-        
-        // Try to get role from stored userData first
-        if (existingUserData) {
-          try {
-            const parsedUserData = JSON.parse(existingUserData);
-            userRole = parsedUserData?.userRole;
-          } catch (e) {
-            // If parsing fails, try to get from response
-            userRole = userDataFromResponse?.userRole;
-          }
-        } else {
-          // If no stored userData, get from response
-          userRole = userDataFromResponse?.userRole;
+      // Only navigate if BOTH token and userData exist
+      if (existingToken && existingUserData) {
+        try {
+          const parsedUserData = JSON.parse(existingUserData);
+          const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+          
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashBoard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+          
+          // Dispatch loginSuccess with user data
+          dispatch(
+            loginSuccess({
+              token: factresponse || existingToken,
+              user: parsedUserData || userDataFromResponse,
+            })
+          );
+          
+          // Navigate based on role
+          navigate(rolePaths[userRole] || "/superDashboard/home");
+          return;
+        } catch (e) {
+          console.error("Error parsing userData:", e);
+          // If parsing fails, continue to show notification
         }
-        
-        // If still no role, try to get from twoFactorAuthData
-        if (!userRole) {
-          userRole = twoFactorAuthData?.data?.user?.userRole || twoFactorAuthData?.user?.userRole;
-        }
-        
-        const rolePaths = {
-          1: "/superDashboard/home",
-          2: "/adminDashBoard/home",
-          3: "/masterDistributerDashboard/home",
-          4: "/distributerDashboard/home",
-          5: "/retailerDashboard/home",
-          6: "/employeeDashboard/home",
-        };
-        
-        // Dispatch loginSuccess with user data
-        dispatch(
-          loginSuccess({
-            token: factresponse || existingToken,
-            user: userDataFromResponse || (existingUserData ? JSON.parse(existingUserData) : null),
-          })
-        );
-        
-        // Navigate based on role
-        navigate(rolePaths[userRole] || "/superDashboard/home");
-        return;
       }
       
-      // If no token yet, show notification and wait for token to be stored
+      // If token or userData doesn't exist yet, show notification and wait
+      // This ensures we only navigate when both are available
       if (userDataFromResponse) {
         showNotification({
           type: "success",
@@ -467,31 +455,36 @@ const LoginDesign1 = () => {
           clearExisting: false, // Don't clear existing notifications
           onClose: () => {
             // Navigate only after notification closes
-            // JWT token should be stored in secureLocalStorage by authOtp action
+            // Check again if both JWT token and userData are stored
             const jwtToken = secureLocalStorage.getItem("userToken");
             const storedUserData = secureLocalStorage.getItem("userData");
             
-            if (jwtToken) {
-              dispatch(
-                loginSuccess({
-                  token: factresponse || jwtToken,
-                  user: userDataFromResponse || (storedUserData ? JSON.parse(storedUserData) : null),
-                })
-              );
-              
-              // Get role from userData
-              const userRole = userDataFromResponse?.userRole || (storedUserData ? JSON.parse(storedUserData)?.userRole : null);
-              
-              const rolePaths = {
-                1: "/superDashboard/home",
-                2: "/adminDashBoard/home",
-                3: "/masterDistributerDashboard/home",
-                4: "/distributerDashboard/home",
-                5: "/retailerDashboard/home",
-                6: "/employeeDashboard/home",
-              };
-              
-              navigate(rolePaths[userRole] || "/superDashboard/home");
+            // Only navigate if BOTH token and userData exist
+            if (jwtToken && storedUserData) {
+              try {
+                const parsedUserData = JSON.parse(storedUserData);
+                const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+                
+                dispatch(
+                  loginSuccess({
+                    token: factresponse || jwtToken,
+                    user: parsedUserData || userDataFromResponse,
+                  })
+                );
+                
+                const rolePaths = {
+                  1: "/superDashboard/home",
+                  2: "/adminDashBoard/home",
+                  3: "/masterDistributerDashboard/home",
+                  4: "/distributerDashboard/home",
+                  5: "/retailerDashboard/home",
+                  6: "/employeeDashboard/home",
+                };
+                
+                navigate(rolePaths[userRole] || "/superDashboard/home");
+              } catch (e) {
+                console.error("Error parsing userData:", e);
+              }
             }
           },
         });
