@@ -80,17 +80,17 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup1,
       dropdown: true,
       children: [
-        { name: "Users", path: "/dashboard/members/add" },
-        { name: "Agents", path: "/dashboard/members/list" },
+        { name: "Users", path: "/superDashboard/members/add" },
+        { name: "Agents", path: "/superDashboard/members/list" },
       ],
     },
     {
       name: "API Operator",
       icon: MaskGroup2,
       dropdown: true,
-      children: [
-        { name: "Operator List", path: "/dashboard/api-operator/list" },
-        { name: "API Settings", path: "/dashboard/api-operator/settings" },
+      children: [ 
+        { name: "Operator List", path: "/superDashboard/api-operator/list" },
+        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
       ],
     },
     {
@@ -98,10 +98,10 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/dashboard/fund-manage/add" },
+        { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
         {
           name: "Role Upgrade Request",
-          path: "/dashboard/fund-manage/history",
+          path: "/superDashboard/fund-manage/history",
         },
       ],
     },
@@ -110,8 +110,8 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Transaction List", path: "/dashboard/txn-history/list" },
-        { name: "Refunds", path: "/dashboard/txn-history/refunds" },
+        { name: "Transaction List", path: "/superDashboard/txn-history/list" },
+        { name: "Refunds", path: "/superDashboard/txn-history/refunds" },
       ],
     },
     {
@@ -119,8 +119,8 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Daily Reports", path: "/dashboard/reports/daily" },
-        { name: "Monthly Reports", path: "/dashboard/reports/monthly" },
+        { name: "Daily Reports", path: "/superDashboard/reports/daily" },
+        { name: "Monthly Reports", path: "/superDashboard/reports/monthly" },
       ],
     },
   ];

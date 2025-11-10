@@ -308,7 +308,7 @@ function App() {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failure" element={<PaymentFailure />} />
         <Route
-          path="/dashboard/*"
+          path="/superDashboard/*"
           element={
             <ProtectedRoute role="super-admin">
               <Dashboard />
