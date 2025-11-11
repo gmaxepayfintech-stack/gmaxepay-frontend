@@ -1,4 +1,3 @@
-import React from "react";
 import Onboarding from "../../../public/img/Onboarding.png";
 import RevenueGenerated from "../../../public/img/RevenueGenerated.png";
 import TotalMembers from "../../../public/img/TotalMembers.png";
@@ -74,7 +73,7 @@ const Members = () => (
         <div
           key={idx}
           // Added border-l-4 for a thick left border and rounded-xl for corner styling
-          className={`bg-white rounded-xl  p-4 border border-gray-200 border-l-4 ${item.borderLeftClass} flex items-center justify-between`}
+          className={`bg-white rounded-xl  p-4 border    border-l-4 ${item.borderLeftClass} flex items-center justify-between`}
         >
           {/* Left Section: Label, Value, Change */}
           <div className="flex flex-col justify-start">

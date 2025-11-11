@@ -69,7 +69,7 @@ const SuperAdmin = () => {
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           {/* Header Section */}
           <div className="flex flex-col sm:flex-wrap sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
-            <h2 className="text-lg sm:text-xl font-semibold text-[#1B1717]">
+            <h2 className="text-2xl font-medium text-[#1B1717]">
               Today Earning
             </h2>
 
@@ -156,9 +156,7 @@ const SuperAdmin = () => {
         </div>
       </div>
 
-      {/* ===== Overall Wallets + Quick Action Buttons ===== */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* ===== Left: Overall Wallets ===== */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           <h3 className="font-semiboldtext-[#1B1717] text-2xl mb-4">
             Overall Wallets

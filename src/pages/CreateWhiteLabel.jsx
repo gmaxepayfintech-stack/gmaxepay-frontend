@@ -152,26 +152,37 @@ const CreateWhiteLabel = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-800">
-      {/* Top Header Navigation */}
-      <div className="flex justify-between items-center bg-white p-4 shadow-sm border-b border-gray-200">
-        <div className="text-xl font-medium text-green-600">Whitelabel</div>
-        <nav className="flex space-x-8 text-gray-600 font-medium">
-          <a href="#" className="hover:text-green-600">
-            Master Distributions
-          </a>
-          <a href="#" className="hover:text-green-600">
-            Distributions
-          </a>
-          <a href="#" className="hover:text-green-600">
-            Retailers
-          </a>
-        </nav>
-      </div>
-
+    <div className="bg-white min-w-screen text-[#1B1717]">
       <div className="p-6">
+        <div className="flex justify-between items-center w-full p-0 mb-8">
+          {/* Whitelabel Button/Logo */}
+          {/* Top Header/Navigation Bar */}
+          <div className="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center w-full mb-8">
+            {/* Main Navigation Links */}
+            <nav className="flex gap-52 text-gray-600 font-medium text-base">
+              <a
+                href="#"
+                className="bg-green-600 text-white px-4 py-1.5 rounded-xl font-medium text-lg"
+              >
+                Whitelabel
+              </a>
+              <a href="#" className="hover:text-green-600">
+                Master Distributions
+              </a>
+              <a href="#" className="hover:text-green-600">
+                Distributions
+              </a>
+              <a href="#" className="hover:text-green-600">
+                Retailers
+              </a>
+            </nav>
+          </div>
+        </div>
+
+        {/* --- */}
+
         {/* Secondary Navigation (List/Process Tabs) */}
-        <div className="flex space-x-2 mb-6">
+        <div className="flex space-x-3 mb-6">
           <button className="bg-green-600 text-white px-4 py-2 rounded-lg font-medium shadow-md">
             All List
           </button>
@@ -180,78 +191,108 @@ const CreateWhiteLabel = () => {
           </button>
         </div>
 
-        {/* Main Filters and Actions Row Container (Fixed structure here) */}
-        <div className="bg-white rounded-xl shadow-lg p-4">
-          {/* Title: Left Aligned */}
-          <h2 className="text-2xl font-md ">Whitelabel All Lists</h2>
+        {/* --- */}
 
-          {/* Filters and Actions: Right Aligned */}
-          <div className="flex flex-wrap items-center justify-end gap-4">
-            {/* Date Filters */}
-            <div className="flex flex-wrap gap-3">
-              <div className="relative">
+        {/* Main Content Card/Container */}
+        <div className="bg-white rounded-xl">
+          {/* Title, Filters and Actions Row - Combined */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
+            {/* Title: Left Aligned */}
+            <h2 className="text-2xl font-normal text-gray-800">
+              Whitelabel All Lists
+            </h2>
+
+            {/* Filters and Actions: Right Aligned - Use flex-wrap-reverse to keep action buttons right-aligned on smaller screens */}
+            <div className="flex flex-wrap items-center justify-end gap-3">
+              {/* Date Filters - Use a common style for input/button containers */}
+              <div className="flex gap-3">
+                {/* From Date */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="From Date"
+                    // Matched the border and background style from the image for the input container
+                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                    defaultValue="From Date"
+                  />
+                  {/* Calendar icon position adjusted to be on the right */}
+                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                </div>
+
+                {/* To Date */}
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="To Date"
+                    // Matched the border and background style from the image for the input container
+                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                    defaultValue="To Date"
+                  />
+                  {/* Calendar icon position adjusted to be on the right */}
+                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                </div>
+              </div>
+
+              {/* Search Input - Using a fixed width similar to the image */}
+              <div className="relative w-48">
                 <input
                   type="text"
-                  placeholder="From Date"
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-36 focus:ring-green-500 focus:border-green-500"
-                  defaultValue="From Date"
+                  placeholder="Search"
+                  className="pl-4 pr-10 py-2 border border-gray-300 rounded-lg w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
-                <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+                {/* Search icon positioned on the right of the search input */}
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="To Date"
-                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-36 focus:ring-green-500 focus:border-green-500"
-                  defaultValue="To Date"
-                />
-                <FaCalendarAlt className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+
+              {/* Action Buttons */}
+              <div className="flex gap-3">
+                {/* Create New Button: Green background, rounded, with icon */}
+                <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 shadow-md">
+                  <FaPlus className="mr-2 text-xs" /> Create New
+                </button>
+                {/* Export Button: White background, border, icon on the right */}
+                <button className="flex items-center bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
+                  Export <FaUpload className="ml-2 text-xs" />
+                </button>
               </div>
-            </div>
-
-            {/* Search Input */}
-            <div className="relative w-full max-w-xs sm:max-w-sm">
-              <input
-                type="text"
-                placeholder="Search"
-                className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg w-full focus:ring-green-500 focus:border-green-500"
-              />
-              <FaSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-3">
-              <button className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 shadow-md">
-                <FaPlus className="mr-2" /> Create New
-              </button>
-              <button className="flex items-center bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
-                Export <FaUpload className="ml-2" />
-              </button>
             </div>
           </div>
 
-          {/* Data Table */}
-          <div className="mt-6 overflow-x-auto">
+          {/* --- */}
+
+          {/* Data Table Container */}
+          <div className="mt-4 overflow-x-auto rounded-xl">
             <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-green-50">
+              {/* Table Header Styling */}
+              <thead className="bg-white">
                 <tr>
                   {tableHeaders.map((header) => (
                     <th
                       key={header}
-                      className="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider"
+                      // Reduced padding and font size for a more compact, table-like appearance
+                      className="px-4 py-2 text-left  font-medium text-lg text-[#1B1717] uppercase tracking-wider whitespace-nowrap"
                     >
                       {header}
                     </th>
                   ))}
                 </tr>
               </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
+
+              {/* Table Body Styling */}
+              <tbody className="bg-white divide-y divide-gray-100">
                 {whiteLabelData.map((row, index) => (
-                  <tr key={index} className="hover:bg-green-50">
+                  // Conditional background for alternating rows (to mimic the green stripe look)
+                  <tr
+                    key={index}
+                    className={`text-sm ${
+                      index % 2 === 0 ? "bg-green-50" : "bg-white"
+                    }`}
+                  >
                     {Object.values(row).map((value, i) => (
                       <td
                         key={i}
-                        className="px-6 py-3 whitespace-nowrap text-sm text-gray-900"
+                        // Reduced padding and font size for data cells
+                        className="px-4 py-2 whitespace-nowrap text-[15px]"
                       >
                         {value}
                       </td>
@@ -262,23 +303,28 @@ const CreateWhiteLabel = () => {
             </table>
           </div>
 
+          {/* --- */}
+
           {/* Pagination */}
           <div className="flex justify-center items-center mt-6 space-x-2">
+            {/* Previous Button */}
             <button className="p-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-100">
               <IoIosArrowBack />
             </button>
+            {/* Page Buttons */}
             {[1, 2, 3].map((page) => (
               <button
                 key={page}
                 className={`w-8 h-8 rounded-lg text-sm font-medium ${
                   page === 1
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                    ? "bg-green-600 text-white" // Active page style
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100" // Inactive page style
                 }`}
               >
                 {page}
               </button>
             ))}
+            {/* Next Button */}
             <button className="p-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-100">
               <IoIosArrowForward />
             </button>
