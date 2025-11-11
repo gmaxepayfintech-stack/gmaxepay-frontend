@@ -1,25 +1,57 @@
-import { Link, useLocation } from "react-router-dom";
-import { UserCircle, ChevronDown, ChevronUp } from "lucide-react";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { ChevronDown, ChevronUp } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserProfile } from "../redux/action/userProfileAction";
+import { useNotification } from "../context/NotificationContext";
 
-import MaskGroup from "../../public/img/Maskgroup.png";
-import MaskGroup1 from "../../public/img/Maskgroup1.png";
-import MaskGroup2 from "../../public/img/Maskgroup2.png";
-import MaskGroup3 from "../../public/img/Maskgroup3.png";
-import MaskGroup4 from "../../public/img/Maskgroup4.png";
-import MaskGroup5 from "../../public/img/Maskgroup5.png";
-import NotificationIcon from "../../public/img/NotificationIcon.png";
-import SuperAdmin from "../pages/superAdminDashboard/SuperAdmin";
+// Use absolute paths for public folder assets
+const MaskGroup = "/img/Maskgroup.png";
+const MaskGroup1 = "/img/Maskgroup1.png";
+const MaskGroup2 = "/img/Maskgroup2.png";
+const MaskGroup3 = "/img/Maskgroup3.png";
+const MaskGroup4 = "/img/Maskgroup4.png";
+const MaskGroup5 = "/img/Maskgroup5.png";
+const NotificationIcon = "/img/NotificationIcon.png";
+const defaultProfileImage = "/img/defaultProfilelogo.png";
+const companyLogo = "/img/gmaxepay.png";
+
 const DashboardLayout = ({ children }) => {
   const { company } = useCompany();
   const location = useLocation();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
+  const { profile, email, name, profileImage, unauthorized, error } = useSelector((state) => state.userProfile);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
   // State for active (highlighted) main menu item
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
+
+  // Handle unauthorized token expiration - redirect to login
+  useEffect(() => {
+    if (unauthorized) {
+      const errorMessage = error || "Invalid token. Please login again.";
+      showNotification({
+        message: errorMessage,
+        type: "error",
+        duration: 3000,
+        isCritical: true, // Mark as critical so it shows on dashboard
+      });
+      // Redirect to login after a short delay to show notification
+      setTimeout(() => {
+        navigate("/auth/login", { replace: true });
+      }, 500);
+    }
+  }, [unauthorized, error, navigate, showNotification]);
 
   const handleMenuClick = (name, dropdown) => {
     if (dropdown) {
@@ -39,7 +71,7 @@ const DashboardLayout = ({ children }) => {
     {
       name: "Dashboard",
       icon: MaskGroup,
-      path: "/dashboard/home",
+      path: "/superDashboard/home",
       dropdown: false,
     },
     {
@@ -47,17 +79,17 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup1,
       dropdown: true,
       children: [
-        { name: "Users", path: "/dashboard/members/add" },
-        { name: "Agents", path: "/dashboard/members/list" },
+        { name: "Users", path: "/superDashboard/members/add" },
+        { name: "Agents", path: "/superDashboard/members/list" },
       ],
     },
     {
       name: "API Operator",
       icon: MaskGroup2,
       dropdown: true,
-      children: [
-        { name: "Operator List", path: "/dashboard/api-operator/list" },
-        { name: "API Settings", path: "/dashboard/api-operator/settings" },
+      children: [ 
+        { name: "Operator List", path: "/superDashboard/api-operator/list" },
+        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
       ],
     },
     {
@@ -65,10 +97,10 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/dashboard/fund-manage/add" },
+        { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
         {
           name: "Role Upgrade Request",
-          path: "/dashboard/fund-manage/history",
+          path: "/superDashboard/fund-manage/history",
         },
       ],
     },
@@ -77,8 +109,8 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Transaction List", path: "/dashboard/txn-history/list" },
-        { name: "Refunds", path: "/dashboard/txn-history/refunds" },
+        { name: "Transaction List", path: "/superDashboard/txn-history/list" },
+        { name: "Refunds", path: "/superDashboard/txn-history/refunds" },
       ],
     },
     {
@@ -86,8 +118,8 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Daily Reports", path: "/dashboard/reports/daily" },
-        { name: "Monthly Reports", path: "/dashboard/reports/monthly" },
+        { name: "Daily Reports", path: "/superDashboard/reports/daily" },
+        { name: "Monthly Reports", path: "/superDashboard/reports/monthly" },
       ],
     },
   ];
@@ -99,9 +131,13 @@ const DashboardLayout = ({ children }) => {
         {/* Logo */}
         <div className="p-6 text-center border-[#039155]/20">
           <img
-            src={company.logo}
+            src={company?.logo || companyLogo}
             alt="Company Logo"
-            className="h-10 mx-auto mb-2"
+            className="h-10 mx-auto mb-2 object-contain"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = companyLogo;
+            }}
           />
         </div>
 
@@ -126,9 +162,13 @@ const DashboardLayout = ({ children }) => {
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 ${
+                      className={`w-5 h-5 object-contain ${
                         isActiveParent ? "filter brightness-0 invert" : ""
                       }`}
+                      onError={(e) => {
+                        e.target.onerror = null;
+                        e.target.src = "/img/gmaxepay.png";
+                      }}
                     />
                     {dropdown ? (
                       <span>{name}</span>
@@ -205,7 +245,7 @@ const DashboardLayout = ({ children }) => {
             <h1 className="text-lg w-[177px] font-semibold text-[#1B1717]">
               Welcome Back!
             </h1>
-            <p className="text-sm text-gray-500">Rohan G</p>
+            <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
           </div>
 
           <div className="flex items-center gap-4">
@@ -213,13 +253,27 @@ const DashboardLayout = ({ children }) => {
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-8 h-8"
+                className="w-8 h-8 object-contain"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/gmaxepay.png";
+                }}
               />
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Admin Panel</span>
-              <UserCircle className="w-8 h-8 text-gray-600" />
+              <span className="text-sm font-medium">
+                {name || email || "Admin Panel"}
+              </span>
+              <img
+                src={defaultProfileImage}
+                alt="Profile"
+                className="w-8 h-8 rounded-full object-cover"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = companyLogo;
+                }}
+              />
             </div>
           </div>
 

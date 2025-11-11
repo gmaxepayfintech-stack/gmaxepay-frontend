@@ -26,6 +26,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import ProtectedOnboardingRoute from "./ProtectedOnboardingRoute";
 import Loader from "./widgets/layout/loader";
 import HeadUpdater from "./components/HeadUpdater";
+import InitialRoute from "./components/InitialRoute";
 import { useCompany } from "./context/CompanyContext";
 import { getHomePageComponent } from "./util/domainToHomePage";
 import { restoreAuth } from "./redux/action/authAction";
@@ -289,13 +290,7 @@ function App() {
       <Routes>
         <Route
           path="/"
-          element={
-            HomePageComponent ? (
-              <HomePageComponent />
-            ) : (
-              <Navigate to="/auth/login" replace />
-            )
-          }
+          element={<InitialRoute />}
         />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/refundcancel" element={<RefundAndCancel />} />
@@ -313,7 +308,7 @@ function App() {
         <Route path="/payment-success" element={<PaymentSuccess />} />
         <Route path="/payment-failure" element={<PaymentFailure />} />
         <Route
-          path="/dashboard/*"
+          path="/superDashboard/*"
           element={
             <ProtectedRoute role="super-admin">
               <Dashboard />

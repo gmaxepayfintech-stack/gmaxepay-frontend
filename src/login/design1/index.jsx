@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
+import secureLocalStorage from "react-secure-storage";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
@@ -47,9 +48,6 @@ const LoginDesign1 = () => {
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const { company } = useCompany();
-  
-  // Get companyId from company context (support multiple possible field names)
-  const companyId = company?._id || company?.id || company?.companyId;
 
   const otpInputRefs = useRef([]);
   const auth2FAInputRefs = useRef([]);
@@ -120,9 +118,23 @@ const LoginDesign1 = () => {
   // Handle login errors
   useEffect(() => {
     if (loginError) {
+      const errorMessage = typeof loginError === 'object' ? loginError.message : loginError;
+      const isTokenExpired = typeof loginError === 'object' && loginError.isTokenExpired;
+      
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        processedLoginRef.current = false;
+      }
+      
       showNotification({
         type: "error",
-        message: loginError,
+        message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
       });
@@ -134,13 +146,28 @@ const LoginDesign1 = () => {
     if ((currentView === VIEWS.OTP_VERIFY || currentView === VIEWS.VERIFICATION_CODE)) {
       // Check for verificationError first (from reducer)
       if (verificationError) {
+        const errorMessage = typeof verificationError === 'object' ? verificationError.message : verificationError;
+        const isTokenExpired = typeof verificationError === 'object' && verificationError.isTokenExpired;
+        
+        // If login token expired, immediately redirect to step 1
+        if (isTokenExpired) {
+          secureLocalStorage.removeItem("loginToken");
+          secureLocalStorage.removeItem("userToken");
+          setCurrentView(VIEWS.LOGIN);
+          setOtp(Array(6).fill(""));
+          setSubmittedPhone("");
+          setPhoneNumber("");
+          processedVerificationRef.current = false;
+        }
+        
         showNotification({
           type: "error",
-          message: verificationError,
+          message: errorMessage,
           duration: 6000,
-          clearExisting: true, 
+          clearExisting: true, // Clear existing notifications for errors
         });
       }
+      // Also check for FAILURE status in verificationStatusdata
       else if (verificationStatusdata === "FAILURE") {
         const errorMessage = verificationResponse?.message || verificationResponse?.data?.message || "OTP verification failed. Please try again.";
         showNotification({
@@ -156,19 +183,34 @@ const LoginDesign1 = () => {
   // Handle reset password errors
   useEffect(() => {
     if (resetPasswordError) {
+      const errorMessage = typeof resetPasswordError === 'object' ? resetPasswordError.message : resetPasswordError;
+      const isTokenExpired = typeof resetPasswordError === 'object' && resetPasswordError.isTokenExpired;
+      
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+      
       showNotification({
         type: "error",
-        message: resetPasswordError,
+        message: errorMessage,
         duration: 6000,
-        clearExisting: true, 
+        clearExisting: true, // Clear existing notifications for errors
       });
     }
   }, [resetPasswordError, showNotification]);
 
+  // Handle login response
   useEffect(() => {
     if (!loginData || processedLoginRef.current) return;
 
-    
+    // Check for FAILURE status or error status codes (like 429) in login response
+    // The status can be in loginData.status or loginData.loginResponse?.status
     const status = loginData.status || loginData.loginResponse?.status || loginData.data?.status;
     if (status === "FAILURE" || (typeof status === "number" && status !== 200 && status !== "SUCCESS")) {
       const errorMessage = loginData?.message || loginData?.loginResponse?.message || loginData?.data?.message || "Login failed. Please try again.";
@@ -176,7 +218,7 @@ const LoginDesign1 = () => {
         type: "error",
         message: errorMessage,
         duration: 6000,
-        clearExisting: true, 
+        clearExisting: true, // Clear existing notifications for errors
       });
       processedLoginRef.current = true;
       return;
@@ -186,9 +228,27 @@ const LoginDesign1 = () => {
       processedLoginRef.current = true;
       const loginResponse =
         loginData?.loginResponse?.data || loginData?.data || loginResponseData || {};
+      // Check for requiresPasswordReset in multiple possible locations
+      const requiresPasswordReset = !!(
+        loginResponse?.requiresPasswordReset || 
+        loginData?.data?.requiresPasswordReset || 
+        loginData?.loginResponse?.data?.requiresPasswordReset
+      );
       const requiresOtp = !!loginResponse?.requiresOtpVerify;
       const requires2FA = !!loginResponse?.requires2FA;
       const requiresSetup2FA = !!loginResponse?.requiresSetup2FA;
+
+      // Check for password reset requirement first
+      if (requiresPasswordReset) {
+        // Store the token from login response for password reset
+        // Token can be in: loginResponse.token, loginData.data.token, or loginData.token
+        const token = loginResponse?.token || loginData?.data?.token || loginData?.token || loginData?.loginResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        setCurrentView(VIEWS.RESET_PASSWORD);
+        return;
+      }
 
       if (requiresOtp) {
         setOtp(Array(6).fill(""));
@@ -216,23 +276,20 @@ const LoginDesign1 = () => {
         return;
       }
 
-      const rolePaths = {
-        1: "/dashboard/home",
-        2: "/adminDashBoard/home",
-        3: "/masterDistributerDashboard/home",
-        4: "/distributerDashboard/home",
-        5: "/retailerDashboard/home",
-        6: "/employeeDashboard/home",
-      };
-      const userRole = loginData?.data?.userRole || loginResponse?.userRole;
-      navigate(rolePaths[userRole] || "/dashboard/home");
+      // Don't navigate here - wait for JWT token after 2FA verification
+      // Only navigate if we have JWT token (which comes after 2FA)
+      // For now, just proceed to next step (OTP, 2FA setup, etc.)
     }
   }, [loginData, loginResponseData, navigate, showNotification]);
 
-  // Reset processed flag when loginData changes
+  // Reset processed flag only when loginData actually changes (not on every status change)
   useEffect(() => {
-    processedLoginRef.current = false;
-  }, [loginData?.status]);
+    // Only reset if we're not currently on OTP_VERIFY or other intermediate views
+    // This prevents the view from resetting when we're already on step 2
+    if (currentView === VIEWS.LOGIN && loginData) {
+      processedLoginRef.current = false;
+    }
+  }, [loginData, currentView]);
 
   // Handle OTP verification response
   useEffect(() => {
@@ -278,16 +335,21 @@ const LoginDesign1 = () => {
                   }, 100);
                 }
               } else {
-                const rolePaths = {
-                  1: "/dashboard/home",
-                  2: "/adminDashBoard/home",
-                  3: "/masterDistributerDashboard/home",
-                  4: "/distributerDashboard/home",
-                  5: "/retailerDashboard/home",
-                  6: "/employeeDashboard/home",
-                };
-                const userRole = responseData?.userRole || verificationResponse?.userRole;
-                navigate(rolePaths[userRole] || "/dashboard/home");
+                // Check if we have JWT token (accessToken) - only navigate if JWT exists
+                const jwtToken = secureLocalStorage.getItem("userToken");
+                if (jwtToken) {
+                  const rolePaths = {
+                    1: "/superDashboard/home",
+                    2: "/adminDashboard/home",
+                    3: "/masterDistributerDashboard/home",
+                    4: "/distributerDashboard/home",
+                    5: "/retailerDashboard/home",
+                    6: "/employeeDashboard/home",
+                  };
+                  const userRole = responseData?.userRole || verificationResponse?.userRole;
+                  navigate(rolePaths[userRole] || "/superDashboard/home");
+                }
+                // If no JWT token, stay on current view (might need 2FA)
               }
             } else if (currentView === VIEWS.VERIFICATION_CODE) {
               // After forgot password OTP, check if password reset is required
@@ -340,45 +402,116 @@ const LoginDesign1 = () => {
 
   // Handle 2FA response
   useEffect(() => {
-    if (factstatus === "SUCCESS" && factresponse && usedata) {
+    if (factstatus === "SUCCESS" && factresponse) {
+      // Get user data from response - check multiple possible locations
+      const userDataFromResponse = usedata || twoFactorAuthData?.data?.user || twoFactorAuthData?.user;
+      
       // Get the success message from the response
       const successMessage = twoFactorAuthData?.message || twoFactorAuthData?.data?.message || "2FA setup successful!";
       
-      // Show notification first (with onClose callback to navigate after notification closes)
-      showNotification({
-        type: "success",
-        message: successMessage,
-        duration: 3000,
-        clearExisting: false, // Don't clear existing notifications
-        onClose: () => {
-          // Navigate only after notification closes
-          dispatch(
-            loginSuccess({
-              token: factresponse,
-              user: usedata,
-            })
-          );
+      // Check if both token and userData exist in secure storage (from authOtp action)
+      const existingToken = secureLocalStorage.getItem("userToken");
+      const existingUserData = secureLocalStorage.getItem("userData");
+      
+      // Only navigate if BOTH token and userData exist
+      if (existingToken && existingUserData) {
+        try {
+          const parsedUserData = JSON.parse(existingUserData);
+          const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+          
           const rolePaths = {
-            1: "/dashboard/home",
-            2: "/adminDashBoard/home",
+            1: "/superDashboard/home",
+            2: "/adminDashboard/home",
             3: "/masterDistributerDashboard/home",
             4: "/distributerDashboard/home",
             5: "/retailerDashboard/home",
             6: "/employeeDashboard/home",
           };
-          const userRole = usedata?.userRole;
-          navigate(rolePaths[userRole] || "/dashboard/home");
-        },
-      });
+          
+          // Dispatch loginSuccess with user data
+          dispatch(
+            loginSuccess({
+              token: factresponse || existingToken,
+              user: parsedUserData || userDataFromResponse,
+            })
+          );
+          
+          // Navigate based on role
+          navigate(rolePaths[userRole] || "/superDashboard/home");
+          return;
+        } catch (e) {
+          console.error("Error parsing userData:", e);
+          // If parsing fails, continue to show notification
+        }
+      }
+      
+      // If token or userData doesn't exist yet, show notification and wait
+      // This ensures we only navigate when both are available
+      if (userDataFromResponse) {
+        showNotification({
+          type: "success",
+          message: successMessage,
+          duration: 3000,
+          clearExisting: false, // Don't clear existing notifications
+          onClose: () => {
+            // Navigate only after notification closes
+            // Check again if both JWT token and userData are stored
+            const jwtToken = secureLocalStorage.getItem("userToken");
+            const storedUserData = secureLocalStorage.getItem("userData");
+            
+            // Only navigate if BOTH token and userData exist
+            if (jwtToken && storedUserData) {
+              try {
+                const parsedUserData = JSON.parse(storedUserData);
+                const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+                
+                dispatch(
+                  loginSuccess({
+                    token: factresponse || jwtToken,
+                    user: parsedUserData || userDataFromResponse,
+                  })
+                );
+                
+                const rolePaths = {
+                  1: "/superDashboard/home",
+                  2: "/adminDashboard/home",
+                  3: "/masterDistributerDashboard/home",
+                  4: "/distributerDashboard/home",
+                  5: "/retailerDashboard/home",
+                  6: "/employeeDashboard/home",
+                };
+                
+                navigate(rolePaths[userRole] || "/superDashboard/home");
+              } catch (e) {
+                console.error("Error parsing userData:", e);
+              }
+            }
+          },
+        });
+      }
     }
   }, [factstatus, factresponse, usedata, twoFactorAuthData, dispatch, navigate, showNotification]);
 
   // Handle 2FA errors
   useEffect(() => {
     if (twoFactorAuthError && (currentView === VIEWS.AUTH_2FA || currentView === VIEWS.REQUIRE_2FA)) {
+      const errorMessage = typeof twoFactorAuthError === 'object' ? twoFactorAuthError.message : twoFactorAuthError;
+      const isTokenExpired = typeof twoFactorAuthError === 'object' && twoFactorAuthError.isTokenExpired;
+      
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        setQrData(null);
+      }
+      
       showNotification({
         type: "error",
-        message: twoFactorAuthError,
+        message: errorMessage,
         duration: 6000,
         clearExisting: true, // Clear existing notifications for errors
       });
@@ -398,19 +531,45 @@ const LoginDesign1 = () => {
         clearExisting: false, // Don't clear existing notifications
         onClose: () => {
           // Navigate only after notification closes
+          // Check if we have JWT token (after password reset might get JWT or continue with login token)
+          const jwtToken = secureLocalStorage.getItem("userToken");
           const responseData = resetPasswordResponse?.data || resetPasswordResponse;
           const userRole = responseData?.userRole;
           
-          if (userRole) {
+          if (jwtToken && userRole) {
+            // JWT token exists, navigate to dashboard
             const rolePaths = {
-              1: "/dashboard/home",
-              2: "/adminDashBoard/home",
+              1: "/superDashboard/home",
+              2: "/adminDashboard/home",
               3: "/masterDistributerDashboard/home",
               4: "/distributerDashboard/home",
               5: "/retailerDashboard/home",
               6: "/employeeDashboard/home",
             };
-            navigate(rolePaths[userRole] || "/dashboard/home");
+            navigate(rolePaths[userRole] || "/superDashboard/home");
+          } else if (userRole) {
+            // User role exists but no JWT - might need 2FA, stay on current view
+            // Check if 2FA is required
+            const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
+            const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
+            const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
+            
+            if (requiresSetup2FA || requires2FA) {
+              if (qrCode) {
+                setQrData(qrCode);
+                setOtp(Array(6).fill(""));
+                setCurrentView(VIEWS.REQUIRE_2FA);
+              } else {
+                setOtp(Array(6).fill(""));
+                setCurrentView(VIEWS.AUTH_2FA);
+                setTimeout(() => {
+                  auth2FAInputRefs.current[0]?.focus();
+                }, 100);
+              }
+            } else {
+              // No 2FA required but no JWT - go back to login
+              setCurrentView(VIEWS.LOGIN);
+            }
           } else {
             setCurrentView(VIEWS.LOGIN);
           }
@@ -444,6 +603,7 @@ const LoginDesign1 = () => {
       };
       setSubmittedPhone(values.phoneNumber);
 
+      const companyId = company?._id || company?.id || company?.companyId;
       dispatch(loginStatus(payload, companyId));
     } catch (error) {
       showNotification({
@@ -512,11 +672,13 @@ const LoginDesign1 = () => {
       });
       return;
     }
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(verificationStatus({ otp: finalOtp }, companyId));
   };
 
   // Resend OTP
   const handleResendOtp = () => {
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(rescendOtp(companyId));
     setOtpTimer(180);
     setOtp(Array(6).fill(""));
@@ -574,6 +736,7 @@ const LoginDesign1 = () => {
       });
       return;
     }
+    const companyId = company?._id || company?.id || company?.companyId;
     dispatch(authOtp({ otp: finalOtp }, companyId));
   };
 
@@ -584,6 +747,7 @@ const LoginDesign1 = () => {
         newPassword: values.newPassword,
         confirmPassword: values.confirmPassword,
       };
+      const companyId = company?._id || company?.id || company?.companyId;
       dispatch(resetPassword(payload, companyId));
     } catch (error) {
       showNotification({

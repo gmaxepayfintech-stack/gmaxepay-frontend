@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 
 const NotificationContext = createContext();
 
@@ -33,6 +33,7 @@ export const NotificationProvider = ({ children }) => {
     const notificationDuration = typeof messageOrConfig === 'string' ? duration : (messageOrConfig.duration || 5000);
     const onClose = typeof messageOrConfig === 'object' ? messageOrConfig.onClose : null;
     const clearExisting = typeof messageOrConfig === 'object' ? (messageOrConfig.clearExisting !== false) : true;
+    const isCritical = typeof messageOrConfig === 'object' ? (messageOrConfig.isCritical || false) : false;
     
     // Clear all existing notifications before showing new one (unless specified otherwise)
     if (clearExisting) {
@@ -40,7 +41,7 @@ export const NotificationProvider = ({ children }) => {
     }
     
     const id = Date.now() + Math.random();
-    const notification = { id, message, type: notificationType, duration: notificationDuration, onClose };
+    const notification = { id, message, type: notificationType, duration: notificationDuration, onClose, isCritical };
     
     setNotifications((prev) => clearExisting ? [notification] : [...prev, notification]);
 
@@ -78,11 +79,57 @@ export const NotificationProvider = ({ children }) => {
 };
 
 const NotificationContainer = ({ notifications, onRemove }) => {
+  const [currentPath, setCurrentPath] = useState(() => window.location.pathname);
+  
+  // Update path when it changes (for SPA navigation)
+  useEffect(() => {
+    let lastPath = window.location.pathname;
+    
+    // Check for pathname changes periodically (lightweight check)
+    const checkPath = () => {
+      const currentPathname = window.location.pathname;
+      if (currentPathname !== lastPath) {
+        lastPath = currentPathname;
+        setCurrentPath(currentPathname);
+      }
+    };
+    
+    // Listen for popstate events (browser back/forward)
+    window.addEventListener('popstate', checkPath);
+    
+    // Check every 200ms for route changes (React Router updates window.location.pathname)
+    const interval = setInterval(checkPath, 200);
+    
+    return () => {
+      window.removeEventListener('popstate', checkPath);
+      clearInterval(interval);
+    };
+  }, []);
+  
   if (notifications.length === 0) return null;
+
+  // Check if we're on a dashboard route (use current pathname directly for accuracy)
+  const pathname = currentPath || window.location.pathname;
+  const isDashboardRoute = pathname.startsWith('/superDashboard') || 
+                          pathname.startsWith('/adminDashboard') ||
+                          pathname.startsWith('/subAdminDashboard') ||
+                          pathname.startsWith('/retailerDashboard') ||
+                          pathname.startsWith('/superDashboard') ||
+                          pathname.startsWith('/masterDistributerDashboard') ||
+                          pathname.startsWith('/distributerDashboard') ||
+                          pathname.startsWith('/employeeDashboard');
+
+  // On dashboard routes, only show critical notifications (like token expiration)
+  // Otherwise, show all notifications
+  const notificationsToShow = isDashboardRoute 
+    ? notifications.filter(n => n.isCritical)
+    : notifications;
+
+  if (notificationsToShow.length === 0) return null;
 
   return (
     <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-md w-full">
-      {notifications.map((notification) => (
+      {notificationsToShow.map((notification) => (
         <Notification
           key={notification.id}
           notification={notification}

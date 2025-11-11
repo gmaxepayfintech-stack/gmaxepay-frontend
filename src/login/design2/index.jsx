@@ -79,7 +79,7 @@ const LoginDesign2 = () => {
         
         // Navigate based on user role
         const rolePaths = {
-          1: '/dashboard/home',
+          1: '/superDashboard/home',
           2: '/adminDashboard/home',
           3: '/masterDistributerDashboard/home',
           4: '/distributerDashboard/home',
@@ -88,7 +88,7 @@ const LoginDesign2 = () => {
         };
         
         const userRole = response.data.data.userRole;
-        navigate(rolePaths[userRole] || '/dashboard/home');
+        navigate(rolePaths[userRole] || '/superDashboard/home');
       }
       
       setLoading(false);
