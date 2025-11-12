@@ -37,7 +37,7 @@ export const getUserProfile = () => async (dispatch) => {
           Authorization: `Bearer ${authToken}`,
         },
       }
-    ); 
+    );
 
     const data = response?.data;
     const { status } = data ?? {};
@@ -48,15 +48,11 @@ export const getUserProfile = () => async (dispatch) => {
         payload: data?.data || {},
       });
     } else if (status === "UNAUTHORIZED") {
-      // Handle token expiration
-      const errorMessage = data?.message || "Invalid token. Please login again.";
-      
-      // Clear token from storage
-      
-      // Dispatch logout to clear auth state
+      const errorMessage =
+        data?.message || "Invalid token. Please login again.";
+
       dispatch(logout());
-      
-      // Dispatch unauthorized action
+
       dispatch({
         type: GET_PROFILE_UNAUTHORIZED,
         payload: errorMessage,
@@ -69,16 +65,19 @@ export const getUserProfile = () => async (dispatch) => {
       });
     }
   } catch (error) {
-    // Check if error is due to unauthorized (401 status)
-    if (error?.response?.status === 401 || error?.response?.data?.status === "UNAUTHORIZED") {
-      const errorMessage = error?.response?.data?.message || "Invalid token. Please login again.";
-      
+    if (
+      error?.response?.status === 401 ||
+      error?.response?.data?.status === "UNAUTHORIZED"
+    ) {
+      const errorMessage =
+        error?.response?.data?.message || "Invalid token. Please login again.";
+
       // Clear token from storage
       secureLocalStorage.removeItem("userToken");
-      
+
       // Dispatch logout to clear auth state
       dispatch(logout());
-      
+
       // Dispatch unauthorized action
       dispatch({
         type: GET_PROFILE_UNAUTHORIZED,
@@ -96,4 +95,3 @@ export const getUserProfile = () => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
-
