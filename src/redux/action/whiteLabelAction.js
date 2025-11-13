@@ -107,11 +107,7 @@ export const getPincodeByCity = (values) => async (dispatch) => {
     );
     console.log("response for ip api", response?.data);
 
-    const {
-      data: pincodeByCity,
-      status,
-      message,
-    } = response?.data ?? {};
+    const { data: pincodeByCity, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {
       dispatch({
         type: GET_PINCODE_BY_CITY_SUCCESS,
@@ -135,6 +131,7 @@ export const getPincodeByCity = (values) => async (dispatch) => {
 
 export const panDataFetch = (values) => async (dispatch) => {
   dispatch({ type: LOADING_START });
+
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
@@ -147,33 +144,36 @@ export const panDataFetch = (values) => async (dispatch) => {
         },
       }
     );
+
     console.log("response for ip api", response?.data);
 
-    const {
-      data: panData,
-      status,
-      message,
-    } = response?.data ?? {};
-    if (status === "SUCCESS") {
+    const { data: panData, message } = response?.data ?? {};
+    const status = response?.data?.data?.status;
+
+    if (status === "Success") {
       dispatch({
         type: GET_PANDATA_FETCH_SUCCESS,
-        payload: { panData, status, message },
+        payload: { panData, message, status }, // 👈 include status here
       });
-    } else {
+    } else if (status === "Failure") {
       dispatch({
         type: GET_PANDATA_FETCH_FAILURE,
-        payload: response?.data?.message ?? commonError,
+        payload: { message, status, errorData: response?.data },
       });
     }
   } catch (error) {
     dispatch({
       type: GET_PANDATA_FETCH_FAILURE,
-      payload: error.response ? error.response.data.message : error.message,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error", // 👈 optional but useful
+      },
     });
   } finally {
     dispatch({ type: LOADING_END });
   }
 };
+
 
 export const createWhiteLabel = (formData) => async (dispatch) => {
   dispatch({ type: LOADING_START });
@@ -191,11 +191,7 @@ export const createWhiteLabel = (formData) => async (dispatch) => {
     );
     console.log("response for ip api", response?.data);
 
-    const {
-      data: createResponse,
-      status,
-      message,
-    } = response?.data ?? {};
+    const { data: createResponse, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {
       dispatch({
         type: WHITELABEL_CREATE_SUCCESS,
@@ -216,4 +212,3 @@ export const createWhiteLabel = (formData) => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
-

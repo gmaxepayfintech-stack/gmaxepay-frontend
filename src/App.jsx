@@ -14,7 +14,7 @@ import {
   EmployeeDashboard,
 } from "@/layouts";
 import "@/styles/globals.css";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PrivacyPolicy from "./mainPage/privacyPolicy";
@@ -34,8 +34,6 @@ import PaymentSuccess from "./mainPage/paymentSuccess";
 import PaymentFailure from "./mainPage/paymentFailure";
 import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
-import SuperAdminDashboard from "./layouts/superAdminDashboard";
-
 function App() {
   const { showNotification } = useNotification();
   const { loading } = useCompany();
@@ -87,6 +85,19 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
+
+  const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel);
+
+  const whiteLabelPanMessageFailure = useSelector(
+    (state) => state?.error?.error
+  );
+  const WhiteLabelFailure = useSelector((state) => state?.error);
+  console.log("WhiteLabel", WhiteLabelFailure);
+
+  const WhiteLabelSuccess = useSelector((state)=>state);
+  console.log("WhiteLabelSuccess",WhiteLabelSuccess);
+  
+
   const logoutMessage = useSelector((state) => state?.auth?.success || null);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -158,6 +169,26 @@ function App() {
   }, [operatorSuccess]);
 
   useEffect(() => {
+    if (whiteLabelPanMessageSuccess?.message) {
+      showNotification({
+        type: "success",
+        message: whiteLabelPanMessageSuccess?.message,
+        isCritical: true,
+      });
+    }
+  }, [whiteLabelPanMessageSuccess]);
+
+  useEffect(() => {
+    if (whiteLabelPanMessageFailure?.message) {
+      showNotification({
+        type: "error",
+        message: whiteLabelPanMessageFailure?.message,
+        isCritical: true,
+      });
+    }
+  }, [whiteLabelPanMessageFailure]);
+
+  useEffect(() => {
     if (
       specialDomfailure === "commAmt must be greater than zero" ||
       specialDomfailure === "Range must Not be empty" ||
@@ -171,6 +202,16 @@ function App() {
       });
     }
   }, [specialDomfailure]);
+
+    useEffect(() => {
+    if (WhiteLabelFailure?.message) {
+      showNotification({
+        type: "error",
+        message: WhiteLabelFailure?.message,
+        isCritical: true,
+      });
+    }
+  }, [WhiteLabelFailure]);
 
   useEffect(() => {
     if (userSuccess) {
@@ -288,10 +329,7 @@ function App() {
       {/* Removed isLoading loader for faster loading */}
       {/* {isLoading && <Loader />} */}
       <Routes>
-        <Route
-          path="/"
-          element={<InitialRoute />}
-        />
+        <Route path="/" element={<InitialRoute />} />
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/refundcancel" element={<RefundAndCancel />} />
         <Route path="/termscondition" element={<TermsCondition />} />
