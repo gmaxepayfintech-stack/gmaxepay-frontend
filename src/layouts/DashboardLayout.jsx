@@ -24,7 +24,9 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { profile, email, name, profileImage, unauthorized, error } = useSelector((state) => state.userProfile);
+  const { email, name, unauthorized, error } = useSelector(
+    (state) => state.userProfile
+  );
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -88,7 +90,7 @@ const DashboardLayout = ({ children }) => {
       name: "API Operator",
       icon: MaskGroup2,
       dropdown: true,
-      children: [ 
+      children: [
         { name: "Operator List", path: "/superDashboard/api-operator/list" },
         { name: "API Settings", path: "/superDashboard/api-operator/settings" },
       ],
@@ -172,7 +174,11 @@ const DashboardLayout = ({ children }) => {
                       }}
                     />
                     {dropdown ? (
-                      path ? <Link to={path}>{name}</Link> : <span>{name}</span>
+                      path ? (
+                        <Link to={path}>{name}</Link>
+                      ) : (
+                        <span>{name}</span>
+                      )
                     ) : (
                       <Link to={path}>{name}</Link>
                     )}
@@ -283,7 +289,9 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1  p-2 overflow-y-auto overflow-x-hidden">{children}</main>
+        <main className="flex-1  p-2 overflow-y-auto overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );
