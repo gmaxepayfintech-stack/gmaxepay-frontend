@@ -12,7 +12,7 @@ import {
 } from "../redux/action/whiteLabelAction";
 import { useDispatch, useSelector } from "react-redux";
 
-const WhiteLabel = () => {
+const WhiteLabel = ({ onBack }) => {
   const dispatch = useDispatch();
   const [cityOptions, setCityOptions] = useState([]);
   const [pincodeOptions, setPincodeOptions] = useState([]);
@@ -32,7 +32,14 @@ const WhiteLabel = () => {
   const verificationToken = useSelector(
     (state) => state?.whitelabel?.ipResponse?.ipResponse?.verificationToken
   );
-  console.log(verificationToken);
+  const createSuccess = useSelector(
+    (state) => state?.whitelabel?.createResponse?.status
+  );
+  useEffect(() => {
+    if (createSuccess === "SUCCESS") {
+      formik.resetForm();
+    }
+  }, [createSuccess]);
 
   const validationSchema = Yup.object({
     businessEntity: Yup.string().required("Business entity is required"),
@@ -51,7 +58,12 @@ const WhiteLabel = () => {
     postalCode: Yup.string()
       .matches(/^\d{6}$/, "Enter valid 6-digit postal code")
       .required("Postal code is required"),
-    gstin: Yup.string().required("GST number is required"),
+    gstin: Yup.string()
+      .matches(
+        /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
+        "Enter a valid 15-character GSTIN"
+      )
+      .nullable(),
     companyName: Yup.string().required("Company name is required"),
     companyDomain: Yup.string()
       .matches(
@@ -60,6 +72,20 @@ const WhiteLabel = () => {
       )
       .required("Company domain is required"),
     remarks: Yup.string(),
+    profilePhoto: Yup.mixed()
+      .required("Profile photo is required")
+      .test("fileSize", "File too large", (value) => {
+        return value && value.size <= 2 * 1024 * 1024; // max 2MB
+      })
+      .test("fileType", "Unsupported file format", (value) => {
+        return (
+          value &&
+          ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(
+            value.type
+          )
+        );
+      }),
+
     defaultPermission: Yup.boolean(),
     clientConsent: Yup.boolean().oneOf(
       [true],
@@ -112,10 +138,15 @@ const WhiteLabel = () => {
   const labelStyle =
     "text-md font-medium text-[#1B1717] mb-1 flex items-center";
 
-  const ErrorMsg = ({ name }) =>
-    formik.touched[name] && formik.errors[name] ? (
-      <p className="text-red-500 text-xs mt-1">{formik.errors[name]}</p>
-    ) : null;
+  const ErrorMsg = ({ name }) => (
+    <div className="min-h-[0px]">
+      {formik.touched[name] && formik.errors[name] ? (
+        <p className="text-red-500 text-xs">{formik.errors[name]}</p>
+      ) : (
+        <p className="text-xs opacity-0">placeholder</p>
+      )}
+    </div>
+  );
   useEffect(() => {
     if (presentState && !formik.values.state) {
       formik.setFieldValue("state", presentState);
@@ -256,7 +287,10 @@ const WhiteLabel = () => {
       <form onSubmit={formik.handleSubmit}>
         <div className="mb-6">
           <div className="flex items-center text-[#1B1717] mb-2">
-            <div className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer">
+            <div
+              onClick={onBack}
+              className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer"
+            >
               <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
             </div>
             <h1 className="text-3xl font-medium">Create Whitelabel</h1>
@@ -268,8 +302,8 @@ const WhiteLabel = () => {
         </div>
 
         <div className="flex flex-col lg:flex-row justify-center gap-6">
-          <div className="bg-white p-8 rounded-xl shadow-lg w-[650px]">
-            <h2 className="text-2xl font-medium text-[#1B1717] mb-6 border-b pb-2">
+          <div className="bg-white p-8 rounded-xl shadow-lg w-[750px]">
+            <h2 className="text-3xl font-medium text-[#1B1717] mb-4  pb-2">
               Business Information
             </h2>
             <div className="grid grid-cols-2 gap-4">
@@ -571,129 +605,134 @@ const WhiteLabel = () => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-xl shadow-lg w-[650px]">
-            <h2 className="text-2xl font-medium text-[#1B1717] mb-6 border-b pb-2">
+          <div className="bg-white p-8 rounded-xl shadow-lg w-[550px]">
+            <h2 className="text-3xl font-medium text-[#1B1717] mb-4 pb-2">
               Profile Configuration
             </h2>
 
-            <div>
-              <label className={labelStyle}>GSTIN</label>
-              <input
-                type="text"
-                name="gstin"
-                placeholder="Enter GST Number"
-                className={inputStyle}
-                value={formik.values.gstin}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-            </div>
-            <div className="mb-4">
-              <label className={labelStyle}>
-                Company Name<span className="text-red-500 ml-1">*</span>
-              </label>
-              <input
-                type="text"
-                name="companyName"
-                placeholder="Enter Company Name"
-                className={inputStyle}
-                value={formik.values.companyName}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <ErrorMsg name="companyName" />
-            </div>
-
-            <div className="mt-4">
-              <label className={labelStyle}>
-                Company Domain<span className="text-red-500 ml-1">*</span>
-              </label>
-              <div className="flex">
+            {/* 👇 this wrapper manages all input gaps */}
+            <div className="space-y-5">
+              <div>
+                <label className={labelStyle}>GSTIN</label>
                 <input
                   type="text"
-                  name="companyDomain"
-                  placeholder="Enter Company Domain"
-                  className="p-3 border border-gray-300 rounded-l-lg w-2/3 text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 border-r-0"
-                  value={formik.values.companyDomain}
+                  name="gstin"
+                  placeholder="Enter GST Number"
+                  className={inputStyle}
+                  value={formik.values.gstin}
                   onChange={formik.handleChange}
                   onBlur={formik.handleBlur}
                 />
-                <button
-                  type="button"
-                  onClick={handleIPCheck}
-                  className="bg-green-600 text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-1/3"
-                >
-                  IP Check
-                </button>
               </div>
-              <ErrorMsg name="companyDomain" />
-            </div>
 
-            {/* Default Permission */}
-            <div className="flex items-start mb-6 pt-6">
-              <input
-                id="defaultPermission"
-                name="defaultPermission"
-                type="checkbox"
-                className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 mt-1 mr-2"
-                checked={formik.values.defaultPermission}
-                onChange={formik.handleChange}
-              />
-              <div className="text-sm text-gray-700">
-                <label
-                  htmlFor="defaultPermission"
-                  className="font-medium flex items-center"
-                >
-                  Default Permission
+              <div>
+                <label className={labelStyle}>
+                  Company Name<span className="text-red-500 ml-1">*</span>
                 </label>
-                <p className="text-xs text-gray-500">
-                  Permissions from the default whitelabel group will be applied.
-                </p>
-              </div>
-            </div>
-
-            {/* Remarks */}
-            <div>
-              <label className={labelStyle}>Remarks</label>
-              <textarea
-                name="remarks"
-                rows="4"
-                placeholder="Write Remarks"
-                className={inputStyle}
-                value={formik.values.remarks}
-                onChange={formik.handleChange}
-              />
-            </div>
-
-            {/* Client Consent */}
-            <div className="flex items-start mb-6 pt-6">
-              <label className="relative inline-flex items-center cursor-pointer mt-1">
                 <input
+                  type="text"
+                  name="companyName"
+                  placeholder="Enter Company Name"
+                  className={inputStyle}
+                  value={formik.values.companyName}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                <ErrorMsg name="companyName" />
+              </div>
+
+              <div>
+                <label className={labelStyle}>
+                  Company Domain<span className="text-red-500 ml-1">*</span>
+                </label>
+                <div className="flex">
+                  <input
+                    type="text"
+                    name="companyDomain"
+                    placeholder="Enter Company Domain"
+                    className="p-3 border border-gray-300 rounded-l-lg w-2/3 text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 border-r-0"
+                    value={formik.values.companyDomain}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  <button
+                    type="button"
+                    onClick={handleIPCheck}
+                    className="bg-green-600 text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-1/3"
+                  >
+                    IP Check
+                  </button>
+                </div>
+                <ErrorMsg name="companyDomain" />
+              </div>
+
+              {/* Default Permission */}
+              <div className="flex items-start">
+                <input
+                  id="defaultPermission"
+                  name="defaultPermission"
                   type="checkbox"
-                  name="clientConsent"
-                  className="sr-only peer"
-                  checked={formik.values.clientConsent}
+                  className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 mt-1 mr-2"
+                  checked={formik.values.defaultPermission}
                   onChange={formik.handleChange}
                 />
-                <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
-              </label>
-              <div className="ml-3 text-sm">
-                <span className="font-medium text-[#1B1717]">
-                  Client Consent
-                </span>
-                <p className="text-[14px] text-[#1B1717] text-opacity-80">
-                  I hereby confirm that the information submitted is provided by
-                  the client & the client has shown interest in the whitelabel
-                  solution.
-                </p>
-                <ErrorMsg name="clientConsent" />
+                <div className="text-sm text-gray-700">
+                  <label
+                    htmlFor="defaultPermission"
+                    className="font-medium flex items-center"
+                  >
+                    Default Permission
+                  </label>
+                  <p className="text-xs text-gray-500">
+                    Permissions from the default whitelabel group will be
+                    applied.
+                  </p>
+                </div>
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label className={labelStyle}>Remarks</label>
+                <textarea
+                  name="remarks"
+                  rows="4"
+                  placeholder="Write Remarks"
+                  className={inputStyle}
+                  value={formik.values.remarks}
+                  onChange={formik.handleChange}
+                />
+              </div>
+
+              {/* Client Consent */}
+              <div className="flex items-start">
+                <label className="relative inline-flex items-center cursor-pointer mt-1">
+                  <input
+                    type="checkbox"
+                    name="clientConsent"
+                    className="sr-only peer"
+                    checked={formik.values.clientConsent}
+                    onChange={formik.handleChange}
+                  />
+                  <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                </label>
+                <div className="ml-3 text-sm">
+                  <span className="font-medium text-[#1B1717]">
+                    Client Consent
+                  </span>
+                  <p className="text-[14px] text-[#1B1717] text-opacity-80">
+                    I hereby confirm that the information submitted is provided
+                    by the client & the client has shown interest in the
+                    whitelabel solution.
+                  </p>
+                  <ErrorMsg name="clientConsent" />
+                </div>
               </div>
             </div>
 
-            {/* Submit */}
+            {/* Submit button */}
             <button
               type="submit"
-              className="bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg font-bold text-lg w-full shadow-md hover:from-green-700 hover:to-green-600 transition-all duration-300"
+              className="mt-6 bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg font-bold text-lg w-full shadow-md hover:from-green-700 hover:to-green-600 transition-all duration-300"
             >
               Create Profile
             </button>
