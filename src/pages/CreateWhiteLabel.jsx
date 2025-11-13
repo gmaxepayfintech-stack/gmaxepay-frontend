@@ -154,9 +154,8 @@ const CreateWhiteLabel = () => {
   ];
 
   if (showWhiteLabel) {
-    return <WhiteLabel />;
+    return <WhiteLabel onBack={() => setShowWhiteLabel(false)} />;
   }
-
   return (
     <div className="min-h-screen text-[#1B1717]">
       <div className="p-6">
