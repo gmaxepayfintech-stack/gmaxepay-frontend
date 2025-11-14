@@ -3,8 +3,8 @@ import {
   MOBILE_OTP_SENT_SUCCESS,
   SMS_RESEND_OTP_SUCCESS,
   UPDATE_ONBOARDING_STEP,
-} from "../actionType/onboardingActionType";
-import { fetchOnboarding } from "../action/onboardingAction";
+} from '../actionType/onboardingActionType';
+import { fetchOnboarding, postProfile } from '../action/onboardingAction';
 
 const initialState = {
   loading: false,
@@ -19,6 +19,10 @@ const initialState = {
   success:null,
   message:null,
   rescendResponse: null,
+  postProfileLoading: false,
+  postProfileError: null,
+  postProfileSuccess: false,
+  postProfileMessage: '',
 };
 
 const onboardingReducer = (state = initialState, action) => {
@@ -81,7 +85,35 @@ const onboardingReducer = (state = initialState, action) => {
         ...state,
         currentStep: action.payload,
       };
-
+    
+    case postProfile.pending.type:
+      return {
+        ...state,
+        postProfileLoading: true,
+        postProfileError: null,
+        postProfileSuccess: false,
+        postProfileMessage: '',
+      };
+    
+    case postProfile.fulfilled.type:
+      const successMessage = action.payload?.message || 'Profile photo uploaded successfully.';
+      return {
+        ...state,
+        postProfileLoading: false,
+        postProfileError: null,
+        postProfileSuccess: true,
+        postProfileMessage: successMessage,
+      };
+    
+    case postProfile.rejected.type:
+      return {
+        ...state,
+        postProfileLoading: false,
+        postProfileError: action.payload || 'Failed to post profile',
+        postProfileSuccess: false,
+        postProfileMessage: '',
+      };
+    
     case CLEAR_ONBOARDING:
       return initialState;
 
