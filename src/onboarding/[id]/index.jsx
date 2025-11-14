@@ -114,17 +114,22 @@ function OnboardingById() {
       case "emailVerification":
         return currentStep === 2 || isStepDone(2)
           ? "/img/Envelope.png"
-          : "/img/black-mail.png";
+          : "/img/Email.png";
       case "aadharVerification":
-        return "/img/black-aadhaar.png";
+        return "/img/aadhar.png";
       case "panVerification":
-        return "/img/black-pan.png";
+        return "/img/PanCard.png";
+      case "shopDetails":
+        return "/img/ShopDetails.png";
+      case "bankVerification":
+        return "/img/BankDetails.png";
+      case "profile":
+        return "/img/Profile.png";
       default:
-        return "/img/pending-status.png";
+        return "/img/ShopDetails.png";
     }
   };
 
-  // Show loading state
   if (onboardingState.loading) {
     return (
       <div
@@ -297,7 +302,7 @@ profile photo p-8 "
                   <h3 className="text-[16px]  font-medium">
                     Steps To Complete
                   </h3>
-                  <div className="flex items-center gap-4 mt-4 overflow-x-auto pb-2 justify-center">
+                  <div className="flex items-center gap-4 mt-4  pb-2 justify-center">
                     {onboardingState.steps &&
                     onboardingState.steps.length > 0 ? (
                       onboardingState.steps.map((step, index) => {

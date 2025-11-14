@@ -5,6 +5,11 @@ import {
   GET_PINCODE_BY_CITY_FAILURE,
   WHITELABEL_CREATE_FAILURE,
 } from "../actionType/whiteLabelAction";
+import {
+  MOBILE_OTP_SENT_FAILURE,
+  SMS_VERIFY_OTP_FAILURE,
+  SMS_RESEND_OTP_FAILURE,
+} from "../actionType/onboardingActionType";
 
 const initialState = {
   loading: false,
@@ -38,21 +43,24 @@ const errorReducer = (state = initialState, action) => {
       };
 
     case GET_PINCODE_BY_CITY_FAILURE:
+    case MOBILE_OTP_SENT_FAILURE:
+    case SMS_RESEND_OTP_FAILURE:
+    case SMS_VERIFY_OTP_FAILURE:
+      console.log("actions",action?.payload);
+      
       return {
         ...state,
         loading: false,
         error: action.payload,
+        status:action?.payload?.status,
         message: action?.payload,
       };
 
     case GET_PANDATA_FETCH_FAILURE:
-      console.log("actions", action.payload);
-
       return {
         ...state,
         loading: false,
-        error: action.payload?.errorData?.data
-,
+        error: action.payload?.errorData?.data,
         message: action?.payload?.data,
       };
 

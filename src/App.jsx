@@ -92,11 +92,8 @@ function App() {
     (state) => state?.error?.error
   );
   const WhiteLabelFailure = useSelector((state) => state?.error);
-  console.log("WhiteLabel", WhiteLabelFailure);
 
-  const WhiteLabelSuccess = useSelector((state)=>state);
-  console.log("WhiteLabelSuccess",WhiteLabelSuccess);
-  
+  const onBoardingMobileVerification = useSelector((state)=>state?.onboarding);  
 
   const logoutMessage = useSelector((state) => state?.auth?.success || null);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
@@ -168,6 +165,15 @@ function App() {
     }
   }, [operatorSuccess]);
 
+   useEffect(() => {
+    if (onBoardingMobileVerification) {
+      showNotification({
+        type: "success",
+        message: onBoardingMobileVerification.message,
+      });
+    }
+  }, [onBoardingMobileVerification]);
+
   useEffect(() => {
     if (whiteLabelPanMessageSuccess?.message) {
       showNotification({
@@ -203,7 +209,7 @@ function App() {
     }
   }, [specialDomfailure]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (WhiteLabelFailure?.message) {
       showNotification({
         type: "error",
