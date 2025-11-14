@@ -24,7 +24,9 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { profile, email, name, profileImage, unauthorized, error } = useSelector((state) => state.userProfile);
+  const { email, name, unauthorized, error } = useSelector(
+    (state) => state.userProfile
+  );
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -78,6 +80,7 @@ const DashboardLayout = ({ children }) => {
       name: "Members",
       icon: MaskGroup1,
       dropdown: true,
+      path: "/superDashboard/members",
       children: [
         { name: "Users", path: "/superDashboard/members/add" },
         { name: "Agents", path: "/superDashboard/members/list" },
@@ -87,7 +90,7 @@ const DashboardLayout = ({ children }) => {
       name: "API Operator",
       icon: MaskGroup2,
       dropdown: true,
-      children: [ 
+      children: [
         { name: "Operator List", path: "/superDashboard/api-operator/list" },
         { name: "API Settings", path: "/superDashboard/api-operator/settings" },
       ],
@@ -125,11 +128,11 @@ const DashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-[#F5F7F8] text-[#1B1717] font-[Gilroy-Medium]">
+    <div className="flex h-screen bg-[#F5F7F8] text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
       {/* Sidebar */}
       <aside className="w-[277px] bg-gradient-to-b from-[#039155]/10 to-[#039155]/5 border-r flex flex-col shadow-lg">
         {/* Logo */}
-        <div className="p-6 text-center border-[#039155]/20">
+        <div className="p-6 text-center border-[#039155]/20 flex-shrink-0">
           <img
             src={company?.logo || companyLogo}
             alt="Company Logo"
@@ -142,7 +145,7 @@ const DashboardLayout = ({ children }) => {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-4 py-6 space-y-3 overflow-y-auto">
+        <nav className="flex-1 px-4 py-6 space-y-3 overflow-y-auto overflow-x-hidden">
           {menuItems.map(({ name, icon, path, dropdown, children }) => {
             const isOpen = openDropdown === name;
             const isActiveParent = activeMenu === name;
@@ -171,7 +174,11 @@ const DashboardLayout = ({ children }) => {
                       }}
                     />
                     {dropdown ? (
-                      <span>{name}</span>
+                      path ? (
+                        <Link to={path}>{name}</Link>
+                      ) : (
+                        <span>{name}</span>
+                      )
                     ) : (
                       <Link to={path}>{name}</Link>
                     )}
@@ -238,9 +245,9 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1">
+      <div className="flex flex-col flex-1 overflow-hidden">
         {/* Header */}
-        <header className="relative bg-white px-8 py-4 flex justify-between items-center top-0 z-10">
+        <header className="relative bg-white px-8 py-4 flex justify-between items-center flex-shrink-0 z-10">
           <div>
             <h1 className="text-lg w-[177px] font-semibold text-[#1B1717]">
               Welcome Back!
@@ -282,7 +289,9 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 bg-[#F9FAFB] p-2">{children}</main>
+        <main className="flex-1  p-2 overflow-y-auto overflow-x-hidden">
+          {children}
+        </main>
       </div>
     </div>
   );
