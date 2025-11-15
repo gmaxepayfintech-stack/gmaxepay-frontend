@@ -40,7 +40,6 @@ const whiteLabelReducer = (state = initialState, action) => {
       };
 
     case GET_CITY_BY_PINCODE_SUCCESS:
-      console.log(action.payload);
 
       return {
         ...state,

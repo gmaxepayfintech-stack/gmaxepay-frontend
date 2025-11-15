@@ -30,7 +30,6 @@ export const ipCheckStatus = (values) => async (dispatch) => {
         },
       }
     );
-    console.log("response for ip api", response?.data);
 
     const { data: ipResponse, status, success, message } = response?.data ?? {};
     if (status === "SUCCESS") {
@@ -105,7 +104,6 @@ export const getPincodeByCity = (values) => async (dispatch) => {
         },
       }
     );
-    console.log("response for ip api", response?.data);
 
     const { data: pincodeByCity, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {
@@ -144,8 +142,6 @@ export const panDataFetch = (values) => async (dispatch) => {
         },
       }
     );
-
-    console.log("response for ip api", response?.data);
 
     const { data: panData, message } = response?.data ?? {};
     const status = response?.data?.data?.status;

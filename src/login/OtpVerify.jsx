@@ -63,7 +63,6 @@ const OtpVerify = () => {
       return;
     }
 
-    console.log("OTP Submitted:", finalOtp);
 
     dispatch(
       verificationStatus({
