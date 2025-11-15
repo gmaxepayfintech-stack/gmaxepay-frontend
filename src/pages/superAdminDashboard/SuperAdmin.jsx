@@ -74,7 +74,7 @@ const SuperAdmin = () => {
   ];
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50 min-h-screen text-[#1B1717] space-y-6">
+    <div className="p-4 sm:p-6  min-h-screen text-[#1B1717] space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           {/* Header Section */}

@@ -283,30 +283,30 @@ const WhiteLabel = ({ onBack }) => {
   }, [panname]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
       <form onSubmit={formik.handleSubmit}>
         <div className="mb-6">
-          <div className="flex items-center text-[#1B1717] mb-2">
+          <div className="flex items-center text-[#1B1717] mb-3">
             <div
               onClick={onBack}
               className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer"
             >
               <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
             </div>
-            <h1 className="text-3xl font-medium">Create Whitelabel</h1>
+            <h1 className="text-2xl sm:text-3xl font-medium">Create Whitelabel</h1>
           </div>
-          <p className="text-[#1B1717] text-[20px] ml-14">
+          <p className="text-[#1B1717] text-base sm:text-lg lg:text-[20px] ml-0 sm:ml-14">
             Set Up Your Whitelabel Configuration With Business Details And
             Profile Settings
           </p>
         </div>
 
         <div className="flex flex-col lg:flex-row justify-center gap-6">
-          <div className="bg-white p-8 rounded-xl shadow-lg w-[750px]">
-            <h2 className="text-3xl font-medium text-[#1B1717] mb-4  pb-2">
+          <div className="bg-white w-full lg:max-w-[750px] p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-4 pb-2">
               Business Information
             </h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className={labelStyle}>
                   Business Entity<span className="text-red-500 ml-1">*</span>
@@ -356,7 +356,7 @@ const WhiteLabel = ({ onBack }) => {
             </div>
 
             {/* PAN Number & Name */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className={labelStyle}>
                   Pan Number<span className="text-red-500 ml-1">*</span>
@@ -398,7 +398,7 @@ const WhiteLabel = ({ onBack }) => {
             </div>
 
             {/* Email & Profile Photo */}
-            <div className="grid grid-cols-2 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
               <div>
                 <label className={labelStyle}>
                   Email Id<span className="text-red-500 ml-1">*</span>
@@ -454,7 +454,7 @@ const WhiteLabel = ({ onBack }) => {
               <ErrorMsg name="address" />
             </div>
 
-            <div className="grid grid-cols-3 gap-4 mt-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               {/* City */}
               <div>
                 <label className={labelStyle}>
@@ -605,8 +605,8 @@ const WhiteLabel = ({ onBack }) => {
             </div>
           </div>
 
-          <div className="bg-white p-8 rounded-xl shadow-lg w-[550px]">
-            <h2 className="text-3xl font-medium text-[#1B1717] mb-4 pb-2">
+          <div className="bg-white w-full lg:max-w-[550px] p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg">
+            <h2 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-4 pb-2">
               Profile Configuration
             </h2>
 
@@ -645,12 +645,12 @@ const WhiteLabel = ({ onBack }) => {
                 <label className={labelStyle}>
                   Company Domain<span className="text-red-500 ml-1">*</span>
                 </label>
-                <div className="flex">
+                <div className="flex flex-col sm:flex-row sm:items-stretch">
                   <input
                     type="text"
                     name="companyDomain"
                     placeholder="Enter Company Domain"
-                    className="p-3 border border-gray-300 rounded-l-lg w-2/3 text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 border-r-0"
+                    className="p-3 border border-gray-300 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full sm:w-2/3 text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 sm:border-r-0"
                     value={formik.values.companyDomain}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -658,7 +658,7 @@ const WhiteLabel = ({ onBack }) => {
                   <button
                     type="button"
                     onClick={handleIPCheck}
-                    className="bg-green-600 text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-1/3"
+                    className="bg-green-600 text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-full sm:w-1/3 mt-2 sm:mt-0"
                   >
                     IP Check
                   </button>

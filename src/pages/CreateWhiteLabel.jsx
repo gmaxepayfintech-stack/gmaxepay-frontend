@@ -158,14 +158,14 @@ const CreateWhiteLabel = () => {
   }
   return (
     <div className="min-h-screen text-[#1B1717]">
-      <div className="p-6">
+      <div className="p-4 sm:p-6">
         {/* Header Navigation */}
-        <div className="flex justify-between items-center w-full p-0 mb-8">
-          <div className="bg-white rounded-xl shadow-sm p-4 flex justify-between items-center w-full mb-8">
-            <nav className="flex gap-52 text-gray-600 font-medium text-base">
+        <div className="w-full p-0 mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex justify-center w-full">
+            <nav className="flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-11 lg:gap-x-[184px] gap-y-3 text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
               <a
                 href="#"
-                className="bg-green-600 text-white px-4 py-1.5 rounded-xl font-medium text-lg"
+                className="bg-green-600 text-white px-3 sm:px-4 py-1.5 rounded-xl font-medium text-sm sm:text-base lg:text-lg"
               >
                 Whitelabel
               </a>
@@ -183,11 +183,11 @@ const CreateWhiteLabel = () => {
         </div>
 
         {/* Top Buttons */}
-        <div className="flex space-x-3 mb-6">
-          <button className="bg-green-600 text-white px-4 py-2 rounded-2xl font-medium shadow-md">
+        <div className="flex flex-wrap gap-3 mb-6">
+          <button className="bg-green-600 text-white px-4 py-2 rounded-2xl font-medium shadow-md text-sm sm:text-base">
             All List
           </button>
-          <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-2xl font-medium hover:bg-gray-300">
+          <button className="bg-gray-200 text-gray-700 px-4 py-2 rounded-2xl font-medium hover:bg-gray-300 text-sm sm:text-base">
             Onboarding Process
           </button>
         </div>
@@ -195,17 +195,17 @@ const CreateWhiteLabel = () => {
         {/* Filters + Search + Create */}
         <div className="">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-            <h2 className="text-2xl font-normal text-gray-800">
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
               Whitelabel All Lists
             </h2>
 
-            <div className="flex flex-wrap items-center justify-end gap-3">
-              <div className="flex gap-3">
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
                 <div className="relative">
                   <input
                     type="text"
                     placeholder="From Date"
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
                   />
                   <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
                 </div>
@@ -214,13 +214,13 @@ const CreateWhiteLabel = () => {
                   <input
                     type="text"
                     placeholder="To Date"
-                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                    className="pl-3 pr-8 py-2 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
                   />
                   <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
                 </div>
               </div>
 
-              <div className="relative w-48">
+              <div className="relative w-full sm:w-48">
                 <input
                   type="text"
                   placeholder="Search"
@@ -229,15 +229,15 @@ const CreateWhiteLabel = () => {
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
 
-              <div className="flex gap-3">
+              <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                 <button
                   onClick={() => setShowWhiteLabel(true)}
-                  className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 shadow-md"
+                  className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
                 >
                   <FaPlus className="mr-2 text-xs" /> Create New
                 </button>
 
-                <button className="flex items-center bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-100">
+                <button className="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-4 py-2 rounded-lg font-medium hover:bg-gray-100 text-sm sm:text-base">
                   Export <FaUpload className="ml-2 text-xs" />
                 </button>
               </div>
@@ -245,8 +245,8 @@ const CreateWhiteLabel = () => {
           </div>
 
           {/* Table */}
-          <div className="mt-4 overflow-y-auto rounded-xl bg-white">
-            <table className="min-w-full divide-y">
+          <div className="mt-4 overflow-x-auto rounded-xl bg-white">
+            <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
                   {tableHeaders.map((header) => (

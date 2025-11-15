@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Menu, X } from "lucide-react";
 import { useCompany } from "../context/CompanyContext";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,6 +32,8 @@ const DashboardLayout = ({ children }) => {
   const [openDropdown, setOpenDropdown] = useState(null);
   // State for active (highlighted) main menu item
   const [activeMenu, setActiveMenu] = useState("Dashboard");
+  // State for mobile sidebar
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -55,6 +57,10 @@ const DashboardLayout = ({ children }) => {
     }
   }, [unauthorized, error, navigate, showNotification]);
 
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
   const handleMenuClick = (name, dropdown, path) => {
     if (dropdown) {
       // toggle dropdown open/close
@@ -71,6 +77,9 @@ const DashboardLayout = ({ children }) => {
       }
     }
   };
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   const menuItems = [
     {
@@ -131,9 +140,20 @@ const DashboardLayout = ({ children }) => {
   ];
 
   return (
-    <div className="flex h-screen bg-[#F5F7F8] text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
+    <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 z-20 bg-black/40 backdrop-blur-[1px] lg:hidden"
+          onClick={closeSidebar}
+        />
+      )}
       {/* Sidebar */}
-      <aside className="w-[277px] bg-gradient-to-b from-[#039155]/10 to-[#039155]/5 border-r flex flex-col shadow-lg">
+      <aside
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
+      >
         {/* Logo */}
         <div className="p-6 text-center border-[#039155]/20 flex-shrink-0">
           <img
@@ -248,22 +268,31 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+      <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="relative bg-white px-8 py-4 flex justify-between items-center flex-shrink-0 z-10">
-          <div>
-            <h1 className="text-lg w-[177px] font-semibold text-[#1B1717]">
-              Welcome Back!
-            </h1>
-            <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+        <header className="sticky top-0 bg-white px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow-sm">
+          <div className="flex items-center gap-3">
+            <button
+              className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div>
+              <h1 className="text-lg font-semibold text-[#1B1717]">
+                Welcome Back!
+              </h1>
+              <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+            </div>
           </div>
 
-          <div className="flex items-center gap-4">
-            <button className="relative flex items-center justify-center w-14 h-14 rounded-full border border-[#1B1717]/50 transition">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#1B1717]/40 transition hover:border-[#039155]/70">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-8 h-8 object-contain"
+                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/gmaxepay.png";
@@ -272,13 +301,13 @@ const DashboardLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">
+              <span className="hidden text-sm font-medium sm:inline">
                 {name || email || "Admin Panel"}
               </span>
               <img
                 src={defaultProfileImage}
                 alt="Profile"
-                className="w-8 h-8 rounded-full object-cover"
+                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = companyLogo;
@@ -292,7 +321,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1  p-2 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 w-full p-2 sm:p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
