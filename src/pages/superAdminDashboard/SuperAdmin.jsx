@@ -1,11 +1,12 @@
+import { useState } from "react";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
 import {
-  LineChart,
-  Line,
   XAxis,
-  Tooltip,
+  YAxis,
   ResponsiveContainer,
   CartesianGrid,
+  AreaChart,
+  Area,
 } from "recharts";
 import MasterDt from "../../../public/img/MasterDt.png";
 import Distributor from "../../../public/img/Distributor.png";
@@ -24,12 +25,21 @@ import OtherCharges from "../../../public/img/OtherCharges.png";
 import TotalRevenue from "../../../public/img/TotalRevenue.png";
 
 const SuperAdmin = () => {
+  const [selectedDay, setSelectedDay] = useState("Sun");
+
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
   const data = [
-    { name: "Rajapur", earning: 500 },
-    { name: "Jal", earning: 1000 },
-    { name: "Heprey", earning: 1800 },
-    { name: "Jill", earning: 1500 },
-    { name: "Bommarek", earning: 900 },
+    { name: "Rupaisa", value: 400 },
+    { name: "", value: 900 },
+    { name: "", value: 650 },
+    { name: "Asl", value: 1300 },
+    { name: "", value: 1600 },
+    { name: "Inspay", value: 1250 },
+    { name: "", value: 1900 },
+    { name: "JRI", value: 1000 },
+    { name: "", value: 850 },
+    { name: "Bconnect", value: 550 },
   ];
 
   const summaryItems = [
@@ -68,52 +78,97 @@ const SuperAdmin = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           {/* Header Section */}
-          <div className="flex flex-col sm:flex-wrap sm:flex-row justify-between items-start sm:items-center mb-4 gap-3">
+          <div className="flex flex-col gap-3 mb-4">
             <h2 className="text-2xl font-medium text-[#1B1717]">
               Today Earning
             </h2>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                <p className="text-xl sm:text-2xl font-bold text-[#1B1717]">
+                  ₹4,21,40,238
+                </p>
+                <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+                  ▲ $40,238 (4.61%)
+                </span>
+              </div>
 
-            <div className="flex flex-wrap items-center gap-2">
-              <p className="text-xl sm:text-2xl font-bold text-[#1B1717]">
-                ₹4,21,40,238
-              </p>
-              <span className="text-green-600 text-sm font-medium flex items-center gap-1">
-                ▲ $40,238 (4.61%)
-              </span>
-            </div>
-
-            {/* Weekday Buttons */}
-            <div className="flex flex-wrap gap-2 mt-2 sm:mt-0">
-              {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day) => (
-                <button
-                  key={day}
-                  className={`px-3 py-1 border rounded-lg text-xs sm:text-sm font-medium transition-all ${
-                    day === "Sun"
-                      ? "bg-green-600 text-white border-green-600"
-                      : "border-gray-300 text-[#1B1717] hover:bg-green-100 hover:text-green-700"
-                  }`}
-                >
-                  {day}
-                </button>
-              ))}
+              {/* Weekday Buttons */}
+              <div className="flex flex-wrap gap-2 justify-end">
+                {days.map((day) => (
+                  <button
+                    key={day}
+                    onClick={() => setSelectedDay(day)}
+                    className={`px-3 py-1 border rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                      selectedDay === day
+                        ? "bg-green-600 text-white border-green-600"
+                        : "border-gray-300 text-[#1B1717] hover:border-green-400 hover:text-green-700"
+                    }`}
+                  >
+                    {day}
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
           {/* Chart Section */}
           <div className="w-full h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <LineChart data={data}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" />
-                <Tooltip />
-                <Line
-                  type="monotone"
-                  dataKey="earning"
-                  stroke="#16a34a"
-                  strokeWidth={2}
-                  dot={{ r: 5, fill: "#16a34a" }}
+              <AreaChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                <defs>
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="#a7f3d0" stopOpacity={0.8} />
+                    <stop offset="50%" stopColor="#6ee7b7" stopOpacity={0.4} />
+                    <stop offset="100%" stopColor="#d1fae5" stopOpacity={0.2} />
+                  </linearGradient>
+                </defs>
+                <CartesianGrid
+                  strokeDasharray="3 3"
+                  stroke="#e5e7eb"
+                  horizontal
+                  vertical={false}
                 />
-              </LineChart>
+                <XAxis
+                  dataKey="name"
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  dy={10}
+                />
+                <YAxis
+                  axisLine={false}
+                  tickLine={false}
+                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  domain={[0, 2000]}
+                  ticks={[100, 500, 1000, 1500, 2000]}
+                />
+                <Area
+                  type="linear"
+                  dataKey="value"
+                  stroke="none"
+                  fill="#03915533"
+                  fillOpacity={1}
+                />
+                <Area
+                  type="linear"
+                  dataKey="value"
+                  stroke="#10b981"
+                  strokeWidth={3}
+                  fill="url(#colorValue)"
+                  dot={{
+                    fill: "#fff",
+                    stroke: "#10b981",
+                    strokeWidth: 3,
+                    r: 6,
+                  }}
+                  activeDot={{
+                    fill: "#10b981",
+                    stroke: "#fff",
+                    strokeWidth: 3,
+                    r: 7,
+                  }}
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>

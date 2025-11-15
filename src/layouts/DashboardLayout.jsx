@@ -55,7 +55,7 @@ const DashboardLayout = ({ children }) => {
     }
   }, [unauthorized, error, navigate, showNotification]);
 
-  const handleMenuClick = (name, dropdown) => {
+  const handleMenuClick = (name, dropdown, path) => {
     if (dropdown) {
       // toggle dropdown open/close
       setOpenDropdown((prev) => (prev === name ? null : name));
@@ -66,6 +66,9 @@ const DashboardLayout = ({ children }) => {
       setOpenDropdown(null);
       // mark this as active
       setActiveMenu(name);
+      if (path) {
+        navigate(path);
+      }
     }
   };
 
@@ -154,7 +157,7 @@ const DashboardLayout = ({ children }) => {
               <div key={name}>
                 {/* Main Menu Item */}
                 <div
-                  onClick={() => handleMenuClick(name, dropdown)}
+                  onClick={() => handleMenuClick(name, dropdown, path)}
                   className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
                     isActiveParent
                       ? "bg-[#039155] text-white shadow-md"
