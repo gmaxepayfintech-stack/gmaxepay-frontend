@@ -7,7 +7,9 @@ import {
   MOBILE_OTP_SENT_SUCCESS,
   MOBILE_OTP_SENT_FAILURE,
   SMS_RESEND_OTP_SUCCESS,
-  SMS_RESEND_OTP_FAILURE
+  SMS_RESEND_OTP_FAILURE,
+  SMS_VERIFY_OTP_SUCCESS,
+  SMS_VERIFY_OTP_FAILURE,
 } from "../actionType/onboardingActionType";
 import { LOADING_END, LOADING_START } from "../actionType/loadingActionType";
 const commonError = "Something went Wrong";
@@ -70,7 +72,6 @@ export const MobileOTPResponse  = (values, token) => async (dispatch) => {
         },
       }
     );
-    console.log("response for ip api", response?.data);
 
     const { data: otpStatus, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {
@@ -81,13 +82,16 @@ export const MobileOTPResponse  = (values, token) => async (dispatch) => {
     } else {
       dispatch({
         type: MOBILE_OTP_SENT_FAILURE,
-        payload: response?.data?.message ?? commonError,
+ payload: {
+      status: response?.data?.status ?? "FAILURE",
+      message: response?.data?.message ?? commonError,
+    },
       });
     }
   } catch (error) {
     dispatch({
       type: MOBILE_OTP_SENT_FAILURE,
-      payload: error.response ? error.response.data.message : error.message,
+      payload: error.response ? error.response.data.message  : error.message,
     });
   } finally {
     dispatch({ type: LOADING_END });
@@ -107,7 +111,6 @@ export const resendOTPResponse  = (values, token) => async (dispatch) => {
         },
       }
     );
-    console.log("response for ip api", response?.data);
 
     const { data: rescendResponse, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {
@@ -124,6 +127,42 @@ export const resendOTPResponse  = (values, token) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: SMS_RESEND_OTP_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const verifySmsOtp  = (values, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/verifySmsOtp`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: verifySmsVerify, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: SMS_VERIFY_OTP_SUCCESS,
+        payload: { verifySmsVerify, status, message },
+      });
+    } else {
+      dispatch({
+        type: SMS_VERIFY_OTP_FAILURE,
+        payload: response?.data?.message ?? commonError,
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: SMS_VERIFY_OTP_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
   } finally {

@@ -3,13 +3,16 @@ import * as Yup from "yup";
 import {
   MobileOTPResponse,
   resendOTPResponse,
+  verifySmsOtp,
 } from "../redux/action/onboardingAction";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
 function Step1({ formData, setFormData, onNext }) {
   const dispatch = useDispatch();
+
   const [timer, setTimer] = useState(0);
+  const [successCooldown, setSuccessCooldown] = useState(0);
 
   const validationSchema = Yup.object({
     phone: Yup.string()
@@ -21,6 +24,14 @@ function Step1({ formData, setFormData, onNext }) {
       .required("OTP is required"),
   });
 
+    const submitOtp = () => {
+    const token = localStorage.getItem("onboardingToken");
+
+    dispatch(verifySmsOtp({ otp: formik.values.otp }, token));
+
+    onNext();
+  };
+
   const formik = useFormik({
     initialValues: {
       phone: formData.phone || "",
@@ -29,7 +40,7 @@ function Step1({ formData, setFormData, onNext }) {
     validationSchema,
     validateOnBlur: false,
     validateOnChange: false,
-    onSubmit: () => onNext(),
+    onSubmit: submitOtp,
   });
 
   const handleChange = (e) => {
@@ -40,14 +51,12 @@ function Step1({ formData, setFormData, onNext }) {
 
   const sendOtp = async () => {
     const errors = await formik.validateForm();
-
     if (errors.phone) {
       formik.setErrors(errors);
       return;
     }
 
     const token = localStorage.getItem("onboardingToken");
-
     dispatch(MobileOTPResponse({ mobileNo: formik.values.phone }, token));
 
     setFormData((d) => ({ ...d, otpSent: true }));
@@ -56,12 +65,11 @@ function Step1({ formData, setFormData, onNext }) {
 
   const resendOtp = () => {
     const token = localStorage.getItem("onboardingToken");
-
     dispatch(resendOTPResponse({ mobileNo: formik.values.phone }, token));
-
     setTimer(30);
   };
 
+  /* 30sec resend timer */
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -69,9 +77,26 @@ function Step1({ formData, setFormData, onNext }) {
     }
   }, [timer]);
 
-  const invalidNumber = useSelector((state)=>state)
-  console.log("invalidNumber",invalidNumber);
-  
+  const verifySuccess = useSelector(
+    (state) => state?.onboarding?.otpStatus?.status
+  );
+
+  useEffect(() => {
+    if (verifySuccess === "SUCCESS") {
+      setSuccessCooldown(30);
+    }
+  }, [verifySuccess]);
+
+  useEffect(() => {
+    if (successCooldown > 0) {
+      const interval = setInterval(() => {
+        setSuccessCooldown((t) => t - 1);
+      }, 1000);
+      return () => clearInterval(interval);
+    }
+  }, [successCooldown]);
+
+
 
   return (
     <div className="flex justify-center items-center bg-gray-50">
@@ -118,19 +143,26 @@ function Step1({ formData, setFormData, onNext }) {
             {/* VERIFY / RESEND BUTTON */}
             <button
               type="button"
-              onClick={formData.otpSent ? resendOtp : sendOtp}
-              disabled={timer > 0}
-              className={`px-6 rounded-r-lg text-sm font-medium transition h-[60px]
-                ${
-                  timer > 0
-                    ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                    : "bg-[#039155] text-white hover:bg-green-700"
-                }`}
+              onClick={
+                verifySuccess === "SUCCESS"
+                  ? successCooldown === 0
+                    ? resendOtp
+                    : null
+                  : sendOtp
+              }
+              disabled={verifySuccess === "SUCCESS" && successCooldown > 0}
+              className={`w-40 px-6 rounded-r-lg text-sm font-medium transition h-[60px]
+    ${
+      verifySuccess === "SUCCESS" && successCooldown > 0
+        ? "bg-gray-400 cursor-not-allowed"
+        : "bg-[#039155] text-white hover:bg-green-700"
+    }
+  `}
             >
-              {timer > 0
-                ? `Resend OTP (${timer}s)`
-                : formData.otpSent
-                ? "Resend OTP"
+              {verifySuccess === "SUCCESS"
+                ? successCooldown > 0
+                  ? `Resend OTP in (${successCooldown}s)`
+                  : "Resend OTP"
                 : "Verify"}
             </button>
           </div>

@@ -23,37 +23,44 @@ const errorReducer = (state = initialState, action) => {
       return {
         ...state,
         loading: false,
-        error: action.payload,
-        message: action.payload,
+        error: action?.payload,
+        message: action?.payload,
       };
     case GET_IP_CHECK_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload,
-        message: action.payload,
+        error: action?.payload,
+        message: action?.payload,
       };
 
     case GET_CITY_BY_PINCODE_FAILURE:
       return {
         ...state,
         loading: false,
-        error: action.payload,
-        message: action.payload,
+        error: action?.payload,
+        message: action?.payload,
       };
 
     case GET_PINCODE_BY_CITY_FAILURE:
-    case MOBILE_OTP_SENT_FAILURE:
     case SMS_RESEND_OTP_FAILURE:
     case SMS_VERIFY_OTP_FAILURE:
-      console.log("actions",action?.payload);
-      
+      console.log("actions", action?.payload);
+
       return {
         ...state,
         loading: false,
-        error: action.payload,
-        status:action?.payload?.status,
+        error: action?.payload,
+        status: action?.payload,
         message: action?.payload,
+      };
+    case MOBILE_OTP_SENT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
       };
 
     case GET_PANDATA_FETCH_FAILURE:

@@ -3,6 +3,7 @@ import {
   MOBILE_OTP_SENT_SUCCESS,
   SMS_RESEND_OTP_SUCCESS,
   UPDATE_ONBOARDING_STEP,
+  SMS_VERIFY_OTP_SUCCESS,
 } from '../actionType/onboardingActionType';
 import { fetchOnboarding, postProfile } from '../action/onboardingAction';
 
@@ -23,6 +24,7 @@ const initialState = {
   postProfileError: null,
   postProfileSuccess: false,
   postProfileMessage: '',
+  verifySmsVerify: null,
 };
 
 const onboardingReducer = (state = initialState, action) => {
@@ -138,6 +140,14 @@ const onboardingReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
       };
+
+    case SMS_VERIFY_OTP_SUCCESS:
+      return{
+        ...state,
+        verifySmsVerify: action.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
 
     default:
       return state;
