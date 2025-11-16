@@ -21,11 +21,96 @@ const commonError = "Something went wrong!";
 const isTokenExpiredError = (error) => {
   const message = error?.response?.data?.message || error?.message || "";
   const status = error?.response?.data?.status || error?.response?.status;
+  const httpStatus = error?.response?.status;
   return (
-    status === "BAD_REQUEST" &&
+    (status === "BAD_REQUEST" || httpStatus === 401) &&
     (message.toLowerCase().includes("token has expired") ||
-      message.toLowerCase().includes("data token has expired"))
+      message.toLowerCase().includes("data token has expired") ||
+      message.toLowerCase().includes("unauthorized") ||
+      message.toLowerCase().includes("jwt expired") ||
+      httpStatus === 401)
   );
+};
+
+// Helper function to check if error is access token expiration (JWT expired)
+const isAccessTokenExpiredError = (error) => {
+  const httpStatus = error?.response?.status;
+  const message = error?.response?.data?.message || error?.message || "";
+  return (
+    httpStatus === 401 &&
+    (message.toLowerCase().includes("jwt expired") ||
+      message.toLowerCase().includes("token expired") ||
+      message.toLowerCase().includes("unauthorized") ||
+      !message) // If 401 without specific message, assume token expired
+  );
+};
+
+// Function to refresh access token using refresh token
+export const refreshAccessToken = (companyId) => async (dispatch) => {
+  const refreshToken = secureLocalStorage.getItem("refreshToken");
+
+  if (!refreshToken) {
+    // No refresh token available, user needs to login again
+    secureLocalStorage.removeItem("userToken");
+    secureLocalStorage.removeItem("refreshToken");
+    secureLocalStorage.removeItem("userData");
+    return null;
+  }
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/refresh-token`,
+      { refreshToken },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-company-id": companyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === "SUCCESS" || status === 200) {
+      // Get new tokens from response
+      const accessToken = data?.data?.accessToken || data?.accessToken;
+      const newRefreshToken = data?.data?.refreshToken || data?.refreshToken;
+      const token = data?.data?.token || data?.token;
+      const userData = data?.data?.user || data?.user;
+
+      // Store new access token
+      if (accessToken) {
+        secureLocalStorage.setItem("userToken", accessToken);
+      } else if (token) {
+        secureLocalStorage.setItem("userToken", token);
+      }
+
+      // Update refresh token if new one is provided
+      if (newRefreshToken) {
+        secureLocalStorage.setItem("refreshToken", newRefreshToken);
+      }
+
+      // Update userData if provided
+      if (userData) {
+        secureLocalStorage.setItem("userData", JSON.stringify(userData));
+      }
+
+      return accessToken || token;
+    } else {
+      // Refresh token is invalid or expired
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      return null;
+    }
+  } catch (error) {
+    // Refresh token is invalid or expired
+    secureLocalStorage.removeItem("userToken");
+    secureLocalStorage.removeItem("refreshToken");
+    secureLocalStorage.removeItem("userData");
+    return null;
+  }
 };
 
 export const loginStatus = (credentials, companyId) => async (dispatch) => {
@@ -63,9 +148,10 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
       });
     } else {
       // Check for token expiration
-      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired! please login again")) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
         dispatch({
           type: LOGIN_FAILURE,
           payload: {
@@ -87,6 +173,7 @@ export const loginStatus = (credentials, companyId) => async (dispatch) => {
     if (isTokenExpiredError(error)) {
       secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
       dispatch({
         type: LOGIN_FAILURE,
         payload: {
@@ -149,6 +236,7 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
         dispatch({
           type: VERIFICATION_OTP_FAILURE,
           payload: {
@@ -170,6 +258,7 @@ export const verificationStatus = (credentials, companyId) => async (dispatch) =
     if (isTokenExpiredError(error)) {
       secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
       dispatch({
         type: VERIFICATION_OTP_FAILURE,
         payload: {
@@ -235,12 +324,17 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       // This is the final step - store JWT token (accessToken) after 2FA verification
       // Remove login token as it's no longer needed
       const accessToken = data?.data?.accessToken || data?.accessToken;
+      const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
       const userData = data?.data?.user || data?.user;
       
       if (accessToken) {
-        // Store JWT token - this is the final authentication token
+        // Store JWT token - this is the final authentication token (expires in 5 minutes)
         secureLocalStorage.setItem("userToken", accessToken);
+        // Store refresh token - valid for 25 minutes (total session 30 minutes)
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
         // Store userData as JSON string if it exists
         if (userData) {
           secureLocalStorage.setItem("userData", JSON.stringify(userData));
@@ -250,6 +344,10 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       } else if (token) {
         // Fallback: if accessToken not available, use token
         secureLocalStorage.setItem("userToken", token);
+        // Store refresh token if available
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
         // Store userData as JSON string if it exists
         if (userData) {
           secureLocalStorage.setItem("userData", JSON.stringify(userData));
@@ -269,6 +367,7 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
         dispatch({
           type: TWOFACTOR_AUTH_FAILURE,
           payload: {
@@ -286,10 +385,55 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       }
     }
   } catch (error) {
-    // Check for token expiration error
-    if (isTokenExpiredError(error)) {
+    // Check for access token expiration (JWT expired) - try to refresh
+    if (isAccessTokenExpiredError(error)) {
+      // Try to refresh access token using refresh token
+      const newAccessToken = await dispatch(refreshAccessToken(companyId));
+      if (newAccessToken) {
+        // Retry the original request with new token
+        try {
+          const retryResponse = await axios.post(
+            `${API_ROUTE}/api/v1/auth/handle-2fa`,
+            payload,
+            {
+              headers: {
+                "Content-Type": "application/json",
+                token: `${newAccessToken}`,
+                "x-company-id": companyId,
+              },
+            }
+          );
+          const retryData = retryResponse?.data;
+          const { status: retryStatus, twoFactorAuth: retryTwoFactorAuth } = retryData ?? {};
+          if (retryStatus === "SUCCESS" || retryStatus === 200) {
+            dispatch({
+              type: TWOFACTOR_AUTH_SUCCESS,
+              payload: retryData,
+              twoFactorAuth: retryTwoFactorAuth,
+              status: retryStatus,
+            });
+            return;
+          }
+        } catch (retryError) {
+          // Retry failed, continue to error handling
+        }
+      }
+      // Refresh failed or retry failed - clear tokens and show error
       secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      dispatch({
+        type: TWOFACTOR_AUTH_FAILURE,
+        payload: {
+          message: "Session expired. Please login again.",
+          isTokenExpired: true,
+        },
+      });
+    } else if (isTokenExpiredError(error)) {
+      // Check for login token expiration
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
       dispatch({
         type: TWOFACTOR_AUTH_FAILURE,
         payload: {
@@ -349,6 +493,7 @@ export const rescendOtp = (companyId) => async (dispatch) => {
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
         dispatch({
           type: RESECEND_OTP_FAILURE,
           payload: {
@@ -368,6 +513,7 @@ export const rescendOtp = (companyId) => async (dispatch) => {
     if (isTokenExpiredError(error)) {
       secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
       dispatch({
         type: RESECEND_OTP_FAILURE,
         payload: {
@@ -419,15 +565,24 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
     if (status === "SUCCESS") {
       // After password reset, check if we get JWT token or continue with login token
       const accessToken = data?.data?.accessToken || data?.accessToken;
+      const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
       
       // If accessToken (JWT) is provided, store it and remove login token
       // Otherwise, update login token for next steps
       if (accessToken) {
         secureLocalStorage.setItem("userToken", accessToken);
+        // Store refresh token if available
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
         secureLocalStorage.removeItem("loginToken");
       } else if (token) {
         secureLocalStorage.setItem("loginToken", token);
+        // Store refresh token if available (even if we're using loginToken)
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
       }
 
       dispatch({
@@ -440,6 +595,7 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
       if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
         dispatch({
           type: RESET_PASSWORD_FAILURE,
           payload: {
@@ -459,6 +615,7 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
     if (isTokenExpiredError(error)) {
       secureLocalStorage.removeItem("loginToken");
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
       dispatch({
         type: RESET_PASSWORD_FAILURE,
         payload: {
