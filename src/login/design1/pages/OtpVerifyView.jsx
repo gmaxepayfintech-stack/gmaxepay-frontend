@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { useCompany } from "../../../context/CompanyContext";
+import { useSelector } from "react-redux";
+import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
 
 const OtpVerifyView = ({
   otp,
@@ -13,6 +15,7 @@ const OtpVerifyView = ({
   otpInputRefs,
 }) => {
   const { company } = useCompany();
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   useEffect(() => {
     if (otpInputRefs.current[0]) {
@@ -31,7 +34,7 @@ const OtpVerifyView = ({
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-6 sm:py-10 overflow-y-auto">
-      <div className="w-full max-w-sm mx-auto">
+      <div className="w-full max-w-[534px] mx-auto">
         <div className="flex justify-center mb-6">
           <img
             src={company?.logo || "/img/gmaxepay.png"}
@@ -84,11 +87,19 @@ const OtpVerifyView = ({
         </button>
 
         <button
-          onClick={onSubmit}
-          className="w-[500px] text-white text-[28px] font-medium mt-10 rounded-xl h-12 sm:h-14 -ml-12 flex items-center justify-center"
+          onClick={!isLoading ? onSubmit : undefined}
+          disabled={isLoading}
+          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-medium mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
-          Submit
+          {isLoading ? (
+            <span className="flex items-center gap-2">
+              <ButtonLoader color="#ffffff" />
+              <span className="text-white">Loading...</span>
+            </span>
+          ) : (
+            "Submit"
+          )}
         </button>
       </div>
     </div>

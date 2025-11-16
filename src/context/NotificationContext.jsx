@@ -121,14 +121,23 @@ const NotificationContainer = ({ notifications, onRemove }) => {
 
   // On dashboard routes, only show critical notifications (like token expiration)
   // Otherwise, show all notifications
-  const notificationsToShow = isDashboardRoute 
+  const notificationsToShowRaw = isDashboardRoute 
     ? notifications.filter(n => n.isCritical)
     : notifications;
+
+  // Globally suppress success notifications per requirement
+  const notificationsToShow = notificationsToShowRaw.filter(n => n.type !== 'success');
 
   if (notificationsToShow.length === 0) return null;
 
   return (
-    <div className="fixed top-4 right-4 z-50 flex flex-col gap-3 max-w-md w-full">
+    <div
+      className="
+        fixed z-50 flex flex-col gap-3
+        inset-x-0 bottom-4 items-center px-4
+        sm:inset-auto sm:top-4 sm:right-4 sm:bottom-auto sm:items-end sm:px-0
+      "
+    >
       {notificationsToShow.map((notification) => (
         <Notification
           key={notification.id}
@@ -254,14 +263,11 @@ const Notification = ({ notification, onRemove }) => {
   return (
     <div
       className={`
-        ${colors.bg} ${colors.border}
-        rounded-2xl shadow-2xl border-2 px-6 py-5
-        animate-slide-in-right
-        backdrop-blur-sm
-        transition-all duration-300
-        ${colors.hover}
-        transform hover:scale-[1.01]
-        min-w-[320px]
+        ${colors.bg} ${colors.border} ${colors.hover}
+        w-full max-w-[calc(100vw-2rem)] sm:max-w-sm md:max-w-md
+        rounded-2xl shadow-2xl border-2 px-5 py-4 sm:px-6 sm:py-5
+        backdrop-blur-sm transition-all duration-300
+        animate-slide-in-right transform hover:scale-[1.01]
       `}
     >
       <div className="flex items-start gap-4">

@@ -12,3 +12,25 @@ const Loader = () => {
 };
 
 export default Loader;
+
+// Simple inline loader for buttons
+export const ButtonLoader = ({ color = '#039155', size = 20, thickness = 3 }) => {
+  const dimension = `${size}px`;
+  const borderWidth = `${thickness}px`;
+  return (
+    <span
+      className="inline-block align-middle animate-spin rounded-full"
+      style={{
+        width: dimension,
+        height: dimension,
+        borderTopColor: color,
+        borderRightColor: 'transparent',
+        borderBottomColor: color,
+        borderLeftColor: 'transparent',
+        borderStyle: 'solid',
+        borderWidth: borderWidth,
+      }}
+      aria-label="loading"
+    />
+  );
+};

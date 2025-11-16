@@ -295,93 +295,67 @@ const LoginDesign1 = () => {
   useEffect(() => {
     if (verificationStatusdata === "SUCCESS" && verificationResponse && !processedVerificationRef.current) {
       processedVerificationRef.current = true;
-      
-      // Show success notification first (with onClose callback to navigate after notification closes)
-      if (currentView === VIEWS.OTP_VERIFY || currentView === VIEWS.VERIFICATION_CODE) {
-        const successMessage = verificationResponse?.message || verificationResponse?.data?.message || "OTP verified successfully!";
-        
-        showNotification({
-          type: "success",
-          message: successMessage,
-          duration: 3000,
-          clearExisting: false, // Don't clear existing notifications
-          onClose: () => {
-            // Navigate/change view only after notification closes
-            if (currentView === VIEWS.OTP_VERIFY) {
-              // After login OTP, check if password reset is required
-              const responseData = verificationResponse?.data || verificationResponse;
-              const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
-              
-              if (requiresPasswordReset) {
-                setCurrentView(VIEWS.RESET_PASSWORD);
-                return;
-              }
-
-              // Check if 2FA is required
-              const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
-              const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
-              const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
-              
-              if (requiresSetup2FA || requires2FA) {
-                if (qrCode) {
-                  setQrData(qrCode);
-                  setOtp(Array(6).fill(""));
-                  setCurrentView(VIEWS.REQUIRE_2FA);
-                } else {
-                  setOtp(Array(6).fill(""));
-                  setCurrentView(VIEWS.AUTH_2FA);
-                  setTimeout(() => {
-                    auth2FAInputRefs.current[0]?.focus();
-                  }, 100);
-                }
-              } else {
-                // Check if we have JWT token (accessToken) - only navigate if JWT exists
-                const jwtToken = secureLocalStorage.getItem("userToken");
-                if (jwtToken) {
-                  const rolePaths = {
-                    1: "/superDashboard/home",
-                    2: "/adminDashboard/home",
-                    3: "/masterDistributerDashboard/home",
-                    4: "/distributerDashboard/home",
-                    5: "/retailerDashboard/home",
-                    6: "/employeeDashboard/home",
-                  };
-                  const userRole = responseData?.userRole || verificationResponse?.userRole;
-                  navigate(rolePaths[userRole] || "/superDashboard/home");
-                }
-                // If no JWT token, stay on current view (might need 2FA)
-              }
-            } else if (currentView === VIEWS.VERIFICATION_CODE) {
-              // After forgot password OTP, check if password reset is required
-              const responseData = verificationResponse?.data || verificationResponse;
-              const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
-              
-              if (requiresPasswordReset) {
-                setCurrentView(VIEWS.RESET_PASSWORD);
-                return;
-              }
-              
-              // Check if 2FA is needed
-              const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
-              const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
-              const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
-              
-              if (requiresSetup2FA || requires2FA) {
-                if (qrCode) {
-                  setQrData(qrCode);
-                  setOtp(Array(6).fill(""));
-                  setCurrentView(VIEWS.REQUIRE_2FA);
-                } else {
-                  setOtp(Array(6).fill(""));
-                  setCurrentView(VIEWS.AUTH_2FA);
-                  setTimeout(() => {
-                    auth2FAInputRefs.current[0]?.focus();
-                  }, 100);
-                }
-              }
-            }
-          },
-        });
+      // Navigate/change view immediately without success notification
+      if (currentView === VIEWS.OTP_VERIFY) {
+        const responseData = verificationResponse?.data || verificationResponse;
+        const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
+        if (requiresPasswordReset) {
+          setCurrentView(VIEWS.RESET_PASSWORD);
+          return;
+        }
+        const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
+          } else {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }
+        } else {
+          const jwtToken = secureLocalStorage.getItem("userToken");
+          if (jwtToken) {
+            const rolePaths = {
+              1: "/superDashboard/home",
+              2: "/adminDashboard/home",
+              3: "/masterDistributerDashboard/home",
+              4: "/distributerDashboard/home",
+              5: "/retailerDashboard/home",
+              6: "/employeeDashboard/home",
+            };
+            const userRole = responseData?.userRole || verificationResponse?.userRole;
+            navigate(rolePaths[userRole] || "/superDashboard/home");
+          }
+        }
+      } else if (currentView === VIEWS.VERIFICATION_CODE) {
+        const responseData = verificationResponse?.data || verificationResponse;
+        const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
+        if (requiresPasswordReset) {
+          setCurrentView(VIEWS.RESET_PASSWORD);
+          return;
+        }
+        const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
+          } else {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }
+        }
       }
     }
   }, [verificationStatusdata, verificationResponse, currentView, navigate, showNotification]);
@@ -405,14 +379,9 @@ const LoginDesign1 = () => {
     if (factstatus === "SUCCESS" && factresponse) {
       // Get user data from response - check multiple possible locations
       const userDataFromResponse = usedata || twoFactorAuthData?.data?.user || twoFactorAuthData?.user;
-      
-      // Get the success message from the response
-      const successMessage = twoFactorAuthData?.message || twoFactorAuthData?.data?.message || "2FA setup successful!";
-      
       // Check if both token and userData exist in secure storage (from authOtp action)
       const existingToken = secureLocalStorage.getItem("userToken");
       const existingUserData = secureLocalStorage.getItem("userData");
-      
       // Only navigate if BOTH token and userData exist
       if (existingToken && existingUserData) {
         try {
@@ -441,53 +410,33 @@ const LoginDesign1 = () => {
           return;
         } catch (e) {
           console.error("Error parsing userData:", e);
-          // If parsing fails, continue to show notification
         }
       }
-      
-      // If token or userData doesn't exist yet, show notification and wait
-      // This ensures we only navigate when both are available
-      if (userDataFromResponse) {
-        showNotification({
-          type: "success",
-          message: successMessage,
-          duration: 3000,
-          clearExisting: false, // Don't clear existing notifications
-          onClose: () => {
-            // Navigate only after notification closes
-            // Check again if both JWT token and userData are stored
-            const jwtToken = secureLocalStorage.getItem("userToken");
-            const storedUserData = secureLocalStorage.getItem("userData");
-            
-            // Only navigate if BOTH token and userData exist
-            if (jwtToken && storedUserData) {
-              try {
-                const parsedUserData = JSON.parse(storedUserData);
-                const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
-                
-                dispatch(
-                  loginSuccess({
-                    token: factresponse || jwtToken,
-                    user: parsedUserData || userDataFromResponse,
-                  })
-                );
-                
-                const rolePaths = {
-                  1: "/superDashboard/home",
-                  2: "/adminDashboard/home",
-                  3: "/masterDistributerDashboard/home",
-                  4: "/distributerDashboard/home",
-                  5: "/retailerDashboard/home",
-                  6: "/employeeDashboard/home",
-                };
-                
-                navigate(rolePaths[userRole] || "/superDashboard/home");
-              } catch (e) {
-                console.error("Error parsing userData:", e);
-              }
-            }
-          },
-        });
+      // If token or userData doesn't exist yet, check again quickly and navigate without showing success notification
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const storedUserData = secureLocalStorage.getItem("userData");
+      if (jwtToken && storedUserData) {
+        try {
+          const parsedUserData = JSON.parse(storedUserData);
+          const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+          dispatch(
+            loginSuccess({
+              token: factresponse || jwtToken,
+              user: parsedUserData || userDataFromResponse,
+            })
+          );
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashboard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+          navigate(rolePaths[userRole] || "/superDashboard/home");
+        } catch (e) {
+          console.error("Error parsing userData:", e);
+        }
       }
     }
   }, [factstatus, factresponse, usedata, twoFactorAuthData, dispatch, navigate, showNotification]);
@@ -521,60 +470,44 @@ const LoginDesign1 = () => {
   // Handle reset password response
   useEffect(() => {
     if (resetPasswordResponse?.status === "SUCCESS") {
-      const successMessage = resetPasswordResponse?.message || "Password reset successful!";
-      
-      // Show notification first (with onClose callback to navigate after notification closes)
-      showNotification({
-        type: "success",
-        message: successMessage,
-        duration: 3000,
-        clearExisting: false, // Don't clear existing notifications
-        onClose: () => {
-          // Navigate only after notification closes
-          // Check if we have JWT token (after password reset might get JWT or continue with login token)
-          const jwtToken = secureLocalStorage.getItem("userToken");
-          const responseData = resetPasswordResponse?.data || resetPasswordResponse;
-          const userRole = responseData?.userRole;
-          
-          if (jwtToken && userRole) {
-            // JWT token exists, navigate to dashboard
-            const rolePaths = {
-              1: "/superDashboard/home",
-              2: "/adminDashboard/home",
-              3: "/masterDistributerDashboard/home",
-              4: "/distributerDashboard/home",
-              5: "/retailerDashboard/home",
-              6: "/employeeDashboard/home",
-            };
-            navigate(rolePaths[userRole] || "/superDashboard/home");
-          } else if (userRole) {
-            // User role exists but no JWT - might need 2FA, stay on current view
-            // Check if 2FA is required
-            const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
-            const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
-            const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
-            
-            if (requiresSetup2FA || requires2FA) {
-              if (qrCode) {
-                setQrData(qrCode);
-                setOtp(Array(6).fill(""));
-                setCurrentView(VIEWS.REQUIRE_2FA);
-              } else {
-                setOtp(Array(6).fill(""));
-                setCurrentView(VIEWS.AUTH_2FA);
-                setTimeout(() => {
-                  auth2FAInputRefs.current[0]?.focus();
-                }, 100);
-              }
-            } else {
-              // No 2FA required but no JWT - go back to login
-              setCurrentView(VIEWS.LOGIN);
-            }
+      // Navigate immediately without success notification
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const responseData = resetPasswordResponse?.data || resetPasswordResponse;
+      const userRole = responseData?.userRole;
+
+      if (jwtToken && userRole) {
+        const rolePaths = {
+          1: "/superDashboard/home",
+          2: "/adminDashboard/home",
+          3: "/masterDistributerDashboard/home",
+          4: "/distributerDashboard/home",
+          5: "/retailerDashboard/home",
+          6: "/employeeDashboard/home",
+        };
+        navigate(rolePaths[userRole] || "/superDashboard/home");
+      } else if (userRole) {
+        const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
+        
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
           } else {
-            setCurrentView(VIEWS.LOGIN);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
           }
-        },
-      });
+        } else {
+          setCurrentView(VIEWS.LOGIN);
+        }
+      } else {
+        setCurrentView(VIEWS.LOGIN);
+      }
     }
   }, [resetPasswordResponse, navigate, showNotification]);
 

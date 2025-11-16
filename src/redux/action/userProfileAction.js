@@ -51,6 +51,10 @@ export const getUserProfile = () => async (dispatch) => {
       const errorMessage =
         data?.message || "Invalid token. Please login again.";
 
+      // Clear any auth tokens on unauthorized
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("loginToken");
+
       dispatch(logout());
 
       dispatch({
@@ -72,8 +76,9 @@ export const getUserProfile = () => async (dispatch) => {
       const errorMessage =
         error?.response?.data?.message || "Invalid token. Please login again.";
 
-      // Clear token from storage
+      // Clear tokens from storage
       secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("loginToken");
 
       // Dispatch logout to clear auth state
       dispatch(logout());
