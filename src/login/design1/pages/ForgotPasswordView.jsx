@@ -2,6 +2,8 @@ import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useCompany } from "../../../context/CompanyContext";
+import { useSelector } from "react-redux";
+import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
 
 const PhoneIcon = "/img/PhoneCall1.png";
 const PhoneIconFilled = "/img/PhoneCall2.png";
@@ -9,11 +11,12 @@ const PhoneIconFilled = "/img/PhoneCall2.png";
 const phoneValidationSchema = Yup.object({
   phoneNumber: Yup.string()
     .matches(/^\d{10}$/, "Phone number must be 10 digits")
-    .required("Phone number is required"),
+    .required(), // keep required to block submit; suppress message in UI
 });
 
 const ForgotPasswordView = ({ onSubmit, onBack }) => {
   const { company } = useCompany();
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-6 sm:py-10 overflow-y-auto">
@@ -92,11 +95,15 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                     }}
                   />
                   <ErrorMessage name="phoneNumber">
-                    {(msg) => (
-                      <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
-                        {msg}
-                      </div>
-                    )}
+                    {(msg) => {
+                      const text = typeof msg === "string" ? msg : "";
+                      const hide = /required/i.test(text);
+                      return hide ? null : (
+                        <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
+                          {text}
+                        </div>
+                      );
+                    }}
                   </ErrorMessage>
                 </div>
               </div>
@@ -118,13 +125,20 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
 
               <button
                 type="submit"
-                disabled={isSubmitting}
-                className="w-[530px] -ml-20 text-white text-[20px] font-medium mt-6 rounded-xl h-12 flex items-center justify-center"
+                disabled={isSubmitting || isLoading}
+                className="w-full lg:w-[534px] mx-auto text-white text-[18px] font-medium mt-6 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
                 style={{
                   backgroundColor: company?.primaryColor || "#039155",
                 }}
               >
-                Next
+                {isSubmitting || isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <ButtonLoader color="#ffffff" />
+                    <span className="text-white">Loading...</span>
+                  </span>
+                ) : (
+                  "Next"
+                )}
               </button>
             </Form>
           )}

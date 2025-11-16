@@ -72,7 +72,7 @@ const Require2FAView = ({ qrData, onNext }) => {
         <button
           disabled={!qrData}
           onClick={onNext}
-          className={`w-full h-14 sm:h-16 md:h-20 lg:h-[60px] rounded-xl text-white text-lg font-semibold transition-all duration-200 ${
+          className={`w-full lg:w-[534px] mx-auto h-12 sm:h-12 md:h-14 lg:h-[60px] rounded-xl text-white text-lg font-semibold transition-all duration-200 ${
             !qrData ? "opacity-50 cursor-not-allowed" : "hover:opacity-90 shadow-lg"
           }`}
           style={{

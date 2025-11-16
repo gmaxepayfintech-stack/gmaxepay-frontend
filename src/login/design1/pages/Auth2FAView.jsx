@@ -1,5 +1,7 @@
 import React, { useEffect } from "react";
 import { useCompany } from "../../../context/CompanyContext";
+import { useSelector } from "react-redux";
+import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
 
 const Auth2FAView = ({
   otp,
@@ -10,6 +12,7 @@ const Auth2FAView = ({
   auth2FAInputRefs,
 }) => {
   const { company } = useCompany();
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   useEffect(() => {
     if (auth2FAInputRefs.current[0]) {
@@ -80,8 +83,9 @@ const Auth2FAView = ({
 
         <div className="w-full">
           <button
-            className="w-full text-white transition-all duration-200 flex items-center justify-center shadow-lg h-14 sm:h-16 md:h-20 lg:h-[60px] font-semibold rounded-xl"
-            onClick={onSubmit}
+            className="w-full lg:w-[534px] mx-auto text-white transition-all duration-200 flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-semibold rounded-xl disabled:opacity-70 disabled:cursor-not-allowed"
+            onClick={!isLoading ? onSubmit : undefined}
+            disabled={isLoading}
             style={{
               backgroundColor: company?.primaryColor || "#039155",
               boxShadow: "0 4px 14px 0",
@@ -90,17 +94,24 @@ const Auth2FAView = ({
               lineHeight: "100%",
             }}
             onMouseEnter={(e) => {
-              if (company?.secondaryColor) {
+              if (!isLoading && company?.secondaryColor) {
                 e.target.style.backgroundColor = company.secondaryColor;
               }
             }}
             onMouseLeave={(e) => {
-              if (company?.primaryColor) {
+              if (!isLoading && company?.primaryColor) {
                 e.target.style.backgroundColor = company.primaryColor;
               }
             }}
           >
-            Verify & Continue
+            {isLoading ? (
+              <span className="flex items-center gap-2">
+                <ButtonLoader color="#ffffff" />
+                <span className="text-white">Loading...</span>
+              </span>
+            ) : (
+              "Verify & Continue"
+            )}
           </button>
         </div>
 

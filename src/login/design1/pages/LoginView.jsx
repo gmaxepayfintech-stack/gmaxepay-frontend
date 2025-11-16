@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
 import { useCompany } from "../../../context/CompanyContext";
+import { useSelector } from "react-redux";
+import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
 
 const NumpadIcon = "/img/Numpad1.png";
 const NumpadIconFilled = "/img/Numpad2.png";
@@ -11,13 +13,14 @@ const PhoneIconFilled = "/img/PhoneCall2.png";
 const loginValidationSchema = Yup.object({
   phoneNumber: Yup.string()
     .matches(/^\d{10}$/, "Phone number must be 10 digits")
-    .required("Phone number is required"),
-  password: Yup.string().required("Password is required"),
+    .required(), // keep required for submit blocking, suppress message in UI
+  password: Yup.string().required(), // suppress required message in UI
 });
 
 const LoginView = ({ onSubmit, onForgotPassword }) => {
   const { company } = useCompany();
   const [showPassword, setShowPassword] = useState(false);
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10 md:py-8 lg:py-0 overflow-y-auto">
@@ -125,11 +128,15 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
                     required
                   />
                   <ErrorMessage name="phoneNumber">
-                    {(msg) => (
-                      <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
-                        {msg}
-                      </div>
-                    )}
+                    {(msg) => {
+                      const text = typeof msg === "string" ? msg : "";
+                      const hide = /required/i.test(text);
+                      return hide ? null : (
+                        <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
+                          {text}
+                        </div>
+                      );
+                    }}
                   </ErrorMessage>
                 </div>
               </div>
@@ -196,11 +203,15 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
                     required
                   />
                   <ErrorMessage name="password">
-                    {(msg) => (
-                      <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
-                        {msg}
-                      </div>
-                    )}
+                    {(msg) => {
+                      const text = typeof msg === "string" ? msg : "";
+                      const hide = /required/i.test(text);
+                      return hide ? null : (
+                        <div className="absolute left-0 -bottom-6 text-red-500 text-sm ml-2 w-full z-50">
+                          {text}
+                        </div>
+                      );
+                    }}
                   </ErrorMessage>
                 </div>
               </div>
@@ -224,45 +235,38 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
               <div className="w-full">
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-14 sm:h-16 md:h-20 lg:h-[60px] font-semibold rounded-xl relative overflow-hidden"
+                  disabled={isSubmitting || isLoading}
+                  className="w-full lg:w-[534px] mx-auto text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-12 sm:h-12 md:h-14 lg:h-[60px] font-semibold rounded-xl relative overflow-hidden"
                   style={{
                     backgroundColor: company?.primaryColor || "#039155",
                     boxShadow: "0 4px 14px 0",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isSubmitting && company?.secondaryColor) {
+                    if (!isLoading && !isSubmitting && company?.secondaryColor) {
                       e.target.style.backgroundColor = company.secondaryColor;
                     }
                   }}
                   onMouseLeave={(e) => {
-                    if (!isSubmitting && company?.primaryColor) {
+                    if (!isLoading && !isSubmitting && company?.primaryColor) {
                       e.target.style.backgroundColor = company.primaryColor;
                     }
                   }}
                 >
-                  {isSubmitting ? (
-                    <div className="w-full h-full flex items-center justify-center relative">
-                      <span className="absolute flex items-center justify-center w-10 h-10 bg-white rounded-full transition-all duration-1000 animate-slide-circle">
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-5 w-5"
-                          style={{
-                            color: company?.primaryColor || "#039155",
-                          }}
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            strokeWidth={2}
-                            d="M14 5l7 7m0 0l-7 7m7-7H3"
-                          />
-                        </svg>
+                  {isSubmitting || isLoading ? (
+                    <span className="flex items-center gap-2">
+                      <ButtonLoader color="#ffffff" />
+                      <span
+                        style={{
+                          fontFamily: "Gilroy-SemiBold",
+                          fontWeight: 400,
+                          fontSize: "18px",
+                          lineHeight: "100%",
+                          color: "white",
+                        }}
+                      >
+                        Loading...
                       </span>
-                    </div>
+                    </span>
                   ) : (
                     <span
                       style={{

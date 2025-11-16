@@ -1,11 +1,34 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { Navigate, useNavigate } from 'react-router-dom';
+import secureLocalStorage from 'react-secure-storage';
 
 const ProtectedRoute = ({ children, role }) => {
-  const token = useSelector(state => state?.auth?.token);
-  const user = useSelector(state => state?.auth?.user);
-  const userRole = user?.user?.userRole;
+  // Prefer secure storage values, fallback to redux
+  const reduxToken = useSelector(state => state?.auth?.token);
+  const reduxUser = useSelector(state => state?.auth?.user);
+
+  const { token, user, userRole } = useMemo(() => {
+    try {
+      const storageToken = secureLocalStorage.getItem('userToken');
+      const storageUserRaw = secureLocalStorage.getItem('userData');
+      const storageUser = storageUserRaw
+        ? (typeof storageUserRaw === 'string' ? JSON.parse(storageUserRaw) : storageUserRaw)
+        : null;
+      const roleFromStorage = storageUser?.userRole;
+      return {
+        token: storageToken || reduxToken,
+        user: storageUser ? { user: storageUser } : reduxUser,
+        userRole: roleFromStorage ?? (reduxUser?.user?.userRole),
+      };
+    } catch (e) {
+      return {
+        token: reduxToken,
+        user: reduxUser,
+        userRole: reduxUser?.user?.userRole,
+      };
+    }
+  }, [reduxToken, reduxUser]);
   const navigate = useNavigate();
   
   useEffect(() => {
