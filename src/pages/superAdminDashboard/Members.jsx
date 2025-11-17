@@ -1,7 +1,7 @@
-import Onboarding from "../../../public/img/Onboarding.png";
-import RevenueGenerated from "../../../public/img/RevenueGenerated.png";
-import TotalMembers from "../../../public/img/TotalMembers.png";
-import ActiveMembers from "../../../public/img/ActiveMembers.png";
+const Onboarding = "/img/Onboarding.png";
+const RevenueGenerated = "/img/RevenueGenerated.png";
+const TotalMembers = "/img/TotalMembers.png";
+const ActiveMembers = "/img/ActiveMembers.png";
 const summaryItems = [
   {
     label: "Total Members",

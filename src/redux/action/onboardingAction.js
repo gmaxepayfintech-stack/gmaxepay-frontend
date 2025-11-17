@@ -20,6 +20,22 @@ import {
   AADHAAR_CONNECTION_FAILURE,
   DOWNLOAD_AADHAAR_SUCCESS,
   DOWNLOAD_AADHAAR_FAILURE,
+  UPLOAD_AADHAAR_SUCCESS,
+  UPLOAD_AADHAAR_FAILURE,
+  PAN_CONNECTION_SUCCESS,
+  PAN_CONNECTION_FAILURE,
+  DOWNLOAD_PAN_SUCCESS,
+  DOWNLOAD_PAN_FAILURE,
+  UPLOAD_PAN_SUCCESS,
+  UPLOAD_PAN_FAILURE,
+  POST_BANK_DETAILS_SUCCESS,
+  POST_BANK_DETAILS_FAILURE,
+  POST_PROFILE_START,
+  POST_PROFILE_SUCCESS,
+  POST_PROFILE_FAILURE,
+  POST_SHOP_DETAILS_START,
+  POST_SHOP_DETAILS_SUCCESS,
+  POST_SHOP_DETAILS_FAILURE,
 } from "../actionType/onboardingActionType";
 import { LOADING_END, LOADING_START } from "../actionType/loadingActionType";
 const commonError = "Something went Wrong";
@@ -346,9 +362,7 @@ export const aadhaarDownload = (value,token) => async (dispatch) => {
   try {
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/onboarding/${token}/getDigilockerDocuments`,
-      {
-        value
-      },
+      value,
       {
         headers: {
           "Content-Type": "application/json",
@@ -382,6 +396,179 @@ export const aadhaarDownload = (value,token) => async (dispatch) => {
   }
 };
 
+export const uploadAadhaarDocuments = (frontImage, backImage, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const formData = new FormData();
+    
+    if (frontImage) {
+      formData.append("front_photo", frontImage);
+    }
+    if (backImage) {
+      formData.append("back_photo", backImage);
+    }
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/uploadAadharDocuments`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: uploadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPLOAD_AADHAAR_SUCCESS,
+        payload: { uploadResponse, status, message },
+      });
+    } else {
+      dispatch({
+        type: UPLOAD_AADHAAR_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: UPLOAD_AADHAAR_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const panConnection = (token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/connectPanVerification`,
+      {
+        "redirect_url": `${BASE_URL}/onboarding/${token}`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: panVerify, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: PAN_CONNECTION_SUCCESS,
+        payload: { panVerify, status, message },
+      });
+    } else {
+      dispatch({
+        type: PAN_CONNECTION_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: PAN_CONNECTION_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const panDownload = (value, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/getDigilockerDocuments`,
+      value,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: downloadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: DOWNLOAD_PAN_SUCCESS,
+        payload: { downloadResponse, status, message },
+      });
+    } else {
+      dispatch({
+        type: DOWNLOAD_PAN_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DOWNLOAD_PAN_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const uploadPanDocument = (panImage, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const formData = new FormData();
+    
+    if (panImage) {
+      formData.append("front_photo", panImage);
+    }
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/uploadPanDocuments`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: uploadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPLOAD_PAN_SUCCESS,
+        payload: { uploadResponse, status, message },
+      });
+    } else {
+      dispatch({
+        type: UPLOAD_PAN_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: UPLOAD_PAN_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
 const dataURLtoFile = (dataUrl, filename) => {
   const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)[1];
@@ -394,47 +581,183 @@ const dataURLtoFile = (dataUrl, filename) => {
   return new File([u8arr], filename, { type: mime });
 };
 
-// Async thunk for posting profile photo (combined liveness + shop)
-export const postProfile = createAsyncThunk(
-  "onboarding/postProfile",
-  async ({ token, photoDataUrl }, { rejectWithValue }) => {
-    try {
-      if (!photoDataUrl) {
-        return rejectWithValue("Profile image is required");
-      }
-
-      const photoFile = dataURLtoFile(photoDataUrl, "profile-liveness.jpg");
-      const formData = new FormData();
-      formData.append("photo", photoFile);
-
-      // Force headers requested by backend
-      const origin = "http://localhost:5173";
-      const domain = "localhost";
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/company/onboarding/${token}/postProfile`,
-        formData,
-        {
-          headers: {
-            Origin: origin,
-            "x-company-domain": domain,
-          },
-        }
-      );
-
-      if (response.data.status === "SUCCESS" || response.data.flag === true) {
-        return response.data;
-      } else {
-        return rejectWithValue(
-          response.data.message || "Failed to post profile"
-        );
-      }
-    } catch (error) {
-      return rejectWithValue(
-        error.response?.data?.message ||
-          error.message ||
-          "Failed to post profile"
-      );
+// Async function for posting profile photo (combined liveness + shop)
+export const postProfile = (photoDataUrl, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    if (!photoDataUrl) {
+      dispatch({
+        type: POST_PROFILE_FAILURE,
+        payload: {
+          status: "FAILURE",
+          message: "Profile image is required",
+        },
+      });
+      return;
     }
+
+    const photoFile = dataURLtoFile(photoDataUrl, "profile-liveness.jpg");
+    const formData = new FormData();
+    formData.append("photo", photoFile);
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/postProfile`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: uploadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS" || response.data.flag === true) {
+      dispatch({
+        type: POST_PROFILE_SUCCESS,
+        payload: { uploadResponse, status, message: message || response.data.message },
+      });
+    } else {
+      dispatch({
+        type: POST_PROFILE_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message || "Failed to post profile",
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: POST_PROFILE_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
   }
-);
+};
+
+// Async function for posting shop details
+export const postShopDetails = (shopName, shopImage, token, ipAddress, longitude, latitude) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    if (!shopName) {
+      dispatch({
+        type: POST_SHOP_DETAILS_FAILURE,
+        payload: {
+          status: "FAILURE",
+          message: "Shop name is required",
+        },
+      });
+      return;
+    }
+    if (!shopImage) {
+      dispatch({
+        type: POST_SHOP_DETAILS_FAILURE,
+        payload: {
+          status: "FAILURE",
+          message: "Shop image is required",
+        },
+      });
+      return;
+    }
+
+    const shopImageFile = dataURLtoFile(shopImage, "shop-photo.jpg");
+    const formData = new FormData();
+    formData.append("shopName", shopName);
+    formData.append("shopImage", shopImageFile);
+    if (ipAddress) {
+      formData.append("ipAddress", ipAddress);
+    }
+    if (longitude) {
+      formData.append("longitude", longitude.toString());
+    }
+    if (latitude) {
+      formData.append("latitude", latitude.toString());
+    }
+
+    let domain = window.location.hostname;
+    if (domain === "localhost") {
+      domain = "app.gmaxepay.in";
+    }
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/postShopDetails`,
+      formData,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: uploadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS" || response.data.flag === true) {
+      dispatch({
+        type: POST_SHOP_DETAILS_SUCCESS,
+        payload: { uploadResponse, status, message: message || response.data.message },
+      });
+    } else {
+      dispatch({
+        type: POST_SHOP_DETAILS_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message || "Failed to post shop details",
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: POST_SHOP_DETAILS_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Action for posting bank details
+export const postBankDetails = (values, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/postBankDetails`,
+      {
+        account_number: values.account_number,
+        ifsc: values.ifsc,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: bankDetailsResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: POST_BANK_DETAILS_SUCCESS,
+        payload: { bankDetailsResponse, status, message },
+      });
+    } else {
+      dispatch({
+        type: POST_BANK_DETAILS_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: POST_BANK_DETAILS_FAILURE,
+      payload: {
+        status: "FAILURE",
+        message: error.response?.data?.message || error.message || commonError,
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};

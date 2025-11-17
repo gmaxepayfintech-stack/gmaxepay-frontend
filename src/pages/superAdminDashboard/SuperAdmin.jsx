@@ -8,21 +8,21 @@ import {
   AreaChart,
   Area,
 } from "recharts";
-import MasterDt from "../../../public/img/MasterDt.png";
-import Distributor from "../../../public/img/Distributor.png";
-import Ratailer from "../../../public/img/Retailer.png";
-import Comission from "../../../public/img/Comission.png";
-import TotalCharges from "../../../public/img/TotalCharges.png";
-import Revenue from "../../../public/img/Revenue.png";
-import Transactions from "../../../public/img/Transactions.png";
-import OpeningBalance from "../../../public/img/OpeningBalance.png";
-import FundTransfer from "../../../public/img/FundTransfer.png";
-import ExpectedAmount from "../../../public/img/ExpectedAmount.png";
-import Refund from "../../../public/img/Refund.png";
-import FundDetected from "../../../public/img/FundDetected.png";
-import Subcharges from "../../../public/img/Subcharges.png";
-import OtherCharges from "../../../public/img/OtherCharges.png";
-import TotalRevenue from "../../../public/img/TotalRevenue.png";
+const MasterDt = "/img/MasterDt.png";
+const Distributor = "/img/Distributor.png";
+const Ratailer = "/img/Retailer.png";
+const Comission = "/img/Comission.png";
+const TotalCharges = "/img/TotalCharges.png";
+const Revenue = "/img/Revenue.png";
+const Transactions = "/img/Transactions.png";
+const OpeningBalance = "/img/OpeningBalance.png";
+const FundTransfer = "/img/FundTransfer.png";
+const ExpectedAmount = "/img/ExpectedAmount.png";
+const Refund = "/img/Refund.png";
+const FundDetected = "/img/FundDetected.png";
+const Subcharges = "/img/Subcharges.png";
+const OtherCharges = "/img/OtherCharges.png";
+const TotalRevenue = "/img/TotalRevenue.png";
 
 const SuperAdmin = () => {
   const [selectedDay, setSelectedDay] = useState("Sun");
