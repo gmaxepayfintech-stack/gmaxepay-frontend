@@ -59,7 +59,7 @@ export const updateOnboardingStep = (stepNumber) => ({
   payload: stepNumber,
 });
 
-export const MobileOTPResponse  = (values, token) => async (dispatch) => {
+export const MobileOTPResponse = (values, token) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -82,23 +82,23 @@ export const MobileOTPResponse  = (values, token) => async (dispatch) => {
     } else {
       dispatch({
         type: MOBILE_OTP_SENT_FAILURE,
- payload: {
-      status: response?.data?.status ?? "FAILURE",
-      message: response?.data?.message ?? commonError,
-    },
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
       });
     }
   } catch (error) {
     dispatch({
       type: MOBILE_OTP_SENT_FAILURE,
-      payload: error.response ? error.response.data.message  : error.message,
+      payload: error.response ? error.response.data.message : error.message,
     });
   } finally {
     dispatch({ type: LOADING_END });
   }
 };
 
-export const resendOTPResponse  = (values, token) => async (dispatch) => {
+export const resendOTPResponse = (values, token) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -134,7 +134,7 @@ export const resendOTPResponse  = (values, token) => async (dispatch) => {
   }
 };
 
-export const verifySmsOtp  = (values, token) => async (dispatch) => {
+export const verifySmsOtp = (values, token) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -157,7 +157,10 @@ export const verifySmsOtp  = (values, token) => async (dispatch) => {
     } else {
       dispatch({
         type: SMS_VERIFY_OTP_FAILURE,
-        payload: response?.data?.message ?? commonError,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
       });
     }
   } catch (error) {
@@ -170,11 +173,9 @@ export const verifySmsOtp  = (values, token) => async (dispatch) => {
   }
 };
 
-
-
 // Helper function to convert data URL to File
 const dataURLtoFile = (dataUrl, filename) => {
-  const arr = dataUrl.split(',');
+  const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)[1];
   const bstr = atob(arr[1]);
   let n = bstr.length;
@@ -187,20 +188,20 @@ const dataURLtoFile = (dataUrl, filename) => {
 
 // Async thunk for posting profile photo (combined liveness + shop)
 export const postProfile = createAsyncThunk(
-  'onboarding/postProfile',
+  "onboarding/postProfile",
   async ({ token, photoDataUrl }, { rejectWithValue }) => {
     try {
       if (!photoDataUrl) {
-        return rejectWithValue('Profile image is required');
+        return rejectWithValue("Profile image is required");
       }
 
-      const photoFile = dataURLtoFile(photoDataUrl, 'profile-liveness.jpg');
+      const photoFile = dataURLtoFile(photoDataUrl, "profile-liveness.jpg");
       const formData = new FormData();
-      formData.append('photo', photoFile);
+      formData.append("photo", photoFile);
 
       // Force headers requested by backend
-      const origin = 'http://localhost:5173';
-      const domain = 'localhost';
+      const origin = "http://localhost:5173";
+      const domain = "localhost";
 
       const response = await axios.post(
         `${API_ROUTE}/api/v1/company/onboarding/${token}/postProfile`,
@@ -208,23 +209,24 @@ export const postProfile = createAsyncThunk(
         {
           headers: {
             Origin: origin,
-            'x-company-domain': domain,
+            "x-company-domain": domain,
           },
         }
       );
 
-      if (response.data.status === 'SUCCESS' || response.data.flag === true) {
+      if (response.data.status === "SUCCESS" || response.data.flag === true) {
         return response.data;
       } else {
-        return rejectWithValue(response.data.message || 'Failed to post profile');
+        return rejectWithValue(
+          response.data.message || "Failed to post profile"
+        );
       }
     } catch (error) {
       return rejectWithValue(
-        error.response?.data?.message || 
-        error.message || 
-        'Failed to post profile'
+        error.response?.data?.message ||
+          error.message ||
+          "Failed to post profile"
       );
     }
   }
 );
-

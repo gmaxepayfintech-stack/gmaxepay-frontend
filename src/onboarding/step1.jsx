@@ -12,7 +12,7 @@ function Step1({ formData, setFormData, onNext }) {
   const dispatch = useDispatch();
 
   const [timer, setTimer] = useState(0);
-  const [successCooldown, setSuccessCooldown] = useState(0);
+  const [successCooldown, setSuccessCooldown] = useState(180);
 
   const validationSchema = Yup.object({
     phone: Yup.string()
@@ -24,12 +24,10 @@ function Step1({ formData, setFormData, onNext }) {
       .required("OTP is required"),
   });
 
-    const submitOtp = () => {
+  const submitOtp = () => {
     const token = localStorage.getItem("onboardingToken");
 
     dispatch(verifySmsOtp({ otp: formik.values.otp }, token));
-
-    onNext();
   };
 
   const formik = useFormik({
@@ -69,7 +67,6 @@ function Step1({ formData, setFormData, onNext }) {
     setTimer(30);
   };
 
-  /* 30sec resend timer */
   useEffect(() => {
     if (timer > 0) {
       const interval = setInterval(() => setTimer((t) => t - 1), 1000);
@@ -83,9 +80,19 @@ function Step1({ formData, setFormData, onNext }) {
 
   useEffect(() => {
     if (verifySuccess === "SUCCESS") {
-      setSuccessCooldown(30);
+      setSuccessCooldown(180);
     }
   }, [verifySuccess]);
+
+  const FormSuccess = useSelector(
+    (state) => state?.onboarding?.verifySmsVerify?.status
+  );
+
+  useEffect(() => {
+    if (FormSuccess === "SUCCESS") {
+      onNext();
+    }
+  }, [FormSuccess]);
 
   useEffect(() => {
     if (successCooldown > 0) {
@@ -95,8 +102,6 @@ function Step1({ formData, setFormData, onNext }) {
       return () => clearInterval(interval);
     }
   }, [successCooldown]);
-
-
 
   return (
     <div className="flex justify-center items-center bg-gray-50">
