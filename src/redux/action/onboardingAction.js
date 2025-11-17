@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { API_ROUTE,ALLOWED_ONBOARDING_DOMAIN } from "../../data/env";
+import { API_ROUTE,BASE_URL } from "../../data/env";
 import {
   CLEAR_ONBOARDING,
   UPDATE_ONBOARDING_STEP,
@@ -306,7 +306,7 @@ export const aadhaarConnection = (token) => async (dispatch) => {
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
       {
-        "redirect_url": `${ALLOWED_ONBOARDING_DOMAIN}/onboarding/${token}`,
+        "redirect_url": `${BASE_URL}/onboarding/${token}`,
       },
       {
         headers: {

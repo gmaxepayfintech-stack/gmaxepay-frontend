@@ -176,10 +176,12 @@ jobs:
         VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_REACT_APP_API_ROUTE }}
         VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
         VITE_ALLOWED_ONBOARDING_DOMAIN: ${{ secrets.VITE_ALLOWED_ONBOARDING_DOMAIN }}
+        VITE_REACT_APP_BASE_URL: ${{ secrets.VITE_REACT_APP_BASE_URL }}
       run: |
         echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.production
         echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.production
         echo "VITE_ALLOWED_ONBOARDING_DOMAIN=${VITE_ALLOWED_ONBOARDING_DOMAIN}" >> .env.production
+        echo "VITE_REACT_APP_BASE_URL=${VITE_REACT_APP_BASE_URL}" >> .env.production
 
     - name: Build Vite React App
       run: npm run build -- --mode production
