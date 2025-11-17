@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import Baground2 from "../../public/img/Baground2.png";
-import Baground1 from "../../public/img/background.jpg";
 import { useCompany } from "../context/CompanyContext";
 import { useLocation, useNavigate } from "react-router-dom";
 import { verificationStatus } from "../redux/action/loginAction";
 import { useDispatch, useSelector } from "react-redux";
+
+const Baground2 = "/img/Baground2.png";
+const Baground1 = "/img/background.jpg";
 
 const OtpVerify = () => {
   const [otp, setOtp] = useState(Array(6).fill(""));

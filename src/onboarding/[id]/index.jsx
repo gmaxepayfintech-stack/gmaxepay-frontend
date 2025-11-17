@@ -112,16 +112,29 @@ function OnboardingById() {
       case "mobileVerification":
         return "/img/green-mobile.png";
       case "emailVerification":
-        return currentStep === 2 || isStepDone(2)
-          ? "/img/Envelope.png"
-          : "/img/Email2.png";
+        if (isStepDone(2)) {
+          return "/img/completedMail.png";
+        }
+        return currentStep === 2 ? "/img/Envelope.png" : "/img/Email2.png";
       case "aadharVerification":
+        if (isStepDone(3)) {
+          return "/img/AadhaarCompleted.png";
+        }
         return "/img/aadhar.png";
       case "panVerification":
+        if (isStepDone(4)) {
+          return "/img/PanCompleted.png";
+        }
         return "/img/PanCard.png";
       case "shopDetails":
+        if (isStepDone(5)) {
+          return "/img/completedShopDetails.png";
+        }
         return "/img/ShopDetails.png";
       case "bankVerification":
+        if (isStepDone(6)) {
+          return "/img/completedBankVerification.png";
+        }
         return "/img/BankDetails.png";
       case "profile":
         return "/img/Profile.png";
@@ -249,6 +262,45 @@ function OnboardingById() {
   const isCompleted =
     formData.completed || onboardingState.isOnboardingCompleted;
 
+  // If onboarding is completed, show only the completion message
+  if (isCompleted) {
+    return (
+      <div
+        className="min-h-screen bg-gray-50 flex items-center justify-center"
+        style={{ fontFamily: "Gilroy-Medium, sans-serif" }}
+      >
+        <div className="w-full max-w-2xl bg-white border border-gray-100 rounded-2xl p-8 shadow-sm text-center">
+          <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-4">
+            <svg
+              className="w-8 h-8 text-green-600"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M5 13l4 4L19 7"
+              />
+            </svg>
+          </div>
+          <h2 className="text-2xl font-semibold text-[#1B1717] mb-2">
+            KYC completed
+          </h2>
+          <p className="text-gray-600 text-lg">
+            Thank you! Your onboarding is complete.
+          </p>
+          {formData.digilockerLinked && (
+            <div className="mt-4 inline-flex items-center gap-1 text-green-600 text-sm">
+              <DigiLockerIcon small /> DigiLocker linked
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gray-50 flex justify-center py-1">
       <div
@@ -256,169 +308,156 @@ function OnboardingById() {
         style={{ fontFamily: "Gilroy-Medium, sans-serif" }}
       >
         {/* Header and description */}
-        <div
-          className=" Complete your KYC
-Onboarding token captured. Please complete the steps below.
-steps to complete
-mobile oTP
-email oTP
-aadhar card
-pan card
-shop details  
-bank details
-profile photo p-8 "
-        >
-          {!isCompleted && (
-            <>
-              <h1 className="text-[35px] font-semibold mb-2 text-center text-[#1B1717]">
+        <div className="p-8">
+          <h1 className="text-[35px] font-semibold mb-2 text-center text-[#1B1717]">
+            Complete Your KYC
+          </h1>
+          <p className="text-sm text-[16px] text-[#1B1717] mb-6 text-center">
+            Secure Your Account And Unlock All Features By Completing Our
+            Quick Verification Process.
+          </p>
+
+          {/* Steps card */}
+          <div className="rounded-xl p-6 bg-white border  ">
+            <div className="flex items-center gap-4 mb-3">
+              <img
+                src="/img/KYC.png"
+                alt="Status"
+                className="w-[50px] h-[50px] mt-4"
+              />
+              <h2 className="text-[20px] font-semibold mt[-12px] text-[#1B1717]">
                 Complete Your KYC
-              </h1>
-              <p className="text-sm text-[16px] text-[#1B1717] mb-6 text-center">
-                Secure Your Account And Unlock All Features By Completing Our
-                Quick Verification Process.
-              </p>
-
-              {/* Steps card */}
-              <div className="rounded-xl p-6 bg-white border  ">
-                <div className="flex items-center gap-4 mb-3">
-                  <img
-                    src="/img/KYC.png"
-                    alt="Status"
-                    className="w-[50px] h-[50px] mt-4"
-                  />
-                  <h2 className="text-[20px] font-semibold mt[-12px] text-[#1B1717]">
-                    Complete Your KYC
-                  </h2>
-                  {onboardingState.name && (
-                    <p className="text-sm text-gray-600 mt-1">
-                      Welcome, {onboardingState.name}
-                    </p>
-                  )}
-                </div>
-                <p className="text-[18px] text-[#1B1717] mt-[-24px] ml-16">
-                  Onboarding Token Captured. Please Complete The Steps Below.
+              </h2>
+              {onboardingState.name && (
+                <p className="text-sm text-gray-600 mt-1">
+                  Welcome, {onboardingState.name}
                 </p>
-                <div className="text-[#1B1717] w-[1265px] mt-6 ml-16">
-                  <h3 className="text-[16px]  font-medium">
-                    Steps To Complete
-                  </h3>
-                  <div className="flex items-center gap-4 mt-4  pb-2 justify-center">
-                    {onboardingState.steps &&
-                    onboardingState.steps.length > 0 ? (
-                      onboardingState.steps.map((step, index) => {
-                        const stepNumber = index + 1;
-                        const isDone = step.done || false;
-                        const isActive = currentStep === stepNumber;
-                        const isLast =
-                          stepNumber === onboardingState.steps.length;
-
-                        return (
-                          <StepBadge
-                            key={step.key}
-                            icon={getStepIcon(stepNumber, step.key)}
-                            label={step.label}
-                            active={isActive}
-                            done={isDone}
-                            connectingLine={!isLast}
-                            lineActive={isDone}
-                          />
-                        );
-                      })
-                    ) : (
-                      <>
-                        <StepBadge
-                          icon="/img/green-mobile.png"
-                          label="Mobile OTP"
-                          active={currentStep === 1}
-                          done={formData.otpVerified}
-                          connectingLine={true}
-                          lineActive={formData.otpVerified}
-                        />
-                        <StepBadge
-                          icon={
-                            currentStep === 2 || formData.emailOtpVerified
-                              ? "/img/Envelope.png"
-                              : "/img/Email2.png"
-                          }
-                          label="Email OTP"
-                          active={currentStep === 2}
-                          done={formData.emailOtpVerified}
-                          connectingLine={true}
-                          lineActive={formData.emailOtpVerified}
-                        />
-                        <StepBadge
-                          icon="/img/aadhar.png"
-                          label="Aadhar Card"
-                          active={currentStep === 3}
-                          done={formData.aadhaarDocFetched}
-                          connectingLine={true}
-                          lineActive={formData.aadhaarDocFetched}
-                        />
-                        <StepBadge
-                          icon="/img/PanCard.png"
-                          label="Pan Card"
-                          active={currentStep === 4}
-                          done={formData.panDocFetched}
-                          connectingLine={true}
-                          lineActive={formData.panDocFetched}
-                        />
-                        <StepBadge
-                          icon="/img/ShopDetails.png"
-                          label="Shop Details"
-                          active={currentStep === 5}
-                          done={formData.shopName && formData.shopPhotoDataUrl}
-                          connectingLine={true}
-                          lineActive={
-                            formData.shopName && formData.shopPhotoDataUrl
-                          }
-                        />
-                        <StepBadge
-                          icon="/img/BankDetails.png"
-                          label="Bank Details"
-                          active={currentStep === 6}
-                          done={formData.bankAccountNumber && formData.ifscCode}
-                          connectingLine={true}
-                          lineActive={
-                            formData.bankAccountNumber && formData.ifscCode
-                          }
-                        />
-                        <StepBadge
-                          icon="/img/Profile.png"
-                          label="Profile Photo"
-                          active={currentStep === 7}
-                          done={formData.profilePhotoDataUrl}
-                          connectingLine={false}
-                          lineActive={false}
-                        />
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </>
-          )}
-          {isCompleted && (
-            <div className="text-center py-10">
-              <div className="mx-auto w-16 h-16 rounded-full bg-green-100 flex items-center justify-center text-green-600 mb-4">
-                ✓
-              </div>
-              <h2 className="text-xl font-semibold">KYC completed</h2>
-              <p className="text-gray-600 mt-1">
-                Thank you! Your onboarding is complete.
-              </p>
-              {formData.digilockerLinked && (
-                <div className="mt-3 inline-flex items-center gap-1 text-green-600 text-sm">
-                  <DigiLockerIcon small /> DigiLocker linked
-                </div>
               )}
             </div>
-          )}
+            <p className="text-[18px] text-[#1B1717] mt-[-24px] ml-16">
+              Onboarding Token Captured. Please Complete The Steps Below.
+            </p>
+            <div className="text-[#1B1717] w-[1265px] mt-6 ml-16">
+              <h3 className="text-[16px]  font-medium">
+                Steps To Complete
+              </h3>
+              <div className="flex items-center gap-4 mt-4  pb-2 justify-center">
+                {onboardingState.steps &&
+                onboardingState.steps.length > 0 ? (
+                  onboardingState.steps.map((step, index) => {
+                    const stepNumber = index + 1;
+                    const isDone = step.done || false;
+                    const isActive = currentStep === stepNumber;
+                    const isLast =
+                      stepNumber === onboardingState.steps.length;
+
+                    return (
+                      <StepBadge
+                        key={step.key}
+                        icon={getStepIcon(stepNumber, step.key)}
+                        label={step.label}
+                        active={isActive}
+                        done={isDone}
+                        connectingLine={!isLast}
+                        lineActive={isDone}
+                      />
+                    );
+                  })
+                ) : (
+                  <>
+                    <StepBadge
+                      icon="/img/green-mobile.png"
+                      label="Mobile OTP"
+                      active={currentStep === 1}
+                      done={formData.otpVerified}
+                      connectingLine={true}
+                      lineActive={formData.otpVerified}
+                    />
+                    <StepBadge
+                      icon={
+                        formData.emailOtpVerified
+                          ? "/img/completedMail.png"
+                          : currentStep === 2
+                          ? "/img/Envelope.png"
+                          : "/img/Email2.png"
+                      }
+                      label="Email OTP"
+                      active={currentStep === 2}
+                      done={formData.emailOtpVerified}
+                      connectingLine={true}
+                      lineActive={formData.emailOtpVerified}
+                    />
+                    <StepBadge
+                      icon={
+                        formData.aadhaarDocFetched
+                          ? "/img/AadhaarCompleted.png"
+                          : "/img/aadhar.png"
+                      }
+                      label="Aadhar Card"
+                      active={currentStep === 3}
+                      done={formData.aadhaarDocFetched}
+                      connectingLine={true}
+                      lineActive={formData.aadhaarDocFetched}
+                    />
+                    <StepBadge
+                      icon={
+                        formData.panDocFetched
+                          ? "/img/PanCompleted.png"
+                          : "/img/PanCard.png"
+                      }
+                      label="Pan Card"
+                      active={currentStep === 4}
+                      done={formData.panDocFetched}
+                      connectingLine={true}
+                      lineActive={formData.panDocFetched}
+                    />
+                    <StepBadge
+                      icon={
+                        formData.shopName && formData.shopPhotoDataUrl
+                          ? "/img/completedShopDetails.png"
+                          : "/img/ShopDetails.png"
+                      }
+                      label="Shop Details"
+                      active={currentStep === 5}
+                      done={formData.shopName && formData.shopPhotoDataUrl}
+                      connectingLine={true}
+                      lineActive={
+                        formData.shopName && formData.shopPhotoDataUrl
+                      }
+                    />
+                    <StepBadge
+                      icon={
+                        formData.bankAccountNumber && formData.ifscCode
+                          ? "/img/completedBankVerification.png"
+                          : "/img/BankDetails.png"
+                      }
+                      label="Bank Details"
+                      active={currentStep === 6}
+                      done={formData.bankAccountNumber && formData.ifscCode}
+                      connectingLine={true}
+                      lineActive={
+                        formData.bankAccountNumber && formData.ifscCode
+                      }
+                    />
+                    <StepBadge
+                      icon="/img/Profile.png"
+                      label="Profile Photo"
+                      active={currentStep === 7}
+                      done={formData.profilePhotoDataUrl}
+                      connectingLine={false}
+                      lineActive={false}
+                    />
+                  </>
+                )}
+              </div>
+            </div>
+          </div>
         </div>
 
         {/* Centered step content card */}
         <div className="w-full flex justify-center mt-2">
           <div className="w-full max-w-2xl bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
-            {!isCompleted && currentStep === 1 && (
+            {currentStep === 1 && (
               <Step1
                 formData={formData}
                 setFormData={setFormData}
@@ -426,7 +465,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 2 && (
+            {currentStep === 2 && (
               <Step2
                 formData={formData}
                 setFormData={setFormData}
@@ -434,7 +473,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 3 && (
+            {currentStep === 3 && (
               <Step3
                 formData={formData}
                 setFormData={setFormData}
@@ -442,7 +481,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 4 && (
+            {currentStep === 4 && (
               <Step4
                 formData={formData}
                 setFormData={setFormData}
@@ -450,7 +489,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 5 && (
+            {currentStep === 5 && (
               <Step5
                 formData={formData}
                 setFormData={setFormData}
@@ -458,7 +497,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 6 && (
+            {currentStep === 6 && (
               <Step6
                 formData={formData}
                 setFormData={setFormData}
@@ -466,7 +505,7 @@ profile photo p-8 "
               />
             )}
 
-            {!formData.completed && currentStep === 7 && (
+            {currentStep === 7 && (
               <Step7
                 formData={formData}
                 setFormData={setFormData}
@@ -486,7 +525,14 @@ function StepBadge({ icon, label, active, done, connectingLine, lineActive }) {
   const getStatusColor = () => {
     if (
       done ||
-      (active && (icon.includes("Envelope") || icon.includes("green-mobile")))
+      (active &&
+        (icon.includes("Envelope") ||
+          icon.includes("green-mobile") ||
+          icon.includes("completedMail") ||
+          icon.includes("AadhaarCompleted") ||
+          icon.includes("PanCompleted") ||
+          icon.includes("completedShopDetails") ||
+          icon.includes("completedBankVerification")))
     )
       return "text-[#039155]";
     if (active) return "text-[#039155] ";
@@ -496,14 +542,27 @@ function StepBadge({ icon, label, active, done, connectingLine, lineActive }) {
   const getLineColor = () => {
     if (
       lineActive ||
-      (active && (icon.includes("Envelope") || icon.includes("green-mobile")))
+      (active &&
+        (icon.includes("Envelope") ||
+          icon.includes("green-mobile") ||
+          icon.includes("completedMail") ||
+          icon.includes("AadhaarCompleted") ||
+          icon.includes("PanCompleted") ||
+          icon.includes("completedShopDetails") ||
+          icon.includes("completedBankVerification")))
     )
       return "bg-[#039155]";
     return "bg-[#EAEAEA]";
   };
 
   const isGreenIcon =
-    icon.includes("Envelope") || icon.includes("green-mobile");
+    icon.includes("Envelope") ||
+    icon.includes("green-mobile") ||
+    icon.includes("completedMail") ||
+    icon.includes("AadhaarCompleted") ||
+    icon.includes("PanCompleted") ||
+    icon.includes("completedShopDetails") ||
+    icon.includes("completedBankVerification");
 
   return (
     <>
