@@ -93,7 +93,9 @@ function App() {
   );
   const WhiteLabelFailure = useSelector((state) => state?.error);
 
-  const onBoardingMobileVerification = useSelector((state)=>state?.onboarding);  
+  const onBoardingMobileVerification = useSelector(
+    (state) => state?.onboarding
+  );
 
   const logoutMessage = useSelector((state) => state?.auth?.success || null);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
@@ -165,11 +167,12 @@ function App() {
     }
   }, [operatorSuccess]);
 
-   useEffect(() => {
-    if (onBoardingMobileVerification) {
+  useEffect(() => {
+    if (onBoardingMobileVerification?.message) {
       showNotification({
         type: "success",
         message: onBoardingMobileVerification.message,
+        isCritical: true,
       });
     }
   }, [onBoardingMobileVerification]);
