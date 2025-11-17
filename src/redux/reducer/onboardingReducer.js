@@ -142,12 +142,14 @@ const onboardingReducer = (state = initialState, action) => {
       };
 
     case SMS_VERIFY_OTP_SUCCESS:
+      
       return{
         ...state,
-        verifySmsVerify: action.payload,
+        verifySmsVerify: action?.payload,
         success: action?.payload?.status,
         message: action?.payload?.message,
       }
+
 
     default:
       return state;
