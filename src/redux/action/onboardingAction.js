@@ -306,7 +306,7 @@ export const aadhaarConnection = (token) => async (dispatch) => {
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
       {
-        "redirect_url": `${API_ROUTE}/onboarding/${token}`,
+        "redirect_url": `https://app.gmaxepay.in/onboarding/${token}`,
       },
       {
         headers: {
