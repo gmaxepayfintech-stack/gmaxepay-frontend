@@ -114,7 +114,7 @@ function OnboardingById() {
       case "emailVerification":
         return currentStep === 2 || isStepDone(2)
           ? "/img/Envelope.png"
-          : "/img/Email.png";
+          : "/img/Email2.png";
       case "aadharVerification":
         return "/img/aadhar.png";
       case "panVerification":
@@ -338,7 +338,7 @@ profile photo p-8 "
                           icon={
                             currentStep === 2 || formData.emailOtpVerified
                               ? "/img/Envelope.png"
-                              : "/img/Email.png"
+                              : "/img/Email2.png"
                           }
                           label="Email OTP"
                           active={currentStep === 2}

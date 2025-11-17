@@ -10,6 +10,16 @@ import {
   SMS_RESEND_OTP_FAILURE,
   SMS_VERIFY_OTP_SUCCESS,
   SMS_VERIFY_OTP_FAILURE,
+  EMAIL_OTP_SENT_SUCCESS,
+  EMAIL_OTP_SENT_FAILURE,
+  EMAIL_RESCEND_OTP_SUCCESS,
+  EMAIL_RESCEND_OTP_FAILURE,
+  EMAIL_VERIFY_OTP_SUCCESS,
+  EMAIL_VERIFY_OTP_FAILURE,
+  AADHAAR_CONNECTION_SUCCESS,
+  AADHAAR_CONNECTION_FAILURE,
+  DOWNLOAD_AADHAAR_SUCCESS,
+  DOWNLOAD_AADHAAR_FAILURE,
 } from "../actionType/onboardingActionType";
 import { LOADING_END, LOADING_START } from "../actionType/loadingActionType";
 const commonError = "Something went Wrong";
@@ -173,7 +183,205 @@ export const verifySmsOtp = (values, token) => async (dispatch) => {
   }
 };
 
-// Helper function to convert data URL to File
+export const emailSmsOtp = (values, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/sendEmailOtp`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: verifySmsVerify, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMAIL_OTP_SENT_SUCCESS,
+        payload: { verifySmsVerify, status, message },
+      });
+    } else {
+      dispatch({
+        type: EMAIL_OTP_SENT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMAIL_OTP_SENT_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const emailResendOtp = (values, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/verifySmsOtp`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: emailrescendOtp, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMAIL_RESCEND_OTP_SUCCESS,
+        payload: { emailrescendOtp, status, message },
+      });
+    } else {
+      dispatch({
+        type: EMAIL_RESCEND_OTP_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMAIL_RESCEND_OTP_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const emailOtpVerify = (values, token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/verifyEmailOtp`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: verifyEmailOtp, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMAIL_VERIFY_OTP_SUCCESS,
+        payload: { verifyEmailOtp, status, message },
+      });
+    } else {
+      dispatch({
+        type: EMAIL_VERIFY_OTP_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMAIL_VERIFY_OTP_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aadhaarConnection = (token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
+      {
+        "redirect_url": `${API_ROUTE}/onboarding/${token}`,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: aadhaarVerify, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AADHAAR_CONNECTION_SUCCESS,
+        payload: { aadhaarVerify, status, message },
+      });
+    } else {
+      dispatch({
+        type: AADHAAR_CONNECTION_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: AADHAAR_CONNECTION_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aadhaarDownload = (value,token) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/getDigilockerDocuments`,
+      {
+        value
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: downloadResponse, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: DOWNLOAD_AADHAAR_SUCCESS,
+        payload: { downloadResponse, status, message },
+      });
+    } else {
+      dispatch({
+        type: DOWNLOAD_AADHAAR_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DOWNLOAD_AADHAAR_FAILURE,
+      payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
 const dataURLtoFile = (dataUrl, filename) => {
   const arr = dataUrl.split(",");
   const mime = arr[0].match(/:(.*?);/)[1];

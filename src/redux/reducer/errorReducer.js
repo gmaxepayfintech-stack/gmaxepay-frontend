@@ -9,6 +9,11 @@ import {
   MOBILE_OTP_SENT_FAILURE,
   SMS_VERIFY_OTP_FAILURE,
   SMS_RESEND_OTP_FAILURE,
+  EMAIL_OTP_SENT_FAILURE,
+  EMAIL_VERIFY_OTP_FAILURE,
+  EMAIL_RESCEND_OTP_FAILURE,
+  AADHAAR_CONNECTION_FAILURE,
+  DOWNLOAD_AADHAAR_FAILURE,
 } from "../actionType/onboardingActionType";
 
 const initialState = {
@@ -54,8 +59,15 @@ const errorReducer = (state = initialState, action) => {
         message: action?.payload,
       };
     case SMS_VERIFY_OTP_FAILURE:
-      console.log("Actions", action?.payload);
-
+      return {
+        ...state,
+        loading: false,
+        error: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+      };
+    case EMAIL_OTP_SENT_FAILURE:
+    case MOBILE_OTP_SENT_FAILURE:
       return {
         ...state,
         loading: false,
@@ -64,7 +76,10 @@ const errorReducer = (state = initialState, action) => {
         message: action?.payload?.message,
       };
 
-    case MOBILE_OTP_SENT_FAILURE:
+    case EMAIL_VERIFY_OTP_FAILURE:
+    case EMAIL_RESCEND_OTP_FAILURE:
+    case AADHAAR_CONNECTION_FAILURE:
+    case DOWNLOAD_AADHAAR_FAILURE:
       return {
         ...state,
         loading: false,
