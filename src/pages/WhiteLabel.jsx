@@ -11,15 +11,23 @@ import {
   createWhiteLabel,
 } from "../redux/action/whiteLabelAction";
 import { useDispatch, useSelector } from "react-redux";
+import Loader, { ButtonLoader } from "../widgets/layout/loader";
+import { useNotification } from "../context/NotificationContext";
 
 const WhiteLabel = ({ onBack }) => {
   const dispatch = useDispatch();
+  const { showNotification, success, error } = useNotification();
   const [cityOptions, setCityOptions] = useState([]);
   const [pincodeOptions, setPincodeOptions] = useState([]);
   const [isCityFetched, setIsCityFetched] = useState(false);
   const [isPincodeFetched, setIsPincodeFetched] = useState(false);
   const [activeInput, setActiveInput] = useState("");
+  const [isImageUploading, setIsImageUploading] = useState(false);
   const lastFetchedPincode = useRef("");
+  
+  // Loading state
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
+  
   const cityDataRetrived = useSelector(
     (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.postOffices
   );
@@ -35,11 +43,103 @@ const WhiteLabel = ({ onBack }) => {
   const createSuccess = useSelector(
     (state) => state?.whitelabel?.createResponse?.status
   );
+  const createMessage = useSelector(
+    (state) => state?.whitelabel?.createResponse?.message
+  );
+  
+  // IP Check states
+  const ipCheckStatusState = useSelector(
+    (state) => state?.whitelabel?.ipResponse?.status
+  );
+  const ipCheckMessage = useSelector(
+    (state) => state?.whitelabel?.ipResponse?.message
+  );
+  const ipCheckError = useSelector(
+    (state) => state?.error?.error
+  );
+  
+  // PAN Fetch states
+  const panDataStatus = useSelector(
+    (state) => state?.whitelabel?.panData?.status
+  );
+  const panDataMessage = useSelector(
+    (state) => state?.whitelabel?.panData?.message
+  );
+  const panDataError = useSelector(
+    (state) => state?.error?.message
+  );
+  
+  // Create error state
+  const createError = useSelector((state) => state?.error?.error);
+  
+  // Track last shown notifications to avoid duplicates
+  const lastNotificationRef = useRef({ ipCheck: null, panFetch: null, create: null });
+  
+  // Show notifications for IP Check
+  useEffect(() => {
+    if (ipCheckStatusState === "SUCCESS" && ipCheckMessage) {
+      const notificationKey = `ip-success-${ipCheckMessage}`;
+      if (lastNotificationRef.current.ipCheck !== notificationKey) {
+        success(ipCheckMessage || "IP check completed successfully");
+        lastNotificationRef.current.ipCheck = notificationKey;
+      }
+    }
+  }, [ipCheckStatusState, ipCheckMessage, success]);
+  
+  useEffect(() => {
+    if (ipCheckError && typeof ipCheckError === "string" && ipCheckStatusState !== "SUCCESS") {
+      const notificationKey = `ip-error-${ipCheckError}`;
+      if (lastNotificationRef.current.ipCheck !== notificationKey) {
+        error(ipCheckError);
+        lastNotificationRef.current.ipCheck = notificationKey;
+      }
+    }
+  }, [ipCheckError, ipCheckStatusState, error]);
+  
+  // Show notifications for PAN Fetch
+  useEffect(() => {
+    if (panDataStatus === "Success" && panDataMessage) {
+      const notificationKey = `pan-success-${panDataMessage}`;
+      if (lastNotificationRef.current.panFetch !== notificationKey) {
+        success(panDataMessage || "PAN data fetched successfully");
+        lastNotificationRef.current.panFetch = notificationKey;
+      }
+    }
+  }, [panDataStatus, panDataMessage, success]);
+  
+  useEffect(() => {
+    if (panDataStatus === "Failure" && panDataError) {
+      const errorMsg = typeof panDataError === "string" ? panDataError : "Failed to fetch PAN data";
+      const notificationKey = `pan-error-${errorMsg}`;
+      if (lastNotificationRef.current.panFetch !== notificationKey) {
+        error(errorMsg);
+        lastNotificationRef.current.panFetch = notificationKey;
+      }
+    }
+  }, [panDataStatus, panDataError, error]);
+  
+  // Show success message when form is submitted successfully
   useEffect(() => {
     if (createSuccess === "SUCCESS") {
-      formik.resetForm();
+      const notificationKey = `create-success-${createMessage}`;
+      if (lastNotificationRef.current.create !== notificationKey) {
+        success(createMessage || "Whitelabel created successfully!");
+        lastNotificationRef.current.create = notificationKey;
+        formik.resetForm();
+      }
     }
-  }, [createSuccess]);
+  }, [createSuccess, createMessage, success]);
+  
+  // Show error message when form submission fails
+  useEffect(() => {
+    if (createError && typeof createError === "string" && createSuccess !== "SUCCESS") {
+      const notificationKey = `create-error-${createError}`;
+      if (lastNotificationRef.current.create !== notificationKey) {
+        error(createError);
+        lastNotificationRef.current.create = notificationKey;
+      }
+    }
+  }, [createError, createSuccess, error]);
 
   const validationSchema = Yup.object({
     businessEntity: Yup.string().required("Business entity is required"),
@@ -261,13 +361,19 @@ const WhiteLabel = ({ onBack }) => {
 
   const handleIPCheck = () => {
     const domain = formik.values.companyDomain;
-    if (!domain) return alert("Please enter a company domain first!");
+    if (!domain) {
+      error("Please enter a company domain first!");
+      return;
+    }
     dispatch(ipCheckStatus({ domain }));
   };
 
   const handleFetchPan = () => {
     const pan = formik.values.pan;
-    if (!pan) return alert("Please enter a PAN number first!");
+    if (!pan) {
+      error("Please enter a PAN number first!");
+      return;
+    }
     dispatch(panDataFetch({ pan }));
   };
 
@@ -284,6 +390,7 @@ const WhiteLabel = ({ onBack }) => {
 
   return (
     <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+      {isLoading && <Loader />}
       <form onSubmit={formik.handleSubmit}>
         <div className="mb-6">
           <div className="flex items-center text-[#1B1717] mb-3">
@@ -419,9 +526,20 @@ const WhiteLabel = ({ onBack }) => {
                 <label className={labelStyle}>Profile Photo</label>
                 <label
                   htmlFor="profilePhoto"
-                  className="flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer"
+                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${
+                    isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
                 >
-                  Choose File <FaCloudUploadAlt className="ml-2 text-base" />
+                  {isImageUploading ? (
+                    <>
+                      <ButtonLoader size={16} color="#039155" thickness={2} />
+                      <span className="ml-2">Processing...</span>
+                    </>
+                  ) : (
+                    <>
+                      Choose File <FaCloudUploadAlt className="ml-2 text-base" />
+                    </>
+                  )}
                 </label>
                 <input
                   id="profilePhoto"
@@ -429,11 +547,26 @@ const WhiteLabel = ({ onBack }) => {
                   type="file"
                   accept="image/*"
                   className="hidden"
-                  onChange={(event) => {
+                  disabled={isImageUploading}
+                  onChange={async (event) => {
                     const file = event.currentTarget.files[0];
-                    if (file) formik.setFieldValue("profilePhoto", file);
+                    if (file) {
+                      setIsImageUploading(true);
+                      // Simulate file processing/validation
+                      await new Promise((resolve) => setTimeout(resolve, 500));
+                      formik.setFieldValue("profilePhoto", file);
+                      setIsImageUploading(false);
+                    }
                   }}
                 />
+                {formik.values.profilePhoto && !isImageUploading && (
+                  <p className="mt-2 text-sm text-green-600 flex items-center">
+                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                    </svg>
+                    {formik.values.profilePhoto.name || "File selected"}
+                  </p>
+                )}
                 <ErrorMsg name="profilePhoto" />
               </div>
             </div>
