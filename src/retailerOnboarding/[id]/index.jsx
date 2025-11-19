@@ -243,8 +243,8 @@ function OnboardingRetailerById() {
 
         {/* STEP CARD */}
         {!showSteps && (
-          <div className="flex justify-center px-2 sm:px-4">
-            <div className="w-full max-w-2xl   p-4 xxs:p-6 md:p-8 ">
+          <div className="flex justify-center px-1 sm:px-2">
+            <div className=" ">
               {currentStep === 1 && (
                 <Step1 formData={formData} setFormData={setFormData} onNext={handleStepNext} />
               )}
