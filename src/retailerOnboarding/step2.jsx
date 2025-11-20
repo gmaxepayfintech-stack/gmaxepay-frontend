@@ -113,7 +113,6 @@ function Step2({ formData, setFormData, onNext }) {
           xxs:ml-4
         "
       >
-        {/* RESTORED HEADER */}
         <div className="mb-8 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
             Complete Your KYC
