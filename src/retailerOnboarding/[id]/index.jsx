@@ -39,14 +39,11 @@ function OnboardingRetailerById() {
     otp: "",
     otpSent: false,
     otpVerified: false,
-
     email: "",
     emailOtp: "",
     emailOtpSent: false,
     emailOtpVerified: false,
-
     aadhaarDocFetched: false,
-
     panDocFetched: false,
     digilockerLinked: false,
 
