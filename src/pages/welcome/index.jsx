@@ -18,17 +18,19 @@ const Welcome = () => {
   const companyData = companyFromRedux || company;
   console.log("company details:", companyData);
 
-  const responseRefer = useSelector((state) => state?.retailerOnboarding?.Success);
-  const referralCodeResponse = useSelector((state) => state?.retailerOnboarding?.referalResponse);
+  const responseRefer = useSelector(
+    (state) => state?.retailerOnboarding?.Success
+  );
+  const referralCodeResponse = useSelector(
+    (state) => state?.retailerOnboarding?.referalResponse
+  );
   console.log("responseRefer", responseRefer);
   console.log("referralCodeResponse", referralCodeResponse);
 
   const primaryColor = companyData?.primaryColor || "#039155";
 
   // Get referral code status from Redux
-  const referralCodeStatus = useSelector(
-    (state) => state
-  );
+  const referralCodeStatus = useSelector((state) => state?.retailerOnboarding?.status);
   console.log("referralCodeStatus", referralCodeStatus);
 
   const referralCodeError = useSelector(
@@ -92,11 +94,13 @@ const Welcome = () => {
     };
 
     // Dispatch the action with referral code and company data
-    dispatch(referalCodeCheck(requestBody, companyData)).then(() => {
-      setLoading(false);
-    }).catch(() => {
-      setLoading(false);
-    });
+    dispatch(referalCodeCheck(requestBody, companyData))
+      .then(() => {
+        setLoading(false);
+      })
+      .catch(() => {
+        setLoading(false);
+      });
   };
 
   const handleSkip = () => {
@@ -106,8 +110,14 @@ const Welcome = () => {
   // Get onboarding token from company data or Redux state
   const getOnboardingToken = () => {
     // Check Redux state for token from referral response
-    if (referralCodeResponse?.data?.token || referralCodeResponse?.data?.onboardingToken) {
-      return referralCodeResponse.data.token || referralCodeResponse.data.onboardingToken;
+    if (
+      referralCodeResponse?.data?.token ||
+      referralCodeResponse?.data?.onboardingToken
+    ) {
+      return (
+        referralCodeResponse.data.token ||
+        referralCodeResponse.data.onboardingToken
+      );
     }
 
     // Fallback to company data
@@ -123,7 +133,7 @@ const Welcome = () => {
   // If referral code is successful, show onboarding component
   if (responseRefer === "SUCCESS") {
     const onboardingToken = getOnboardingToken();
-    
+
     // Set token in localStorage if available
     if (onboardingToken) {
       localStorage.setItem("onboardingToken", onboardingToken);
@@ -149,7 +159,10 @@ const Welcome = () => {
         {/* Form */}
         <form onSubmit={handleSubmit}>
           {/* Label */}
-          <label htmlFor="referral-code" className="block text-sm sm:text-base font-medium text-gray-800 mb-2">
+          <label
+            htmlFor="referral-code"
+            className="block text-sm sm:text-base font-medium text-gray-800 mb-2"
+          >
             Referral Code
           </label>
 
@@ -174,8 +187,9 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${error ? "border-red-500" : "border-gray-300"
-                }`}
+              className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${
+                error ? "border-red-500" : "border-gray-300"
+              }`}
               style={{ focusBorderColor: primaryColor }}
               disabled={loading}
             />
@@ -199,12 +213,14 @@ const Welcome = () => {
           <button
             type="submit"
             disabled={loading || !referralCode.trim()}
-            className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${loading || !referralCode.trim()
-              ? "bg-gray-400 cursor-not-allowed opacity-70"
-              : "hover:bg-green-700"
-              }`}
+            className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${
+              loading || !referralCode.trim()
+                ? "bg-gray-400 cursor-not-allowed opacity-70"
+                : "hover:bg-green-700"
+            }`}
             style={{
-              backgroundColor: loading || !referralCode.trim() ? undefined : primaryColor
+              backgroundColor:
+                loading || !referralCode.trim() ? undefined : primaryColor,
             }}
           >
             {loading ? "Submitting..." : "Submit"}
@@ -225,4 +241,3 @@ const Welcome = () => {
 };
 
 export default Welcome;
-
