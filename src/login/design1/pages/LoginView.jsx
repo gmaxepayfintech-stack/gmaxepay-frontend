@@ -17,7 +17,7 @@ const loginValidationSchema = Yup.object({
   password: Yup.string().required(), // suppress required message in UI
 });
 
-const LoginView = ({ onSubmit, onForgotPassword }) => {
+const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
   const { company } = useCompany();
   const [showPassword, setShowPassword] = useState(false);
   const isLoading = useSelector((state) => state?.loading?.isLoading);
@@ -114,11 +114,10 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
                       fontWeight: 400,
                       fontSize: "15px",
                       lineHeight: "100%",
-                      border: `1.5px solid ${
-                        values.phoneNumber
-                          ? "#1B1717"
-                          : "rgba(27, 23, 23, 0.5)"
-                      }`,
+                      border: `1.5px solid ${values.phoneNumber
+                        ? "#1B1717"
+                        : "rgba(27, 23, 23, 0.5)"
+                        }`,
                     }}
                     onChange={(e) => {
                       let value = e.target.value.replace(/\D/g, "");
@@ -196,9 +195,8 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
                       fontSize: "15px",
                       lineHeight: "100%",
                       paddingRight: values.password ? "60px" : "16px",
-                      border: `1.5px solid ${
-                        values.password ? "#1B1717" : "rgba(27, 23, 23, 0.5)"
-                      }`,
+                      border: `1.5px solid ${values.password ? "#1B1717" : "rgba(27, 23, 23, 0.5)"
+                        }`,
                     }}
                     required
                   />
@@ -281,6 +279,8 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
                     </span>
                   )}
                 </button>
+
+
               </div>
             </Form>
           )}
@@ -322,17 +322,44 @@ const LoginView = ({ onSubmit, onForgotPassword }) => {
               }}
             >
               {company?.supportPhoneNumbers &&
-              Array.isArray(company.supportPhoneNumbers) &&
-              company.supportPhoneNumbers.length > 0
+                Array.isArray(company.supportPhoneNumbers) &&
+                company.supportPhoneNumbers.length > 0
                 ? `91- ${company.supportPhoneNumbers.join(", ")}`
                 : "91- 08062179126, 8088651844"}
             </span>
           </div>
         </div>
+        {/* REMOVE the Sign-Up button completely */}
+
+
+        <div className="mt-14 flex justify-center">
+          <p
+            style={{
+              fontFamily: "Gilroy-Medium",
+              fontWeight: 400,
+              fontSize: "20px",
+              lineHeight: "100%",
+              color: "#1B1717",
+            }}
+          >
+            New To Our Platform ?{" "}
+            <span
+              onClick={onSignUp}
+              className="cursor-pointer"
+              style={{
+                fontFamily: "Gilroy-SemiBold",
+                fontWeight: 400,
+                color: company?.primaryColor || "#039155",
+              }}
+            >
+              Create Your Account
+            </span>
+          </p>
+        </div>
+
       </div>
     </div>
   );
 };
 
 export default LoginView;
-

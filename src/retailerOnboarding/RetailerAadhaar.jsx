@@ -39,19 +39,19 @@ function RetailerAadhaar({ setFormData, onNext }) {
   };
 
   return (
-    <div className="w-full flex justify-center items-center px-4 py-6">
-      <div className="w-full max-w-[750px]">
+    <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
-          <div className="space-y-8 p-4 sm:p-6 md:p-8">
+          <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-5 md:p-6 lg:p-8">
 
             {/* HEADER */}
             <div className="text-center mx-auto max-w-[450px]">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                 Aadhar Verification
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -60,38 +60,40 @@ function RetailerAadhaar({ setFormData, onNext }) {
             <div className="
               bg-gradient-to-br from-green-50 to-emerald-50 
               border-2 border-dashed border-gray-400 
-              rounded-2xl 
-              p-6 sm:p-8 
+              rounded-xl
+              sm:rounded-2xl
+              p-4 sm:p-6 md:p-8 
               mx-auto 
               w-full 
               max-w-[450px]
             ">
-              <div className="flex items-start gap-4">
+              <div className="flex items-start gap-3 sm:gap-4">
                 <img
                   src="/img/Digilocker1.png"
                   alt="DigiLocker"
-                  className="h-20 sm:h-24 w-auto"
+                  className="h-16 sm:h-20 md:h-24 w-auto flex-shrink-0"
                 />
                 <div>
-                  <h3 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-1">
+                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-1">
                     Aadhar Via DigiLocker
                   </h3>
-                  <p className="text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Fetch Aadhaar Document Securely From DigiLocker
                   </p>
                 </div>
               </div>
 
               {/* BUTTONS */}
-              <div className="flex gap-4 sm:gap-6 mt-6">
+              <div className="flex gap-2 sm:gap-4 md:gap-6 mt-4 sm:mt-6">
                 <button
                   type="button"
                   onClick={handleDownload}
                   className="
-                    flex-1 px-6 py-2 
-                    h-[48px] sm:h-[52px]
-                    text-base sm:text-lg
-                    rounded-2xl 
+                    flex-1 px-3 sm:px-4 md:px-6 py-2 
+                    h-10 sm:h-12 md:h-[52px]
+                    text-xs sm:text-sm md:text-base lg:text-lg
+                    rounded-xl
+                    sm:rounded-2xl 
                     border-2 border-[#1B1717] border-opacity-80 
                     text-gray-700 
                     font-medium 
@@ -106,10 +108,11 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   type="button"
                   onClick={handleVerify}
                   className={`
-                    flex-1 px-6 py-2 
-                    h-[48px] sm:h-[52px]
-                    text-base sm:text-lg 
-                    rounded-2xl 
+                    flex-1 px-3 sm:px-4 md:px-6 py-2 
+                    h-10 sm:h-12 md:h-[52px]
+                    text-xs sm:text-sm md:text-base lg:text-lg
+                    rounded-xl
+                    sm:rounded-2xl 
                     font-medium 
                     transition 
                     text-white 
@@ -126,9 +129,9 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </div>
 
             {/* INFO BOX */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3 mx-auto max-w-[450px]">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3 mx-auto max-w-[450px]">
               <svg
-                className="h-5 w-5 text-blue-600"
+                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -139,10 +142,10 @@ function RetailerAadhaar({ setFormData, onNext }) {
                 />
               </svg>
               <div>
-                <h4 className="font-semibold text-blue-900 text-sm mb-1">
+                <h4 className="font-semibold text-blue-900 text-xs sm:text-sm mb-0.5 sm:mb-1">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs sm:text-sm text-blue-800">
+                <p className="text-xs text-blue-800">
                   Documents are fetched directly from DigiLocker using secure APIs.
                 </p>
               </div>
@@ -155,18 +158,22 @@ function RetailerAadhaar({ setFormData, onNext }) {
               disabled={!isVerified}
               className={`
                 w-full 
-                py-3 
+                py-2.5 sm:py-3 md:py-3.5
                 text-center 
                 rounded-lg 
                 font-semibold 
                 text-white 
-                text-lg 
+                text-sm sm:text-base md:text-lg
                 max-w-[450px] 
                 mx-auto 
+                shadow-md
+                transition
+                lg:ml-[120px]
+                bg-[#039155]
                 ${
                   isVerified
-                    ? "bg-[#039155] hover:bg-green-700"
-                    : "bg-gray-400 cursor-not-allowed"
+                    ? "hover:bg-green-700 opacity-100"
+                    : "opacity-50 cursor-not-allowed"
                 }
               `}
             >
@@ -175,26 +182,26 @@ function RetailerAadhaar({ setFormData, onNext }) {
           </div>
         ) : (
           /* =================== STEP 2 - IMAGE UPLOAD =================== */
-          <div className="space-y-6 p-4 sm:p-6 md:p-8">
+          <div className="space-y-4 sm:space-y-6 p-3 sm:p-5 md:p-6 lg:p-8">
             {/* HEADER */}
             <div className="text-center mx-auto max-w-[450px]">
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
                 Aadhar Verification
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* FRONT IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-8 mx-auto w-full max-w-[450px]">
-              <div className="flex flex-col items-center gap-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px]">
+              <div className="flex flex-col items-center gap-3 sm:gap-4">
                 <img
                   src="/img/aadhaar-front.png"
                   alt="Front Aadhaar"
-                  className="h-16 sm:h-20 w-auto"
+                  className="h-12 sm:h-16 md:h-20 w-auto"
                 />
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 text-center">
                   Add Aadhaar Image Front
                 </h3>
 
@@ -207,13 +214,14 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   />
                   <span className="
                     inline-block 
-                    px-4 py-2 
+                    px-3 sm:px-4 py-2 
                     bg-blue-500 
                     text-white 
                     rounded-lg 
                     cursor-pointer 
                     hover:bg-blue-600 
                     font-medium
+                    text-xs sm:text-sm md:text-base
                   ">
                     Select From The Browser
                   </span>
@@ -224,14 +232,14 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </div>
 
             {/* BACK IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 sm:p-8 mx-auto w-full max-w-[450px]">
-              <div className="flex flex-col items-center gap-4">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px]">
+              <div className="flex flex-col items-center gap-3 sm:gap-4">
                 <img
                   src="/img/aadhaar-back.png"
                   alt="Back Aadhaar"
-                  className="h-16 sm:h-20 w-auto"
+                  className="h-12 sm:h-16 md:h-20 w-auto"
                 />
-                <h3 className="text-base sm:text-lg font-semibold text-gray-900">
+                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 text-center">
                   Add Aadhaar Image Back
                 </h3>
 
@@ -244,13 +252,14 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   />
                   <span className="
                     inline-block 
-                    px-4 py-2 
+                    px-3 sm:px-4 py-2 
                     bg-blue-500 
                     text-white 
                     rounded-lg 
                     cursor-pointer 
                     hover:bg-blue-600 
                     font-medium
+                    text-xs sm:text-sm md:text-base
                   ">
                     Select From The Browser
                   </span>
@@ -267,13 +276,15 @@ function RetailerAadhaar({ setFormData, onNext }) {
               disabled={!frontImage || !backImage}
               className={`
                 w-full 
-                py-3 
+                py-2.5 sm:py-3 md:py-3.5
                 rounded-lg 
                 font-semibold 
                 text-white 
-                text-lg 
+                text-sm sm:text-base md:text-lg
                 max-w-[450px] 
                 mx-auto 
+                shadow-md
+                transition
                 ${
                   frontImage && backImage
                     ? "bg-[#039155] hover:bg-green-700"

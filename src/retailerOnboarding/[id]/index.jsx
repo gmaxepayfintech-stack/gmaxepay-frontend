@@ -39,14 +39,11 @@ function OnboardingRetailerById() {
     otp: "",
     otpSent: false,
     otpVerified: false,
-
     email: "",
     emailOtp: "",
     emailOtpSent: false,
     emailOtpVerified: false,
-
     aadhaarDocFetched: false,
-
     panDocFetched: false,
     digilockerLinked: false,
 
@@ -151,11 +148,11 @@ function OnboardingRetailerById() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center py-4 md:py-6 px-3 md:px-0">
-      <div className="w-full max-w-[1450px]">
-        
+    <div className={`bg-gray-50 flex justify-center px-3 md:px-0 ${!showSteps ? 'h-screen overflow-hidden' : 'min-h-screen py-4 md:py-6'}`}>
+      <div className={`w-full max-w-[1450px] ${!showSteps ? 'h-full flex flex-col overflow-hidden' : ''}`}>
+
         {/* HEADER + STEP LIST */}
-        <div className=" px-4 py-6 md:px-8 md:py-8 rounded-xl mb-6">
+        <div className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${!showSteps ? 'hidden' : 'mb-6'}`}>
           {!isCompleted && showSteps && (
             <>
               <h1 className="text-2xl md:text-3xl font-semibold text-center text-[#1B1717]">
@@ -180,10 +177,9 @@ function OnboardingRetailerById() {
                         dispatch(updateOnboardingStep(idx + 1));
                       }}
                       className={`flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl border shadow-sm transition cursor-pointer
-                        ${
-                          done
-                            ? "bg-green-50 border-green-200"
-                            : active
+                        ${done
+                          ? "bg-green-50 border-green-200"
+                          : active
                             ? "bg-white border-gray-300"
                             : "bg-white border-gray-200"
                         }
@@ -197,9 +193,8 @@ function OnboardingRetailerById() {
 
                       <div className="flex-1">
                         <div
-                          className={`font-medium text-[16px] md:text-xl ${
-                            done ? "text-green-700" : "text-gray-800"
-                          }`}
+                          className={`font-medium text-[16px] md:text-xl ${done ? "text-green-700" : "text-gray-800"
+                            }`}
                         >
                           {step.label}
                         </div>
@@ -207,8 +202,8 @@ function OnboardingRetailerById() {
                           {done
                             ? "Completed"
                             : active
-                            ? "In progress"
-                            : "Pending"}
+                              ? "In progress"
+                              : "Pending"}
                         </div>
                       </div>
 
@@ -243,8 +238,8 @@ function OnboardingRetailerById() {
 
         {/* STEP CARD */}
         {!showSteps && (
-          <div className="flex justify-center px-1 sm:px-2">
-            <div className=" ">
+          <div className="flex-1 flex justify-center items-center px-1 sm:px-2 overflow-hidden">
+            <div className="w-full h-full">
               {currentStep === 1 && (
                 <Step1 formData={formData} setFormData={setFormData} onNext={handleStepNext} />
               )}

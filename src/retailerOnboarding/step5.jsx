@@ -141,20 +141,20 @@ function Step5({ formData, setFormData, onComplete }) {
   useEffect(() => stopCamera, []);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50">
-      <div className="bg-white rounded-lg w-[734px] lg:w-[900px] shadow-md p-4 lg:p-8">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md p-3 sm:p-5 md:p-6 lg:p-8 w-full max-w-[95%] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[900px] mx-auto">
 
         {/* Heading */}
-        <h3 className="text-center text-[24px] lg:text-[30px] font-semibold text-gray-800">
+        <h3 className="text-center text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-800 mb-2 sm:mb-3">
           Profile
         </h3>
 
-        <p className="text-center text-[16px] lg:text-[18px] text-[#1B1717] mt-4 mb-6">
+        <p className="text-center text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717] mb-4 sm:mb-5 md:mb-6">
           Profile Picture To Complete Your KYC
         </p>
 
         {/* Frame */}
-        <div className="w-[534px] h-[276px] lg:w-[650px] lg:h-[350px] mx-auto mb-4">
+        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] mx-auto mb-3 sm:mb-4">
           <div className="border-2 border-dashed border-[#1B1717]/30 rounded-lg h-full relative overflow-hidden bg-gray-50">
 
             <video
@@ -171,7 +171,7 @@ function Step5({ formData, setFormData, onComplete }) {
                 className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
                 onClick={startCamera}
               >
-                <img src="/img/Camera.png" className="w-12 h-12 mb-2" />
+                <img src="/img/Camera.png" className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 mb-2" alt="Camera" />
               </div>
             )}
 
@@ -185,14 +185,14 @@ function Step5({ formData, setFormData, onComplete }) {
             )}
 
             {(isCameraActive || formData.profilePhotoDataUrl) && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+              <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-10">
                 <button
                   onClick={e => {
                     e.stopPropagation();
                     setFormData(d => ({ ...d, profilePhotoDataUrl: '' }));
                     startCamera();
                   }}
-                  className="bg-[#039155] text-white px-4 lg:px-6 py-1.5 lg:py-2 rounded-lg text-sm lg:text-[16px] font-medium hover:bg-green-700 transition shadow-md"
+                  className="bg-[#039155] text-white px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base lg:text-lg font-medium hover:bg-green-700 transition shadow-md"
                 >
                   Retake
                 </button>
@@ -200,7 +200,7 @@ function Step5({ formData, setFormData, onComplete }) {
                 <button
                   onClick={capturePhoto}
                   disabled={!isCameraActive}
-                  className={`px-4 lg:px-6 py-1.5 lg:py-2 rounded-lg text-sm lg:text-[16px] font-medium transition shadow-md ${
+                  className={`px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base lg:text-lg font-medium transition shadow-md ${
                     isCameraActive
                       ? 'bg-[#039155] text-white hover:bg-green-700'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -216,26 +216,26 @@ function Step5({ formData, setFormData, onComplete }) {
         </div>
 
         {/* Guidelines */}
-        <div className="w-[534px] lg:w-[650px] mx-auto">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 lg:p-6">
-            <ul className="space-y-2">
+        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] mx-auto">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 md:p-5 lg:p-6">
+            <ul className="space-y-1.5 sm:space-y-2">
               <li className="flex items-start gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#039155] mt-2" />
-                <span className="text-sm lg:text-[16px] text-[#1B1717]">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
                   Capture A Clear Photo
                 </span>
               </li>
 
               <li className="flex items-start gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#039155] mt-2" />
-                <span className="text-sm lg:text-[16px] text-[#1B1717]">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
                   Good Lighting Required – Avoid Dark Or Blurry Images.
                 </span>
               </li>
 
               <li className="flex items-start gap-2">
-                <div className="w-2 h-2 rounded-full bg-[#039155] mt-2" />
-                <span className="text-sm lg:text-[16px] text-[#1B1717]">
+                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
+                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
                   Your Aadhaar Photo And Uploaded Profile Picture Must Match.
                 </span>
               </li>
@@ -244,14 +244,14 @@ function Step5({ formData, setFormData, onComplete }) {
 
           {/* Error */}
           {postProfileError && (
-            <div className="w-full p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm lg:text-[16px] mb-4 mt-4">
+            <div className="w-full p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm md:text-base lg:text-lg mb-3 sm:mb-4 mt-3 sm:mt-4">
               {postProfileError}
             </div>
           )}
 
           {/* Success */}
           {postProfileSuccess && postProfileMessage && (
-            <div className="w-full p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm lg:text-[16px] mb-4 mt-4">
+            <div className="w-full p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs sm:text-sm md:text-base lg:text-lg mb-3 sm:mb-4 mt-3 sm:mt-4">
               {postProfileMessage}
             </div>
           )}
@@ -260,7 +260,7 @@ function Step5({ formData, setFormData, onComplete }) {
           <button
             onClick={handleSubmit}
             disabled={postProfileLoading || !formData.profilePhotoDataUrl}
-            className={`w-full py-2 rounded-lg text-white text-[24px] lg:text-[26px] font-medium h-[60px] lg:h-[70px] transition mt-5 ${
+            className={`w-full py-2.5 sm:py-3 md:py-3.5 rounded-lg text-white text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-semibold h-12 sm:h-14 md:h-16 lg:h-[70px] transition mt-4 sm:mt-5 shadow-md ${
               postProfileLoading || !formData.profilePhotoDataUrl
                 ? 'bg-[#039155] opacity-60 cursor-not-allowed'
                 : 'bg-[#039155] hover:bg-green-700'

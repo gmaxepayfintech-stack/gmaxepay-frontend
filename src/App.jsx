@@ -34,6 +34,8 @@ import PaymentSuccess from "./mainPage/paymentSuccess";
 import PaymentFailure from "./mainPage/paymentFailure";
 import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
+import Welcome from "./pages/welcome";
+import RetailerOnboarding from "./retailerOnboarding/[id]";
 function App() {
   const { showNotification } = useNotification();
   const { loading } = useCompany();
@@ -342,12 +344,29 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/refundcancel" element={<RefundAndCancel />} />
         <Route path="/termscondition" element={<TermsCondition />} />
+        <Route path="/setup" element={<Welcome />} />
 
         <Route
           path="/onboarding/:id"
           element={
             <ProtectedOnboardingRoute>
               <OnboardingById />
+            </ProtectedOnboardingRoute>
+          }
+        />
+        <Route
+          path="/retailer-onboarding"
+          element={
+            <ProtectedOnboardingRoute>
+              <RetailerOnboarding />
+            </ProtectedOnboardingRoute>
+          }
+        />
+        <Route
+          path="/retailer-onboarding/:id"
+          element={
+            <ProtectedOnboardingRoute>
+              <RetailerOnboarding />
             </ProtectedOnboardingRoute>
           }
         />

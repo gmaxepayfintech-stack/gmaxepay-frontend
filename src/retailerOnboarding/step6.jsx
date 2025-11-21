@@ -122,33 +122,27 @@ function Step6({ formData, setFormData, onNext }) {
     formik.values.beneficiaryName;
 
   return (
-    <div className="flex justify-center items-center bg-gray-50">
-      <div className="bg-white p-2 gap-4 w-full">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="bg-white rounded-xl shadow-md p-4 sm:p-5 md:p-6 lg:p-8 w-full max-w-[95%] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] mx-auto">
 
         {/* Heading */}
         <h3 className="text-center 
-            text-[26px] xl:text-[30px] 
-            md:text-[26px] 
-            xxs:text-[20px] 
-            font-semibold text-gray-800">
+            text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl
+            font-semibold text-gray-800 mb-2 sm:mb-3">
           Bank Details
         </h3>
 
         <p className="text-center 
-            text-[18px] xl:text-[20px] 
-            md:text-[18px] 
-            xxs:text-[14px] 
-            text-[#1B1717] mt-4 mb-6">
+            text-xs sm:text-sm md:text-base lg:text-lg
+            text-[#1B1717] mb-4 sm:mb-5 md:mb-6">
           Tell Us About Bank Details
         </p>
 
         {/* Account Number */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-5 md:mb-6">
           <label className="block 
-              text-[22px] xl:text-[24px] 
-              md:text-[20px] 
-              xxs:text-[16px] 
-              font-medium text-[#1B1717] mb-2">
+              text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl
+              font-medium text-[#1B1717] mb-1 sm:mb-2">
             Account Number
           </label>
 
@@ -156,10 +150,10 @@ function Step6({ formData, setFormData, onNext }) {
             <img
               src="/img/User.png"
               alt="Account"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 opacity-70"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
             />
 
-            <div className="absolute left-12 top-1/2 -translate-y-1/2 h-7 w-px bg-gray-300" />
+            <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
 
             <input
               type="text"
@@ -169,14 +163,14 @@ function Step6({ formData, setFormData, onNext }) {
               onBlur={formik.handleBlur}
               placeholder="Enter Account Number"
               className={`w-full border border-[#1B1717] border-opacity-80 
-                h-[70px] md:h-[60px] xxs:h-[44px] 
-                rounded-lg py-2 pl-16 pr-3 
-                text-[18px] md:text-[16px] xxs:text-[14px] outline-none
-                ${
-                  formik.errors.bankAccountNumber &&
+                h-12 sm:h-14 md:h-16 lg:h-[70px]
+                rounded-lg py-2 pl-10 sm:pl-14 md:pl-16 pr-3 
+                text-sm sm:text-base md:text-lg outline-none
+                focus:border-[#039155] focus:border-opacity-100
+                ${formik.errors.bankAccountNumber &&
                   formik.touched.bankAccountNumber
-                    ? "border-red-500"
-                    : ""
+                  ? "border-red-500"
+                  : ""
                 }`}
             />
           </div>
@@ -190,12 +184,10 @@ function Step6({ formData, setFormData, onNext }) {
         </div>
 
         {/* IFSC */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-5 md:mb-6">
           <label className="block 
-              text-[22px] xl:text-[24px] 
-              md:text-[20px] 
-              xxs:text-[16px] 
-              font-medium text-[#1B1717] mb-2">
+              text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl
+              font-medium text-[#1B1717] mb-1 sm:mb-2">
             IFSC Code
           </label>
 
@@ -204,10 +196,10 @@ function Step6({ formData, setFormData, onNext }) {
               <img
                 src="/img/ListMagnifyingGlass.png"
                 alt="IFSC"
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 opacity-70"
+                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
               />
 
-              <div className="absolute left-12 top-1/2 -translate-y-1/2 h-7 w-px bg-gray-300" />
+              <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
 
               <input
                 type="text"
@@ -217,14 +209,14 @@ function Step6({ formData, setFormData, onNext }) {
                 onBlur={formik.handleBlur}
                 placeholder="Enter IFSC Code"
                 className={`w-full border border-[#1B1717] border-opacity-80 
-                  h-[70px] md:h-[60px] xxs:h-[44px] 
-                  rounded-l-lg py-2 pl-16 pr-3 
-                  text-[18px] md:text-[16px] xxs:text-[14px]
+                  h-12 sm:h-14 md:h-16 lg:h-[70px]
+                  rounded-l-lg py-2 pl-10 sm:pl-14 md:pl-16 pr-3 
+                  text-sm sm:text-base md:text-lg
                   outline-none uppercase 
-                  ${
-                    formik.errors.ifscCode && formik.touched.ifscCode
-                      ? "border-red-500"
-                      : ""
+                  focus:border-[#039155] focus:border-opacity-100
+                  ${formik.errors.ifscCode && formik.touched.ifscCode
+                    ? "border-red-500"
+                    : ""
                   }`}
               />
             </div>
@@ -236,14 +228,13 @@ function Step6({ formData, setFormData, onNext }) {
               disabled={!formik.values.ifscCode || !!formik.errors.ifscCode}
               className={`
                 text-white font-medium 
-                w-[160px] md:w-[130px] xxs:w-[80px] 
-                h-[70px] md:h-[60px] xxs:h-[44px] 
-                text-[18px] md:text-[16px] xxs:text-[13px]
-                rounded-r-lg transition
-                ${
-                  !formik.values.ifscCode || !!formik.errors.ifscCode
-                    ? "bg-[#039155] cursor-not-allowed opacity-70"
-                    : "bg-[#039155] hover:bg-green-700"
+                w-[70px] sm:w-[100px] md:w-[120px] lg:w-[140px] xl:w-[160px]
+                h-12 sm:h-14 md:h-16 lg:h-[70px]
+                text-xs sm:text-sm md:text-base lg:text-lg
+                rounded-r-lg transition flex-shrink-0 whitespace-nowrap
+                ${!formik.values.ifscCode || !!formik.errors.ifscCode
+                  ? "bg-[#039155] cursor-not-allowed opacity-70"
+                  : "bg-[#039155] hover:bg-green-700"
                 }`}
             >
               Verify
@@ -265,12 +256,10 @@ function Step6({ formData, setFormData, onNext }) {
         </div>
 
         {/* Beneficiary Name */}
-        <div className="mb-8">
+        <div className="mb-5 sm:mb-6 md:mb-8">
           <label className="block 
-              text-[22px] xl:text-[24px] 
-              md:text-[20px] 
-              xxs:text-[16px] 
-              font-medium text-[#1B1717] mb-2">
+              text-xs sm:text-sm md:text-base lg:text-lg xl:text-xl
+              font-medium text-[#1B1717] mb-1 sm:mb-2">
             Beneficiary Name
           </label>
 
@@ -278,10 +267,10 @@ function Step6({ formData, setFormData, onNext }) {
             <img
               src="/img/UserSquare.png"
               alt="Beneficiary"
-              className="absolute left-3 top-1/2 -translate-y-1/2 w-6 h-6 opacity-70"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
             />
 
-            <div className="absolute left-12 top-1/2 -translate-y-1/2 h-7 w-px bg-gray-300" />
+            <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
 
             <input
               type="text"
@@ -290,14 +279,13 @@ function Step6({ formData, setFormData, onNext }) {
               readOnly={!formData.ifscVerified}
               placeholder="Auto Fetch"
               className={`w-full border border-[#1B1717] border-opacity-80 
-                h-[70px] md:h-[60px] xxs:h-[44px] 
-                rounded-lg py-2 pl-16 pr-3 
-                text-[18px] md:text-[16px] xxs:text-[14px]
+                h-12 sm:h-14 md:h-16 lg:h-[70px]
+                rounded-lg py-2 pl-10 sm:pl-14 md:pl-16 pr-3 
+                text-sm sm:text-base md:text-lg
                 outline-none 
-                ${
-                  !formData.ifscVerified
-                    ? "bg-gray-50 cursor-not-allowed"
-                    : ""
+                ${!formData.ifscVerified
+                  ? "bg-gray-50 cursor-not-allowed"
+                  : "focus:border-[#039155] focus:border-opacity-100"
                 }`}
             />
           </div>
@@ -309,14 +297,13 @@ function Step6({ formData, setFormData, onNext }) {
           onClick={formik.handleSubmit}
           disabled={!isNextEnabled}
           className={`
-            w-full text-white font-medium 
-            h-[70px] md:h-[60px] xxs:h-[46px]
-            text-[24px] md:text-[20px] xxs:text-[18px]
-            rounded-lg transition
-            ${
-              !isNextEnabled
-                ? "bg-[#039155] cursor-not-allowed opacity-70"
-                : "bg-[#039155] hover:bg-green-700"
+            w-full text-white font-semibold 
+            h-12 sm:h-14 md:h-16 lg:h-[70px]
+            text-sm sm:text-base md:text-lg lg:text-xl
+            rounded-lg transition shadow-md
+            ${!isNextEnabled
+              ? "bg-[#039155] cursor-not-allowed opacity-70"
+              : "bg-[#039155] hover:bg-green-700"
             }`}
         >
           Next
