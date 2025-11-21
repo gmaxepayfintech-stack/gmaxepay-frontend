@@ -7,6 +7,7 @@ import loginReducer from './loginReducer';
 import userProfileReducer from './userProfileReducer';
 import whiteLabelReducer from './whiteLabelReducer';
 import errorReducer from './errorReducer';
+import retailerOnboardingReducer from './retailerOnboardingReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -16,6 +17,7 @@ const rootReducer = combineReducers({
     login: loginReducer,
     userProfile: userProfileReducer,
     whitelabel:whiteLabelReducer,
+    retailerOnboarding: retailerOnboardingReducer,
     error:errorReducer
 });
 
