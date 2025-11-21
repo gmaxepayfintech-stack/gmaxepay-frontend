@@ -16,6 +16,7 @@ const retailerOnboardingReducer = (state = initialState, action) => {
                 error: true,
                 referalResponse: action.payload,
                 Success: action.payload.status,
+                status: action.payload.status,
                 message: action.payload.message,
             };
 
