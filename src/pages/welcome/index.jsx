@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useCompany } from "../../context/CompanyContext";
 import { referalCodeCheck } from "../../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
+import OnboardingRetailerById from "../../retailerOnboarding/[id]";
 
 const Welcome = () => {
   const navigate = useNavigate();
@@ -14,10 +15,16 @@ const Welcome = () => {
 
   // Get company details from Redux
   const companyFromRedux = useSelector((state) => state?.company?.company);
-  
+
   // Use Redux company if available, otherwise fallback to context
   const companyData = companyFromRedux || company;
   console.log("company details:", companyData);
+
+  // Check referral code response status
+  const responseRefer = useSelector((state) => state?.retailerOnboarding?.Success);
+  const referralCodeResponse = useSelector((state) => state?.retailerOnboarding?.referalResponse);
+  console.log("responseRefer", responseRefer);
+  console.log("referralCodeResponse", referralCodeResponse);
 
   const primaryColor = companyData?.primaryColor || "#039155";
 
@@ -33,13 +40,10 @@ const Welcome = () => {
   );
 
   useEffect(() => {
-    if (referralCodeStatus === "SUCCESS") {
-      // Navigate to onboarding on success
-      handleSignUp();
-    } else if (referralCodeError) {
+    if (referralCodeError) {
       setError(referralCodeError);
     }
-  }, [referralCodeStatus, referralCodeError]);
+  }, [referralCodeError]);
 
   const handleSignUp = () => {
     const onboardingToken =
@@ -80,7 +84,7 @@ const Welcome = () => {
     }
 
     setLoading(true);
-    
+
     // Prepare request body
     const requestBody = {
       referCode: trimmedCode.toUpperCase(),
@@ -98,6 +102,44 @@ const Welcome = () => {
     handleSignUp();
   };
 
+  // Get onboarding token from company data or session storage
+  const getOnboardingToken = () => {
+    // First check session storage for referral code response
+    try {
+      const storedResponse = sessionStorage.getItem("referralCodeResponse");
+      if (storedResponse) {
+        const parsed = JSON.parse(storedResponse);
+        if (parsed?.data?.token || parsed?.data?.onboardingToken) {
+          return parsed.data.token || parsed.data.onboardingToken;
+        }
+      }
+    } catch (e) {
+      console.error("Error reading from session storage:", e);
+    }
+
+    // Fallback to company data
+    return (
+      companyData?.retailerOnboardingToken ||
+      companyData?.onboardingToken ||
+      companyData?.defaultOnboardingToken ||
+      companyData?.onboardingLinkToken ||
+      null
+    );
+  };
+
+  // If referral code is successful, show onboarding component
+  if (responseRefer === "SUCCESS") {
+    const onboardingToken = getOnboardingToken();
+    
+    // Set token in localStorage if available
+    if (onboardingToken) {
+      localStorage.setItem("onboardingToken", onboardingToken);
+    }
+
+    return <OnboardingRetailerById />;
+  }
+
+  // Otherwise show referral code form
   return (
     <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
       <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
@@ -139,9 +181,8 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${
-                error ? "border-red-500" : "border-gray-300"
-              }`}
+              className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${error ? "border-red-500" : "border-gray-300"
+                }`}
               style={{ focusBorderColor: primaryColor }}
               disabled={loading}
             />
@@ -165,13 +206,12 @@ const Welcome = () => {
           <button
             type="submit"
             disabled={loading || !referralCode.trim()}
-            className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${
-              loading || !referralCode.trim()
-                ? "bg-gray-400 cursor-not-allowed opacity-70"
-                : "hover:bg-green-700"
-            }`}
-            style={{ 
-              backgroundColor: loading || !referralCode.trim() ? undefined : primaryColor 
+            className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${loading || !referralCode.trim()
+              ? "bg-gray-400 cursor-not-allowed opacity-70"
+              : "hover:bg-green-700"
+              }`}
+            style={{
+              backgroundColor: loading || !referralCode.trim() ? undefined : primaryColor
             }}
           >
             {loading ? "Submitting..." : "Submit"}
