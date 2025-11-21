@@ -60,10 +60,13 @@ function OnboardingRetailerById() {
 
   useEffect(() => {
     const tokenFromQuery = searchParams.get("token");
-    const token = tokenFromQuery || id;
+    const tokenFromStorage = localStorage.getItem("onboardingToken");
+    const token = tokenFromQuery || id || tokenFromStorage;
 
     if (token) {
-      localStorage.setItem("onboardingToken", token);
+      if (!localStorage.getItem("onboardingToken")) {
+        localStorage.setItem("onboardingToken", token);
+      }
       dispatch(fetchOnboarding(token));
     }
   }, [id, searchParams, dispatch]);
