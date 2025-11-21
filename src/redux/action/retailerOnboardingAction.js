@@ -32,13 +32,13 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
         );
         console.log("response", response?.data);
 
-        const { data: referalResponsereferalResponse, status, success, message } = response?.data ?? {};
+        const { data: retailerOnboarding, status, success, message } = response?.data ?? {};
         
         if (status === "SUCCESS") {
             // Store response in session storage
             try {
-                sessionStorage.setItem("referralCodeResponse", JSON.stringify({
-                    data: referalResponsereferalResponse,
+                sessionStorage.setItem("retailerOnboarding", JSON.stringify({
+                    data: retailerOnboarding,
                     success,
                     message,
                     timestamp: new Date().toISOString(),
@@ -49,7 +49,7 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
 
             dispatch({
                 type: RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS,
-                payload: { referalResponsereferalResponse, success, message },
+                payload: { retailerOnboarding, success, message },
             });
         } else {
             dispatch({
