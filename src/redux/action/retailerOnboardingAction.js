@@ -32,7 +32,7 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
         );
         console.log("response", response?.data);
 
-        const { data: retailerOnboarding, status, message } = response?.data ?? {};
+        const { data: retailerOnboarding,Success, status, message } = response?.data ?? {};
 
         if (status === "SUCCESS") {
             dispatch({
