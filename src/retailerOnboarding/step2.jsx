@@ -96,28 +96,27 @@ function Step2({ formData, setFormData, onNext }) {
   };
 
   return (
-    <div className="w-full min-h-screen bg-gray-50 flex items-center justify-center p-4">
-
+    <div className="w-full h-screen bg-gray-50 flex items-center justify-center p-2 sm:p-3 md:p-4 overflow-hidden">
       {/* CARD CONTAINER */}
       <div
         className="
           w-full 
-          xxs:w-[320px]
+          max-w-[95%]
           sm:w-[400px]
           md:w-[500px]    
           lg:w-[550px]    
           bg-white 
           rounded-xl 
           shadow-md 
-          p-4 sm:p-6 md:p-10
-          xxs:ml-4
+          p-3 sm:p-5 md:p-6
+          mx-auto
         "
       >
-        <div className="mb-8 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900">
+        <div className="mb-2 sm:mb-3 text-center">
+          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
             Complete Your KYC
           </h2>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg mt-2">
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base mt-1">
             Secure your account by completing verification
           </p>
         </div>
@@ -125,24 +124,26 @@ function Step2({ formData, setFormData, onNext }) {
         {/* FORM */}
         <form onSubmit={(e) => e.preventDefault()}>
 
-          <h3 className="text-2xl sm:text-3xl md:text-4xl font-bold text-center text-gray-900 mb-3">
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-center text-gray-900 mb-2">
             Email Verification
           </h3>
 
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg text-center mb-10">
+          <p className="text-gray-600 text-xs sm:text-sm md:text-base text-center mb-3 sm:mb-4">
             Enter your Email address to receive the OTP
           </p>
 
           {/* EMAIL FIELD */}
-          <div className="mb-8">
+          <div className="mb-3 sm:mb-4">
             <label
               className="
                 block 
-                text-base 
+                text-xs
+                sm:text-sm 
                 font-medium 
                 text-gray-800 
-                mb-2
-                md:text-2xl
+                mb-1
+                sm:mb-2
+                md:text-lg
               "
             >
               Email ID
@@ -152,9 +153,10 @@ function Step2({ formData, setFormData, onNext }) {
               <div className="relative flex-grow">
                 <img
                   src="/img/Emailicon.png"
-                  className="absolute left-4 top-1/2 -translate-y-1/2 w-5 opacity-60"
+                  alt="Email"
+                  className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
                 />
-                <div className="absolute left-11 top-1/2 -translate-y-1/2 w-px h-6 bg-gray-300" />
+                <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 bg-gray-300" />
 
                 <input
                   type="email"
@@ -164,13 +166,19 @@ function Step2({ formData, setFormData, onNext }) {
                   placeholder="Enter your Email"
                   className="
                     w-full 
-                    h-[55px]
-                    md:h-[65px]
+                    h-12
+                    sm:h-[60px]
+                    md:h-[70px]
                     border 
                     border-gray-300 
-                    rounded-l-lg 
-                    pl-14 pr-4
-                    text-base 
+                    rounded-l-lg
+                    rounded-r-none
+                    pl-10
+                    sm:pl-14 
+                    pr-3
+                    sm:pr-4
+                    text-sm
+                    sm:text-base 
                     md:text-xl
                     outline-none
                     focus:border-[#1B1717]
@@ -185,25 +193,31 @@ function Step2({ formData, setFormData, onNext }) {
                 className={`
                   bg-[#039155] 
                   text-white 
-                  rounded-r-lg 
-                  px-6
-                  text-base 
-                  md:text-xl
+                  rounded-r-lg
+                  px-3
+                  sm:px-4
+                  md:px-6
+                  text-xs
+                  sm:text-sm
+                  md:text-base
+                  lg:text-xl
                   font-medium
-                  h-[55px]
-                  md:h-[65px]
+                  h-12
+                  sm:h-[60px]
+                  md:h-[70px]
                   hover:bg-green-700 
                   transition
-                  ${
-                    verifuSuccess === "SUCCESS" && successCooldown > 0
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : ""
+                  whitespace-nowrap
+                  flex-shrink-0
+                  ${verifuSuccess === "SUCCESS" && successCooldown > 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : ""
                   }
                 `}
               >
                 {verifuSuccess === "SUCCESS"
                   ? successCooldown > 0
-                    ? `Resend in ${successCooldown}s`
+                    ? `Resend (${successCooldown}s)`
                     : "Resend OTP"
                   : "Verify"}
               </button>
@@ -211,15 +225,17 @@ function Step2({ formData, setFormData, onNext }) {
           </div>
 
           {/* OTP FIELD */}
-          <div className="mb-8">
+          <div className="mb-3 sm:mb-4">
             <label
               className="
                 block 
-                text-base 
+                text-xs
+                sm:text-sm 
                 font-medium 
                 text-gray-800 
-                mb-2
-                md:text-2xl
+                mb-1
+                sm:mb-2
+                md:text-lg
               "
             >
               Enter OTP
@@ -228,9 +244,10 @@ function Step2({ formData, setFormData, onNext }) {
             <div className="relative">
               <img
                 src="/img/DeviceMobileCamera.png"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 opacity-60"
+                alt="OTP"
+                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
               />
-              <div className="absolute left-11 top-1/2 -translate-y-1/2 w-px h-6 bg-gray-300" />
+              <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 bg-gray-300" />
 
               <input
                 type="text"
@@ -240,13 +257,18 @@ function Step2({ formData, setFormData, onNext }) {
                 placeholder="Enter Email OTP"
                 className="
                   w-full 
-                  h-[55px]
-                  md:h-[65px]
+                  h-12
+                  sm:h-[60px]
+                  md:h-[70px]
                   border 
                   border-gray-300 
                   rounded-lg 
-                  pl-14 pr-4
-                  text-base 
+                  pl-10
+                  sm:pl-14 
+                  pr-3
+                  sm:pr-4
+                  text-sm
+                  sm:text-base 
                   md:text-xl
                   outline-none
                   focus:border-[#1B1717]
@@ -255,7 +277,7 @@ function Step2({ formData, setFormData, onNext }) {
             </div>
 
             {emailVerifyStatus !== "SUCCESS" && emailVerifyMessage && (
-              <p className="text-red-500 mt-2 text-sm">{emailVerifyMessage}</p>
+              <p className="text-red-500 mt-1 sm:mt-2 text-xs sm:text-sm">{emailVerifyMessage}</p>
             )}
           </div>
 
@@ -267,11 +289,13 @@ function Step2({ formData, setFormData, onNext }) {
               w-full 
               bg-[#039255] 
               text-white 
-              py-4 
-              md:py-5
+              py-2.5
+              sm:py-3
+              md:py-3.5
               rounded-lg 
-              text-lg 
-              md:text-2xl
+              text-sm
+              sm:text-base
+              md:text-lg
               font-semibold 
               hover:bg-green-700
               transition

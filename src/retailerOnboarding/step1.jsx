@@ -44,51 +44,45 @@ function Step1({ formData, setFormData, onNext }) {
     <div
       className="
     w-full 
-    min-h-screen 
+    h-full 
     flex 
     justify-center 
     items-center 
-    bg-gray-50
     p-2
-    xxs:p-2
+    sm:p-3
+    md:p-4
+    overflow-hidden
   "
     >
       <div
         className="
         w-full 
-        xxs:w-[320px] 
+        max-w-[95%]
         sm:w-[400px]
         md:w-[600px] 
         lg:w-[700px]
-         bg-white 
+        bg-white 
         rounded-xl 
         shadow-md 
-        p-4 
-        sm:p-6 
-        md:p-10
+        p-3
+        sm:p-5
+        md:p-6
+        lg:p-8
+        mx-auto
       "
       >
-        {/* Title */}
-        <div className="mb-8 ">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold text-gray-900 text-center">
-            Complete Your KYC
-          </h2>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg text-center mt-2 mb-6">
-            Secure your account by completing verification
-          </p>
-        </div>
 
-        <h3 className="text-xl sm:text-2xl md:text-3xl font-semibold text-gray-800 text-center mb-6">
+        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 text-center mb-2 sm:mb-3">
           Mobile Verification
         </h3>
 
-        <p className="text-gray-600 text-sm sm:text-base md:text-lg text-center mb-8">
+        <p className="text-gray-600 text-xs sm:text-sm md:text-base text-center mb-3 sm:mb-4 md:mb-5">
           Enter your mobile number to receive OTP
         </p>
 
         {/* PHONE INPUT */}
-        <div className="mb-8">
-          <label className="block text-base font-medium xxs:font-normal text-gray-800 mb-2">
+        <div className="mb-3 sm:mb-4 md:mb-5">
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-800 mb-1 sm:mb-2">
             Mobile Number
           </label>
 
@@ -97,12 +91,11 @@ function Step1({ formData, setFormData, onNext }) {
               <img
                 src="/img/PhoneCall2.png"
                 alt="Phone"
-                className="absolute left-4 top-1/2 -translate-y-1/2 w-5 opacity-60"
+                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
               />
               <div
-                className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                  formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+                className={`absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
               />
               <input
                 type="tel"
@@ -110,16 +103,15 @@ function Step1({ formData, setFormData, onNext }) {
                 value={formik.values.phone}
                 onChange={handleChange}
                 placeholder="Enter your number"
-                className={`w-full h-14 border ${
-                  formik.errors.phone ? "border-red-500" : "border-gray-300"
-                } rounded-l-lg pl-14 pr-4 text-base outline-none`}
+                className={`w-full h-12 sm:h-14 md:h-16 border ${formik.errors.phone ? "border-red-500" : "border-gray-300"
+                  } rounded-l-lg pl-10 sm:pl-14 pr-3 sm:pr-4 text-sm sm:text-base outline-none`}
               />
             </div>
 
             <button
               type="button"
               onClick={sendOtp}
-              className="bg-[#039155] text-white px-5 rounded-r-lg text-base font-medium hover:bg-green-700 transition h-14"
+              className="bg-[#039155] text-white px-3 sm:px-4 md:px-6 rounded-r-lg text-xs sm:text-sm md:text-base font-medium hover:bg-green-700 transition h-12 sm:h-14 md:h-16 flex-shrink-0 whitespace-nowrap"
             >
               Verify
             </button>
@@ -131,8 +123,8 @@ function Step1({ formData, setFormData, onNext }) {
         </div>
 
         {/* OTP INPUT */}
-        <div className="mb-8">
-          <label className="block text-base font-medium text-gray-800 mb-2">
+        <div className="mb-3 sm:mb-4 md:mb-5">
+          <label className="block text-xs sm:text-sm md:text-base font-medium text-gray-800 mb-1 sm:mb-2">
             Enter OTP
           </label>
 
@@ -140,12 +132,11 @@ function Step1({ formData, setFormData, onNext }) {
             <img
               src="/img/DeviceMobileCamera.png"
               alt="OTP"
-              className="absolute left-4 top-1/2 -translate-y-1/2 w-5 opacity-60"
+              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
             />
             <div
-              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -154,9 +145,8 @@ function Step1({ formData, setFormData, onNext }) {
               value={formik.values.otp}
               onChange={handleChange}
               placeholder="Enter Mobile OTP"
-              className={`w-full h-14 border ${
-                formik.errors.otp ? "border-red-500" : "border-gray-300"
-              } rounded-lg pl-14 pr-4 text-base outline-none`}
+              className={`w-full h-12 sm:h-14 md:h-16 border ${formik.errors.otp ? "border-red-500" : "border-gray-300"
+                } rounded-lg pl-10 sm:pl-14 pr-3 sm:pr-4 text-sm sm:text-base outline-none`}
             />
           </div>
 
@@ -169,7 +159,7 @@ function Step1({ formData, setFormData, onNext }) {
         <button
           type="button"
           onClick={formik.handleSubmit}
-          className="w-full bg-[#039155] text-white py-4 rounded-lg font-semibold text-lg hover:bg-green-700 transition"
+          className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-3.5 rounded-lg font-semibold text-sm sm:text-base md:text-lg hover:bg-green-700 transition shadow-md"
         >
           Submit
         </button>

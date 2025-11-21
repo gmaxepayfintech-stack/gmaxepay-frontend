@@ -148,11 +148,11 @@ function OnboardingRetailerById() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex justify-center py-4 md:py-6 px-3 md:px-0">
-      <div className="w-full max-w-[1450px]">
+    <div className={`bg-gray-50 flex justify-center px-3 md:px-0 ${!showSteps ? 'h-screen overflow-hidden' : 'min-h-screen py-4 md:py-6'}`}>
+      <div className={`w-full max-w-[1450px] ${!showSteps ? 'h-full flex flex-col overflow-hidden' : ''}`}>
         
         {/* HEADER + STEP LIST */}
-        <div className=" px-4 py-6 md:px-8 md:py-8 rounded-xl mb-6">
+        <div className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${!showSteps ? 'hidden' : 'mb-6'}`}>
           {!isCompleted && showSteps && (
             <>
               <h1 className="text-2xl md:text-3xl font-semibold text-center text-[#1B1717]">
@@ -240,8 +240,8 @@ function OnboardingRetailerById() {
 
         {/* STEP CARD */}
         {!showSteps && (
-          <div className="flex justify-center px-1 sm:px-2">
-            <div className=" ">
+          <div className="flex-1 flex justify-center items-center px-1 sm:px-2 overflow-hidden">
+            <div className="w-full h-full">
               {currentStep === 1 && (
                 <Step1 formData={formData} setFormData={setFormData} onNext={handleStepNext} />
               )}
