@@ -32,14 +32,15 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
         );
         console.log("response", response?.data);
 
-        const { data: retailerOnboarding, status, success, message } = response?.data ?? {};
-        
+        const { data: retailerOnboarding, status, Success, message } = response?.data ?? {};
+
         if (status === "SUCCESS") {
             // Store response in session storage
             try {
                 sessionStorage.setItem("retailerOnboarding", JSON.stringify({
                     data: retailerOnboarding,
-                    success,
+                    Success,
+                    status,
                     message,
                     timestamp: new Date().toISOString(),
                 }));
