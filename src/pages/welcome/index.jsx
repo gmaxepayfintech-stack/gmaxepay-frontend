@@ -30,7 +30,7 @@ const Welcome = () => {
 
   // Get referral code status from Redux
   const referralCodeStatus = useSelector(
-    (state) => state?.retailerOnboarding?.retailerOnboarding?.status
+    (state) => state
   );
   console.log("referralCodeStatus", referralCodeStatus);
 
