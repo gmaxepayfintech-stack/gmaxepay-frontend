@@ -32,25 +32,12 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
         );
         console.log("response", response?.data);
 
-        const { data: retailerOnboarding, status, Success, message } = response?.data ?? {};
+        const { data: retailerOnboarding, status, message } = response?.data ?? {};
 
         if (status === "SUCCESS") {
-            // Store response in session storage
-            try {
-                sessionStorage.setItem("retailerOnboarding", JSON.stringify({
-                    data: retailerOnboarding,
-                    Success,
-                    status,
-                    message,
-                    timestamp: new Date().toISOString(),
-                }));
-            } catch (storageError) {
-                console.error("Error storing referral code response in session storage:", storageError);
-            }
-
             dispatch({
                 type: RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS,
-                payload: { retailerOnboarding, success, message },
+                payload: { retailerOnboarding, Success, status, message },
             });
         } else {
             dispatch({

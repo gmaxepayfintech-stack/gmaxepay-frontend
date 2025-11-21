@@ -13,14 +13,11 @@ const Welcome = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // Get company details from Redux
   const companyFromRedux = useSelector((state) => state?.company?.company);
 
-  // Use Redux company if available, otherwise fallback to context
   const companyData = companyFromRedux || company;
   console.log("company details:", companyData);
 
-  // Check referral code response status
   const responseRefer = useSelector((state) => state?.retailerOnboarding?.Success);
   const referralCodeResponse = useSelector((state) => state?.retailerOnboarding?.referalResponse);
   console.log("responseRefer", responseRefer);
@@ -106,19 +103,11 @@ const Welcome = () => {
     handleSignUp();
   };
 
-  // Get onboarding token from company data or session storage
+  // Get onboarding token from company data or Redux state
   const getOnboardingToken = () => {
-    // First check session storage for referral code response
-    try {
-      const storedResponse = sessionStorage.getItem("referralCodeResponse");
-      if (storedResponse) {
-        const parsed = JSON.parse(storedResponse);
-        if (parsed?.data?.token || parsed?.data?.onboardingToken) {
-          return parsed.data.token || parsed.data.onboardingToken;
-        }
-      }
-    } catch (e) {
-      console.error("Error reading from session storage:", e);
+    // Check Redux state for token from referral response
+    if (referralCodeResponse?.data?.token || referralCodeResponse?.data?.onboardingToken) {
+      return referralCodeResponse.data.token || referralCodeResponse.data.onboardingToken;
     }
 
     // Fallback to company data
