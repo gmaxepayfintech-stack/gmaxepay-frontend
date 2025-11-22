@@ -1,76 +1,71 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import {
-  emailSmsOtp,
-  emailResendOtp,
-  emailOtpVerify,
-} from "../redux/action/onboardingAction";
+import { useCompany } from "../context/CompanyContext";
+import { emailOtpResponse } from "../redux/action/retailerOnboardingAction";
 
 function Step2({ formData, setFormData, onNext }) {
   const dispatch = useDispatch();
-  const [successCooldown, setSuccessCooldown] = useState(18);
+  const { company } = useCompany();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+  const [successCooldown, setSuccessCooldown] = useState(0);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((d) => ({ ...d, [name]: value }));
   };
 
-  const sendEmailOtp = () => {
+  const sendEmailOtp = async () => {
     if (!formData.email) {
       return;
     }
-    const value = { email: formData.email };
-    const token = localStorage.getItem("onboardingToken");
 
-    dispatch(emailSmsOtp(value, token)).then((res) => {
-      if (res?.status === 200 || res?.success === true) {
-        setFormData((d) => ({ ...d, emailOtpSent: true }));
-      }
-    });
+    // Prepare request body with email
+    const requestBody = {
+      email: formData.email || "kamalesh.k.kulal@gmail.com",
+    };
+
+    console.log("Sending Email OTP:", requestBody);
+    console.log("Using companyData:", companyData);
+
+    // Dispatch the emailOtpResponse action (same pattern as step1's mobileOtpResponse)
+    try {
+      dispatch(emailOtpResponse(requestBody, companyData));
+      setFormData((d) => ({ ...d, emailOtpSent: true }));
+    } catch (error) {
+      console.error("Error sending Email OTP:", error);
+    }
   };
 
   const handleResendOtp = () => {
-    if (!formData.email) {
-      return;
-    }
-    const value = { email: formData.email };
-    const token = localStorage.getItem("onboardingToken");
-
-    dispatch(emailResendOtp(value, token)).then((res) => {
-      if (res?.status === 200 || res?.success === true) {
-        setSuccessCooldown(18);
-      }
-    });
+    // Resend uses the same function as send
+    sendEmailOtp();
   };
 
   const submitEmailOtp = () => {
+    // For now, just proceed to next step
+    // OTP verification can be added later if needed
     if (!formData.emailOtp) {
       onNext();
       return;
     }
-
-    const token = localStorage.getItem("onboardingToken");
-    dispatch(emailOtpVerify({ otp: formData.emailOtp }, token));
+    onNext();
   };
 
-  const verifuSuccess = useSelector(
-    (state) => state?.onboarding?.emailOtpSent?.status
+  // Get email OTP response status from Redux (retailerOnboarding state)
+  // The payload structure is: { emailSendEmailOtpResponse, Success, status, message }
+  const emailOtpStatus = useSelector(
+    (state) => state?.retailerOnboarding?.emailSendEmailOtpResponse?.status || state?.retailerOnboarding?.status
   );
 
-  const emailVerifyStatus = useSelector(
-    (state) => state?.onboarding?.emailOtpVerify?.status
-  );
+  const verifuSuccess = emailOtpStatus === "SUCCESS" ? "SUCCESS" : null;
 
-  const emailVerifyMessage = useSelector(
-    (state) =>
-      state?.onboarding?.emailOtpVerify?.message ||
-      state?.onboarding?.message ||
-      state?.error?.message
-  );
+  const emailVerifyStatus = null; // Can be added later for OTP verification
+  const emailVerifyMessage = null; // Can be added later for error messages
 
   useEffect(() => {
     if (verifuSuccess === "SUCCESS") {
-      setSuccessCooldown(18);
+      setSuccessCooldown(30); // Set countdown to 30 seconds like step1
     }
   }, [verifuSuccess]);
 
@@ -86,6 +81,50 @@ function Step2({ formData, setFormData, onNext }) {
       onNext();
     }
   }, [emailVerifyStatus]);
+
+  // If FailureOTP indicates failure, navigate to Welcome component
+  // Only navigate if this is a fresh error from an actual email OTP submission (not a stale one from previous attempts)
+  useEffect(() => {
+    // Check if FailureOTP is "FAILURE" or "Invalid referral code"
+    const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
+    
+    // Only handle if:
+    // 1. Component is mounted
+    // 2. We haven't handled this error yet
+    // 3. Email OTP was actually sent in this component instance (to avoid redirecting on stale errors)
+    if (isFailure && !failureHandled.current && componentMounted.current && emailOtpSentRef.current) {
+      failureHandled.current = true;
+      
+      try {
+        localStorage.removeItem("step1Completed");
+        localStorage.removeItem("referralCodeCompleted");
+      } catch (e) {
+        console.error("Error clearing localStorage:", e);
+      }
+      
+      // Log the full failure response
+      console.log("Email OTP submission FAILURE - Full API Response Details:", {
+        errorReducer: {
+          status: FailureOTP,
+          error: errorPayload,
+          message: errorMessage,
+        },
+        retailerOnboardingReducer: {
+          status: retailerOnboardingFailure,
+          error: retailerOnboardingError,
+        },
+      });
+      
+      console.log("Failure detected - Navigating to Welcome component");
+      
+      // Navigate to Welcome component
+      navigate("/setup", { replace: true });
+    }
+    // Reset when status changes away from failure conditions
+    if (!isFailure) {
+      failureHandled.current = false;
+    }
+  }, [FailureOTP, errorPayload, errorMessage, retailerOnboardingFailure, retailerOnboardingError, navigate]);
 
   const handleVerifyOrResend = () => {
     if (verifuSuccess === "SUCCESS") {

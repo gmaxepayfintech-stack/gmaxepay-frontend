@@ -15,11 +15,13 @@ import {
   AADHAAR_CONNECTION_FAILURE,
   DOWNLOAD_AADHAAR_FAILURE,
 } from "../actionType/onboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_OTP_SUBMIT_FAILURE } from "../actionType/retailerOnboardingActionType";
 
 const initialState = {
   loading: false,
   error: null,
   message: null,
+  onBoarding:null,
 };
 
 const errorReducer = (state = initialState, action) => {
@@ -49,7 +51,6 @@ const errorReducer = (state = initialState, action) => {
 
     case GET_PINCODE_BY_CITY_FAILURE:
     case SMS_RESEND_OTP_FAILURE:
-      console.log("actions", action?.payload);
 
       return {
         ...state,
@@ -58,6 +59,20 @@ const errorReducer = (state = initialState, action) => {
         status: action?.payload,
         message: action?.payload,
       };
+    case RETAILER_ONBOARDING_SEND__OTP_FAILURE:
+    case RETAILER_ONBOARDING_REFERAL_CODE_FAILURE:
+      case RETAILER_OTP_SUBMIT_FAILURE:
+      console.log("actionssssssssssssss", action?.payload);
+
+      return {
+        ...state,
+        loading: false,
+        error: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+        onBoarding: action?.payload,
+      };
+
     case SMS_VERIFY_OTP_FAILURE:
       return {
         ...state,
