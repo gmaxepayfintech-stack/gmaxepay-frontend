@@ -121,12 +121,9 @@ const NotificationContainer = ({ notifications, onRemove }) => {
 
   // On dashboard routes, only show critical notifications (like token expiration)
   // Otherwise, show all notifications
-  const notificationsToShowRaw = isDashboardRoute 
+  const notificationsToShow = isDashboardRoute 
     ? notifications.filter(n => n.isCritical)
     : notifications;
-
-  // Globally suppress success notifications per requirement
-  const notificationsToShow = notificationsToShowRaw.filter(n => n.type !== 'success');
 
   if (notificationsToShow.length === 0) return null;
 
