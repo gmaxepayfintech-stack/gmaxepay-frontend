@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_ROUTE } from "../../data/env";
 
-import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_SUBMIT_EMAIL_FAILURE } from "../actionType/retailerOnboardingActionType";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
@@ -235,6 +235,127 @@ export const emailOtpResponse = (values, companyData, token) => async (dispatch)
     } catch (error) {
         dispatch({
             type: RETAILER_SEND_EMAIL_OTP_FAILURE,
+            payload: error.response ? error.response.data.message : error.message,
+        });
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const emailRescendOTP = (values, companyData, token) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (companyData?.companyId || companyData?._id || companyData?.id) {
+            headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
+        }
+
+        if (companyData?.domain || companyData?.companyDomain) {
+            headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
+        }
+
+        // Add token to headers if provided
+        if (token) {
+            headers["token"] = token;
+        }
+
+        // Log the request body and headers
+        console.log("emailRescendOTP - Request body:", JSON.stringify(values, null, 2));
+        console.log("emailRescendOTP - Headers:", headers);
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/onboarding/resetEmailOtp`,
+            values,
+            {
+                headers,
+            }
+        );
+
+        const { data: emailReSendOtp, Success, status, message } = response?.data ?? {};
+
+        if (status === "SUCCESS") {
+            dispatch({
+                type: RETAILER_RESEND_EMAIL_OTP_SUCCESS,
+                payload: { emailReSendOtp, Success, status, message },
+            });
+            // Also update the emailSendEmailOtpResponse to maintain consistency with UI
+            dispatch({
+                type: RETAILER_SEND_EMAIL_OTP_SUCCESS,
+                payload: { emailSendEmailOtpResponse: emailReSendOtp, Success, status, message },
+            });
+        } else {
+            dispatch({
+                type: RETAILER_RESEND_EMAIL_OTP_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+        }
+    } catch (error) {
+        dispatch({
+            type: RETAILER_RESEND_EMAIL_OTP_FAILURE,
+            payload: error.response ? error.response.data.message : error.message,
+        });
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const submitEmail = (values, companyData, token) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const headers = {
+            "Content-Type": "application/json",
+        };
+
+        if (companyData?.companyId || companyData?._id || companyData?.id) {
+            headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
+        }
+
+        if (companyData?.domain || companyData?.companyDomain) {
+            headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
+        }
+
+        // Add token to headers if provided
+        if (token) {
+            headers["token"] = token;
+        }
+
+        // Log the request body and headers
+        console.log("submitEmail - Request body:", JSON.stringify(values, null, 2));
+        console.log("submitEmail - Headers:", headers);
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/onboarding/resetEmailOtp`,
+            values,
+            {
+                headers,
+            }
+        );
+
+        const { data: emailSubmitEmailOtpResponse, Success, status, message } = response?.data ?? {};
+
+        if (status === "SUCCESS") {
+            dispatch({
+                type: RETAILER_SUBMIT_EMAIL_SUCCESS,
+                payload: { emailSubmitEmailOtpResponse, Success, status, message },
+            });
+        } else {
+            dispatch({
+                type: RETAILER_SUBMIT_EMAIL_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+        }
+    } catch (error) {
+        dispatch({
+            type: RETAILER_SUBMIT_EMAIL_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
     } finally {

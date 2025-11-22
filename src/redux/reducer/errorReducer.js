@@ -15,13 +15,13 @@ import {
   AADHAAR_CONNECTION_FAILURE,
   DOWNLOAD_AADHAAR_FAILURE,
 } from "../actionType/onboardingActionType";
-import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_OTP_SUBMIT_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SUBMIT_EMAIL_FAILURE } from "../actionType/retailerOnboardingActionType";
 
 const initialState = {
   loading: false,
   error: null,
   message: null,
-  onBoarding:null,
+  onBoarding: null,
 };
 
 const errorReducer = (state = initialState, action) => {
@@ -61,7 +61,12 @@ const errorReducer = (state = initialState, action) => {
       };
     case RETAILER_ONBOARDING_SEND__OTP_FAILURE:
     case RETAILER_ONBOARDING_REFERAL_CODE_FAILURE:
-      case RETAILER_OTP_SUBMIT_FAILURE:
+    case RETAILER_RESEND_EMAIL_OTP_FAILURE:
+    case RETAILER_OTP_SUBMIT_FAILURE:
+    case RETAILER_SUBMIT_EMAIL_FAILURE:
+    case RETAILER_RESEND_EMAIL_OTP_FAILURE:
+    case RETAILER_SUBMIT_EMAIL_FAILURE:
+    case RETAILER_SEND_EMAIL_OTP_FAILURE:
       console.log("actionssssssssssssss", action?.payload);
 
       return {

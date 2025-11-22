@@ -1,4 +1,4 @@
-import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS } from "../actionType/retailerOnboardingActionType";
 
 // Restore state from localStorage if available
 const getInitialState = () => {
@@ -23,6 +23,8 @@ const getInitialState = () => {
                     OTPResponse:null,
                     OTPSubmitResponse:null,
                     emailSendEmailOtpResponse:null,
+                    emailReSendOtp:null,
+                    emailSubmitEmailOtpResponse:null,
                 };
             }
         }
@@ -92,6 +94,26 @@ const retailerOnboardingReducer = (state = initialState, action) => {
                 status: action.payload.status,
                 message: action.payload.message,
             };
+        case RETAILER_RESEND_EMAIL_OTP_SUCCESS:
+            return {
+                ...state,
+                error: true,
+                emailReSendOtp: action.payload,
+                Success: action.payload.status,
+                status: action.payload.status,
+                message: action.payload.message,
+            };
+
+            case RETAILER_SUBMIT_EMAIL_SUCCESS:
+                return {
+                    ...state,
+                    error: true,
+                    emailSubmitEmailOtpResponse: action.payload,
+                    Success: action.payload.status,
+                    status: action.payload.status,
+                    message: action.payload.message,
+                };
+        
         default:
             return state;
     }
