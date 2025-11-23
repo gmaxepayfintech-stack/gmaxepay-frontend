@@ -20,6 +20,8 @@ function RetailerAadhaar({ setFormData, onNext }) {
   const [showImageUpload, setShowImageUpload] = useState(false);
   const [frontImage, setFrontImage] = useState(null);
   const [backImage, setBackImage] = useState(null);
+  const [frontImagePreview, setFrontImagePreview] = useState(null);
+  const [backImagePreview, setBackImagePreview] = useState(null);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
@@ -233,8 +235,52 @@ function RetailerAadhaar({ setFormData, onNext }) {
       return;
     }
 
-    if (type === "front") setFrontImage(file);
-    else setBackImage(file);
+    // Create preview URL
+    const previewUrl = URL.createObjectURL(file);
+
+    if (type === "front") {
+      // Clean up previous preview if exists
+      if (frontImagePreview) {
+        URL.revokeObjectURL(frontImagePreview);
+      }
+      setFrontImage(file);
+      setFrontImagePreview(previewUrl);
+    } else {
+      // Clean up previous preview if exists
+      if (backImagePreview) {
+        URL.revokeObjectURL(backImagePreview);
+      }
+      setBackImage(file);
+      setBackImagePreview(previewUrl);
+    }
+  };
+
+  // Cleanup preview URLs on unmount
+  useEffect(() => {
+    return () => {
+      if (frontImagePreview) {
+        URL.revokeObjectURL(frontImagePreview);
+      }
+      if (backImagePreview) {
+        URL.revokeObjectURL(backImagePreview);
+      }
+    };
+  }, [frontImagePreview, backImagePreview]);
+
+  const handleDeleteImage = (type) => {
+    if (type === "front") {
+      if (frontImagePreview) {
+        URL.revokeObjectURL(frontImagePreview);
+      }
+      setFrontImage(null);
+      setFrontImagePreview(null);
+    } else {
+      if (backImagePreview) {
+        URL.revokeObjectURL(backImagePreview);
+      }
+      setBackImage(null);
+      setBackImagePreview(null);
+    }
   };
 
   const handleSubmitImages = async () => {
@@ -491,79 +537,119 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </div>
 
             {/* FRONT IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px]">
-              <div className="flex flex-col items-center gap-3 sm:gap-4">
-                <img
-                  src="/img/aadhaar-front.png"
-                  alt="Front Aadhaar"
-                  className="h-12 sm:h-16 md:h-20 w-auto"
-                />
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 text-center">
-                  Add Aadhaar Image Front
-                </h3>
-
-                <label className="w-full text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange("front", e)}
-                    className="hidden"
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px] h-[200px] sm:h-[220px] md:h-[240px] flex items-center justify-center relative overflow-hidden">
+              {frontImagePreview ? (
+                <>
+                  <img
+                    src={frontImagePreview}
+                    alt="Aadhaar Front Preview"
+                    className="w-full h-full object-contain absolute inset-0 p-2"
                   />
-                  <span className="
-                    inline-block 
-                    px-3 sm:px-4 py-2 
-                    bg-blue-500 
-                    text-white 
-                    rounded-lg 
-                    cursor-pointer 
-                    hover:bg-blue-600 
-                    font-medium
-                    text-xs sm:text-sm md:text-base
-                  ">
-                    Select From The Browser
-                  </span>
-                </label>
-
-                <p className="text-xs text-gray-500">File Size (Max 5 MB)</p>
-              </div>
+                  <button
+                    onClick={() => handleDeleteImage("front")}
+                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg"
+                    type="button"
+                    aria-label="Delete image"
+                  >
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-3 sm:gap-4">
+                  <img
+                    src="/img/aadhaar-front.png"
+                    alt="Aadhaar Front"
+                    className="w-[120px] h-[75px] sm:w-[140px] sm:h-[85px] object-contain"
+                  />
+                  <h3 className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] sm:text-sm text-center leading-[100%] tracking-[0%] align-middle">
+                    Add Aadhaar Image Front
+                  </h3>
+                  <label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageChange("front", e)}
+                    />
+                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] sm:w-[150px] sm:h-[26px] rounded-[4px] text-[12px] sm:text-sm">
+                      Select From Browser
+                    </span>
+                  </label>
+                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] sm:text-xs leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
+                    File Size (Max 5 MB)
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* BACK IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px]">
-              <div className="flex flex-col items-center gap-3 sm:gap-4">
-                <img
-                  src="/img/aadhaar-back.png"
-                  alt="Back Aadhaar"
-                  className="h-12 sm:h-16 md:h-20 w-auto"
-                />
-                <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900 text-center">
-                  Add Aadhaar Image Back
-                </h3>
-
-                <label className="w-full text-center">
-                  <input
-                    type="file"
-                    accept="image/*"
-                    onChange={(e) => handleImageChange("back", e)}
-                    className="hidden"
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px] h-[200px] sm:h-[220px] md:h-[240px] flex items-center justify-center relative overflow-hidden">
+              {backImagePreview ? (
+                <>
+                  <img
+                    src={backImagePreview}
+                    alt="Aadhaar Back Preview"
+                    className="w-full h-full object-contain absolute inset-0 p-2"
                   />
-                  <span className="
-                    inline-block 
-                    px-3 sm:px-4 py-2 
-                    bg-blue-500 
-                    text-white 
-                    rounded-lg 
-                    cursor-pointer 
-                    hover:bg-blue-600 
-                    font-medium
-                    text-xs sm:text-sm md:text-base
-                  ">
-                    Select From The Browser
-                  </span>
-                </label>
-
-                <p className="text-xs text-gray-500">File Size (Max 5 MB)</p>
-              </div>
+                  <button
+                    onClick={() => handleDeleteImage("back")}
+                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg"
+                    type="button"
+                    aria-label="Delete image"
+                  >
+                    <svg
+                      className="w-5 h-5 text-white"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M6 18L18 6M6 6l12 12"
+                      />
+                    </svg>
+                  </button>
+                </>
+              ) : (
+                <div className="flex flex-col items-center justify-center gap-3 sm:gap-4">
+                  <img
+                    src="/img/aadhaar-back.png"
+                    alt="Aadhaar Back"
+                    className="w-[120px] h-[75px] sm:w-[140px] sm:h-[85px] object-contain"
+                  />
+                  <h3 className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] sm:text-sm text-center leading-[100%] tracking-[0%] align-middle">
+                    Add Aadhaar Image Back
+                  </h3>
+                  <label>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => handleImageChange("back", e)}
+                    />
+                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] sm:w-[150px] sm:h-[26px] rounded-[4px] text-[12px] sm:text-sm">
+                      Select From Browser
+                    </span>
+                  </label>
+                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] sm:text-xs leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
+                    File Size (Max 5 MB)
+                  </p>
+                </div>
+              )}
             </div>
 
             {/* SUBMIT BUTTON */}
@@ -573,12 +659,12 @@ function RetailerAadhaar({ setFormData, onNext }) {
               disabled={!frontImage || !backImage || isUploading}
               className={`
                 w-full 
+                max-w-[450px]
                 py-2.5 sm:py-3 md:py-3.5
-                rounded-lg 
+                rounded-xl sm:rounded-2xl
                 font-semibold 
                 text-white 
                 text-sm sm:text-base md:text-lg
-                max-w-[450px] 
                 mx-auto 
                 shadow-md
                 transition
@@ -591,6 +677,29 @@ function RetailerAadhaar({ setFormData, onNext }) {
             >
               {isUploading ? "Uploading..." : "Submit"}
             </button>
+
+            {/* Auto Verification Loader Overlay */}
+            {isUploading && (
+              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6">
+                  {/* Animated Spinner */}
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16">
+                    <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+                    <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+                  </div>
+                  
+                  {/* Verification Message */}
+                  <div className="text-center">
+                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                      Auto Verifying
+                    </h3>
+                    <p className="text-gray-600 text-xs sm:text-sm">
+                      We are auto verifying your Aadhaar details based on eKYC
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
       </div>
