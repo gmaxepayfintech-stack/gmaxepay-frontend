@@ -2,13 +2,17 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOnboardingAction";
-import Welcome from "../pages/welcome";
+import secureLocalStorage from "react-secure-storage";
+import { useNotification } from "../context/NotificationContext";
 
-function Step1({ formData, setFormData, onNext }) {
+function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const { company } = useCompany();
+  const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
@@ -53,9 +57,6 @@ function Step1({ formData, setFormData, onNext }) {
         // Dispatch the otpSubmitResponse action
         const result = await dispatch(otpSubmitResponse(requestBody, companyData, token));
 
-        // Check the result or wait for state update
-        // The useEffect will handle the failure case, but we can also check here
-        console.log("OTP submit result:", result);
       } catch (error) {
         console.error("Error submitting OTP:", error);
         // On error, proceed to next step
@@ -72,8 +73,8 @@ function Step1({ formData, setFormData, onNext }) {
   });
 
   const otpSubmitStatus = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse?.status);
+  const OTPSubmitResponseData = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse);
   const FailureOTP = useSelector((state) => state?.error?.onBoarding?.onBoarding?.status);
-  console.log("FailureOTP", FailureOTP);
   const retailerOnboardingFailure = useSelector((state) => state?.retailerOnboarding?.status);
   const errorPayload = useSelector((state) => state?.error?.error);
   const errorMessage = useSelector((state) => state?.error?.message);
@@ -96,12 +97,57 @@ function Step1({ formData, setFormData, onNext }) {
     };
   }, []);
 
+  // Handle OTP submit success - stores data from /api/v1/user/onboarding/verifySmsOtp
   useEffect(() => {
-    if (otpSubmitStatus === "SUCCESS" && !successHandled.current) {
+    if (otpSubmitStatus === "SUCCESS" && !successHandled.current && OTPSubmitResponseData) {
       successHandled.current = true;
+      
+      // Get the data object from response
+      // Response structure from action: { OTPResponse: { userToken: "...", steps: [...], pending: [...] }, Success, status, message }
+      // So we need to access OTPResponse property, not data
+      const responseData = OTPSubmitResponseData?.OTPResponse || OTPSubmitResponseData?.data || OTPSubmitResponseData;
+      
+      console.log("Response data from verifySmsOtp:", responseData);
+      if (responseData) {
+        // Store userToken as onboardingToken
+        if (responseData.userToken) {
+          try {
+            secureLocalStorage.setItem("onboardingToken", responseData.userToken);
+            console.log("Stored onboardingToken from verifySmsOtp successfully:", responseData.userToken);
+          } catch (e) {
+            console.error("Error storing onboardingToken from verifySmsOtp:", e);
+          }
+        } else {
+          console.warn("No userToken found in verifySmsOtp response:", responseData);
+        }
+
+        // Store steps array in secureStorage as pendingStatus
+        if (responseData.steps && Array.isArray(responseData.steps)) {
+          try {
+            const stepsJson = JSON.stringify(responseData.steps);
+            console.log("Storing steps in pendingStatus from verifySmsOtp:", stepsJson);
+            secureLocalStorage.setItem("pendingStatus", stepsJson);
+            
+            // Verify storage worked
+            const stored = secureLocalStorage.getItem("pendingStatus");
+            if (stored) {
+              console.log("Steps stored successfully in pendingStatus from verifySmsOtp");
+              console.log("Verified stored data:", stored);
+            } else {
+              console.error("Failed to verify steps storage from verifySmsOtp");
+            }
+          } catch (e) {
+            console.error("Error storing steps from verifySmsOtp:", e);
+          }
+        } else {
+          console.warn("No steps array found in verifySmsOtp response:", responseData);
+        }
+      } else {
+        console.warn("No response data found in OTPSubmitResponseData:", OTPSubmitResponseData);
+      }
+
       // Mark step 1 as completed and proceed
       try {
-        localStorage.setItem("step1Completed", "true");
         setFormData((d) => ({ ...d, otpVerified: true }));
       } catch (e) {
         console.error("Error marking step1 as completed:", e);
@@ -112,7 +158,7 @@ function Step1({ formData, setFormData, onNext }) {
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, setFormData, onNext]);
+  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, onNext]);
   useEffect(() => {
     const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
 
@@ -127,19 +173,6 @@ function Step1({ formData, setFormData, onNext }) {
       }
 
       // Log the full failure response
-      console.log("OTP submission FAILURE - Full API Response Details:", {
-        errorReducer: {
-          status: FailureOTP,
-          error: errorPayload,
-          message: errorMessage,
-        },
-        retailerOnboardingReducer: {
-          status: retailerOnboardingFailure,
-          error: retailerOnboardingError,
-        },
-      });
-
-      console.log("Failure detected - Showing Welcome component");
     }
     // Reset when status changes away from failure conditions
     if (!isFailure) {
@@ -162,27 +195,45 @@ function Step1({ formData, setFormData, onNext }) {
       return;
     }
 
-    // Get referral code from localStorage and Redux state
+    // Get referral code from prop, localStorage, or Redux state (in that order)
     let referCode = null;
 
-    // First, try to get from localStorage
-    try {
-      const storedReferral = localStorage.getItem("referralCodeCompleted");
-      if (storedReferral) {
-        const parsed = JSON.parse(storedReferral);
-        console.log("Full localStorage data:", parsed);
-        referCode = parsed?.referCode || null;
-        console.log("Retrieved referCode from localStorage:", referCode);
-      } else {
-        console.log("No referralCodeCompleted found in localStorage");
+    // First priority: prop from parent component
+    if (propReferralCode && typeof propReferralCode === 'string' && propReferralCode.trim() !== "") {
+      referCode = propReferralCode.trim();
+      console.log("Using referral code from prop:", referCode);
+    } else {
+      // Second priority: localStorage (from URL)
+      try {
+        const storedFromUrl = localStorage.getItem("referralCodeFromUrl");
+        if (storedFromUrl) {
+          referCode = storedFromUrl.trim();
+          console.log("Retrieved referCode from localStorage (URL):", referCode);
+        }
+      } catch (e) {
+        console.error("Error reading referral code from localStorage:", e);
       }
-    } catch (e) {
-      console.error("Error reading referral code from localStorage:", e);
-    }
 
-    if (!referCode) {
-      referCode = retailerOnboardingState?.referalResponse?.referCode || null;
-      console.log("Retrieved referCode from Redux:", referCode);
+      // Third priority: localStorage (from form submission)
+      if (!referCode) {
+        try {
+          const storedReferral = localStorage.getItem("referralCodeCompleted");
+          if (storedReferral) {
+            const parsed = JSON.parse(storedReferral);
+            console.log("Full localStorage data:", parsed);
+            referCode = parsed?.referCode || null;
+            console.log("Retrieved referCode from localStorage:", referCode);
+          }
+        } catch (e) {
+          console.error("Error reading referral code from localStorage:", e);
+        }
+      }
+
+      // Fourth priority: Redux state
+      if (!referCode) {
+        referCode = retailerOnboardingState?.referalResponse?.referCode || null;
+        console.log("Retrieved referCode from Redux:", referCode);
+      }
     }
 
     const requestBody = {
@@ -191,14 +242,11 @@ function Step1({ formData, setFormData, onNext }) {
 
     // Always add referral code if it exists and is not empty
     if (referCode && typeof referCode === 'string' && referCode.trim() !== "") {
-      requestBody.referCode = referCode.trim();
+      requestBody.referCode = referCode.trim().toUpperCase();
       console.log("Adding referCode to request:", requestBody.referCode);
     } else {
       console.warn("referCode is missing or invalid:", referCode);
     }
-
-    console.log("Final request body being sent:", JSON.stringify(requestBody, null, 2));
-    console.log(`Sending OTP to: ${formik.values.phone} with referCode: ${referCode}`);
 
     // Dispatch the action
     try {
@@ -211,16 +259,114 @@ function Step1({ formData, setFormData, onNext }) {
 
   const UserTokenToken = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse?.userToken);
   const OTPResponseStatus = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.status);
+  const OTPResponseData = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse);
 
   // Countdown timer state for resend OTP
   const [resendCountdown, setResendCountdown] = useState(0);
 
+  // Check if mobile is already verified - handles response from /api/v1/user/onboarding/sendSmsOtp
+  useEffect(() => {
+    // Check if response is successful and has verified status
+    // Response structure: { status: "SUCCESS", message: "...", data: { status: "verified", ... } }
+    const isVerified = OTPResponseStatus === "SUCCESS" && 
+                      (OTPResponseData?.status === "verified" || OTPResponseData?.data?.status === "verified");
+    
+    if (isVerified) {
+      // Get the data object - it might be directly in OTPResponseData or in OTPResponseData.data
+      const verifiedData = OTPResponseData?.data || OTPResponseData;
+      
+      if (!verifiedData) {
+        console.warn("No verified data found in response");
+        return;
+      }
+      
+      // Show success notification
+      const responseMessage = OTPResponseData?.message || OTPResponseData?.data?.message || "Mobile already verified";
+      showNotification({
+        type: "success",
+        message: responseMessage,
+      });
+
+      // Store userToken as onboardingToken
+      if (verifiedData.userToken) {
+        try {
+          secureLocalStorage.setItem("onboardingToken", verifiedData.userToken);
+          console.log("Stored onboardingToken successfully");
+        } catch (e) {
+          console.error("Error storing onboardingToken:", e);
+        }
+      }
+
+      // Store steps array in secureStorage as pendingStatus (from /api/v1/user/onboarding/sendSmsOtp response)
+      if (verifiedData.steps && Array.isArray(verifiedData.steps)) {
+        try {
+          const stepsJson = JSON.stringify(verifiedData.steps);
+          console.log("Storing steps in pendingStatus:", stepsJson);
+          secureLocalStorage.setItem("pendingStatus", stepsJson);
+          
+          // Verify storage worked
+          const stored = secureLocalStorage.getItem("pendingStatus");
+          if (stored) {
+            console.log("Steps stored successfully in pendingStatus");
+            console.log("Verified stored data:", stored);
+          } else {
+            console.error("Failed to verify steps storage");
+          }
+        } catch (e) {
+          console.error("Error storing steps:", e);
+        }
+      } else {
+        console.warn("No steps array found in verifiedData:", verifiedData);
+      }
+
+      // Update formData with verified status
+      setFormData((prev) => ({
+        ...prev,
+        phone: verifiedData.mobileNo || prev.phone,
+        otpVerified: verifiedData.mobileVerify || false,
+        emailOtpVerified: verifiedData.emailVerify || false,
+        aadhaarDocFetched: verifiedData.aadharVerify || false,
+        panDocFetched: verifiedData.panVerify || false,
+        bankAccountNumber: verifiedData.bankVerify ? prev.bankAccountNumber : "",
+        ifscCode: verifiedData.bankVerify ? prev.ifscCode : "",
+        completed: verifiedData.allCompleted || false,
+        userRole: verifiedData.userRole || prev.userRole,
+      }));
+
+      // If all completed, mark as completed
+      if (verifiedData.allCompleted) {
+        setFormData((prev) => ({ ...prev, completed: true }));
+      }
+
+      // Navigate to onboarding index page after storing
+      // Use setTimeout to ensure storage is complete before navigation
+      setTimeout(() => {
+        // Get current path
+        const currentPath = window.location.pathname;
+        const referCode = formData.referralCode;
+        
+        // Navigate to show steps - if we have a referral code, use it in the URL
+        if (referCode && currentPath.includes('/unity')) {
+          // Already on unity route with referral code, just trigger parent update
+          // The parent component will detect the storage change and update
+          window.location.reload();
+        } else if (referCode) {
+          // Navigate to unity route with referral code
+          navigate(`/unity/${referCode}`);
+        } else {
+          // Navigate to unity route without referral code
+          navigate('/unity');
+        }
+      }, 200);
+    }
+  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, navigate, formData.referralCode]);
+
   // Start countdown when OTP is sent successfully
   useEffect(() => {
-    if (OTPResponseStatus === "SUCCESS") {
+    if (OTPResponseStatus === "SUCCESS" && OTPResponseData?.status !== "verified") {
       setResendCountdown(30);
     }
-  }, [OTPResponseStatus]);
+  }, [OTPResponseStatus, OTPResponseData]);
 
   // Countdown timer effect
   useEffect(() => {
@@ -232,12 +378,8 @@ function Step1({ formData, setFormData, onNext }) {
     }
   }, [resendCountdown]);
 
-  // If FailureOTP is "FAILURE" or "Invalid referral code", show Welcome component instead of Step1 form
-  // Only show if OTP was actually submitted (to avoid showing on stale errors)
-  const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
-  if (isFailure) {
-    return <Welcome />;
-  }
+  // Note: Failure handling is now managed by the parent component
+  // If there's a failure, the parent will handle navigation/error display
 
   return (
     <div

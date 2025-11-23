@@ -34,8 +34,8 @@ import PaymentSuccess from "./mainPage/paymentSuccess";
 import PaymentFailure from "./mainPage/paymentFailure";
 import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
-import Welcome from "./pages/welcome";
-import RetailerOnboarding from "./retailerOnboarding/[id]";
+import Welcome from "./userOnboarding/welcome";
+import RetailerOnboarding from "./userOnboarding/[id]";
 import WhitelabelAdmin from "./layouts/WhitelabelAdmin";
 
 function App() {
@@ -348,7 +348,16 @@ function App() {
         <Route path="/privacy" element={<PrivacyPolicy />} />
         <Route path="/refundcancel" element={<RefundAndCancel />} />
         <Route path="/termscondition" element={<TermsCondition />} />
-        <Route path="/setup" element={<Welcome />} />
+        <Route path="/setup" element={<Navigate to="/unity" replace />} />
+        <Route path="/unity" element={<Welcome />} />
+        <Route
+          path="/unity/:referCode"
+          element={
+            <ProtectedOnboardingRoute>
+              <RetailerOnboarding />
+            </ProtectedOnboardingRoute>
+          }
+        />
 
         <Route
           path="/onboarding/:id"

@@ -205,11 +205,11 @@ export const emailOtpResponse = (values, companyData, token) => async (dispatch)
         }
 
         // Log the request body and headers
-        console.log("otpSubmitResponse - Request body:", JSON.stringify(values, null, 2));
-        console.log("otpSubmitResponse - Headers:", headers);
+        console.log("emailOtpResponse - Request body:", JSON.stringify(values, null, 2));
+        console.log("emailOtpResponse - Headers:", headers);
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/onboarding/verifySmsOtp`,
+            `${API_ROUTE}/api/v1/user/onboarding/sendEmailOtp`,
             values,
             {
                 headers,
@@ -267,7 +267,7 @@ export const emailRescendOTP = (values, companyData, token) => async (dispatch) 
         console.log("emailRescendOTP - Headers:", headers);
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/onboarding/resetEmailOtp`,
+            `${API_ROUTE}/api/v1/user/onboarding/sendEmailOtp`,
             values,
             {
                 headers,
@@ -330,7 +330,7 @@ export const submitEmail = (values, companyData, token) => async (dispatch) => {
         console.log("submitEmail - Headers:", headers);
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/onboarding/resetEmailOtp`,
+            `${API_ROUTE}/api/v1/user/onboarding/verifyEmailOtp`,
             values,
             {
                 headers,
