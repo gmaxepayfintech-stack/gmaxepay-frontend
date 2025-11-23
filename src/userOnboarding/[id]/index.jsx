@@ -107,6 +107,27 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
     }
   }, []);
 
+  // Check for movePan flag and navigate to step 4
+  useEffect(() => {
+    try {
+      const movePan = localStorage.getItem("movePan");
+      const panConnected = localStorage.getItem("panConnected");
+      const redirectToPan = sessionStorage.getItem("redirectToPan");
+      
+      if (movePan === "true" || panConnected === "true" || redirectToPan === "true") {
+        // Navigate to step 4 (PAN Verification)
+        setCurrentStep(4);
+        setShowSteps(false);
+        // Clear sessionStorage flag if it exists
+        if (redirectToPan === "true") {
+          sessionStorage.removeItem("redirectToPan");
+        }
+      }
+    } catch (e) {
+      console.error("Error checking movePan:", e);
+    }
+  }, []);
+
   // Load steps from secureStorage on mount
   useEffect(() => {
     try {
@@ -620,7 +641,21 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             {/* Back Button */}
             <div className="w-full max-w-[1450px] mb-4">
               <button
-                onClick={() => setShowSteps(true)}
+                onClick={() => {
+                  // Clear aadhaar and pan verification flags when navigating back to steps
+                  // This is especially important after download
+                  try {
+                    localStorage.removeItem("moveAadhaar");
+                    localStorage.removeItem("aadhaarConnected");
+                    sessionStorage.removeItem("redirectToaddhar");
+                    localStorage.removeItem("movePan");
+                    localStorage.removeItem("panConnected");
+                    sessionStorage.removeItem("redirectToPan");
+                  } catch (e) {
+                    console.error("Error clearing verification flags:", e);
+                  }
+                  setShowSteps(true);
+                }}
                 className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition px-4 py-2"
               >
                 <svg

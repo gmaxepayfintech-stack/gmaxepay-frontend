@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_ROUTE } from "./../data/env";
@@ -116,7 +117,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
         { headers }
       );
 
-      const { status, data } = response?.data ?? {};
+      const { status, data, message } = response?.data ?? {};
 
       if (status === "SUCCESS" && data?.url) {
         // Store aadhaar connection status in localStorage
@@ -133,18 +134,55 @@ function RetailerAadhaar({ setFormData, onNext }) {
 
         // Navigate to the redirect URL
         window.location.href = data.url;
+      } else if (status === "SUCCESS" && data?.isDownload === true) {
+        // Handle "already processed" case - disable verify, enable download
+        try {
+          localStorage.setItem("moveAadhaar", "true");
+          localStorage.setItem("aadhaarConnected", "true");
+        } catch (e) {
+          console.error("Error storing aadhaar connection status:", e);
+        }
+
+        // Mark as verified to enable download button
+        setIsVerified(true);
+        
+        showNotification({
+          type: "info",
+          message: message || "Aadhaar verification already processed. You can download now.",
+        });
       } else {
         showNotification({
           type: "error",
-          message: response?.data?.message || "Failed to connect Aadhaar verification",
+          message: message || response?.data?.message || "Failed to connect Aadhaar verification",
         });
       }
     } catch (error) {
       console.error("Error connecting Aadhaar:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to connect Aadhaar verification",
-      });
+      const errorResponse = error?.response?.data;
+      const errorMessage = errorResponse?.message || error?.message || "Failed to connect Aadhaar verification";
+      
+      // Check if error response indicates "already processed" with isDownload
+      if (errorResponse?.status === "SUCCESS" && errorResponse?.data?.isDownload === true) {
+        try {
+          localStorage.setItem("moveAadhaar", "true");
+          localStorage.setItem("aadhaarConnected", "true");
+        } catch (e) {
+          console.error("Error storing aadhaar connection status:", e);
+        }
+
+        // Mark as verified to enable download button
+        setIsVerified(true);
+        
+        showNotification({
+          type: "info",
+          message: errorResponse?.message || "Aadhaar verification already processed. You can download now.",
+        });
+      } else {
+        showNotification({
+          type: "error",
+          message: errorMessage,
+        });
+      }
     } finally {
       setIsConnecting(false);
     }
@@ -409,26 +447,28 @@ function RetailerAadhaar({ setFormData, onNext }) {
               </div>
 
               {/* BUTTONS */}
-              <div className="flex gap-2 sm:gap-4 md:gap-6 mt-4 sm:mt-6">
+              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 mt-4 sm:mt-6">
                 <button
                   type="button"
                   onClick={handleDownload}
                   disabled={!isVerified || isDownloading || isConnecting}
                   className={`
-                    flex-1 px-3 sm:px-4 md:px-6 py-2 
-                    h-10 sm:h-12 md:h-[52px]
-                    text-xs sm:text-sm md:text-base lg:text-lg
-                    rounded-xl
-                    sm:rounded-2xl 
+                    flex-1 w-full sm:w-auto
+                    px-4 sm:px-5 md:px-6 lg:px-8
+                    py-2.5 sm:py-3 md:py-3.5 lg:py-4
+                    min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
+                    text-sm sm:text-base md:text-lg lg:text-xl
+                    rounded-xl sm:rounded-2xl
                     border-2 border-[#1B1717] border-opacity-80 
                     font-medium 
-                    transition
+                    transition-all
+                    flex items-center justify-center
                     ${
                       isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500 cursor-default"
                         : !isVerified || isDownloading || isConnecting
                         ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "text-gray-700 hover:bg-gray-100 active:scale-95"
                     }
                   `}
                 >
@@ -440,20 +480,21 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   onClick={handleVerify}
                   disabled={isVerified || isConnecting || isDownloading}
                   className={`
-                    flex-1 px-3 sm:px-4 md:px-6 py-2 
-                    h-10 sm:h-12 md:h-[52px]
-                    text-xs sm:text-sm md:text-base lg:text-lg
-                    rounded-xl
-                    sm:rounded-2xl 
+                    flex-1 w-full sm:w-auto
+                    px-4 sm:px-5 md:px-6 lg:px-8
+                    py-2.5 sm:py-3 md:py-3.5 lg:py-4
+                    min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
+                    text-sm sm:text-base md:text-lg lg:text-xl
+                    rounded-xl sm:rounded-2xl
                     font-medium 
-                    transition 
+                    transition-all
                     flex items-center justify-center gap-2
                     ${
                       isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
                         ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-[#039155] text-white hover:bg-green-700"
+                        : "bg-[#039155] text-white hover:bg-green-700 active:scale-95"
                     }
                   `}
                 >
@@ -461,7 +502,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
                     "Connecting..."
                   ) : isVerified ? (
                     <>
-                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       Verified
@@ -503,19 +544,22 @@ function RetailerAadhaar({ setFormData, onNext }) {
                 onClick={() => setShowImageUpload(true)}
                 className="
                   w-full 
-                  py-2.5 sm:py-3 md:py-3.5
+                  max-w-[450px]
+                  px-4 sm:px-6 md:px-8 lg:px-10
+                  py-3 sm:py-3.5 md:py-4 lg:py-4.5
+                  min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
                   text-center 
-                  rounded-lg 
+                  rounded-xl sm:rounded-2xl
                   font-semibold 
                   text-white 
-                  text-sm sm:text-base md:text-lg
-                  max-w-[450px] 
+                  text-sm sm:text-base md:text-lg lg:text-xl
                   mx-auto 
                   shadow-md
-                  transition
-                  lg:ml-[120px]
+                  transition-all
+                  flex items-center justify-center
                   bg-[#039155]
                   hover:bg-green-700
+                  active:scale-95
                   opacity-100
                 "
               >
@@ -547,12 +591,12 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   />
                   <button
                     onClick={() => handleDeleteImage("front")}
-                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg"
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-red-500 hover:bg-red-600 active:scale-90 flex items-center justify-center transition-all shadow-lg"
                     type="button"
                     aria-label="Delete image"
                   >
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -583,7 +627,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
                       className="hidden"
                       onChange={(e) => handleImageChange("front", e)}
                     />
-                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] sm:w-[150px] sm:h-[26px] rounded-[4px] text-[12px] sm:text-sm">
+                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-[137px] sm:min-w-[150px] md:min-w-[170px] h-auto min-h-[32px] sm:min-h-[36px] md:min-h-[40px] rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-medium">
                       Select From Browser
                     </span>
                   </label>
@@ -605,12 +649,12 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   />
                   <button
                     onClick={() => handleDeleteImage("back")}
-                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg"
+                    className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-red-500 hover:bg-red-600 active:scale-90 flex items-center justify-center transition-all shadow-lg"
                     type="button"
                     aria-label="Delete image"
                   >
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -641,7 +685,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
                       className="hidden"
                       onChange={(e) => handleImageChange("back", e)}
                     />
-                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] sm:w-[150px] sm:h-[26px] rounded-[4px] text-[12px] sm:text-sm">
+                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-[137px] sm:min-w-[150px] md:min-w-[170px] h-auto min-h-[32px] sm:min-h-[36px] md:min-h-[40px] rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-medium">
                       Select From Browser
                     </span>
                   </label>
@@ -660,17 +704,20 @@ function RetailerAadhaar({ setFormData, onNext }) {
               className={`
                 w-full 
                 max-w-[450px]
-                py-2.5 sm:py-3 md:py-3.5
+                px-4 sm:px-6 md:px-8 lg:px-10
+                py-3 sm:py-3.5 md:py-4 lg:py-4.5
+                min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
                 rounded-xl sm:rounded-2xl
                 font-semibold 
                 text-white 
-                text-sm sm:text-base md:text-lg
+                text-sm sm:text-base md:text-lg lg:text-xl
                 mx-auto 
                 shadow-md
-                transition
+                transition-all
+                flex items-center justify-center
                 ${
                   frontImage && backImage && !isUploading
-                    ? "bg-[#039155] hover:bg-green-700"
+                    ? "bg-[#039155] hover:bg-green-700 active:scale-95"
                     : "bg-gray-400 cursor-not-allowed"
                 }
               `}
@@ -679,26 +726,27 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </button>
 
             {/* Auto Verification Loader Overlay */}
-            {isUploading && (
-              <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-                <div className="bg-white rounded-2xl p-6 sm:p-8 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6">
+            {isUploading && createPortal(
+              <div className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+                <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
                   {/* Animated Spinner */}
-                  <div className="relative w-12 h-12 sm:w-16 sm:h-16">
+                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
                     <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
                     <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
                   </div>
                   
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-lg sm:text-xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
                       Auto Verifying
                     </h3>
-                    <p className="text-gray-600 text-xs sm:text-sm">
+                    <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
                       We are auto verifying your Aadhaar details based on eKYC
                     </p>
                   </div>
                 </div>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
         )}
