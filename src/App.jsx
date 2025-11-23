@@ -36,6 +36,7 @@ import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./pages/welcome";
 import RetailerOnboarding from "./retailerOnboarding/[id]";
+import WhitelabelAdmin from "./layouts/WhitelabelAdmin";
 
 function App() {
   const { showNotification } = useNotification();
@@ -88,8 +89,7 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
-  const retailerOnboardingSuccess = useSelector((state) => state?.retailerOnboarding
-  );
+ 
 
   const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel);
 
@@ -153,14 +153,7 @@ function App() {
       });
     }
   }, [success]);
-  useEffect(() => {
-    if (retailerOnboardingSuccess) {
-      showNotification({
-        type: "success",
-        message: retailerOnboardingSuccess.message,
-      });
-    }
-  }, [retailerOnboardingSuccess]);
+ 
 
   useEffect(() => {
     if (specialDomSuccess) {

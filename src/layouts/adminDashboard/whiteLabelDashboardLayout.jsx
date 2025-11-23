@@ -1,5 +1,5 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Menu, X, Share2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Menu, X } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -302,7 +302,15 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                 className="p-1 rounded-md hover:bg-gray-100 transition-colors"
                 aria-label="Share referral code"
               >
-                <Share2 className="w-4 h-4 text-[#1B1717]" />
+                <img
+                  src="/img/shareIcon.png"
+                  alt="Share"
+                  className="w-4 h-4 object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/img/gmaxepay.png";
+                  }}
+                />
               </button>
             </div>
             <p className="text-sm font-medium text-[#1B1717]">
