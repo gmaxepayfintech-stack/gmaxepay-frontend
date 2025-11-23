@@ -1,6 +1,6 @@
 export { default as Auth } from './Auth';
 export { default as Dashboard} from '../layouts/superAdminDashboard/index.jsx'
-export const AdminDashboard = () => <div>AdminDashboard</div>;
+export { default as AdminDashboard} from '../layouts/WhitelabelAdmin/index.jsx'
 export const SubAdminDashboard = () => <div>SubAdminDashboard</div>;
 export const RetailerDashboard = () => <div>RetailerDashboard</div>;
 export const MasterDistributerDashboard = () => <div>MasterDistributerDashboard</div>;
