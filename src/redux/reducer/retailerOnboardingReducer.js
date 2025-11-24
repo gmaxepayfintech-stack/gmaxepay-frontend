@@ -1,4 +1,4 @@
-import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE } from "../actionType/retailerOnboardingActionType";
 
 // Restore state from localStorage if available
 const getInitialState = () => {
@@ -63,6 +63,10 @@ const getInitialState = () => {
         downloadPanError: null,
         uploadPanResponse: null,
         uploadPanError: null,
+        // Bank details state
+        bankDetailsResponse: null,
+        bankDetailsError: null,
+        bankDetailsStatus: null,
     };
 };
 
@@ -302,6 +306,31 @@ const retailerOnboardingReducer = (state = initialState, action) => {
                 Success: "FAILURE",
                 status: "FAILURE",
                 message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to upload PAN document",
+            };
+
+        // Bank Details Cases
+        case RETAILER_POST_BANK_DETAILS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                bankDetailsResponse: action.payload,
+                bankDetailsError: null,
+                bankDetailsStatus: action.payload.status,
+                Success: action.payload.status,
+                status: action.payload.status,
+                message: action.payload.message,
+            };
+
+        case RETAILER_POST_BANK_DETAILS_FAILURE:
+            return {
+                ...state,
+                error: action.payload,
+                bankDetailsResponse: null,
+                bankDetailsError: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to verify bank details",
+                bankDetailsStatus: "FAILURE",
+                Success: "FAILURE",
+                status: "FAILURE",
+                message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to verify bank details",
             };
         
         default:

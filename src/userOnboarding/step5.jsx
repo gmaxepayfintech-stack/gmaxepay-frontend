@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { postShopDetails } from '../redux/action/retailerOnboardingAction';
 import { getLocationAndIP } from '../util/getLocationAndIP';
 import { useCompany } from '../context/CompanyContext';
@@ -8,6 +8,7 @@ import { useNotification } from '../context/NotificationContext';
 import secureLocalStorage from 'react-secure-storage';
 
 function Step5({ formData, setFormData, onComplete }) {
+  const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { company } = useCompany();
@@ -121,6 +122,18 @@ function Step5({ formData, setFormData, onComplete }) {
     }
   };
 
+  // Get referCode from URL or localStorage
+  const getReferCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
+
   const handleSubmit = async () => {
     if (!formData.shopName) {
       alert('Please enter shop name.');
@@ -200,15 +213,15 @@ function Step5({ formData, setFormData, onComplete }) {
         message: postShopDetailsMessage || postShopDetailsResponse?.message || "Shop details saved successfully",
       });
 
-      // Navigate to onboarding page
-      const token = getToken();
-      if (token) {
-        setTimeout(() => {
-          navigate(`/onboarding/${token}`);
-        }, 500); // Small delay to show notification
-      } else {
-        console.error("Token not found for navigation");
-      }
+      // Navigate to unity page with referCode if available
+      const referCode = getReferCode();
+      setTimeout(() => {
+        if (referCode) {
+          navigate(`/unity/${referCode}`);
+        } else {
+          navigate(`/unity`);
+        }
+      }, 500); // Small delay to show notification
     }
   }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, navigate, showNotification]);
 

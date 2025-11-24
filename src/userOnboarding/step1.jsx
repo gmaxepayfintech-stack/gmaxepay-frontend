@@ -33,7 +33,22 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     validationSchema,
     validateOnBlur: false,
     validateOnChange: false,
-    onSubmit: async () => {
+    onSubmit: async (values, { setFieldTouched, setFieldError }) => {
+      // Validate OTP only on submit
+      const otpErrors = await formik.validateField("otp");
+      if (otpErrors) {
+        setFieldTouched("otp", true);
+        if (!values.otp) {
+          setFieldError("otp", "OTP is required");
+        }
+      }
+      // Check if OTP is empty
+      if (!formik.values.otp || formik.values.otp.trim() === "") {
+        setFieldTouched("otp", true);
+        setFieldError("otp", "OTP is required");
+        return;
+      }
+
       // Prepare request body with OTP
       const requestBody = {
         otp: formik.values.otp,
@@ -47,7 +62,7 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
 
       if (!token) {
         console.error("Token is missing. Cannot submit OTP.");
-        formik.setFieldError("otp", "Token is missing. Please try again.");
+        setFieldError("otp", "Token is missing. Please try again.");
         return;
       }
 
@@ -184,6 +199,11 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     const { name, value } = e.target;
     formik.setFieldValue(name, value);
     setFormData((d) => ({ ...d, [name]: value }));
+    
+    // Clear OTP error when user starts typing (only for OTP field)
+    if (name === "otp" && formik.errors.otp) {
+      formik.setFieldError("otp", undefined);
+    }
   };
 
   const sendOtp = async () => {
@@ -498,13 +518,17 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
               name="otp"
               value={formik.values.otp}
               onChange={handleChange}
+              onBlur={(e) => {
+                // Don't validate on blur, just handle the blur event
+                formik.handleBlur(e);
+              }}
               placeholder="Enter Mobile OTP"
-              className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 ${formik.errors.otp ? "border-red-500" : "border-[#1B1717]"
+              className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 ${formik.errors.otp && formik.touched.otp ? "border-red-500" : "border-[#1B1717]"
                 } rounded-xl pl-12 sm:pl-16 md:pl-12 pr-4 sm:pr-5 md:pr-4 text-base sm:text-lg md:text-base outline-none focus:border-[#1B1717] transition`}
             />
           </div>
 
-          {formik.errors.otp && (
+          {formik.errors.otp && formik.touched.otp && (
             <p className="text-red-500 text-sm sm:text-base mt-2">{formik.errors.otp}</p>
           )}
         </div>
