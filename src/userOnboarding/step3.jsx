@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_ROUTE } from "./../data/env";
 import { useCompany } from "./../context/CompanyContext";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
-import { useNotification } from "../context/NotificationContext"
+import { useNotification } from "../context/NotificationContext";
+import { connectAadhaarVerification, downloadAadhaarDocument, uploadAadhaarDocuments } from "../redux/action/retailerOnboardingAction";
 
 function RetailerAadhaar({ setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
+  const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
 
   const [isVerified, setIsVerified] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -93,100 +94,60 @@ function RetailerAadhaar({ setFormData, onNext }) {
     }
 
     setIsConnecting(true);
+    const redirect_url = getRedirectUrl();
+    
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const redirect_url = getRedirectUrl();
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/connectAadhaarVerification`,
-        { redirect_url },
-        { headers }
-      );
-
-      const { status, data, message } = response?.data ?? {};
-
-      if (status === "SUCCESS" && data?.url) {
-        // Store aadhaar connection status in localStorage
-        try {
-          localStorage.setItem("moveAadhaar", "true");
-          localStorage.setItem("aadhaarConnected", "true");
-          sessionStorage.setItem("redirectToaddhar", "true");
-        } catch (e) {
-          console.error("Error storing aadhaar connection status:", e);
-        }
-
-        // Mark as verified before redirect
-        setIsVerified(true);
-
-        // Navigate to the redirect URL
-        window.location.href = data.url;
-      } else if (status === "SUCCESS" && data?.isDownload === true) {
-        // Handle "already processed" case - disable verify, enable download
-        try {
-          localStorage.setItem("moveAadhaar", "true");
-          localStorage.setItem("aadhaarConnected", "true");
-        } catch (e) {
-          console.error("Error storing aadhaar connection status:", e);
-        }
-
-        // Mark as verified to enable download button
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: message || "Aadhaar verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: message || response?.data?.message || "Failed to connect Aadhaar verification",
-        });
-      }
+      await dispatch(connectAadhaarVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting Aadhaar:", error);
-      const errorResponse = error?.response?.data;
-      const errorMessage = errorResponse?.message || error?.message || "Failed to connect Aadhaar verification";
-      
-      // Check if error response indicates "already processed" with isDownload
-      if (errorResponse?.status === "SUCCESS" && errorResponse?.data?.isDownload === true) {
-        try {
-          localStorage.setItem("moveAadhaar", "true");
-          localStorage.setItem("aadhaarConnected", "true");
-        } catch (e) {
-          console.error("Error storing aadhaar connection status:", e);
-        }
-
-        // Mark as verified to enable download button
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: errorResponse?.message || "Aadhaar verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: errorMessage,
-        });
-      }
     } finally {
       setIsConnecting(false);
     }
   };
+
+  // Handle Redux state changes for Aadhaar connection
+  useEffect(() => {
+    const response = retailerOnboardingState?.aadhaarConnectionResponse;
+    const error = retailerOnboardingState?.aadhaarConnectionError;
+    
+    if (response?.status === "SUCCESS" && response?.data?.url) {
+      // Store aadhaar connection status in localStorage
+      try {
+        localStorage.setItem("moveAadhaar", "true");
+        localStorage.setItem("aadhaarConnected", "true");
+        sessionStorage.setItem("redirectToaddhar", "true");
+      } catch (e) {
+        console.error("Error storing aadhaar connection status:", e);
+      }
+
+      // Mark as verified before redirect
+      setIsVerified(true);
+
+      // Navigate to the redirect URL
+      window.location.href = response.data.url;
+    } else if (response?.status === "SUCCESS" && response?.data?.isDownload === true) {
+      // Handle "already processed" case - disable verify, enable download
+      try {
+        localStorage.setItem("moveAadhaar", "true");
+        localStorage.setItem("aadhaarConnected", "true");
+      } catch (e) {
+        console.error("Error storing aadhaar connection status:", e);
+      }
+
+      // Mark as verified to enable download button
+      setIsVerified(true);
+      
+      showNotification({
+        type: "info",
+        message: response?.message || "Aadhaar verification already processed. You can download now.",
+      });
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to connect Aadhaar verification",
+      });
+    }
+  }, [retailerOnboardingState?.aadhaarConnectionResponse, retailerOnboardingState?.aadhaarConnectionError, showNotification]);
 
   // Handle Download
   const handleDownload = async () => {
@@ -209,56 +170,36 @@ function RetailerAadhaar({ setFormData, onNext }) {
 
     setIsDownloading(true);
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/getDigilockerDocuments`,
-        { document_type: "AADHAAR" },
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        setIsDownloaded(true);
-        showNotification({
-          type: "success",
-          message: "Aadhaar document downloaded successfully",
-        });
-        // After download success, show upload section if both verify and download are done
-        if (isVerified && !showImageUpload) {
-          setShowImageUpload(true);
-        }
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to download Aadhaar document",
-        });
-      }
+      await dispatch(downloadAadhaarDocument(companyData, token));
     } catch (error) {
       console.error("Error downloading Aadhaar:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to download Aadhaar document",
-      });
     } finally {
       setIsDownloading(false);
     }
   };
+
+  // Handle Redux state changes for Aadhaar download
+  useEffect(() => {
+    const response = retailerOnboardingState?.downloadAadhaarResponse;
+    const error = retailerOnboardingState?.downloadAadhaarError;
+    
+    if (response?.status === "SUCCESS") {
+      setIsDownloaded(true);
+      showNotification({
+        type: "success",
+        message: response?.message || "Aadhaar document downloaded successfully",
+      });
+      // After download success, show upload section if both verify and download are done
+      if (isVerified && !showImageUpload) {
+        setShowImageUpload(true);
+      }
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to download Aadhaar document",
+      });
+    }
+  }, [retailerOnboardingState?.downloadAadhaarResponse, retailerOnboardingState?.downloadAadhaarError, isVerified, showImageUpload, showNotification]);
 
   const handleImageChange = (type, e) => {
     const file = e.target.files?.[0];
@@ -341,65 +282,41 @@ function RetailerAadhaar({ setFormData, onNext }) {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("front_photo", frontImage);
-      formData.append("back_photo", backImage);
-
-      const headers = {
-        "Content-Type": "multipart/form-data",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/uploadAadhaarDocuments`,
-        formData,
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        if (setFormData) {
-          setFormData((d) => ({
-            ...d,
-            aadhaarDocFetched: true,
-            digilockerLinked: true,
-            aadhaarFront: frontImage,
-            aadhaarBack: backImage,
-          }));
-        }
-        showNotification({
-          type: "success",
-          message: "Aadhaar documents uploaded successfully",
-        });
-        if (onNext) onNext();
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to upload Aadhaar documents",
-        });
-      }
+      await dispatch(uploadAadhaarDocuments(frontImage, backImage, companyData, token));
     } catch (error) {
       console.error("Error uploading Aadhaar:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to upload Aadhaar documents",
-      });
     } finally {
       setIsUploading(false);
     }
   };
+
+  // Handle Redux state changes for Aadhaar upload
+  useEffect(() => {
+    const response = retailerOnboardingState?.uploadAadhaarResponse;
+    const error = retailerOnboardingState?.uploadAadhaarError;
+    
+    if (response?.status === "SUCCESS") {
+      if (setFormData) {
+        setFormData((d) => ({
+          ...d,
+          aadhaarDocFetched: true,
+          digilockerLinked: true,
+          aadhaarFront: frontImage,
+          aadhaarBack: backImage,
+        }));
+      }
+      showNotification({
+        type: "success",
+        message: response?.message || "Aadhaar documents uploaded successfully",
+      });
+      if (onNext) onNext();
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to upload Aadhaar documents",
+      });
+    }
+  }, [retailerOnboardingState?.uploadAadhaarResponse, retailerOnboardingState?.uploadAadhaarError, frontImage, backImage, setFormData, onNext, showNotification]);
 
   return (
     <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">

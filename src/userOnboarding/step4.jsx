@@ -1,20 +1,21 @@
 import { useState, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_ROUTE } from "./../data/env";
 import { useCompany } from "./../context/CompanyContext";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
+import { connectPanVerification, downloadPanDocument, uploadPanDocument } from "../redux/action/retailerOnboardingAction";
 
 function RetailerPan({ setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
+  const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
 
   const [isVerified, setIsVerified] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -88,92 +89,54 @@ function RetailerPan({ setFormData, onNext }) {
     }
 
     setIsConnecting(true);
+    const redirect_url = getRedirectUrl();
+    
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const redirect_url = getRedirectUrl();
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/connectPanVerification`,
-        { redirect_url },
-        { headers }
-      );
-
-      const { status, data, message } = response?.data ?? {};
-
-      if (status === "SUCCESS" && data?.url) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-          sessionStorage.setItem("redirectToPan", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        window.location.href = data.url;
-      } else if (status === "SUCCESS" && data?.isDownload === true) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: message || "PAN verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: message || response?.data?.message || "Failed to connect PAN verification",
-        });
-      }
+      await dispatch(connectPanVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting PAN:", error);
-      const errorResponse = error?.response?.data;
-      const errorMessage = errorResponse?.message || error?.message || "Failed to connect PAN verification";
-      
-      if (errorResponse?.status === "SUCCESS" && errorResponse?.data?.isDownload === true) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: errorResponse?.message || "PAN verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: errorMessage,
-        });
-      }
     } finally {
       setIsConnecting(false);
     }
   };
+
+  // Handle Redux state changes for PAN connection
+  useEffect(() => {
+    const response = retailerOnboardingState?.panConnectionResponse;
+    const error = retailerOnboardingState?.panConnectionError;
+    
+    if (response?.status === "SUCCESS" && response?.data?.url) {
+      try {
+        localStorage.setItem("movePan", "true");
+        localStorage.setItem("panConnected", "true");
+        sessionStorage.setItem("redirectToPan", "true");
+      } catch (e) {
+        console.error("Error storing pan connection status:", e);
+      }
+
+      setIsVerified(true);
+      window.location.href = response.data.url;
+    } else if (response?.status === "SUCCESS" && response?.data?.isDownload === true) {
+      try {
+        localStorage.setItem("movePan", "true");
+        localStorage.setItem("panConnected", "true");
+      } catch (e) {
+        console.error("Error storing pan connection status:", e);
+      }
+
+      setIsVerified(true);
+      
+      showNotification({
+        type: "info",
+        message: response?.message || "PAN verification already processed. You can download now.",
+      });
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to connect PAN verification",
+      });
+    }
+  }, [retailerOnboardingState?.panConnectionResponse, retailerOnboardingState?.panConnectionError, showNotification]);
 
   // Handle Download
   const handleDownload = async () => {
@@ -196,55 +159,35 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsDownloading(true);
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/getDigilockerDocuments`,
-        { document_type: "PAN" },
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        setIsDownloaded(true);
-        showNotification({
-          type: "success",
-          message: "PAN document downloaded successfully",
-        });
-        if (isVerified && !showImageUpload) {
-          setShowImageUpload(true);
-        }
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to download PAN document",
-        });
-      }
+      await dispatch(downloadPanDocument(companyData, token));
     } catch (error) {
       console.error("Error downloading PAN:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to download PAN document",
-      });
     } finally {
       setIsDownloading(false);
     }
   };
+
+  // Handle Redux state changes for PAN download
+  useEffect(() => {
+    const response = retailerOnboardingState?.downloadPanResponse;
+    const error = retailerOnboardingState?.downloadPanError;
+    
+    if (response?.status === "SUCCESS") {
+      setIsDownloaded(true);
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN document downloaded successfully",
+      });
+      if (isVerified && !showImageUpload) {
+        setShowImageUpload(true);
+      }
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to download PAN document",
+      });
+    }
+  }, [retailerOnboardingState?.downloadPanResponse, retailerOnboardingState?.downloadPanError, isVerified, showImageUpload, showNotification]);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -307,63 +250,40 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("front_photo", panImage);
-
-      const headers = {
-        "Content-Type": "multipart/form-data",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/uploadPanDocuments`,
-        formData,
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        if (setFormData) {
-          setFormData((d) => ({
-            ...d,
-            panDocFetched: true,
-            digilockerLinked: true,
-            panFront: panImage,
-          }));
-        }
-        showNotification({
-          type: "success",
-          message: "PAN document uploaded successfully",
-        });
-        if (onNext) onNext();
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to upload PAN document",
-        });
-      }
+      await dispatch(uploadPanDocument(panImage, companyData, token));
     } catch (error) {
       console.error("Error uploading PAN:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to upload PAN document",
-      });
     } finally {
       setIsUploading(false);
     }
   };
+
+  // Handle Redux state changes for PAN upload
+  useEffect(() => {
+    const response = retailerOnboardingState?.uploadPanResponse;
+    const error = retailerOnboardingState?.uploadPanError;
+    
+    if (response?.status === "SUCCESS") {
+      if (setFormData) {
+        setFormData((d) => ({
+          ...d,
+          panDocFetched: true,
+          digilockerLinked: true,
+          panFront: panImage,
+        }));
+      }
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN document uploaded successfully",
+      });
+      if (onNext) onNext();
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to upload PAN document",
+      });
+    }
+  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, onNext, showNotification]);
 
   return (
     <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
