@@ -26,7 +26,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Check for aadhaar connection status on mount
+  // Check for aadhaar connection status on mount and validate token
   useEffect(() => {
     try {
       // Check multiple storage locations for aadhaar connection status
@@ -42,15 +42,51 @@ function RetailerAadhaar({ setFormData, onNext }) {
           sessionStorage.removeItem("redirectToaddhar");
         }
       }
+      
+      // Validate token exists on mount
+      const token = getToken();
+      if (!token) {
+        console.warn("Step3: Token not found on mount. User may need to complete mobile verification first.");
+        showNotification({
+          type: "warning",
+          message: "Please complete mobile verification first to continue with Aadhaar verification.",
+        });
+      } else {
+        console.log("Step3: Token validated successfully on mount");
+      }
     } catch (e) {
       console.error("Error checking aadhaar connection status:", e);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Get token from secureLocalStorage
+  // Get token from secureLocalStorage or Redux state
   const getToken = () => {
     try {
-      return secureLocalStorage.getItem("onboardingToken");
+      // First try secureLocalStorage
+      const tokenFromStorage = secureLocalStorage.getItem("onboardingToken");
+      if (tokenFromStorage) {
+        console.log("Token found in secureLocalStorage");
+        return tokenFromStorage;
+      }
+      
+      // Fallback: Check Redux state for token from mobile verification
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                             retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("Token found in Redux state, storing in secureLocalStorage");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          return tokenFromRedux;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+          return tokenFromRedux; // Return it anyway
+        }
+      }
+      
+      console.warn("No token found in secureLocalStorage or Redux state");
+      return null;
     } catch (e) {
       console.error("Error getting token:", e);
       return null;
@@ -83,21 +119,48 @@ function RetailerAadhaar({ setFormData, onNext }) {
   // Handle Verify/Connect
   const handleVerify = async () => {
     const token = getToken();
+    console.log("handleVerify - Token check:", token ? "present" : "missing");
+    
     if (!token) {
+      console.error("handleVerify - Token is missing. Checking all possible sources...");
+      
+      // Try to get token from Redux one more time
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                           retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("handleVerify - Found token in Redux, storing it");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          // Retry with the token from Redux
+          const redirect_url = getRedirectUrl();
+          setIsConnecting(true);
+          await dispatch(connectAadhaarVerification(redirect_url, companyData, tokenFromRedux));
+          return;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+        }
+      }
+      
       showNotification({
         type: "error",
-        message: "Token is missing. Please try again.",
+        message: "Token is missing. Please complete mobile verification first and try again.",
       });
       return;
     }
 
     setIsConnecting(true);
     const redirect_url = getRedirectUrl();
+    console.log("handleVerify - Calling connectAadhaarVerification with redirect_url:", redirect_url);
     
     try {
       await dispatch(connectAadhaarVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting Aadhaar:", error);
+      showNotification({
+        type: "error",
+        message: "Failed to connect Aadhaar verification. Please try again.",
+      });
     } finally {
       setIsConnecting(false);
     }

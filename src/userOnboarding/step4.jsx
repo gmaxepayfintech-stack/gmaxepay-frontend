@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCompany } from "./../context/CompanyContext";
 import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
@@ -8,7 +8,6 @@ import { connectPanVerification, downloadPanDocument, uploadPanDocument } from "
 
 function RetailerPan({ setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -25,7 +24,7 @@ function RetailerPan({ setFormData, onNext }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Check for pan connection status on mount
+  // Check for pan connection status on mount and validate token
   useEffect(() => {
     try {
       const movePan = localStorage.getItem("movePan");
@@ -38,15 +37,51 @@ function RetailerPan({ setFormData, onNext }) {
           sessionStorage.removeItem("redirectToPan");
         }
       }
+      
+      // Validate token exists on mount
+      const token = getToken();
+      if (!token) {
+        console.warn("Step4: Token not found on mount. User may need to complete mobile verification first.");
+        showNotification({
+          type: "warning",
+          message: "Please complete mobile verification first to continue with PAN verification.",
+        });
+      } else {
+        console.log("Step4: Token validated successfully on mount");
+      }
     } catch (e) {
       console.error("Error checking pan connection status:", e);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Get token from secureLocalStorage
+  // Get token from secureLocalStorage or Redux state
   const getToken = () => {
     try {
-      return secureLocalStorage.getItem("onboardingToken");
+      // First try secureLocalStorage
+      const tokenFromStorage = secureLocalStorage.getItem("onboardingToken");
+      if (tokenFromStorage) {
+        console.log("Token found in secureLocalStorage");
+        return tokenFromStorage;
+      }
+      
+      // Fallback: Check Redux state for token from mobile verification
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                             retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("Token found in Redux state, storing in secureLocalStorage");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          return tokenFromRedux;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+          return tokenFromRedux; // Return it anyway
+        }
+      }
+      
+      console.warn("No token found in secureLocalStorage or Redux state");
+      return null;
     } catch (e) {
       console.error("Error getting token:", e);
       return null;
@@ -79,21 +114,48 @@ function RetailerPan({ setFormData, onNext }) {
   // Handle Verify/Connect
   const handleVerify = async () => {
     const token = getToken();
+    console.log("handleVerify - Token check:", token ? "present" : "missing");
+    
     if (!token) {
+      console.error("handleVerify - Token is missing. Checking all possible sources...");
+      
+      // Try to get token from Redux one more time
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                           retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("handleVerify - Found token in Redux, storing it");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          // Retry with the token from Redux
+          const redirect_url = getRedirectUrl();
+          setIsConnecting(true);
+          await dispatch(connectPanVerification(redirect_url, companyData, tokenFromRedux));
+          return;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+        }
+      }
+      
       showNotification({
         type: "error",
-        message: "Token is missing. Please try again.",
+        message: "Token is missing. Please complete mobile verification first and try again.",
       });
       return;
     }
 
     setIsConnecting(true);
     const redirect_url = getRedirectUrl();
+    console.log("handleVerify - Calling connectPanVerification with redirect_url:", redirect_url);
     
     try {
       await dispatch(connectPanVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting PAN:", error);
+      showNotification({
+        type: "error",
+        message: "Failed to connect PAN verification. Please try again.",
+      });
     } finally {
       setIsConnecting(false);
     }
@@ -105,15 +167,23 @@ function RetailerPan({ setFormData, onNext }) {
     const error = retailerOnboardingState?.panConnectionError;
     
     if (response?.status === "SUCCESS" && response?.data?.url) {
+      // Store pan connection status in localStorage BEFORE redirect
+      // This ensures when user comes back from DigiLocker, they land on step4
       try {
         localStorage.setItem("movePan", "true");
         localStorage.setItem("panConnected", "true");
         sessionStorage.setItem("redirectToPan", "true");
+        console.log("PAN flags set - will redirect back to step4");
       } catch (e) {
         console.error("Error storing pan connection status:", e);
       }
 
+      // Mark as verified before redirect
       setIsVerified(true);
+
+      // Navigate to DigiLocker - when user returns, they'll come back to /unity/:referCode
+      // and index.jsx will detect the flags and show step4 directly
+      console.log("Redirecting to DigiLocker:", response.data.url);
       window.location.href = response.data.url;
     } else if (response?.status === "SUCCESS" && response?.data?.isDownload === true) {
       try {
@@ -284,13 +354,13 @@ function RetailerPan({ setFormData, onNext }) {
         message: response?.message || "PAN document uploaded successfully",
       });
 
-      // Navigate to /unity/:referCode after a short delay
+      // Redirect to KYC index page using window.location.href
       setTimeout(() => {
         const referCode = getReferCode();
         if (referCode) {
-          navigate(`/unity/${referCode}`);
+          window.location.href = `/unity/${referCode}`;
         } else {
-          navigate(`/unity`);
+          window.location.href = `/unity`;
         }
       }, 500);
     } else if (error) {
@@ -300,7 +370,7 @@ function RetailerPan({ setFormData, onNext }) {
         message: typeof error === "string" ? error : error?.message || "Failed to upload PAN document",
       });
     }
-  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification, navigate]);
+  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification]);
 
   return (
     <>
