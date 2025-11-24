@@ -403,7 +403,30 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
   const isCompleted = formData.completed || onboardingStatus?.allCompleted || false;
 
-  const getStepIcon = (key) => {
+  const getStepIcon = (key, status = "pending") => {
+    // If status is "completed", return completed icons
+    if (status === "completed") {
+      switch (key) {
+        case "mobileVerification":
+          return "/img/green-mobile.png";
+        case "emailVerification":
+          return "/img/completedMail.png";
+        case "aadharVerification":
+          return "/img/AadhaarCompleted.png";
+        case "panVerification":
+          return "/img/PanCompleted.png";
+        case "shopDetails":
+          return "/img/completedShopDetails.png";
+        case "bankVerification":
+          return "/img/completedBankVerification.png";
+        case "profile":
+          return "/img/completedProfile.png";
+        default:
+          return "/img/Profile.png";
+      }
+    }
+    
+    // For pending and in-progress, return regular icons
     switch (key) {
       case "mobileVerification":
         return "/img/green-mobile.png";
@@ -551,6 +574,14 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                 {STEP_INFO.map((step, idx) => {
                   const done = isStepDone(step, idx);
                   const active = currentStep === idx + 1;
+                  
+                  // Determine icon status
+                  let iconStatus = "pending";
+                  if (done) {
+                    iconStatus = "completed";
+                  } else if (active) {
+                    iconStatus = "in-progress";
+                  }
 
                   return (
                     <div
@@ -572,7 +603,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                       }`}
                     >
                       <img
-                        src={getStepIcon(step.key)}
+                        src={getStepIcon(step.key, iconStatus)}
                         className="w-8 h-8 md:w-10 md:h-10"
                         alt=""
                       />
