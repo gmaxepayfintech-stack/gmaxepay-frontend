@@ -517,10 +517,42 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                 </svg>
               </div>
-              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-2">Completed KYC</h2>
-              <p className="text-gray-600 mt-2 text-sm sm:text-base md:text-lg">
-                Thank you! Your onboarding is complete.
+              <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-2">KYC Completed</h2>
+              <p className="text-gray-600 mt-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg px-4">
+                Temporary password has been sent to your registered email.
               </p>
+              <button
+                onClick={() => {
+                  try {
+                    // Remove localStorage items
+                    // Remove secureLocalStorage items
+                    secureLocalStorage.removeItem("onboardingToken");
+                    
+                    // Navigate to login page
+                    window.location.href = "/auth/login";
+                  } catch (e) {
+                    console.error("Error clearing storage and navigating:", e);
+                    // Still navigate even if clearing storage fails
+                    window.location.href = "/auth/login";
+                  }
+                }}
+                className="
+                  bg-[#039155] 
+                  text-white 
+                  px-6 sm:px-8 md:px-10 
+                  py-3 sm:py-3.5 md:py-4 
+                  rounded-lg sm:rounded-xl 
+                  font-semibold 
+                  text-base sm:text-lg md:text-xl 
+                  hover:bg-green-700 
+                  transition-all 
+                  shadow-md 
+                  hover:shadow-lg
+                  active:scale-95
+                "
+              >
+                Welcome
+              </button>
             </div>
           )}
         </div>
