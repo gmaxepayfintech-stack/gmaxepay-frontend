@@ -96,6 +96,8 @@ const DashboardLayout = ({ children }) => {
       children: [
         { name: "Users", path: "/superDashboard/members/add" },
         { name: "Agents", path: "/superDashboard/members/list" },
+        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
+
       ],
     },
     {
@@ -108,8 +110,17 @@ const DashboardLayout = ({ children }) => {
       ],
     },
     {
-      name: "Fund Manage",
+      name: "Resources",
       icon: MaskGroup3,
+      dropdown: true,
+      children: [
+        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
+        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
+      ],
+    },
+    {
+      name: "Fund Manage",
+      icon: MaskGroup4,
       dropdown: true,
       children: [
         { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
@@ -121,7 +132,7 @@ const DashboardLayout = ({ children }) => {
     },
     {
       name: "Txn History",
-      icon: MaskGroup4,
+      icon: MaskGroup5,
       dropdown: true,
       children: [
         { name: "Transaction List", path: "/superDashboard/txn-history/list" },
@@ -149,9 +160,8 @@ const DashboardLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -178,19 +188,17 @@ const DashboardLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
-                    isActiveParent
-                      ? "bg-[#039155] text-white shadow-md"
-                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                  }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
+                    ? "bg-[#039155] text-white shadow-md"
+                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${
-                        isActiveParent ? "filter brightness-0 invert" : ""
-                      }`}
+                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
+                        }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -232,11 +240,10 @@ const DashboardLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
-                              isChildPathActive
-                                ? "text-[#039155] font-semibold"
-                                : "text-gray-700"
-                            }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
+                              ? "text-[#039155] font-semibold"
+                              : "text-gray-700"
+                              }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"

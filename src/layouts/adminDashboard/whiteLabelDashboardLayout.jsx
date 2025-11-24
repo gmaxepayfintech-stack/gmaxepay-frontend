@@ -167,6 +167,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
       ],
     },
+    {
+      name: "Onboarding",
+      icon: MaskGroup1,
+      path: "/adminDashboard/onboarding",
+      dropdown: false,
+    },
   ];
 
   return (
