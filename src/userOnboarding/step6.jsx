@@ -2,7 +2,7 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { postBankDetails } from "../redux/action/retailerOnboardingAction";
 import { useCompany } from "../context/CompanyContext";
 import { useNotification } from "../context/NotificationContext";
@@ -11,7 +11,6 @@ import secureLocalStorage from "react-secure-storage";
 function Step6({ formData, setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
@@ -52,13 +51,13 @@ function Step6({ formData, setFormData, onNext }) {
           message: "Bank details verified successfully",
         });
 
-        // Navigate to unity page with referCode if available after a short delay
+        // Redirect to KYC index page using window.location.href
         setTimeout(() => {
           const referCode = getReferCode();
           if (referCode) {
-            navigate(`/unity/${referCode}`);
+            window.location.href = `/unity/${referCode}`;
           } else {
-            navigate(`/unity`);
+            window.location.href = `/unity`;
           }
         }, 500);
       }
