@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { useCompany } from "../../context/CompanyContext";
 import { getPendingSteps } from "../../redux/action/retailerOnboardingAction";
@@ -59,6 +59,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   const [showSteps, setShowSteps] = useState(true);
   const [pendingStepsData, setPendingStepsData] = useState(null);
   const [isLoadingPending, setIsLoadingPending] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
+  const [wasShowingSteps, setWasShowingSteps] = useState(true);
+  const isInitialMount = useRef(true);
 
   // Redux state
   const getPendingResponse = useSelector((state) => state?.retailerOnboarding?.getPendingResponse);
@@ -236,6 +239,27 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
     }
   }, [getPendingResponse, getPendingError]);
 
+  // Handle reload when coming back to steps page
+  useEffect(() => {
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      setWasShowingSteps(showSteps);
+      return;
+    }
+
+    // If showSteps changed from false to true (coming back from a step)
+    if (showSteps && !wasShowingSteps) {
+      setIsReloading(true);
+      // Small delay to show loader, then reload
+      setTimeout(() => {
+        window.location.reload();
+      }, 500);
+    }
+    // Update the previous state
+    setWasShowingSteps(showSteps);
+  }, [showSteps, wasShowingSteps]);
+
   const next = () => {
     const newStep = Math.min(7, currentStep + 1);
     setCurrentStep(newStep);
@@ -319,11 +343,35 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   };
 
   return (
-    <div
-      className={`bg-gray-50 flex justify-center px-3 md:px-0 ${
-        !showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
-      }`}
-    >
+    <>
+      {/* Reloading Loader */}
+      {isReloading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
+            {/* Animated Spinner */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            
+            {/* Loading Message */}
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                Reloading
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
+                Please wait while we refresh your progress...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${
+          !showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
+        }`}
+      >
       <div
         className={`w-full max-w-[1450px] ${
           !showSteps ? "h-full flex flex-col overflow-hidden" : ""
@@ -515,6 +563,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
         )}
       </div>
     </div>
+    </>
   );
 }
 

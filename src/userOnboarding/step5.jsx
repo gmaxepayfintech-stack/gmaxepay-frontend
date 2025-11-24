@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { postShopDetails } from '../redux/action/retailerOnboardingAction';
 import { getLocationAndIP } from '../util/getLocationAndIP';
 import { useCompany } from '../context/CompanyContext';
@@ -10,7 +10,6 @@ import secureLocalStorage from 'react-secure-storage';
 function Step5({ formData, setFormData, onComplete }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
@@ -213,17 +212,18 @@ function Step5({ formData, setFormData, onComplete }) {
         message: postShopDetailsMessage || postShopDetailsResponse?.message || "Shop details saved successfully",
       });
 
-      // Navigate to unity page with referCode if available
+      // Navigate back to Complete Your KYC page with reload
+      // Using window.location.href to trigger full page reload
       const referCode = getReferCode();
       setTimeout(() => {
         if (referCode) {
-          navigate(`/unity/${referCode}`);
+          window.location.href = `/unity/${referCode}`;
         } else {
-          navigate(`/unity`);
+          window.location.href = `/unity`;
         }
       }, 500); // Small delay to show notification
     }
-  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, navigate, showNotification]);
+  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, showNotification]);
 
   // Handle error notifications
   useEffect(() => {
