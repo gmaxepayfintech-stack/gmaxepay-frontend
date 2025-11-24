@@ -59,14 +59,6 @@ function Step6({ formData, setFormData, onNext }) {
       const isVerified = formData.ifscVerified || bankDetailsStatus === "SUCCESS";
       const hasBeneficiaryName = formik.values.beneficiaryName || formData.beneficiaryName;
 
-      console.log("Step6 Next button clicked - Verification status:", {
-        ifscVerified: formData.ifscVerified,
-        bankDetailsStatus,
-        beneficiaryName: formik.values.beneficiaryName,
-        formDataBeneficiaryName: formData.beneficiaryName,
-        isVerified,
-        hasBeneficiaryName
-      });
 
       if (isVerified && hasBeneficiaryName) {
         // Show success notification

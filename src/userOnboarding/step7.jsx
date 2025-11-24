@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCompany } from "./../context/CompanyContext";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
@@ -8,7 +8,6 @@ import { postProfile } from "../redux/action/retailerOnboardingAction";
 
 function Step7({ formData, setFormData, onComplete }) {
   const { referCode: urlReferralCode } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -181,20 +180,21 @@ function Step7({ formData, setFormData, onComplete }) {
         setFormData((d) => ({ ...d, completed: true }));
       }
 
+      // Show success notification first
       showNotification({
         type: "success",
         message: response?.message || "Profile uploaded successfully",
       });
 
-      // Navigate to /unity/{referCode} or /unity after a short delay
+      // Redirect to KYC index page using window.location.href after 3 seconds
       setTimeout(() => {
         const referCode = getReferCode();
         if (referCode) {
-          navigate(`/unity/${referCode}`);
+          window.location.href = `/unity/${referCode}`;
         } else {
-          navigate("/unity");
+          window.location.href = `/unity`;
         }
-      }, 500);
+      }, 3000); // 3 seconds delay
 
       if (onComplete) onComplete();
     } else if (error) {
@@ -203,7 +203,7 @@ function Step7({ formData, setFormData, onComplete }) {
         message: typeof error === "string" ? error : error?.message || "Failed to upload profile",
       });
     }
-  }, [retailerOnboardingState?.postProfileResponse, retailerOnboardingState?.postProfileError, setFormData, onComplete, navigate, showNotification]);
+  }, [retailerOnboardingState?.postProfileResponse, retailerOnboardingState?.postProfileError, setFormData, onComplete, showNotification]);
 
   useEffect(() => {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
