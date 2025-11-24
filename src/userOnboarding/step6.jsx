@@ -46,13 +46,21 @@ function Step6({ formData, setFormData, onNext }) {
       }
 
       if (formData.ifscVerified && formik.values.beneficiaryName) {
-        // Navigate to unity page with referCode if available
-        const referCode = getReferCode();
-        if (referCode) {
-          navigate(`/unity/${referCode}`);
-        } else {
-          navigate(`/unity`);
-        }
+        // Show success notification
+        showNotification({
+          type: "success",
+          message: "Bank details verified successfully",
+        });
+
+        // Navigate to unity page with referCode if available after a short delay
+        setTimeout(() => {
+          const referCode = getReferCode();
+          if (referCode) {
+            navigate(`/unity/${referCode}`);
+          } else {
+            navigate(`/unity`);
+          }
+        }, 500);
       }
     },
   });

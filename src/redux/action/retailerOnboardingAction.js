@@ -127,7 +127,6 @@ export const mobileOtpResponse = (values, companyData) => async (dispatch) => {
 };
 
 export const otpSubmitResponse = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "application/json",
@@ -179,13 +178,10 @@ export const otpSubmitResponse = (values, companyData, token) => async (dispatch
             type: RETAILER_OTP_SUBMIT_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
 export const emailOtpResponse = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "application/json",
@@ -237,13 +233,10 @@ export const emailOtpResponse = (values, companyData, token) => async (dispatch)
             type: RETAILER_SEND_EMAIL_OTP_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
 export const emailRescendOTP = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "application/json",
@@ -300,13 +293,10 @@ export const emailRescendOTP = (values, companyData, token) => async (dispatch) 
             type: RETAILER_RESEND_EMAIL_OTP_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
 export const submitEmail = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "application/json",
@@ -358,8 +348,6 @@ export const submitEmail = (values, companyData, token) => async (dispatch) => {
             type: RETAILER_SUBMIT_EMAIL_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
@@ -377,7 +365,6 @@ const dataURLtoFile = (dataUrl, filename) => {
 };
 
 export const postShopDetails = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "multipart/form-data",
@@ -456,8 +443,6 @@ export const postShopDetails = (values, companyData, token) => async (dispatch) 
             type: RETAILER_POST_SHOP_DETAILS_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
@@ -798,7 +783,6 @@ export const uploadPanDocument = (panImage, companyData, token) => async (dispat
 
 // Post Bank Details Action
 export const postBankDetails = (values, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         const headers = {
             "Content-Type": "application/json",
@@ -849,14 +833,11 @@ export const postBankDetails = (values, companyData, token) => async (dispatch) 
                 message: error.response?.data?.message || error.message || commonError,
             },
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 
 // Post Profile Action
 export const postProfile = (photoDataUrl, companyData, token) => async (dispatch) => {
-    dispatch({ type: LOADING_START });
     try {
         if (!photoDataUrl) {
             dispatch({
@@ -935,8 +916,6 @@ export const postProfile = (photoDataUrl, companyData, token) => async (dispatch
                 message: error.response?.data?.message || error.message || commonError,
             },
         });
-    } finally {
-        dispatch({ type: LOADING_END });
     }
 };
 

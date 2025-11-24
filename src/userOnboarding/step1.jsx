@@ -2,7 +2,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
@@ -10,7 +9,6 @@ import { useNotification } from "../context/NotificationContext";
 
 function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
@@ -112,6 +110,18 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     };
   }, []);
 
+  // Get referCode helper
+  const getReferCode = () => {
+    if (propReferralCode) return propReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
+
   // Handle OTP submit success - stores data from /api/v1/user/onboarding/verifySmsOtp
   useEffect(() => {
     if (otpSubmitStatus === "SUCCESS" && !successHandled.current && OTPSubmitResponseData) {
@@ -139,19 +149,34 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         console.warn("No response data found in OTPSubmitResponseData:", OTPSubmitResponseData);
       }
 
-      // Mark step 1 as completed and proceed
+      // Mark step 1 as completed
       try {
         setFormData((d) => ({ ...d, otpVerified: true }));
       } catch (e) {
         console.error("Error marking step1 as completed:", e);
       }
-      onNext();
+
+      // Show success notification
+      showNotification({
+        type: "success",
+        message: OTPSubmitResponseData?.message || "Mobile verification successful",
+      });
+
+      // Redirect to KYC index page using window.location.href
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
     }
     // Reset when status changes away from SUCCESS
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, onNext]);
+  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification]);
   useEffect(() => {
     const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
 
@@ -314,33 +339,22 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         setFormData((prev) => ({ ...prev, completed: true }));
       }
 
-      // Navigate to onboarding index page after storing
-      // Use setTimeout to ensure storage is complete before navigation
+      // Redirect to KYC index page using window.location.href
       setTimeout(() => {
-        // Get current path
-        const currentPath = window.location.pathname;
-        const referCode = formData.referralCode;
-        
-        // Navigate to show steps - if we have a referral code, use it in the URL
-        if (referCode && currentPath.includes('/unity')) {
-          // Already on unity route with referral code, just trigger parent update
-          // The parent component will detect the storage change and update
-          window.location.reload();
-        } else if (referCode) {
-          // Navigate to unity route with referral code
-          navigate(`/unity/${referCode}`);
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
         } else {
-          // Navigate to unity route without referral code
-          navigate('/unity');
+          window.location.href = `/unity`;
         }
       }, 200);
     }
-  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, navigate, formData.referralCode]);
+  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification]);
 
   // Start countdown when OTP is sent successfully
   useEffect(() => {
     if (OTPResponseStatus === "SUCCESS" && OTPResponseData?.status !== "verified") {
-      setResendCountdown(30);
+      setResendCountdown(180); // 3 minutes (180 seconds)
     }
   }, [OTPResponseStatus, OTPResponseData]);
 
@@ -440,7 +454,7 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
                 }`}
             >
               {OTPResponseStatus === "SUCCESS" && resendCountdown > 0
-                ? `Resend (${resendCountdown}s)`
+                ? `Resend (${Math.floor(resendCountdown / 60)}:${String(resendCountdown % 60).padStart(2, '0')})`
                 : OTPResponseStatus === "SUCCESS"
                   ? "Resend"
                   : "Verify"}

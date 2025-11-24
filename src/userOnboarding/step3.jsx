@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { useCompany } from "./../context/CompanyContext";
 import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
@@ -8,7 +8,6 @@ import { connectAadhaarVerification, downloadAadhaarDocument, uploadAadhaarDocum
 
 function RetailerAadhaar({ setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
-  const navigate = useNavigate();
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -110,11 +109,13 @@ function RetailerAadhaar({ setFormData, onNext }) {
     const error = retailerOnboardingState?.aadhaarConnectionError;
     
     if (response?.status === "SUCCESS" && response?.data?.url) {
-      // Store aadhaar connection status in localStorage
+      // Store aadhaar connection status in localStorage BEFORE redirect
+      // This ensures when user comes back from DigiLocker, they land on step3
       try {
         localStorage.setItem("moveAadhaar", "true");
         localStorage.setItem("aadhaarConnected", "true");
         sessionStorage.setItem("redirectToaddhar", "true");
+        console.log("Aadhaar flags set - will redirect back to step3");
       } catch (e) {
         console.error("Error storing aadhaar connection status:", e);
       }
@@ -122,7 +123,9 @@ function RetailerAadhaar({ setFormData, onNext }) {
       // Mark as verified before redirect
       setIsVerified(true);
 
-      // Navigate to the redirect URL
+      // Navigate to DigiLocker - when user returns, they'll come back to /unity/:referCode
+      // and index.jsx will detect the flags and show step3 directly
+      console.log("Redirecting to DigiLocker:", response.data.url);
       window.location.href = response.data.url;
     } else if (response?.status === "SUCCESS" && response?.data?.isDownload === true) {
       // Handle "already processed" case - disable verify, enable download
@@ -308,18 +311,52 @@ function RetailerAadhaar({ setFormData, onNext }) {
         type: "success",
         message: response?.message || "Aadhaar documents uploaded successfully",
       });
-      if (onNext) onNext();
+
+      // Redirect to KYC index page using window.location.href
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
     } else if (error) {
+      setIsUploading(false); // Hide loader on error
       showNotification({
         type: "error",
         message: typeof error === "string" ? error : error?.message || "Failed to upload Aadhaar documents",
       });
     }
-  }, [retailerOnboardingState?.uploadAadhaarResponse, retailerOnboardingState?.uploadAadhaarError, frontImage, backImage, setFormData, onNext, showNotification]);
+  }, [retailerOnboardingState?.uploadAadhaarResponse, retailerOnboardingState?.uploadAadhaarError, frontImage, backImage, setFormData, showNotification]);
 
   return (
-    <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
+    <>
+      {/* Loading Overlay for Upload Only */}
+      {isUploading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
+            {/* Animated Spinner */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            
+            {/* Loading Message */}
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                Uploading
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
+                Please wait while we upload your Aadhaar documents...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
+        <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
@@ -643,8 +680,9 @@ function RetailerAadhaar({ setFormData, onNext }) {
 
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

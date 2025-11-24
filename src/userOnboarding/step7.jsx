@@ -186,13 +186,15 @@ function Step7({ formData, setFormData, onComplete }) {
         message: response?.message || "Profile uploaded successfully",
       });
 
-      // Navigate to /unity/{referCode} or /unity
-      const referCode = getReferCode();
-      if (referCode) {
-        navigate(`/unity/${referCode}`);
-      } else {
-        navigate("/unity");
-      }
+      // Navigate to /unity/{referCode} or /unity after a short delay
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          navigate(`/unity/${referCode}`);
+        } else {
+          navigate("/unity");
+        }
+      }, 500);
 
       if (onComplete) onComplete();
     } else if (error) {

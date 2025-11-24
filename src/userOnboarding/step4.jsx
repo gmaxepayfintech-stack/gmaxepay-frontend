@@ -271,22 +271,64 @@ function RetailerPan({ setFormData, onNext }) {
           panFront: panImage,
         }));
       }
+      
+      // Store redirect flag in sessionStorage
+      try {
+        sessionStorage.setItem("panUploadCompleted", "true");
+      } catch (e) {
+        console.error("Error storing pan upload status:", e);
+      }
+
       showNotification({
         type: "success",
         message: response?.message || "PAN document uploaded successfully",
       });
-      if (onNext) onNext();
+
+      // Navigate to /unity/:referCode after a short delay
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          navigate(`/unity/${referCode}`);
+        } else {
+          navigate(`/unity`);
+        }
+      }, 500);
     } else if (error) {
+      setIsUploading(false); // Hide loader on error
       showNotification({
         type: "error",
         message: typeof error === "string" ? error : error?.message || "Failed to upload PAN document",
       });
     }
-  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, onNext, showNotification]);
+  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification, navigate]);
 
   return (
-    <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
+    <>
+      {/* Loading Overlay for Upload Only */}
+      {isUploading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
+            {/* Animated Spinner */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            
+            {/* Loading Message */}
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                Uploading
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
+                Please wait while we upload your PAN document...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
+        <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
@@ -552,8 +594,9 @@ function RetailerPan({ setFormData, onNext }) {
 
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 
