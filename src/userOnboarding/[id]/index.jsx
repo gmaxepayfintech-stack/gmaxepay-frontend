@@ -59,7 +59,6 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   const [showSteps, setShowSteps] = useState(true);
   const [pendingStepsData, setPendingStepsData] = useState(null);
   const [isLoadingPending, setIsLoadingPending] = useState(false);
-  const [isReloading, setIsReloading] = useState(false);
   const [wasShowingSteps, setWasShowingSteps] = useState(true);
   const isInitialMount = useRef(true);
 
@@ -68,6 +67,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   const getPendingError = useSelector((state) => state?.retailerOnboarding?.getPendingError);
   const mobileOtpResponse = useSelector((state) => state?.retailerOnboarding?.OTPResponse);
   const otpSubmitResponse = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse);
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   // Form data
   const [formData, setFormData] = useState({
@@ -147,7 +147,16 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
         
         if (token && companyId && companyDomain && !isLoadingPending && !getPendingResponse) {
           setIsLoadingPending(true);
-          await dispatch(getPendingSteps(companyData, token));
+          // Set a timeout to reset loading state if API takes too long (30 seconds)
+          const timeoutId = setTimeout(() => {
+            setIsLoadingPending(false);
+          }, 30000);
+          
+          try {
+            await dispatch(getPendingSteps(companyData, token));
+          } finally {
+            clearTimeout(timeoutId);
+          }
         } else {
           console.warn("fetchPendingOnMount - Missing required data:", {
             token: !!token,
@@ -191,7 +200,16 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
         if (token && companyId && companyDomain && isMobileVerified && !isLoadingPending && !getPendingResponse) {
           setIsLoadingPending(true);
-          await dispatch(getPendingSteps(companyData, token));
+          // Set a timeout to reset loading state if API takes too long (30 seconds)
+          const timeoutId = setTimeout(() => {
+            setIsLoadingPending(false);
+          }, 30000);
+          
+          try {
+            await dispatch(getPendingSteps(companyData, token));
+          } finally {
+            clearTimeout(timeoutId);
+          }
         } else {
           console.warn("checkAndFetchPending - Missing required data:", {
             token: !!token,
@@ -237,9 +255,14 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       setIsLoadingPending(false);
       console.error("Error fetching pending steps:", getPendingError);
     }
+    
+    // Reset loading state when we have a response (success or error)
+    if (getPendingResponse || getPendingError) {
+      setIsLoadingPending(false);
+    }
   }, [getPendingResponse, getPendingError]);
 
-  // Handle reload when coming back to steps page
+  // Handle when coming back to steps page - no reload needed
   useEffect(() => {
     // Skip on initial mount
     if (isInitialMount.current) {
@@ -248,15 +271,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       return;
     }
 
-    // If showSteps changed from false to true (coming back from a step)
-    if (showSteps && !wasShowingSteps) {
-      setIsReloading(true);
-      // Small delay to show loader, then reload
-      setTimeout(() => {
-        window.location.reload();
-      }, 500);
-    }
-    // Update the previous state
+    // Update the previous state when showSteps changes
     setWasShowingSteps(showSteps);
   }, [showSteps, wasShowingSteps]);
 
@@ -296,6 +311,21 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       default:
         return false;
     }
+  };
+
+  // Check if step is accessible (previous steps must be completed)
+  const isStepAccessible = (stepIndex) => {
+    // Step 1 is always accessible
+    if (stepIndex === 0) return true;
+    
+    // Check if all previous steps are completed
+    for (let i = 0; i < stepIndex; i++) {
+      const prevStep = STEP_INFO[i];
+      if (!isStepDone(prevStep)) {
+        return false;
+      }
+    }
+    return true;
   };
 
   const isCompleted = formData.completed || pendingStepsData?.allCompleted || false;
@@ -344,8 +374,8 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
   return (
     <>
-      {/* Reloading Loader */}
-      {isReloading && (
+      {/* Loading Loader for getPendingSteps API only */}
+      {(isLoadingPending || isLoading) && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
           <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
             {/* Animated Spinner */}
@@ -357,10 +387,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             {/* Loading Message */}
             <div className="text-center">
               <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                Reloading
+                Loading
               </h3>
               <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
-                Please wait while we refresh your progress...
+                Please wait while we fetch your KYC progress...
               </p>
             </div>
           </div>
@@ -383,7 +413,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             !showSteps ? "hidden" : "mb-6"
           }`}
         >
-          {!isCompleted && showSteps && (
+          {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
             <>
               <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center text-[#1B1717] mb-2 md:mb-3">
                 Complete Your KYC
@@ -397,6 +427,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                 {STEP_INFO.map((step, idx) => {
                   const done = isStepDone(step);
                   const active = currentStep === idx + 1;
+                  const accessible = isStepAccessible(idx);
                   
                   let iconStatus = "pending";
                   if (done) {
@@ -409,7 +440,8 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                     <div
                       key={step.key}
                       onClick={() => {
-                        if (!done) {
+                        // Only allow clicking if step is accessible and not already done
+                        if (accessible && !done) {
                           setCurrentStep(idx + 1);
                           setShowSteps(false);
                         }
@@ -417,15 +449,19 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                       className={`flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border shadow-sm transition-all ${
                         done 
                           ? "cursor-default bg-green-50 border-green-300" 
-                          : "cursor-pointer hover:shadow-md"
+                          : accessible
+                          ? "cursor-pointer hover:shadow-md"
+                          : "cursor-not-allowed opacity-50 bg-gray-100 border-gray-200"
                       } ${
                         done
                           ? "bg-green-50 border-green-300"
-                          : active
+                          : active && accessible
                           ? "bg-white border-gray-300 ring-2 ring-offset-2"
-                          : "bg-white border-gray-200"
+                          : accessible
+                          ? "bg-white border-gray-200"
+                          : "bg-gray-100 border-gray-200"
                       }`}
-                      style={active && !done ? { ringColor: primaryColor } : {}}
+                      style={active && !done && accessible ? { ringColor: primaryColor } : {}}
                     >
                       <img
                         src={getStepIcon(step.key, iconStatus)}
@@ -458,9 +494,11 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                         </div>
                       ) : (
                         <div className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 border rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base flex-shrink-0 ${
-                          active 
+                          accessible && active
                             ? `border-green-500 text-green-600 bg-green-50` 
-                            : "border-gray-300 text-gray-400"
+                            : accessible
+                            ? "border-gray-300 text-gray-400"
+                            : "border-gray-200 text-gray-300"
                         }`}>
                           {idx + 1}
                         </div>

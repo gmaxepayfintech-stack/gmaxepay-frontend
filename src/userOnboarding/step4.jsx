@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import { useParams, useNavigate } from "react-router-dom";
 import { useCompany } from "./../context/CompanyContext";
 import { useSelector, useDispatch } from "react-redux";
@@ -551,29 +550,6 @@ function RetailerPan({ setFormData, onNext }) {
               {isUploading ? "Uploading..." : "Submit"}
             </button>
 
-            {/* Auto Verification Loader Overlay */}
-            {isUploading && createPortal(
-              <div className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
-                <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
-                  {/* Animated Spinner */}
-                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
-                    <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-                    <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                  
-                  {/* Verification Message */}
-                  <div className="text-center">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                      Auto Verifying
-                    </h3>
-                    <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
-                      We are auto verifying your PAN details based on eKYC
-                    </p>
-                  </div>
-                </div>
-              </div>,
-              document.body
-            )}
           </div>
         )}
       </div>

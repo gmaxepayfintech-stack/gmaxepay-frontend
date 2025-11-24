@@ -947,13 +947,6 @@ export const getPendingSteps = (companyData, token) => async (dispatch) => {
         // Validate required data
         const companyId = companyData?.companyId || companyData?._id || companyData?.id;
         const companyDomain = companyData?.domain || companyData?.companyDomain;
-
-        // Log company data for debugging
-        console.log("getPendingSteps - companyData:", companyData);
-        console.log("getPendingSteps - companyId:", companyId);
-        console.log("getPendingSteps - companyDomain:", companyDomain);
-        console.log("getPendingSteps - token:", token ? "present" : "missing");
-
         if (!companyId) {
             const errorMsg = "Company ID is required. Please ensure company data is loaded.";
             console.error("getPendingSteps - Error:", errorMsg);
@@ -999,10 +992,6 @@ export const getPendingSteps = (companyData, token) => async (dispatch) => {
             "x-company-domain": companyDomain,
             "token": token,
         };
-
-        // Log the request details for debugging
-        console.log("getPendingSteps - Headers:", headers);
-        console.log("getPendingSteps - API Route:", `${API_ROUTE}/api/v1/user/onboarding/getPending`);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/getPending`,
