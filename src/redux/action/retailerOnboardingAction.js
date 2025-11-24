@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_ROUTE } from "../../data/env";
 
-import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_SUBMIT_EMAIL_FAILURE, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_SUBMIT_EMAIL_FAILURE, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE } from "../actionType/retailerOnboardingActionType";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
@@ -844,6 +844,92 @@ export const postBankDetails = (values, companyData, token) => async (dispatch) 
     } catch (error) {
         dispatch({
             type: RETAILER_POST_BANK_DETAILS_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: error.response?.data?.message || error.message || commonError,
+            },
+        });
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+// Post Profile Action
+export const postProfile = (photoDataUrl, companyData, token) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        if (!photoDataUrl) {
+            dispatch({
+                type: RETAILER_POST_PROFILE_FAILURE,
+                payload: {
+                    status: "FAILURE",
+                    message: "Profile image is required",
+                },
+            });
+            return;
+        }
+
+        // Convert dataURL to File
+        const arr = photoDataUrl.split(",");
+        const mime = arr[0].match(/:(.*?);/)[1];
+        const bstr = atob(arr[1]);
+        let n = bstr.length;
+        const u8arr = new Uint8Array(n);
+        while (n--) {
+            u8arr[n] = bstr.charCodeAt(n);
+        }
+        const photoFile = new File([u8arr], "photo.jpg", { type: mime });
+
+        const formData = new FormData();
+        formData.append("photo", photoFile);
+
+        const headers = {
+            "Content-Type": "multipart/form-data",
+        };
+
+        if (companyData?.companyId || companyData?._id || companyData?.id) {
+            headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
+        }
+
+        if (companyData?.domain || companyData?.companyDomain) {
+            headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
+        }
+
+        if (token) {
+            headers["token"] = token;
+        }
+
+        // Log the request body and headers
+        console.log("postProfile - FormData values:", {
+            photo: photoFile ? "present" : "missing"
+        });
+        console.log("postProfile - Headers:", headers);
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/onboarding/postProfile`,
+            formData,
+            { headers }
+        );
+
+        const { data: profileResponse, status, message } = response?.data ?? {};
+
+        if (status === "SUCCESS") {
+            dispatch({
+                type: RETAILER_POST_PROFILE_SUCCESS,
+                payload: { profileResponse, status, message, data: response?.data?.data },
+            });
+        } else {
+            dispatch({
+                type: RETAILER_POST_PROFILE_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message || commonError,
+                },
+            });
+        }
+    } catch (error) {
+        dispatch({
+            type: RETAILER_POST_PROFILE_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: error.response?.data?.message || error.message || commonError,

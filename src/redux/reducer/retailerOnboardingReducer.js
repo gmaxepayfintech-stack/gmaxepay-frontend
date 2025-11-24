@@ -1,4 +1,4 @@
-import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE } from "../actionType/retailerOnboardingActionType";
 
 // Restore state from localStorage if available
 const getInitialState = () => {
@@ -67,6 +67,12 @@ const getInitialState = () => {
         bankDetailsResponse: null,
         bankDetailsError: null,
         bankDetailsStatus: null,
+        // Profile state
+        postProfileResponse: null,
+        postProfileError: null,
+        postProfileLoading: false,
+        postProfileSuccess: false,
+        postProfileMessage: "",
     };
 };
 
@@ -331,6 +337,35 @@ const retailerOnboardingReducer = (state = initialState, action) => {
                 Success: "FAILURE",
                 status: "FAILURE",
                 message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to verify bank details",
+            };
+
+        // Profile Cases
+        case RETAILER_POST_PROFILE_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                postProfileResponse: action.payload,
+                postProfileError: null,
+                postProfileLoading: false,
+                postProfileSuccess: true,
+                postProfileMessage: action.payload?.message || "Profile uploaded successfully",
+                Success: action.payload.status,
+                status: action.payload.status,
+                message: action.payload.message,
+            };
+
+        case RETAILER_POST_PROFILE_FAILURE:
+            return {
+                ...state,
+                error: action.payload,
+                postProfileResponse: null,
+                postProfileError: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to upload profile",
+                postProfileLoading: false,
+                postProfileSuccess: false,
+                postProfileMessage: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to upload profile",
+                Success: "FAILURE",
+                status: "FAILURE",
+                message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to upload profile",
             };
         
         default:
