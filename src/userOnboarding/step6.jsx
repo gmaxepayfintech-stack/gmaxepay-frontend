@@ -16,6 +16,17 @@ function Step6({ formData, setFormData, onNext }) {
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
 
+  // Get bank details status from Redux (needed in onSubmit)
+  const bankDetailsStatus = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsStatus
+  );
+  const bankDetailsResponse = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsResponse
+  );
+  const bankDetailsError = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsError
+  );
+
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
       .matches(/^\d{9,18}$/, "Account number must be 9-18 digits")
@@ -44,22 +55,39 @@ function Step6({ formData, setFormData, onNext }) {
         return;
       }
 
-      if (formData.ifscVerified && formik.values.beneficiaryName) {
+      // Check if bank details are verified - check multiple sources
+      const isVerified = formData.ifscVerified || bankDetailsStatus === "SUCCESS";
+      const hasBeneficiaryName = formik.values.beneficiaryName || formData.beneficiaryName;
+
+      console.log("Step6 Next button clicked - Verification status:", {
+        ifscVerified: formData.ifscVerified,
+        bankDetailsStatus,
+        beneficiaryName: formik.values.beneficiaryName,
+        formDataBeneficiaryName: formData.beneficiaryName,
+        isVerified,
+        hasBeneficiaryName
+      });
+
+      if (isVerified && hasBeneficiaryName) {
         // Show success notification
         showNotification({
           type: "success",
           message: "Bank details verified successfully",
         });
 
-        // Redirect to KYC index page using window.location.href
-        setTimeout(() => {
-          const referCode = getReferCode();
-          if (referCode) {
-            window.location.href = `/unity/${referCode}`;
-          } else {
-            window.location.href = `/unity`;
-          }
-        }, 500);
+        // Redirect to KYC index page using window.location.href immediately
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      } else {
+        // If not verified, show error
+        showNotification({
+          type: "error",
+          message: "Please verify bank details first by clicking the Verify button",
+        });
       }
     },
   });
@@ -120,16 +148,6 @@ function Step6({ formData, setFormData, onNext }) {
       );
     }
   };
-
-  const bankDetailsStatus = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsStatus
-  );
-  const bankDetailsResponse = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsResponse
-  );
-  const bankDetailsError = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsError
-  );
 
   useEffect(() => {
     if (bankDetailsStatus === "SUCCESS" && bankDetailsResponse) {
