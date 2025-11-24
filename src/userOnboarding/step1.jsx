@@ -135,28 +135,6 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         } else {
           console.warn("No userToken found in verifySmsOtp response:", responseData);
         }
-
-        // Store steps array in secureStorage as pendingStatus
-        if (responseData.steps && Array.isArray(responseData.steps)) {
-          try {
-            const stepsJson = JSON.stringify(responseData.steps);
-            console.log("Storing steps in pendingStatus from verifySmsOtp:", stepsJson);
-            secureLocalStorage.setItem("pendingStatus", stepsJson);
-            
-            // Verify storage worked
-            const stored = secureLocalStorage.getItem("pendingStatus");
-            if (stored) {
-              console.log("Steps stored successfully in pendingStatus from verifySmsOtp");
-              console.log("Verified stored data:", stored);
-            } else {
-              console.error("Failed to verify steps storage from verifySmsOtp");
-            }
-          } catch (e) {
-            console.error("Error storing steps from verifySmsOtp:", e);
-          }
-        } else {
-          console.warn("No steps array found in verifySmsOtp response:", responseData);
-        }
       } else {
         console.warn("No response data found in OTPSubmitResponseData:", OTPSubmitResponseData);
       }
@@ -315,28 +293,6 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         } catch (e) {
           console.error("Error storing onboardingToken:", e);
         }
-      }
-
-      // Store steps array in secureStorage as pendingStatus (from /api/v1/user/onboarding/sendSmsOtp response)
-      if (verifiedData.steps && Array.isArray(verifiedData.steps)) {
-        try {
-          const stepsJson = JSON.stringify(verifiedData.steps);
-          console.log("Storing steps in pendingStatus:", stepsJson);
-          secureLocalStorage.setItem("pendingStatus", stepsJson);
-          
-          // Verify storage worked
-          const stored = secureLocalStorage.getItem("pendingStatus");
-          if (stored) {
-            console.log("Steps stored successfully in pendingStatus");
-            console.log("Verified stored data:", stored);
-          } else {
-            console.error("Failed to verify steps storage");
-          }
-        } catch (e) {
-          console.error("Error storing steps:", e);
-        }
-      } else {
-        console.warn("No steps array found in verifiedData:", verifiedData);
       }
 
       // Update formData with verified status

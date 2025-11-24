@@ -199,36 +199,9 @@ function Step2({ formData, setFormData, onNext }) {
         } else {
           console.warn("No userToken found in email verification response:", responseData);
         }
-
-        // Store steps array in secureStorage as pendingStatus
-        if (responseData.steps && Array.isArray(responseData.steps)) {
-          try {
-            const stepsJson = JSON.stringify(responseData.steps);
-            console.log("Storing steps in pendingStatus from email verification:", stepsJson);
-            secureLocalStorage.setItem("pendingStatus", stepsJson);
-            
-            // Verify storage worked
-            const stored = secureLocalStorage.getItem("pendingStatus");
-            if (stored) {
-              console.log("Steps stored successfully in pendingStatus from email verification");
-              console.log("Verified stored data:", stored);
-            } else {
-              console.error("Failed to verify steps storage from email verification");
-            }
-          } catch (e) {
-            console.error("Error storing steps from email verification:", e);
-          }
-        } else {
-          console.warn("No steps array found in email verification response:", responseData);
-        }
       } else {
         console.warn("No response data found in emailVerifyResponse:", emailVerifyResponse);
       }
-
-      // Reload the window to show updated KYC list
-      setTimeout(() => {
-        window.location.reload();
-      }, 500); // Small delay to ensure storage is complete
     }
   }, [emailVerifyStatus, emailVerifyResponse]);
 

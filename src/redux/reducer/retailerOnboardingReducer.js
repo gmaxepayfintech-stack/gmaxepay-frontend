@@ -1,4 +1,4 @@
-import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE, RETAILER_GET_PENDING_SUCCESS, RETAILER_GET_PENDING_FAILURE } from "../actionType/retailerOnboardingActionType";
 
 // Restore state from localStorage if available
 const getInitialState = () => {
@@ -73,6 +73,12 @@ const getInitialState = () => {
         postProfileLoading: false,
         postProfileSuccess: false,
         postProfileMessage: "",
+        // Get pending steps state
+        getPendingResponse: null,
+        getPendingError: null,
+        getPendingLoading: false,
+        getPendingSuccess: false,
+        getPendingMessage: "",
     };
 };
 
@@ -366,6 +372,35 @@ const retailerOnboardingReducer = (state = initialState, action) => {
                 Success: "FAILURE",
                 status: "FAILURE",
                 message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to upload profile",
+            };
+
+        // Get Pending Steps Cases
+        case RETAILER_GET_PENDING_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                getPendingResponse: action.payload,
+                getPendingError: null,
+                getPendingLoading: false,
+                getPendingSuccess: true,
+                getPendingMessage: action.payload?.message || "Pending steps fetched successfully",
+                Success: action.payload.status,
+                status: action.payload.status,
+                message: action.payload.message,
+            };
+
+        case RETAILER_GET_PENDING_FAILURE:
+            return {
+                ...state,
+                error: action.payload,
+                getPendingResponse: null,
+                getPendingError: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to fetch pending steps",
+                getPendingLoading: false,
+                getPendingSuccess: false,
+                getPendingMessage: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to fetch pending steps",
+                Success: "FAILURE",
+                status: "FAILURE",
+                message: typeof action.payload === "string" ? action.payload : action.payload?.message || "Failed to fetch pending steps",
             };
         
         default:

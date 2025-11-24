@@ -1,7 +1,7 @@
 import axios from "axios";
 import { API_ROUTE } from "../../data/env";
 
-import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_SUBMIT_EMAIL_FAILURE, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE } from "../actionType/retailerOnboardingActionType";
+import { RETAILER_ONBOARDING_REFERAL_CODE_FAILURE, RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS, RETAILER_ONBOARDING_SEND__OTP_FAILURE, RETAILER_ONBOARDING_SEND__OTP_SUCCESS, RETAILER_OTP_SUBMIT_FAILURE, RETAILER_OTP_SUBMIT_SUCCESS, RETAILER_RESEND_EMAIL_OTP_FAILURE, RETAILER_RESEND_EMAIL_OTP_SUCCESS, RETAILER_SEND_EMAIL_OTP_FAILURE, RETAILER_SEND_EMAIL_OTP_SUCCESS, RETAILER_SUBMIT_EMAIL_SUCCESS, RETAILER_SUBMIT_EMAIL_FAILURE, RETAILER_POST_SHOP_DETAILS_SUCCESS, RETAILER_POST_SHOP_DETAILS_FAILURE, RETAILER_AADHAAR_CONNECTION_SUCCESS, RETAILER_AADHAAR_CONNECTION_FAILURE, RETAILER_DOWNLOAD_AADHAAR_SUCCESS, RETAILER_DOWNLOAD_AADHAAR_FAILURE, RETAILER_UPLOAD_AADHAAR_SUCCESS, RETAILER_UPLOAD_AADHAAR_FAILURE, RETAILER_PAN_CONNECTION_SUCCESS, RETAILER_PAN_CONNECTION_FAILURE, RETAILER_DOWNLOAD_PAN_SUCCESS, RETAILER_DOWNLOAD_PAN_FAILURE, RETAILER_UPLOAD_PAN_SUCCESS, RETAILER_UPLOAD_PAN_FAILURE, RETAILER_POST_BANK_DETAILS_SUCCESS, RETAILER_POST_BANK_DETAILS_FAILURE, RETAILER_POST_PROFILE_SUCCESS, RETAILER_POST_PROFILE_FAILURE, RETAILER_GET_PENDING_SUCCESS, RETAILER_GET_PENDING_FAILURE } from "../actionType/retailerOnboardingActionType";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 
 const commonError = "Something went wrong!";
@@ -930,6 +930,107 @@ export const postProfile = (photoDataUrl, companyData, token) => async (dispatch
     } catch (error) {
         dispatch({
             type: RETAILER_POST_PROFILE_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: error.response?.data?.message || error.message || commonError,
+            },
+        });
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+// Get Pending Steps Action
+export const getPendingSteps = (companyData, token) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        // Validate required data
+        const companyId = companyData?.companyId || companyData?._id || companyData?.id;
+        const companyDomain = companyData?.domain || companyData?.companyDomain;
+
+        // Log company data for debugging
+        console.log("getPendingSteps - companyData:", companyData);
+        console.log("getPendingSteps - companyId:", companyId);
+        console.log("getPendingSteps - companyDomain:", companyDomain);
+        console.log("getPendingSteps - token:", token ? "present" : "missing");
+
+        if (!companyId) {
+            const errorMsg = "Company ID is required. Please ensure company data is loaded.";
+            console.error("getPendingSteps - Error:", errorMsg);
+            dispatch({
+                type: RETAILER_GET_PENDING_FAILURE,
+                payload: {
+                    status: "FAILURE",
+                    message: errorMsg,
+                },
+            });
+            return;
+        }
+
+        if (!companyDomain) {
+            const errorMsg = "Company domain is required. Please ensure company data is loaded.";
+            console.error("getPendingSteps - Error:", errorMsg);
+            dispatch({
+                type: RETAILER_GET_PENDING_FAILURE,
+                payload: {
+                    status: "FAILURE",
+                    message: errorMsg,
+                },
+            });
+            return;
+        }
+
+        if (!token) {
+            const errorMsg = "Token is required. Please complete mobile verification first.";
+            console.error("getPendingSteps - Error:", errorMsg);
+            dispatch({
+                type: RETAILER_GET_PENDING_FAILURE,
+                payload: {
+                    status: "FAILURE",
+                    message: errorMsg,
+                },
+            });
+            return;
+        }
+
+        const headers = {
+            "Content-Type": "application/json",
+            "x-company-id": companyId,
+            "x-company-domain": companyDomain,
+            "token": token,
+        };
+
+        // Log the request details for debugging
+        console.log("getPendingSteps - Headers:", headers);
+        console.log("getPendingSteps - API Route:", `${API_ROUTE}/api/v1/user/onboarding/getPending`);
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/onboarding/getPending`,
+            {}, // Empty body for POST request
+            { headers }
+        );
+
+        const { data, status, message } = response?.data ?? {};
+
+        if (status === "SUCCESS") {
+            dispatch({
+                type: RETAILER_GET_PENDING_SUCCESS,
+                payload: { data, status, message },
+            });
+        } else {
+            dispatch({
+                type: RETAILER_GET_PENDING_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message || commonError,
+                },
+            });
+        }
+    } catch (error) {
+        console.error("getPendingSteps - Error:", error);
+        console.error("getPendingSteps - Error Response:", error.response?.data);
+        dispatch({
+            type: RETAILER_GET_PENDING_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: error.response?.data?.message || error.message || commonError,
