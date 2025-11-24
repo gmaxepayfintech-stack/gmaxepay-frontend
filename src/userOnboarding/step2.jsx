@@ -1,18 +1,34 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
+import { useParams } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { emailOtpResponse, emailRescendOTP, submitEmail } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
+import { useNotification } from "../context/NotificationContext";
 
 function Step2({ formData, setFormData, onNext }) {
   const dispatch = useDispatch();
+  const { referCode: urlReferralCode } = useParams();
   const { company } = useCompany();
+  const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const [successCooldown, setSuccessCooldown] = useState(0);
 
   // Ref to track if email OTP has been sent
   const emailOtpSentRef = useRef(false);
+
+  // Get referCode from URL or localStorage
+  const getReferCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -50,10 +66,6 @@ function Step2({ formData, setFormData, onNext }) {
     const requestBody = {
       email: formData.email.trim(),
     };
-
-    console.log("Sending Email OTP:", requestBody);
-    console.log("Using companyData:", companyData);
-    console.log("Using token from secureLocalStorage:", token);
 
     // Mark that email OTP has been sent
     emailOtpSentRef.current = true;
@@ -139,24 +151,25 @@ function Step2({ formData, setFormData, onNext }) {
   const verifuSuccess = emailOtpStatus === "SUCCESS" ? "SUCCESS" : null;
 
   // Get email OTP submit status from Redux
-  // Since we're using emailRescendOTP for both resend and submit, check the resend response
-  const emailVerifyStatus = useSelector(
-    (state) => state?.retailerOnboarding?.emailReSendOtp?.status || state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.status
+  // Check specifically for submit response, not resend
+  const emailSubmitStatus = useSelector(
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.status
   );
 
-  const emailVerifyMessage = useSelector(
-    (state) => state?.retailerOnboarding?.emailReSendOtp?.message || state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.message
+  const emailSubmitMessage = useSelector(
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.message
   );
 
-  // Get the full response data to extract steps and pending
-  const emailVerifyResponse = useSelector(
-    (state) => state?.retailerOnboarding?.emailReSendOtp || state?.retailerOnboarding?.emailSubmitEmailOtpResponse
+  // Get the full submit response data
+  const emailSubmitResponse = useSelector(
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse
   );
 
-  // Get resend OTP status to trigger cooldown on resend
+  // Also get resend status for cooldown
   const emailResendStatus = useSelector(
     (state) => state?.retailerOnboarding?.emailReSendOtp?.status
   );
+
 
   useEffect(() => {
     if (verifuSuccess === "SUCCESS") {
@@ -178,14 +191,18 @@ function Step2({ formData, setFormData, onNext }) {
     }
   }, [successCooldown]);
 
+  // Use ref to prevent multiple navigations
+  const emailSubmitHandled = useRef(false);
+
   useEffect(() => {
-    if (emailVerifyStatus === "SUCCESS" && emailVerifyResponse) {
-      // Get the data object from response
-      // Response structure from action: { emailReSendOtp: { steps: [...], pending: [...], userToken: "..." }, Success, status, message }
-      // So we need to access emailReSendOtp or emailSubmitEmailOtpResponse property
-      const responseData = emailVerifyResponse?.emailReSendOtp || emailVerifyResponse?.emailSubmitEmailOtpResponse || emailVerifyResponse?.data || emailVerifyResponse;
+    if (emailSubmitStatus === "SUCCESS" && emailSubmitResponse && !emailSubmitHandled.current) {
+      emailSubmitHandled.current = true;
       
-      console.log("Email verification response data:", responseData);
+      // Get the data object from response
+      // Response structure from action: { emailSubmitEmailOtpResponse: { steps: [...], pending: [...], userToken: "..." }, status, message }
+      const responseData = emailSubmitResponse?.emailSubmitEmailOtpResponse || emailSubmitResponse?.data || emailSubmitResponse;
+      
+      console.log("Email verification submit response data:", responseData);
       
       if (responseData) {
         // Store userToken as onboardingToken if provided
@@ -199,38 +216,35 @@ function Step2({ formData, setFormData, onNext }) {
         } else {
           console.warn("No userToken found in email verification response:", responseData);
         }
-
-        // Store steps array in secureStorage as pendingStatus
-        if (responseData.steps && Array.isArray(responseData.steps)) {
-          try {
-            const stepsJson = JSON.stringify(responseData.steps);
-            console.log("Storing steps in pendingStatus from email verification:", stepsJson);
-            secureLocalStorage.setItem("pendingStatus", stepsJson);
-            
-            // Verify storage worked
-            const stored = secureLocalStorage.getItem("pendingStatus");
-            if (stored) {
-              console.log("Steps stored successfully in pendingStatus from email verification");
-              console.log("Verified stored data:", stored);
-            } else {
-              console.error("Failed to verify steps storage from email verification");
-            }
-          } catch (e) {
-            console.error("Error storing steps from email verification:", e);
-          }
-        } else {
-          console.warn("No steps array found in email verification response:", responseData);
-        }
       } else {
-        console.warn("No response data found in emailVerifyResponse:", emailVerifyResponse);
+        console.warn("No response data found in emailSubmitResponse:", emailSubmitResponse);
       }
 
-      // Reload the window to show updated KYC list
+      // Show success notification
+      showNotification({
+        type: "success",
+        message: emailSubmitMessage || emailSubmitResponse?.message || "Email verified successfully",
+      });
+
+      // Update formData
+      setFormData((d) => ({ ...d, emailOtpVerified: true }));
+
+      // Redirect to KYC index page using window.location.href
       setTimeout(() => {
-        window.location.reload();
-      }, 500); // Small delay to ensure storage is complete
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
     }
-  }, [emailVerifyStatus, emailVerifyResponse]);
+    
+    // Reset when status changes away from SUCCESS
+    if (emailSubmitStatus !== "SUCCESS") {
+      emailSubmitHandled.current = false;
+    }
+  }, [emailSubmitStatus, emailSubmitResponse, emailSubmitMessage, showNotification, setFormData]);
 
   // Format countdown timer to show minutes and seconds
   const formatCountdown = (seconds) => {
@@ -431,8 +445,8 @@ function Step2({ formData, setFormData, onNext }) {
               />
             </div>
 
-            {emailVerifyStatus !== "SUCCESS" && emailVerifyMessage && (
-              <p className="text-red-500 mt-1 sm:mt-2 text-xs sm:text-sm">{emailVerifyMessage}</p>
+            {emailSubmitStatus !== "SUCCESS" && emailSubmitMessage && (
+              <p className="text-red-500 mt-1 sm:mt-2 text-xs sm:text-sm">{emailSubmitMessage}</p>
             )}
           </div>
 

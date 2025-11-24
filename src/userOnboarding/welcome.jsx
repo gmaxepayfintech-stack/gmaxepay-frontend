@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { referalCodeCheck } from "../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
@@ -10,11 +10,15 @@ const Welcome = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { referCode: urlReferralCode } = useParams();
+  const [searchParams] = useSearchParams();
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [referralCompleted, setReferralCompleted] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
+  
+  // Check if skip parameter is in URL
+  const shouldSkip = searchParams.get("skip") === "true";
 
   const companyFromRedux = useSelector((state) => state?.company?.company);
 
@@ -127,12 +131,15 @@ const Welcome = () => {
   };
 
   const handleSkip = () => {
-    handleSignUp();
+    // Navigate directly to KYC page without referral code
+    // Use a query parameter to indicate skip
+    navigate("/unity?skip=true");
   };
 
   // Handle "New To Our Platform" button click
   const handleNewToPlatform = () => {
-    navigate("/unity");
+    // Navigate directly to KYC page without referral code
+    navigate("/unity?skip=true");
   };
 
   // Get onboarding token from company data, Redux state, or localStorage
@@ -203,6 +210,11 @@ const Welcome = () => {
   // If URL has referral code and user clicked auto-start, show onboarding
   if (urlReferralCode && showOnboarding) {
     return <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />;
+  }
+
+  // If user clicked "Skip For Now" (skip=true in URL), show onboarding directly (referCode can be null)
+  if (shouldSkip) {
+    return <OnboardingRetailerById referralCode={null} />;
   }
 
   // If referCode is not there or null, show referral welcome component

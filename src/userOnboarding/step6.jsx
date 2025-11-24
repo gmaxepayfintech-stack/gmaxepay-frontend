@@ -2,10 +2,30 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { postBankDetails } from "../redux/action/onboardingAction";
+import { useParams } from "react-router-dom";
+import { postBankDetails } from "../redux/action/retailerOnboardingAction";
+import { useCompany } from "../context/CompanyContext";
+import { useNotification } from "../context/NotificationContext";
+import secureLocalStorage from "react-secure-storage";
 
 function Step6({ formData, setFormData, onNext }) {
+  const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { showNotification } = useNotification();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+
+  // Get bank details status from Redux (needed in onSubmit)
+  const bankDetailsStatus = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsStatus
+  );
+  const bankDetailsResponse = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsResponse
+  );
+  const bankDetailsError = useSelector(
+    (state) => state?.retailerOnboarding?.bankDetailsError
+  );
 
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
@@ -35,11 +55,56 @@ function Step6({ formData, setFormData, onNext }) {
         return;
       }
 
-      if (formData.ifscVerified && formik.values.beneficiaryName) {
-        onNext();
+      // Check if bank details are verified - check multiple sources
+      const isVerified = formData.ifscVerified || bankDetailsStatus === "SUCCESS";
+      const hasBeneficiaryName = formik.values.beneficiaryName || formData.beneficiaryName;
+
+
+      if (isVerified && hasBeneficiaryName) {
+        // Show success notification
+        showNotification({
+          type: "success",
+          message: "Bank details verified successfully",
+        });
+
+        // Redirect to KYC index page using window.location.href immediately
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      } else {
+        // If not verified, show error
+        showNotification({
+          type: "error",
+          message: "Please verify bank details first by clicking the Verify button",
+        });
       }
     },
   });
+
+  // Get token from secureLocalStorage
+  const getToken = () => {
+    try {
+      return secureLocalStorage.getItem("onboardingToken");
+    } catch (e) {
+      console.error("Error getting token:", e);
+      return null;
+    }
+  };
+
+  // Get referCode from URL or localStorage
+  const getReferCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
 
   const handleVerify = async () => {
     await formik.validateField("bankAccountNumber");
@@ -53,37 +118,37 @@ function Step6({ formData, setFormData, onNext }) {
       return;
     }
 
-    const token = localStorage.getItem("onboardingToken");
-    if (token && formik.values.bankAccountNumber && formik.values.ifscCode) {
+    const token = getToken();
+    if (!token) {
+      showNotification({
+        type: "error",
+        message: "Token is missing. Please try again.",
+      });
+      return;
+    }
+
+    if (formik.values.bankAccountNumber && formik.values.ifscCode) {
       dispatch(
         postBankDetails(
           {
             account_number: formik.values.bankAccountNumber,
             ifsc: formik.values.ifscCode,
           },
+          companyData,
           token
         )
       );
     }
   };
 
-  const bankDetailsStatus = useSelector(
-    (state) => state?.onboarding?.bankDetailsStatus
-  );
-  const bankDetailsResponse = useSelector(
-    (state) => state?.onboarding?.bankDetailsResponse
-  );
-  const bankDetailsError = useSelector(
-    (state) => state?.onboarding?.bankDetailsError
-  );
-
   useEffect(() => {
     if (bankDetailsStatus === "SUCCESS" && bankDetailsResponse) {
+      const bankData = bankDetailsResponse?.bankDetailsResponse || bankDetailsResponse;
       const beneficiaryName =
-        bankDetailsResponse?.nameMatching?.bankHolderName ||
-        bankDetailsResponse?.beneficiary_name ||
-        bankDetailsResponse?.name ||
-        bankDetailsResponse?.account_holder_name ||
+        bankData?.nameMatching?.bankHolderName ||
+        bankData?.beneficiary_name ||
+        bankData?.name ||
+        bankData?.account_holder_name ||
         "Auto Fetched";
 
       setFormData((d) => ({
@@ -93,8 +158,27 @@ function Step6({ formData, setFormData, onNext }) {
       }));
 
       formik.setFieldValue("beneficiaryName", beneficiaryName);
+
+      showNotification({
+        type: "success",
+        message: bankDetailsResponse?.message || "Bank details verified successfully",
+      });
     }
-  }, [bankDetailsStatus, bankDetailsResponse]);
+  }, [bankDetailsStatus, bankDetailsResponse, showNotification, setFormData, formik]);
+
+  // Handle error notifications
+  useEffect(() => {
+    if (bankDetailsStatus === "FAILURE" && bankDetailsError) {
+      const errorMessage = typeof bankDetailsError === "string" 
+        ? bankDetailsError 
+        : bankDetailsError?.message || "Failed to verify bank details. Please try again.";
+      
+      showNotification({
+        type: "error",
+        message: errorMessage,
+      });
+    }
+  }, [bankDetailsStatus, bankDetailsError, showNotification]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -247,12 +331,6 @@ function Step6({ formData, setFormData, onNext }) {
             </p>
           )}
 
-          {bankDetailsStatus === "FAILURE" && bankDetailsError && (
-            <p className="text-red-500 text-sm mt-1">
-              {bankDetailsError?.message ||
-                "Failed to verify bank details. Please try again."}
-            </p>
-          )}
         </div>
 
         {/* Beneficiary Name */}

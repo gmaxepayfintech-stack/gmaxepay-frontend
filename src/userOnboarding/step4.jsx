@@ -1,20 +1,19 @@
 import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
-import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
-import { API_ROUTE } from "./../data/env";
+import { useParams } from "react-router-dom";
 import { useCompany } from "./../context/CompanyContext";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
+import { connectPanVerification, downloadPanDocument, uploadPanDocument } from "../redux/action/retailerOnboardingAction";
 
 function RetailerPan({ setFormData, onNext }) {
   const { referCode: urlReferralCode } = useParams();
-  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
+  const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
 
   const [isVerified, setIsVerified] = useState(false);
   const [isDownloaded, setIsDownloaded] = useState(false);
@@ -25,7 +24,7 @@ function RetailerPan({ setFormData, onNext }) {
   const [isDownloading, setIsDownloading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // Check for pan connection status on mount
+  // Check for pan connection status on mount and validate token
   useEffect(() => {
     try {
       const movePan = localStorage.getItem("movePan");
@@ -38,15 +37,51 @@ function RetailerPan({ setFormData, onNext }) {
           sessionStorage.removeItem("redirectToPan");
         }
       }
+      
+      // Validate token exists on mount
+      const token = getToken();
+      if (!token) {
+        console.warn("Step4: Token not found on mount. User may need to complete mobile verification first.");
+        showNotification({
+          type: "warning",
+          message: "Please complete mobile verification first to continue with PAN verification.",
+        });
+      } else {
+        console.log("Step4: Token validated successfully on mount");
+      }
     } catch (e) {
       console.error("Error checking pan connection status:", e);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // Get token from secureLocalStorage
+  // Get token from secureLocalStorage or Redux state
   const getToken = () => {
     try {
-      return secureLocalStorage.getItem("onboardingToken");
+      // First try secureLocalStorage
+      const tokenFromStorage = secureLocalStorage.getItem("onboardingToken");
+      if (tokenFromStorage) {
+        console.log("Token found in secureLocalStorage");
+        return tokenFromStorage;
+      }
+      
+      // Fallback: Check Redux state for token from mobile verification
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                             retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("Token found in Redux state, storing in secureLocalStorage");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          return tokenFromRedux;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+          return tokenFromRedux; // Return it anyway
+        }
+      }
+      
+      console.warn("No token found in secureLocalStorage or Redux state");
+      return null;
     } catch (e) {
       console.error("Error getting token:", e);
       return null;
@@ -79,101 +114,98 @@ function RetailerPan({ setFormData, onNext }) {
   // Handle Verify/Connect
   const handleVerify = async () => {
     const token = getToken();
+    console.log("handleVerify - Token check:", token ? "present" : "missing");
+    
     if (!token) {
+      console.error("handleVerify - Token is missing. Checking all possible sources...");
+      
+      // Try to get token from Redux one more time
+      const tokenFromRedux = retailerOnboardingState?.OTPResponse?.OTPResponse?.userToken ||
+                           retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
+      
+      if (tokenFromRedux) {
+        console.log("handleVerify - Found token in Redux, storing it");
+        try {
+          secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
+          // Retry with the token from Redux
+          const redirect_url = getRedirectUrl();
+          setIsConnecting(true);
+          await dispatch(connectPanVerification(redirect_url, companyData, tokenFromRedux));
+          return;
+        } catch (e) {
+          console.error("Error storing token from Redux:", e);
+        }
+      }
+      
       showNotification({
         type: "error",
-        message: "Token is missing. Please try again.",
+        message: "Token is missing. Please complete mobile verification first and try again.",
       });
       return;
     }
 
     setIsConnecting(true);
+    const redirect_url = getRedirectUrl();
+    console.log("handleVerify - Calling connectPanVerification with redirect_url:", redirect_url);
+    
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const redirect_url = getRedirectUrl();
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/connectPanVerification`,
-        { redirect_url },
-        { headers }
-      );
-
-      const { status, data, message } = response?.data ?? {};
-
-      if (status === "SUCCESS" && data?.url) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-          sessionStorage.setItem("redirectToPan", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        window.location.href = data.url;
-      } else if (status === "SUCCESS" && data?.isDownload === true) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: message || "PAN verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: message || response?.data?.message || "Failed to connect PAN verification",
-        });
-      }
+      await dispatch(connectPanVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting PAN:", error);
-      const errorResponse = error?.response?.data;
-      const errorMessage = errorResponse?.message || error?.message || "Failed to connect PAN verification";
-      
-      if (errorResponse?.status === "SUCCESS" && errorResponse?.data?.isDownload === true) {
-        try {
-          localStorage.setItem("movePan", "true");
-          localStorage.setItem("panConnected", "true");
-        } catch (e) {
-          console.error("Error storing pan connection status:", e);
-        }
-
-        setIsVerified(true);
-        
-        showNotification({
-          type: "info",
-          message: errorResponse?.message || "PAN verification already processed. You can download now.",
-        });
-      } else {
-        showNotification({
-          type: "error",
-          message: errorMessage,
-        });
-      }
+      showNotification({
+        type: "error",
+        message: "Failed to connect PAN verification. Please try again.",
+      });
     } finally {
       setIsConnecting(false);
     }
   };
+
+  // Handle Redux state changes for PAN connection
+  useEffect(() => {
+    const response = retailerOnboardingState?.panConnectionResponse;
+    const error = retailerOnboardingState?.panConnectionError;
+    
+    if (response?.status === "SUCCESS" && response?.data?.url) {
+      // Store pan connection status in localStorage BEFORE redirect
+      // This ensures when user comes back from DigiLocker, they land on step4
+      try {
+        localStorage.setItem("movePan", "true");
+        localStorage.setItem("panConnected", "true");
+        sessionStorage.setItem("redirectToPan", "true");
+        console.log("PAN flags set - will redirect back to step4");
+      } catch (e) {
+        console.error("Error storing pan connection status:", e);
+      }
+
+      // Mark as verified before redirect
+      setIsVerified(true);
+
+      // Navigate to DigiLocker - when user returns, they'll come back to /unity/:referCode
+      // and index.jsx will detect the flags and show step4 directly
+      console.log("Redirecting to DigiLocker:", response.data.url);
+      window.location.href = response.data.url;
+    } else if (response?.status === "SUCCESS" && response?.data?.isDownload === true) {
+      try {
+        localStorage.setItem("movePan", "true");
+        localStorage.setItem("panConnected", "true");
+      } catch (e) {
+        console.error("Error storing pan connection status:", e);
+      }
+
+      setIsVerified(true);
+      
+      showNotification({
+        type: "info",
+        message: response?.message || "PAN verification already processed. You can download now.",
+      });
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to connect PAN verification",
+      });
+    }
+  }, [retailerOnboardingState?.panConnectionResponse, retailerOnboardingState?.panConnectionError, showNotification]);
 
   // Handle Download
   const handleDownload = async () => {
@@ -196,55 +228,35 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsDownloading(true);
     try {
-      const headers = {
-        "Content-Type": "application/json",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/getDigilockerDocuments`,
-        { document_type: "PAN" },
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        setIsDownloaded(true);
-        showNotification({
-          type: "success",
-          message: "PAN document downloaded successfully",
-        });
-        if (isVerified && !showImageUpload) {
-          setShowImageUpload(true);
-        }
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to download PAN document",
-        });
-      }
+      await dispatch(downloadPanDocument(companyData, token));
     } catch (error) {
       console.error("Error downloading PAN:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to download PAN document",
-      });
     } finally {
       setIsDownloading(false);
     }
   };
+
+  // Handle Redux state changes for PAN download
+  useEffect(() => {
+    const response = retailerOnboardingState?.downloadPanResponse;
+    const error = retailerOnboardingState?.downloadPanError;
+    
+    if (response?.status === "SUCCESS") {
+      setIsDownloaded(true);
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN document downloaded successfully",
+      });
+      if (isVerified && !showImageUpload) {
+        setShowImageUpload(true);
+      }
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to download PAN document",
+      });
+    }
+  }, [retailerOnboardingState?.downloadPanResponse, retailerOnboardingState?.downloadPanError, isVerified, showImageUpload, showNotification]);
 
   const handleImageChange = (e) => {
     const file = e.target.files?.[0];
@@ -307,67 +319,86 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("front_photo", panImage);
-
-      const headers = {
-        "Content-Type": "multipart/form-data",
-      };
-
-      if (companyData?.companyId || companyData?._id || companyData?.id) {
-        headers["x-company-id"] = companyData?.companyId || companyData?._id || companyData?.id;
-      }
-
-      if (companyData?.domain || companyData?.companyDomain) {
-        headers["x-company-domain"] = companyData?.domain || companyData?.companyDomain;
-      }
-
-      if (token) {
-        headers["token"] = token;
-      }
-
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/user/onboarding/uploadPanDocuments`,
-        formData,
-        { headers }
-      );
-
-      const { status, message } = response?.data ?? {};
-
-      if (status === "SUCCESS") {
-        if (setFormData) {
-          setFormData((d) => ({
-            ...d,
-            panDocFetched: true,
-            digilockerLinked: true,
-            panFront: panImage,
-          }));
-        }
-        showNotification({
-          type: "success",
-          message: "PAN document uploaded successfully",
-        });
-        if (onNext) onNext();
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.data?.message || "Failed to upload PAN document",
-        });
-      }
+      await dispatch(uploadPanDocument(panImage, companyData, token));
     } catch (error) {
       console.error("Error uploading PAN:", error);
-      showNotification({
-        type: "error",
-        message: error?.response?.data?.message || "Failed to upload PAN document",
-      });
     } finally {
       setIsUploading(false);
     }
   };
 
+  // Handle Redux state changes for PAN upload
+  useEffect(() => {
+    const response = retailerOnboardingState?.uploadPanResponse;
+    const error = retailerOnboardingState?.uploadPanError;
+    
+    if (response?.status === "SUCCESS") {
+      if (setFormData) {
+        setFormData((d) => ({
+          ...d,
+          panDocFetched: true,
+          digilockerLinked: true,
+          panFront: panImage,
+        }));
+      }
+      
+      // Store redirect flag in sessionStorage
+      try {
+        sessionStorage.setItem("panUploadCompleted", "true");
+      } catch (e) {
+        console.error("Error storing pan upload status:", e);
+      }
+
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN document uploaded successfully",
+      });
+
+      // Redirect to KYC index page using window.location.href
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
+    } else if (error) {
+      setIsUploading(false); // Hide loader on error
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to upload PAN document",
+      });
+    }
+  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification]);
+
   return (
-    <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
+    <>
+      {/* Loading Overlay for Upload Only */}
+      {isUploading && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
+            {/* Animated Spinner */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+            
+            {/* Loading Message */}
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
+                Uploading
+              </h3>
+              <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
+                Please wait while we upload your PAN document...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
+        <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
@@ -631,33 +662,11 @@ function RetailerPan({ setFormData, onNext }) {
               {isUploading ? "Uploading..." : "Submit"}
             </button>
 
-            {/* Auto Verification Loader Overlay */}
-            {isUploading && createPortal(
-              <div className="fixed top-0 left-0 right-0 bottom-0 w-screen h-screen bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
-                <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
-                  {/* Animated Spinner */}
-                  <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
-                    <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
-                    <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
-                  </div>
-                  
-                  {/* Verification Message */}
-                  <div className="text-center">
-                    <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
-                      Auto Verifying
-                    </h3>
-                    <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
-                      We are auto verifying your PAN details based on eKYC
-                    </p>
-                  </div>
-                </div>
-              </div>,
-              document.body
-            )}
           </div>
         )}
+        </div>
       </div>
-    </div>
+    </>
   );
 }
 

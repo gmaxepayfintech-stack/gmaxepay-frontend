@@ -1,15 +1,27 @@
 import { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { postProfile } from '../redux/action/onboardingAction';
+import { useParams } from 'react-router-dom';
+import { postShopDetails } from '../redux/action/retailerOnboardingAction';
+import { getLocationAndIP } from '../util/getLocationAndIP';
+import { useCompany } from '../context/CompanyContext';
+import { useNotification } from '../context/NotificationContext';
+import secureLocalStorage from 'react-secure-storage';
 
 function Step5({ formData, setFormData, onComplete }) {
+  const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { showNotification } = useNotification();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+  
   const {
-    postProfileLoading,
-    postProfileError,
-    postProfileSuccess,
-    postProfileMessage,
-  } = useSelector(state => state.onboarding);
+    postShopDetailsLoading,
+    postShopDetailsError,
+    postShopDetailsSuccess,
+    postShopDetailsMessage,
+    postShopDetailsResponse,
+  } = useSelector(state => state.retailerOnboarding);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -26,13 +38,13 @@ function Step5({ formData, setFormData, onComplete }) {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { ideal: 'user' },
+            facingMode: { ideal: 'environment' }, // Back camera for shop photos
             width: { ideal: 1280 },
             height: { ideal: 720 },
           },
           audio: false,
         });
-      } catch (frontCameraError) {
+      } catch (backCameraError) {
         stream = await navigator.mediaDevices.getUserMedia({
           video: true,
           audio: false,
@@ -91,27 +103,140 @@ function Step5({ formData, setFormData, onComplete }) {
 
     const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
     stopCamera();
-    setFormData(d => ({ ...d, profilePhotoDataUrl: dataUrl }));
+    setFormData(d => ({ ...d, shopPhotoDataUrl: dataUrl }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.profilePhotoDataUrl) return;
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(d => ({ ...d, [name]: value }));
+  };
 
-    const token = localStorage.getItem('onboardingToken');
-    if (!token) {
-      alert('Onboarding token not found.');
+  // Get token from secureLocalStorage
+  const getToken = () => {
+    try {
+      return secureLocalStorage.getItem("onboardingToken");
+    } catch (e) {
+      console.error("Error getting token:", e);
+      return null;
+    }
+  };
+
+  // Get referCode from URL or localStorage
+  const getReferCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
+
+  const handleSubmit = async () => {
+    if (!formData.shopName) {
+      alert('Please enter shop name.');
+      return;
+    }
+    
+    if (!formData.shopPhotoDataUrl) {
+      alert('Please capture shop photo.');
       return;
     }
 
-    dispatch(postProfile(formData.profilePhotoDataUrl, token));
+    const token = getToken();
+    if (!token) {
+      alert('Onboarding token not found. Please try again.');
+      console.error('Token not found in secureLocalStorage');
+      return;
+    }
+
+    // Log companyData and token for debugging
+    console.log("postShopDetails - companyData:", companyData);
+    console.log("postShopDetails - token:", token ? "present" : "missing");
+    console.log("postShopDetails - Headers will include:", {
+      "x-company-id": companyData?.companyId || companyData?._id || companyData?.id || "not set",
+      "x-company-domain": companyData?.domain || companyData?.companyDomain || "not set",
+      "token": token ? "present" : "missing"
+    });
+
+    try {
+      // Get location and IP address
+      const locationIPData = await getLocationAndIP();
+      
+      const requestBody = {
+        shopName: formData.shopName,
+        shopImage: formData.shopPhotoDataUrl,
+        ipAddress: locationIPData.ipAddress,
+        longitude: locationIPData.location.longitude,
+        latitude: locationIPData.location.latitude,
+      };
+
+      dispatch(postShopDetails(requestBody, companyData, token));
+    } catch (error) {
+      console.error('Error getting location and IP:', error);
+      // Still submit without location/IP if there's an error
+      const requestBody = {
+        shopName: formData.shopName,
+        shopImage: formData.shopPhotoDataUrl,
+        ipAddress: null,
+        longitude: null,
+        latitude: null,
+      };
+      dispatch(postShopDetails(requestBody, companyData, token));
+    }
   };
 
   useEffect(() => {
-    if (postProfileSuccess) {
-      setFormData(d => ({ ...d, completed: true }));
-      if (onComplete) onComplete();
+    if (postShopDetailsSuccess && postShopDetailsResponse) {
+      // Save steps to localStorage
+      try {
+        // The response structure: { shopDetailsResponse: { steps: [...], pending: [...] }, status, message }
+        const shopDetailsData = postShopDetailsResponse?.shopDetailsResponse || {};
+        const stepsData = {
+          steps: shopDetailsData?.steps || [],
+          pending: shopDetailsData?.pending || [],
+          status: postShopDetailsResponse?.status || "SUCCESS",
+          message: postShopDetailsResponse?.message || "Shop details saved",
+          timestamp: new Date().toISOString(),
+        };
+        localStorage.setItem("onboardingSteps", JSON.stringify(stepsData));
+        console.log("Steps saved to localStorage:", stepsData);
+      } catch (error) {
+        console.error("Error saving steps to localStorage:", error);
+      }
+
+      // Show success notification
+      showNotification({
+        type: "success",
+        message: postShopDetailsMessage || postShopDetailsResponse?.message || "Shop details saved successfully",
+      });
+
+      // Redirect to KYC index page using window.location.href
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
     }
-  }, [postProfileSuccess]);
+  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, showNotification]);
+
+  // Handle error notifications
+  useEffect(() => {
+    if (postShopDetailsError) {
+      const errorMessage = typeof postShopDetailsError === "string" 
+        ? postShopDetailsError 
+        : postShopDetailsError?.message || "Failed to submit shop details";
+      
+      showNotification({
+        type: "error",
+        message: errorMessage,
+      });
+    }
+  }, [postShopDetailsError, showNotification]);
 
   useEffect(() => {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
@@ -146,12 +271,24 @@ function Step5({ formData, setFormData, onComplete }) {
 
         {/* Heading */}
         <h3 className="text-center text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-800 mb-2 sm:mb-3">
-          Profile
+          Shop Details
         </h3>
 
         <p className="text-center text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717] mb-4 sm:mb-5 md:mb-6">
-          Profile Picture To Complete Your KYC
+          Enter Shop Name And Capture Shop Photo To Complete Your KYC
         </p>
+
+        {/* Shop Name Input */}
+        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] mx-auto mb-3 sm:mb-4">
+          <input
+            type="text"
+            name="shopName"
+            value={formData.shopName || ''}
+            onChange={handleChange}
+            placeholder="Enter Shop Name"
+            className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+          />
+        </div>
 
         {/* Frame */}
         <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] mx-auto mb-3 sm:mb-4">
@@ -166,7 +303,7 @@ function Step5({ formData, setFormData, onComplete }) {
             />
 
             {/* Placeholder */}
-            {!formData.profilePhotoDataUrl && !isCameraActive && (
+            {!formData.shopPhotoDataUrl && !isCameraActive && (
               <div
                 className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
                 onClick={startCamera}
@@ -176,20 +313,20 @@ function Step5({ formData, setFormData, onComplete }) {
             )}
 
             {/* Captured */}
-            {formData.profilePhotoDataUrl && !isCameraActive && (
+            {formData.shopPhotoDataUrl && !isCameraActive && (
               <img
-                src={formData.profilePhotoDataUrl}
+                src={formData.shopPhotoDataUrl}
                 className="w-full h-full object-cover rounded-lg absolute inset-0"
-                alt="Profile"
+                alt="Shop"
               />
             )}
 
-            {(isCameraActive || formData.profilePhotoDataUrl) && (
+            {(isCameraActive || formData.shopPhotoDataUrl) && (
               <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-10">
                 <button
                   onClick={e => {
                     e.stopPropagation();
-                    setFormData(d => ({ ...d, profilePhotoDataUrl: '' }));
+                    setFormData(d => ({ ...d, shopPhotoDataUrl: '' }));
                     startCamera();
                   }}
                   className="bg-[#039155] text-white px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base lg:text-lg font-medium hover:bg-green-700 transition shadow-md"
@@ -236,37 +373,23 @@ function Step5({ formData, setFormData, onComplete }) {
               <li className="flex items-start gap-2">
                 <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
                 <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
-                  Your Aadhaar Photo And Uploaded Profile Picture Must Match.
+                  Ensure The Shop Photo Clearly Shows Your Shop Signage Or Storefront.
                 </span>
               </li>
             </ul>
           </div>
 
-          {/* Error */}
-          {postProfileError && (
-            <div className="w-full p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs sm:text-sm md:text-base lg:text-lg mb-3 sm:mb-4 mt-3 sm:mt-4">
-              {postProfileError}
-            </div>
-          )}
-
-          {/* Success */}
-          {postProfileSuccess && postProfileMessage && (
-            <div className="w-full p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-xs sm:text-sm md:text-base lg:text-lg mb-3 sm:mb-4 mt-3 sm:mt-4">
-              {postProfileMessage}
-            </div>
-          )}
-
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={postProfileLoading || !formData.profilePhotoDataUrl}
+            disabled={postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl}
             className={`w-full py-2.5 sm:py-3 md:py-3.5 rounded-lg text-white text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-semibold h-12 sm:h-14 md:h-16 lg:h-[70px] transition mt-4 sm:mt-5 shadow-md ${
-              postProfileLoading || !formData.profilePhotoDataUrl
+              postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl
                 ? 'bg-[#039155] opacity-60 cursor-not-allowed'
                 : 'bg-[#039155] hover:bg-green-700'
             }`}
           >
-            {postProfileLoading ? 'Submitting...' : 'Submit'}
+            {postShopDetailsLoading ? 'Submitting...' : 'Submit'}
           </button>
         </div>
       </div>

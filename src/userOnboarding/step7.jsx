@@ -1,20 +1,53 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { postProfile } from "../redux/action/onboardingAction";
+import { useParams } from "react-router-dom";
+import { useCompany } from "./../context/CompanyContext";
+import secureLocalStorage from "react-secure-storage";
+import { useNotification } from "../context/NotificationContext";
+import { postProfile } from "../redux/action/retailerOnboardingAction";
 
 function Step7({ formData, setFormData, onComplete }) {
+  const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { showNotification } = useNotification();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+  const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
+  
   const {
-    postProfileLoading,
     postProfileError,
     postProfileSuccess,
     postProfileMessage,
-  } = useSelector((state) => state.onboarding);
+  } = retailerOnboardingState || {};
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Get token from secureLocalStorage
+  const getToken = () => {
+    try {
+      return secureLocalStorage.getItem("onboardingToken");
+    } catch (e) {
+      console.error("Error getting token:", e);
+      return null;
+    }
+  };
+
+  // Get referCode from URL or localStorage
+  const getReferCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
 
   const startCamera = async () => {
     try {
@@ -94,24 +127,83 @@ function Step7({ formData, setFormData, onComplete }) {
     setFormData((d) => ({ ...d, profilePhotoDataUrl: dataUrl }));
   };
 
-  const handleSubmit = () => {
-    if (!formData.profilePhotoDataUrl) return;
-
-    const token = localStorage.getItem("onboardingToken");
-    if (!token) {
-      alert("Onboarding token not found.");
+  const handleSubmit = async () => {
+    if (!formData.profilePhotoDataUrl) {
+      showNotification({
+        type: "error",
+        message: "Please capture a profile photo first",
+      });
       return;
     }
 
-    dispatch(postProfile(formData.profilePhotoDataUrl, token));
+    const token = getToken();
+    if (!token) {
+      showNotification({
+        type: "error",
+        message: "Token is missing. Please try again.",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+    try {
+      await dispatch(postProfile(formData.profilePhotoDataUrl, companyData, token));
+    } catch (error) {
+      console.error("Error submitting profile:", error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
+  // Handle Redux state changes for Profile upload
   useEffect(() => {
-    if (postProfileSuccess) {
-      setFormData((d) => ({ ...d, completed: true }));
+    const response = retailerOnboardingState?.postProfileResponse;
+    const error = retailerOnboardingState?.postProfileError;
+    
+    if (response?.status === "SUCCESS") {
+      // The steps data is in response.data (which comes from action.payload.data)
+      // This contains: { steps: [...], pending: [], kycStatus, kycSteps, allCompleted }
+      const stepsData = response?.data || response?.profileResponse?.data;
+      
+      // Store steps data in secureLocalStorage
+      if (stepsData) {
+        try {
+          secureLocalStorage.setItem("onboardingSteps", JSON.stringify(stepsData));
+          console.log("Stored onboarding steps in secureLocalStorage:", stepsData);
+        } catch (e) {
+          console.error("Error storing steps data in secureLocalStorage:", e);
+        }
+      }
+
+      // Update formData
+      if (setFormData) {
+        setFormData((d) => ({ ...d, completed: true }));
+      }
+
+      // Show success notification first
+      showNotification({
+        type: "success",
+        message: response?.message || "Profile uploaded successfully",
+      });
+
+      // Redirect to KYC index page using window.location.href after 3 seconds
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 3000); // 3 seconds delay
+
       if (onComplete) onComplete();
+    } else if (error) {
+      showNotification({
+        type: "error",
+        message: typeof error === "string" ? error : error?.message || "Failed to upload profile",
+      });
     }
-  }, [postProfileSuccess]);
+  }, [retailerOnboardingState?.postProfileResponse, retailerOnboardingState?.postProfileError, setFormData, onComplete, showNotification]);
 
   useEffect(() => {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
@@ -308,7 +400,7 @@ function Step7({ formData, setFormData, onComplete }) {
           {/* Error */}
           {postProfileError && (
             <div className="w-full p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-[12px] sm:text-[14px] md:text-[16px] mb-4 mt-4">
-              {postProfileError}
+              {typeof postProfileError === "string" ? postProfileError : postProfileError?.message || "Failed to upload profile"}
             </div>
           )}
 
@@ -322,7 +414,7 @@ function Step7({ formData, setFormData, onComplete }) {
           {/* Submit */}
           <button
             onClick={handleSubmit}
-            disabled={postProfileLoading || !formData.profilePhotoDataUrl}
+            disabled={isSubmitting || !formData.profilePhotoDataUrl}
             className={`
               w-full 
               py-2 xxs:py-1.5 xs:py-2 md:py-3 
@@ -332,13 +424,13 @@ function Step7({ formData, setFormData, onComplete }) {
               h-[45px] xxs:h-[42px] xs:h-[45px] md:h-[60px] lg:h-[70px]
               transition mt-5
               ${
-                postProfileLoading || !formData.profilePhotoDataUrl
+                isSubmitting || !formData.profilePhotoDataUrl
                   ? "bg-[#039155] opacity-60 cursor-not-allowed"
-                  : "bg-[#039155] hover:bg-green-700"
+                  : "bg-[#039155] hover:bg-green-700 active:scale-95"
               }
             `}
           >
-            {postProfileLoading ? "Submitting..." : "Submit"}
+            {isSubmitting ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>

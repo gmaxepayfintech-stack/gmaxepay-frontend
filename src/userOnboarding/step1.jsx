@@ -2,7 +2,6 @@ import { useFormik } from "formik";
 import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
-import { useNavigate } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
@@ -10,7 +9,6 @@ import { useNotification } from "../context/NotificationContext";
 
 function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
-  const navigate = useNavigate();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
@@ -33,7 +31,22 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     validationSchema,
     validateOnBlur: false,
     validateOnChange: false,
-    onSubmit: async () => {
+    onSubmit: async (values, { setFieldTouched, setFieldError }) => {
+      // Validate OTP only on submit
+      const otpErrors = await formik.validateField("otp");
+      if (otpErrors) {
+        setFieldTouched("otp", true);
+        if (!values.otp) {
+          setFieldError("otp", "OTP is required");
+        }
+      }
+      // Check if OTP is empty
+      if (!formik.values.otp || formik.values.otp.trim() === "") {
+        setFieldTouched("otp", true);
+        setFieldError("otp", "OTP is required");
+        return;
+      }
+
       // Prepare request body with OTP
       const requestBody = {
         otp: formik.values.otp,
@@ -47,7 +60,7 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
 
       if (!token) {
         console.error("Token is missing. Cannot submit OTP.");
-        formik.setFieldError("otp", "Token is missing. Please try again.");
+        setFieldError("otp", "Token is missing. Please try again.");
         return;
       }
 
@@ -97,6 +110,18 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     };
   }, []);
 
+  // Get referCode helper
+  const getReferCode = () => {
+    if (propReferralCode) return propReferralCode.toUpperCase();
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored.toUpperCase();
+    } catch (e) {
+      console.error("Error reading referCode:", e);
+    }
+    return null;
+  };
+
   // Handle OTP submit success - stores data from /api/v1/user/onboarding/verifySmsOtp
   useEffect(() => {
     if (otpSubmitStatus === "SUCCESS" && !successHandled.current && OTPSubmitResponseData) {
@@ -120,45 +145,38 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         } else {
           console.warn("No userToken found in verifySmsOtp response:", responseData);
         }
-
-        // Store steps array in secureStorage as pendingStatus
-        if (responseData.steps && Array.isArray(responseData.steps)) {
-          try {
-            const stepsJson = JSON.stringify(responseData.steps);
-            console.log("Storing steps in pendingStatus from verifySmsOtp:", stepsJson);
-            secureLocalStorage.setItem("pendingStatus", stepsJson);
-            
-            // Verify storage worked
-            const stored = secureLocalStorage.getItem("pendingStatus");
-            if (stored) {
-              console.log("Steps stored successfully in pendingStatus from verifySmsOtp");
-              console.log("Verified stored data:", stored);
-            } else {
-              console.error("Failed to verify steps storage from verifySmsOtp");
-            }
-          } catch (e) {
-            console.error("Error storing steps from verifySmsOtp:", e);
-          }
-        } else {
-          console.warn("No steps array found in verifySmsOtp response:", responseData);
-        }
       } else {
         console.warn("No response data found in OTPSubmitResponseData:", OTPSubmitResponseData);
       }
 
-      // Mark step 1 as completed and proceed
+      // Mark step 1 as completed
       try {
         setFormData((d) => ({ ...d, otpVerified: true }));
       } catch (e) {
         console.error("Error marking step1 as completed:", e);
       }
-      onNext();
+
+      // Show success notification
+      showNotification({
+        type: "success",
+        message: OTPSubmitResponseData?.message || "Mobile verification successful",
+      });
+
+      // Redirect to KYC index page using window.location.href
+      setTimeout(() => {
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
+        } else {
+          window.location.href = `/unity`;
+        }
+      }, 500);
     }
     // Reset when status changes away from SUCCESS
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, onNext]);
+  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification]);
   useEffect(() => {
     const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
 
@@ -184,6 +202,11 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
     const { name, value } = e.target;
     formik.setFieldValue(name, value);
     setFormData((d) => ({ ...d, [name]: value }));
+    
+    // Clear OTP error when user starts typing (only for OTP field)
+    if (name === "otp" && formik.errors.otp) {
+      formik.setFieldError("otp", undefined);
+    }
   };
 
   const sendOtp = async () => {
@@ -297,28 +320,6 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         }
       }
 
-      // Store steps array in secureStorage as pendingStatus (from /api/v1/user/onboarding/sendSmsOtp response)
-      if (verifiedData.steps && Array.isArray(verifiedData.steps)) {
-        try {
-          const stepsJson = JSON.stringify(verifiedData.steps);
-          console.log("Storing steps in pendingStatus:", stepsJson);
-          secureLocalStorage.setItem("pendingStatus", stepsJson);
-          
-          // Verify storage worked
-          const stored = secureLocalStorage.getItem("pendingStatus");
-          if (stored) {
-            console.log("Steps stored successfully in pendingStatus");
-            console.log("Verified stored data:", stored);
-          } else {
-            console.error("Failed to verify steps storage");
-          }
-        } catch (e) {
-          console.error("Error storing steps:", e);
-        }
-      } else {
-        console.warn("No steps array found in verifiedData:", verifiedData);
-      }
-
       // Update formData with verified status
       setFormData((prev) => ({
         ...prev,
@@ -338,33 +339,22 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         setFormData((prev) => ({ ...prev, completed: true }));
       }
 
-      // Navigate to onboarding index page after storing
-      // Use setTimeout to ensure storage is complete before navigation
+      // Redirect to KYC index page using window.location.href
       setTimeout(() => {
-        // Get current path
-        const currentPath = window.location.pathname;
-        const referCode = formData.referralCode;
-        
-        // Navigate to show steps - if we have a referral code, use it in the URL
-        if (referCode && currentPath.includes('/unity')) {
-          // Already on unity route with referral code, just trigger parent update
-          // The parent component will detect the storage change and update
-          window.location.reload();
-        } else if (referCode) {
-          // Navigate to unity route with referral code
-          navigate(`/unity/${referCode}`);
+        const referCode = getReferCode();
+        if (referCode) {
+          window.location.href = `/unity/${referCode}`;
         } else {
-          // Navigate to unity route without referral code
-          navigate('/unity');
+          window.location.href = `/unity`;
         }
       }, 200);
     }
-  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, navigate, formData.referralCode]);
+  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification]);
 
   // Start countdown when OTP is sent successfully
   useEffect(() => {
     if (OTPResponseStatus === "SUCCESS" && OTPResponseData?.status !== "verified") {
-      setResendCountdown(30);
+      setResendCountdown(180); // 3 minutes (180 seconds)
     }
   }, [OTPResponseStatus, OTPResponseData]);
 
@@ -464,7 +454,7 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
                 }`}
             >
               {OTPResponseStatus === "SUCCESS" && resendCountdown > 0
-                ? `Resend (${resendCountdown}s)`
+                ? `Resend (${Math.floor(resendCountdown / 60)}:${String(resendCountdown % 60).padStart(2, '0')})`
                 : OTPResponseStatus === "SUCCESS"
                   ? "Resend"
                   : "Verify"}
@@ -498,13 +488,17 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
               name="otp"
               value={formik.values.otp}
               onChange={handleChange}
+              onBlur={(e) => {
+                // Don't validate on blur, just handle the blur event
+                formik.handleBlur(e);
+              }}
               placeholder="Enter Mobile OTP"
-              className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 ${formik.errors.otp ? "border-red-500" : "border-[#1B1717]"
+              className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 ${formik.errors.otp && formik.touched.otp ? "border-red-500" : "border-[#1B1717]"
                 } rounded-xl pl-12 sm:pl-16 md:pl-12 pr-4 sm:pr-5 md:pr-4 text-base sm:text-lg md:text-base outline-none focus:border-[#1B1717] transition`}
             />
           </div>
 
-          {formik.errors.otp && (
+          {formik.errors.otp && formik.touched.otp && (
             <p className="text-red-500 text-sm sm:text-base mt-2">{formik.errors.otp}</p>
           )}
         </div>
