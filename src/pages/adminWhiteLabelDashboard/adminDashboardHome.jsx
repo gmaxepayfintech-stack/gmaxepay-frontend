@@ -143,17 +143,20 @@ const AdminDashboardHome = () => {
                                     <XAxis
                                         dataKey="name"
                                         tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 500 }}
-                                        angle={0}
                                         textAnchor="middle"
                                         height={60}
                                         interval={0}
                                         tickMargin={8}
+                                        axisLine={false}
+                                        tickLine={false}
                                     />
                                     <YAxis
                                         domain={[500, 8000]}
                                         tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 500 }}
                                         ticks={[500, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000]}
                                         width={40}
+                                        axisLine={false}
+                                        tickLine={false}
                                     />
                                     <Tooltip
                                         cursor={false}
@@ -172,7 +175,7 @@ const AdminDashboardHome = () => {
                                         dataKey="value"
                                         fill="#039155"
                                         radius={[4, 4, 0, 0]}
-                                        barSize={25}
+                                        barSize={43}
                                     />
                                 </BarChart>
                             </ResponsiveContainer>
