@@ -710,7 +710,7 @@ const LoginDesign1 = () => {
             setOtp(Array(6).fill(""));
             setCurrentView(VIEWS.FORGOT_PASSWORD);
           }}
-          onSignUp={() => navigate("/setup")}
+          onSignUp={() => navigate("/unity")}
         />
       )}
 

@@ -1,7 +1,8 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { useCompany } from "../context/CompanyContext";
-import { emailOtpResponse, emailRescendOTP } from "../redux/action/retailerOnboardingAction";
+import { emailOtpResponse, emailRescendOTP, submitEmail } from "../redux/action/retailerOnboardingAction";
+import secureLocalStorage from "react-secure-storage";
 
 function Step2({ formData, setFormData, onNext }) {
   const dispatch = useDispatch();
@@ -15,7 +16,17 @@ function Step2({ formData, setFormData, onNext }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData((d) => ({ ...d, [name]: value }));
+    
+    // For OTP field, only allow numbers and max 6 digits
+    if (name === "emailOtp") {
+      // Remove any non-numeric characters
+      const numericValue = value.replace(/\D/g, "");
+      // Limit to 6 digits
+      const limitedValue = numericValue.slice(0, 6);
+      setFormData((d) => ({ ...d, [name]: limitedValue }));
+    } else {
+      setFormData((d) => ({ ...d, [name]: value }));
+    }
   };
 
   const sendEmailOtp = async () => {
@@ -32,6 +43,9 @@ function Step2({ formData, setFormData, onNext }) {
       return;
     }
 
+    // Get token from secureLocalStorage
+    const token = secureLocalStorage.getItem("onboardingToken");
+
     // Prepare request body with email
     const requestBody = {
       email: formData.email.trim(),
@@ -39,12 +53,13 @@ function Step2({ formData, setFormData, onNext }) {
 
     console.log("Sending Email OTP:", requestBody);
     console.log("Using companyData:", companyData);
+    console.log("Using token from secureLocalStorage:", token);
 
     // Mark that email OTP has been sent
     emailOtpSentRef.current = true;
 
     try {
-      dispatch(emailOtpResponse(requestBody, companyData));
+      dispatch(emailOtpResponse(requestBody, companyData, token));
       setFormData((d) => ({ ...d, emailOtpSent: true }));
     } catch (error) {
       console.error("Error sending Email OTP:", error);
@@ -64,6 +79,9 @@ function Step2({ formData, setFormData, onNext }) {
       return;
     }
 
+    // Get token from secureLocalStorage
+    const token = secureLocalStorage.getItem("onboardingToken");
+
     // Prepare request body with email
     const requestBody = {
       email: formData.email.trim(),
@@ -71,10 +89,11 @@ function Step2({ formData, setFormData, onNext }) {
 
     console.log("Resending Email OTP:", requestBody);
     console.log("Using companyData:", companyData);
+    console.log("Using token from secureLocalStorage:", token);
 
-    // Dispatch the emailRescendOTP action (calls resetEmailOtp endpoint)
+    // Dispatch the emailRescendOTP action (calls sendEmailOtp endpoint)
     try {
-      dispatch(emailRescendOTP(requestBody, companyData));
+      dispatch(emailRescendOTP(requestBody, companyData, token));
       // Reset countdown will be handled by useEffect when status becomes SUCCESS
     } catch (error) {
       console.error("Error resending Email OTP:", error);
@@ -82,22 +101,32 @@ function Step2({ formData, setFormData, onNext }) {
   };
 
   const submitEmailOtp = async () => {
-    if (!formData.emailOtp) {
-      onNext();
+    if (!formData.emailOtp || !formData.emailOtp.trim()) {
+      console.error("OTP is required");
       return;
     }
 
+    // Validate OTP is 6 digits
+    if (formData.emailOtp.length !== 6) {
+      console.error("OTP must be 6 digits");
+      return;
+    }
+
+    // Get token from secureLocalStorage
+    const token = secureLocalStorage.getItem("onboardingToken");
+
     // Prepare request body with OTP
     const requestBody = {
-      otp: formData.emailOtp,
+      otp: formData.emailOtp.trim(),
     };
 
     console.log("Submitting Email OTP:", requestBody);
     console.log("Using companyData:", companyData);
+    console.log("Using token from secureLocalStorage:", token);
 
-    // Dispatch the emailRescendOTP action (calls resetEmailOtp endpoint with OTP)
+    // Dispatch the submitEmail action (calls verifyEmailOtp endpoint)
     try {
-      dispatch(emailRescendOTP(requestBody, companyData));
+      dispatch(submitEmail(requestBody, companyData, token));
     } catch (error) {
       console.error("Error submitting Email OTP:", error);
     }
@@ -119,11 +148,28 @@ function Step2({ formData, setFormData, onNext }) {
     (state) => state?.retailerOnboarding?.emailReSendOtp?.message || state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.message
   );
 
+  // Get the full response data to extract steps and pending
+  const emailVerifyResponse = useSelector(
+    (state) => state?.retailerOnboarding?.emailReSendOtp || state?.retailerOnboarding?.emailSubmitEmailOtpResponse
+  );
+
+  // Get resend OTP status to trigger cooldown on resend
+  const emailResendStatus = useSelector(
+    (state) => state?.retailerOnboarding?.emailReSendOtp?.status
+  );
+
   useEffect(() => {
     if (verifuSuccess === "SUCCESS") {
-      setSuccessCooldown(30); // Set countdown to 30 seconds like step1
+      setSuccessCooldown(180); // Set countdown to 3 minutes (180 seconds)
     }
   }, [verifuSuccess]);
+
+  // Also trigger cooldown when resend is successful
+  useEffect(() => {
+    if (emailResendStatus === "SUCCESS") {
+      setSuccessCooldown(180); // Set countdown to 3 minutes (180 seconds) on resend
+    }
+  }, [emailResendStatus]);
 
   useEffect(() => {
     if (successCooldown > 0) {
@@ -133,10 +179,65 @@ function Step2({ formData, setFormData, onNext }) {
   }, [successCooldown]);
 
   useEffect(() => {
-    if (emailVerifyStatus === "SUCCESS") {
-      onNext();
+    if (emailVerifyStatus === "SUCCESS" && emailVerifyResponse) {
+      // Get the data object from response
+      // Response structure from action: { emailReSendOtp: { steps: [...], pending: [...], userToken: "..." }, Success, status, message }
+      // So we need to access emailReSendOtp or emailSubmitEmailOtpResponse property
+      const responseData = emailVerifyResponse?.emailReSendOtp || emailVerifyResponse?.emailSubmitEmailOtpResponse || emailVerifyResponse?.data || emailVerifyResponse;
+      
+      console.log("Email verification response data:", responseData);
+      
+      if (responseData) {
+        // Store userToken as onboardingToken if provided
+        if (responseData.userToken) {
+          try {
+            secureLocalStorage.setItem("onboardingToken", responseData.userToken);
+            console.log("Stored onboardingToken from email verification successfully:", responseData.userToken);
+          } catch (e) {
+            console.error("Error storing onboardingToken from email verification:", e);
+          }
+        } else {
+          console.warn("No userToken found in email verification response:", responseData);
+        }
+
+        // Store steps array in secureStorage as pendingStatus
+        if (responseData.steps && Array.isArray(responseData.steps)) {
+          try {
+            const stepsJson = JSON.stringify(responseData.steps);
+            console.log("Storing steps in pendingStatus from email verification:", stepsJson);
+            secureLocalStorage.setItem("pendingStatus", stepsJson);
+            
+            // Verify storage worked
+            const stored = secureLocalStorage.getItem("pendingStatus");
+            if (stored) {
+              console.log("Steps stored successfully in pendingStatus from email verification");
+              console.log("Verified stored data:", stored);
+            } else {
+              console.error("Failed to verify steps storage from email verification");
+            }
+          } catch (e) {
+            console.error("Error storing steps from email verification:", e);
+          }
+        } else {
+          console.warn("No steps array found in email verification response:", responseData);
+        }
+      } else {
+        console.warn("No response data found in emailVerifyResponse:", emailVerifyResponse);
+      }
+
+      // Reload the window to show updated KYC list
+      setTimeout(() => {
+        window.location.reload();
+      }, 500); // Small delay to ensure storage is complete
     }
-  }, [emailVerifyStatus]);
+  }, [emailVerifyStatus, emailVerifyResponse]);
+
+  // Format countdown timer to show minutes and seconds
+  const formatCountdown = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, '0')}`;
+  };
 
   const handleVerifyOrResend = () => {
     if (verifuSuccess === "SUCCESS") {
@@ -268,7 +369,7 @@ function Step2({ formData, setFormData, onNext }) {
               >
                 {verifuSuccess === "SUCCESS"
                   ? successCooldown > 0
-                    ? `Resend (${successCooldown}s)`
+                    ? `Resend (${formatCountdown(successCooldown)})`
                     : "Resend OTP"
                   : "Verify"}
               </button>
@@ -303,9 +404,12 @@ function Step2({ formData, setFormData, onNext }) {
               <input
                 type="text"
                 name="emailOtp"
-                value={formData.emailOtp}
+                value={formData.emailOtp || ""}
                 onChange={handleChange}
                 placeholder="Enter Email OTP"
+                maxLength={6}
+                inputMode="numeric"
+                pattern="[0-9]*"
                 className="
                   w-full 
                   h-12

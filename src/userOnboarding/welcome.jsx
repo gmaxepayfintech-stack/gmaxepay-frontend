@@ -1,18 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useCompany } from "../../context/CompanyContext";
-import { referalCodeCheck } from "../../redux/action/retailerOnboardingAction";
+import { useNavigate, useParams } from "react-router-dom";
+import { useCompany } from "../context/CompanyContext";
+import { referalCodeCheck } from "../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
-import OnboardingRetailerById from "../../retailerOnboarding/[id]";
+import OnboardingRetailerById from "./[id]";
 
 const Welcome = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { company } = useCompany();
+  const { referCode: urlReferralCode } = useParams();
   const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [referralCompleted, setReferralCompleted] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
 
   const companyFromRedux = useSelector((state) => state?.company?.company);
 
@@ -68,38 +70,32 @@ const Welcome = () => {
     }
   }, [referralCodeError]);
 
-  // Watch for success in Redux - when responseRefer is SUCCESS, immediately show onboarding
+  // Watch for success in Redux - when responseRefer is SUCCESS, navigate to onboarding
   useEffect(() => {
     if (responseRefer === "SUCCESS") {
       setReferralCompleted(true);
+      // Get the referral code from the submission
+      const submittedCode = referralCode?.trim().toUpperCase() || 
+                           referralCodeResponse?.referCode ||
+                           getReferCode();
+      
+      // Store referral code in localStorage
+      if (submittedCode) {
+        try {
+          localStorage.setItem("referralCodeFromUrl", submittedCode);
+        } catch (e) {
+          console.error("Error storing referral code:", e);
+        }
+        navigate(`/unity/${submittedCode}`);
+      } else {
+        navigate("/unity");
+      }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseRefer]);
 
   const handleSignUp = () => {
-    const onboardingToken =
-      companyData?.retailerOnboardingToken ||
-      companyData?.onboardingToken ||
-      companyData?.defaultOnboardingToken ||
-      companyData?.onboardingLinkToken ||
-      null;
-
-    if (onboardingToken) {
-      navigate(
-        `/retailer-onboarding?token=${encodeURIComponent(onboardingToken)}`
-      );
-      return;
-    }
-
-    if (companyData?.signupPageUrl) {
-      window.open(companyData.signupPageUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-    if (companyData?.website) {
-      window.open(companyData.website, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    navigate("/retailer-onboarding");
+    navigate("/unity");
   };
 
   const handleSubmit = (e) => {
@@ -132,6 +128,11 @@ const Welcome = () => {
 
   const handleSkip = () => {
     handleSignUp();
+  };
+
+  // Handle "New To Our Platform" button click
+  const handleNewToPlatform = () => {
+    navigate("/unity");
   };
 
   // Get onboarding token from company data, Redux state, or localStorage
@@ -186,8 +187,143 @@ const Welcome = () => {
 
   const referCode = getReferCode();
 
+  // Handle auto-start with URL referral code
+  const handleAutoStartWithReferral = () => {
+    if (urlReferralCode) {
+      // Store referral code in localStorage
+      try {
+        localStorage.setItem("referralCodeFromUrl", urlReferralCode.toUpperCase());
+      } catch (e) {
+        console.error("Error storing referral code:", e);
+      }
+      navigate(`/unity/${urlReferralCode.toUpperCase()}`);
+    }
+  };
+
+  // If URL has referral code and user clicked auto-start, show onboarding
+  if (urlReferralCode && showOnboarding) {
+    return <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />;
+  }
+
   // If referCode is not there or null, show referral welcome component
   if (!referCode || referCode === null) {
+    // If URL has referral code, show two options
+    if (urlReferralCode) {
+      return (
+        <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
+          <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
+            {/* Title */}
+            <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+              Welcome
+            </h1>
+
+            {/* Subtitle */}
+            <p className="text-center text-sm sm:text-base text-gray-600 mb-6">
+              Choose an option to continue
+            </p>
+
+            {/* Option 1: Auto-start with referral code */}
+            <button
+              type="button"
+              onClick={handleAutoStartWithReferral}
+              className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 hover:bg-green-700`}
+              style={{
+                backgroundColor: primaryColor,
+              }}
+            >
+              Start KYC with Referral Code: {urlReferralCode.toUpperCase()}
+            </button>
+
+            {/* Option 2: Manual entry */}
+            <div className="mb-6">
+              <button
+                type="button"
+                onClick={handleNewToPlatform}
+                className="w-full text-center text-sm text-gray-600 mb-4 hover:text-gray-800 transition underline cursor-pointer"
+              >
+                New To Our Platform ? Create Your Account
+              </button>
+              <form onSubmit={handleSubmit}>
+                {/* Label */}
+                <label
+                  htmlFor="referral-code"
+                  className="block text-sm sm:text-base font-medium text-gray-800 mb-2"
+                >
+                  Enter Referral Code
+                </label>
+
+                {/* Input Field */}
+                <div className="relative mb-4">
+                  <img
+                    src="/img/Export.png"
+                    alt="Export"
+                    className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 opacity-70"
+                    onError={(e) => {
+                      e.target.style.display = "none";
+                    }}
+                  />
+                  <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px bg-gray-300" />
+                  <input
+                    id="referral-code"
+                    type="text"
+                    value={referralCode}
+                    onChange={(e) => {
+                      setReferralCode(e.target.value);
+                      setError("");
+                    }}
+                    placeholder="Enter 9 Digit Code"
+                    maxLength={9}
+                    className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${error ? "border-red-500" : "border-gray-300"
+                      }`}
+                    style={{ focusBorderColor: primaryColor }}
+                    disabled={loading}
+                  />
+                </div>
+
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-sm">{error}</p>
+                  </div>
+                )}
+
+                {/* Success Message */}
+                {referralCodeMessage && referralCodeStatus === "SUCCESS" && (
+                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-700 text-sm">{referralCodeMessage}</p>
+                  </div>
+                )}
+
+                {/* Submit Button */}
+                <button
+                  type="submit"
+                  disabled={loading || !referralCode.trim()}
+                  className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${loading || !referralCode.trim()
+                    ? "bg-gray-400 cursor-not-allowed opacity-70"
+                    : "hover:bg-green-700"
+                    }`}
+                  style={{
+                    backgroundColor:
+                      loading || !referralCode.trim() ? undefined : primaryColor,
+                  }}
+                >
+                  {loading ? "Submitting..." : "Submit"}
+                </button>
+              </form>
+            </div>
+
+            {/* Skip Button */}
+            <button
+              type="button"
+              onClick={handleSkip}
+              className="w-full bg-white border border-gray-300 text-gray-800 py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-50 transition"
+            >
+              Skip For Now
+            </button>
+          </div>
+        </div>
+      );
+    }
     // Show referral form - will be returned at the end
   } else {
     // If referCode exists, check if we should show onboarding
@@ -208,7 +344,14 @@ const Welcome = () => {
         localStorage.setItem("onboardingToken", onboardingToken);
       }
 
-      return <OnboardingRetailerById />;
+      // Navigate to unity with referral code
+      if (referCode) {
+        navigate(`/unity/${referCode}`);
+        return null;
+      } else {
+        navigate("/unity");
+        return null;
+      }
     }
     // If referCode exists but shouldn't show onboarding, fall through to show referral form
   }
@@ -310,3 +453,4 @@ const Welcome = () => {
 };
 
 export default Welcome;
+
