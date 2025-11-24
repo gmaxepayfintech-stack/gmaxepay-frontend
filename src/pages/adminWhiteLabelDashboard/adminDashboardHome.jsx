@@ -113,20 +113,9 @@ const AdminDashboardHome = () => {
                                 $4,21,40,238
                             </p>
                             <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                                <svg
-                                    className="w-3 h-3 sm:w-4 sm:h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 9l-7 7-7-7"
-                                    />
-                                </svg>
-                                $40,238 (4.61%)
+                            ▼
+                                $40,238 
+                                (4.61%)
                             </span>
                         </div>
                     </div>
@@ -195,19 +184,7 @@ const AdminDashboardHome = () => {
                         </p>
                         <div className="flex items-center gap-2 mb-3">
                             <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 9l-7 7-7-7"
-                                    />
-                                </svg>
+                            ▼
                                 4.6%
                             </span>
                         </div>
@@ -229,19 +206,7 @@ const AdminDashboardHome = () => {
                         </p>
                         <div className="flex items-center gap-2 mb-3">
                             <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                <svg
-                                    className="w-4 h-4"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    viewBox="0 0 24 24"
-                                >
-                                    <path
-                                        strokeLinecap="round"
-                                        strokeLinejoin="round"
-                                        strokeWidth={2}
-                                        d="M19 9l-7 7-7-7"
-                                    />
-                                </svg>
+                            ▼
                                 4.4%
                             </span>
                         </div>

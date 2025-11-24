@@ -481,7 +481,7 @@ const WhiteLabel = ({ onBack }) => {
                   <button
                     type="button"
                     onClick={handleFetchPan}
-                    className="bg-green-600 text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 whitespace-nowrap"
+                    className="bg-[#039155] text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 whitespace-nowrap"
                   >
                     Fetch
                   </button>
@@ -791,7 +791,7 @@ const WhiteLabel = ({ onBack }) => {
                   <button
                     type="button"
                     onClick={handleIPCheck}
-                    className="bg-green-600 text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-full sm:w-1/3 mt-2 sm:mt-0"
+                    className="bg-[#039155] text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-full sm:w-1/3 mt-2 sm:mt-0"
                   >
                     IP Check
                   </button>
