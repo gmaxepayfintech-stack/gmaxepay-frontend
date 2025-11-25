@@ -23,12 +23,12 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-8 sm:py-10 md:py-8 lg:py-0 overflow-y-auto">
+    <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-12 lg:px-16 xl:px-20 py-4 sm:py-6 md:py-4 lg:py-0 overflow-hidden">
       <div
         className="w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto"
         style={{ maxWidth: "534px" }}
       >
-        <div className="mb-6 sm:mb-8 md:mb-6 lg:mb-8 text-center">
+        <div className="mb-4 sm:mb-6 md:mb-4 lg:mb-6 text-center">
           <div className="flex justify-center mb-4 sm:mb-6 md:mb-4">
             <img
               src={company?.logo || "/img/gmaxepay.png"}
@@ -71,7 +71,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
           onSubmit={onSubmit}
         >
           {({ isSubmitting, values, setFieldValue }) => (
-            <Form className="mt-6">
+            <Form className="mt-4 sm:mt-6">
               <div className="mb-5 sm:mb-6 md:mb-5 lg:mb-7">
                 <label
                   htmlFor="phoneNumber"
@@ -286,7 +286,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
           )}
         </Formik>
 
-        <div className="mt-7">
+        <div className="mt-4 sm:mt-6">
           <div className="flex items-center justify-center gap-3">
             <img
               src="/img/Chat.png"
@@ -329,10 +329,8 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
             </span>
           </div>
         </div>
-        {/* REMOVE the Sign-Up button completely */}
 
-
-        <div className="mt-14 flex justify-center">
+        <div className="mt-4 sm:mt-6 flex justify-center">
           <p
             style={{
               fontFamily: "Gilroy-Medium",

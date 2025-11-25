@@ -11,6 +11,8 @@ import {
   GET_IP_CHECK_FAILURE,
   GET_PANDATA_FETCH_SUCCESS,
   GET_PANDATA_FETCH_FAILURE,
+  GET_WHITELABEL_LIST_SUCCESS,
+  GET_WHITELABEL_LIST_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -203,6 +205,48 @@ export const createWhiteLabel = (formData) => async (dispatch) => {
     dispatch({
       type: WHITELABEL_CREATE_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const useList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.get(
+      `${API_ROUTE}/api/v1/admin/users`,
+      {
+        data: values,
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: whitelabelList, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS" || status === "Success") {
+      dispatch({
+        type: GET_WHITELABEL_LIST_SUCCESS,
+        payload: { whitelabelList, message, status },
+      });
+    } else {
+      dispatch({
+        type: GET_WHITELABEL_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
     });
   } finally {
     dispatch({ type: LOADING_END });

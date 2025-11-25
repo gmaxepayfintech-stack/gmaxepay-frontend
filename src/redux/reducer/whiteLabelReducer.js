@@ -4,6 +4,8 @@ import {
   GET_CITY_BY_PINCODE_SUCCESS,
   GET_IP_CHECK_SUCCESS,
   GET_PANDATA_FETCH_SUCCESS,
+  GET_WHITELABEL_LIST_SUCCESS,
+
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -16,6 +18,7 @@ const initialState = {
   pincodeByCity: null,
   panData:null,
   createResponse:null,
+  whitelabelList: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -68,6 +71,16 @@ const whiteLabelReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
       };
+
+    case GET_WHITELABEL_LIST_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        error: action.payload,
+        whitelabelList: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
 
     default:
       return state;

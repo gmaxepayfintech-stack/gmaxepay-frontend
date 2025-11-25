@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { User, Users, ChevronDown, X } from 'lucide-react';
+import { User, Users, ChevronDown } from 'lucide-react';
 
 const Rolemanagement = () => {
     const [selectedRole, setSelectedRole] = useState('Admin');
@@ -7,7 +7,7 @@ const Rolemanagement = () => {
     const [expandedModule, setExpandedModule] = useState(null);
     const dropdownRef = useRef(null);
 
-    const roles = ['Admin', 'Manager', 'Editor', 'Viewer', 'Moderator'];
+    const roles = ['Admin', 'Master Distributor', 'Distributor', 'Retailer', 'Employee', 'Others'];
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -82,7 +82,7 @@ const Rolemanagement = () => {
     const [modules, setModules] = useState(initialModules);
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
+        <div className="min-h-screen p-4 sm:p-6 text-[#1B1717]">
             {/* Header Section */}
             <div className="mb-8">
                 <h1 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-2">
@@ -94,7 +94,7 @@ const Rolemanagement = () => {
             </div>
 
             {/* Admin Role Section */}
-            <div className="bg-gray-100 rounded-xl p-4 sm:p-6 mb-8">
+            <div className="bg-[#FFFFFF] rounded-xl p-4 sm:p-6 mb-8">
                 <div className="flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         {/* Admin Icon */}
@@ -181,7 +181,7 @@ const Rolemanagement = () => {
                                 {/* Module Card - Always Visible */}
                                 <div
                                     onClick={() => setExpandedModule(expandedModule === index ? null : index)}
-                                    className="flex items-center gap-4 p-4 rounded-xl bg-white hover:bg-gray-50 transition-colors shadow-sm cursor-pointer"
+                                    className="flex items-center gap-4 p-4 rounded-xl bg-white transition-colors shadow-sm cursor-pointer"
                                 >
                                     {/* Module Icon */}
                                     <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-purple-600 flex items-center justify-center bg-purple-100 flex-shrink-0">
@@ -207,6 +207,73 @@ const Rolemanagement = () => {
                                                 </span>
                                             </div>
                                         </div>
+                                    </div>
+
+                                    {/* Down Arrow (when collapsed) or Toggle Buttons (when expanded) */}
+                                    <div className="flex-shrink-0">
+                                        {expandedModule === index ? (
+                                            // Toggle Buttons for Read and Write (when expanded)
+                                            <div className="flex items-center gap-4">
+                                                {/* Read Toggle Button */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const updatedModules = [...modules];
+                                                        const allReadEnabled = updatedModules[index].permissions.every(p => p.read);
+                                                        
+                                                        // Toggle all read permissions
+                                                        updatedModules[index].permissions.forEach(p => {
+                                                            p.read = !allReadEnabled;
+                                                        });
+                                                        
+                                                        updatedModules[index].readCount = updatedModules[index].permissions.filter(p => p.read).length;
+                                                        setModules(updatedModules);
+                                                    }}
+                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                                    style={{
+                                                        backgroundColor: module.permissions.every(p => p.read) ? '#3b82f6' : '#d1d5db'
+                                                    }}
+                                                >
+                                                    <span
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                            module.permissions.every(p => p.read) ? 'translate-x-6' : 'translate-x-1'
+                                                        }`}
+                                                    />
+                                                </button>
+                                                <span className="text-sm font-medium text-blue-500">Read</span>
+                                                
+                                                {/* Write Toggle Button */}
+                                                <button
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        const updatedModules = [...modules];
+                                                        const allWriteEnabled = updatedModules[index].permissions.every(p => p.write);
+                                                        
+                                                        // Toggle all write permissions
+                                                        updatedModules[index].permissions.forEach(p => {
+                                                            p.write = !allWriteEnabled;
+                                                        });
+                                                        
+                                                        updatedModules[index].writeCount = updatedModules[index].permissions.filter(p => p.write).length;
+                                                        setModules(updatedModules);
+                                                    }}
+                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                                    style={{
+                                                        backgroundColor: module.permissions.every(p => p.write) ? '#10b981' : '#d1d5db'
+                                                    }}
+                                                >
+                                                    <span
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                            module.permissions.every(p => p.write) ? 'translate-x-6' : 'translate-x-1'
+                                                        }`}
+                                                    />
+                                                </button>
+                                                <span className="text-sm font-medium text-green-500">Write</span>
+                                            </div>
+                                        ) : (
+                                            // Down Arrow (when collapsed)
+                                            <ChevronDown className="w-5 h-5 text-gray-400" />
+                                        )}
                                     </div>
                                 </div>
 

@@ -131,15 +131,6 @@ const DashboardLayout = ({ children }) => {
       ],
     },
     {
-      name: "Txn History",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        { name: "Transaction List", path: "/superDashboard/txn-history/list" },
-        { name: "Refunds", path: "/superDashboard/txn-history/refunds" },
-      ],
-    },
-    {
       name: "Reports",
       icon: MaskGroup5,
       dropdown: true,
@@ -148,6 +139,14 @@ const DashboardLayout = ({ children }) => {
         { name: "Monthly Reports", path: "/superDashboard/reports/monthly" },
       ],
     },
+
+    {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/superDashboard/tax-history",
+      dropdown: false,
+    },
+  
   ];
 
   return (
@@ -328,7 +327,7 @@ const DashboardLayout = ({ children }) => {
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 w-full p-2 sm:p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 w-full p-2 sm:p-4 bg-[#FAFAFA] lg:p-6 overflow-y-auto overflow-x-hidden">
           {children}
         </main>
       </div>
