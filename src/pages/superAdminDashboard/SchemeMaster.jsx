@@ -155,7 +155,7 @@ const SchemeMaster = () => {
     const filters = ['All Schemes', 'Global', 'Private', 'Premium', 'Free'];
 
     return (
-        <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
+        <div className="min-h-screen  p-4 sm:p-6 text-[#1B1717]">
             {/* Header Section */}
             <div className="mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-4">
@@ -175,9 +175,12 @@ const SchemeMaster = () => {
                         <Plus className="w-4 h-4 rounded-full border border-white sm:w-5 sm:h-5" />
                     </button>
                 </div>
+            </div>
 
+            {/* Container for Search, Filter, and Scheme Cards */}
+            <div className="bg-white rounded-2xl p-4 sm:p-6 shadow-sm  mb-6">
                 {/* Search and Filter Section */}
-                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mb-6">
                     {/* Search Bar */}
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
@@ -206,10 +209,9 @@ const SchemeMaster = () => {
                         ))}
                     </div>
                 </div>
-            </div>
 
-            {/* Scheme Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 mb-6">
+                {/* Scheme Cards Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
                 {schemes.map((scheme) => {
                     const IconComponent = scheme.icon;
                     return (
@@ -282,6 +284,7 @@ const SchemeMaster = () => {
                         </div>
                     );
                 })}
+                </div>
             </div>
 
             {/* Pagination */}
@@ -367,18 +370,17 @@ const SchemeMaster = () => {
                                 <h3 className="text-base font-semibold text-[#1B1717] mb-4">
                                     Scheme Configuration
                                 </h3>
-                                
+
                                 {/* Scheme Mode */}
                                 <div className="mb-5">
                                     <label className="block text-sm font-medium text-[#1B1717] mb-3">
                                         Scheme Mode <span className="text-red-500">*</span>
                                     </label>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            formData.schemeMode === 'Global' 
-                                                ? 'border-[#039155] bg-green-50' 
-                                                : 'border-gray-300 bg-white hover:border-gray-400'
-                                        }`}>
+                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.schemeMode === 'Global'
+                                            ? 'border-[#039155] bg-green-50'
+                                            : 'border-gray-300 bg-white hover:border-gray-400'
+                                            }`}>
                                             <div className="relative mt-0.5 flex-shrink-0">
                                                 <input
                                                     type="radio"
@@ -388,20 +390,18 @@ const SchemeMaster = () => {
                                                     onChange={(e) => setFormData({ ...formData, schemeMode: e.target.value })}
                                                     className="sr-only"
                                                 />
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                    formData.schemeMode === 'Global' 
-                                                        ? 'border-[#039155] bg-[#039155]' 
-                                                        : 'border-gray-300 bg-white'
-                                                }`}>
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.schemeMode === 'Global'
+                                                    ? 'border-[#039155] bg-[#039155]'
+                                                    : 'border-gray-300 bg-white'
+                                                    }`}>
                                                     {formData.schemeMode === 'Global' && (
                                                         <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                                                     )}
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <span className={`text-sm font-medium block ${
-                                                    formData.schemeMode === 'Global' ? 'text-[#039155]' : 'text-[#1B1717]'
-                                                }`}>
+                                                <span className={`text-sm font-medium block ${formData.schemeMode === 'Global' ? 'text-[#039155]' : 'text-[#1B1717]'
+                                                    }`}>
                                                     Global
                                                 </span>
                                                 <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
@@ -409,11 +409,10 @@ const SchemeMaster = () => {
                                                 </p>
                                             </div>
                                         </label>
-                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            formData.schemeMode === 'Private' 
-                                                ? 'border-[#039155] bg-green-50' 
-                                                : 'border-gray-300 bg-white hover:border-gray-400'
-                                        }`}>
+                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.schemeMode === 'Private'
+                                            ? 'border-[#039155] bg-green-50'
+                                            : 'border-gray-300 bg-white hover:border-gray-400'
+                                            }`}>
                                             <div className="relative mt-0.5 flex-shrink-0">
                                                 <input
                                                     type="radio"
@@ -423,20 +422,18 @@ const SchemeMaster = () => {
                                                     onChange={(e) => setFormData({ ...formData, schemeMode: e.target.value })}
                                                     className="sr-only"
                                                 />
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                    formData.schemeMode === 'Private' 
-                                                        ? 'border-[#039155] bg-[#039155]' 
-                                                        : 'border-gray-300 bg-white'
-                                                }`}>
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.schemeMode === 'Private'
+                                                    ? 'border-[#039155] bg-[#039155]'
+                                                    : 'border-gray-300 bg-white'
+                                                    }`}>
                                                     {formData.schemeMode === 'Private' && (
                                                         <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                                                     )}
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <span className={`text-sm font-medium block ${
-                                                    formData.schemeMode === 'Private' ? 'text-[#039155]' : 'text-[#1B1717]'
-                                                }`}>
+                                                <span className={`text-sm font-medium block ${formData.schemeMode === 'Private' ? 'text-[#039155]' : 'text-[#1B1717]'
+                                                    }`}>
                                                     Private
                                                 </span>
                                                 <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
@@ -453,11 +450,10 @@ const SchemeMaster = () => {
                                         Scheme Type
                                     </label>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            formData.schemeType === 'Free' 
-                                                ? 'border-[#039155] bg-green-50' 
-                                                : 'border-gray-300 bg-white hover:border-gray-400'
-                                        }`}>
+                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.schemeType === 'Free'
+                                            ? 'border-[#039155] bg-green-50'
+                                            : 'border-gray-300 bg-white hover:border-gray-400'
+                                            }`}>
                                             <div className="relative mt-0.5 flex-shrink-0">
                                                 <input
                                                     type="radio"
@@ -467,20 +463,18 @@ const SchemeMaster = () => {
                                                     onChange={(e) => setFormData({ ...formData, schemeType: e.target.value })}
                                                     className="sr-only"
                                                 />
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                    formData.schemeType === 'Free' 
-                                                        ? 'border-[#039155] bg-[#039155]' 
-                                                        : 'border-gray-300 bg-white'
-                                                }`}>
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.schemeType === 'Free'
+                                                    ? 'border-[#039155] bg-[#039155]'
+                                                    : 'border-gray-300 bg-white'
+                                                    }`}>
                                                     {formData.schemeType === 'Free' && (
                                                         <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                                                     )}
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <span className={`text-sm font-medium block ${
-                                                    formData.schemeType === 'Free' ? 'text-[#039155]' : 'text-[#1B1717]'
-                                                }`}>
+                                                <span className={`text-sm font-medium block ${formData.schemeType === 'Free' ? 'text-[#039155]' : 'text-[#1B1717]'
+                                                    }`}>
                                                     Free
                                                 </span>
                                                 <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
@@ -488,11 +482,10 @@ const SchemeMaster = () => {
                                                 </p>
                                             </div>
                                         </label>
-                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${
-                                            formData.schemeType === 'Premium' 
-                                                ? 'border-[#039155] bg-green-50' 
-                                                : 'border-gray-300 bg-white hover:border-gray-400'
-                                        }`}>
+                                        <label className={`flex items-start gap-3 p-4 border-2 rounded-lg cursor-pointer transition-all ${formData.schemeType === 'Premium'
+                                            ? 'border-[#039155] bg-green-50'
+                                            : 'border-gray-300 bg-white hover:border-gray-400'
+                                            }`}>
                                             <div className="relative mt-0.5 flex-shrink-0">
                                                 <input
                                                     type="radio"
@@ -502,20 +495,18 @@ const SchemeMaster = () => {
                                                     onChange={(e) => setFormData({ ...formData, schemeType: e.target.value })}
                                                     className="sr-only"
                                                 />
-                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${
-                                                    formData.schemeType === 'Premium' 
-                                                        ? 'border-[#039155] bg-[#039155]' 
-                                                        : 'border-gray-300 bg-white'
-                                                }`}>
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all ${formData.schemeType === 'Premium'
+                                                    ? 'border-[#039155] bg-[#039155]'
+                                                    : 'border-gray-300 bg-white'
+                                                    }`}>
                                                     {formData.schemeType === 'Premium' && (
                                                         <div className="w-2.5 h-2.5 rounded-full bg-white"></div>
                                                     )}
                                                 </div>
                                             </div>
                                             <div className="flex-1">
-                                                <span className={`text-sm font-medium block ${
-                                                    formData.schemeType === 'Premium' ? 'text-[#039155]' : 'text-[#1B1717]'
-                                                }`}>
+                                                <span className={`text-sm font-medium block ${formData.schemeType === 'Premium' ? 'text-[#039155]' : 'text-[#1B1717]'
+                                                    }`}>
                                                     Premium
                                                 </span>
                                                 <p className="text-xs text-gray-600 mt-0.5 leading-relaxed">
@@ -527,69 +518,73 @@ const SchemeMaster = () => {
                                 </div>
                             </div>
 
-                            {/* Subscription Type */}
-                            <div className="relative" ref={dropdownRef}>
-                                <label className="block text-sm font-medium text-[#1B1717] mb-2">
-                                    Subscription Type
-                                </label>
-                                <div className="relative">
-                                    <input
-                                        type="text"
-                                        placeholder="Select Subscription Type"
-                                        value={formData.subscriptionType}
-                                        readOnly
-                                        onClick={() => setIsSubscriptionDropdownOpen(!isSubscriptionDropdownOpen)}
-                                        className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] cursor-pointer text-sm bg-white"
-                                    />
-                                    <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-transform pointer-events-none ${isSubscriptionDropdownOpen ? 'rotate-180' : ''}`} />
-                                </div>
-                                {isSubscriptionDropdownOpen && (
-                                    <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
-                                        <div
-                                            onClick={() => {
-                                                setFormData({ ...formData, subscriptionType: 'Monthly' });
-                                                setIsSubscriptionDropdownOpen(false);
-                                            }}
-                                            className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
-                                        >
-                                            Monthly
-                                        </div>
-                                        <div
-                                            onClick={() => {
-                                                setFormData({ ...formData, subscriptionType: 'Yearly' });
-                                                setIsSubscriptionDropdownOpen(false);
-                                            }}
-                                            className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
-                                        >
-                                            Yearly
-                                        </div>
-                                        <div
-                                            onClick={() => {
-                                                setFormData({ ...formData, subscriptionType: 'Lifetime' });
-                                                setIsSubscriptionDropdownOpen(false);
-                                            }}
-                                            className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
-                                        >
-                                            Lifetime
-                                        </div>
+                            {/* Subscription Type and Premium Amount - Side by Side */}
+                            <div className="grid grid-cols-2 gap-4">
+                                {/* Subscription Type */}
+                                <div className="relative" ref={dropdownRef}>
+                                    <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        Subscription Type
+                                    </label>
+                                    <div className="relative">
+                                        <input
+                                            type="text"
+                                            placeholder="Select Subscription Type"
+                                            value={formData.subscriptionType}
+                                            readOnly
+                                            onClick={() => setIsSubscriptionDropdownOpen(!isSubscriptionDropdownOpen)}
+                                            className="w-full px-4 py-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] cursor-pointer text-sm bg-white"
+                                        />
+                                        <ChevronDown className={`absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 transition-transform pointer-events-none ${isSubscriptionDropdownOpen ? 'rotate-180' : ''}`} />
                                     </div>
-                                )}
-                            </div>
+                                    {isSubscriptionDropdownOpen && (
+                                        <div className="absolute z-20 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                            <div
+                                                onClick={() => {
+                                                    setFormData({ ...formData, subscriptionType: 'Monthly' });
+                                                    setIsSubscriptionDropdownOpen(false);
+                                                }}
+                                                className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
+                                            >
+                                                Monthly
+                                            </div>
+                                            <div
+                                                onClick={() => {
+                                                    setFormData({ ...formData, subscriptionType: 'Yearly' });
+                                                    setIsSubscriptionDropdownOpen(false);
+                                                }}
+                                                className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
+                                            >
+                                                Yearly
+                                            </div>
+                                            <div
+                                                onClick={() => {
+                                                    setFormData({ ...formData, subscriptionType: 'Lifetime' });
+                                                    setIsSubscriptionDropdownOpen(false);
+                                                }}
+                                                className="px-4 py-2.5 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
+                                            >
+                                                Lifetime
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
 
-                            {/* Premium Amount */}
-                            <div>
-                                <label className="block text-sm font-medium text-[#1B1717] mb-2">
-                                    Premium Amount
-                                </label>
-                                <input
-                                    type="number"
-                                    placeholder="Enter Premium Amount"
-                                    value={formData.premiumAmount}
-                                    onChange={(e) => setFormData({ ...formData, premiumAmount: e.target.value })}
-                                    className="w-full px-4 py-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm"
-                                />
+                                {/* Premium Amount */}
+                                <div>
+                                    <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        Premium Amount
+                                    </label>
+                                    <input
+                                        type="number"
+                                        placeholder="Enter Premium Amount"
+                                        value={formData.premiumAmount}
+                                        onChange={(e) => setFormData({ ...formData, premiumAmount: e.target.value })}
+                                        className="w-full px-4 py-6 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm"
+                                    />
+                                </div>
                             </div>
                         </div>
+
 
                         {/* Modal Footer */}
                         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-6 py-4 flex items-center justify-end gap-3 rounded-b-xl">
