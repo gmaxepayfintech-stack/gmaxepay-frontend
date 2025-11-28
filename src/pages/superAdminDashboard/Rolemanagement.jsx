@@ -220,12 +220,12 @@ const Rolemanagement = () => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
                                                         const allReadEnabled = updatedModules[index].permissions.every(p => p.read);
-                                                        
+
                                                         // Toggle all read permissions
                                                         updatedModules[index].permissions.forEach(p => {
                                                             p.read = !allReadEnabled;
                                                         });
-                                                        
+
                                                         updatedModules[index].readCount = updatedModules[index].permissions.filter(p => p.read).length;
                                                         setModules(updatedModules);
                                                     }}
@@ -235,25 +235,24 @@ const Rolemanagement = () => {
                                                     }}
                                                 >
                                                     <span
-                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                                            module.permissions.every(p => p.read) ? 'translate-x-6' : 'translate-x-1'
-                                                        }`}
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.permissions.every(p => p.read) ? 'translate-x-6' : 'translate-x-1'
+                                                            }`}
                                                     />
                                                 </button>
                                                 <span className="text-sm font-medium text-blue-500">Read</span>
-                                                
+
                                                 {/* Write Toggle Button */}
                                                 <button
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
                                                         const allWriteEnabled = updatedModules[index].permissions.every(p => p.write);
-                                                        
+
                                                         // Toggle all write permissions
                                                         updatedModules[index].permissions.forEach(p => {
                                                             p.write = !allWriteEnabled;
                                                         });
-                                                        
+
                                                         updatedModules[index].writeCount = updatedModules[index].permissions.filter(p => p.write).length;
                                                         setModules(updatedModules);
                                                     }}
@@ -263,9 +262,8 @@ const Rolemanagement = () => {
                                                     }}
                                                 >
                                                     <span
-                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                                            module.permissions.every(p => p.write) ? 'translate-x-6' : 'translate-x-1'
-                                                        }`}
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.permissions.every(p => p.write) ? 'translate-x-6' : 'translate-x-1'
+                                                            }`}
                                                     />
                                                 </button>
                                                 <span className="text-sm font-medium text-green-500">Write</span>

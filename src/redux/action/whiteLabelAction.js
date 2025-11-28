@@ -13,6 +13,12 @@ import {
   GET_PANDATA_FETCH_FAILURE,
   GET_WHITELABEL_LIST_SUCCESS,
   GET_WHITELABEL_LIST_FAILURE,
+  FETCH_KYC_DETAILS_SUCCESS,
+  FETCH_KYC_DETAILS_FAILURE,
+  GET_KYCSTATUS_SUCCESS,
+  GET_KYCSTATUS_FAILURE,
+  UPDATE_KYCSTATUS_SUCCESS,
+  UPDATE_KYCSTATUS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -216,10 +222,10 @@ export const useList = (values) => async (dispatch) => {
 
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    const response = await axios.get(
-      `${API_ROUTE}/api/v1/admin/users`,
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/list`,
+      values,
       {
-        data: values,
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
@@ -229,7 +235,7 @@ export const useList = (values) => async (dispatch) => {
 
     const { data: whitelabelList, message, status } = response?.data ?? {};
 
-    if (status === "SUCCESS" || status === "Success") {
+    if (status === "SUCCESS") {
       dispatch({
         type: GET_WHITELABEL_LIST_SUCCESS,
         payload: { whitelabelList, message, status },
@@ -243,6 +249,132 @@ export const useList = (values) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const kycData = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/${id}/kyc/complete`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: FETCH_KYC_DETAILS_SUCCESS,
+        payload: { data, message, status },
+      });
+    } else {
+      dispatch({
+        type: FETCH_KYC_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: FETCH_KYC_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const kycStatusData = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycStatusClick, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_KYCSTATUS_SUCCESS,
+        payload: { kycStatusClick, message, status },
+      });
+    } else {
+      dispatch({
+        type: GET_KYCSTATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: GET_KYCSTATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const kycStatusCheck = (id, body = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.put(
+      `${API_ROUTE}/api/v1/admin/users/${id}`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycStatusCheck, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPDATE_KYCSTATUS_SUCCESS,
+        payload: { kycStatusCheck, message, status },
+      });
+    } else {
+      dispatch({
+        type: UPDATE_KYCSTATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: UPDATE_KYCSTATUS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",

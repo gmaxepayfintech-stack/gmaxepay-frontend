@@ -5,6 +5,9 @@ import {
   GET_IP_CHECK_SUCCESS,
   GET_PANDATA_FETCH_SUCCESS,
   GET_WHITELABEL_LIST_SUCCESS,
+  FETCH_KYC_DETAILS_SUCCESS,
+  GET_KYCSTATUS_SUCCESS,
+  UPDATE_KYCSTATUS_SUCCESS,
 
 } from "../actionType/whiteLabelAction";
 
@@ -19,6 +22,9 @@ const initialState = {
   panData:null,
   createResponse:null,
   whitelabelList: null,
+  kycDetails:null,
+  kycStatusClick:null,
+  kycStatusCheck:null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -76,12 +82,45 @@ const whiteLabelReducer = (state = initialState, action) => {
       return{
         ...state,
         loading: false,
-        error: action.payload,
         whitelabelList: action.payload,
         Success: action.payload.status,
         message: action.payload.message,
       }
+    case FETCH_KYC_DETAILS_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        kycDetails: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
 
+    case GET_KYCSTATUS_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        kycStatusClick: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+
+    case UPDATE_KYCSTATUS_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        kycStatusClick: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      } 
+      case UPDATE_KYCSTATUS_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          error: action.payload,
+          message: action.payload.message,
+          Success: action.payload.status,
+          kycStatusCheck: action.payload,
+        }
     default:
       return state;
   }
