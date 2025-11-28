@@ -36,7 +36,6 @@ import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./userOnboarding/welcome";
 import RetailerOnboarding from "./userOnboarding/[id]";
-import WhitelabelAdmin from "./layouts/WhitelabelAdmin";
 
 function App() {
   const { showNotification } = useNotification();
@@ -183,15 +182,15 @@ function App() {
     }
   }, [onBoardingMobileVerification]);
 
-  useEffect(() => {
-    if (whiteLabelPanMessageSuccess?.message) {
-      showNotification({
-        type: "success",
-        message: whiteLabelPanMessageSuccess?.message,
-        isCritical: true,
-      });
-    }
-  }, [whiteLabelPanMessageSuccess]);
+  // useEffect(() => {
+  //   if (whiteLabelPanMessageSuccess?.message) {
+  //     showNotification({
+  //       type: "success",
+  //       message: whiteLabelPanMessageSuccess?.message,
+  //       isCritical: true,
+  //     });
+  //   }
+  // }, [whiteLabelPanMessageSuccess]);
 
   useEffect(() => {
     if (whiteLabelPanMessageFailure?.message) {

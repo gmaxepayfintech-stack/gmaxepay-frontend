@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaCalendarAlt, FaSearch, FaPlus, FaUpload } from "react-icons/fa";
+import { FaSearch, FaPlus, FaUpload, FaCheckCircle, FaTimesCircle, FaUser, FaIdCard, FaBuilding, FaUniversity, FaExpand } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { X, ZoomIn } from "lucide-react";
+import * as XLSX from "xlsx";
 import WhiteLabel from "./WhiteLabel";
 import AdminWhitelabelList from "./superAdminDashboard/adminWhitelabelList";
 import MasterDistribution from "./superAdminDashboard/masterDistribution";
@@ -10,9 +12,9 @@ import Distribution from "./superAdminDashboard/distribution";
 import DistributionOnboarding from "./superAdminDashboard/DistrubtionOnboarding";
 import Retailers from "./superAdminDashboard/Retailers";
 import RetailerOnboarding from "./superAdminDashboard/RetailerOnboarding";
-import { useList } from "../redux/action/whiteLabelAction";
+import { useList, kycData, kycStatusCheck } from "../redux/action/whiteLabelAction";
 
-// Generate data for different navigation items
+
 const generateTableData = (type, count = 12) => {
   let userRole = "WL";
   if (type === "Distributor") {
@@ -39,7 +41,6 @@ const generateTableData = (type, count = 12) => {
     parentName: "GMAXEPAY",
     parentRole: parentRole,
     companyName: "GMAXEPAY",
-    mainWallet: "3000",
   };
 
   return Array.from({ length: count }, (_, index) => ({
@@ -48,20 +49,6 @@ const generateTableData = (type, count = 12) => {
   }));
 };
 
-// Master Distributor data matching the image
-const masterDistributionData = Array.from({ length: 12 }, (_, index) => ({
-  srNo: String(index + 1).padStart(2, "0"),
-  date: "13-10-25",
-  userAgentCode: "SECPY26007",
-  userName: "Rudra",
-  userRole: "WL",
-  mobile: "9350547710",
-  email: "Rudraj@Gmail.Com",
-  parentName: "GMAXEPAY",
-  parentRole: "Enterprise Partner",
-  companyName: "GMAXEPAY",
-  mainWallet: "3000",
-}));
 
 const whiteLabelData = generateTableData("Whitelabel");
 const DistributorData = generateTableData("Distributor");
@@ -69,12 +56,54 @@ const retailersData = generateTableData("Retailers");
 
 const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
-  const { whitelabelList } = useSelector((state) => state.whiteLabel || {});
-  
+
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
   const [activeNav, setActiveNav] = useState("Whitelabel");
   const [currentPage, setCurrentPage] = useState(1);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  // Set toDate to today's date in YYYY-MM-DD format
+  const [toDate, setToDate] = useState(() => {
+    const today = new Date();
+    return today.toISOString().split('T')[0];
+  });
+  const [selectedKycData, setSelectedKycData] = useState(null);
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [zoomedImage, setZoomedImage] = useState(null);
+  const kycModalRef = useRef(null);
+
+  // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
+  const responseForTable = useSelector((state) => state?.whitelabel?.whitelabelList?.whitelabelList || []);
+
+  const totalCount = useSelector((state) => {
+    const response = state?.whitelabel?.whitelabelList;
+    return response?.totalCount || response?.total || response?.whitelabelList?.length || 0;
+  });
+
+  const lockCheck = useSelector((state)=>state?.whitelabel?.kycStatusClick?.kycStatusClick?.isLocked);
+  console.log("lockCheck",lockCheck);
+  
+  // Get kycStatusCheck success state to refresh table after update
+  const kycStatusCheckResponse = useSelector((state) => state?.whitelabel?.kycStatusCheck);
+  console.log("kycStatusCheckResponse:", kycStatusCheckResponse);
+
+  // Calculate total pages based on total count (10 records per page)
+  const totalPages = Math.ceil(totalCount / 10) || 1;
+
+  // Get KYC details from Redux state
+  const kycRetrieved = useSelector((state) => state?.whitelabel?.kycDetails?.data || null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 500); // 500ms delay
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   // Map navigation to userRole numbers
   const getRoleNumber = (nav) => {
@@ -92,15 +121,24 @@ const CreateWhiteLabel = () => {
     }
   };
 
-  // Fetch data from API
+
+  // Fetch data from API based on role and kycStatus
   useEffect(() => {
+    const userRole = getRoleNumber(activeNav);
+
+    // Build query object - only include kycStatus when onboarding process is active
     const query = {
-      userRole: getRoleNumber(activeNav),
+      userRole: userRole,
+      ...(showOnboardingList && { kycStatus: "pending" }),
     };
 
-    // Add kycStatus only when onboarding process is active
-    if (showOnboardingList) {
-      query.kycStatus = "pending";
+    // Build customSearch object - include mobileNo and name only
+    const customSearch = {};
+
+    // Add search term if exists
+    if (debouncedSearchTerm.trim()) {
+      customSearch.mobileNo = debouncedSearchTerm.trim();
+      customSearch.name = debouncedSearchTerm.trim();
     }
 
     const payload = {
@@ -110,119 +148,358 @@ const CreateWhiteLabel = () => {
         page: currentPage,
         paginate: 10,
       },
-      customSearch: {},
+      customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
     };
 
     dispatch(useList(payload));
-  }, [activeNav, currentPage, showOnboardingList, dispatch]);
+  }, [activeNav, currentPage, showOnboardingList, debouncedSearchTerm, fromDate, toDate, dispatch]);
+
+  // Refresh table when kycStatusCheck succeeds
+  useEffect(() => {
+    if (kycStatusCheckResponse?.status === "SUCCESS") {
+      console.log("kycStatusCheck succeeded, refreshing table data");
+      
+      // Refresh table data by dispatching useList again
+      const userRole = getRoleNumber(activeNav);
+      const query = {
+        userRole: userRole,
+        ...(showOnboardingList && { kycStatus: "pending" }),
+      };
+      const customSearch = {};
+      if (debouncedSearchTerm.trim()) {
+        customSearch.mobileNo = debouncedSearchTerm.trim();
+        customSearch.name = debouncedSearchTerm.trim();
+      }
+      const payload = {
+        query: query,
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
+      };
+      console.log("Refreshing table data with payload:", payload);
+      dispatch(useList(payload));
+    }
+  }, [kycStatusCheckResponse, activeNav, currentPage, showOnboardingList, debouncedSearchTerm, dispatch]);
+
+  // Update selectedKycData when Redux state changes
+  useEffect(() => {
+    if (kycRetrieved && showKycModal) {
+      setSelectedKycData(kycRetrieved);
+    }
+  }, [kycRetrieved, showKycModal]);
+
+  // Handle click outside modal
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
+        setShowKycModal(false);
+        setSelectedKycData(null);
+      }
+    };
+
+    if (showKycModal) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [showKycModal]);
 
   const tableHeaders = [
-    "SR NO",
+    "ID",
     "Date",
     "User Agent Code",
-    "User Name",
+    "Name",
     "User Role",
-    "Mobile Number",
+    "Mobile No",
     "Email Id",
     "Parent Name",
     "Parent Role",
     "Company Name",
+    "KYC Status",
+    "KYC Steps",
     "Main Wallet",
+    "AEPS Wallet",
+    "Remaining Days",
+    "Status",
+    "KYC Details",
+    "Action",
   ];
 
+  const safeString = (value, fallback = "N/A") => {
+    if (value === null || value === undefined) return fallback;
+    if (typeof value === 'object') {
+      // If it's an object, try to stringify or return fallback
+      try {
+        return JSON.stringify(value);
+      } catch {
+        return fallback;
+      }
+    }
+    return String(value);
+  };
+
   // Transform API data to table format for main table
-  const transformApiData = (apiData) => {
-    // Check different possible response structures
-    const data = apiData?.data?.docs || apiData?.docs || apiData?.data || [];
-    
+  const transformApiData = (dataArray) => {
+    // Handle if dataArray is already an array or if it's a response object
+    const data = Array.isArray(dataArray)
+      ? dataArray
+      : (dataArray?.data?.docs || dataArray?.docs || dataArray?.data || []);
+
     if (!Array.isArray(data) || data.length === 0) {
       return [];
     }
 
-    return data.map((item, index) => ({
-      srNo: String((currentPage - 1) * 10 + index + 1).padStart(2, "0"),
-      date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB').replaceAll('/', '-') : "N/A",
-      userAgentCode: item.agentCode || item.userAgentCode || "N/A",
-      userName: item.name || item.userName || "N/A",
-      userRole: (() => {
-        if (item.userRole === 5) return "R";
-        if (item.userRole === 4) return "D";
-        if (item.userRole === 3) return "MD";
-        return "WL";
-      })(),
-      mobile: item.mobile || item.phone || "N/A",
-      email: item.email || "N/A",
-      parentName: item.parentName || item.parent?.name || "N/A",
-      parentRole: item.parentRole || item.parent?.role || "N/A",
-      companyName: item.companyName || item.company?.name || "N/A",
-      mainWallet: item.mainWallet || item.wallet || "0",
-    }));
+    return data.map((item, index) => {
+      // Format date from API
+      let formattedDate = "N/A";
+      if (item.date) {
+        formattedDate = new Date(item.date).toLocaleDateString('en-GB').replaceAll('/', '-');
+      } else if (item.createdAt) {
+        formattedDate = new Date(item.createdAt).toLocaleDateString('en-GB').replaceAll('/', '-');
+      }
+
+      // Calculate remaining days (you may need to adjust this based on your business logic)
+      const calculateRemainingDays = () => {
+        // If there's a subscription end date, calculate from that
+        if (item.subscriptionEndDate) {
+          const endDate = new Date(item.subscriptionEndDate);
+          const today = new Date();
+          const diffTime = endDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays > 0 ? String(diffDays) : "0";
+        }
+        // Default value as shown in image
+        return "1067";
+      };
+
+      // Get AEPS Wallet (apesWallet) from wallet object
+      const getAepsWallet = () => {
+        if (item.wallet && typeof item.wallet === 'object') {
+          return String(item.wallet.apesWallet || item.wallet.aepsWallet || "0");
+        }
+        return "0";
+      };
+
+      // Return object with keys matching table header order
+      const transformed = {
+        id: safeString(item.id, "N/A"),
+        date: formattedDate,
+        userId: safeString(item.userId, "N/A"),
+        name: safeString(item.name, "N/A"),
+        userRole: safeString(item.userRole, "N/A"),
+        mobileNo: safeString(item.mobileNo || item.mobile, "N/A"),
+        emailId: safeString(item.email, "N/A"),
+        parentName: safeString(item.parentName || item.parent?.name, "N/A"),
+        parentRole: safeString(item.parentRole || item.parent?.role, "N/A"),
+        companyName: safeString(item.company || item.companyName || item.company?.name, "N/A"),
+        kycStatus: safeString(item.kycStatus, "N/A"),
+        kycSteps: safeString(item.kycSteps, "N/A"),
+        aepsWallet: getAepsWallet(),
+        remainingDays: calculateRemainingDays(),
+        status: safeString(item.status, "Active"),
+        kycDetails: item.kycDetails || null, // Store full kycDetails object for modal
+        approved: item.approved === undefined ? true : item.approved, // For checkbox
+        originalItem: item,
+      };
+
+      return transformed;
+    });
   };
 
-  // Transform API data to component table format
-  const transformDataForComponents = (apiData) => {
-    const data = apiData?.data?.docs || apiData?.docs || apiData?.data || [];
-    
+  const transformDataForComponents = (dataArray, componentType = 'default') => {
+    // Handle if dataArray is already an array or if it's a response object
+    const data = Array.isArray(dataArray)
+      ? dataArray
+      : (dataArray?.data?.docs || dataArray?.docs || dataArray?.data || []);
+
     if (!Array.isArray(data) || data.length === 0) {
       return [];
     }
 
-    return data.map((item, index) => ({
-      srNo: String((currentPage - 1) * 10 + index + 1).padStart(2, "0"),
-      date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB').replaceAll('/', '-') : "13-10-25",
-      userAgentCode: item.agentCode || item.userAgentCode || "SECPY26007",
-      userName: item.name || item.userName || "Rudra",
-      userRole: (() => {
-        if (item.userRole === 5) return "R";
-        if (item.userRole === 4) return "D";
-        if (item.userRole === 3) return "MD";
-        return "WL";
-      })(),
-      mobileNumber: item.mobile || item.phone || "9350547710",
-      emailId: item.email || "Rudraj@Gmail.Com",
-      parentName: item.parentName || item.parent?.name || "GMAXEPAY",
-      parentRole: item.parentRole || item.parent?.role || "Enterprise Partner",
-      companyName: item.companyName || item.company?.name || "GMAXEPAY",
-      mainWallet: item.mainWallet || item.wallet || "3000",
-    }));
+    return data.map((item, index) => {
+      // Format date from API response
+      let formattedDate = "13-10-25";
+      if (item.date) {
+        formattedDate = new Date(item.date).toLocaleDateString('en-GB').replaceAll('/', '-');
+      } else if (item.createdAt) {
+        formattedDate = new Date(item.createdAt).toLocaleDateString('en-GB').replaceAll('/', '-');
+      }
+
+      // Get AEPS Wallet (apesWallet) from wallet object
+      const getAepsWallet = () => {
+        if (item.wallet && typeof item.wallet === 'object') {
+          return String(item.wallet.apesWallet || item.wallet.aepsWallet || "0");
+        }
+        return "0";
+      };
+
+      // Calculate remaining days
+      const calculateRemainingDays = () => {
+        if (item.subscriptionEndDate) {
+          const endDate = new Date(item.subscriptionEndDate);
+          const today = new Date();
+          const diffTime = endDate - today;
+          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+          return diffDays > 0 ? String(diffDays) : "0";
+        }
+        return "1067";
+      };
+
+      const baseData = {
+        id: safeString(item.id, "N/A"),
+        srNo: String((currentPage - 1) * 10 + index + 1).padStart(2, "0"),
+        date: formattedDate,
+        userId: safeString(item.userId, "N/A"),
+        userAgentCode: safeString(item.userId || item.agentCode || item.userAgentCode, "SECPY26007"),
+        userName: safeString(item.name || item.userName, "Rudra"),
+        name: safeString(item.name, "N/A"),
+        userRole: safeString(item.userRole, "WL"), // API returns string: "WL", "MD", "D", "R"
+        mobileNo: safeString(item.mobileNo || item.mobile, "N/A"),
+        mobileNumber: safeString(item.mobileNo || item.mobile || item.phone, "N/A"),
+        emailId: safeString(item.email, "N/A"),
+        parentName: safeString(item.parentName || item.parent?.name, "GMAXEPAY"),
+        parentRole: safeString(item.parentRole || item.parent?.role, "Enterprise Partner"),
+        companyName: safeString(item.company || item.companyName || item.company?.name, "GMAXEPAY"),
+        kycStatus: safeString(item.kycStatus, "N/A"),
+        kycSteps: safeString(item.kycSteps, "0"),
+        status: safeString(item.status, "Active"),
+        aepsWallet: getAepsWallet(),
+        remainingDays: calculateRemainingDays(),
+        kycDetails: item.kycDetails || null,
+        approved: item.approved === undefined ? true : item.approved,
+        originalItem: item,
+      };
+
+      // Some components use mobile/email, others use mobileNumber/emailId
+      if (componentType === 'masterDistribution' || componentType === 'distribution' || componentType === 'retailers') {
+        return {
+          ...baseData,
+          mobile: safeString(item.mobileNo || item.mobile || item.phone, "9350547710"),
+          email: safeString(item.email, "Rudraj@Gmail.Com"),
+        };
+      }
+
+      // Default format for onboarding components - includes all attributes
+      return {
+        ...baseData,
+        mobileNumber: safeString(item.mobileNo || item.mobile || item.phone, "9350547710"),
+        emailId: safeString(item.email, "Rudraj@Gmail.Com"),
+      };
+    });
   };
 
-  // Get API data for components
   const getApiDataForComponents = () => {
-    if (whitelabelList?.whitelabelList) {
-      return transformDataForComponents(whitelabelList.whitelabelList);
+    // Always use responseForTable - extract actual data array
+    let actualData = null;
+
+    if (Array.isArray(responseForTable)) {
+      // If responseForTable is already an array, use it directly
+      actualData = responseForTable.length > 0 ? responseForTable : null;
+    } else if (responseForTable && typeof responseForTable === 'object') {
+      
+      actualData = responseForTable.data || responseForTable.data?.docs || responseForTable.docs;
+      if (!Array.isArray(actualData) || actualData.length === 0) {
+        actualData = null;
+      }
     }
-    return null;
+
+    // If no actual data found, return empty array (don't use dummy data)
+    if (!actualData) {
+      return [];
+    }
+
+    // Determine component type for proper field mapping
+    let componentType = 'default';
+    if (activeNav === "Master Distributor" && !showOnboardingList) {
+      componentType = 'masterDistribution';
+    } else if (activeNav === "Distributor" && !showOnboardingList) {
+      componentType = 'distribution';
+    } else if (activeNav === "Retailers" && !showOnboardingList) {
+      componentType = 'retailers';
+    }
+
+    // Transform the actual API data
+    const transformedData = transformDataForComponents(actualData, componentType);
+    return transformedData;
   };
 
-  // Get table data based on active navigation
   const getTableData = () => {
-    // Use API data if available, otherwise fallback to mock data
-    if (whitelabelList?.whitelabelList) {
-      return transformApiData(whitelabelList.whitelabelList);
+    let transformedData = [];
+    if (responseForTable) {
+      if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+        transformedData = transformApiData(responseForTable);
+      } else if (responseForTable.data && Array.isArray(responseForTable.data) && responseForTable.data.length > 0) {
+        transformedData = transformApiData(responseForTable.data);
+      }
     }
-    
-    // Fallback to mock data
-    switch (activeNav) {
-      case "Master Distributor":
-        return masterDistributionData;
-      case "Distributor":
-        return DistributorData;
-      case "Retailers":
-        return retailersData;
-      default:
-        return whiteLabelData;
-    }
+    const startIndex = (currentPage - 1) * 10;
+    const endIndex = startIndex + 10;
+    return transformedData.slice(startIndex, endIndex);
   };
 
   const currentTableData = getTableData();
+
+  // Export to Excel function
+  const handleExportToExcel = () => {
+    // Get all transformed data (not just current page)
+    let allData = [];
+
+    if (responseForTable) {
+      if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+        allData = transformApiData(responseForTable);
+      } else if (responseForTable.data && Array.isArray(responseForTable.data) && responseForTable.data.length > 0) {
+        allData = transformApiData(responseForTable.data);
+      }
+    }
+
+    if (!allData || allData.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    // Prepare data for Excel export
+    const excelData = allData.map((row) => ({
+      "ID": row.id || "N/A",
+      "Date": row.date || "N/A",
+      "User Agent Code": row.userId || "N/A",
+      "Name": row.name || "N/A",
+      "User Role": row.userRole || "N/A",
+      "Mobile No": row.mobileNo || "N/A",
+      "Email Id": row.emailId || "N/A",
+      "Parent Name": row.parentName || "N/A",
+      "Parent Role": row.parentRole || "N/A",
+      "Company Name": row.companyName || "N/A",
+      "KYC Status": row.kycStatus || "N/A",
+      "KYC Steps": row.kycSteps || "0",
+      "Main Wallet": row.mainWallet || "0",
+      "AEPS Wallet": row.aepsWallet || "0",
+      "Remaining Days": row.remainingDays || "N/A",
+      "Status": row.status || "Active",
+    }));
+
+
+
+    // Create a new workbook and worksheet
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, `${activeNav} Data`);
+
+    // Generate Excel file and download
+    const fileName = `${activeNav}_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   if (showWhiteLabel) {
     return <WhiteLabel onBack={() => setShowWhiteLabel(false)} />;
   }
   return (
-    <div className="min-h-screen text-[#1B1717]">
-      <div className="p-4 sm:p-6">
+    <div className="text-[#1B1717] w-full h-full overflow-hidden">
+      <div className="w-full h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {/* Header Navigation */}
         <div className="w-full p-0 mb-6 sm:mb-8">
           <div className="bg-white rounded-xl shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex justify-center w-full">
@@ -301,10 +578,10 @@ const CreateWhiteLabel = () => {
           </button>
         </div>
 
-        {/* Show Onboarding List or Filters + Search + Create */}
         {(() => {
-          const apiData = getApiDataForComponents();
           
+          const apiData = getApiDataForComponents();
+
           if (showOnboardingList && activeNav === "Master Distributor") {
             return <MasterDistributionOnboarding embedded={true} tableData={apiData} />;
           }
@@ -314,9 +591,11 @@ const CreateWhiteLabel = () => {
           if (showOnboardingList && activeNav === "Retailers") {
             return <RetailerOnboarding embedded={true} tableData={apiData} />;
           }
-          if (showOnboardingList) {
+          if (showOnboardingList && activeNav === "Whitelabel") {
             return <AdminWhitelabelList embedded={true} tableData={apiData} />;
           }
+
+          // All List Views - Always pass API data, even if empty
           if (activeNav === "Master Distributor") {
             return <MasterDistribution embedded={true} tableData={apiData} />;
           }
@@ -327,7 +606,7 @@ const CreateWhiteLabel = () => {
             return <Retailers embedded={true} tableData={apiData} />;
           }
           return (
-            <div className="">
+            <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
                 <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
                   {(() => {
@@ -342,27 +621,38 @@ const CreateWhiteLabel = () => {
                   <div className="flex flex-col xs:flex-row gap-3">
                     <div className="relative">
                       <input
-                        type="text"
-                        placeholder="From Date"
-                        className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                        type="date"
+                        value={fromDate}
+                        onChange={(e) => {
+                          setFromDate(e.target.value);
+                          setCurrentPage(1); // Reset to first page when date changes
+                        }}
+                        className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                       />
-                      <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
                     </div>
 
                     <div className="relative">
                       <input
-                        type="text"
-                        placeholder="To Date"
-                        className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                        type="date"
+                        value={toDate}
+                        onChange={(e) => {
+                          setToDate(e.target.value);
+                          setCurrentPage(1); // Reset to first page when date changes
+                        }}
+                        min={fromDate || undefined}
+                        className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                       />
-                      <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
                     </div>
                   </div>
 
                   <div className="relative w-full sm:w-48">
                     <input
                       type="text"
-                      placeholder="Search"
+                      placeholder="Search by Mobile No or Name"
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                      }}
                       className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                     />
                     <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
@@ -379,7 +669,10 @@ const CreateWhiteLabel = () => {
                       </div>
                     </button>
 
-                    <button className="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-4 py-3 rounded-lg font-medium hover:bg-gray-100 text-sm sm:text-base">
+                    <button
+                      onClick={handleExportToExcel}
+                      className="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-4 py-3 rounded-lg font-medium hover:bg-gray-100 text-sm sm:text-base"
+                    >
                       Export <FaUpload className="ml-2 text-xs" />
                     </button>
                   </div>
@@ -387,7 +680,7 @@ const CreateWhiteLabel = () => {
               </div>
 
               {/* Table */}
-              <div className="mb-4 overflow-x-auto rounded-xl bg-white">
+              <div className="flex-1 overflow-x-auto rounded-xl bg-white mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
                 <table className="min-w-[720px] sm:min-w-full divide-y">
                   <thead className="bg-white">
                     <tr>
@@ -403,57 +696,864 @@ const CreateWhiteLabel = () => {
                   </thead>
 
                   <tbody className="bg-white divide-y font-normal divide-gray-100">
-                    {currentTableData.map((row, index) => (
-                      <tr
-                        key={index}
-                        className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
-                          }`}
-                      >
-                        {Object.values(row).map((value, i) => (
-                          <td
-                            key={i}
-                            className="px-4 py-4  whitespace-nowrap text-[11px]"
-                          >
-                            {value}
-                          </td>
-                        ))}
+                    {!currentTableData || currentTableData.length === 0 ? (
+                      <tr>
+                        <td colSpan={tableHeaders.length} className="py-12 text-center">
+                          <p className="text-gray-500 text-lg font-medium">No data available</p>
+                        </td>
                       </tr>
-                    ))}
+                    ) : (
+                      currentTableData.map((row, index) => (
+                        <tr
+                          key={index}
+                          className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
+                            }`}
+                        >
+                          {/* ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.id || "N/A"}
+                          </td>
+                          {/* Date */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.date || "N/A"}
+                          </td>
+                          {/* User ID */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.userId || "N/A"}
+                          </td>
+                          {/* Name */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.name || "N/A"}
+                          </td>
+                          {/* User Role */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.userRole || "N/A"}
+                          </td>
+                          {/* Mobile No */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.mobileNo || "N/A"}
+                          </td>
+                          {/* Email Id */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.emailId || "N/A"}
+                          </td>
+                          {/* Parent Name */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.parentName || "N/A"}
+                          </td>
+                          {/* Parent Role */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.parentRole || "N/A"}
+                          </td>
+                          {/* Company Name */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.companyName || "N/A"}
+                          </td>
+                          {/* KYC Status */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {(() => {
+                              const status = row.kycStatus?.toLowerCase();
+                              let className = "px-2 py-1 rounded text-xs font-medium ";
+                              if (status === "completed" || status === "full_kyc") {
+                                className += "bg-green-100 text-green-700";
+                              } else if (status === "pending") {
+                                className += "bg-yellow-100 text-yellow-700";
+                              } else {
+                                className += "bg-red-100 text-red-700";
+                              }
+                              return (
+                                <span className={className}>
+                                  {row.kycStatus || "N/A"}
+                                </span>
+                              );
+                            })()}
+                          </td>
+                          {/* KYC Steps */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                            {row.kycSteps || "0"}
+                          </td>
+                          {/* Main Wallet */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                            {row.mainWallet || "0"}
+                          </td>
+                          {/* AEPS Wallet */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                            {row.aepsWallet || "0"}
+                          </td>
+                          {/* Remaining Days */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                            {row.remainingDays || "0"}
+                          </td>
+                          {/* Status */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            <span
+                              className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${row.status?.toLowerCase() === "active"
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                                }`}
+                            >
+                              {row.status || "Active"}
+                            </span>
+                          </td>
+                          {/* KYC Details */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            <button
+                              onClick={() => {
+                                const userId = row.id || row.originalItem?.id;
+                                if (userId) {
+                                  dispatch(kycData(userId));
+                                  setShowKycModal(true);
+                                }
+                              }}
+                              className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium transition-colors"
+                            >
+                              KYC Details
+                            </button>
+                          </td>
+                          {/* Action - Toggle Button */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {(() => {
+                              const userId = row.id || row.originalItem?.id;
+                              const isActive = row.status?.toLowerCase() === "active";
+                              
+                              return (
+                                <button
+                                  onClick={() => {
+                                    if (userId) {
+                                      console.log("Toggle clicked for row ID:", userId);
+                                      console.log("Current status:", row.status);
+                                      console.log("Is Active:", isActive);
+                                      
+                                      // Handle both cases: active → inactive and inactive → active
+                                      if (isActive) {
+                                        // Toggling from active to inactive (OFF)
+                                        console.log("Toggling from active to inactive, sending isActive: false");
+                                        console.log("Dispatching kycStatusCheck with ID:", userId, "and body:", { isActive: "false" });
+                                        dispatch(kycStatusCheck(userId, { isActive: "false" }));
+                                      } else {
+                                        // Toggling from inactive to active (ON)
+                                        console.log("Toggling from inactive to active, sending isActive: true");
+                                        console.log("Dispatching kycStatusCheck with ID:", userId, "and body:", { isActive: "true" });
+                                        dispatch(kycStatusCheck(userId, { isActive: "true" }));
+                                      }
+                                      
+                                      // Immediately refresh table data after dispatching
+                                      setTimeout(() => {
+                                        console.log("Refreshing responseForTable after toggle click");
+                                        const userRole = getRoleNumber(activeNav);
+                                        const query = {
+                                          userRole: userRole,
+                                          ...(showOnboardingList && { kycStatus: "pending" }),
+                                        };
+                                        const customSearch = {};
+                                        if (debouncedSearchTerm.trim()) {
+                                          customSearch.mobileNo = debouncedSearchTerm.trim();
+                                          customSearch.name = debouncedSearchTerm.trim();
+                                        }
+                                        const payload = {
+                                          query: query,
+                                          options: {
+                                            sort: { id: -1 },
+                                            page: currentPage,
+                                            paginate: 10,
+                                          },
+                                          customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
+                                        };
+                                        console.log("Refreshing table data with payload:", payload);
+                                        dispatch(useList(payload));
+                                      }, 500); // Small delay to ensure API call is initiated
+                                    }
+                                  }}
+                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
+                                    isActive
+                                      ? "bg-green-600"
+                                      : "bg-gray-300"
+                                  }`}
+                                  role="switch"
+                                  aria-checked={isActive}
+                                >
+                                  <span
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                      isActive
+                                        ? "translate-x-6"
+                                        : "translate-x-1"
+                                    }`}
+                                  />
+                                </button>
+                              );
+                            })()}
+                          </td>
+                        </tr>
+                      ))
+                    )}
                   </tbody>
                 </table>
               </div>
 
-              {/* Pagination */}
-              <div className="flex justify-center items-center mt-6 space-x-2">
-                <button 
-                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                  className="p-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-100"
-                >
-                  <IoIosArrowBack />
-                </button>
-                {[1, 2, 3].map((page) => (
+              {/* Pagination - Fixed at bottom */}
+              {totalPages > 0 && (
+                <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
                   <button
-                    key={page}
-                    onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium ${page === currentPage
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                    onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                    disabled={currentPage === 1}
+                    className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
+                      ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
                       }`}
                   >
-                    {page}
+                    <IoIosArrowBack />
                   </button>
-                ))}
-                <button 
-                  onClick={() => setCurrentPage(Math.min(3, currentPage + 1))}
-                  className="p-2 border border-gray-300 rounded-lg text-gray-500 hover:bg-gray-100"
-                >
-                  <IoIosArrowForward />
-                </button>
-              </div>
+                  {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setCurrentPage(page)}
+                      className={`w-8 h-8 rounded-lg text-sm font-medium transition ${page === currentPage
+                        ? "bg-green-600 text-white"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+                    disabled={currentPage === totalPages || totalPages === 0}
+                    className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages || totalPages === 0
+                      ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
+                      }`}
+                  >
+                    <IoIosArrowForward />
+                  </button>
+                </div>
+              )}
             </div>
           );
         })()}
       </div>
+
+      {/* KYC Details Modal */}
+      {showKycModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+          <div
+            ref={kycModalRef}
+            className="bg-white rounded-xl shadow-2xl w-full max-w-4xl mx-4 max-h-[90vh] overflow-hidden animate-slideUp [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+          >
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-6 border-b border-gray-200 bg-gradient-to-r from-green-50 to-white">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center">
+                  <FaIdCard className="text-green-600" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-800">KYC Details</h2>
+                  {selectedKycData?.userDetails?.name && (
+                    <p className="text-sm text-gray-500">{selectedKycData.userDetails.name}</p>
+                  )}
+                </div>
+              </div>
+              <button
+                onClick={() => {
+                  setShowKycModal(false);
+                  setSelectedKycData(null);
+                  setActiveTab("overview");
+                  setZoomedImage(null);
+                }}
+                className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-full p-2"
+              >
+                <X className="w-6 h-6" />
+              </button>
+            </div>
+
+            {/* Tab Navigation */}
+            {selectedKycData && (
+              <div className="flex border-b border-gray-200 bg-gray-50 px-6">
+                <button
+                  onClick={() => setActiveTab("overview")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "overview"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Overview
+                </button>
+                <button
+                  onClick={() => setActiveTab("verification")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "verification"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Verification
+                </button>
+                <button
+                  onClick={() => setActiveTab("documents")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "documents"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Documents
+                </button>
+                <button
+                  onClick={() => setActiveTab("details")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "details"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Additional Details
+                </button>
+              </div>
+            )}
+
+            {/* Modal Content */}
+            <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              {selectedKycData ? (
+                <div className="space-y-6 animate-fadeIn">
+                  {/* Overview Tab */}
+                  {activeTab === "overview" && (
+                    <div className="space-y-6">
+                      {/* KYC Status Card */}
+                      <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100">
+                        <div className="flex items-center justify-between mb-4">
+                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <FaIdCard className="text-green-600" />
+                            KYC Status
+                          </h3>
+                          <span className={`px-4 py-2 rounded-full text-sm font-semibold ${selectedKycData.kycStatus === "FULL_KYC"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                            }`}>
+                            {selectedKycData.kycStatus || "N/A"}
+                          </span>
+                        </div>
+
+                        {/* Progress Bar */}
+                        <div className="mt-4">
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-sm font-medium text-gray-700">Progress</span>
+                            <span className="text-sm font-semibold text-gray-800">
+                              {selectedKycData.completedSteps || selectedKycData.kycSteps || 0} / {selectedKycData.totalSteps || 7} Steps
+                            </span>
+                          </div>
+                          <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+                            <div
+                              className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
+                              style={{
+                                width: `${((selectedKycData.completedSteps || selectedKycData.kycSteps || 0) / (selectedKycData.totalSteps || 7)) * 100}%`
+                              }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* User Details Card */}
+                      {selectedKycData.userDetails && (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaUser className="text-green-600" />
+                            User Details
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">User ID</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.userDetails.userId || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.userDetails.name || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Mobile No</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.userDetails.mobileNo || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Email</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.userDetails.email || "N/A"}</span>
+                            </div>
+                          </div>
+                          {selectedKycData.userDetails.profileImage && (
+                            <div className="mt-4">
+                              <span className="text-xs text-gray-500 mb-2 block">Profile Image</span>
+                              <div className="relative group">
+                                <img
+                                  src={selectedKycData.userDetails.profileImage}
+                                  alt="Profile"
+                                  className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                  onClick={() => setZoomedImage(selectedKycData.userDetails.profileImage)}
+                                />
+                                <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                  <FaExpand className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Verification Tab */}
+                  {activeTab === "verification" && selectedKycData.userDetails && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <FaCheckCircle className="text-green-600" />
+                        Verification Status
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Mobile Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.mobileVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Mobile</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.mobileVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.mobileVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Email Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.emailVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Email</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.emailVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.emailVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Aadhar Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.aadharVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Aadhar</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.aadharVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.aadharVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* PAN Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.panVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">PAN</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.panVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.panVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Shop Details Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.shopDetailsVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Shop Details</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.shopDetailsVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.shopDetailsVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Image Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.imageVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Image</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.imageVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.imageVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Profile Image with Shop Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.profileImageWithShopVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.profileImageWithShopVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Profile with Shop</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.profileImageWithShopVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.profileImageWithShopVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Bank Details Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.bankDetailsVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Bank Details</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.bankDetailsVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.bankDetailsVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Documents Tab */}
+                  {activeTab === "documents" && (
+                    <div className="space-y-6">
+                      {/* Aadhaar Document */}
+                      {selectedKycData.aadhaarDoc && (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaIdCard className="text-blue-600" />
+                            Aadhaar Document
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.aadhaarDoc.name || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">UID</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.aadhaarDoc.uid || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">DOB</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.aadhaarDoc.dob || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.aadhaarDoc.status === "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                                }`}>
+                                {selectedKycData.aadhaarDoc.status || "N/A"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {selectedKycData.userDetails?.aadharFrontImage && (
+                              <div>
+                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Front</span>
+                                <div className="relative group">
+                                  <img
+                                    src={selectedKycData.userDetails.aadharFrontImage}
+                                    alt="Aadhaar Front"
+                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                    onClick={() => setZoomedImage(selectedKycData.userDetails.aadharFrontImage)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {selectedKycData.userDetails?.aadharBackImage && (
+                              <div>
+                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Back</span>
+                                <div className="relative group">
+                                  <img
+                                    src={selectedKycData.userDetails.aadharBackImage}
+                                    alt="Aadhaar Back"
+                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                    onClick={() => setZoomedImage(selectedKycData.userDetails.aadharBackImage)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* PAN Document */}
+                      {selectedKycData.panDoc && (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaIdCard className="text-purple-600" />
+                            PAN Document
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">PAN Number</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.panDoc.panNumber || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">PAN Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.panDoc.panName || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">DOB</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.panDoc.panDob || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.panDoc.status === "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                                }`}>
+                                {selectedKycData.panDoc.status || "N/A"}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {selectedKycData.userDetails?.panCardFrontImage && (
+                              <div>
+                                <span className="text-xs text-gray-500 mb-2 block">PAN Front</span>
+                                <div className="relative group">
+                                  <img
+                                    src={selectedKycData.userDetails.panCardFrontImage}
+                                    alt="PAN Front"
+                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                    onClick={() => setZoomedImage(selectedKycData.userDetails.panCardFrontImage)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                            {selectedKycData.userDetails?.panCardBackImage && (
+                              <div>
+                                <span className="text-xs text-gray-500 mb-2 block">PAN Back</span>
+                                <div className="relative group">
+                                  <img
+                                    src={selectedKycData.userDetails.panCardBackImage}
+                                    alt="PAN Back"
+                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                    onClick={() => setZoomedImage(selectedKycData.userDetails.panCardBackImage)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+
+                  {/* Additional Details Tab */}
+                  {activeTab === "details" && (
+                    <div className="space-y-6">
+                      {/* Outlet Details */}
+                      {selectedKycData.outletDetails && (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaBuilding className="text-orange-600" />
+                            Outlet Details
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Shop Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.outletDetails.shopName || "N/A"}</span>
+                            </div>
+                            {selectedKycData.outletDetails.gstNo && (
+                              <div className="flex flex-col">
+                                <span className="text-xs text-gray-500 mb-1">GST No</span>
+                                <span className="text-sm font-medium text-gray-800">{selectedKycData.outletDetails.gstNo}</span>
+                              </div>
+                            )}
+                            <div className="flex flex-col md:col-span-2">
+                              <span className="text-xs text-gray-500 mb-1">Shop Address</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.outletDetails.shopAddress || "N/A"}</span>
+                            </div>
+                            {selectedKycData.outletDetails.shopImage && (
+                              <div className="md:col-span-2">
+                                <span className="text-xs text-gray-500 mb-2 block">Shop Image</span>
+                                <div className="relative group">
+                                  <img
+                                    src={selectedKycData.outletDetails.shopImage}
+                                    alt="Shop"
+                                    className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                    onClick={() => setZoomedImage(selectedKycData.outletDetails.shopImage)}
+                                  />
+                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Bank Details */}
+                      {selectedKycData.customerBankDetails && (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                            <FaUniversity className="text-indigo-600" />
+                            Bank Details
+                          </h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Account Number</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.customerBankDetails.accountNumber || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">IFSC</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.customerBankDetails.ifsc || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Bank Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.customerBankDetails.bankName || "N/A"}</span>
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="text-xs text-gray-500 mb-1">Beneficiary Name</span>
+                              <span className="text-sm font-medium text-gray-800">{selectedKycData.customerBankDetails.beneficiaryName || "N/A"}</span>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No KYC details available</p>
+                </div>
+              )}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => {
+                  setShowKycModal(false);
+                  setSelectedKycData(null);
+                  setActiveTab("overview");
+                  setZoomedImage(null);
+                }}
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Zoom Modal */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] animate-fadeIn"
+          onClick={() => setZoomedImage(null)}
+        >
+          <div className="relative max-w-7xl max-h-[90vh] p-4">
+            <button
+              onClick={() => setZoomedImage(null)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2 z-10"
+            >
+              <X className="w-6 h-6" />
+            </button>
+            <img
+              src={zoomedImage}
+              alt="Zoomed"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg"
+              onClick={(e) => e.stopPropagation()}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Add CSS animations */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes slideUp {
+          from { transform: translateY(20px); opacity: 0; }
+          to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out;
+        }
+        .animate-slideUp {
+          animation: slideUp 0.3s ease-out;
+        }
+      `}</style>
     </div>
   );
 };

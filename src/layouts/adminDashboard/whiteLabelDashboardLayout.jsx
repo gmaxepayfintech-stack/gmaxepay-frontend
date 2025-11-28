@@ -379,7 +379,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         </div>
 
         {/* Page Content */}
-        <main className="flex-1 w-full p-2 sm:p-4 lg:p-6 overflow-y-auto overflow-x-hidden">
+        <main className="flex-1 w-full p-2 sm:p-4 lg:p-6 overflow-y-hidden">
           {children}
         </main>
       </div>
@@ -388,7 +388,3 @@ const WhiteLabelDashboardLayout = ({ children }) => {
 };
 
 export default WhiteLabelDashboardLayout;
-
-
-
-
