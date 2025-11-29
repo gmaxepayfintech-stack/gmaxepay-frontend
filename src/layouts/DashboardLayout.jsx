@@ -94,7 +94,7 @@ const DashboardLayout = ({ children }) => {
       dropdown: true,
       path: "/superDashboard/members",
       children: [
-        { name: "Users", path: "/superDashboard/members/add" },
+        { name: "Users", path: "/superDashboard/members/user" },
         { name: "Agents", path: "/superDashboard/members/list" },
         { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
 

@@ -19,6 +19,14 @@ import {
   GET_KYCSTATUS_FAILURE,
   UPDATE_KYCSTATUS_SUCCESS,
   UPDATE_KYCSTATUS_FAILURE,
+  KYC_LOCK_STATUS_SUCCESS,
+  KYC_LOCK_STATUS_FAILURE,
+  REVERT_KYC_DETAILS_SUCCESS,
+  REVERT_KYC_DETAILS_FAILURE,
+  RESEND_ONBOARDING_LINK_SUCCESS,
+  RESEND_ONBOARDING_LINK_FAILURE,
+  DEACTIVATE_ONBOARDING_LINK_SUCCESS,
+  DEACTIVATE_ONBOARDING_LINK_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -375,6 +383,175 @@ export const kycStatusCheck = (id, body = {}) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: UPDATE_KYCSTATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+
+export const kycUnlock = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/${id}/unlock`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycUnlock, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: KYC_LOCK_STATUS_SUCCESS,
+        payload: { kycUnlock, message, status },
+      });
+    } else {
+      dispatch({
+        type: KYC_LOCK_STATUS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: KYC_LOCK_STATUS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const kycRevert = (id, body = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/${id}/kyc/revert`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: kycRevert, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: REVERT_KYC_DETAILS_SUCCESS,
+        payload: { kycRevert, message, status },
+      });
+    } else {
+      dispatch({
+        type: REVERT_KYC_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: REVERT_KYC_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const rescendOnboarding = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/company/${id}/resend-onboarding-link`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: resendOnboardingLink, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: RESEND_ONBOARDING_LINK_SUCCESS,
+        payload: { resendOnboardingLink, message, status },
+      });
+    } else {
+      dispatch({
+        type: RESEND_ONBOARDING_LINK_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: RESEND_ONBOARDING_LINK_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const deActiveOnboarding = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/company/${authToken}/deactivate-onboarding-link`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: deactivateOnboardingLink, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: DEACTIVATE_ONBOARDING_LINK_SUCCESS,
+        payload: { deactivateOnboardingLink, message, status },
+      });
+    } else {
+      dispatch({
+        type: DEACTIVATE_ONBOARDING_LINK_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DEACTIVATE_ONBOARDING_LINK_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
