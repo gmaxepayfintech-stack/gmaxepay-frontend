@@ -1,8 +1,10 @@
 import {
+  DEACTIVATE_ONBOARDING_LINK_FAILURE,
   GET_CITY_BY_PINCODE_FAILURE,
   GET_IP_CHECK_FAILURE,
   GET_PANDATA_FETCH_FAILURE,
   GET_PINCODE_BY_CITY_FAILURE,
+  RESEND_ONBOARDING_LINK_FAILURE,
   WHITELABEL_CREATE_FAILURE,
 } from "../actionType/whiteLabelAction";
 import {
@@ -75,6 +77,9 @@ const errorReducer = (state = initialState, action) => {
     case RETAILER_DOWNLOAD_PAN_FAILURE:
     case RETAILER_UPLOAD_PAN_FAILURE:
     case RETAILER_POST_BANK_DETAILS_FAILURE:
+    case RESEND_ONBOARDING_LINK_FAILURE:
+    case DEACTIVATE_ONBOARDING_LINK_FAILURE:
+
       console.log("actionssssssssssssss", action?.payload);
 
       return {

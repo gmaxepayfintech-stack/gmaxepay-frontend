@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaSearch, FaPlus, FaUpload, FaCheckCircle, FaTimesCircle, FaUser, FaIdCard, FaBuilding, FaUniversity, FaExpand } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
@@ -12,7 +12,8 @@ import Distribution from "./superAdminDashboard/distribution";
 import DistributionOnboarding from "./superAdminDashboard/DistrubtionOnboarding";
 import Retailers from "./superAdminDashboard/Retailers";
 import RetailerOnboarding from "./superAdminDashboard/RetailerOnboarding";
-import { useList, kycData, kycStatusCheck } from "../redux/action/whiteLabelAction";
+import { useList, kycData, kycStatusCheck, kycUnlock, kycRevert,rescendOnboarding, deActiveOnboarding } from "../redux/action/whiteLabelAction";
+
 
 
 const generateTableData = (type, count = 12) => {
@@ -50,10 +51,6 @@ const generateTableData = (type, count = 12) => {
 };
 
 
-const whiteLabelData = generateTableData("Whitelabel");
-const DistributorData = generateTableData("Distributor");
-const retailersData = generateTableData("Retailers");
-
 const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
 
@@ -73,6 +70,8 @@ const CreateWhiteLabel = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [zoomedImage, setZoomedImage] = useState(null);
+  const [selectedUserId, setSelectedUserId] = useState(null);
+  const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
 
   // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
@@ -83,18 +82,20 @@ const CreateWhiteLabel = () => {
     return response?.totalCount || response?.total || response?.whitelabelList?.length || 0;
   });
 
-  const lockCheck = useSelector((state)=>state?.whitelabel?.kycStatusClick?.kycStatusClick?.isLocked);
-  console.log("lockCheck",lockCheck);
-  
   // Get kycStatusCheck success state to refresh table after update
   const kycStatusCheckResponse = useSelector((state) => state?.whitelabel?.kycStatusCheck);
-  console.log("kycStatusCheckResponse:", kycStatusCheckResponse);
+
+  // Get kycRevert success state to refresh KYC data after revert
+  const kycRevertResponse = useSelector((state) => state?.whitelabel?.kycRevert);
 
   // Calculate total pages based on total count (10 records per page)
   const totalPages = Math.ceil(totalCount / 10) || 1;
 
-  // Get KYC details from Redux state
-  const kycRetrieved = useSelector((state) => state?.whitelabel?.kycDetails?.data || null);
+  // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
+  const kycRetrieved = kycDetailsState?.data || null;
+  // Use status as a key to detect when data is refreshed
+  const kycDetailsStatus = kycDetailsState?.status;
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -157,8 +158,6 @@ const CreateWhiteLabel = () => {
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      console.log("kycStatusCheck succeeded, refreshing table data");
-      
       // Refresh table data by dispatching useList again
       const userRole = getRoleNumber(activeNav);
       const query = {
@@ -179,7 +178,6 @@ const CreateWhiteLabel = () => {
         },
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
-      console.log("Refreshing table data with payload:", payload);
       dispatch(useList(payload));
     }
   }, [kycStatusCheckResponse, activeNav, currentPage, showOnboardingList, debouncedSearchTerm, dispatch]);
@@ -187,9 +185,34 @@ const CreateWhiteLabel = () => {
   // Update selectedKycData when Redux state changes
   useEffect(() => {
     if (kycRetrieved && showKycModal) {
-      setSelectedKycData(kycRetrieved);
+      // Force update by creating a deep copy to ensure React detects the change
+      try {
+        const deepCopy = structuredClone(kycRetrieved);
+        setSelectedKycData(deepCopy);
+      } catch (error) {
+        // Fallback to shallow copy if deep copy fails
+        console.warn("Failed to deep clone KYC data, using shallow copy:", error);
+        setSelectedKycData({ ...kycRetrieved });
+      }
     }
-  }, [kycRetrieved, showKycModal]);
+  }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
+
+  // Refresh KYC data when revert succeeds
+  useEffect(() => {
+    if (kycRevertResponse?.status === "SUCCESS" && selectedUserId && showKycModal) {
+      // Clear current data to force re-render
+      setSelectedKycData(null);
+      // Small delay to ensure backend has processed the revert
+      const timer = setTimeout(() => {
+        // Force update by incrementing refresh key
+        setKycDataRefreshKey(prev => prev + 1);
+        // Refresh KYC data after revert
+        dispatch(kycData(selectedUserId));
+      }, 500);
+      
+      return () => clearTimeout(timer);
+    }
+  }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -197,6 +220,9 @@ const CreateWhiteLabel = () => {
       if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
         setShowKycModal(false);
         setSelectedKycData(null);
+        setSelectedUserId(null);
+        setActiveTab("overview");
+        setZoomedImage(null);
       }
     };
 
@@ -228,6 +254,9 @@ const CreateWhiteLabel = () => {
     "Status",
     "KYC Details",
     "Action",
+    "Lock Status",
+    "Onboarding",
+    "Deactivation",
   ];
 
   const safeString = (value, fallback = "N/A") => {
@@ -401,7 +430,7 @@ const CreateWhiteLabel = () => {
       // If responseForTable is already an array, use it directly
       actualData = responseForTable.length > 0 ? responseForTable : null;
     } else if (responseForTable && typeof responseForTable === 'object') {
-      
+
       actualData = responseForTable.data || responseForTable.data?.docs || responseForTable.docs;
       if (!Array.isArray(actualData) || actualData.length === 0) {
         actualData = null;
@@ -579,7 +608,7 @@ const CreateWhiteLabel = () => {
         </div>
 
         {(() => {
-          
+
           const apiData = getApiDataForComponents();
 
           if (showOnboardingList && activeNav === "Master Distributor") {
@@ -801,6 +830,7 @@ const CreateWhiteLabel = () => {
                               onClick={() => {
                                 const userId = row.id || row.originalItem?.id;
                                 if (userId) {
+                                  setSelectedUserId(userId);
                                   dispatch(kycData(userId));
                                   setShowKycModal(true);
                                 }
@@ -815,31 +845,22 @@ const CreateWhiteLabel = () => {
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
                               const isActive = row.status?.toLowerCase() === "active";
-                              
+
                               return (
                                 <button
                                   onClick={() => {
                                     if (userId) {
-                                      console.log("Toggle clicked for row ID:", userId);
-                                      console.log("Current status:", row.status);
-                                      console.log("Is Active:", isActive);
-                                      
                                       // Handle both cases: active → inactive and inactive → active
                                       if (isActive) {
                                         // Toggling from active to inactive (OFF)
-                                        console.log("Toggling from active to inactive, sending isActive: false");
-                                        console.log("Dispatching kycStatusCheck with ID:", userId, "and body:", { isActive: "false" });
                                         dispatch(kycStatusCheck(userId, { isActive: "false" }));
                                       } else {
                                         // Toggling from inactive to active (ON)
-                                        console.log("Toggling from inactive to active, sending isActive: true");
-                                        console.log("Dispatching kycStatusCheck with ID:", userId, "and body:", { isActive: "true" });
                                         dispatch(kycStatusCheck(userId, { isActive: "true" }));
                                       }
-                                      
+
                                       // Immediately refresh table data after dispatching
                                       setTimeout(() => {
-                                        console.log("Refreshing responseForTable after toggle click");
                                         const userRole = getRoleNumber(activeNav);
                                         const query = {
                                           userRole: userRole,
@@ -859,26 +880,110 @@ const CreateWhiteLabel = () => {
                                           },
                                           customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
                                         };
-                                        console.log("Refreshing table data with payload:", payload);
                                         dispatch(useList(payload));
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
-                                    isActive
-                                      ? "bg-green-600"
-                                      : "bg-gray-300"
-                                  }`}
+                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  focus:ring-offset-1 ${isActive
+                                    ? "bg-green-600"
+                                    : "bg-gray-300"
+                                    }`}
                                   role="switch"
                                   aria-checked={isActive}
                                 >
                                   <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                      isActive
-                                        ? "translate-x-6"
-                                        : "translate-x-1"
-                                    }`}
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive
+                                      ? "translate-x-6"
+                                      : "translate-x-1"
+                                      }`}
                                   />
+                                </button>
+                              );
+                            })()}
+                          </td>
+                          {/* Lock Status - Colored Button */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {(() => {
+                              const userId = row.id || row.originalItem?.id;
+                              const isLocked = row.lock === true || row.lock === "true";
+                              return (
+                                <button
+                                  onClick={() => {
+                                    // Only trigger API when button is in "Locked" state
+                                    if (userId && isLocked) {
+                                      // Dispatch unlock action with the row ID
+                                      dispatch(kycUnlock(userId));
+
+                                      // Refresh table data after dispatching
+                                      setTimeout(() => {
+                                        const userRole = getRoleNumber(activeNav);
+                                        const query = {
+                                          userRole: userRole,
+                                          ...(showOnboardingList && { kycStatus: "pending" }),
+                                        };
+                                        const customSearch = {};
+                                        if (debouncedSearchTerm.trim()) {
+                                          customSearch.mobileNo = debouncedSearchTerm.trim();
+                                          customSearch.name = debouncedSearchTerm.trim();
+                                        }
+                                        const payload = {
+                                          query: query,
+                                          options: {
+                                            sort: { id: -1 },
+                                            page: currentPage,
+                                            paginate: 10,
+                                          },
+                                          customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
+                                        };
+                                        dispatch(useList(payload));
+                                      }, 500); // Small delay to ensure API call is initiated
+                                    }
+                                  }}
+                                  disabled={!isLocked}
+                                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                    isLocked
+                                      ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                      : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                  }`}
+                                  title={isLocked ? "Click to unlock" : "Already unlocked"}
+                                >
+                                  {isLocked ? "Locked" : "Unlocked"}
+                                </button>
+                              );
+                            })()}
+                          </td>
+                          {/* Onboarding - Re-send Button */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {(() => {
+                              const userId = row.id || row.originalItem?.id;
+                              return (
+                                <button
+                                  onClick={() => {
+                                    if (userId) {
+                                      dispatch(rescendOnboarding(userId));
+                                    }
+                                  }}
+                                  className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                                >
+                                  Re-send
+                                </button>
+                              );
+                            })()}
+                          </td>
+                          {/* Deactivation - Send Button */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {(() => {
+                              const userId = row.id || row.originalItem?.id;
+                              return (
+                                <button
+                                  onClick={() => {
+                                    if (userId) {
+                                      dispatch(deActiveOnboarding(userId));
+                                    }
+                                  }}
+                                  className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                                >
+                                  Send
                                 </button>
                               );
                             })()}
@@ -958,6 +1063,7 @@ const CreateWhiteLabel = () => {
                   setSelectedKycData(null);
                   setActiveTab("overview");
                   setZoomedImage(null);
+                  setSelectedUserId(null);
                 }}
                 className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-full p-2"
               >
@@ -971,38 +1077,57 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
                 </button>
+
                 <button
-                  onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                  onClick={() => setActiveTab("aadhar")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "aadhar"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
-                  Verification
+                  Aadhar Document
                 </button>
                 <button
-                  onClick={() => setActiveTab("documents")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "documents"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                  onClick={() => setActiveTab("pan")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "pan"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
-                  Documents
+                  PAN Document
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
-                  Additional Details
+                  Outlet Details
+                </button>
+                <button
+                  onClick={() => setActiveTab("bankDetails")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "bankDetails"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Bank Details
+                </button>
+                <button
+                  onClick={() => setActiveTab("verification")}
+                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "verification"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
+                >
+                  Verification
                 </button>
               </div>
             )}
@@ -1022,10 +1147,10 @@ const CreateWhiteLabel = () => {
                             KYC Status
                           </h3>
                           <span className={`px-4 py-2 rounded-full text-sm font-semibold ${selectedKycData.kycStatus === "FULL_KYC"
-                              ? "bg-green-100 text-green-700"
-                              : selectedKycData.kycStatus === "NO_KYC"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
+                            ? "bg-green-100 text-green-700"
+                            : selectedKycData.kycStatus === "NO_KYC"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
                             }`}>
                             {selectedKycData.kycStatus || "N/A"}
                           </span>
@@ -1096,195 +1221,30 @@ const CreateWhiteLabel = () => {
                     </div>
                   )}
 
-                  {/* Verification Tab */}
-                  {activeTab === "verification" && selectedKycData.userDetails && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <FaCheckCircle className="text-green-600" />
-                        Verification Status
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Mobile Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.mobileVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Mobile</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.mobileVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.mobileVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
 
-                        {/* Email Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.emailVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Email</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.emailVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.emailVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Aadhar Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.aadharVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Aadhar</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.aadharVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.aadharVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* PAN Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.panVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">PAN</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.panVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.panVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Shop Details Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.shopDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Shop Details</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.shopDetailsVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.shopDetailsVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Image Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.imageVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Image</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.imageVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.imageVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Profile Image with Shop Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.profileImageWithShopVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.profileImageWithShopVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Profile with Shop</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.profileImageWithShopVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.profileImageWithShopVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Bank Details Verify */}
-                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                            ? "bg-green-50 border-green-200"
-                            : "bg-red-50 border-red-200"
-                          }`}>
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.bankDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Bank Details</span>
-                          </div>
-                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.bankDetailsVerify
-                              ? "bg-green-100 text-green-700"
-                              : "bg-red-100 text-red-700"
-                            }`}>
-                            {selectedKycData.userDetails.bankDetailsVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Documents Tab */}
-                  {activeTab === "documents" && (
+                  {/* Aadhar Document Tab */}
+                  {activeTab === "aadhar" && (
                     <div className="space-y-6">
-                      {/* Aadhaar Document */}
-                      {selectedKycData.aadhaarDoc && (
+                      {selectedKycData.aadhaarDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <FaIdCard className="text-blue-600" />
-                            Aadhaar Document
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                              <FaIdCard className="text-blue-600" />
+                              Aadhaar Document
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  if (selectedUserId) {
+                                    dispatch(kycRevert(selectedUserId, { aadhar: "true" }));
+                                  }
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                              >
+                                Revert
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">Name</span>
@@ -1301,8 +1261,8 @@ const CreateWhiteLabel = () => {
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">Status</span>
                               <span className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.aadhaarDoc.status === "Success"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}>
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
                               </span>
@@ -1343,15 +1303,37 @@ const CreateWhiteLabel = () => {
                             )}
                           </div>
                         </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <p>No Aadhaar Document available</p>
+                        </div>
                       )}
+                    </div>
+                  )}
 
-                      {/* PAN Document */}
-                      {selectedKycData.panDoc && (
+                  {/* PAN Document Tab */}
+                  {activeTab === "pan" && (
+                    <div className="space-y-6">
+                      {selectedKycData.panDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <FaIdCard className="text-purple-600" />
-                            PAN Document
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                              <FaIdCard className="text-purple-600" />
+                              PAN Document
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  if (selectedUserId) {
+                                    dispatch(kycRevert(selectedUserId, { pan: "true" }));
+                                  }
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                              >
+                                Revert
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">PAN Number</span>
@@ -1368,8 +1350,8 @@ const CreateWhiteLabel = () => {
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">Status</span>
                               <span className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}>
                                 {selectedKycData.panDoc.status || "N/A"}
                               </span>
@@ -1410,6 +1392,10 @@ const CreateWhiteLabel = () => {
                             )}
                           </div>
                         </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <p>No PAN Document available</p>
+                        </div>
                       )}
                     </div>
                   )}
@@ -1420,10 +1406,24 @@ const CreateWhiteLabel = () => {
                       {/* Outlet Details */}
                       {selectedKycData.outletDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <FaBuilding className="text-orange-600" />
-                            Outlet Details
-                          </h3>
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                              <FaBuilding className="text-orange-600" />
+                              Outlet Details
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  if (selectedUserId) {
+                                    dispatch(kycRevert(selectedUserId, { shopImage: "true" }));
+                                  }
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                              >
+                                Revert
+                              </button>
+                            )}
+                          </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">Shop Name</span>
@@ -1453,19 +1453,38 @@ const CreateWhiteLabel = () => {
                                     <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
                                   </div>
                                 </div>
-                              </div>
+                            </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                        </div>
+                  )}
+
+                  {/* Bank Details Tab */}
+                  {activeTab === "bankDetails" && (
+                    <div className="space-y-6">
+                      {selectedKycData.customerBankDetails ? (
+                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                          <div className="flex items-center justify-between mb-4">
+                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                              <FaUniversity className="text-indigo-600" />
+                              Bank Details
+                            </h3>
+                            {selectedUserId && (
+                              <button
+                                onClick={() => {
+                                  if (selectedUserId) {
+                                    dispatch(kycRevert(selectedUserId, { bankVerification: "true" }));
+                                  }
+                                }}
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                              >
+                                Revert
+                              </button>
                             )}
                           </div>
-                        </div>
-                      )}
-
-                      {/* Bank Details */}
-                      {selectedKycData.customerBankDetails && (
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                            <FaUniversity className="text-indigo-600" />
-                            Bank Details
-                          </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
                               <span className="text-xs text-gray-500 mb-1">Account Number</span>
@@ -1485,7 +1504,191 @@ const CreateWhiteLabel = () => {
                             </div>
                           </div>
                         </div>
+                      ) : (
+                        <div className="text-center py-8 text-gray-500">
+                          <p>No Bank Details available</p>
+                        </div>
                       )}
+                    </div>
+                  )}
+
+
+                  {/* Verification Tab */}
+                  {activeTab === "verification" && selectedKycData.userDetails && (
+                    <div className="space-y-4">
+                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <FaCheckCircle className="text-green-600" />
+                        Verification Status
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {/* Mobile Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.mobileVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Mobile</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.mobileVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.mobileVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Email Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.emailVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Email</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.emailVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.emailVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Aadhar Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.aadharVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Aadhar</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.aadharVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.aadharVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* PAN Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.panVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">PAN</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.panVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.panVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Shop Details Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.shopDetailsVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Shop Details</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.shopDetailsVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.shopDetailsVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Image Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.imageVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Image</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.imageVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.imageVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Profile Image with Shop Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.profileImageWithShopVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.profileImageWithShopVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Profile with Shop</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.profileImageWithShopVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.profileImageWithShopVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+
+                        {/* Bank Details Verify */}
+                        <div className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
+                          ? "bg-green-50 border-green-200"
+                          : "bg-red-50 border-red-200"
+                          }`}>
+                          <div className="flex items-center gap-3">
+                            {selectedKycData.userDetails.bankDetailsVerify ? (
+                              <FaCheckCircle className="text-green-600 text-xl" />
+                            ) : (
+                              <FaTimesCircle className="text-red-600 text-xl" />
+                            )}
+                            <span className="text-sm font-medium text-gray-700">Bank Details</span>
+                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.bankDetailsVerify
+                            ? "bg-green-100 text-green-700"
+                            : "bg-red-100 text-red-700"
+                            }`}>
+                            {selectedKycData.userDetails.bankDetailsVerify ? "Verified" : "Pending"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
                   )}
                 </div>
@@ -1504,6 +1707,7 @@ const CreateWhiteLabel = () => {
                   setSelectedKycData(null);
                   setActiveTab("overview");
                   setZoomedImage(null);
+                  setSelectedUserId(null);
                 }}
                 className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
               >

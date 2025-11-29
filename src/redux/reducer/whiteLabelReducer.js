@@ -8,6 +8,11 @@ import {
   FETCH_KYC_DETAILS_SUCCESS,
   GET_KYCSTATUS_SUCCESS,
   UPDATE_KYCSTATUS_SUCCESS,
+  KYC_LOCK_STATUS_SUCCESS,
+  REVERT_KYC_DETAILS_SUCCESS,
+  RESEND_ONBOARDING_LINK_SUCCESS,
+  DEACTIVATE_ONBOARDING_LINK_SUCCESS,
+
 
 } from "../actionType/whiteLabelAction";
 
@@ -25,6 +30,10 @@ const initialState = {
   kycDetails:null,
   kycStatusClick:null,
   kycStatusCheck:null,
+  kycLockStatus:null,
+  kycRevert:null,
+  resendOnboardingLink:null,
+  deactivateOnboardingLink:null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -121,6 +130,40 @@ const whiteLabelReducer = (state = initialState, action) => {
           Success: action.payload.status,
           kycStatusCheck: action.payload,
         }
+      case KYC_LOCK_STATUS_SUCCESS:
+        return{
+             ...state,
+             loading: false,
+             kycLockStatus: action.payload,   
+             Success: action.payload.status,
+             message: action.payload.message,
+        }
+      case REVERT_KYC_DETAILS_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          kycRevert: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case RESEND_ONBOARDING_LINK_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          resendOnboardingLink: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case DEACTIVATE_ONBOARDING_LINK_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          deactivateOnboardingLink: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+
+        
     default:
       return state;
   }

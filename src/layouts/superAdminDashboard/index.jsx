@@ -15,7 +15,7 @@ const SuperAdminDashboard = () => {
         <Route path="/" element={<SuperAdmin />} />
         <Route path="/home" element={<SuperAdmin />} />
         <Route path="/members" element={<Members />} />
-        <Route path="/members/add" element={<CreateWhiteLabel />} />
+        <Route path="/members/user" element={<CreateWhiteLabel />} />
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />

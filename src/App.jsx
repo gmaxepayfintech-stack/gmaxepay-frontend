@@ -36,6 +36,7 @@ import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./userOnboarding/welcome";
 import RetailerOnboarding from "./userOnboarding/[id]";
+import { statsBuffer } from "framer-motion";
 
 function App() {
   const { showNotification } = useNotification();
@@ -90,7 +91,9 @@ function App() {
   );
  
 
-  const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel);
+  const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
+);
+const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding)  
 
   const whiteLabelPanMessageFailure = useSelector(
     (state) => state?.error?.error
@@ -182,15 +185,25 @@ function App() {
     }
   }, [onBoardingMobileVerification]);
 
-  // useEffect(() => {
-  //   if (whiteLabelPanMessageSuccess?.message) {
-  //     showNotification({
-  //       type: "success",
-  //       message: whiteLabelPanMessageSuccess?.message,
-  //       isCritical: true,
-  //     });
-  //   }
-  // }, [whiteLabelPanMessageSuccess]);
+  useEffect(() => {
+    if (whiteLabelPanMessageSuccess?.message) {
+      showNotification({
+        type: "success",
+        message: whiteLabelPanMessageSuccess?.message,
+        isCritical: true,
+      });
+    }
+  }, [whiteLabelPanMessageSuccess]);
+
+  useEffect(() => {
+    if(OnboardingLink?.message) {
+      showNotification({
+        type: "success",
+        message: OnboardingLink?.message,
+        isCritical: true,
+      });
+    }
+  }, [OnboardingLink]);
 
   useEffect(() => {
     if (whiteLabelPanMessageFailure?.message) {
