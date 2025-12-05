@@ -262,56 +262,31 @@ function Step2({ formData, setFormData, onNext }) {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-50 flex items-center justify-center p-2 sm:p-3 md:p-4 overflow-hidden">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
       {/* CARD CONTAINER */}
-      <div
-        className="
-          w-full 
-          max-w-[95%]
-          sm:w-[400px]
-          md:w-[500px]    
-          lg:w-[550px]    
-          bg-white 
-          rounded-xl 
-          shadow-md 
-          p-3 sm:p-5 md:p-6
-          mx-auto
-        "
-      >
-        <div className="mb-2 sm:mb-3 text-center">
-          <h2 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900">
+      <div className="w-full max-w-[95%] sm:max-w-[500px] md:max-w-[550px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 mx-auto">
+        <div className="mb-4 sm:mb-5 md:mb-6 lg:mb-7 text-center">
+          <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
             Complete Your KYC
           </h2>
-          <p className="text-gray-600 text-xs sm:text-sm md:text-base mt-1">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl mt-2 sm:mt-3 md:mt-4">
             Secure your account by completing verification
           </p>
         </div>
 
         {/* FORM */}
         <form onSubmit={(e) => e.preventDefault()}>
-
-          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-center text-gray-900 mb-2">
+          <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center text-gray-900 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
             Email Verification
           </h3>
 
-          <p className="text-gray-600 text-xs sm:text-sm md:text-base text-center mb-3 sm:mb-4">
+          <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl text-center mb-5 sm:mb-6 md:mb-7 lg:mb-8">
             Enter your Email address to receive the OTP
           </p>
 
           {/* EMAIL FIELD */}
-          <div className="mb-3 sm:mb-4">
-            <label
-              className="
-                block 
-                text-xs
-                sm:text-sm 
-                font-medium 
-                text-gray-800 
-                mb-1
-                sm:mb-2
-                md:text-lg
-              "
-            >
+          <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+            <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
               Email ID
             </label>
 
@@ -320,9 +295,9 @@ function Step2({ formData, setFormData, onNext }) {
                 <img
                   src="/img/Emailicon.png"
                   alt="Email"
-                  className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
+                  className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
                 />
-                <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 bg-gray-300" />
+                <div className="absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 md:h-7 lg:h-8 bg-gray-300" />
 
                 <input
                   type="email"
@@ -330,25 +305,7 @@ function Step2({ formData, setFormData, onNext }) {
                   value={formData.email}
                   onChange={handleChange}
                   placeholder="Enter your Email"
-                  className="
-                    w-full 
-                    h-12
-                    sm:h-[60px]
-                    md:h-[70px]
-                    border 
-                    border-gray-300 
-                    rounded-l-lg
-                    rounded-r-none
-                    pl-10
-                    sm:pl-14 
-                    pr-3
-                    sm:pr-4
-                    text-sm
-                    sm:text-base 
-                    md:text-xl
-                    outline-none
-                    focus:border-[#1B1717]
-                  "
+                  className="w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 border-r-0 border-gray-300 rounded-l-xl rounded-r-none pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] focus:border-r-0 transition"
                 />
               </div>
 
@@ -356,30 +313,11 @@ function Step2({ formData, setFormData, onNext }) {
                 type="button"
                 onClick={handleVerifyOrResend}
                 disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
-                className={`
-                  bg-[#039155] 
-                  text-white 
-                  rounded-r-lg
-                  px-3
-                  sm:px-4
-                  md:px-6
-                  text-xs
-                  sm:text-sm
-                  md:text-base
-                  lg:text-xl
-                  font-medium
-                  h-12
-                  sm:h-[60px]
-                  md:h-[70px]
-                  hover:bg-green-700 
-                  transition
-                  whitespace-nowrap
-                  flex-shrink-0
-                  ${verifuSuccess === "SUCCESS" && successCooldown > 0
-                    ? "bg-gray-400 cursor-not-allowed"
+                className={`bg-[#039155] text-white rounded-r-xl rounded-l-none border-2 border-l-0 border-[#1B1717] px-4 sm:px-5 md:px-6 lg:px-7 text-xs sm:text-sm md:text-base lg:text-lg font-medium h-12 sm:h-14 md:h-16 lg:h-[72px] hover:bg-green-700 transition whitespace-nowrap flex-shrink-0 shadow-md ${
+                  verifuSuccess === "SUCCESS" && successCooldown > 0
+                    ? "bg-gray-400 border-gray-400 cursor-not-allowed"
                     : ""
-                  }
-                `}
+                }`}
               >
                 {verifuSuccess === "SUCCESS"
                   ? successCooldown > 0
@@ -391,19 +329,8 @@ function Step2({ formData, setFormData, onNext }) {
           </div>
 
           {/* OTP FIELD */}
-          <div className="mb-3 sm:mb-4">
-            <label
-              className="
-                block 
-                text-xs
-                sm:text-sm 
-                font-medium 
-                text-gray-800 
-                mb-1
-                sm:mb-2
-                md:text-lg
-              "
-            >
+          <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+            <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
               Enter OTP
             </label>
 
@@ -411,9 +338,9 @@ function Step2({ formData, setFormData, onNext }) {
               <img
                 src="/img/DeviceMobileCamera.png"
                 alt="OTP"
-                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 opacity-60"
+                className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
               />
-              <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 bg-gray-300" />
+                <div className="absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 md:h-7 lg:h-8 bg-gray-300" />
 
               <input
                 type="text"
@@ -424,29 +351,12 @@ function Step2({ formData, setFormData, onNext }) {
                 maxLength={6}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="
-                  w-full 
-                  h-12
-                  sm:h-[60px]
-                  md:h-[70px]
-                  border 
-                  border-gray-300 
-                  rounded-lg 
-                  pl-10
-                  sm:pl-14 
-                  pr-3
-                  sm:pr-4
-                  text-sm
-                  sm:text-base 
-                  md:text-xl
-                  outline-none
-                  focus:border-[#1B1717]
-                "
+                className="w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 border-gray-300 rounded-xl pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] transition"
               />
             </div>
 
             {emailSubmitStatus !== "SUCCESS" && emailSubmitMessage && (
-              <p className="text-red-500 mt-1 sm:mt-2 text-xs sm:text-sm">{emailSubmitMessage}</p>
+              <p className="text-red-500 mt-2 sm:mt-3 text-sm sm:text-base md:text-lg">{emailSubmitMessage}</p>
             )}
           </div>
 
@@ -454,22 +364,7 @@ function Step2({ formData, setFormData, onNext }) {
           <button
             type="button"
             onClick={submitEmailOtp}
-            className="
-              w-full 
-              bg-[#039255] 
-              text-white 
-              py-2.5
-              sm:py-3
-              md:py-3.5
-              rounded-lg 
-              text-sm
-              sm:text-base
-              md:text-lg
-              font-semibold 
-              hover:bg-green-700
-              transition
-              shadow-md
-            "
+            className="w-full bg-[#039155] text-white py-3.5 sm:py-4 md:py-5 lg:py-6 rounded-xl text-base sm:text-lg md:text-xl lg:text-2xl font-semibold hover:bg-green-700 transition shadow-lg h-14 sm:h-16 md:h-[72px] lg:h-[80px]"
           >
             Submit
           </button>

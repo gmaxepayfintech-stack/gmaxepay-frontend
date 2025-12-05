@@ -418,75 +418,53 @@ function RetailerAadhaar({ setFormData, onNext }) {
         </div>
       )}
 
-      <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
-        <div className="w-full max-w-[95%] sm:max-w-[600px] md:max-w-[750px]">
+      <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
+        <div className="w-full max-w-[95%] sm:max-w-[550px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[800px]">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
-          <div className="space-y-4 sm:space-y-6 md:space-y-8 p-3 sm:p-5 md:p-6 lg:p-8">
-
+          <div className="space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10">
             {/* HEADER */}
-            <div className="text-center mx-auto max-w-[450px]">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
+            <div className="text-center mx-auto">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-5">
                 Aadhar Verification
               </h1>
-              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* DIGILOCKER BOX */}
-            <div className="
-              bg-gradient-to-br from-green-50 to-emerald-50 
-              border-2 border-dashed border-gray-400 
-              rounded-xl
-              sm:rounded-2xl
-              p-4 sm:p-6 md:p-8 
-              mx-auto 
-              w-full 
-              max-w-[450px]
-            ">
-              <div className="flex items-start gap-3 sm:gap-4">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-dashed border-gray-400 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-7 lg:p-9 mx-auto w-full">
+              <div className="flex items-start gap-4 sm:gap-5 md:gap-6 lg:gap-7">
                 <img
                   src="/img/Digilocker1.png"
                   alt="DigiLocker"
-                  className="h-16 sm:h-20 md:h-24 w-auto flex-shrink-0"
+                  className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto flex-shrink-0"
                 />
-                <div>
-                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-900 mb-1">
+                <div className="flex-1">
+                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-900 mb-2 sm:mb-3 md:mb-4">
                     Aadhar Via DigiLocker
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">
                     Fetch Aadhaar Document Securely From DigiLocker
                   </p>
                 </div>
               </div>
 
               {/* BUTTONS */}
-              <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 mt-4 sm:mt-6">
+              <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-6 mt-5 sm:mt-6 md:mt-7 lg:mt-8">
                 <button
                   type="button"
                   onClick={handleDownload}
                   disabled={!isVerified || isDownloading || isConnecting}
-                  className={`
-                    flex-1 w-full sm:w-auto
-                    px-4 sm:px-5 md:px-6 lg:px-8
-                    py-2.5 sm:py-3 md:py-3.5 lg:py-4
-                    min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    rounded-xl sm:rounded-2xl
-                    border-2 border-[#1B1717] border-opacity-80 
-                    font-medium 
-                    transition-all
-                    flex items-center justify-center
-                    ${
-                      isDownloaded
-                        ? "bg-green-50 text-green-700 border-green-500 cursor-default"
-                        : !isVerified || isDownloading || isConnecting
-                        ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100 active:scale-95"
-                    }
-                  `}
+                  className={`flex-1 w-full sm:w-auto px-5 sm:px-6 md:px-7 lg:px-9 py-3 sm:py-3.5 md:py-4 lg:py-5 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] text-sm sm:text-base md:text-lg lg:text-xl rounded-xl sm:rounded-2xl border-2 border-[#1B1717] border-opacity-80 font-medium transition-all flex items-center justify-center ${
+                    isDownloaded
+                      ? "bg-green-50 text-green-700 border-green-500 cursor-default"
+                      : !isVerified || isDownloading || isConnecting
+                      ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100 active:scale-95"
+                  }`}
                 >
                   {isDownloading ? "Downloading..." : isDownloaded ? "Downloaded ✓" : "Download"}
                 </button>
@@ -495,30 +473,19 @@ function RetailerAadhaar({ setFormData, onNext }) {
                   type="button"
                   onClick={handleVerify}
                   disabled={isVerified || isConnecting || isDownloading}
-                  className={`
-                    flex-1 w-full sm:w-auto
-                    px-4 sm:px-5 md:px-6 lg:px-8
-                    py-2.5 sm:py-3 md:py-3.5 lg:py-4
-                    min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    rounded-xl sm:rounded-2xl
-                    font-medium 
-                    transition-all
-                    flex items-center justify-center gap-2
-                    ${
-                      isVerified
-                        ? "bg-green-600 text-white cursor-not-allowed"
-                        : isConnecting || isDownloading
-                        ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-[#039155] text-white hover:bg-green-700 active:scale-95"
-                    }
-                  `}
+                  className={`flex-1 w-full sm:w-auto px-5 sm:px-6 md:px-7 lg:px-9 py-3 sm:py-3.5 md:py-4 lg:py-5 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] text-sm sm:text-base md:text-lg lg:text-xl rounded-xl sm:rounded-2xl font-medium transition-all flex items-center justify-center gap-2 ${
+                    isVerified
+                      ? "bg-green-600 text-white cursor-not-allowed"
+                      : isConnecting || isDownloading
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-[#039155] text-white hover:bg-green-700 active:scale-95"
+                  }`}
                 >
                   {isConnecting ? (
                     "Connecting..."
                   ) : isVerified ? (
                     <>
-                      <svg className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       Verified
@@ -531,9 +498,9 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </div>
 
             {/* INFO BOX */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-4 flex items-start gap-2 sm:gap-3 mx-auto max-w-[450px]">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-5 md:p-6 lg:p-7 flex items-start gap-3 sm:gap-4 md:gap-5 mx-auto w-full">
               <svg
-                className="h-4 w-4 sm:h-5 sm:w-5 text-blue-600 flex-shrink-0 mt-0.5"
+                className="h-5 w-5 sm:h-6 sm:w-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-blue-600 flex-shrink-0 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -544,10 +511,10 @@ function RetailerAadhaar({ setFormData, onNext }) {
                 />
               </svg>
               <div>
-                <h4 className="font-semibold text-blue-900 text-xs sm:text-sm mb-0.5 sm:mb-1">
+                <h4 className="font-semibold text-blue-900 text-sm sm:text-base md:text-lg lg:text-xl mb-1 sm:mb-2">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs text-blue-800">
+                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-blue-800">
                   Documents are fetched directly from DigiLocker using secure APIs.
                 </p>
               </div>
@@ -558,26 +525,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
               <button
                 type="button"
                 onClick={() => setShowImageUpload(true)}
-                className="
-                  w-full 
-                  max-w-[450px]
-                  px-4 sm:px-6 md:px-8 lg:px-10
-                  py-3 sm:py-3.5 md:py-4 lg:py-4.5
-                  min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
-                  text-center 
-                  rounded-xl sm:rounded-2xl
-                  font-semibold 
-                  text-white 
-                  text-sm sm:text-base md:text-lg lg:text-xl
-                  mx-auto 
-                  shadow-md
-                  transition-all
-                  flex items-center justify-center
-                  bg-[#039155]
-                  hover:bg-green-700
-                  active:scale-95
-                  opacity-100
-                "
+                className="w-full px-5 sm:px-7 md:px-9 lg:px-11 py-3.5 sm:py-4 md:py-5 lg:py-6 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] text-center rounded-xl sm:rounded-2xl font-semibold text-white text-base sm:text-lg md:text-xl lg:text-2xl mx-auto shadow-md transition-all flex items-center justify-center bg-[#039155] hover:bg-green-700 active:scale-95"
               >
                 Next
               </button>
@@ -585,19 +533,19 @@ function RetailerAadhaar({ setFormData, onNext }) {
           </div>
         ) : (
           /* =================== STEP 2 - IMAGE UPLOAD =================== */
-          <div className="space-y-4 sm:space-y-6 p-3 sm:p-5 md:p-6 lg:p-8">
+          <div className="space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10">
             {/* HEADER */}
-            <div className="text-center mx-auto max-w-[450px]">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-1 sm:mb-2">
+            <div className="text-center mx-auto">
+              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-5">
                 Aadhar Verification
               </h1>
-              <p className="text-gray-600 text-xs sm:text-sm md:text-base">
+              <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* FRONT IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px] h-[200px] sm:h-[220px] md:h-[240px] flex items-center justify-center relative overflow-hidden">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 mx-auto w-full h-[200px] sm:h-[220px] md:h-[250px] lg:h-[280px] flex items-center justify-center relative overflow-hidden">
               {frontImagePreview ? (
                 <>
                   <img
@@ -655,7 +603,7 @@ function RetailerAadhaar({ setFormData, onNext }) {
             </div>
 
             {/* BACK IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 mx-auto w-full max-w-[450px] h-[200px] sm:h-[220px] md:h-[240px] flex items-center justify-center relative overflow-hidden">
+            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 mx-auto w-full h-[200px] sm:h-[220px] md:h-[250px] lg:h-[280px] flex items-center justify-center relative overflow-hidden">
               {backImagePreview ? (
                 <>
                   <img
@@ -717,26 +665,11 @@ function RetailerAadhaar({ setFormData, onNext }) {
               type="button"
               onClick={handleSubmitImages}
               disabled={!frontImage || !backImage || isUploading}
-              className={`
-                w-full 
-                max-w-[450px]
-                px-4 sm:px-6 md:px-8 lg:px-10
-                py-3 sm:py-3.5 md:py-4 lg:py-4.5
-                min-h-[44px] sm:min-h-[48px] md:min-h-[52px] lg:min-h-[56px]
-                rounded-xl sm:rounded-2xl
-                font-semibold 
-                text-white 
-                text-sm sm:text-base md:text-lg lg:text-xl
-                mx-auto 
-                shadow-md
-                transition-all
-                flex items-center justify-center
-                ${
-                  frontImage && backImage && !isUploading
-                    ? "bg-[#039155] hover:bg-green-700 active:scale-95"
-                    : "bg-gray-400 cursor-not-allowed"
-                }
-              `}
+              className={`w-full px-5 sm:px-7 md:px-9 lg:px-11 py-3.5 sm:py-4 md:py-5 lg:py-6 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] rounded-xl sm:rounded-2xl font-semibold text-white text-base sm:text-lg md:text-xl lg:text-2xl mx-auto shadow-md transition-all flex items-center justify-center ${
+                frontImage && backImage && !isUploading
+                  ? "bg-[#039155] hover:bg-green-700 active:scale-95"
+                  : "bg-gray-400 cursor-not-allowed"
+              }`}
             >
               {isUploading ? "Uploading..." : "Submit"}
             </button>
