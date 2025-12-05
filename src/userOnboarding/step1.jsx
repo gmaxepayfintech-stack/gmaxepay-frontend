@@ -372,50 +372,19 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
   // If there's a failure, the parent will handle navigation/error display
 
   return (
-    <div
-      className="
-    w-full 
-    h-full 
-    flex 
-    justify-center 
-    items-center 
-    p-2
-    sm:p-4
-    md:p-5
-    lg:p-6
-    overflow-hidden
-  "
-    >
-      <div
-        className="
-        w-full 
-        max-w-[99%]
-        sm:max-w-[500px]
-        md:max-w-[450px] 
-        lg:max-w-[500px]
-        xl:max-w-[550px]
-        bg-white 
-        rounded-xl 
-        shadow-md 
-        p-4
-        sm:p-6
-        md:p-6
-        lg:p-7
-        mx-auto
-      "
-      >
-
-        <h3 className="text-lg sm:text-xl md:text-xl lg:text-2xl font-semibold text-gray-800 text-center mb-3 sm:mb-4 md:mb-4">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
+      <div className="w-full max-w-[95%] sm:max-w-[500px] md:max-w-[550px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 mx-auto">
+        <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-semibold text-gray-800 text-center mb-3 sm:mb-4 md:mb-5 lg:mb-6">
           Mobile Verification
         </h3>
 
-        <p className="text-gray-600 text-sm sm:text-base md:text-base text-center mb-4 sm:mb-5 md:mb-5">
+        <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl text-center mb-5 sm:mb-6 md:mb-7 lg:mb-8">
           Enter your mobile number to receive OTP
         </p>
 
         {/* PHONE INPUT */}
-        <div className="mb-4 sm:mb-5 md:mb-5">
-          <label className="block text-sm sm:text-base md:text-base font-medium text-gray-800 mb-2 sm:mb-3">
+        <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+          <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
             Mobile Number
           </label>
 
@@ -424,10 +393,10 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
               <img
                 src="/img/PhoneCall2.png"
                 alt="Phone"
-                className="absolute left-4 sm:left-5 md:left-4 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-5 opacity-60 z-10"
+                className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
               />
               <div
-                className={`absolute left-12 sm:left-14 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-5 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                className={`absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 lg:h-8 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
                   }`}
               />
               <input
@@ -436,8 +405,8 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
                 value={formik.values.phone}
                 onChange={handleChange}
                 placeholder="Enter your number"
-                className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 border-r-0 ${formik.errors.phone ? "border-red-500" : "border-[#1B1717]"
-                  } rounded-l-xl rounded-r-none pl-12 sm:pl-16 md:pl-12 pr-4 sm:pr-5 md:pr-4 text-base sm:text-lg md:text-base outline-none focus:border-[#1B1717] focus:border-r-0 transition`}
+                className={`w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 border-r-0 ${formik.errors.phone ? "border-red-500" : "border-[#1B1717]"
+                  } rounded-l-xl rounded-r-none pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] focus:border-r-0 transition`}
               />
             </div>
 
@@ -445,9 +414,9 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
               type="button"
               onClick={sendOtp}
               disabled={resendCountdown > 0}
-              className={`px-2 sm:px-4 md:px-4 lg:px-5 rounded-r-xl rounded-l-none border-2 border-l-0 text-xs sm:text-sm md:text-sm lg:text-base font-semibold transition h-12 sm:h-14 md:h-12 lg:h-14 flex-shrink-0 whitespace-nowrap shadow-md ${OTPResponseStatus === "SUCCESS"
-                ? "w-[95px] sm:w-[100px] md:w-[95px] lg:w-[100px]"
-                : "w-[90px] sm:w-[95px] md:w-[90px] lg:w-[95px]"
+              className={`px-4 sm:px-5 md:px-6 lg:px-7 rounded-r-xl rounded-l-none border-2 border-l-0 text-xs sm:text-sm md:text-base lg:text-lg font-semibold transition h-12 sm:h-14 md:h-16 lg:h-[72px] flex-shrink-0 whitespace-nowrap shadow-md ${OTPResponseStatus === "SUCCESS"
+                ? "w-[100px] sm:w-[120px] md:w-[130px] lg:w-[140px]"
+                : "w-[90px] sm:w-[110px] md:w-[120px] lg:w-[130px]"
                 } ${resendCountdown > 0
                   ? "bg-gray-400 border-gray-400 text-white cursor-not-allowed"
                   : "bg-[#039155] text-white border-[#1B1717] hover:bg-green-700 hover:border-[#1B1717]"
@@ -462,13 +431,13 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
           </div>
 
           {formik.errors.phone && (
-            <p className="text-red-500 text-sm sm:text-base mt-2">{formik.errors.phone}</p>
+            <p className="text-red-500 text-sm sm:text-base md:text-lg mt-2 sm:mt-3">{formik.errors.phone}</p>
           )}
         </div>
 
         {/* OTP INPUT */}
-        <div className="mb-4 sm:mb-5 md:mb-5">
-          <label className="block text-sm sm:text-base md:text-base font-medium text-gray-800 mb-2 sm:mb-3">
+        <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+          <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
             Enter OTP
           </label>
 
@@ -476,10 +445,10 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
             <img
               src="/img/DeviceMobileCamera.png"
               alt="OTP"
-              className="absolute left-4 sm:left-5 md:left-4 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-5 opacity-60 z-10"
+              className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
             />
             <div
-              className={`absolute left-12 sm:left-14 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-5 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+              className={`absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 lg:h-8 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
                 }`}
             />
 
@@ -493,13 +462,13 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
                 formik.handleBlur(e);
               }}
               placeholder="Enter Mobile OTP"
-              className={`w-full h-12 sm:h-14 md:h-12 lg:h-14 border-2 ${formik.errors.otp && formik.touched.otp ? "border-red-500" : "border-[#1B1717]"
-                } rounded-xl pl-12 sm:pl-16 md:pl-12 pr-4 sm:pr-5 md:pr-4 text-base sm:text-lg md:text-base outline-none focus:border-[#1B1717] transition`}
+              className={`w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 ${formik.errors.otp && formik.touched.otp ? "border-red-500" : "border-[#1B1717]"
+                } rounded-xl pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] transition`}
             />
           </div>
 
           {formik.errors.otp && formik.touched.otp && (
-            <p className="text-red-500 text-sm sm:text-base mt-2">{formik.errors.otp}</p>
+            <p className="text-red-500 text-sm sm:text-base md:text-lg mt-2 sm:mt-3">{formik.errors.otp}</p>
           )}
         </div>
 
@@ -507,7 +476,7 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
         <button
           type="button"
           onClick={formik.handleSubmit}
-          className="w-full bg-[#039155] text-white py-3 sm:py-3.5 md:py-3 lg:py-3.5 rounded-xl font-semibold text-base sm:text-lg md:text-base lg:text-lg hover:bg-green-700 transition shadow-lg mt-4 sm:mt-5 md:mt-5"
+          className="w-full bg-[#039155] text-white py-3.5 sm:py-4 md:py-5 lg:py-6 rounded-xl font-semibold text-base sm:text-lg md:text-xl lg:text-2xl hover:bg-green-700 transition shadow-lg mt-5 sm:mt-6 md:mt-7 lg:mt-8 h-14 sm:h-16 md:h-[72px] lg:h-[80px]"
         >
           Submit
         </button>

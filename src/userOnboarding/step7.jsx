@@ -233,25 +233,25 @@ function Step7({ formData, setFormData, onComplete }) {
   useEffect(() => stopCamera, []);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50 p-2 xxs:p-0">
+    <div className="flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
       <div
         className="
-          bg-white rounded-lg 
-          w-full 
-          xxs:w-[95%] xs:w-[90%] sm:w-[85%] 
-          md:w-[734px] lg:w-[900px] 
-          shadow-md 
-          p-3 xxs:p-2 sm:p-4 md:p-6 lg:p-8
+          bg-white rounded-xl sm:rounded-2xl
+          w-full max-w-[95%]
+          sm:max-w-[550px] md:max-w-[600px] 
+          lg:max-w-[700px] xl:max-w-[800px]
+          shadow-lg 
+          p-5 sm:p-6 md:p-8 lg:p-10
         "
       >
         {/* Heading */}
         <h3
           className="
             text-center 
-            text-[18px] xxs:text-[17px] xs:text-[18px] 
-            sm:text-[22px] 
-            md:text-[24px] lg:text-[30px]
+            text-lg sm:text-xl md:text-2xl 
+            lg:text-3xl xl:text-4xl
             font-semibold text-gray-800
+            mb-3 sm:mb-4 md:mb-5 lg:mb-6
           "
         >
           Profile
@@ -259,10 +259,9 @@ function Step7({ formData, setFormData, onComplete }) {
 
         <p
           className="
-            text-center text-[13px] xxs:text-[12px] xs:text-[13px]
-            sm:text-[14px]
-            md:text-[16px] lg:text-[18px]
-            text-[#1B1717] mt-3 mb-4
+            text-center text-sm sm:text-base md:text-lg 
+            lg:text-xl
+            text-[#1B1717] mb-5 sm:mb-6 md:mb-7 lg:mb-8
           "
         >
           Profile Picture To Complete Your KYC
@@ -271,20 +270,16 @@ function Step7({ formData, setFormData, onComplete }) {
         {/* Frame */}
         <div
           className="
-            mx-auto mb-4 
+            mx-auto mb-5 sm:mb-6 md:mb-7 lg:mb-8
             w-full 
-            xxs:w-[260px] xs:w-[300px] sm:w-[380px]
-            md:w-[534px] lg:w-[650px]
-            h-[180px] xxs:h-[170px] xs:h-[190px] sm:h-[240px]
-            md:h-[276px] lg:h-[350px]
-
-            xxs:mr-4
-            xl:mr-24          "
+            h-[200px] sm:h-[250px] md:h-[300px]
+            lg:h-[350px] xl:h-[400px]
+          "
         >
-          <div className="border-2 border-dashed border-black/30 rounded-lg h-full relative overflow-hidden bg-gray-50">
+          <div className="border-2 border-dashed border-black/30 rounded-xl h-full relative overflow-hidden bg-gray-50">
             <video
               ref={videoRef}
-              className={`w-full h-full object-cover rounded-lg ${
+              className={`w-full h-full object-cover rounded-xl ${
                 isCameraActive ? "block" : "hidden"
               }`}
               playsInline
@@ -298,7 +293,7 @@ function Step7({ formData, setFormData, onComplete }) {
                 className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
                 onClick={startCamera}
               >
-                <img src="/img/Camera.png" className="w-10 h-10 xs:w-12 xs:h-12" />
+                <img src="/img/Camera.png" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16" alt="Camera" />
               </div>
             )}
 
@@ -306,7 +301,7 @@ function Step7({ formData, setFormData, onComplete }) {
             {formData.profilePhotoDataUrl && !isCameraActive && (
               <img
                 src={formData.profilePhotoDataUrl}
-                className="w-full h-full object-cover rounded-lg absolute inset-0"
+                className="w-full h-full object-cover rounded-xl absolute inset-0"
                 alt="Profile"
               />
             )}
@@ -314,8 +309,8 @@ function Step7({ formData, setFormData, onComplete }) {
             {(isCameraActive || formData.profilePhotoDataUrl) && (
               <div
                 className="
-                  absolute bottom-3 left-1/2 -translate-x-1/2 
-                  flex gap-2 xxs:gap-1 xs:gap-2
+                  absolute bottom-3 sm:bottom-4 md:bottom-5 left-1/2 -translate-x-1/2 
+                  flex gap-3 sm:gap-4 md:gap-5
                   z-10
                 "
               >
@@ -327,12 +322,12 @@ function Step7({ formData, setFormData, onComplete }) {
                   }}
                   className="
                     bg-[#039155] text-white 
-                    px-3 xxs:px-2 xs:px-3 sm:px-4 md:px-6 
-                    py-1 xxs:py-0.5 xs:py-1 md:py-2
+                    px-4 sm:px-5 md:px-6 lg:px-7 
+                    py-2 sm:py-2.5 md:py-3 lg:py-3.5
                     rounded-lg 
-                    text-[12px] xxs:text-[11px] sm:text-[13px] md:text-[16px]
-                    font-medium 
-                    hover:bg-green-700 transition shadow-md
+                    text-sm sm:text-base md:text-lg lg:text-xl
+                    font-semibold 
+                    hover:bg-green-700 transition shadow-lg active:scale-95
                   "
                 >
                   Retake
@@ -342,11 +337,11 @@ function Step7({ formData, setFormData, onComplete }) {
                   onClick={capturePhoto}
                   disabled={!isCameraActive}
                   className={`
-                    px-3 xxs:px-2 xs:px-3 sm:px-4 md:px-6
-                    py-1 xxs:py-0.5 xs:py-1 md:py-2
+                    px-4 sm:px-5 md:px-6 lg:px-7
+                    py-2 sm:py-2.5 md:py-3 lg:py-3.5
                     rounded-lg
-                    text-[12px] xxs:text-[11px] sm:text-[13px] md:text-[16px]
-                    font-medium transition shadow-md
+                    text-sm sm:text-base md:text-lg lg:text-xl
+                    font-semibold transition shadow-lg active:scale-95
                     ${
                       isCameraActive
                         ? "bg-[#039155] text-white hover:bg-green-700"
@@ -364,33 +359,26 @@ function Step7({ formData, setFormData, onComplete }) {
         </div>
 
         {/* Guidelines */}
-        <div
-          className="
-            mx-auto 
-            w-full 
-            xxs:w-[260px] xs:w-[300px] sm:w-[380px]
-            md:w-[534px] lg:w-[650px]
-          "
-        >
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 xxs:p-2 sm:p-4 md:p-6">
-            <ul className="space-y-2">
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#039155] mt-2" />
-                <span className="text-[12px] xxs:text-[11px] sm:text-[13px] md:text-[16px] text-[#1B1717]">
+        <div className="mx-auto w-full">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-5 md:p-6 lg:p-7">
+            <ul className="space-y-2 sm:space-y-3 md:space-y-4">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Capture A Clear Photo
                 </span>
               </li>
 
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#039155] mt-2" />
-                <span className="text-[12px] xxs:text-[11px] sm:text-[13px] md:text-[16px] text-[#1B1717]">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Good Lighting Required – Avoid Dark Or Blurry Images.
                 </span>
               </li>
 
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 rounded-full bg-[#039155] mt-2" />
-                <span className="text-[12px] xxs:text-[11px] sm:text-[13px] md:text-[16px] text-[#1B1717]">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Your Aadhaar Photo And Uploaded Profile Picture Must Match.
                 </span>
               </li>
@@ -399,14 +387,14 @@ function Step7({ formData, setFormData, onComplete }) {
 
           {/* Error */}
           {postProfileError && (
-            <div className="w-full p-2 sm:p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-[12px] sm:text-[14px] md:text-[16px] mb-4 mt-4">
+            <div className="w-full p-3 sm:p-4 md:p-5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm sm:text-base md:text-lg mb-4 sm:mb-5 mt-4 sm:mt-5">
               {typeof postProfileError === "string" ? postProfileError : postProfileError?.message || "Failed to upload profile"}
             </div>
           )}
 
           {/* Success */}
           {postProfileSuccess && postProfileMessage && (
-            <div className="w-full p-2 sm:p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-[12px] sm:text-[14px] md:text-[16px] mb-4 mt-4">
+            <div className="w-full p-3 sm:p-4 md:p-5 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm sm:text-base md:text-lg mb-4 sm:mb-5 mt-4 sm:mt-5">
               {postProfileMessage}
             </div>
           )}
@@ -417,12 +405,13 @@ function Step7({ formData, setFormData, onComplete }) {
             disabled={isSubmitting || !formData.profilePhotoDataUrl}
             className={`
               w-full 
-              py-2 xxs:py-1.5 xs:py-2 md:py-3 
-              rounded-lg text-white 
-              text-[16px] xxs:text-[15px] xs:text-[16px] sm:text-[18px] md:text-[24px] lg:text-[26px]
-              font-medium 
-              h-[45px] xxs:h-[42px] xs:h-[45px] md:h-[60px] lg:h-[70px]
-              transition mt-5
+              py-3.5 sm:py-4 md:py-5 lg:py-6 
+              rounded-xl text-white 
+              text-base sm:text-lg md:text-xl lg:text-2xl
+              font-semibold 
+              h-14 sm:h-16 md:h-[72px] lg:h-[80px]
+              transition mt-6 sm:mt-7 md:mt-8 lg:mt-10
+              shadow-lg
               ${
                 isSubmitting || !formData.profilePhotoDataUrl
                   ? "bg-[#039155] opacity-60 cursor-not-allowed"

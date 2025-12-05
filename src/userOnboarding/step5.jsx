@@ -266,33 +266,33 @@ function Step5({ formData, setFormData, onComplete }) {
   useEffect(() => stopCamera, []);
 
   return (
-    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="bg-white rounded-xl shadow-md p-3 sm:p-5 md:p-6 lg:p-8 w-full max-w-[95%] sm:max-w-[500px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[900px] mx-auto">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
+      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10 w-full max-w-[95%] sm:max-w-[550px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] mx-auto">
 
         {/* Heading */}
-        <h3 className="text-center text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-800 mb-2 sm:mb-3">
+        <h3 className="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-800 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
           Shop Details
         </h3>
 
-        <p className="text-center text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717] mb-4 sm:mb-5 md:mb-6">
+        <p className="text-center text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717] mb-5 sm:mb-6 md:mb-7 lg:mb-8">
           Enter Shop Name And Capture Shop Photo To Complete Your KYC
         </p>
 
         {/* Shop Name Input */}
-        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] mx-auto mb-3 sm:mb-4">
+        <div className="w-full mx-auto mb-5 sm:mb-6 md:mb-7 lg:mb-8">
           <input
             type="text"
             name="shopName"
             value={formData.shopName || ''}
             onChange={handleChange}
             placeholder="Enter Shop Name"
-            className="w-full px-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg text-sm sm:text-base md:text-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+            className="w-full px-5 sm:px-6 md:px-7 lg:px-8 py-3 sm:py-3.5 md:py-4 lg:py-5 border-2 border-gray-300 rounded-xl text-sm sm:text-base md:text-lg lg:text-xl focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent h-12 sm:h-14 md:h-16 lg:h-[72px]"
           />
         </div>
 
         {/* Frame */}
-        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] mx-auto mb-3 sm:mb-4">
-          <div className="border-2 border-dashed border-[#1B1717]/30 rounded-lg h-full relative overflow-hidden bg-gray-50">
+        <div className="w-full h-[200px] sm:h-[250px] md:h-[300px] lg:h-[350px] xl:h-[400px] mx-auto mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+          <div className="border-2 border-dashed border-[#1B1717]/30 rounded-xl h-full relative overflow-hidden bg-gray-50">
 
             <video
               ref={videoRef}
@@ -322,14 +322,14 @@ function Step5({ formData, setFormData, onComplete }) {
             )}
 
             {(isCameraActive || formData.shopPhotoDataUrl) && (
-              <div className="absolute bottom-2 sm:bottom-3 md:bottom-4 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-3 z-10">
+              <div className="absolute bottom-3 sm:bottom-4 md:bottom-5 lg:bottom-6 left-1/2 -translate-x-1/2 flex gap-3 sm:gap-4 md:gap-5 z-10">
                 <button
                   onClick={e => {
                     e.stopPropagation();
                     setFormData(d => ({ ...d, shopPhotoDataUrl: '' }));
                     startCamera();
                   }}
-                  className="bg-[#039155] text-white px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base lg:text-lg font-medium hover:bg-green-700 transition shadow-md"
+                  className="bg-[#039155] text-white px-4 sm:px-5 md:px-6 lg:px-7 py-2 sm:py-2.5 md:py-3 lg:py-3.5 rounded-lg text-sm sm:text-base md:text-lg lg:text-xl font-semibold hover:bg-green-700 transition shadow-lg active:scale-95"
                 >
                   Retake
                 </button>
@@ -337,7 +337,7 @@ function Step5({ formData, setFormData, onComplete }) {
                 <button
                   onClick={capturePhoto}
                   disabled={!isCameraActive}
-                  className={`px-3 sm:px-4 md:px-5 lg:px-6 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm md:text-base lg:text-lg font-medium transition shadow-md ${
+                  className={`px-4 sm:px-5 md:px-6 lg:px-7 py-2 sm:py-2.5 md:py-3 lg:py-3.5 rounded-lg text-sm sm:text-base md:text-lg lg:text-xl font-semibold transition shadow-lg active:scale-95 ${
                     isCameraActive
                       ? 'bg-[#039155] text-white hover:bg-green-700'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
@@ -353,26 +353,26 @@ function Step5({ formData, setFormData, onComplete }) {
         </div>
 
         {/* Guidelines */}
-        <div className="w-full max-w-full sm:max-w-[450px] md:max-w-[500px] lg:max-w-[600px] xl:max-w-[650px] mx-auto">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-3 sm:p-4 md:p-5 lg:p-6">
-            <ul className="space-y-1.5 sm:space-y-2">
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
+        <div className="w-full mx-auto">
+          <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-4 sm:p-5 md:p-6 lg:p-7">
+            <ul className="space-y-2.5 sm:space-y-3 md:space-y-4">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-1.5 sm:mt-2 md:mt-2.5 flex-shrink-0" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Capture A Clear Photo
                 </span>
               </li>
 
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-1.5 sm:mt-2 md:mt-2.5 flex-shrink-0" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Good Lighting Required – Avoid Dark Or Blurry Images.
                 </span>
               </li>
 
-              <li className="flex items-start gap-2">
-                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-[#039155] mt-1.5 sm:mt-2 flex-shrink-0" />
-                <span className="text-xs sm:text-sm md:text-base lg:text-lg text-[#1B1717]">
+              <li className="flex items-start gap-3 sm:gap-4">
+                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-1.5 sm:mt-2 md:mt-2.5 flex-shrink-0" />
+                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
                   Ensure The Shop Photo Clearly Shows Your Shop Signage Or Storefront.
                 </span>
               </li>
@@ -383,10 +383,10 @@ function Step5({ formData, setFormData, onComplete }) {
           <button
             onClick={handleSubmit}
             disabled={postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl}
-            className={`w-full py-2.5 sm:py-3 md:py-3.5 rounded-lg text-white text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl font-semibold h-12 sm:h-14 md:h-16 lg:h-[70px] transition mt-4 sm:mt-5 shadow-md ${
+            className={`w-full py-3.5 sm:py-4 md:py-5 lg:py-6 rounded-xl text-white text-base sm:text-lg md:text-xl lg:text-2xl font-semibold h-14 sm:h-16 md:h-[72px] lg:h-[80px] transition mt-5 sm:mt-6 md:mt-7 lg:mt-8 shadow-lg ${
               postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl
                 ? 'bg-[#039155] opacity-60 cursor-not-allowed'
-                : 'bg-[#039155] hover:bg-green-700'
+                : 'bg-[#039155] hover:bg-green-700 active:scale-95'
             }`}
           >
             {postShopDetailsLoading ? 'Submitting...' : 'Submit'}
