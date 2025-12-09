@@ -24,10 +24,11 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
+  const obj = useSelector(state => state.userProfile)
   const { email, name, unauthorized, error , referralCode} = useSelector(
     (state) => state.userProfile
   );
-  console.log("referralCode", referralCode);
+  console.log("referralCode", obj);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
