@@ -27,7 +27,6 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const { email, name, unauthorized, error , profile} = useSelector(
     (state) => state.userProfile
   );
-
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
   // State for active (highlighted) main menu item
@@ -82,7 +81,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   // Referral code - can be fetched from state or props
-  const referralCodeValue = profile?.preferralCode;
+  const referralCodeValue = profile?.referrerCode;
 
   const shareReferralCode = () => {
     if (navigator.share) {
