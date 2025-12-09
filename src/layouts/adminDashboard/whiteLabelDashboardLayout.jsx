@@ -24,9 +24,10 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error } = useSelector(
+  const { email, name, unauthorized, error , referralCode} = useSelector(
     (state) => state.userProfile
   );
+  console.log("referralCode", referralCode);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -82,17 +83,17 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   // Referral code - can be fetched from state or props
-  const referralCode = "NPSK6P9R4";
+  const referralCodeValue = referralCode;
 
   const shareReferralCode = () => {
     if (navigator.share) {
       navigator.share({
         title: "Referral Code",
-        text: `Use my referral code: ${referralCode}`,
+        text: `Use my referral code: ${referralCodeValue}`,
       });
     } else {
       // Fallback to copy if share is not available
-      navigator.clipboard.writeText(referralCode);
+      navigator.clipboard.writeText(referralCodeValue);
       showNotification({
         type: "success",
         message: "Referral code copied to clipboard!",
@@ -320,7 +321,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
               </button>
             </div>
             <p className="text-sm font-medium text-[#1B1717]">
-              {referralCode}
+              {referralCodeValue}
             </p>
           </div>
         </div>
