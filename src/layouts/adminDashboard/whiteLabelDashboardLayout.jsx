@@ -24,11 +24,9 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const obj = useSelector(state => state.userProfile)
-  const { email, name, unauthorized, error , referralCode} = useSelector(
+  const { email, name, unauthorized, error , profile} = useSelector(
     (state) => state.userProfile
   );
-  console.log("referralCode", obj);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -84,7 +82,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   // Referral code - can be fetched from state or props
-  const referralCodeValue = referralCode;
+  const referralCodeValue = profile?.preferralCode;
 
   const shareReferralCode = () => {
     if (navigator.share) {
@@ -367,12 +365,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                   Admin Panel
                 </span>
                 <img
-                  src={defaultProfileImage}
+                  src={profile?.profileImage || defaultProfileImage}
                   alt="Profile"
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = companyLogo;
+                    e.target.src = defaultProfileImage;
                   }}
                 />
               </div>
