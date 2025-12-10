@@ -135,8 +135,10 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Daily Reports", path: "/superDashboard/reports/daily" },
-        { name: "Monthly Reports", path: "/superDashboard/reports/monthly" },
+        { name: "Business Report", path: "/superDashboard/reports/business" },
+        { name: "Earning Report", path: "/superDashboard/reports/earning" },
+        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
+        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
       ],
     },
 

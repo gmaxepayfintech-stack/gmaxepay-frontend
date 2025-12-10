@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { FaSearch, FaPlus, FaUpload, FaCheckCircle, FaTimesCircle, FaUser, FaIdCard, FaBuilding, FaUniversity, FaExpand } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { X, ZoomIn } from "lucide-react";
+import { X, ZoomIn, User } from "lucide-react";
 import * as XLSX from "xlsx";
 import WhiteLabel from "./WhiteLabel";
 import AdminWhitelabelList from "./superAdminDashboard/adminWhitelabelList";
@@ -12,7 +12,8 @@ import Distribution from "./superAdminDashboard/distribution";
 import DistributionOnboarding from "./superAdminDashboard/DistrubtionOnboarding";
 import Retailers from "./superAdminDashboard/Retailers";
 import RetailerOnboarding from "./superAdminDashboard/RetailerOnboarding";
-import { useList, kycData, kycStatusCheck, kycUnlock, kycRevert,rescendOnboarding, deActiveOnboarding } from "../redux/action/whiteLabelAction";
+import ProfileDetails from "./superAdminDashboard/ProfileDetails";
+import { useList, kycData, kycStatusCheck, kycUnlock, kycRevert, rescendOnboarding, deActiveOnboarding } from "../redux/action/whiteLabelAction";
 
 
 
@@ -55,6 +56,7 @@ const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
 
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
   const [activeNav, setActiveNav] = useState("Whitelabel");
   const [currentPage, setCurrentPage] = useState(1);
@@ -209,7 +211,7 @@ const CreateWhiteLabel = () => {
         // Refresh KYC data after revert
         dispatch(kycData(selectedUserId));
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
@@ -237,7 +239,7 @@ const CreateWhiteLabel = () => {
 
   const tableHeaders = [
     "ID",
-    "Date",
+    "User",
     "User Agent Code",
     "Name",
     "User Role",
@@ -256,8 +258,10 @@ const CreateWhiteLabel = () => {
     "Action",
     "Lock Status",
     "Onboarding",
-    "Deactivation",
+    "Token Expire",
+    "Date"
   ];
+
 
   const safeString = (value, fallback = "N/A") => {
     if (value === null || value === undefined) return fallback;
@@ -526,6 +530,10 @@ const CreateWhiteLabel = () => {
   if (showWhiteLabel) {
     return <WhiteLabel onBack={() => setShowWhiteLabel(false)} />;
   }
+
+  if (showProfileDetails) {
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+  }
   return (
     <div className="text-[#1B1717] w-full h-full overflow-hidden">
       <div className="w-full h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
@@ -709,7 +717,44 @@ const CreateWhiteLabel = () => {
               </div>
 
               {/* Table */}
-              <div className="flex-1 overflow-x-auto rounded-xl bg-white mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+              <div
+                className="flex-1 overflow-x-auto rounded-xl bg-white mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
+                onWheel={(e) => {
+                  // Enable horizontal scrolling with Shift + mouse wheel or horizontal wheel
+                  if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+                    e.preventDefault();
+                    e.currentTarget.scrollLeft += e.deltaX || e.deltaY;
+                  }
+                }}
+                style={{ cursor: 'pointer' }}
+                onMouseDown={(e) => {
+                  if (e.button === 0) { // Left mouse button
+                    const container = e.currentTarget;
+                    const startX = e.pageX - container.offsetLeft;
+                    const scrollLeft = container.scrollLeft;
+                    let isDown = true;
+
+                    const handleMouseMove = (e) => {
+                      if (!isDown) return;
+                      e.preventDefault();
+                      const x = e.pageX - container.offsetLeft;
+                      const walk = (x - startX) * 2; // Scroll speed
+                      container.scrollLeft = scrollLeft - walk;
+                    };
+
+                    const handleMouseUp = () => {
+                      isDown = false;
+                      document.removeEventListener('mousemove', handleMouseMove);
+                      document.removeEventListener('mouseup', handleMouseUp);
+                      container.style.cursor = 'pointer';
+                    };
+
+                    document.addEventListener('mousemove', handleMouseMove);
+                    document.addEventListener('mouseup', handleMouseUp);
+                    container.style.cursor = 'pointer';
+                  }
+                }}
+              >
                 <table className="min-w-[720px] sm:min-w-full divide-y">
                   <thead className="bg-white">
                     <tr>
@@ -742,9 +787,14 @@ const CreateWhiteLabel = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                             {row.id || "N/A"}
                           </td>
-                          {/* Date */}
+                          {/* User */}
                           <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                            {row.date || "N/A"}
+                            <button
+                              onClick={() => setShowProfileDetails(true)}
+                              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                            >
+                              <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                            </button>
                           </td>
                           {/* User ID */}
                           <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -940,11 +990,10 @@ const CreateWhiteLabel = () => {
                                     }
                                   }}
                                   disabled={!isLocked}
-                                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                    isLocked
+                                  className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isLocked
                                       ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                      : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                                  }`}
+                                      : "bg-green-500 text-white cursor-pointer opacity-75"
+                                    }`}
                                   title={isLocked ? "Click to unlock" : "Already unlocked"}
                                 >
                                   {isLocked ? "Locked" : "Unlocked"}
@@ -988,6 +1037,10 @@ const CreateWhiteLabel = () => {
                               );
                             })()}
                           </td>
+                          {/* Date */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                            {row.date || "N/A"}
+                          </td>
                         </tr>
                       ))
                     )}
@@ -1001,8 +1054,8 @@ const CreateWhiteLabel = () => {
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
-                      ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === 1
+                      ? "text-gray-300 bg-gray-100"
                       : "text-gray-500 hover:bg-gray-100"
                       }`}
                   >
@@ -1023,8 +1076,8 @@ const CreateWhiteLabel = () => {
                   <button
                     onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages || totalPages === 0
-                      ? "text-gray-300 cursor-not-allowed bg-gray-100"
+                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === totalPages || totalPages === 0
+                      ? "text-gray-300 bg-gray-100"
                       : "text-gray-500 hover:bg-gray-100"
                       }`}
                   >
@@ -1453,13 +1506,13 @@ const CreateWhiteLabel = () => {
                                     <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
                                   </div>
                                 </div>
-                            </div>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
+                              </div>
+                            )}
+                          </div>
                         </div>
+                      )}
+
+                    </div>
                   )}
 
                   {/* Bank Details Tab */}

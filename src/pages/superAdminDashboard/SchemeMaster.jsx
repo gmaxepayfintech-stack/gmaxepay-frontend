@@ -1,11 +1,14 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Search, Plus, ChevronLeft, ChevronRight, Globe, Lock, Grid3x3, X, ChevronDown } from 'lucide-react';
+import EditMembership from './EditMembership';
 
 const SchemeMaster = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('All Schemes');
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedScheme, setSelectedScheme] = useState(null);
+    const [showEditMembership, setShowEditMembership] = useState(false);
     const [formData, setFormData] = useState({
         schemeName: '',
         schemeMode: 'Global',
@@ -154,6 +157,19 @@ const SchemeMaster = () => {
 
     const filters = ['All Schemes', 'Global', 'Private', 'Premium', 'Free'];
 
+    // Show EditMembership component when selected
+    if (showEditMembership) {
+        return (
+            <EditMembership 
+                scheme={selectedScheme}
+                onBack={() => {
+                    setShowEditMembership(false);
+                    setSelectedScheme(null);
+                }}
+            />
+        );
+    }
+
     return (
         <div className="min-h-screen p-3 sm:p-4 md:p-6 text-[#1B1717]">
             {/* Header Section */}
@@ -278,7 +294,13 @@ const SchemeMaster = () => {
                                 </div>
 
                                 {/* View Details Button */}
-                                <button className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-lg font-medium hover:bg-green-700 transition text-sm sm:text-base mt-auto">
+                                <button 
+                                    onClick={() => {
+                                        setSelectedScheme(scheme);
+                                        setShowEditMembership(true);
+                                    }}
+                                    className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-lg font-medium hover:bg-green-700 transition text-sm sm:text-base mt-auto"
+                                >
                                     View Details
                                 </button>
                             </div>

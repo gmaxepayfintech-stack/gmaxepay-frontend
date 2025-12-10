@@ -260,7 +260,7 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                   Onboarding
                 </th>
                 <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Deactivation
+                  Token Expire
                 </th>
               </tr>
             </thead>
