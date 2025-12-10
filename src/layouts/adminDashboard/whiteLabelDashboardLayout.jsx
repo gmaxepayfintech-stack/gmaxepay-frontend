@@ -24,10 +24,9 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error } = useSelector(
+  const { email, name, unauthorized, error , profile} = useSelector(
     (state) => state.userProfile
   );
-
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
   // State for active (highlighted) main menu item
@@ -82,17 +81,17 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const closeSidebar = () => setIsSidebarOpen(false);
 
   // Referral code - can be fetched from state or props
-  const referralCode = "NPSK6P9R4";
+  const referralCodeValue = profile?.referrerCode;
 
   const shareReferralCode = () => {
     if (navigator.share) {
       navigator.share({
         title: "Referral Code",
-        text: `Use my referral code: ${referralCode}`,
+        text: `Use my referral code: ${referralCodeValue}`,
       });
     } else {
       // Fallback to copy if share is not available
-      navigator.clipboard.writeText(referralCode);
+      navigator.clipboard.writeText(referralCodeValue);
       showNotification({
         type: "success",
         message: "Referral code copied to clipboard!",
@@ -320,7 +319,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
               </button>
             </div>
             <p className="text-sm font-medium text-[#1B1717]">
-              {referralCode}
+              {referralCodeValue}
             </p>
           </div>
         </div>
@@ -365,12 +364,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                   Admin Panel
                 </span>
                 <img
-                  src={defaultProfileImage}
+                  src={profile?.profileImage || defaultProfileImage}
                   alt="Profile"
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = companyLogo;
+                    e.target.src = defaultProfileImage;
                   }}
                 />
               </div>
