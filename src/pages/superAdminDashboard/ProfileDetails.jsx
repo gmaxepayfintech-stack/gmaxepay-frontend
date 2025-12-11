@@ -11,6 +11,7 @@ import aadhaarfront from '../../../public/img/aadhaar-front.png';
 import aadhaarback from '../../../public/img/aadhaar-back.png';
 import pancardfront from '../../../public/img/pancard-front.png';
 import pancardback from '../../../public/img/pancard-back.png';
+import bgimage from '../../../public/img/image.png';
 
 const ProfileDetails = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState('bankDetails');
@@ -19,10 +20,12 @@ const ProfileDetails = ({ onBack }) => {
     return (
         <div className="min-h-screen bg-[#FAFAFA] text-[#1B1717]">
             {/* Cover Picture Section */}
-            <div className="w-full h-48 sm:h-64 bg-gray-200 relative flex items-center justify-center">
-                <button className="bg-white px-4 py-2 rounded-lg text-sm sm:text-base font-medium text-[#1B1717] shadow-sm hover:bg-gray-50 transition-colors">
-                    Cover Picture
-                </button>
+            <div
+                className="w-full h-48 sm:h-64 relative bg-cover bg-center bg-no-repeat"
+                style={{
+                    backgroundImage: `url(${bgimage})`
+                }}
+            >
                 {/* Profile Picture - Overlapping bottom-left */}
                 <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
                     <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
@@ -361,72 +364,76 @@ const ProfileDetails = ({ onBack }) => {
                     </div>
                 )}
 
-                {activeTab === 'bankDetails' && (
+                {activeTab === "bankDetails" && (
                     <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
-                        {/* Header with Title and Add New Account Button */}
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+
+                        {/* Header */}
+                        <div className="flex items-center justify-between mb-6">
                             <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                                 Bank Details
                             </h3>
-                            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm sm:text-base font-medium text-[#1B1717] hover:bg-gray-50 transition-colors">
-                                <Plus className="w-4 h-4 sm:w-5 sm:h-5" />
-                                <span>Add New Account</span>
+
+                            <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-[#1B1717] hover:bg-gray-50">
+                                <Plus className="w-4 h-4" />
+                                Add New Account
                             </button>
                         </div>
 
-                        {/* Bank Accounts Table */}
-                        <div className="overflow-x-auto">
-                            <table className="w-full border-collapse">
-                                <thead>
-                                    <tr className="border-b border-gray-200">
-                                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                            Bank Name
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                            Created On
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                            Account Number
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                            IFSC Code
-                                        </th>
-                                        <th className="px-4 py-3 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                            Status
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {[
-                                        { id: 1, ifsc: 'KKBK0805' },
-                                        { id: 2, ifsc: 'KKBK0005' },
-                                        { id: 3, ifsc: 'KKBK0805' },
-                                    ].map((item) => (
-                                        <tr key={item.id} className="border-b border-gray-200 hover:bg-gray-50 transition-colors">
-                                            <td className="px-4 py-3 text-sm sm:text-base font-medium text-[#1B1717]">
-                                                Kotak Mahindra Bank
-                                            </td>
-                                            <td className="px-4 py-3 text-sm sm:text-base text-[#1B1717]">
-                                                2024-07-12 20:34:25
-                                            </td>
-                                            <td className="px-4 py-3 text-sm sm:text-base text-[#1B1717]">
-                                                049754551
-                                            </td>
-                                            <td className="px-4 py-3 text-sm sm:text-base text-[#1B1717]">
-                                                {item.ifsc}
-                                            </td>
-                                            <td className="px-4 py-3">
-                                                <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#039155] text-white">
-                                                    Active
-                                                </span>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="space-y-6">
+
+                            {[1, 2, 3].map((item) => (
+                                <div
+                                    key={item}
+                                    className="flex items-start justify-between gap-6 w-full"
+                                >
+                                    {/* Bank Name */}
+                                    <div className="flex flex-col w-1/5">
+                                        <p className="text-xs text-gray-500">Bank Name</p>
+                                        <p className="text-sm text-[#1B1717] font-medium">
+                                            Kotak Mahindra Bank
+                                        </p>
+                                    </div>
+
+                                    {/* Created On */}
+                                    <div className="flex flex-col w-1/5">
+                                        <p className="text-xs text-gray-500">Created On</p>
+                                        <p className="text-sm text-[#1B1717] font-medium">
+                                            2024-07-12 20:34:25
+                                        </p>
+                                    </div>
+
+                                    {/* Account Number */}
+                                    <div className="flex flex-col w-1/6">
+                                        <p className="text-xs text-gray-500">Account Number</p>
+                                        <p className="text-sm text-[#1B1717] font-medium">049754551</p>
+                                    </div>
+
+                                    {/* IFSC Code */}
+                                    <div className="flex flex-col w-1/6">
+                                        <p className="text-xs text-gray-500">IFSC Code</p>
+                                        <p className="text-sm text-[#1B1717] font-medium">KKBK0805</p>
+                                    </div>
+
+                                    {/* Branch */}
+                                    <div className="flex flex-col w-1/6">
+                                        <p className="text-xs text-gray-500">Branch</p>
+                                        <p className="text-sm text-[#1B1717] font-medium">Bangalore Main</p>
+                                    </div>
+
+                                    {/* Status */}
+                                    <div className="flex flex-col w-20">
+                                        <p className="text-xs text-gray-500">Status</p>
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
+                                            Active
+                                        </span>
+                                    </div>
+                                </div>
+                            ))}
+
                         </div>
                     </div>
                 )}
+
             </div>
         </div>
     );

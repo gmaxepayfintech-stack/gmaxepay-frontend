@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useCompany } from "../../context/CompanyContext";
 import { getPendingSteps } from "../../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
@@ -559,10 +560,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
         {/* STEP CARD */}
         {!showSteps && (
-          <div className="flex-1 flex flex-col justify-center items-center px-1 sm:px-2 overflow-hidden">
+          <div className="flex-1 flex flex-col justify-center items-center px-1 sm:px-2 md:px-4 lg:px-6 xl:px-8 overflow-hidden">
             {/* Back Button */}
-            <div className="w-full max-w-[1450px] mb-2 sm:mb-4">
-              <button
+            <div className="w-full max-w-[1450px] mt-4 sm:mt-5 md:mt-6 lg:mt-7 xl:mt-8 mb-2 sm:mb-3 md:mb-4 lg:mb-5 xl:mb-6 flex items-start justify-start px-2 sm:px-3 md:px-4 lg:px-5 xl:px-6">
+              <div
                 onClick={() => {
                   try {
                     localStorage.removeItem("moveAadhaar");
@@ -576,23 +577,19 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   }
                   setShowSteps(true);
                 }}
-                className="flex items-center gap-2 text-gray-600 hover:text-gray-800 transition px-2 sm:px-4 py-1 sm:py-2"
+                className="flex items-center justify-center w-10 h-10 sm:w-10 sm:h-10 md:w-12 md:h-12 lg:w-12 lg:h-12 xl:w-12 xl:h-12 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors z-10 relative"
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setShowSteps(true);
+                  }
+                }}
+                aria-label="Back to Steps"
               >
-                <svg
-                  className="w-4 h-4 sm:w-5 sm:h-5"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-                <span className="text-xs sm:text-sm md:text-base">Back to Steps</span>
-              </button>
+                <HiOutlineArrowNarrowLeft className="text-xl sm:text-xl md:text-2xl lg:text-2xl xl:text-2xl text-[#1B1717] opacity-80" />
+              </div>
             </div>
             <div className="w-full h-full">
               {currentStep === 1 && (
@@ -600,6 +597,19 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   formData={formData} 
                   setFormData={setFormData} 
                   onNext={handleStepNext}
+                  onBack={() => {
+                    try {
+                      localStorage.removeItem("moveAadhaar");
+                      localStorage.removeItem("aadhaarConnected");
+                      sessionStorage.removeItem("redirectToaddhar");
+                      localStorage.removeItem("movePan");
+                      localStorage.removeItem("panConnected");
+                      sessionStorage.removeItem("redirectToPan");
+                    } catch (e) {
+                      console.error("Error clearing verification flags:", e);
+                    }
+                    setShowSteps(true);
+                  }}
                   referralCode={formData.referralCode}
                 />
               )}
