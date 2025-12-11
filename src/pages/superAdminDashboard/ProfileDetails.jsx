@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { MapPin, FileText, Camera, ChevronDown, Plus } from 'lucide-react';
 import PhoneIcon from '../../../public/img/PhoneIcon.png';
-import EmailIcon from '../../../public/img/EmailIcon.png';
+import EmailIcon from '../../../public/img/Emailicon.png';
 import Gst from '../../../public/img/Gst.png';
 import Pincode from '../../../public/img/Pincode.png';
 import AgentCode from '../../../public/img/AgentCode.png';
