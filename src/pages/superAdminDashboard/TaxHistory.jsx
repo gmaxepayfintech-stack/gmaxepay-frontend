@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, Fingerprint } from 'lucide-react';
+import AepsCWHistory from './AepsCWHistory';
 
 const TaxHistory = () => {
     const [activeTab, setActiveTab] = useState('Banking');
     const [currentPage, setCurrentPage] = useState(1);
+    const [showAepsCWHistory, setShowAepsCWHistory] = useState(false);
 
     const tabs = ['Banking', 'Utility Payment', 'E-Governance', 'Insurance', 'Travel', 'Verification History'];
 
@@ -46,6 +48,11 @@ const TaxHistory = () => {
         }
     ];
 
+    // If AepsCWHistory should be shown, render it
+    if (showAepsCWHistory) {
+        return <AepsCWHistory onBack={() => setShowAepsCWHistory(false)} />;
+    }
+
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
             {/* Header Section */}
@@ -84,13 +91,13 @@ const TaxHistory = () => {
                         className="bg-white rounded-lg sm:rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
                     >
                         {/* Green Header Bar */}
-                        <div className="bg-[#039155] px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between rounded-t-lg sm:rounded-t-xl">
-                            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-[35px] md:h-[35px] rounded-full bg-white bg-opacity-20 flex items-center justify-center flex-shrink-0">
+                        <div className="bg-[#FFFFFF] px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between rounded-t-lg sm:rounded-t-xl">
+                            <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-[35px] md:h-[35px] rounded-full bg-[#039155] bg-opacity-80 flex items-center justify-center flex-shrink-0">
                                 <Fingerprint className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] text-white" />
                             </div>
-                            <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white border border-white border-opacity-20 px-1.5 py-0.5 sm:px-2 sm:py-1">
-                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-[8px] md:h-[8px] rounded-full bg-[#039155] flex-shrink-0"></div>
-                                <span className="text-[#039155] text-[9px] sm:text-[10px] font-medium whitespace-nowrap">
+                            <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-[#039155] border border-white border-opacity-20 px-1.5 py-0.5 sm:px-2 sm:py-1">
+                                <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-[8px] md:h-[8px] rounded-full bg-[#FFFFFF] flex-shrink-0"></div>
+                                <span className="text-[#FFFFFF] text-[9px] sm:text-[10px] font-medium whitespace-nowrap">
                                     Active
                                 </span>
                             </div>
@@ -119,7 +126,14 @@ const TaxHistory = () => {
                             </div>
 
                             {/* View History Button */}
-                            <button className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-lg font-medium hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto">
+                            <button 
+                                onClick={() => {
+                                    if (card.title === 'AEPS CW History') {
+                                        setShowAepsCWHistory(true);
+                                    }
+                                }}
+                                className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-lg font-medium hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto"
+                            >
                                 View History
                             </button>
                         </div>

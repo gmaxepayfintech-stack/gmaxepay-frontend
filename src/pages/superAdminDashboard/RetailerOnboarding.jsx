@@ -341,7 +341,7 @@ const RetailerOnboarding = ({ embedded = false, tableData: propTableData = [] })
                     Onboarding
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                    Deactivation
+                  Token Expire
                   </th>
                                     </tr>
                                 </thead>

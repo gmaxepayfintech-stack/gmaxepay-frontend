@@ -104,44 +104,45 @@ function Step1({ formData, setFormData, onNext }) {
   }, [successCooldown]);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50">
-      <div className="bg-white p-8 gap-4 w-full">
-        <h3 className="text-center text-[24px] font-semibold text-gray-800">
+    <div className="flex justify-center items-center bg-gray-50 min-h-screen px-4 sm:px-6 py-4 sm:py-8">
+      <div className="bg-white p-4 sm:p-6 md:p-8 gap-4 w-full max-w-2xl">
+        <h3 className="text-center text-lg sm:text-xl md:text-2xl font-semibold text-gray-800">
           Mobile Verification
         </h3>
-        <p className="text-center text-[16px] text-[#1B1717] mt-4 mb-6">
+        <p className="text-center text-sm sm:text-base text-[#1B1717] mt-3 sm:mt-4 mb-4 sm:mb-6">
           Enter Your Mobile Number To Receive OTP
         </p>
 
         {/* Mobile Number Section */}
-        <div className="mb-5">
-          <label className="block text-[20px] font-medium text-[#1B1717] mb-2">
+        <div className="mb-4 sm:mb-5">
+          <label htmlFor="phone" className="block text-base sm:text-lg md:text-[20px] font-medium text-[#1B1717] mb-2">
             Mobile Number
           </label>
 
-          <div className="flex">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
             <div className="relative flex-1">
               <img
                 src="/img/PhoneCall2.png"
                 alt="Mobile"
-                className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
+                className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition ${
                   formData.phone ? "opacity-100" : "opacity-50"
                 }`}
               />
 
               <div
-                className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
+                className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px transition ${
                   formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
                 }`}
               />
 
               <input
+                id="phone"
                 type="tel"
                 name="phone"
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Enter Your Number"
-                className="w-full border border-[#1B1717] border-opacity-80 h-[60px] rounded-l-lg py-2 pl-14 pr-3 text-sm outline-none"
+                className="w-full border border-[#1B1717] border-opacity-80 h-[50px] sm:h-[60px] rounded-lg sm:rounded-l-lg sm:rounded-r-none py-2 pl-11 sm:pl-14 pr-3 text-sm outline-none"
               />
             </div>
 
@@ -156,7 +157,7 @@ function Step1({ formData, setFormData, onNext }) {
                   : sendOtp
               }
               disabled={verifySuccess === "SUCCESS" && successCooldown > 0}
-              className={`w-40 px-6 rounded-r-lg text-sm font-medium transition h-[60px]
+              className={`w-full sm:w-40 px-4 sm:px-6 rounded-lg sm:rounded-r-lg sm:rounded-l-none text-xs sm:text-sm font-medium transition h-[50px] sm:h-[60px]
     ${
       verifySuccess === "SUCCESS" && successCooldown > 0
         ? "bg-gray-400 cursor-not-allowed"
@@ -173,13 +174,13 @@ function Step1({ formData, setFormData, onNext }) {
           </div>
 
           {formik.errors.phone && (
-            <p className="text-red-500 text-sm mt-1">{formik.errors.phone}</p>
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.phone}</p>
           )}
         </div>
 
         {/* OTP Section */}
-        <div className="mb-6">
-          <label className="block text-[20px] font-medium text-[#1B1717] mb-2">
+        <div className="mb-4 sm:mb-6">
+          <label htmlFor="otp" className="block text-base sm:text-lg md:text-[20px] font-medium text-[#1B1717] mb-2">
             Enter OTP
           </label>
 
@@ -187,36 +188,37 @@ function Step1({ formData, setFormData, onNext }) {
             <img
               src="/img/DeviceMobileCamera.png"
               alt="OTP"
-              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 transition ${
                 formData.otp ? "opacity-100" : "opacity-50"
               }`}
             />
 
             <div
-              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px ${
+              className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px ${
                 formData.otp ? "bg-[#1B1717]" : "bg-gray-300"
               }`}
             />
 
             <input
+              id="otp"
               type="text"
               name="otp"
               value={formData.otp}
               onChange={handleChange}
               placeholder="Enter Mobile OTP"
-              className="w-full border border-[#1B1717] border-opacity-80 h-[60px] rounded-lg py-2 pl-14 pr-3 text-sm outline-none"
+              className="w-full border border-[#1B1717] border-opacity-80 h-[50px] sm:h-[60px] rounded-lg py-2 pl-11 sm:pl-14 pr-3 text-sm outline-none"
             />
           </div>
 
           {formik.errors.otp && (
-            <p className="text-red-500 text-sm mt-1">{formik.errors.otp}</p>
+            <p className="text-red-500 text-xs sm:text-sm mt-1">{formik.errors.otp}</p>
           )}
         </div>
 
         <button
           type="button"
           onClick={formik.handleSubmit}
-          className="w-[534px] py-2 rounded-lg text-white text-[24px] font-medium h-[60px] transition bg-[#039155] hover:bg-green-700"
+          className="w-full sm:w-auto sm:min-w-[300px] md:min-w-[534px] py-2 rounded-lg text-white text-base sm:text-lg md:text-[24px] font-medium h-[50px] sm:h-[60px] transition bg-[#039155] hover:bg-green-700"
         >
           Submit
         </button>
