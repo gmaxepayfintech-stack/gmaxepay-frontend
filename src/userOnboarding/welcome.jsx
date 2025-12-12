@@ -15,6 +15,7 @@ const Welcome = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [referralCompleted, setReferralCompleted] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Check if skip parameter is in URL
   const shouldSkip = searchParams.get("skip") === "true";
@@ -96,6 +97,10 @@ const Welcome = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseRefer]);
+
+  const handleSignUp = () => {
+    navigate("/unity");
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -203,7 +208,9 @@ const Welcome = () => {
   };
 
   // If URL has referral code and user clicked auto-start, show onboarding
-  // (Removed showOnboarding check as it's not used)
+  if (urlReferralCode && showOnboarding) {
+    return <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />;
+  }
 
   // If user clicked "Skip For Now" (skip=true in URL), show onboarding directly (referCode can be null)
   if (shouldSkip) {
@@ -360,6 +367,7 @@ const Welcome = () => {
     // If referCode exists but shouldn't show onboarding, fall through to show referral form
   }
 
+  // Otherwise show referral code form
   return (
     <div className="w-full min-h-screen bg-white flex items-center justify-center px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-5 md:py-6 lg:py-8">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-6 space-y-3 sm:space-y-3.5 md:space-y-4 lg:space-y-4 xl:space-y-5">

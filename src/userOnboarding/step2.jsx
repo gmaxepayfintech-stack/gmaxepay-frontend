@@ -324,7 +324,7 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                 type="button"
                 onClick={handleVerifyOrResend}
                 disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
-                className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 w-[140px] sm:w-[150px] md:w-[160px] lg:w-[170px] xl:w-[180px] min-w-[140px] sm:min-w-[150px] md:min-w-[160px] lg:min-w-[170px] xl:min-w-[180px] max-w-[140px] sm:max-w-[150px] md:max-w-[160px] lg:max-w-[170px] xl:max-w-[180px] text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-semibold h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md flex items-center justify-center text-center ${verifuSuccess === "SUCCESS" && successCooldown > 0
+                className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 px-2.5 sm:px-3 md:px-3 lg:px-4 xl:px-5 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md ${verifuSuccess === "SUCCESS" && successCooldown > 0
                     ? "bg-gray-400 border-gray-400 cursor-not-allowed"
                     : ""
                   }`}
