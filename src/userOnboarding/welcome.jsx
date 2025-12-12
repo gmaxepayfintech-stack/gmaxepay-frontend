@@ -17,8 +17,16 @@ const Welcome = () => {
   const [referralCompleted, setReferralCompleted] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   
-  // Check if skip parameter is in URL
-  const shouldSkip = searchParams.get("skip") === "true";
+  // Check if skip parameter is in URL or stored in localStorage
+  const shouldSkipFromUrl = searchParams.get("skip") === "true";
+  const shouldSkipFromStorage = (() => {
+    try {
+      return localStorage.getItem("skipReferralCode") === "true";
+    } catch (e) {
+      return false;
+    }
+  })();
+  const shouldSkip = shouldSkipFromUrl || shouldSkipFromStorage;
 
   const companyFromRedux = useSelector((state) => state?.company?.company);
 
@@ -131,6 +139,12 @@ const Welcome = () => {
   };
 
   const handleSkip = () => {
+    // Store skip flag in localStorage to persist across navigation
+    try {
+      localStorage.setItem("skipReferralCode", "true");
+    } catch (e) {
+      console.error("Error storing skip flag:", e);
+    }
     // Navigate directly to KYC page without referral code
     // Use a query parameter to indicate skip
     navigate("/unity?skip=true");
@@ -138,6 +152,12 @@ const Welcome = () => {
 
   // Handle "New To Our Platform" button click
   const handleNewToPlatform = () => {
+    // Store skip flag in localStorage to persist across navigation
+    try {
+      localStorage.setItem("skipReferralCode", "true");
+    } catch (e) {
+      console.error("Error storing skip flag:", e);
+    }
     // Navigate directly to KYC page without referral code
     navigate("/unity?skip=true");
   };
