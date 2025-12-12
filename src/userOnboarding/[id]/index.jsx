@@ -554,7 +554,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             <div className="flex-1 flex flex-col justify-center items-center px-1 sm:px-2 md:px-4 lg:px-6 xl:px-8 overflow-hidden">
               <div className="w-full h-full">
                 {currentStep === 1 && (
-                  <Step1
+                  <Step2
                     formData={formData}
                     setFormData={setFormData}
                     onNext={handleStepNext}
