@@ -7,26 +7,13 @@ import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOn
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { useSearchParams } from "react-router-dom";
 
 function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
-  const [searchParams] = useSearchParams();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  
-  // Check if skip parameter exists in URL or localStorage
-  const shouldSkipFromUrl = searchParams.get("skip") === "true";
-  const shouldSkipFromStorage = (() => {
-    try {
-      return localStorage.getItem("skipReferralCode") === "true";
-    } catch (e) {
-      return false;
-    }
-  })();
-  const shouldSkip = shouldSkipFromUrl || shouldSkipFromStorage;
   const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
   const validationSchema = Yup.object({
     phone: Yup.string()
@@ -179,12 +166,10 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
       // Redirect to KYC index page using window.location.href
       setTimeout(() => {
         const referCode = getReferCode();
-        // Preserve skip parameter if it exists
-        const skipParam = shouldSkip ? "?skip=true" : "";
         if (referCode) {
-          window.location.href = `/unity/${referCode}${skipParam}`;
+          window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity${skipParam}`;
+          window.location.href = `/unity`;
         }
       }, 500);
     }
@@ -358,12 +343,10 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
       // Redirect to KYC index page using window.location.href
       setTimeout(() => {
         const referCode = getReferCode();
-        // Preserve skip parameter if it exists
-        const skipParam = shouldSkip ? "?skip=true" : "";
         if (referCode) {
-          window.location.href = `/unity/${referCode}${skipParam}`;
+          window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity${skipParam}`;
+          window.location.href = `/unity`;
         }
       }, 200);
     }
