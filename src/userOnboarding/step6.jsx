@@ -3,12 +3,13 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
 import { postBankDetails } from "../redux/action/retailerOnboardingAction";
 import { useCompany } from "../context/CompanyContext";
 import { useNotification } from "../context/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
 
-function Step6({ formData, setFormData, onNext }) {
+function Step6({ formData, setFormData, onNext, onBack }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -206,182 +207,192 @@ function Step6({ formData, setFormData, onNext }) {
     formik.values.beneficiaryName;
 
   return (
-    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
-      <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10 w-full max-w-[95%] sm:max-w-[550px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[800px] mx-auto">
+    <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-4 overflow-y-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] 2xl:max-w-[700px] my-auto">
+        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-2.5 sm:p-3 md:p-3 lg:p-3 xl:p-3 space-y-1.5 sm:space-y-2 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
 
-        {/* Heading */}
-        <h3 className="text-center text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-semibold text-gray-800 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
-          Bank Details
-        </h3>
-
-        <p className="text-center text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717] mb-5 sm:mb-6 md:mb-7 lg:mb-8">
-          Tell Us About Bank Details
-        </p>
-
-        {/* Account Number */}
-        <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
-          <label className="block 
-              text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
-              font-medium text-[#1B1717] mb-2 sm:mb-3 md:mb-4">
-            Account Number
-          </label>
-
-          <div className="relative">
-            <img
-              src="/img/User.png"
-              alt="Account"
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
-            />
-
-            <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
-
-            <input
-              type="text"
-              name="bankAccountNumber"
-              value={formik.values.bankAccountNumber}
-              onChange={handleChange}
-              onBlur={formik.handleBlur}
-              placeholder="Enter Account Number"
-              className={`w-full border-2 border-[#1B1717] border-opacity-80 
-                h-12 sm:h-14 md:h-16 lg:h-[72px]
-                rounded-lg py-2 sm:py-3 md:py-4 pl-10 sm:pl-14 md:pl-16 lg:pl-18 pr-3 sm:pr-4 md:pr-5 
-                text-sm sm:text-base md:text-lg lg:text-xl outline-none
-                focus:border-[#039155] focus:border-opacity-100 transition
-                ${formik.errors.bankAccountNumber &&
-                  formik.touched.bankAccountNumber
-                  ? "border-red-500"
-                  : ""
-                }`}
-            />
+          {/* Header with Back Button */}
+          <div className="text-center mx-auto relative">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                aria-label="Back to Steps"
+              >
+                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+              </button>
+            )}
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800 mb-0.5 sm:mb-1 md:mb-1 lg:mb-1 xl:mb-1.5">
+              Bank Details
+            </h3>
+            <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-center text-[#1B1717] mb-1.5 sm:mb-2 md:mb-2 lg:mb-2 xl:mb-2.5">
+              Tell Us About Bank Details
+            </p>
           </div>
 
-          {formik.errors.bankAccountNumber &&
-            formik.touched.bankAccountNumber && (
-              <p className="text-red-500 text-sm mt-1">
-                {formik.errors.bankAccountNumber}
-              </p>
-            )}
-        </div>
+          {/* Account Number */}
+          <div className="mb-2 sm:mb-2.5 md:mb-3 lg:mb-3 xl:mb-3.5">
+            <label htmlFor="bankAccountNumber" className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-[#1B1717] mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2">
+              Account Number
+            </label>
 
-        {/* IFSC */}
-        <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
-          <label className="block 
-              text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
-              font-medium text-[#1B1717] mb-2 sm:mb-3 md:mb-4">
-            IFSC Code
-          </label>
-
-          <div className="flex">
-            <div className="relative flex-1">
+            <div className="relative">
               <img
-                src="/img/ListMagnifyingGlass.png"
-                alt="IFSC"
-                className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
+                src="/img/User.png"
+                alt="Account"
+                className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-3.5 sm:w-4 md:w-4 lg:w-4.5 xl:w-5 h-3.5 sm:h-4 md:h-4 lg:h-4.5 xl:h-5 opacity-70"
               />
 
-              <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
+              <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
 
               <input
                 type="text"
-                name="ifscCode"
-                value={formik.values.ifscCode}
+                id="bankAccountNumber"
+                name="bankAccountNumber"
+                value={formik.values.bankAccountNumber}
                 onChange={handleChange}
                 onBlur={formik.handleBlur}
-                placeholder="Enter IFSC Code"
-                className={`w-full border-2 border-[#1B1717] border-opacity-80 
-                  h-12 sm:h-14 md:h-16 lg:h-[72px]
-                  rounded-l-lg py-2 sm:py-3 md:py-4 pl-10 sm:pl-14 md:pl-16 lg:pl-18 pr-3 sm:pr-4 md:pr-5 
-                  text-sm sm:text-base md:text-lg lg:text-xl
-                  outline-none uppercase transition
-                  focus:border-[#039155] focus:border-opacity-100
-                  ${formik.errors.ifscCode && formik.touched.ifscCode
+                placeholder="Enter Account Number"
+                className={`w-full border-2 border-gray-300 
+                  h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
+                  rounded-lg py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-2.5 pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 
+                  text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none
+                  focus:border-[#039155] focus:border-opacity-100 transition
+                  ${formik.errors.bankAccountNumber &&
+                    formik.touched.bankAccountNumber
                     ? "border-red-500"
                     : ""
                   }`}
               />
             </div>
 
-            {/* Verify Button */}
-            <button
-              type="button"
-              onClick={handleVerify}
-              disabled={!formik.values.ifscCode || !!formik.errors.ifscCode}
-              className={`
-                text-white font-semibold 
-                w-[80px] sm:w-[110px] md:w-[130px] lg:w-[150px] xl:w-[170px]
-                h-12 sm:h-14 md:h-16 lg:h-[72px]
-                text-xs sm:text-sm md:text-base lg:text-lg
-                rounded-r-lg transition flex-shrink-0 whitespace-nowrap shadow-md
-                ${!formik.values.ifscCode || !!formik.errors.ifscCode
-                  ? "bg-[#039155] cursor-not-allowed opacity-70"
-                  : "bg-[#039155] hover:bg-green-700 active:scale-95"
-                }`}
-            >
-              Verify
-            </button>
+            {formik.errors.bankAccountNumber &&
+              formik.touched.bankAccountNumber && (
+                <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm mt-0.5 sm:mt-1">
+                  {formik.errors.bankAccountNumber}
+                </p>
+              )}
           </div>
 
-          {formik.errors.ifscCode && formik.touched.ifscCode && (
-            <p className="text-red-500 text-sm mt-1">
-              {formik.errors.ifscCode}
-            </p>
-          )}
+          {/* IFSC */}
+          <div className="mb-2 sm:mb-2.5 md:mb-3 lg:mb-3 xl:mb-3.5">
+            <label htmlFor="ifscCode" className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-[#1B1717] mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2">
+              IFSC Code
+            </label>
 
-        </div>
+            <div className="flex">
+              <div className="relative flex-1">
+                <img
+                  src="/img/ListMagnifyingGlass.png"
+                  alt="IFSC"
+                  className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-3.5 sm:w-4 md:w-4 lg:w-4.5 xl:w-5 h-3.5 sm:h-4 md:h-4 lg:h-4.5 xl:h-5 opacity-70"
+                />
 
-        {/* Beneficiary Name */}
-        <div className="mb-6 sm:mb-7 md:mb-8 lg:mb-10">
-          <label className="block 
-              text-sm sm:text-base md:text-lg lg:text-xl xl:text-2xl
-              font-medium text-[#1B1717] mb-2 sm:mb-3 md:mb-4">
-            Beneficiary Name
-          </label>
+                <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
 
-          <div className="relative">
-            <img
-              src="/img/UserSquare.png"
-              alt="Beneficiary"
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-4 sm:w-5 md:w-6 h-4 sm:h-5 md:h-6 opacity-70"
-            />
+                <input
+                  type="text"
+                  id="ifscCode"
+                  name="ifscCode"
+                  value={formik.values.ifscCode}
+                  onChange={handleChange}
+                  onBlur={formik.handleBlur}
+                  placeholder="Enter IFSC Code"
+                  className={`w-full border-2 border-gray-300 
+                    h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
+                    rounded-l-lg py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-2.5 pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 
+                    text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base
+                    outline-none uppercase transition
+                    focus:border-[#039155] focus:border-opacity-100
+                    ${formik.errors.ifscCode && formik.touched.ifscCode
+                      ? "border-red-500"
+                      : ""
+                    }`}
+                />
+              </div>
 
-            <div className="absolute left-9 sm:left-11 md:left-12 top-1/2 -translate-y-1/2 h-5 sm:h-6 md:h-7 w-px bg-gray-300" />
+              {/* Verify Button */}
+              <button
+                type="button"
+                onClick={handleVerify}
+                disabled={!formik.values.ifscCode || !!formik.errors.ifscCode}
+                className={`
+                  text-white font-semibold 
+                  w-[70px] sm:w-[80px] md:w-[90px] lg:w-[100px] xl:w-[110px]
+                  h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
+                  text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm
+                  rounded-r-lg transition flex-shrink-0 whitespace-nowrap shadow-md
+                  ${!formik.values.ifscCode || !!formik.errors.ifscCode
+                    ? "bg-[#039155] cursor-not-allowed opacity-70"
+                    : "bg-[#039155] hover:bg-green-700 active:scale-95"
+                  }`}
+              >
+                Verify
+              </button>
+            </div>
 
-            <input
-              type="text"
-              name="beneficiaryName"
-              value={formik.values.beneficiaryName}
-              readOnly={!formData.ifscVerified}
-              placeholder="Auto Fetch"
-              className={`w-full border-2 border-[#1B1717] border-opacity-80 
-                h-12 sm:h-14 md:h-16 lg:h-[72px]
-                rounded-lg py-2 sm:py-3 md:py-4 pl-10 sm:pl-14 md:pl-16 lg:pl-18 pr-3 sm:pr-4 md:pr-5 
-                text-sm sm:text-base md:text-lg lg:text-xl
-                outline-none transition
-                ${!formData.ifscVerified
-                  ? "bg-gray-50 cursor-not-allowed"
-                  : "focus:border-[#039155] focus:border-opacity-100"
-                }`}
-            />
+            {formik.errors.ifscCode && formik.touched.ifscCode && (
+              <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm mt-0.5 sm:mt-1">
+                {formik.errors.ifscCode}
+              </p>
+            )}
+
           </div>
-        </div>
 
-        {/* NEXT BUTTON */}
-        <button
-          type="button"
-          onClick={formik.handleSubmit}
-          disabled={!isNextEnabled}
-          className={`
-            w-full text-white font-semibold 
-            h-14 sm:h-16 md:h-[72px] lg:h-[80px]
-            text-base sm:text-lg md:text-xl lg:text-2xl
-            rounded-lg transition shadow-md
-            ${!isNextEnabled
-              ? "bg-[#039155] cursor-not-allowed opacity-70"
-              : "bg-[#039155] hover:bg-green-700"
-            }`}
-        >
-          Next
-        </button>
+          {/* Beneficiary Name */}
+          <div className="mb-2.5 sm:mb-3 md:mb-3 lg:mb-3.5 xl:mb-4">
+            <label htmlFor="beneficiaryName" className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-[#1B1717] mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2">
+              Beneficiary Name
+            </label>
+
+            <div className="relative">
+              <img
+                src="/img/UserSquare.png"
+                alt="Beneficiary"
+                className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-3.5 sm:w-4 md:w-4 lg:w-4.5 xl:w-5 h-3.5 sm:h-4 md:h-4 lg:h-4.5 xl:h-5 opacity-70"
+              />
+
+              <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
+
+              <input
+                type="text"
+                id="beneficiaryName"
+                name="beneficiaryName"
+                value={formik.values.beneficiaryName}
+                readOnly={!formData.ifscVerified}
+                placeholder="Auto Fetch"
+                className={`w-full border-2 border-gray-300 
+                  h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
+                  rounded-lg py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-2.5 pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 
+                  text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base
+                  outline-none transition
+                  ${!formData.ifscVerified
+                    ? "bg-gray-50 cursor-not-allowed"
+                    : "focus:border-[#039155] focus:border-opacity-100"
+                  }`}
+              />
+            </div>
+          </div>
+
+          {/* NEXT BUTTON */}
+          <button
+            type="button"
+            onClick={formik.handleSubmit}
+            disabled={!isNextEnabled}
+            className={`
+              w-full text-white font-semibold 
+              h-8 sm:h-9 md:h-9 lg:h-10 xl:h-11
+              text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base
+              rounded-lg transition shadow-lg
+              ${!isNextEnabled
+                ? "bg-[#039155] cursor-not-allowed opacity-70"
+                : "bg-[#039155] hover:bg-green-700 active:scale-95"
+              }`}
+          >
+            Next
+          </button>
+        </div>
       </div>
     </div>
   );

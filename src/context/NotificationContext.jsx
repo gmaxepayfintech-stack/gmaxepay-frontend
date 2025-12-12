@@ -130,9 +130,9 @@ const NotificationContainer = ({ notifications, onRemove }) => {
   return (
     <div
       className="
-        fixed z-50 flex flex-col gap-3
-        inset-x-0 bottom-4 items-center px-4
-        sm:inset-auto sm:top-4 sm:right-4 sm:bottom-auto sm:items-end sm:px-0
+        fixed z-50 flex flex-col gap-2 sm:gap-3
+        inset-x-0 top-2 items-center px-2
+        sm:inset-auto sm:top-3 sm:right-3 md:top-4 md:right-4 lg:top-4 lg:right-4 sm:bottom-auto sm:items-end sm:px-0
       "
     >
       {notificationsToShow.map((notification) => (
@@ -153,24 +153,24 @@ const Notification = ({ notification, onRemove }) => {
     switch (type) {
       case 'success':
         return (
-          <div className="w-12 h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full bg-green-500 flex items-center justify-center shadow-lg">
+            <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
             </svg>
           </div>
         );
       case 'error':
         return (
-          <div className="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full bg-red-600 flex items-center justify-center shadow-lg">
+            <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
         );
       case 'info':
         return (
-          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
+            <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
@@ -178,16 +178,16 @@ const Notification = ({ notification, onRemove }) => {
         );
       case 'warning':
         return (
-          <div className="w-12 h-12 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full bg-yellow-500 flex items-center justify-center shadow-lg">
+            <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
             </svg>
           </div>
         );
       default:
         return (
-          <div className="w-12 h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
-            <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <div className="w-9 h-9 sm:w-10 sm:h-10 md:w-11 md:h-11 lg:w-12 lg:h-12 rounded-full bg-blue-500 flex items-center justify-center shadow-lg">
+            <svg className="w-4.5 h-4.5 sm:w-5 sm:h-5 md:w-5 md:h-5 lg:w-6 lg:h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M6 18L18 6M6 6l12 12" />
             </svg>
           </div>
@@ -261,21 +261,22 @@ const Notification = ({ notification, onRemove }) => {
     <div
       className={`
         ${colors.bg} ${colors.border} ${colors.hover}
-        w-full max-w-[calc(100vw-2rem)] sm:max-w-sm md:max-w-md
-        rounded-2xl shadow-2xl border-2 px-5 py-4 sm:px-6 sm:py-5
+        w-full max-w-[calc(100vw-1rem)] sm:max-w-sm md:max-w-md lg:max-w-lg
+        rounded-lg sm:rounded-xl md:rounded-2xl shadow-2xl border-2 
+        px-2.5 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 lg:px-6 lg:py-5
         backdrop-blur-sm transition-all duration-300
         animate-slide-in-right transform hover:scale-[1.01]
       `}
     >
-      <div className="flex items-start gap-4">
+      <div className="flex items-start gap-2 sm:gap-2.5 md:gap-3 lg:gap-4">
         <div className="flex-shrink-0">
           {getIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className={`${colors.title} font-bold text-base mb-1`}>
+          <h3 className={`${colors.title} font-bold text-[11px] sm:text-xs md:text-sm lg:text-base mb-0.5 sm:mb-1`}>
             {getTitle()}
           </h3>
-          <p className={`${colors.text} text-sm leading-relaxed break-words font-medium`}>
+          <p className={`${colors.text} text-[10px] sm:text-xs md:text-sm lg:text-sm leading-relaxed break-words font-medium`}>
             {message}
           </p>
         </div>
@@ -284,11 +285,12 @@ const Notification = ({ notification, onRemove }) => {
           className={`
             ${colors.icon} hover:opacity-70 hover:scale-110
             flex-shrink-0 transition-all duration-200
-            focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full p-1
+            focus:outline-none focus:ring-2 focus:ring-offset-2 rounded-full p-0.5 sm:p-1
           `}
           aria-label="Close notification"
+          type="button"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-3 h-3 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>

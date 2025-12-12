@@ -1,12 +1,13 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
 import { useCompany } from "./../context/CompanyContext";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { postProfile } from "../redux/action/retailerOnboardingAction";
 
-function Step7({ formData, setFormData, onComplete }) {
+function Step7({ formData, setFormData, onComplete, onBack }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -147,6 +148,7 @@ function Step7({ formData, setFormData, onComplete }) {
 
     setIsSubmitting(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await dispatch(postProfile(formData.profilePhotoDataUrl, companyData, token));
     } catch (error) {
       console.error("Error submitting profile:", error);
@@ -233,194 +235,138 @@ function Step7({ formData, setFormData, onComplete }) {
   useEffect(() => stopCamera, []);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8">
-      <div
-        className="
-          bg-white rounded-xl sm:rounded-2xl
-          w-full max-w-[95%]
-          sm:max-w-[550px] md:max-w-[600px] 
-          lg:max-w-[700px] xl:max-w-[800px]
-          shadow-lg 
-          p-5 sm:p-6 md:p-8 lg:p-10
-        "
-      >
-        {/* Heading */}
-        <h3
-          className="
-            text-center 
-            text-lg sm:text-xl md:text-2xl 
-            lg:text-3xl xl:text-4xl
-            font-semibold text-gray-800
-            mb-3 sm:mb-4 md:mb-5 lg:mb-6
-          "
-        >
-          Profile
-        </h3>
+    <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-4 overflow-y-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] 2xl:max-w-[700px] my-auto">
+        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-2.5 sm:p-3 md:p-3 lg:p-3 xl:p-3 space-y-1.5 sm:space-y-2 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
 
-        <p
-          className="
-            text-center text-sm sm:text-base md:text-lg 
-            lg:text-xl
-            text-[#1B1717] mb-5 sm:mb-6 md:mb-7 lg:mb-8
-          "
-        >
-          Profile Picture To Complete Your KYC
-        </p>
-
-        {/* Frame */}
-        <div
-          className="
-            mx-auto mb-5 sm:mb-6 md:mb-7 lg:mb-8
-            w-full 
-            h-[200px] sm:h-[250px] md:h-[300px]
-            lg:h-[350px] xl:h-[400px]
-          "
-        >
-          <div className="border-2 border-dashed border-black/30 rounded-xl h-full relative overflow-hidden bg-gray-50">
-            <video
-              ref={videoRef}
-              className={`w-full h-full object-cover rounded-xl ${
-                isCameraActive ? "block" : "hidden"
-              }`}
-              playsInline
-              muted
-              autoPlay
-            />
-
-            {/* Placeholder */}
-            {!formData.profilePhotoDataUrl && !isCameraActive && (
-              <div
-                className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
-                onClick={startCamera}
+          {/* Header with Back Button */}
+          <div className="text-center mx-auto relative">
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                aria-label="Back to Steps"
               >
-                <img src="/img/Camera.png" className="w-10 h-10 sm:w-12 sm:h-12 md:w-14 md:h-14 lg:w-16 lg:h-16" alt="Camera" />
-              </div>
+                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+              </button>
             )}
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800 mb-0.5 sm:mb-1 md:mb-1 lg:mb-1 xl:mb-1.5">
+              Profile
+            </h3>
+            <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-center text-[#1B1717] mb-1.5 sm:mb-2 md:mb-2 lg:mb-2 xl:mb-2.5">
+              Profile Picture To Complete Your KYC
+            </p>
+          </div>
 
-            {/* Captured */}
-            {formData.profilePhotoDataUrl && !isCameraActive && (
-              <img
-                src={formData.profilePhotoDataUrl}
-                className="w-full h-full object-cover rounded-xl absolute inset-0"
-                alt="Profile"
+          {/* Frame */}
+          <div className="w-full h-[140px] sm:h-[160px] md:h-[170px] lg:h-[180px] xl:h-[190px] mx-auto">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
+              <video
+                ref={videoRef}
+                className={`w-full h-full object-cover rounded-lg ${
+                  isCameraActive ? "block" : "hidden"
+                }`}
+                playsInline
+                muted
+                autoPlay
               />
-            )}
 
-            {(isCameraActive || formData.profilePhotoDataUrl) && (
-              <div
-                className="
-                  absolute bottom-3 sm:bottom-4 md:bottom-5 left-1/2 -translate-x-1/2 
-                  flex gap-3 sm:gap-4 md:gap-5
-                  z-10
-                "
-              >
+              {/* Placeholder */}
+              {!formData.profilePhotoDataUrl && !isCameraActive && (
                 <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setFormData((d) => ({ ...d, profilePhotoDataUrl: "" }));
-                    startCamera();
-                  }}
-                  className="
-                    bg-[#039155] text-white 
-                    px-4 sm:px-5 md:px-6 lg:px-7 
-                    py-2 sm:py-2.5 md:py-3 lg:py-3.5
-                    rounded-lg 
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    font-semibold 
-                    hover:bg-green-700 transition shadow-lg active:scale-95
-                  "
+                  type="button"
+                  className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0 bg-transparent border-0"
+                  onClick={startCamera}
+                  aria-label="Start camera"
                 >
-                  Retake
+                  <img src="/img/Camera.png" className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 mb-1 sm:mb-1.5" alt="Camera" />
                 </button>
+              )}
 
-                <button
-                  onClick={capturePhoto}
-                  disabled={!isCameraActive}
-                  className={`
-                    px-4 sm:px-5 md:px-6 lg:px-7
-                    py-2 sm:py-2.5 md:py-3 lg:py-3.5
-                    rounded-lg
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    font-semibold transition shadow-lg active:scale-95
-                    ${
+              {/* Captured */}
+              {formData.profilePhotoDataUrl && !isCameraActive && (
+                <img
+                  src={formData.profilePhotoDataUrl}
+                  className="w-full h-full object-cover rounded-lg absolute inset-0"
+                  alt="Profile"
+                />
+              )}
+
+              {(isCameraActive || formData.profilePhotoDataUrl) && (
+                <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-2 lg:bottom-2.5 xl:bottom-3 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-2 md:gap-2.5 lg:gap-2.5 xl:gap-3 z-10">
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setFormData((d) => ({ ...d, profilePhotoDataUrl: "" }));
+                      startCamera();
+                    }}
+                    className="bg-[#039155] text-white px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold hover:bg-green-700 transition shadow-lg active:scale-95"
+                  >
+                    Retake
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={capturePhoto}
+                    disabled={!isCameraActive}
+                    className={`px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition shadow-lg active:scale-95 ${
                       isCameraActive
                         ? "bg-[#039155] text-white hover:bg-green-700"
                         : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                    }
-                  `}
-                >
-                  Capture
-                </button>
-              </div>
-            )}
+                    }`}
+                  >
+                    Capture
+                  </button>
+                </div>
+              )}
+            </div>
+
+            <canvas ref={canvasRef} className="hidden" />
           </div>
 
-          <canvas ref={canvasRef} className="hidden" />
-        </div>
+          {/* Guidelines */}
+          <div className="w-full mx-auto">
+            <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-2 sm:p-2.5 md:p-2.5 lg:p-3 xl:p-3">
+              <ul className="space-y-1.5 sm:space-y-1.5 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
+                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
+                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
+                  <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
+                    Capture A Clear Photo
+                  </span>
+                </li>
 
-        {/* Guidelines */}
-        <div className="mx-auto w-full">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 sm:p-5 md:p-6 lg:p-7">
-            <ul className="space-y-2 sm:space-y-3 md:space-y-4">
-              <li className="flex items-start gap-3 sm:gap-4">
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
-                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
-                  Capture A Clear Photo
-                </span>
-              </li>
+                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
+                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
+                  <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
+                    Good Lighting Required – Avoid Dark Or Blurry Images.
+                  </span>
+                </li>
 
-              <li className="flex items-start gap-3 sm:gap-4">
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
-                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
-                  Good Lighting Required – Avoid Dark Or Blurry Images.
-                </span>
-              </li>
-
-              <li className="flex items-start gap-3 sm:gap-4">
-                <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-[#039155] mt-2 sm:mt-2.5" />
-                <span className="text-sm sm:text-base md:text-lg lg:text-xl text-[#1B1717]">
-                  Your Aadhaar Photo And Uploaded Profile Picture Must Match.
-                </span>
-              </li>
-            </ul>
-          </div>
-
-          {/* Error */}
-          {postProfileError && (
-            <div className="w-full p-3 sm:p-4 md:p-5 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm sm:text-base md:text-lg mb-4 sm:mb-5 mt-4 sm:mt-5">
-              {typeof postProfileError === "string" ? postProfileError : postProfileError?.message || "Failed to upload profile"}
+                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
+                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
+                  <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
+                    Your Aadhaar Photo And Uploaded Profile Picture Must Match.
+                  </span>
+                </li>
+              </ul>
             </div>
-          )}
 
-          {/* Success */}
-          {postProfileSuccess && postProfileMessage && (
-            <div className="w-full p-3 sm:p-4 md:p-5 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm sm:text-base md:text-lg mb-4 sm:mb-5 mt-4 sm:mt-5">
-              {postProfileMessage}
-            </div>
-          )}
-
-          {/* Submit */}
-          <button
-            onClick={handleSubmit}
-            disabled={isSubmitting || !formData.profilePhotoDataUrl}
-            className={`
-              w-full 
-              py-3.5 sm:py-4 md:py-5 lg:py-6 
-              rounded-xl text-white 
-              text-base sm:text-lg md:text-xl lg:text-2xl
-              font-semibold 
-              h-14 sm:h-16 md:h-[72px] lg:h-[80px]
-              transition mt-6 sm:mt-7 md:mt-8 lg:mt-10
-              shadow-lg
-              ${
+            {/* Submit */}
+            <button
+              type="button"
+              onClick={handleSubmit}
+              disabled={isSubmitting || !formData.profilePhotoDataUrl}
+              className={`w-full py-1.5 sm:py-2 md:py-2 lg:py-2 xl:py-2.5 rounded-lg sm:rounded-xl text-white text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-semibold h-8 sm:h-9 md:h-9 lg:h-10 xl:h-11 transition mt-2 sm:mt-2.5 md:mt-3 lg:mt-3 xl:mt-3.5 shadow-lg ${
                 isSubmitting || !formData.profilePhotoDataUrl
                   ? "bg-[#039155] opacity-60 cursor-not-allowed"
                   : "bg-[#039155] hover:bg-green-700 active:scale-95"
-              }
-            `}
-          >
-            {isSubmitting ? "Submitting..." : "Submit"}
-          </button>
+              }`}
+            >
+              {isSubmitting ? "Submitting..." : "Submit"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

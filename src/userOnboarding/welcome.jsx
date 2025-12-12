@@ -15,7 +15,6 @@ const Welcome = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [referralCompleted, setReferralCompleted] = useState(false);
-  const [showOnboarding, setShowOnboarding] = useState(false);
   
   // Check if skip parameter is in URL
   const shouldSkip = searchParams.get("skip") === "true";
@@ -97,10 +96,6 @@ const Welcome = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [responseRefer]);
-
-  const handleSignUp = () => {
-    navigate("/unity");
-  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -208,9 +203,7 @@ const Welcome = () => {
   };
 
   // If URL has referral code and user clicked auto-start, show onboarding
-  if (urlReferralCode && showOnboarding) {
-    return <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />;
-  }
+  // (Removed showOnboarding check as it's not used)
 
   // If user clicked "Skip For Now" (skip=true in URL), show onboarding directly (referCode can be null)
   if (shouldSkip) {
@@ -222,15 +215,15 @@ const Welcome = () => {
     // If URL has referral code, show two options
     if (urlReferralCode) {
       return (
-        <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
-          <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
+        <div className="w-full min-h-screen bg-white flex items-center justify-center px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-5 md:py-6 lg:py-8">
+          <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-6 space-y-3 sm:space-y-3.5 md:space-y-4 lg:space-y-4 xl:space-y-5">
             {/* Title */}
-            <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+            <h1 className="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2.5">
               Welcome
             </h1>
 
             {/* Subtitle */}
-            <p className="text-center text-sm sm:text-base text-gray-600 mb-6">
+            <p className="text-center text-xs sm:text-sm md:text-sm lg:text-base xl:text-base text-gray-600 mb-3 sm:mb-3.5 md:mb-4 lg:mb-4 xl:mb-4.5">
               Choose an option to continue
             </p>
 
@@ -238,7 +231,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleAutoStartWithReferral}
-              className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 hover:bg-green-700`}
+              className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md hover:bg-green-700 h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12`}
               style={{
                 backgroundColor: primaryColor,
               }}
@@ -247,36 +240,36 @@ const Welcome = () => {
             </button>
 
             {/* Option 2: Manual entry */}
-            <div className="mb-6">
+            <div className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
               <button
                 type="button"
                 onClick={handleNewToPlatform}
-                className="w-full text-center text-sm text-gray-600 mb-4 hover:text-gray-800 transition underline cursor-pointer"
+                className="w-full text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm text-gray-600 hover:text-gray-800 transition underline cursor-pointer"
               >
                 New To Our Platform ? Create Your Account
               </button>
-              <form onSubmit={handleSubmit}>
+              <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
                 {/* Label */}
                 <label
-                  htmlFor="referral-code"
-                  className="block text-sm sm:text-base font-medium text-gray-800 mb-2"
+                  htmlFor="referral-code-welcome"
+                  className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2"
                 >
                   Enter Referral Code
                 </label>
 
                 {/* Input Field */}
-                <div className="relative mb-4">
+                <div className="relative">
                   <img
                     src="/img/Export.png"
                     alt="Export"
-                    className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 opacity-70"
+                    className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5.5 xl:h-5.5 opacity-70"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
                   />
-                  <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px bg-gray-300" />
+                  <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
                   <input
-                    id="referral-code"
+                    id="referral-code-welcome"
                     type="text"
                     value={referralCode}
                     onChange={(e) => {
@@ -285,24 +278,23 @@ const Welcome = () => {
                     }}
                     placeholder="Enter 9 Digit Code"
                     maxLength={9}
-                    className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${error ? "border-red-500" : "border-gray-300"
+                    className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#039155] focus:border-opacity-100 transition ${error ? "border-red-500" : "border-gray-300"
                       }`}
-                    style={{ focusBorderColor: primaryColor }}
                     disabled={loading}
                   />
                 </div>
 
                 {/* Error Message */}
                 {error && (
-                  <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-700 text-sm">{error}</p>
+                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-lg">
+                    <p className="text-red-700 text-xs sm:text-xs md:text-xs lg:text-sm">{error}</p>
                   </div>
                 )}
 
                 {/* Success Message */}
                 {referralCodeMessage && referralCodeStatus === "SUCCESS" && (
-                  <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-green-700 text-sm">{referralCodeMessage}</p>
+                  <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-green-50 border border-green-200 rounded-lg">
+                    <p className="text-green-700 text-xs sm:text-xs md:text-xs lg:text-sm">{referralCodeMessage}</p>
                   </div>
                 )}
 
@@ -310,7 +302,7 @@ const Welcome = () => {
                 <button
                   type="submit"
                   disabled={loading || !referralCode.trim()}
-                  className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${loading || !referralCode.trim()
+                  className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 ${loading || !referralCode.trim()
                     ? "bg-gray-400 cursor-not-allowed opacity-70"
                     : "hover:bg-green-700"
                     }`}
@@ -328,7 +320,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleSkip}
-              className="w-full bg-white border border-gray-300 text-gray-800 py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-50 transition"
+              className="w-full bg-white border-2 border-gray-300 text-gray-800 py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-gray-50 transition h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12"
             >
               Skip For Now
             </button>
@@ -368,41 +360,40 @@ const Welcome = () => {
     // If referCode exists but shouldn't show onboarding, fall through to show referral form
   }
 
-  // Otherwise show referral code form
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center px-4 py-12">
-      <div className="w-full max-w-md bg-white rounded-xl shadow-md p-6 sm:p-8">
+    <div className="w-full min-h-screen bg-white flex items-center justify-center px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-5 md:py-6 lg:py-8">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-6 space-y-3 sm:space-y-3.5 md:space-y-4 lg:space-y-4 xl:space-y-5">
         {/* Title */}
-        <h1 className="text-center text-2xl sm:text-3xl font-bold text-gray-800 mb-2">
+        <h1 className="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2.5">
           Referral Code
         </h1>
 
         {/* Subtitle */}
-        <p className="text-center text-sm sm:text-base text-gray-600 mb-6">
+        <p className="text-center text-xs sm:text-sm md:text-sm lg:text-base xl:text-base text-gray-600 mb-3 sm:mb-3.5 md:mb-4 lg:mb-4 xl:mb-4.5">
           Enter Your Referral Code To Unlock
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
           {/* Label */}
           <label
             htmlFor="referral-code"
-            className="block text-sm sm:text-base font-medium text-gray-800 mb-2"
+            className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2"
           >
             Referral Code
           </label>
 
           {/* Input Field */}
-          <div className="relative mb-6">
+          <div className="relative">
             <img
               src="/img/Export.png"
               alt="Export"
-              className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 opacity-70"
+              className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5.5 xl:h-5.5 opacity-70"
               onError={(e) => {
                 e.target.style.display = "none";
               }}
             />
-            <div className="absolute left-9 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px bg-gray-300" />
+            <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
             <input
               id="referral-code"
               type="text"
@@ -413,24 +404,23 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-12 sm:h-14 md:h-16 border rounded-lg pl-11 sm:pl-14 pr-4 text-sm sm:text-base outline-none focus:border-[#1B1717] focus:border-2 ${error ? "border-red-500" : "border-gray-300"
+              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#039155] focus:border-opacity-100 transition ${error ? "border-red-500" : "border-gray-300"
                 }`}
-              style={{ focusBorderColor: primaryColor }}
               disabled={loading}
             />
           </div>
 
           {/* Error Message */}
           {error && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-sm">{error}</p>
+            <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-red-700 text-xs sm:text-xs md:text-xs lg:text-sm">{error}</p>
             </div>
           )}
 
           {/* Success Message */}
           {referralCodeMessage && referralCodeStatus === "SUCCESS" && (
-            <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-sm">{referralCodeMessage}</p>
+            <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-700 text-xs sm:text-xs md:text-xs lg:text-sm">{referralCodeMessage}</p>
             </div>
           )}
 
@@ -438,7 +428,7 @@ const Welcome = () => {
           <button
             type="submit"
             disabled={loading || !referralCode.trim()}
-            className={`w-full text-white py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg transition shadow-md mb-3 ${loading || !referralCode.trim()
+            className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 ${loading || !referralCode.trim()
               ? "bg-gray-400 cursor-not-allowed opacity-70"
               : "hover:bg-green-700"
               }`}
@@ -454,7 +444,7 @@ const Welcome = () => {
           <button
             type="button"
             onClick={handleSkip}
-            className="w-full bg-white border border-gray-300 text-gray-800 py-3 sm:py-3.5 md:py-4 rounded-lg font-semibold text-base sm:text-lg hover:bg-gray-50 transition"
+            className="w-full bg-white border-2 border-gray-300 text-gray-800 py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-gray-50 transition h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12"
           >
             Skip For Now
           </button>
