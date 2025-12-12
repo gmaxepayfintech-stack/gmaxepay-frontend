@@ -6,8 +6,9 @@ import { useCompany } from "../context/CompanyContext";
 import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }) {
+function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -372,11 +373,25 @@ function Step1({ formData, setFormData, onNext, referralCode: propReferralCode }
   // If there's a failure, the parent will handle navigation/error display
 
   return (
-    <div className="w-full h-full flex justify-center items-center sm:items-start bg-gray-50 p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden pt-2 sm:pt-0 md:pt-1 lg:pt-1 xl:pt-2">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden pt-2 sm:pt-0 md:pt-1 lg:pt-1 xl:pt-2">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
-        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-gray-800 text-center mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-3">
-          Mobile Verification
-        </h3>
+        {/* Title with Back Button */}
+        <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-3 relative">
+          {/* Back Button */}
+          {onBack && (
+            <button
+              type="button"
+              onClick={onBack}
+              className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+              aria-label="Back to Steps"
+            >
+              <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+            </button>
+          )}
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800">
+            Mobile Verification
+          </h3>
+        </div>
 
         <p className="text-gray-600 text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
           Enter your mobile number to receive OTP

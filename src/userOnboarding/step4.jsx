@@ -5,8 +5,9 @@ import { useSelector, useDispatch } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { connectPanVerification, downloadPanDocument, uploadPanDocument } from "../redux/action/retailerOnboardingAction";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function RetailerPan({ setFormData, onNext }) {
+function RetailerPan({ setFormData, onNext, onBack }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -130,6 +131,7 @@ function RetailerPan({ setFormData, onNext }) {
           // Retry with the token from Redux
           const redirect_url = getRedirectUrl();
           setIsConnecting(true);
+          // eslint-disable-next-line @typescript-eslint/await-thenable
           await dispatch(connectPanVerification(redirect_url, companyData, tokenFromRedux));
           return;
         } catch (e) {
@@ -149,6 +151,7 @@ function RetailerPan({ setFormData, onNext }) {
     console.log("handleVerify - Calling connectPanVerification with redirect_url:", redirect_url);
     
     try {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await dispatch(connectPanVerification(redirect_url, companyData, token));
     } catch (error) {
       console.error("Error connecting PAN:", error);
@@ -228,6 +231,7 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsDownloading(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await dispatch(downloadPanDocument(companyData, token));
     } catch (error) {
       console.error("Error downloading PAN:", error);
@@ -319,6 +323,7 @@ function RetailerPan({ setFormData, onNext }) {
 
     setIsUploading(true);
     try {
+      // eslint-disable-next-line @typescript-eslint/await-thenable
       await dispatch(uploadPanDocument(panImage, companyData, token));
     } catch (error) {
       console.error("Error uploading PAN:", error);
@@ -397,65 +402,67 @@ function RetailerPan({ setFormData, onNext }) {
         </div>
       )}
 
-      <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
-        <div className="w-full max-w-[95%] sm:max-w-[550px] md:max-w-[600px] lg:max-w-[700px] xl:max-w-[800px]">
+      <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-4 md:py-5 lg:py-6 xl:py-8 overflow-y-auto">
+        <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] 2xl:max-w-[700px] my-auto">
 
         {/* =================== STEP 1 =================== */}
         {!showImageUpload ? (
-          <div className="space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10">
+          <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-5 bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6">
             {/* HEADER */}
             <div className="text-center mx-auto">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-5">
-                PAN Card Verification
-              </h1>
-              <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl">
+              {/* Title with Back Button */}
+              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-3 relative">
+                {/* Back Button */}
+                {onBack && (
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                    aria-label="Back to Steps"
+                  >
+                    <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+                  </button>
+                )}
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800">
+                  PAN Card Verification
+                </h1>
+              </div>
+              <p className="text-gray-600 text-xs sm:text-xs md:text-sm lg:text-base xl:text-base mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* DIGILOCKER BOX */}
-            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-dashed border-gray-400 rounded-xl sm:rounded-2xl p-5 sm:p-6 md:p-7 lg:p-9 mx-auto w-full">
-              <div className="flex items-start gap-4 sm:gap-5 md:gap-6 lg:gap-7">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-dashed border-gray-400 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-4 lg:p-5 xl:p-6 mx-auto w-full">
+              <div className="flex items-start gap-2 sm:gap-3 md:gap-3 lg:gap-4 xl:gap-5">
                 <img
                   src="/img/Digilocker1.png"
                   alt="DigiLocker"
-                  className="h-16 sm:h-20 md:h-24 lg:h-28 w-auto flex-shrink-0"
+                  className="h-12 sm:h-14 md:h-16 lg:h-16 xl:h-20 rounded-xl w-auto flex-shrink-0"
                 />
                 <div className="flex-1">
-                  <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-3xl font-semibold text-gray-900 mb-2 sm:mb-3 md:mb-4">
+                  <h3 className="text-sm sm:text-base md:text-lg lg:text-lg xl:text-xl font-semibold text-gray-900 mb-1 sm:mb-1.5 md:mb-1.5 lg:mb-2 xl:mb-2">
                     PAN Via DigiLocker
                   </h3>
-                  <p className="text-sm sm:text-base md:text-lg lg:text-xl text-gray-600">
+                  <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-gray-600">
                     Fetch PAN Document Securely From DigiLocker
                   </p>
                 </div>
               </div>
 
               {/* BUTTONS */}
-              <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 md:gap-6 mt-5 sm:mt-6 md:mt-7 lg:mt-8">
+              <div className="flex flex-col sm:flex-row gap-2.5 sm:gap-3 md:gap-3 lg:gap-4 xl:gap-4 mt-2.5 sm:mt-3 md:mt-3 lg:mt-4 xl:mt-4">
                 <button
                   type="button"
                   onClick={handleDownload}
                   disabled={!isVerified || isDownloading || isConnecting}
-                  className={`
-                    flex-1 w-full sm:w-auto
-                    px-5 sm:px-6 md:px-7 lg:px-9
-                    py-3 sm:py-3.5 md:py-4 lg:py-5
-                    min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px]
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    rounded-xl sm:rounded-2xl
-                    border-2 border-[#1B1717] border-opacity-80 
-                    font-medium 
-                    transition-all
-                    flex items-center justify-center
-                    ${
-                      isDownloaded
-                        ? "bg-green-50 text-green-700 border-green-500 cursor-default"
-                        : !isVerified || isDownloading || isConnecting
-                        ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
-                        : "text-gray-700 hover:bg-gray-100 active:scale-95"
-                    }
-                  `}
+                  className={`flex-1 w-full sm:w-auto px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2.5 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base rounded-lg sm:rounded-xl border-2 border-gray-300 font-semibold transition-all flex items-center justify-center ${
+                    isDownloaded
+                      ? "bg-green-50 text-green-700 border-green-500 cursor-default"
+                      : !isVerified || isDownloading || isConnecting
+                      ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
+                      : "text-gray-700 hover:bg-gray-100 active:scale-95"
+                  }`}
                 >
                   {isDownloading ? "Downloading..." : isDownloaded ? "Downloaded ✓" : "Download"}
                 </button>
@@ -464,30 +471,19 @@ function RetailerPan({ setFormData, onNext }) {
                   type="button"
                   onClick={handleVerify}
                   disabled={isVerified || isConnecting || isDownloading}
-                  className={`
-                    flex-1 w-full sm:w-auto
-                    px-5 sm:px-6 md:px-7 lg:px-9
-                    py-3 sm:py-3.5 md:py-4 lg:py-5
-                    min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px]
-                    text-sm sm:text-base md:text-lg lg:text-xl
-                    rounded-xl sm:rounded-2xl
-                    font-medium 
-                    transition-all
-                    flex items-center justify-center gap-2
-                    ${
-                      isVerified
-                        ? "bg-green-600 text-white cursor-not-allowed"
-                        : isConnecting || isDownloading
-                        ? "bg-gray-400 text-white cursor-not-allowed"
-                        : "bg-[#039155] text-white hover:bg-green-700 active:scale-95"
-                    }
-                  `}
+                  className={`flex-1 w-full sm:w-auto px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2.5 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base rounded-lg sm:rounded-xl font-semibold transition-all flex items-center justify-center gap-1.5 sm:gap-2 ${
+                    isVerified
+                      ? "bg-green-600 text-white cursor-not-allowed"
+                      : isConnecting || isDownloading
+                      ? "bg-gray-400 text-white cursor-not-allowed"
+                      : "bg-[#039155] text-white hover:bg-green-700 active:scale-95"
+                  }`}
                 >
                   {isConnecting ? (
                     "Connecting..."
                   ) : isVerified ? (
                     <>
-                      <svg className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7 lg:w-8 lg:h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5 xl:h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
                       </svg>
                       Verified
@@ -500,9 +496,9 @@ function RetailerPan({ setFormData, onNext }) {
             </div>
 
             {/* INFO BOX */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 sm:p-5 md:p-6 lg:p-7 flex items-start gap-3 sm:gap-4 md:gap-5 mx-auto w-full">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 sm:p-3.5 md:p-3.5 lg:p-4 xl:p-5 flex items-start gap-2 sm:gap-2.5 md:gap-2.5 lg:gap-3 xl:gap-3.5 mx-auto w-full">
               <svg
-                className="h-5 w-5 sm:h-6 sm:w-6 md:w-7 md:h-7 lg:w-8 lg:h-8 text-blue-600 flex-shrink-0 mt-0.5"
+                className="h-4 w-4 sm:h-4 sm:w-4 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5 xl:h-5 text-blue-600 flex-shrink-0 mt-0.5"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -513,10 +509,10 @@ function RetailerPan({ setFormData, onNext }) {
                 />
               </svg>
               <div>
-                <h4 className="font-semibold text-blue-900 text-sm sm:text-base md:text-lg lg:text-xl mb-1 sm:mb-2">
+                <h4 className="font-semibold text-blue-900 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base mb-0.5 sm:mb-1">
                   Secure Document Verification
                 </h4>
-                <p className="text-sm sm:text-base md:text-lg lg:text-xl text-blue-800">
+                <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-blue-800">
                   Documents are fetched directly from DigiLocker using secure APIs.
                 </p>
               </div>
@@ -527,7 +523,7 @@ function RetailerPan({ setFormData, onNext }) {
               <button
                 type="button"
                 onClick={() => setShowImageUpload(true)}
-                className="w-full px-5 sm:px-7 md:px-9 lg:px-11 py-3.5 sm:py-4 md:py-5 lg:py-6 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] text-center rounded-xl sm:rounded-2xl font-semibold text-white text-base sm:text-lg md:text-xl lg:text-2xl mx-auto shadow-md transition-all flex items-center justify-center bg-[#039155] hover:bg-green-700 active:scale-95"
+                className="w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 text-center rounded-lg sm:rounded-xl font-semibold text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center bg-[#039155] hover:bg-green-700 active:scale-95"
               >
                 Next
               </button>
@@ -535,19 +531,33 @@ function RetailerPan({ setFormData, onNext }) {
           </div>
         ) : (
           /* =================== STEP 2 - IMAGE UPLOAD =================== */
-          <div className="space-y-5 sm:space-y-6 md:space-y-7 lg:space-y-8 bg-white rounded-xl sm:rounded-2xl shadow-lg p-5 sm:p-6 md:p-8 lg:p-10">
+          <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-5 bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6">
             {/* HEADER */}
             <div className="text-center mx-auto">
-              <h1 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900 mb-3 sm:mb-4 md:mb-5">
-                PAN Card Verification
-              </h1>
-              <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl">
+              {/* Title with Back Button */}
+              <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-3 relative">
+                {/* Back Button */}
+                {onBack && (
+                  <button
+                    type="button"
+                    onClick={onBack}
+                    className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                    aria-label="Back to Steps"
+                  >
+                    <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+                  </button>
+                )}
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800">
+                  PAN Card Verification
+                </h1>
+              </div>
+              <p className="text-gray-600 text-xs sm:text-xs md:text-sm lg:text-base xl:text-base mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* PAN IMAGE */}
-            <div className="border-2 border-dashed border-gray-300 rounded-xl sm:rounded-2xl p-4 sm:p-5 md:p-6 lg:p-8 mx-auto w-full h-[200px] sm:h-[220px] md:h-[250px] lg:h-[280px] flex items-center justify-center relative overflow-hidden">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-3.5 md:p-4 lg:p-4 xl:p-5 mx-auto w-full h-[160px] sm:h-[180px] md:h-[200px] lg:h-[220px] xl:h-[240px] flex items-center justify-center relative overflow-hidden">
               {panImagePreview ? (
                 <>
                   <img
@@ -557,12 +567,12 @@ function RetailerPan({ setFormData, onNext }) {
                   />
                   <button
                     onClick={handleDeleteImage}
-                    className="absolute top-2 right-2 sm:top-3 sm:right-3 md:top-4 md:right-4 z-10 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-red-500 hover:bg-red-600 active:scale-90 flex items-center justify-center transition-all shadow-lg"
+                    className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-2.5 md:right-2.5 lg:top-3 lg:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-9 lg:h-9 rounded-full bg-red-500 hover:bg-red-600 active:scale-90 flex items-center justify-center transition-all shadow-lg"
                     type="button"
                     aria-label="Delete image"
                   >
                     <svg
-                      className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 text-white"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-5 lg:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -577,13 +587,13 @@ function RetailerPan({ setFormData, onNext }) {
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center gap-3 sm:gap-4">
+                <div className="flex flex-col items-center justify-center gap-2 sm:gap-2.5 md:gap-3">
                   <img
                     src="/img/pancard-front.png"
                     alt="PAN Card"
-                    className="w-[120px] h-[75px] sm:w-[140px] sm:h-[85px] object-contain"
+                    className="w-[100px] h-[60px] sm:w-[110px] sm:h-[70px] md:w-[120px] md:h-[75px] lg:w-[140px] lg:h-[85px] xl:w-[150px] xl:h-[90px] object-contain"
                   />
-                  <h3 className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] sm:text-sm text-center leading-[100%] tracking-[0%] align-middle">
+                  <h3 className="capitalize font-['Gilroy-Medium'] font-normal text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-base text-center leading-[100%] tracking-[0%] align-middle">
                     Add PAN Card Image
                   </h3>
                   <label>
@@ -593,11 +603,11 @@ function RetailerPan({ setFormData, onNext }) {
                       className="hidden"
                       onChange={handleImageChange}
                     />
-                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-4 sm:px-5 md:px-6 py-2 sm:py-2.5 md:py-3 min-w-[137px] sm:min-w-[150px] md:min-w-[170px] h-auto min-h-[32px] sm:min-h-[36px] md:min-h-[40px] rounded-lg sm:rounded-xl text-xs sm:text-sm md:text-base font-medium">
+                    <span className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 min-w-[120px] sm:min-w-[130px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[170px] h-auto min-h-[28px] sm:min-h-[30px] md:min-h-[32px] lg:min-h-[38px] xl:min-h-[40px] rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-xs lg:text-sm xl:text-base font-medium">
                       Select From Browser
                     </span>
                   </label>
-                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] sm:text-xs leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
+                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-sm leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
                     File Size (Max 5 MB)
                   </p>
                 </div>
@@ -609,7 +619,7 @@ function RetailerPan({ setFormData, onNext }) {
               type="button"
               onClick={handleSubmitImage}
               disabled={!panImage || isUploading}
-              className={`w-full px-5 sm:px-7 md:px-9 lg:px-11 py-3.5 sm:py-4 md:py-5 lg:py-6 min-h-[48px] sm:min-h-[52px] md:min-h-[56px] lg:min-h-[64px] rounded-xl sm:rounded-2xl font-semibold text-white text-base sm:text-lg md:text-xl lg:text-2xl mx-auto shadow-md transition-all flex items-center justify-center ${
+              className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-semibold text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
                 panImage && !isUploading
                   ? "bg-[#039155] hover:bg-green-700 active:scale-95"
                   : "bg-gray-400 cursor-not-allowed"

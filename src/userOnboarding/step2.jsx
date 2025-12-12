@@ -5,8 +5,9 @@ import { useCompany } from "../context/CompanyContext";
 import { emailOtpResponse, emailRescendOTP, submitEmail } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step2({ formData, setFormData, onNext }) {
+function Step2({ formData, setFormData, onNext, onBack }) {
   const dispatch = useDispatch();
   const { referCode: urlReferralCode } = useParams();
   const { company } = useCompany();
@@ -32,7 +33,7 @@ function Step2({ formData, setFormData, onNext }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    
+
     // For OTP field, only allow numbers and max 6 digits
     if (name === "emailOtp") {
       // Remove any non-numeric characters
@@ -197,13 +198,13 @@ function Step2({ formData, setFormData, onNext }) {
   useEffect(() => {
     if (emailSubmitStatus === "SUCCESS" && emailSubmitResponse && !emailSubmitHandled.current) {
       emailSubmitHandled.current = true;
-      
+
       // Get the data object from response
       // Response structure from action: { emailSubmitEmailOtpResponse: { steps: [...], pending: [...], userToken: "..." }, status, message }
       const responseData = emailSubmitResponse?.emailSubmitEmailOtpResponse || emailSubmitResponse?.data || emailSubmitResponse;
-      
+
       console.log("Email verification submit response data:", responseData);
-      
+
       if (responseData) {
         // Store userToken as onboardingToken if provided
         if (responseData.userToken) {
@@ -239,7 +240,7 @@ function Step2({ formData, setFormData, onNext }) {
         }
       }, 500);
     }
-    
+
     // Reset when status changes away from SUCCESS
     if (emailSubmitStatus !== "SUCCESS") {
       emailSubmitHandled.current = false;
@@ -262,50 +263,60 @@ function Step2({ formData, setFormData, onNext }) {
   };
 
   return (
-    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-3 sm:p-4 md:p-6 lg:p-8 overflow-hidden">
+    <div className="w-full h-full flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden pt-2 sm:pt-0 md:pt-1 lg:pt-1 xl:pt-2">
       {/* CARD CONTAINER */}
-      <div className="w-full max-w-[95%] sm:max-w-[500px] md:max-w-[550px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 md:p-8 lg:p-10 mx-auto">
-        <div className="mb-4 sm:mb-5 md:mb-6 lg:mb-7 text-center">
-          <h2 className="text-lg sm:text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-gray-900">
-            Complete Your KYC
-          </h2>
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl mt-2 sm:mt-3 md:mt-4">
-            Secure your account by completing verification
-          </p>
-        </div>
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
 
         {/* FORM */}
         <form onSubmit={(e) => e.preventDefault()}>
-          <h3 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-center text-gray-900 mb-3 sm:mb-4 md:mb-5 lg:mb-6">
-            Email Verification
-          </h3>
+          {/* Title with Back Button */}
+          <div className="flex items-center justify-center gap-2 sm:gap-3 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-3 relative">
+            {/* Back Button */}
+            {onBack && (
+              <button
+                type="button"
+                onClick={onBack}
+                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                aria-label="Back to Steps"
+              >
+                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+              </button>
+            )}
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800">
+              Email Verification
+            </h3>
+          </div>
 
-          <p className="text-gray-600 text-sm sm:text-base md:text-lg lg:text-xl text-center mb-5 sm:mb-6 md:mb-7 lg:mb-8">
+          <p className="text-gray-600 text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
             Enter your Email address to receive the OTP
           </p>
 
           {/* EMAIL FIELD */}
-          <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
-            <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
+          <div className="mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+            <label htmlFor="email" className="block text-xs sm:text-xs md:text-sm lg:text-base xl:text-base font-medium text-gray-800 mb-1 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-2">
               Email ID
             </label>
 
-            <div className="flex">
+            <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
               <div className="relative flex-grow">
                 <img
                   src="/img/Emailicon.png"
                   alt="Email"
-                  className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
+                  className="absolute left-2.5 sm:left-3 md:left-3.5 lg:left-4 xl:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-5 xl:h-5 opacity-60 z-10"
                 />
-                <div className="absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 md:h-7 lg:h-8 bg-gray-300" />
+                <div
+                  className={`absolute left-7 sm:left-8 md:left-9 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-3 sm:h-3.5 md:h-4 lg:h-5 xl:h-5 w-px transition ${formData.email ? "bg-[#1B1717]" : "bg-gray-300"
+                    }`}
+                />
 
                 <input
+                  id="email"
                   type="email"
                   name="email"
-                  value={formData.email}
+                  value={formData.email || ""}
                   onChange={handleChange}
                   placeholder="Enter your Email"
-                  className="w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 border-r-0 border-gray-300 rounded-l-xl rounded-r-none pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] focus:border-r-0 transition"
+                  className="w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 sm:border-r-0 rounded-lg sm:rounded-l-lg sm:rounded-r-none pl-8 sm:pl-9 md:pl-10 lg:pl-12 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 sm:focus:border-r-0 transition"
                 />
               </div>
 
@@ -313,11 +324,10 @@ function Step2({ formData, setFormData, onNext }) {
                 type="button"
                 onClick={handleVerifyOrResend}
                 disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
-                className={`bg-[#039155] text-white rounded-r-xl rounded-l-none border-2 border-l-0 border-[#1B1717] px-4 sm:px-5 md:px-6 lg:px-7 text-xs sm:text-sm md:text-base lg:text-lg font-medium h-12 sm:h-14 md:h-16 lg:h-[72px] hover:bg-green-700 transition whitespace-nowrap flex-shrink-0 shadow-md ${
-                  verifuSuccess === "SUCCESS" && successCooldown > 0
+                className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 px-4 sm:px-5 md:px-6 lg:px-7 xl:px-8 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-semibold h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md ${verifuSuccess === "SUCCESS" && successCooldown > 0
                     ? "bg-gray-400 border-gray-400 cursor-not-allowed"
                     : ""
-                }`}
+                  }`}
               >
                 {verifuSuccess === "SUCCESS"
                   ? successCooldown > 0
@@ -329,8 +339,8 @@ function Step2({ formData, setFormData, onNext }) {
           </div>
 
           {/* OTP FIELD */}
-          <div className="mb-5 sm:mb-6 md:mb-7 lg:mb-8">
-            <label className="block text-sm sm:text-base md:text-lg lg:text-xl font-medium text-gray-800 mb-2 sm:mb-3 md:mb-4">
+          <div className="mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+            <label htmlFor="emailOtp" className="block text-xs sm:text-xs md:text-sm lg:text-base xl:text-base font-medium text-gray-800 mb-1 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-2">
               Enter OTP
             </label>
 
@@ -338,11 +348,15 @@ function Step2({ formData, setFormData, onNext }) {
               <img
                 src="/img/DeviceMobileCamera.png"
                 alt="OTP"
-                className="absolute left-3 sm:left-4 md:left-5 lg:left-6 top-1/2 -translate-y-1/2 w-5 sm:w-6 md:w-7 lg:w-8 opacity-60 z-10"
+                className="absolute left-2.5 sm:left-3 md:left-3.5 lg:left-4 xl:left-4 top-1/2 -translate-y-1/2 w-3.5 h-3.5 sm:w-3.5 sm:h-3.5 md:w-4 md:h-4 lg:w-5 lg:h-5 xl:w-5 xl:h-5 opacity-60 z-10"
               />
-                <div className="absolute left-11 sm:left-12 md:left-14 lg:left-16 top-1/2 -translate-y-1/2 w-px h-5 sm:h-6 md:h-7 lg:h-8 bg-gray-300" />
+              <div
+                className={`absolute left-7 sm:left-8 md:left-9 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-3 sm:h-3.5 md:h-4 lg:h-5 xl:h-5 w-px transition ${formData.emailOtp ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
+              />
 
               <input
+                id="emailOtp"
                 type="text"
                 name="emailOtp"
                 value={formData.emailOtp || ""}
@@ -351,12 +365,12 @@ function Step2({ formData, setFormData, onNext }) {
                 maxLength={6}
                 inputMode="numeric"
                 pattern="[0-9]*"
-                className="w-full h-12 sm:h-14 md:h-16 lg:h-[72px] border-2 border-gray-300 rounded-xl pl-12 sm:pl-14 md:pl-16 lg:pl-20 pr-3 sm:pr-4 md:pr-5 lg:pr-6 text-sm sm:text-base md:text-lg lg:text-xl outline-none focus:border-[#1B1717] transition"
+                className="w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 rounded-lg pl-8 sm:pl-9 md:pl-10 lg:pl-12 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 transition"
               />
             </div>
 
             {emailSubmitStatus !== "SUCCESS" && emailSubmitMessage && (
-              <p className="text-red-500 mt-2 sm:mt-3 text-sm sm:text-base md:text-lg">{emailSubmitMessage}</p>
+              <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm mt-1 sm:mt-1 md:mt-1.5 lg:mt-2 xl:mt-2.5">{emailSubmitMessage}</p>
             )}
           </div>
 
@@ -364,7 +378,7 @@ function Step2({ formData, setFormData, onNext }) {
           <button
             type="button"
             onClick={submitEmailOtp}
-            className="w-full bg-[#039155] text-white py-3.5 sm:py-4 md:py-5 lg:py-6 rounded-xl text-base sm:text-lg md:text-xl lg:text-2xl font-semibold hover:bg-green-700 transition shadow-lg h-14 sm:h-16 md:h-[72px] lg:h-[80px]"
+            className="w-full bg-[#039155] text-white py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-green-700 transition shadow-lg mt-2.5 sm:mt-3 md:mt-3.5 lg:mt-3 xl:mt-4 h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14"
           >
             Submit
           </button>

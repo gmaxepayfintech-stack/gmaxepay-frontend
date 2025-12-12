@@ -211,7 +211,7 @@ const CreateWhiteLabel = () => {
         // Refresh KYC data after revert
         dispatch(kycData(selectedUserId));
       }, 500);
-
+      
       return () => clearTimeout(timer);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
@@ -993,7 +993,7 @@ const CreateWhiteLabel = () => {
                                   className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isLocked
                                       ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                       : "bg-green-500 text-white cursor-pointer opacity-75"
-                                    }`}
+                                  }`}
                                   title={isLocked ? "Click to unlock" : "Already unlocked"}
                                 >
                                   {isLocked ? "Locked" : "Unlocked"}
@@ -1506,13 +1506,13 @@ const CreateWhiteLabel = () => {
                                     <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
                                   </div>
                                 </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-
+                            </div>
+                        )}
+                      </div>
                     </div>
+                  )}
+
+                        </div>
                   )}
 
                   {/* Bank Details Tab */}
