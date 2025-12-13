@@ -229,11 +229,11 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                 </button>
               </div>
 
-              <div className="w-full">
+              <div className="w-full flex justify-center">
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full lg:w-[534px] mx-auto text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-11 sm:h-12 md:h-14 lg:h-[60px] font-semibold rounded-xl relative overflow-hidden"
+                  className="w-full lg:w-[534px] xl:w-[534px] text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg h-11 sm:h-12 md:h-14 lg:h-[60px] xl:h-[60px] font-semibold rounded-xl relative overflow-hidden"
                   style={{
                     backgroundColor: company?.primaryColor || "#039155",
                     boxShadow: "0 4px 14px 0",
@@ -256,7 +256,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                         style={{
                           fontFamily: "Gilroy-SemiBold",
                           fontWeight: 400,
-                          fontSize: "16px",
+                          fontSize: "18px",
                           lineHeight: "100%",
                           color: "white",
                         }}
@@ -269,7 +269,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                       style={{
                         fontFamily: "Gilroy-SemiBold",
                         fontWeight: 400,
-                        fontSize: "16px",
+                        fontSize: "18px",
                         lineHeight: "100%",
                         color: "white",
                       }}
@@ -278,8 +278,6 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                     </span>
                   )}
                 </button>
-
-
               </div>
             </Form>
           )}
