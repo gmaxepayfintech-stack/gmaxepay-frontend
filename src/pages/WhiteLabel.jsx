@@ -24,10 +24,10 @@ const WhiteLabel = ({ onBack }) => {
   const [activeInput, setActiveInput] = useState("");
   const [isImageUploading, setIsImageUploading] = useState(false);
   const lastFetchedPincode = useRef("");
-  
+
   // Loading state
   const isLoading = useSelector((state) => state?.loading?.isLoading);
-  
+
   const cityDataRetrived = useSelector(
     (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.postOffices
   );
@@ -46,7 +46,7 @@ const WhiteLabel = ({ onBack }) => {
   const createMessage = useSelector(
     (state) => state?.whitelabel?.createResponse?.message
   );
-  
+
   // IP Check states
   const ipCheckStatusState = useSelector(
     (state) => state?.whitelabel?.ipResponse?.status
@@ -57,7 +57,7 @@ const WhiteLabel = ({ onBack }) => {
   const ipCheckError = useSelector(
     (state) => state?.error?.error
   );
-  
+
   // PAN Fetch states
   const panDataStatus = useSelector(
     (state) => state?.whitelabel?.panData?.status
@@ -68,13 +68,13 @@ const WhiteLabel = ({ onBack }) => {
   const panDataError = useSelector(
     (state) => state?.error?.message
   );
-  
+
   // Create error state
   const createError = useSelector((state) => state?.error?.error);
-  
+
   // Track last shown notifications to avoid duplicates
   const lastNotificationRef = useRef({ ipCheck: null, panFetch: null, create: null });
-  
+
   // Show notifications for IP Check
   useEffect(() => {
     if (ipCheckStatusState === "SUCCESS" && ipCheckMessage) {
@@ -85,7 +85,7 @@ const WhiteLabel = ({ onBack }) => {
       }
     }
   }, [ipCheckStatusState, ipCheckMessage, success]);
-  
+
   useEffect(() => {
     if (ipCheckError && typeof ipCheckError === "string" && ipCheckStatusState !== "SUCCESS") {
       const notificationKey = `ip-error-${ipCheckError}`;
@@ -95,7 +95,7 @@ const WhiteLabel = ({ onBack }) => {
       }
     }
   }, [ipCheckError, ipCheckStatusState, error]);
-  
+
   // Show notifications for PAN Fetch
   useEffect(() => {
     if (panDataStatus === "Success" && panDataMessage) {
@@ -106,7 +106,7 @@ const WhiteLabel = ({ onBack }) => {
       }
     }
   }, [panDataStatus, panDataMessage, success]);
-  
+
   useEffect(() => {
     if (panDataStatus === "Failure" && panDataError) {
       const errorMsg = typeof panDataError === "string" ? panDataError : "Failed to fetch PAN data";
@@ -117,7 +117,7 @@ const WhiteLabel = ({ onBack }) => {
       }
     }
   }, [panDataStatus, panDataError, error]);
-  
+
   // Show success message when form is submitted successfully
   useEffect(() => {
     if (createSuccess === "SUCCESS") {
@@ -129,7 +129,7 @@ const WhiteLabel = ({ onBack }) => {
       }
     }
   }, [createSuccess, createMessage, success]);
-  
+
   // Show error message when form submission fails
   useEffect(() => {
     if (createError && typeof createError === "string" && createSuccess !== "SUCCESS") {
@@ -526,9 +526,8 @@ const WhiteLabel = ({ onBack }) => {
                 <label className={labelStyle}>Profile Photo</label>
                 <label
                   htmlFor="profilePhoto"
-                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${
-                    isImageUploading ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
+                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isImageUploading ? (
                     <>
@@ -589,56 +588,59 @@ const WhiteLabel = ({ onBack }) => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               {/* City */}
+
+
               <div>
                 <label className={labelStyle}>
-                  City<span className="text-red-500 ml-1">*</span>
+                  Postal Code<span className="text-red-500 ml-1">*</span>
                 </label>
 
-                {pincodeStatus === "SUCCESS" &&
-                cityOptions.length > 0 &&
-                !isCityFetched ? (
+                {cityStatus === "SUCCESS" &&
+                  pincodeOptions.length > 0 &&
+                  !isPincodeFetched ? (
+                  // Case: Fetched by city → show pincode dropdown
                   <select
-                    name="city"
+                    name="postalCode"
                     className={inputStyle}
-                    value={formik.values.city}
+                    value={formik.values.postalCode}
                     onChange={(e) => {
                       const val = e.target.value;
                       if (val === "Other") {
-                        // switch to input mode
-                        setIsCityFetched(true);
-                        setActiveInput("city");
-                        formik.setFieldValue("city", "");
+                        setIsPincodeFetched(true); // switch to input mode
+                        formik.setFieldValue("postalCode", "");
                       } else {
-                        formik.setFieldValue("city", val);
-                        setActiveInput("city");
+                        formik.handleChange(e);
                       }
                     }}
-                    onBlur={formik.handleBlur}
                   >
-                    <option value="">Select City</option>
-                    {cityOptions.map((city, index) => (
-                      <option key={index} value={city}>
-                        {city}
+                    <option value="">Select Pincode</option>
+                    {pincodeOptions.map((p, idx) => (
+                      <option key={idx} value={p}>
+                        {p}
                       </option>
                     ))}
                     <option value="Other">Other</option>
                   </select>
                 ) : (
+                  // Default input mode
                   <input
                     type="text"
-                    name="city"
-                    placeholder="Enter City"
+                    name="postalCode"
+                    placeholder="Enter Postal Code"
                     className={inputStyle}
-                    value={formik.values.city}
+                    maxLength={6}
+                    value={formik.values.postalCode}
                     onChange={(e) => {
-                      setActiveInput("city");
-                      formik.handleChange(e);
+                      const val = e.target.value.replace(/\D/g, "");
+                      setActiveInput("pincode");
+                      if (val.length <= 6) {
+                        formik.setFieldValue("postalCode", val);
+                      }
                     }}
-                    onBlur={formik.handleBlur}
                   />
                 )}
 
-                <ErrorMsg name="city" />
+                <ErrorMsg name="postalCode" />
               </div>
 
               <div>
@@ -685,55 +687,54 @@ const WhiteLabel = ({ onBack }) => {
 
               <div>
                 <label className={labelStyle}>
-                  Postal Code<span className="text-red-500 ml-1">*</span>
+                  City<span className="text-red-500 ml-1">*</span>
                 </label>
 
-                {cityStatus === "SUCCESS" &&
-                pincodeOptions.length > 0 &&
-                !isPincodeFetched ? (
-                  // Case: Fetched by city → show pincode dropdown
+                {pincodeStatus === "SUCCESS" &&
+                  cityOptions.length > 0 &&
+                  !isCityFetched ? (
                   <select
-                    name="postalCode"
+                    name="city"
                     className={inputStyle}
-                    value={formik.values.postalCode}
+                    value={formik.values.city}
                     onChange={(e) => {
                       const val = e.target.value;
                       if (val === "Other") {
-                        setIsPincodeFetched(true); // switch to input mode
-                        formik.setFieldValue("postalCode", "");
+                        // switch to input mode
+                        setIsCityFetched(true);
+                        setActiveInput("city");
+                        formik.setFieldValue("city", "");
                       } else {
-                        formik.handleChange(e);
+                        formik.setFieldValue("city", val);
+                        setActiveInput("city");
                       }
                     }}
+                    onBlur={formik.handleBlur}
                   >
-                    <option value="">Select Pincode</option>
-                    {pincodeOptions.map((p, idx) => (
-                      <option key={idx} value={p}>
-                        {p}
+                    <option value="">Select City</option>
+                    {cityOptions.map((city, index) => (
+                      <option key={index} value={city}>
+                        {city}
                       </option>
                     ))}
                     <option value="Other">Other</option>
                   </select>
                 ) : (
-                  // Default input mode
                   <input
                     type="text"
-                    name="postalCode"
-                    placeholder="Enter Postal Code"
+                    name="city"
+                    placeholder="Enter City"
                     className={inputStyle}
-                    maxLength={6}
-                    value={formik.values.postalCode}
+                    value={formik.values.city}
                     onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      setActiveInput("pincode");
-                      if (val.length <= 6) {
-                        formik.setFieldValue("postalCode", val);
-                      }
+                      setActiveInput("city");
+                      formik.handleChange(e);
                     }}
+                    onBlur={formik.handleBlur}
                   />
                 )}
 
-                <ErrorMsg name="postalCode" />
+                <ErrorMsg name="city" />
               </div>
             </div>
           </div>
