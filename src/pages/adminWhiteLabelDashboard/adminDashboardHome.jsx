@@ -173,47 +173,51 @@ const AdminDashboardHome = () => {
                 </div>
 
                 {/* Wallet Cards - Right */}
-                <div className="space-y-4 lg:space-y-5">
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
                     {/* Main Wallet */}
-                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5">
-                        <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
-                            Main Wallet
-                        </h4>
-                        <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                            ₹4,21,40,238
-                        </p>
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                            ▼
-                                4.6%
-                            </span>
+                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col">
+                        <div>
+                            <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
+                                Main Wallet
+                            </h4>
+                            <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
+                                ₹4,21,40,238
+                            </p>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
+                                ▼
+                                    4.6%
+                                </span>
+                            </div>
+                            <p className="text-xs lg:text-sm text-gray-600 mb-3">
+                                Todays Commission ₹200
+                            </p>
                         </div>
-                        <p className="text-xs lg:text-sm text-gray-600 mb-3">
-                            Todays Commission ₹200
-                        </p>
-                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm">
+                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4">
                             Account Transfer
                         </button>
                     </div>
 
                     {/* AEPS Wallet */}
-                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5">
-                        <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
-                            AEPS Wallet
-                        </h4>
-                        <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                            ₹4,21,40,238
-                        </p>
-                        <div className="flex items-center gap-2 mb-3">
-                            <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                            ▼
-                                4.4%
-                            </span>
+                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col">
+                        <div>
+                            <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
+                                AEPS Wallet
+                            </h4>
+                            <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
+                                ₹4,21,40,238
+                            </p>
+                            <div className="flex items-center gap-2 mb-3">
+                                <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
+                                ▼
+                                    4.4%
+                                </span>
+                            </div>
+                            <p className="text-xs lg:text-sm text-gray-600 mb-3">
+                                Todays Earning ₹200
+                            </p>
                         </div>
-                        <p className="text-xs lg:text-sm text-gray-600 mb-3">
-                            Todays Earning ₹200
-                        </p>
-                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm">
+                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4">
                             Wallet Transfer
                         </button>
                     </div>
