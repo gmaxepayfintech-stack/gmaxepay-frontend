@@ -1,6 +1,6 @@
 import React from "react";
-const Baground2 = "/img/Baground2.png";
-const Baground1 = "/img/background.jpg";
+const Baground2 = "/img/Baground2.svg";
+const Baground1 = "/img/Baground1.svg";
 
 const LeftSideSlider = ({ company, currentSlide, setCurrentSlide, currentIndex, setCurrentIndex }) => {
   const images = company?.sliderImages?.length
