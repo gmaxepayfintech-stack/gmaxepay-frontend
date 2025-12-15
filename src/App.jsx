@@ -490,7 +490,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
           path="/auth/login"
           element={
             <ProtectedAuthRoute>
-              <Auth />
+              <Auth/>
             </ProtectedAuthRoute>
           }
         />

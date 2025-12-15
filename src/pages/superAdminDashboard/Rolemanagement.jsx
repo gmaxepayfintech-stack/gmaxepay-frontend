@@ -15,6 +15,71 @@ const roleMapping = {
 
 const roles = ['Admin', 'Master Distributor', 'Distributor', 'Retailer', 'Employee', 'Others'];
 
+// Format helper function - converts "ROLE_MANAGEMENT" to "Role Management" or "MEMBERS" to "Members"
+const formatName = (name) => {
+    if (!name) return '';
+    // If name contains underscores, split and format each word
+    if (name.includes('_')) {
+        return name.split('_').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+    }
+    // If name is all uppercase, convert to title case
+    if (name === name.toUpperCase()) {
+        return name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+    }
+    // Otherwise return as is
+    return name;
+};
+
+// Transform API data: Parent modules become modules, children become permissions
+const transformModulesFromAPI = (data) => {
+    if (!data || typeof data !== 'object') {
+        return [];
+    }
+
+    return Object.values(data).map((parentItem) => {
+        const children = parentItem?.children || [];
+        
+        // Count read and write permissions from children
+        const readCount = children.filter(child => child?.read === true).length;
+        const writeCount = children.filter(child => child?.write === true).length;
+
+        // Transform children to permissions format
+        // Children moduleName becomes permissions.category
+        const permissions = children.map((child) => {
+            const childModuleName = child?.moduleName || 'Permission';
+            const formattedName = formatName(childModuleName);
+
+            return {
+                category: formattedName || childModuleName,
+                description: `${formattedName || childModuleName} Access`,
+                read: child?.read || false,
+                write: child?.write || false,
+                id: child?.id,
+                permissionId: child?.permissionId,
+                parentId: child?.parentId
+            };
+        });
+
+        // Use parent moduleName for modules.name (formatted for display)
+        const parentModuleName = parentItem?.moduleName || 'Module';
+        const formattedParentName = formatName(parentModuleName);
+
+        return {
+            name: formattedParentName || parentModuleName,
+            readCount: readCount,
+            writeCount: writeCount,
+            permissions: permissions,
+            id: parentItem?.id,
+            roleId: parentItem?.roleId,
+            read: parentItem?.read || false,
+            write: parentItem?.write || false,
+            isParent: parentItem?.isParent
+        };
+    });
+};
+
 const Rolemanagement = () => {
     const [selectedRole, setSelectedRole] = useState('Admin');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -39,16 +104,6 @@ const Rolemanagement = () => {
         };
     }, [isDropdownOpen]);
 
-    // Default initial modules (fallback)
-    const defaultModules = [
-        {
-            name: 'Loading...',
-            readCount: 0,
-            writeCount: 0,
-            permissions: []
-        }
-    ];
-
     useEffect(() => {
         // Get the role ID from the mapping
         const roleId = roleMapping[selectedRole];
@@ -64,71 +119,33 @@ const Rolemanagement = () => {
     const Modulenames = roledata ? Object.values(roledata).map(item => item?.moduleName).filter(Boolean) : [];
     console.log("Modulenames (Parent Names)", Modulenames);
 
-    // Transform API data: Parent modules become modules, children become permissions
-    const transformModulesFromAPI = (data) => {
-        if (!data || typeof data !== 'object') {
-            return defaultModules;
-        }
+    // Extract parent read/write values
+    const ParentReadWrite = roledata ? Object.values(roledata).map(item => ({
+        moduleName: item?.moduleName,
+        read: item?.read || false,
+        write: item?.write || false
+    })) : [];
+    console.log("Parent Read/Write", ParentReadWrite);
 
-        return Object.values(data).map((parentItem) => {
-            const children = parentItem?.children || [];
-            
-            // Count read and write permissions from children
-            const readCount = children.filter(child => child?.read === true).length;
-            const writeCount = children.filter(child => child?.write === true).length;
+    // Extract children read/write values
+    const ChildrenReadWrite = roledata ? Object.values(roledata).flatMap(item => 
+        (item?.children || []).map(child => ({
+            moduleName: child?.moduleName,
+            read: child?.read || false,
+            write: child?.write || false
+        }))
+    ) : [];
+    console.log("Children Read/Write", ChildrenReadWrite);
 
-            // Format helper function
-            const formatName = (name) => {
-                if (!name) return '';
-                return name.split('_').map(word => 
-                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
-                ).join(' ');
-            };
-
-            // Transform children to permissions format
-            // Children moduleName becomes permissions.category
-            const permissions = children.map((child) => {
-                const childModuleName = child?.moduleName || 'Permission';
-                const formattedName = formatName(childModuleName);
-
-                return {
-                    category: formattedName || childModuleName, // Use formatted child moduleName as category
-                    description: `${formattedName || childModuleName} Access`,
-                    read: child?.read || false,
-                    write: child?.write || false,
-                    id: child?.id,
-                    permissionId: child?.permissionId,
-                    parentId: child?.parentId
-                };
-            });
-
-            // Use parent moduleName for modules.name (formatted for display)
-            const parentModuleName = parentItem?.moduleName || 'Module';
-            const formattedParentName = formatName(parentModuleName);
-
-            return {
-                name: formattedParentName || parentModuleName, // Use formatted parent moduleName for modules.name
-                readCount: readCount,
-                writeCount: writeCount,
-                permissions: permissions, // Children become permissions array
-                id: parentItem?.id,
-                roleId: parentItem?.roleId,
-                read: parentItem?.read || false,
-                write: parentItem?.write || false,
-                isParent: parentItem?.isParent
-            };
-        });
-    };
-
-    const [modules, setModules] = useState(defaultModules);
+    const [modules, setModules] = useState([]);
 
     // Update modules when roledata changes
     useEffect(() => {
-        if (roledata) {
+        if (roledata && Object.keys(roledata).length > 0) {
             const transformedModules = transformModulesFromAPI(roledata);
             setModules(transformedModules);
         } else {
-            setModules(defaultModules);
+            setModules([]);
         }
     }, [roledata]);
 
@@ -248,13 +265,13 @@ const Rolemanagement = () => {
                                             {/* Read Permission */}
                                             <div className="flex items-center gap-2">
                                                 <span className="text-blue-500 font-medium">
-                                                    {module.readCount}/8 Read
+                                                    {module.readCount}/{module.permissions.length || 0} Read
                                                 </span>
                                             </div>
                                             {/* Write Permission */}
                                             <div className="flex items-center gap-2">
                                                 <span className="text-green-500 font-medium">
-                                                    {module.writeCount}/8 Write
+                                                    {module.writeCount}/{module.permissions.length || 0} Write
                                                 </span>
                                             </div>
                                         </div>
@@ -270,23 +287,17 @@ const Rolemanagement = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
-                                                        const allReadEnabled = updatedModules[index].permissions.every(p => p.read);
-
-                                                        // Toggle all read permissions
-                                                        updatedModules[index].permissions.forEach(p => {
-                                                            p.read = !allReadEnabled;
-                                                        });
-
-                                                        updatedModules[index].readCount = updatedModules[index].permissions.filter(p => p.read).length;
+                                                        // Toggle parent read permission
+                                                        updatedModules[index].read = !updatedModules[index].read;
                                                         setModules(updatedModules);
                                                     }}
                                                     className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                                                     style={{
-                                                        backgroundColor: module.permissions.every(p => p.read) ? '#3b82f6' : '#d1d5db'
+                                                        backgroundColor: module.read ? '#3b82f6' : '#d1d5db'
                                                     }}
                                                 >
                                                     <span
-                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.permissions.every(p => p.read) ? 'translate-x-6' : 'translate-x-1'
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.read ? 'translate-x-6' : 'translate-x-1'
                                                             }`}
                                                     />
                                                 </button>
@@ -297,23 +308,17 @@ const Rolemanagement = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
-                                                        const allWriteEnabled = updatedModules[index].permissions.every(p => p.write);
-
-                                                        // Toggle all write permissions
-                                                        updatedModules[index].permissions.forEach(p => {
-                                                            p.write = !allWriteEnabled;
-                                                        });
-
-                                                        updatedModules[index].writeCount = updatedModules[index].permissions.filter(p => p.write).length;
+                                                        // Toggle parent write permission
+                                                        updatedModules[index].write = !updatedModules[index].write;
                                                         setModules(updatedModules);
                                                     }}
                                                     className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
                                                     style={{
-                                                        backgroundColor: module.permissions.every(p => p.write) ? '#10b981' : '#d1d5db'
+                                                        backgroundColor: module.write ? '#10b981' : '#d1d5db'
                                                     }}
                                                 >
                                                     <span
-                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.permissions.every(p => p.write) ? 'translate-x-6' : 'translate-x-1'
+                                                        className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${module.write ? 'translate-x-6' : 'translate-x-1'
                                                             }`}
                                                     />
                                                 </button>
