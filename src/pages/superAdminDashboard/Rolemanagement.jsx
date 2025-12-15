@@ -39,58 +39,16 @@ const Rolemanagement = () => {
         };
     }, [isDropdownOpen]);
 
-    const initialModules = [
+    // Default initial modules (fallback)
+    const defaultModules = [
         {
-            name: 'Member',
-            readCount: 2,
-            writeCount: 4,
-            permissions: [
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-            ]
-        },
-        {
-            name: 'Resources',
-            readCount: 2,
-            writeCount: 4,
-            permissions: [
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-            ]
-        },
-        {
-            name: 'Fund Manage',
-            readCount: 2,
-            writeCount: 4,
-            permissions: [
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-            ]
-        },
-        {
-            name: 'API And Operator',
-            readCount: 2,
-            writeCount: 4,
-            permissions: [
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-            ]
-        },
-        {
-            name: 'Customer Support',
-            readCount: 2,
-            writeCount: 4,
-            permissions: [
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-                { category: 'User Profiles', description: 'View And Edit User Information', read: true, write: true },
-            ]
-        },
+            name: 'Loading...',
+            readCount: 0,
+            writeCount: 0,
+            permissions: []
+        }
     ];
+
     useEffect(() => {
         // Get the role ID from the mapping
         const roleId = roleMapping[selectedRole];
@@ -101,12 +59,78 @@ const Rolemanagement = () => {
 
     const roledata = useSelector((state) => state?.userProfile?.adminRolesPermission?.adminRolesPermission);
     console.log("roledata", roledata);
-    
-    // Extract module names from the API response
-    const ModuleNames = roledata ? Object.values(roledata).map(item => item?.moduleName).filter(Boolean) : [];
-    console.log("Modulenames", ModuleNames);
 
-    const [modules, setModules] = useState(initialModules);
+    // Extract all parent module names from all indexes
+    const Modulenames = roledata ? Object.values(roledata).map(item => item?.moduleName).filter(Boolean) : [];
+    console.log("Modulenames (Parent Names)", Modulenames);
+
+    // Transform API data: Parent modules become modules, children become permissions
+    const transformModulesFromAPI = (data) => {
+        if (!data || typeof data !== 'object') {
+            return defaultModules;
+        }
+
+        return Object.values(data).map((parentItem) => {
+            const children = parentItem?.children || [];
+            
+            // Count read and write permissions from children
+            const readCount = children.filter(child => child?.read === true).length;
+            const writeCount = children.filter(child => child?.write === true).length;
+
+            // Format helper function
+            const formatName = (name) => {
+                if (!name) return '';
+                return name.split('_').map(word => 
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+            };
+
+            // Transform children to permissions format
+            // Children moduleName becomes permissions.category
+            const permissions = children.map((child) => {
+                const childModuleName = child?.moduleName || 'Permission';
+                const formattedName = formatName(childModuleName);
+
+                return {
+                    category: formattedName || childModuleName, // Use formatted child moduleName as category
+                    description: `${formattedName || childModuleName} Access`,
+                    read: child?.read || false,
+                    write: child?.write || false,
+                    id: child?.id,
+                    permissionId: child?.permissionId,
+                    parentId: child?.parentId
+                };
+            });
+
+            // Use parent moduleName for modules.name (formatted for display)
+            const parentModuleName = parentItem?.moduleName || 'Module';
+            const formattedParentName = formatName(parentModuleName);
+
+            return {
+                name: formattedParentName || parentModuleName, // Use formatted parent moduleName for modules.name
+                readCount: readCount,
+                writeCount: writeCount,
+                permissions: permissions, // Children become permissions array
+                id: parentItem?.id,
+                roleId: parentItem?.roleId,
+                read: parentItem?.read || false,
+                write: parentItem?.write || false,
+                isParent: parentItem?.isParent
+            };
+        });
+    };
+
+    const [modules, setModules] = useState(defaultModules);
+
+    // Update modules when roledata changes
+    useEffect(() => {
+        if (roledata) {
+            const transformedModules = transformModulesFromAPI(roledata);
+            setModules(transformedModules);
+        } else {
+            setModules(defaultModules);
+        }
+    }, [roledata]);
 
     return (
         <div className="min-h-screen p-4 sm:p-6 text-[#1B1717]">

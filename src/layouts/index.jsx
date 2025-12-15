@@ -4,7 +4,7 @@ export { default as AdminDashboard} from '../layouts/WhitelabelAdmin/index.jsx'
 export const SubAdminDashboard = () => <div>SubAdminDashboard</div>;
 export {default as RetailerDashboard} from '../layouts/retailerDash/index.jsx'
 export {default as MasterDistributerDashboard}  from '../layouts/MasterDistributor/index.jsx'
-export const DistributerDashboard = () => <div>DistributerDashboard</div>;
+export {default as  DistributerDashboard} from '../layouts/distributorDashboard/index.jsx'	
 export const ApiUserDashboard = () => <div>ApiUserDashboard</div>;
 export const SalesManagerDashboard = () => <div>SalesManagerDashboard</div>;
 export const SalesExecutiveDashboard = () => <div>SalesExecutiveDashboard</div>;

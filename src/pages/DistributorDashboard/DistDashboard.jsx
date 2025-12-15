@@ -12,9 +12,9 @@ const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
 const Earning = "/img/Earning.png";
 
-const RetailerDashboard = () => {
+const DistDashboard = () => {
 
-    // Chart data for Recent Transaction - Monthly data (Jan-Dec)
+    // Chart data for Rcent Transaction - Monthly data (Jan-Dec)
     const chartData = [
         { name: "Jan", value: 2000 },
         { name: "Feb", value: 4000 },
@@ -54,9 +54,64 @@ const RetailerDashboard = () => {
         { name: "Mobile & DTH Recharge", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
     ];
 
+    const kpiCards = [
+        {
+            title: "Distributor",
+            value: "38",
+            subtitle: "Today's Earning +12",
+            icon: Distributor,
+        },
+        {
+            title: "Today's Earning",
+            value: "382821",
+            subtitle: "Today's Earning +12",
+            icon: Earning,
+        },
+        {
+            title: "Today's Earning",
+            value: "382821",
+            subtitle: "Today's Earning +12",
+            icon: Earning,
+        },
+    ];
+
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
             {/* Header Section */}
+
+
+            {/* Top KPI Cards */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                {kpiCards.map((card, index) => (
+                    <div
+                        key={index}
+                        className="bg-white rounded-xl shadow-md p-3 sm:p-4 lg:p-5"
+                    >
+                        <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                                <p className="text-[24px]  font-['Gilroy-Medium'] text-[#1B1717] mb-1">{card.title}</p>
+                                <p className="text-[28px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
+                                    {card.value}
+                                </p>
+                                {card.title !== "Today's Earning" && (
+                                    <p className="text-xs text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 sm:py-1.5 w-fit">{card.subtitle}</p>
+                                )}
+                            </div>
+                            <div className="flex items-center justify-center rounded-full text-[#1B1717] bg-[#E2FAF0] p-3 sm:p-4 lg:p-5 shrink-1">
+                                <img
+                                    src={card.icon}
+                                    alt={card.title}
+                                    className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 object-contain"
+                                    onError={(e) => {
+                                        e.target.onerror = null;
+                                        e.target.src = "/img/gmaxepay.png";
+                                    }}
+                                />
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
 
             {/* Chart and Wallet Section */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
@@ -295,4 +350,9 @@ const RetailerDashboard = () => {
     );
 };
 
-export default RetailerDashboard;
+export default DistDashboard;
+
+
+
+
+
