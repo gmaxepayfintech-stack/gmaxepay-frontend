@@ -4,6 +4,7 @@ import {
   GET_PROFILE_FAILURE,
   GET_PROFILE_UNAUTHORIZED,
   CLEAR_PROFILE,
+  ADMIN_ROLES_PERMISSION_SUCCESS,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -16,6 +17,9 @@ const initialState = {
   email: null,
   name: null,
   profileImage: null,
+  success:null,
+  message:null,
+  adminRolesPermission: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -61,6 +65,16 @@ const userProfileReducer = (state = initialState, action) => {
         email: null,
         name: null,
         profileImage: null,
+      };
+
+    case ADMIN_ROLES_PERMISSION_SUCCESS:
+      return {
+        ...state,
+        adminRolesPermission: action.payload,
+        loading: false,
+        error: null,
+        success:action.payload.status,
+        message:action.payload.message,
       };
 
     case CLEAR_PROFILE:

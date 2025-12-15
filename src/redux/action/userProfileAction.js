@@ -5,6 +5,8 @@ import {
   GET_PROFILE_SUCCESS,
   GET_PROFILE_FAILURE,
   GET_PROFILE_UNAUTHORIZED,
+  ADMIN_ROLES_PERMISSION_SUCCESS,
+  ADMIN_ROLES_PERMISSION_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -96,6 +98,47 @@ export const getUserProfile = () => async (dispatch) => {
         payload: errorMessage,
       });
     }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getPermission = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.get(
+      `${API_ROUTE}/api/v1/admin/rolesAndPermissions/roles/${id}/permissions`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: adminRolesPermission, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_ROLES_PERMISSION_SUCCESS,
+        payload: { adminRolesPermission, message, status },
+      });
+    } else {
+      dispatch({
+        type: ADMIN_ROLES_PERMISSION_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: ADMIN_ROLES_PERMISSION_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
   } finally {
     dispatch({ type: LOADING_END });
   }

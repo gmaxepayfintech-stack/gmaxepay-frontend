@@ -12,7 +12,7 @@ const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
 const Earning = "/img/Earning.png";
 
-const MasterDistDashboard = () => {
+const RetailerDashboard = () => {
 
     // Chart data for Recent Transaction - Monthly data (Jan-Dec)
     const chartData = [
@@ -350,7 +350,4 @@ const MasterDistDashboard = () => {
     );
 };
 
-export default MasterDistDashboard;
-
-
-
+export default RetailerDashboard;
