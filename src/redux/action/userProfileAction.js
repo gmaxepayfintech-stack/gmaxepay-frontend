@@ -7,6 +7,8 @@ import {
   GET_PROFILE_UNAUTHORIZED,
   ADMIN_ROLES_PERMISSION_SUCCESS,
   ADMIN_ROLES_PERMISSION_FAILURE,
+  UPDATE_ROLES_PERMISSION_SUCESS,
+  UPDATE_ROLES_PERMISSION_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -134,6 +136,48 @@ export const getPermission = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: ADMIN_ROLES_PERMISSION_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const updateRolesPermission = (body) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.put(
+      `${API_ROUTE}/api/v1/admin/rolesAndPermissions/roles/permissions`,
+      body,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: updateRoles, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPDATE_ROLES_PERMISSION_SUCESS,
+        payload: { updateRoles, message, status },
+      });
+    } else {
+      dispatch({
+        type: UPDATE_ROLES_PERMISSION_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: UPDATE_ROLES_PERMISSION_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",

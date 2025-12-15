@@ -90,6 +90,8 @@ function App() {
     (state) => state?.creditCard?.success || null
   );
  
+  const roleUpgradeSuccess = useSelector((state)=>state?.userProfile);
+  console.log("roleUpgradeSuccess", roleUpgradeSuccess);
 
   const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
 );
@@ -194,6 +196,16 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [whiteLabelPanMessageSuccess]);
+
+  useEffect(() => {
+    if (roleUpgradeSuccess?.message) {
+      showNotification({
+        type: "success",
+        message: roleUpgradeSuccess?.message,
+        isCritical: true,
+      });
+    }
+  }, [roleUpgradeSuccess]);
 
   useEffect(() => {
     if(OnboardingLink?.message) {

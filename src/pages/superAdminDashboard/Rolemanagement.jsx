@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Users, ChevronDown } from 'lucide-react';
-import { getPermission } from '../../redux/action/userProfileAction';
+import { getPermission, updateRolesPermission } from '../../redux/action/userProfileAction';
 import { useDispatch, useSelector } from 'react-redux';
 
 // Role name to ID mapping
@@ -20,7 +20,7 @@ const formatName = (name) => {
     if (!name) return '';
     // If name contains underscores, split and format each word
     if (name.includes('_')) {
-        return name.split('_').map(word => 
+        return name.split('_').map(word =>
             word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
         ).join(' ');
     }
@@ -40,7 +40,7 @@ const transformModulesFromAPI = (data) => {
 
     return Object.values(data).map((parentItem) => {
         const children = parentItem?.children || [];
-        
+
         // Count read and write permissions from children
         const readCount = children.filter(child => child?.read === true).length;
         const writeCount = children.filter(child => child?.write === true).length;
@@ -58,7 +58,8 @@ const transformModulesFromAPI = (data) => {
                 write: child?.write || false,
                 id: child?.id,
                 permissionId: child?.permissionId,
-                parentId: child?.parentId
+                parentId: child?.parentId,
+                roleId: parentItem?.roleId || null,
             };
         });
 
@@ -73,6 +74,7 @@ const transformModulesFromAPI = (data) => {
             permissions: permissions,
             id: parentItem?.id,
             roleId: parentItem?.roleId,
+            permissionId: parentItem?.permissionId,
             read: parentItem?.read || false,
             write: parentItem?.write || false,
             isParent: parentItem?.isParent
@@ -113,6 +115,7 @@ const Rolemanagement = () => {
     }, [selectedRole, dispatch])
 
     const roledata = useSelector((state) => state?.userProfile?.adminRolesPermission?.adminRolesPermission);
+    const updateRolesState = useSelector((state) => state?.userProfile?.updateRoles);
     console.log("roledata", roledata);
 
     // Extract all parent module names from all indexes
@@ -128,7 +131,7 @@ const Rolemanagement = () => {
     console.log("Parent Read/Write", ParentReadWrite);
 
     // Extract children read/write values
-    const ChildrenReadWrite = roledata ? Object.values(roledata).flatMap(item => 
+    const ChildrenReadWrite = roledata ? Object.values(roledata).flatMap(item =>
         (item?.children || []).map(child => ({
             moduleName: child?.moduleName,
             read: child?.read || false,
@@ -149,14 +152,25 @@ const Rolemanagement = () => {
         }
     }, [roledata]);
 
+    // When updateRolesPermission succeeds, refetch permissions for current role
+    useEffect(() => {
+        const status = updateRolesState?.status || updateRolesState?.message;
+        if (status === 'SUCCESS') {
+            const roleId = roleMapping[selectedRole];
+            if (roleId) {
+                dispatch(getPermission(roleId));
+            }
+        }
+    }, [updateRolesState, selectedRole, dispatch]);
+
     return (
         <div className="min-h-screen p-4 sm:p-6 text-[#1B1717]">
             {/* Header Section */}
             <div className="mb-8">
-                <h1 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-2">
+                <h1 className="text-[24px] font-['Gilroy-Medium'] text-[#000000] mb-2">
                     Roles Management
                 </h1>
-                <p className="text-sm sm:text-base text-gray-600">
+                <p className="text-[16px] font-['Gilroy-Regular'] text-[#000000]">
                     Manage User Roles And Permissions Across Your System
                 </p>
             </div>
@@ -172,10 +186,10 @@ const Rolemanagement = () => {
 
                         {/* Admin Info */}
                         <div>
-                            <h2 className="text-xl sm:text-2xl font-semibold text-[#1B1717] mb-1">
+                            <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#000000] mb-[12px]">
                                 Admin
                             </h2>
-                            <p className="text-sm sm:text-base text-gray-600">
+                            <p className="text-sm sm:text-base font-['Gilroy-Regular'] text-[#000000]">
                                 Administrative Access To Core Features
                             </p>
                         </div>
@@ -218,25 +232,25 @@ const Rolemanagement = () => {
             <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
                 {/* Permission Header */}
                 <div className="mb-6">
-                    <h2 className="text-2xl sm:text-3xl lg:text-4xl font-medium text-[#1B1717] mb-2">
+                    <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#000000] mb-2">
                         Permission
                     </h2>
-                    <p className="text-base sm:text-lg lg:text-xl text-[#1B1717]">
+                    <p className="text-[16px] text-[#000000] font-['Gilroy-Regular']">
                         Configure What This Role Can Access And Modify
                     </p>
                 </div>
 
                 {/* Module Legend Section */}
                 <div className="bg-gray-50 p-4 sm:p-6 mb-4 -mx-4 sm:-mx-6 w-[calc(100%+2rem)] sm:w-[calc(100%+3rem)]">
-                    <span className="text-2xl font-medium text-[#1B1717] block mb-4">Module</span>
+                    <span className="text-[16px] font-['Gilroy-Medium'] text-[#000000] block mb-[8px]">Module</span>
                     <div className="flex items-center gap-6">
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-blue-500"></div>
-                            <span className="text-sm text-gray-600">Read</span>
+                            <span className="text-[12px] text-[#000000] font-['Gilroy-Medium']">Read</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <div className="w-3 h-3 rounded-full bg-green-500"></div>
-                            <span className="text-sm text-gray-600">Write</span>
+                            <span className="text-[12px] text-[#000000] font-['Gilroy-Medium']">Write</span>
                         </div>
                     </div>
                 </div>
@@ -252,25 +266,23 @@ const Rolemanagement = () => {
                                     className="flex items-center gap-4 p-4 rounded-xl bg-white transition-colors shadow-sm cursor-pointer"
                                 >
                                     {/* Module Icon */}
-                                    <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full border-2 border-purple-600 flex items-center justify-center bg-purple-100 flex-shrink-0">
-                                        <Users className="w-6 h-6 sm:w-7 sm:h-7 text-purple-600" />
-                                    </div>
+                                    <img src='/img/Member.svg' className="w-12 h-12  text-purple-600" />
 
                                     {/* Module Info */}
                                     <div className="flex-1">
-                                        <h3 className="text-2xl sm:text-lg font-medium text-[#1B1717] mb-2">
+                                        <h3 className="text-[16px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
                                             {module.name}
                                         </h3>
-                                        <div className="flex items-center gap-6 text-sm">
+                                        <div className="flex items-center gap-6 text-[10px]">
                                             {/* Read Permission */}
                                             <div className="flex items-center gap-2">
-                                                <span className="text-blue-500 font-medium">
+                                                <span className="text-[#4F7EF4] font-['Gilroy-SemiBold']">
                                                     {module.readCount}/{module.permissions.length || 0} Read
                                                 </span>
                                             </div>
                                             {/* Write Permission */}
                                             <div className="flex items-center gap-2">
-                                                <span className="text-green-500 font-medium">
+                                                <span className="text-[#039155] font-['Gilroy-SemiBold']">
                                                     {module.writeCount}/{module.permissions.length || 0} Write
                                                 </span>
                                             </div>
@@ -287,11 +299,24 @@ const Rolemanagement = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
-                                                        // Toggle parent read permission
-                                                        updatedModules[index].read = !updatedModules[index].read;
+                                                        const current = updatedModules[index];
+                                                        const newRead = !current.read;
+
+                                                        // Update local state
+                                                        current.read = newRead;
                                                         setModules(updatedModules);
+
+                                                        // Call API to update parent permission
+                                                        if (current.roleId && current.permissionId) {
+                                                            dispatch(updateRolesPermission({
+                                                                roleId: current.roleId,
+                                                                permissionId: current.permissionId,
+                                                                read: newRead,
+                                                                write: current.write,
+                                                            }));
+                                                        }
                                                     }}
-                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  focus:ring-blue-500 "
                                                     style={{
                                                         backgroundColor: module.read ? '#3b82f6' : '#d1d5db'
                                                     }}
@@ -308,11 +333,24 @@ const Rolemanagement = () => {
                                                     onClick={(e) => {
                                                         e.stopPropagation();
                                                         const updatedModules = [...modules];
-                                                        // Toggle parent write permission
-                                                        updatedModules[index].write = !updatedModules[index].write;
+                                                        const current = updatedModules[index];
+                                                        const newWrite = !current.write;
+
+                                                        // Update local state
+                                                        current.write = newWrite;
                                                         setModules(updatedModules);
+
+                                                        // Call API to update parent permission
+                                                        if (current.roleId && current.permissionId) {
+                                                            dispatch(updateRolesPermission({
+                                                                roleId: current.roleId,
+                                                                permissionId: current.permissionId,
+                                                                read: current.read,
+                                                                write: newWrite,
+                                                            }));
+                                                        }
                                                     }}
-                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2"
+                                                    className="relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none "
                                                     style={{
                                                         backgroundColor: module.write ? '#10b981' : '#d1d5db'
                                                     }}
@@ -342,24 +380,38 @@ const Rolemanagement = () => {
                                                 <div key={permIndex}>
                                                     <div className="flex items-center justify-between p-4 bg-white">
                                                         <div className="flex-1">
-                                                            <h4 className="text-xl font-medium text-[#1B1717] mb-1">
+                                                            <h4 className="text-[16px] font-['Gilroy-Medium'] text-[#000000] mb-1">
                                                                 {permission.category}
                                                             </h4>
-                                                            <p className="text-md text-[#1B1717] ">
+                                                            <p className="text-[12px] text-[#000000] font-['Gilroy-Medium'] ">
                                                                 {permission.description}
                                                             </p>
                                                         </div>
                                                         <div className="flex items-center gap-6">
                                                             {/* Read Toggle */}
-                                                            <div className="flex flex-col items-center gap-2">
-                                                                <span className="text-xs text-gray-600 font-medium">Read</span>
+                                                            <div className="flex items-center gap-[2px]">
                                                                 <button
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         const updatedModules = [...modules];
-                                                                        updatedModules[index].permissions[permIndex].read = !updatedModules[index].permissions[permIndex].read;
+                                                                        const perm = updatedModules[index].permissions[permIndex];
+                                                                        const newRead = !perm.read;
+
+                                                                        // Update local state
+                                                                        perm.read = newRead;
                                                                         updatedModules[index].readCount = updatedModules[index].permissions.filter(p => p.read).length;
                                                                         setModules(updatedModules);
+
+                                                                        // Call API to update child permission
+                                                                        const roleId = perm.roleId || updatedModules[index].roleId;
+                                                                        if (roleId && perm.permissionId) {
+                                                                            dispatch(updateRolesPermission({
+                                                                                roleId,
+                                                                                permissionId: perm.permissionId,
+                                                                                read: newRead,
+                                                                                write: perm.write,
+                                                                            }));
+                                                                        }
                                                                     }}
                                                                     className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors  ${permission.read ? 'bg-blue-500 focus:ring-blue-500' : 'bg-gray-300 focus:ring-gray-400'
                                                                         }`}
@@ -369,20 +421,36 @@ const Rolemanagement = () => {
                                                                             }`}
                                                                     />
                                                                 </button>
+                                                                <span className="text-[16px] text-[#000000] font-['Gilroy-Medium']">Read</span>
+
                                                             </div>
                                                             {/* Write Toggle */}
-                                                            <div className="flex flex-col items-center gap-2">
-                                                                <span className="text-xs text-gray-600 font-medium">Write</span>
+                                                            <div className="flex items-center gap-[2px]">
                                                                 <button
                                                                     onClick={(e) => {
                                                                         e.stopPropagation();
                                                                         const updatedModules = [...modules];
-                                                                        updatedModules[index].permissions[permIndex].write = !updatedModules[index].permissions[permIndex].write;
+                                                                        const perm = updatedModules[index].permissions[permIndex];
+                                                                        const newWrite = !perm.write;
+
+                                                                        // Update local state
+                                                                        perm.write = newWrite;
                                                                         // Recalculate write count
                                                                         updatedModules[index].writeCount = updatedModules[index].permissions.filter(p => p.write).length;
                                                                         setModules(updatedModules);
+
+                                                                        // Call API to update child permission
+                                                                        const roleId = perm.roleId || updatedModules[index].roleId;
+                                                                        if (roleId && perm.permissionId) {
+                                                                            dispatch(updateRolesPermission({
+                                                                                roleId,
+                                                                                permissionId: perm.permissionId,
+                                                                                read: perm.read,
+                                                                                write: newWrite,
+                                                                            }));
+                                                                        }
                                                                     }}
-                                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${permission.write ? 'bg-green-500 focus:ring-green-500' : 'bg-gray-300 focus:ring-gray-400'
+                                                                    className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${permission.write ? 'bg-green-500' : 'bg-gray-300 '
                                                                         }`}
                                                                 >
                                                                     <span
@@ -390,6 +458,8 @@ const Rolemanagement = () => {
                                                                             }`}
                                                                     />
                                                                 </button>
+                                                                <span className="text-[16px] text-[#000000] font-['Gilroy-Medium']">Write</span>
+
                                                             </div>
                                                         </div>
                                                     </div>
@@ -401,7 +471,7 @@ const Rolemanagement = () => {
                                         </div>
 
                                         {/* Status Message */}
-                                        <div className="text-sm text-gray-500 text-left pt-4 border-t border-gray-200">
+                                        <div className="text-[12px] text-[#1B1717] font-['Gilroy-Medium'] text-opacity-80 pt-4 border-t border-gray-200">
                                             Changes Are Automatically Saved • Last Updated: Just Now
                                         </div>
                                     </div>
