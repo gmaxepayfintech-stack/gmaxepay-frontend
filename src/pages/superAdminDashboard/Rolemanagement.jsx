@@ -6,14 +6,13 @@ import { useDispatch, useSelector } from 'react-redux';
 // Role name to ID mapping
 const roleMapping = {
     'Admin': 1,
+    'White Label':2,
     'Master Distributor': 3,
     'Distributor': 4,
-    'Retailer': 5,
-    'Employee': 6,
-    'Others': 7
+    'Retailer': 5  
 };
 
-const roles = ['Admin', 'Master Distributor', 'Distributor', 'Retailer', 'Employee', 'Others'];
+const roles = ['Admin','White Label', 'Master Distributor', 'Distributor', 'Retailer'];
 
 // Format helper function - converts "ROLE_MANAGEMENT" to "Role Management" or "MEMBERS" to "Members"
 const formatName = (name) => {
@@ -116,11 +115,9 @@ const Rolemanagement = () => {
 
     const roledata = useSelector((state) => state?.userProfile?.adminRolesPermission?.adminRolesPermission);
     const updateRolesState = useSelector((state) => state?.userProfile?.updateRoles);
-    console.log("roledata", roledata);
 
     // Extract all parent module names from all indexes
     const Modulenames = roledata ? Object.values(roledata).map(item => item?.moduleName).filter(Boolean) : [];
-    console.log("Modulenames (Parent Names)", Modulenames);
 
     // Extract parent read/write values
     const ParentReadWrite = roledata ? Object.values(roledata).map(item => ({
@@ -128,7 +125,6 @@ const Rolemanagement = () => {
         read: item?.read || false,
         write: item?.write || false
     })) : [];
-    console.log("Parent Read/Write", ParentReadWrite);
 
     // Extract children read/write values
     const ChildrenReadWrite = roledata ? Object.values(roledata).flatMap(item =>
@@ -138,7 +134,6 @@ const Rolemanagement = () => {
             write: child?.write || false
         }))
     ) : [];
-    console.log("Children Read/Write", ChildrenReadWrite);
 
     const [modules, setModules] = useState([]);
 

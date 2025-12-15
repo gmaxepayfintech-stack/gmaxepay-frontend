@@ -8,6 +8,7 @@ import userProfileReducer from './userProfileReducer';
 import whiteLabelReducer from './whiteLabelReducer';
 import errorReducer from './errorReducer';
 import retailerOnboardingReducer from './retailerOnboardingReducer';
+import roleReducer from './roleReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -18,6 +19,7 @@ const rootReducer = combineReducers({
     userProfile: userProfileReducer,
     whitelabel:whiteLabelReducer,
     retailerOnboarding: retailerOnboardingReducer,
+    roles:roleReducer,
     error:errorReducer
 });
 
