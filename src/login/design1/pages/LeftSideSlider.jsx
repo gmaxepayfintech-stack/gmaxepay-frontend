@@ -1,6 +1,6 @@
 import React from "react";
-const Baground2 = "/img/Baground2.png";
-const Baground1 = "/img/background.jpg";
+const Baground2 = "/img/Baground2.svg";
+const Baground1 = "/img/Baground1.svg";
 
 const LeftSideSlider = ({ company, currentSlide, setCurrentSlide, currentIndex, setCurrentIndex }) => {
   const images = company?.sliderImages?.length
@@ -14,28 +14,27 @@ const LeftSideSlider = ({ company, currentSlide, setCurrentSlide, currentIndex, 
 
   return (
     <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
-      {displayImages.map((slider, index) => (
-        <div
-          key={slider.id || index}
-          className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${
-            company?.sliderImages && company.sliderImages.length > 0
-              ? index === currentSlide
-                ? "opacity-100"
-                : "opacity-0"
-              : index === currentIndex
-              ? "opacity-100"
-              : "opacity-0"
-          }`}
-          style={{
-            backgroundImage: `url(${slider.image || slider})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            backgroundRepeat: "no-repeat",
-          }}
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
-        </div>
-      ))}
+      {displayImages.map((slider, index) => {
+        const isActive = company?.sliderImages && company.sliderImages.length > 0
+          ? index === currentSlide
+          : index === currentIndex;
+        const opacityClass = isActive ? "opacity-100" : "opacity-0";
+
+        return (
+          <div
+            key={slider.id || index}
+            className={`absolute inset-0 w-full h-full transition-opacity duration-1000 ease-in-out ${opacityClass}`}
+            style={{
+              backgroundImage: `url(${slider.image || slider})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center",
+              backgroundRepeat: "no-repeat",
+            }}
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
+          </div>
+        );
+      })}
 
       {displayImages.length > 1 && (
         <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 flex gap-3">
@@ -49,13 +48,12 @@ const LeftSideSlider = ({ company, currentSlide, setCurrentSlide, currentIndex, 
                   setCurrentIndex(index);
                 }
               }}
-              className={`transition-all duration-300 rounded-full ${
-                (company?.sliderImages && company.sliderImages.length > 0
+              className={`transition-all duration-300 rounded-full ${(company?.sliderImages && company.sliderImages.length > 0
                   ? index === currentSlide
                   : index === currentIndex)
                   ? "w-8 h-2 bg-white shadow-lg"
                   : "w-2 h-2 bg-white/50 hover:bg-white/70"
-              }`}
+                }`}
               aria-label={`Go to slide ${index + 1}`}
             />
           ))}

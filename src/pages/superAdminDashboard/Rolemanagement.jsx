@@ -1,13 +1,26 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { User, Users, ChevronDown } from 'lucide-react';
+import { getPermission } from '../../redux/action/userProfileAction';
+import { useDispatch, useSelector } from 'react-redux';
+
+// Role name to ID mapping
+const roleMapping = {
+    'Admin': 1,
+    'Master Distributor': 3,
+    'Distributor': 4,
+    'Retailer': 5,
+    'Employee': 6,
+    'Others': 7
+};
+
+const roles = ['Admin', 'Master Distributor', 'Distributor', 'Retailer', 'Employee', 'Others'];
 
 const Rolemanagement = () => {
     const [selectedRole, setSelectedRole] = useState('Admin');
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [expandedModule, setExpandedModule] = useState(null);
     const dropdownRef = useRef(null);
-
-    const roles = ['Admin', 'Master Distributor', 'Distributor', 'Retailer', 'Employee', 'Others'];
+    const dispatch = useDispatch();
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -78,6 +91,20 @@ const Rolemanagement = () => {
             ]
         },
     ];
+    useEffect(() => {
+        // Get the role ID from the mapping
+        const roleId = roleMapping[selectedRole];
+        if (roleId) {
+            dispatch(getPermission(roleId));
+        }
+    }, [selectedRole, dispatch])
+
+    const roledata = useSelector((state) => state?.userProfile?.adminRolesPermission?.adminRolesPermission);
+    console.log("roledata", roledata);
+    
+    // Extract module names from the API response
+    const ModuleNames = roledata ? Object.values(roledata).map(item => item?.moduleName).filter(Boolean) : [];
+    console.log("Modulenames", ModuleNames);
 
     const [modules, setModules] = useState(initialModules);
 
