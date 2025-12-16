@@ -1,4 +1,4 @@
-import { ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS } from "../actionType/roleActionType";
+import { ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_COMPANY_USER_SUCCESS, ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS } from "../actionType/roleActionType";
 
 const initialState = {
     isLoading: false,
@@ -8,6 +8,8 @@ const initialState = {
     roleDegMD: null,
     roleComp: null,
     roleDegComp: null,
+    roleDataComp: null,
+    roleDataMD: null,
 }
 
 const roleReducer = (state = initialState, action) => {
@@ -40,6 +42,20 @@ const roleReducer = (state = initialState, action) => {
             return {
                 isLoading: false,
                 roleDegComp: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+            }
+        case ROLEDATA_COMPANY_USER_SUCCESS:
+            return{
+                isLoading: false,
+                roleDataComp: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+            }
+        case ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS:
+            return{
+                isLoading: false,
+                roleDataMD: action?.payload,
                 message: action?.payload?.message,
                 success: action?.payload?.status,
             }
