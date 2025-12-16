@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Search } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 import { roleDataCompanyUser } from '../../redux/action/roleAction';
 
 const RoleUpgradeWhiteLabel = () => {
@@ -8,6 +8,17 @@ const RoleUpgradeWhiteLabel = () => {
     const [searchQuery, setSearchQuery] = useState('');
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('Approved');
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [activeTab, setActiveTab] = useState('User Details');
+    
+    // Form state for modal
+    const [formData, setFormData] = useState({
+        parentName: '',
+        userName: '',
+        mobileNumber: '',
+        emailId: ''
+    });
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
 
@@ -159,7 +170,9 @@ const RoleUpgradeWhiteLabel = () => {
                 mobileNumber: user.mobileNo || '-',
                 emailId: user.email || '-',
                 currentRole: roleMap[user.userRole] || user.userRole || '-',
-                upgradeRole: user.upgradeRole || user.requestedRole || '-' // May not be in response yet
+                upgradeRole: user.upgradeRole || user.requestedRole || '-', // May not be in response yet
+                // Store full user object for modal
+                fullUserData: user
             };
             
             if (index === 0) {
@@ -261,7 +274,15 @@ const RoleUpgradeWhiteLabel = () => {
                                     {row.currentRole}
                                 </td>
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                    {row.upgradeRole}
+                                    <div className="flex flex-col gap-2">
+                                        <span>{row.upgradeRole}</span>
+                                        <button
+                                            onClick={() => handleUpgradeClick(row)}
+                                            className="px-3 py-1 bg-[#039155] text-white text-[10px] rounded-lg hover:bg-[#027a45] transition"
+                                        >
+                                            Upgrade
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         ))
@@ -270,6 +291,48 @@ const RoleUpgradeWhiteLabel = () => {
             </table>
         );
     };
+
+    const handleUpgradeClick = (row) => {
+        const user = row.fullUserData;
+        setSelectedUser(user);
+        setFormData({
+            parentName: user.parentName || '',
+            userName: user.name || '',
+            mobileNumber: user.mobileNo || '',
+            emailId: user.email || ''
+        });
+        setIsModalOpen(true);
+        setActiveTab('User Details');
+    };
+
+    const handleCloseModal = () => {
+        setIsModalOpen(false);
+        setSelectedUser(null);
+        setFormData({
+            parentName: '',
+            userName: '',
+            mobileNumber: '',
+            emailId: ''
+        });
+    };
+
+    const handleInputChange = (e) => {
+        const { name, value } = e.target;
+        setFormData(prev => ({
+            ...prev,
+            [name]: value
+        }));
+    };
+
+    const handleSaveChanges = () => {
+        console.log('Saving changes for user:', selectedUser?.id);
+        console.log('Form data:', formData);
+        // TODO: Add API call to save changes
+        // Close modal after save
+        handleCloseModal();
+    };
+
+    const tabs = ['User Details', 'Role Information', 'Status And Actions'];
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
@@ -315,6 +378,134 @@ const RoleUpgradeWhiteLabel = () => {
             <div className="mb-4 overflow-x-auto rounded-xl bg-white">
                 {renderTableContent()}
             </div>
+
+            {/* Edit Role Request Modal */}
+            {isModalOpen && (
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                    <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                        {/* Modal Header */}
+                        <div className="flex items-center justify-between p-6 border-b">
+                            <div>
+                                <h2 className="text-2xl font-medium text-[#1B1717]">Edit Role Request</h2>
+                                {selectedUser && (
+                                    <p className="text-sm text-gray-500 mt-1">Request ID: #{selectedUser.id}</p>
+                                )}
+                            </div>
+                            <button
+                                onClick={handleCloseModal}
+                                className="w-8 h-8 rounded-full bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
+                            >
+                                <X className="w-5 h-5" />
+                            </button>
+                        </div>
+
+                        {/* Tabs */}
+                        <div className="flex border-b px-6">
+                            {tabs.map((tab) => (
+                                <button
+                                    key={tab}
+                                    onClick={() => setActiveTab(tab)}
+                                    className={`px-4 py-3 font-medium text-sm transition ${
+                                        activeTab === tab
+                                            ? 'text-[#039155] border-b-2 border-[#039155]'
+                                            : 'text-gray-500 hover:text-gray-700'
+                                    }`}
+                                >
+                                    {tab}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Tab Content */}
+                        <div className="p-6">
+                            {activeTab === 'User Details' && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            Parent Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="parentName"
+                                            value={formData.parentName}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter Parent Name"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            User Name
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="userName"
+                                            value={formData.userName}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter User Name"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            Mobile Number
+                                        </label>
+                                        <input
+                                            type="text"
+                                            name="mobileNumber"
+                                            value={formData.mobileNumber}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter Mobile Number"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                        />
+                                    </div>
+                                    <div>
+                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            Email Id
+                                        </label>
+                                        <input
+                                            type="email"
+                                            name="emailId"
+                                            value={formData.emailId}
+                                            onChange={handleInputChange}
+                                            placeholder="Enter Email Id"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                        />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'Role Information' && (
+                                <div className="text-center py-8 text-gray-500">
+                                    Role Information content will be added here
+                                </div>
+                            )}
+
+                            {activeTab === 'Status And Actions' && (
+                                <div className="text-center py-8 text-gray-500">
+                                    Status And Actions content will be added here
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Modal Footer */}
+                        <div className="flex justify-end gap-4 p-6 border-t">
+                            <button
+                                onClick={handleCloseModal}
+                                className="px-6 py-2 border-2 border-[#039155] text-[#039155] rounded-lg font-medium hover:bg-gray-50 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveChanges}
+                                className="px-6 py-2 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                            >
+                                Save Changes
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
