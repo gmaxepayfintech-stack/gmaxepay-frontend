@@ -10,7 +10,7 @@ const WhitelabelAdmin = () => {
             <Routes>
                 <Route path="/" element={<AdminDashboardHome />} />
                 <Route path="/home" element={<AdminDashboardHome />} />
-                <Route path="/resources/roleUpgradeRequest" element={<RoleUpgradeWhiteLabel />} />
+                <Route path="/resources/roleUpgrade" element={<RoleUpgradeWhiteLabel />} />
                 <Route path="/onboarding" element={<AdminWhitelabelList />} />
             </Routes>
         </WhiteLabelDashboardLayout>
