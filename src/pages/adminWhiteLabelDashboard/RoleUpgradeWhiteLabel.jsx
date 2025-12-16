@@ -6,23 +6,33 @@ import { roleDataCompanyUser } from '../../redux/action/roleAction';
 const RoleUpgradeWhiteLabel = () => {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [activeFilter, setActiveFilter] = useState('Approved');
-    
-    // Form state for API query
-    const [userRole, setUserRole] = useState(4);
-    const [kycStatus, setKycStatus] = useState('completed');
-    const [name, setName] = useState('');
-    const [page, setPage] = useState(1);
-    const [paginate, setPaginate] = useState(10);
-    const [sortOrder, setSortOrder] = useState(-1);
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
 
+    // Map status filter to kycStatus
+    const getKycStatusFromFilter = (filter) => {
+        const statusMap = {
+            'Approved': 'completed',
+            'Pending': 'pending',
+            'Rejected': 'rejected'
+        };
+        return statusMap[filter] || 'completed';
+    };
+
     // Get data from Redux
     const roleDataResponse = useSelector((state) => state?.role?.roleDataComp);
-    
     const roleDataList = roleDataResponse?.roleDataComp || [];
     const isLoading = useSelector((state) => state?.role?.isLoading);
+
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
     // Log Redux response whenever it changes
     useEffect(() => {
@@ -36,27 +46,33 @@ const RoleUpgradeWhiteLabel = () => {
         }
     }, [roleDataResponse, roleDataList, isLoading]);
 
-    // Fetch data when form values change
+    // Fetch data when filter or search changes
     useEffect(() => {
+        const kycStatus = getKycStatusFromFilter(activeFilter);
         const payload = {
             query: {
-                userRole: Number(userRole),
+                userRole: 4, // Default userRole
                 kycStatus: kycStatus
             },
             options: {
-                sort: { id: Number(sortOrder) },
-                page: Number(page),
-                paginate: Number(paginate)
+                sort: { id: -1 }, // Default sort
+                page: 1, // Default page
+                paginate: 10 // Default paginate
             },
-            customSearch: name.trim() ? { name: name.trim() } : {}
+            customSearch: debouncedSearchQuery.trim() ? { 
+                name: debouncedSearchQuery.trim(),
+                mobileNo: debouncedSearchQuery.trim() 
+            } : {}
         };
         
         console.log('=== Sending API Request ===');
         console.log('Payload being sent:', JSON.stringify(payload, null, 2));
-        console.log('Form values:', { userRole, kycStatus, name, page, paginate, sortOrder });
+        console.log('Active Filter:', activeFilter);
+        console.log('KYC Status:', kycStatus);
+        console.log('Search Query:', debouncedSearchQuery);
         
         dispatch(roleDataCompanyUser(payload));
-    }, [userRole, kycStatus, name, page, paginate, sortOrder, dispatch]);
+    }, [activeFilter, debouncedSearchQuery, dispatch]);
 
     // Format table data from API response
     const formatTableData = () => {
@@ -72,7 +88,7 @@ const RoleUpgradeWhiteLabel = () => {
         const formatted = roleDataList.map((item, index) => {
             const formattedItem = {
                 id: item.id || item._id || `row-${index}`,
-                srNo: String((page - 1) * paginate + index + 1).padStart(2, '0'),
+                srNo: String(index + 1).padStart(2, '0'),
                 date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB') : '-',
                 parentName: item.parentName || item.parent?.name || '-',
                 userName: item.name || item.userName || '-',
@@ -105,11 +121,6 @@ const RoleUpgradeWhiteLabel = () => {
         }
     }, [tableData]);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        setName(searchQuery);
-        setPage(1); // Reset to first page on new search
-    };
 
     const renderTableContent = () => {
         if (isLoading) {
@@ -204,88 +215,10 @@ const RoleUpgradeWhiteLabel = () => {
                     Role Upgradation List
                 </h1>
 
-                {/* Filter Form Section */}
-                <div className="mb-6 bg-white p-4 rounded-xl border border-gray-200">
-                    <h2 className="text-lg font-medium mb-4">Filter Options</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-                        <div>
-                            <label htmlFor="userRole" className="block text-sm font-medium mb-2">User Role</label>
-                            <input
-                                id="userRole"
-                                type="number"
-                                value={userRole}
-                                onChange={(e) => setUserRole(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="User Role"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="kycStatus" className="block text-sm font-medium mb-2">KYC Status</label>
-                            <select
-                                id="kycStatus"
-                                value={kycStatus}
-                                onChange={(e) => setKycStatus(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            >
-                                <option value="completed">Completed</option>
-                                <option value="pending">Pending</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="page" className="block text-sm font-medium mb-2">Page</label>
-                            <input
-                                id="page"
-                                type="number"
-                                value={page}
-                                onChange={(e) => setPage(e.target.value)}
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            />
-                        </div>
-                        <div>
-                            <label htmlFor="paginate" className="block text-sm font-medium mb-2">Items Per Page</label>
-                            <input
-                                id="paginate"
-                                type="number"
-                                value={paginate}
-                                onChange={(e) => setPaginate(e.target.value)}
-                                min="1"
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            />
-                        </div>
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
-                        <div>
-                            <label htmlFor="sortOrder" className="block text-sm font-medium mb-2">Sort Order (id)</label>
-                            <select
-                                id="sortOrder"
-                                value={sortOrder}
-                                onChange={(e) => setSortOrder(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                            >
-                                <option value="-1">Descending (-1)</option>
-                                <option value="1">Ascending (1)</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label htmlFor="nameSearch" className="block text-sm font-medium mb-2">Search By Name</label>
-                            <input
-                                id="nameSearch"
-                                type="text"
-                                value={name}
-                                onChange={(e) => setName(e.target.value)}
-                                className="w-full px-3 py-2 border border-gray-300 rounded-lg"
-                                placeholder="Enter name to search"
-                            />
-                        </div>
-                    </div>
-                </div>
-
                 {/* Search and Filter Section */}
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
                     {/* Search Bar */}
-                    <form onSubmit={handleSearch} className="relative w-full sm:w-[540px]">
+                    <div className="relative w-full sm:w-[540px]">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                         <input
                             type="text"
@@ -294,7 +227,7 @@ const RoleUpgradeWhiteLabel = () => {
                             onChange={(e) => setSearchQuery(e.target.value)}
                             className="w-full pl-10 pr-4 py-4 sm:py-4 border border-gray-300 rounded-lg "
                         />
-                    </form>
+                    </div>
 
                     {/* Status Filter Buttons */}
                     <div className="flex flex-wrap justify-end items-center bg-[#FAFAFA] rounded-xl p-2 border border-[#1B1717] border-opacity-50 gap-4 ml-auto">

@@ -37,6 +37,7 @@ import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./userOnboarding/welcome";
 import RetailerOnboarding from "./userOnboarding/[id]";
 import { statsBuffer } from "framer-motion";
+import RoleUpgradeWhiteLabel from "./pages/adminWhiteLabelDashboard/RoleUpgradeWhiteLabel";
 
 function App() {
   const { showNotification } = useNotification();
@@ -502,7 +503,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
           path="/auth/login"
           element={
             <ProtectedAuthRoute>
-              <Auth/>
+              <RoleUpgradeWhiteLabel/>
             </ProtectedAuthRoute>
           }
         />
