@@ -22,12 +22,22 @@ const RoleUpgradeWhiteLabel = () => {
     };
 
     // Get data from Redux
-    const roleDataResponse = useSelector((state) => state);
-    console.log('roleDataResponse',roleDataResponse);
+    // Try both 'role' and 'roles' in case the reducer is registered differently
+    const roleDataResponse = useSelector((state) => {
+        const roleState = state?.roles || state?.role;
+        return roleState?.roleDataComp?.roleDataComp;
+    });
+    console.log('roleDataResponse', roleDataResponse);
     
-    const roleDataComp = roleDataResponse?.roleDataComp || [];
-    console.log('roleDataComp',roleDataComp)
-    const isLoading = useSelector((state) => state?.role?.isLoading);
+    // roleDataResponse is already the array of companies
+    const roleDataComp = Array.isArray(roleDataResponse) ? roleDataResponse : [];
+    console.log('roleDataComp', roleDataComp);
+    console.log('roleDataComp length:', roleDataComp.length);
+    
+    const isLoading = useSelector((state) => {
+        const roleState = state?.roles || state?.role;
+        return roleState?.isLoading || false;
+    });
 
     // Extract and flatten users from all companies
     const roleDataList = useMemo(() => {
