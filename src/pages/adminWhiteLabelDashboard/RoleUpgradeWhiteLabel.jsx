@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search } from 'lucide-react';
 import { roleDataCompanyUser } from '../../redux/action/roleAction';
@@ -23,8 +23,25 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Get data from Redux
     const roleDataResponse = useSelector((state) => state?.role?.roleDataComp);
-    const roleDataList = roleDataResponse?.roleDataComp || [];
+    const roleDataComp = roleDataResponse?.roleDataComp || [];
     const isLoading = useSelector((state) => state?.role?.isLoading);
+
+    // Extract and flatten users from all companies
+    const roleDataList = useMemo(() => {
+        if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
+            return [];
+        }
+        
+        // Flatten users from all companies
+        const allUsers = [];
+        roleDataComp.forEach((company) => {
+            if (company?.users && Array.isArray(company.users)) {
+                allUsers.push(...company.users);
+            }
+        });
+        
+        return allUsers;
+    }, [roleDataComp]);
 
     // Debounce search query
     useEffect(() => {
@@ -38,13 +55,14 @@ const RoleUpgradeWhiteLabel = () => {
     useEffect(() => {
         console.log('=== Role Data Response from Redux ===');
         console.log('Full roleDataResponse:', roleDataResponse);
-        console.log('roleDataList:', roleDataList);
+        console.log('roleDataComp (raw):', roleDataComp);
+        console.log('roleDataList (flattened users):', roleDataList);
         console.log('roleDataList length:', roleDataList?.length);
         console.log('isLoading:', isLoading);
         if (roleDataList && roleDataList.length > 0) {
-            console.log('First item in roleDataList:', roleDataList[0]);
+            console.log('First user in roleDataList:', roleDataList[0]);
         }
-    }, [roleDataResponse, roleDataList, isLoading]);
+    }, [roleDataResponse, roleDataComp, roleDataList, isLoading]);
 
     // Fetch data when filter or search changes
     useEffect(() => {
@@ -85,21 +103,43 @@ const RoleUpgradeWhiteLabel = () => {
             return [];
         }
         
-        const formatted = roleDataList.map((item, index) => {
+        const formatted = roleDataList.map((user, index) => {
+            // Format date from "2025-12-15T10:27:30.248Z" to "15-12-25"
+            let formattedDate = '-';
+            if (user.date) {
+                try {
+                    const dateObj = new Date(user.date);
+                    const day = String(dateObj.getDate()).padStart(2, '0');
+                    const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+                    const year = String(dateObj.getFullYear()).slice(-2);
+                    formattedDate = `${day}-${month}-${year}`;
+                } catch (e) {
+                    console.error('Date parsing error:', e);
+                }
+            }
+            
+            // Map userRole codes to readable names
+            const roleMap = {
+                'DI': 'Distributor',
+                'RE': 'Retailer',
+                'MD': 'Master Distributor',
+                'EN': 'Enterprise'
+            };
+            
             const formattedItem = {
-                id: item.id || item._id || `row-${index}`,
+                id: user.id || user._id || `row-${index}`,
                 srNo: String(index + 1).padStart(2, '0'),
-                date: item.createdAt ? new Date(item.createdAt).toLocaleDateString('en-GB') : '-',
-                parentName: item.parentName || item.parent?.name || '-',
-                userName: item.name || item.userName || '-',
-                mobileNumber: item.mobileNo || item.mobileNumber || '-',
-                emailId: item.email || item.emailId || '-',
-                currentRole: item.currentRole || item.role || '-',
-                upgradeRole: item.upgradeRole || item.requestedRole || '-'
+                date: formattedDate,
+                parentName: user.parentName || '-',
+                userName: user.name || '-',
+                mobileNumber: user.mobileNo || '-',
+                emailId: user.email || '-',
+                currentRole: roleMap[user.userRole] || user.userRole || '-',
+                upgradeRole: user.upgradeRole || user.requestedRole || '-' // May not be in response yet
             };
             
             if (index === 0) {
-                console.log('Sample raw item:', item);
+                console.log('Sample raw user item:', user);
                 console.log('Sample formatted item:', formattedItem);
             }
             
