@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Search, X } from 'lucide-react';
+import { Search, X, User, Sparkles } from 'lucide-react';
 import { roleDataCompanyUser } from '../../redux/action/roleAction';
 
 const RoleUpgradeWhiteLabel = () => {
@@ -17,7 +17,9 @@ const RoleUpgradeWhiteLabel = () => {
         parentName: '',
         userName: '',
         mobileNumber: '',
-        emailId: ''
+        emailId: '',
+        currentRole: '',
+        requestedRole: ''
     });
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
@@ -225,7 +227,7 @@ const RoleUpgradeWhiteLabel = () => {
         }
 
         return (
-            <table className="min-w-[720px] sm:min-w-full divide-y">
+            <table className="w-full divide-y">
                 <thead className="bg-white  divide-y-[#1B1717] border-opacity-50">
                     <tr>
                         <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -250,7 +252,7 @@ const RoleUpgradeWhiteLabel = () => {
                             Current Role
                         </th>
                         <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                            User Role
+                            Upgrade Role
                         </th>
                         <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             User ID
@@ -322,7 +324,7 @@ const RoleUpgradeWhiteLabel = () => {
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                                     <button
                                         onClick={() => handleUpgradeClick(row)}
-                                        className="text-[#039155] hover:text-[#027a45] hover:underline transition cursor-pointer"
+                                        className="px-3 py-1 bg-[#039155] text-[#000000] rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
                                     >
                                         {row.userRole}
                                     </button>
@@ -372,12 +374,22 @@ const RoleUpgradeWhiteLabel = () => {
         console.log('Upgrade clicked for user ID:', userId);
         console.log('Full user data:', user);
         
+        // Map userRole codes to readable names
+        const roleMap = {
+            'DI': 'Distributor',
+            'RE': 'Retailer',
+            'MD': 'Master Distributor',
+            'EN': 'Enterprise'
+        };
+        
         setSelectedUser(user);
         setFormData({
             parentName: user.parentName || '',
             userName: user.name || '',
             mobileNumber: user.mobileNo || '',
-            emailId: user.email || ''
+            emailId: user.email || '',
+            currentRole: roleMap[user.userRole] || user.userRole || '',
+            requestedRole: user.upgradeRole || user.requestedRole || ''
         });
         setIsModalOpen(true);
         setActiveTab('User Details');
@@ -390,7 +402,9 @@ const RoleUpgradeWhiteLabel = () => {
             parentName: '',
             userName: '',
             mobileNumber: '',
-            emailId: ''
+            emailId: '',
+            currentRole: '',
+            requestedRole: ''
         });
     };
 
@@ -453,7 +467,7 @@ const RoleUpgradeWhiteLabel = () => {
             </div>
 
             {/* Table Section */}
-            <div className="mb-4 overflow-x-auto rounded-xl bg-white">
+            <div className="mb-4 rounded-xl bg-white">
                 {renderTableContent()}
             </div>
 
@@ -471,9 +485,12 @@ const RoleUpgradeWhiteLabel = () => {
                             </div>
                             <button
                                 onClick={handleCloseModal}
-                                className="w-8 h-8 rounded-full bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
+                                className="w-10 h-10 rounded-xl bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
                             >
+                                <div className='bg-[#FFFFFF] rounded-full p-1'>
                                 <X className="w-5 h-5" />
+                                </div>
+                              
                             </button>
                         </div>
 
@@ -485,7 +502,7 @@ const RoleUpgradeWhiteLabel = () => {
                                     onClick={() => setActiveTab(tab)}
                                     className={`px-4 py-3 font-medium text-sm transition ${
                                         activeTab === tab
-                                            ? 'text-[#039155] border-b-2 border-[#039155]'
+                                            ? 'bg-[#039155] text-white border border-[#039155] rounded-t-lg'
                                             : 'text-gray-500 hover:text-gray-700'
                                     }`}
                                 >
@@ -554,14 +571,85 @@ const RoleUpgradeWhiteLabel = () => {
                             )}
 
                             {activeTab === 'Role Information' && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Role Information content will be added here
+                                <div className="space-y-6">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                        <div>
+                                            <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                                Current Role
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="currentRole"
+                                                value={formData.currentRole}
+                                                onChange={handleInputChange}
+                                                placeholder="Enter Current Role"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                                Requested Role
+                                            </label>
+                                            <input
+                                                type="text"
+                                                name="requestedRole"
+                                                value={formData.requestedRole}
+                                                onChange={handleInputChange}
+                                                placeholder="Enter Requested Role"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            />
+                                        </div>
+                                    </div>
+                                    
+                                    {/* Role Visualization */}
+                                    <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <User className="w-6 h-6 text-[#039155]" />
+                                            <span className="font-medium text-[#1B1717]">Retailer</span>
+                                        </div>
+                                        <div className="flex items-center gap-1">
+                                            {[...Array(5)].map((_, i) => (
+                                                <div
+                                                    key={i}
+                                                    className="w-2 h-2 bg-[#039155] rounded-full"
+                                                />
+                                            ))}
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <Sparkles className="w-6 h-6 text-[#039155]" />
+                                            <span className="font-medium text-[#1B1717]">Distributor</span>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
 
                             {activeTab === 'Status And Actions' && (
-                                <div className="text-center py-8 text-gray-500">
-                                    Status And Actions content will be added here
+                                <div className="space-y-6">
+                                    <div>
+                                        <h3 className="text-lg font-medium text-[#1B1717] mb-4">Quick Actions</h3>
+                                        <div className="flex gap-4">
+                                            <button
+                                                onClick={() => {
+                                                    console.log('Reject Request for user:', selectedUser?.id);
+                                                    // TODO: Add reject API call
+                                                    handleCloseModal();
+                                                }}
+                                                className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition"
+                                            >
+                                                Reject Request
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    console.log('Approve Request for user:', selectedUser?.id);
+                                                    // TODO: Add approve API call
+                                                    handleCloseModal();
+                                                }}
+                                                className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                                            >
+                                                Approve Request
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
