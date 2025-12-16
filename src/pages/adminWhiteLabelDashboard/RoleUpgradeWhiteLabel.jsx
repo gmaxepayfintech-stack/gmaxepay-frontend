@@ -22,8 +22,11 @@ const RoleUpgradeWhiteLabel = () => {
     };
 
     // Get data from Redux
-    const roleDataResponse = useSelector((state) => state?.role?.roleDataComp);
+    const roleDataResponse = useSelector((state) => state);
+    console.log('roleDataResponse',roleDataResponse);
+    
     const roleDataComp = roleDataResponse?.roleDataComp || [];
+    console.log('roleDataComp',roleDataComp)
     const isLoading = useSelector((state) => state?.role?.isLoading);
 
     // Extract and flatten users from all companies
@@ -69,7 +72,6 @@ const RoleUpgradeWhiteLabel = () => {
         console.log('roleDataComp (raw):', roleDataComp);
         console.log('roleDataList (flattened users):', roleDataList);
         console.log('roleDataList length:', roleDataList?.length);
-        console.log('isLoading:', isLoading);
         if (roleDataList && roleDataList.length > 0) {
             console.log('First user in roleDataList:', roleDataList[0]);
         }
