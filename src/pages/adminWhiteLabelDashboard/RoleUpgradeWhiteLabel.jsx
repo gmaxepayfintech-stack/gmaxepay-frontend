@@ -28,18 +28,29 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Extract and flatten users from all companies
     const roleDataList = useMemo(() => {
+        console.log('=== Extracting users from roleDataComp ===');
+        console.log('roleDataComp:', roleDataComp);
+        console.log('roleDataComp is array:', Array.isArray(roleDataComp));
+        console.log('roleDataComp length:', roleDataComp?.length);
+        
         if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
+            console.log('No companies found in roleDataComp');
             return [];
         }
         
         // Flatten users from all companies
         const allUsers = [];
-        roleDataComp.forEach((company) => {
+        roleDataComp.forEach((company, companyIndex) => {
+            console.log(`Company ${companyIndex}:`, company);
             if (company?.users && Array.isArray(company.users)) {
+                console.log(`  Found ${company.users.length} users in company ${companyIndex}`);
                 allUsers.push(...company.users);
+            } else {
+                console.log(`  No users array found in company ${companyIndex}`);
             }
         });
         
+        console.log('Total users extracted:', allUsers.length);
         return allUsers;
     }, [roleDataComp]);
 
@@ -104,7 +115,7 @@ const RoleUpgradeWhiteLabel = () => {
         }
         
         const formatted = roleDataList.map((user, index) => {
-            // Format date from "2025-12-15T10:27:30.248Z" to "15-12-25"
+            // Format date from "2025-12-15T10:27:30.248Z" to "15-12-25" (DD-MM-YY)
             let formattedDate = '-';
             if (user.date) {
                 try {
@@ -115,6 +126,7 @@ const RoleUpgradeWhiteLabel = () => {
                     formattedDate = `${day}-${month}-${year}`;
                 } catch (e) {
                     console.error('Date parsing error:', e);
+                    formattedDate = '-';
                 }
             }
             
@@ -130,7 +142,7 @@ const RoleUpgradeWhiteLabel = () => {
                 id: user.id || user._id || `row-${index}`,
                 srNo: String(index + 1).padStart(2, '0'),
                 date: formattedDate,
-                parentName: user.parentName || '-',
+                parentName: user.parentName || user.company || '-',
                 userName: user.name || '-',
                 mobileNumber: user.mobileNo || '-',
                 emailId: user.email || '-',
@@ -171,14 +183,6 @@ const RoleUpgradeWhiteLabel = () => {
             );
         }
 
-        if (tableData.length === 0) {
-            return (
-                <div className="p-8 text-center">
-                    <p className="text-gray-500">No data available</p>
-                </div>
-            );
-        }
-
         return (
             <table className="min-w-[720px] sm:min-w-full divide-y">
                 <thead className="bg-white  divide-y-[#1B1717] border-opacity-50">
@@ -210,38 +214,46 @@ const RoleUpgradeWhiteLabel = () => {
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y font-normal ">
-                    {tableData.map((row, index) => (
-                        <tr
-                            key={row.id}
-                            className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
-                                }`}
-                        >
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.srNo}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.date}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.parentName}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.userName}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.mobileNumber}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.emailId}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.currentRole}
-                            </td>
-                            <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                {row.upgradeRole}
+                    {tableData.length === 0 ? (
+                        <tr>
+                            <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                                No data available
                             </td>
                         </tr>
-                    ))}
+                    ) : (
+                        tableData.map((row, index) => (
+                            <tr
+                                key={row.id}
+                                className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
+                                    }`}
+                            >
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.srNo}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.date}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.parentName}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.userName}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.mobileNumber}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.emailId}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.currentRole}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.upgradeRole}
+                                </td>
+                            </tr>
+                        ))
+                    )}
                 </tbody>
             </table>
         );
