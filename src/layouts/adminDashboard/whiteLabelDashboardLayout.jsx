@@ -128,12 +128,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       ],
     },
     {
-      name: "Resources",
+      name: "Role Upgrade Request",
       icon: MaskGroup2,
       dropdown: true,
       children: [
         { name: "Resource List", path: "/adminDashboard/resources/list" },
-        { name: "Add Resource", path: "/adminDashboard/resources/add" },
+        { name: "Role Upgrade Request", path: "/adminDashboard/resources/roleUpgradeRequest" },
       ],
     },
     {
