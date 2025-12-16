@@ -324,7 +324,7 @@ const RoleUpgradeWhiteLabel = () => {
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                                     <button
                                         onClick={() => handleUpgradeClick(row)}
-                                        className="px-3 py-1 bg-[#039155] text-[#000000] rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
+                                        className="px-4 py-2 bg-[#039155] text-[#FFFFF] rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
                                     >
                                         {row.userRole}
                                     </button>
