@@ -162,6 +162,7 @@ const RoleUpgradeWhiteLabel = () => {
             };
             
             const formattedItem = {
+                // Table display fields
                 id: user.id || user._id || `row-${index}`,
                 srNo: String(index + 1).padStart(2, '0'),
                 date: formattedDate,
@@ -170,8 +171,23 @@ const RoleUpgradeWhiteLabel = () => {
                 mobileNumber: user.mobileNo || '-',
                 emailId: user.email || '-',
                 currentRole: roleMap[user.userRole] || user.userRole || '-',
-                upgradeRole: user.upgradeRole || user.requestedRole || '-', // May not be in response yet
-                // Store full user object for modal
+                upgradeRole: user.upgradeRole || user.requestedRole || '-',
+                userRole: user.userRole || '-', // Raw userRole for display
+                
+                // All user attributes from API response
+                userId: user.userId || null,
+                userRoleRaw: user.userRole || null,
+                parentRole: user.parentRole || null,
+                company: user.company || null,
+                companyId: user.companyId || null,
+                kycStatus: user.kycStatus || null,
+                kycSteps: user.kycSteps || null,
+                status: user.status || null,
+                lock: user.lock || false,
+                onboardingTokenExpiresAt: user.onboardingTokenExpiresAt || null,
+                wallet: user.wallet || { mainWallet: 0, apesWallet: 0 },
+                
+                // Store full user object for modal (contains all attributes)
                 fullUserData: user
             };
             
@@ -274,15 +290,12 @@ const RoleUpgradeWhiteLabel = () => {
                                     {row.currentRole}
                                 </td>
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                                    <div className="flex flex-col gap-2">
-                                        <span>{row.upgradeRole}</span>
-                                        <button
-                                            onClick={() => handleUpgradeClick(row)}
-                                            className="px-3 py-1 bg-[#039155] text-white text-[10px] rounded-lg hover:bg-[#027a45] transition"
-                                        >
-                                            Upgrade
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={() => handleUpgradeClick(row)}
+                                        className="text-[#039155] hover:text-[#027a45] hover:underline transition cursor-pointer"
+                                    >
+                                        {row.userRole}
+                                    </button>
                                 </td>
                             </tr>
                         ))
@@ -293,7 +306,12 @@ const RoleUpgradeWhiteLabel = () => {
     };
 
     const handleUpgradeClick = (row) => {
-        const user = row.fullUserData;
+        const user = row.fullUserData || row;
+        const userId = user.id || row.id;
+        
+        console.log('Upgrade clicked for user ID:', userId);
+        console.log('Full user data:', user);
+        
         setSelectedUser(user);
         setFormData({
             parentName: user.parentName || '',
