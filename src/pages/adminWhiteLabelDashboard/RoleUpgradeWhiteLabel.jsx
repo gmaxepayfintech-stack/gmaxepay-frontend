@@ -250,14 +250,44 @@ const RoleUpgradeWhiteLabel = () => {
                             Current Role
                         </th>
                         <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                            Upgrade Role
+                            User Role
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            User ID
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Parent Role
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Company
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Company ID
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            KYC Status
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            KYC Steps
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Status
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Lock
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Main Wallet
+                        </th>
+                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                            Apes Wallet
                         </th>
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y font-normal ">
                     {tableData.length === 0 ? (
                         <tr>
-                            <td colSpan="8" className="px-4 py-8 text-center text-gray-500">
+                            <td colSpan="16" className="px-4 py-8 text-center text-gray-500">
                                 No data available
                             </td>
                         </tr>
@@ -296,6 +326,36 @@ const RoleUpgradeWhiteLabel = () => {
                                     >
                                         {row.userRole}
                                     </button>
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.userId || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.parentRole || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.company || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.companyId || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.kycStatus || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.kycSteps || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.status || '-'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.lock ? 'Yes' : 'No'}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.wallet?.mainWallet ?? 0}
+                                </td>
+                                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                                    {row.wallet?.apesWallet ?? 0}
                                 </td>
                             </tr>
                         ))
