@@ -513,7 +513,7 @@ const RoleUpgradeWhiteLabel = () => {
             {/* Edit Role Request Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full h-[40vh] max-h-[40vh] flex flex-col">
+                    <div className="bg-white rounded-xl max-w-2xl w-full h-[80vh] max-h-[80vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-6 border-b">
                             <div className='flex-1 text-center'>
