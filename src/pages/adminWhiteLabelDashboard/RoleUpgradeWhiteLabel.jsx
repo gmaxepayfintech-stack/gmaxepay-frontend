@@ -264,7 +264,8 @@ const RoleUpgradeWhiteLabel = () => {
         }
 
         return (
-            <table className="w-full divide-y">
+            <div className="w-full overflow-x-auto">
+                <table className="min-w-max w-full divide-y">
                 <thead className="bg-white  divide-y-[#1B1717] border-opacity-50">
                     <tr>
                         <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -400,7 +401,8 @@ const RoleUpgradeWhiteLabel = () => {
                         ))
                     )}
                 </tbody>
-            </table>
+                </table>
+            </div>
         );
     };
 
@@ -620,7 +622,7 @@ const RoleUpgradeWhiteLabel = () => {
                                                 <option value="">Select Requested Role</option>
                                                 {requestedRoleOptions.map((opt) => (
                                                     <option key={opt.id} value={String(opt.id)}>
-                                                        {opt.label} (ID: {opt.id})
+                                                        {opt.label}
                                                     </option>
                                                 ))}
                                             </select>
@@ -628,22 +630,29 @@ const RoleUpgradeWhiteLabel = () => {
                                     </div>
 
                                     {/* Role Visualization */}
-                                    <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
-                                        <div className="flex items-center gap-3">
+                                    <div className="flex items-center justify-between py-6 px-2 bg-[#FAFAFA] rounded-lg">
+                                        <div className="flex items-center gap-3 w-[220px]">
                                             <User className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717]">
+                                            <span className="font-medium text-[#1B1717] truncate">
                                                 {formData.currentRole || '-'}
                                             </span>
                                         </div>
-                                        <div className="flex items-center">
+
+                                        {/* Center dots - keep centered and slightly right */}
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <div className="flex items-center gap-[2px] translate-x-4">
                                                 {[...Array(5)].map((_, i) => (
                                                     <React.Fragment key={i}>
                                                         <div className="w-3 h-3 bg-[#039155] rounded-full" />
-                                                        {i < 4 && <div className="w-4 h-[3px] bg-[#039155] opacity-80 rounded-full" />}
+                                                        {i < 4 && (
+                                                            <div className="w-4 h-[3px] bg-[#039155] opacity-80 rounded-full" />
+                                                        )}
                                                     </React.Fragment>
                                                 ))}
                                             </div>
-                                        <div className="flex items-center gap-3">
+                                        </div>
+
+                                        <div className="flex items-center justify-end gap-3 w-[220px]">
                                             <Sparkles className="w-6 h-6 text-[#039155]" />
                                             <span className="font-medium text-[#1B1717] inline-block w-48 truncate">
                                                 {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || '-'}
