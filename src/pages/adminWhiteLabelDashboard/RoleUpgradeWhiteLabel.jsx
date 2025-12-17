@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, X, User, Sparkles } from 'lucide-react';
-import { roleDataCompanyUser } from '../../redux/action/roleAction';
+import { roleDataCompanyUser, roleUpgradeCompanyUser } from '../../redux/action/roleAction';
 
 const RoleUpgradeWhiteLabel = () => {
     const dispatch = useDispatch();
@@ -366,7 +366,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         onClick={() => handleUpgradeClick(row)}
                                         className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
                                     >
-                                        {row.userRole}
+                                        Upgrade
                                     </button>
                                 </td>
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -665,7 +665,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <div className="flex items-center gap-3 w-[220px]">
                                             <User className="w-6 h-6 text-[#039155]" />
                                             <span className="font-medium text-[#1B1717] truncate">
-                                                {formData.currentRole || '-'}
+                                                {formData.currentRole || ''}
                                             </span>
                                         </div>
 
@@ -686,7 +686,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <div className="flex items-center justify-end gap-3 w-[220px]">
                                             <Sparkles className="w-6 h-6 text-[#039155]" />
                                             <span className="font-medium text-[#1B1717] inline-block w-48 truncate">
-                                                {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || '-'}
+                                                {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || ''}
                                             </span>
                                         </div>
                                     </div>
