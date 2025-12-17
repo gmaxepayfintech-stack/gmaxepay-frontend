@@ -477,10 +477,10 @@ const RoleUpgradeWhiteLabel = () => {
                     <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-6 border-b">
-                            <div>
-                                <h2 className="text-2xl font-medium text-[#1B1717]">Edit Role Request</h2>
+                            <div className='flex-1 text-center'>
+                                <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#000000]">Edit Role Request</h2>
                                 {selectedUser && (
-                                    <p className="text-sm text-gray-500 mt-1">Request ID: #{selectedUser.id}</p>
+                                    <p className="text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-[12px]">Request ID: #{selectedUser.id}</p>
                                 )}
                             </div>
                             <button
@@ -496,12 +496,12 @@ const RoleUpgradeWhiteLabel = () => {
 
                         {/* Tabs */}
                         <div className="px-6 py-4">
-                            <div className="flex gap-2 bg-gray-100 rounded-lg p-1">
+                            <div className="flex gap-4 rounded-lg border-2 border-[#1B1717] border-opacity-50 p-2">
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
-                                        className={`px-4 py-2 font-medium text-sm transition flex-1 rounded-md ${
+                                        className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl bg-[#039155] text-[#FFFFFF] ${
                                             activeTab === tab
                                                 ? 'bg-[#039155] text-white'
                                                 : 'text-gray-700 hover:text-gray-900'
@@ -518,7 +518,7 @@ const RoleUpgradeWhiteLabel = () => {
                             {activeTab === 'User Details' && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        <label className="block text-[14px] font-['Gilroy-SemiBold'] text-[#000000] mb-2">
                                             Parent Name
                                         </label>
                                         <input
