@@ -127,6 +127,11 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Log Redux response whenever it changes
     useEffect(() => {
+        console.log('=== Role Data Response from Redux ===');
+        console.log('Full roleDataResponse:', roleDataResponse);
+        console.log('roleDataComp (raw):', roleDataComp);
+        console.log('roleDataList (flattened users):', roleDataList);
+        console.log('roleDataList length:', roleDataList?.length);
         if (roleDataList && roleDataList.length > 0) {
             console.log('First user in roleDataList:', roleDataList[0]);
         }
@@ -508,7 +513,7 @@ const RoleUpgradeWhiteLabel = () => {
             {/* Edit Role Request Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full h-[30vh] max-h-[30vh] flex flex-col">
+                    <div className="bg-white rounded-xl max-w-2xl w-full h-[40vh] max-h-[40vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-6 border-b">
                             <div className='flex-1 text-center'>
@@ -635,7 +640,7 @@ const RoleUpgradeWhiteLabel = () => {
 
                                         {/* Center dots - keep centered and slightly right */}
                                         <div className="flex-1 flex items-center justify-center">
-                                            <div className="flex items-center gap-[2px] -translate-x-[10px]">
+                                            <div className="flex items-center gap-[2px] translate-x-2">
                                             {[...Array(5)].map((_, i) => (
                                                     <React.Fragment key={i}>
                                                         <div className="w-3 h-3 bg-[#039155] rounded-full" />
@@ -644,7 +649,7 @@ const RoleUpgradeWhiteLabel = () => {
                                                         )}
                                                     </React.Fragment>
                                             ))}
-                                        </div>  
+                                        </div>
                                         </div>
 
                                         <div className="flex items-center justify-end gap-3 w-[220px]">
