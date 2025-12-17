@@ -11,7 +11,7 @@ const RoleUpgradeWhiteLabel = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState(null);
     const [activeTab, setActiveTab] = useState('User Details');
-    
+
     // Form state for modal
     const [formData, setFormData] = useState({
         parentName: '',
@@ -41,12 +41,12 @@ const RoleUpgradeWhiteLabel = () => {
         return roleState?.roleDataComp?.roleDataComp;
     });
     console.log('roleDataResponse', roleDataResponse);
-    
+
     // roleDataResponse is already the array of companies
     const roleDataComp = Array.isArray(roleDataResponse) ? roleDataResponse : [];
     console.log('roleDataComp', roleDataComp);
     console.log('roleDataComp length:', roleDataComp.length);
-    
+
     const isLoading = useSelector((state) => {
         const roleState = state?.roles || state?.role;
         return roleState?.isLoading || false;
@@ -58,12 +58,12 @@ const RoleUpgradeWhiteLabel = () => {
         console.log('roleDataComp:', roleDataComp);
         console.log('roleDataComp is array:', Array.isArray(roleDataComp));
         console.log('roleDataComp length:', roleDataComp?.length);
-        
+
         if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
             console.log('No companies found in roleDataComp');
             return [];
         }
-        
+
         // Flatten users from all companies
         const allUsers = [];
         roleDataComp.forEach((company, companyIndex) => {
@@ -75,7 +75,7 @@ const RoleUpgradeWhiteLabel = () => {
                 console.log(`  No users array found in company ${companyIndex}`);
             }
         });
-        
+
         console.log('Total users extracted:', allUsers.length);
         return allUsers;
     }, [roleDataComp]);
@@ -113,18 +113,18 @@ const RoleUpgradeWhiteLabel = () => {
                 page: 1, // Default page
                 paginate: 10 // Default paginate
             },
-            customSearch: debouncedSearchQuery.trim() ? { 
+            customSearch: debouncedSearchQuery.trim() ? {
                 name: debouncedSearchQuery.trim(),
-                mobileNo: debouncedSearchQuery.trim() 
+                mobileNo: debouncedSearchQuery.trim()
             } : {}
         };
-        
+
         console.log('=== Sending API Request ===');
         console.log('Payload being sent:', JSON.stringify(payload, null, 2));
         console.log('Active Filter:', activeFilter);
         console.log('KYC Status:', kycStatus);
         console.log('Search Query:', debouncedSearchQuery);
-        
+
         dispatch(roleDataCompanyUser(payload));
     }, [activeFilter, debouncedSearchQuery, dispatch]);
 
@@ -133,12 +133,12 @@ const RoleUpgradeWhiteLabel = () => {
         console.log('=== Formatting Table Data ===');
         console.log('roleDataList type:', Array.isArray(roleDataList) ? 'Array' : typeof roleDataList);
         console.log('roleDataList length:', roleDataList?.length);
-        
+
         if (!Array.isArray(roleDataList) || roleDataList.length === 0) {
             console.log('No data to format - returning empty array');
             return [];
         }
-        
+
         const formatted = roleDataList.map((user, index) => {
             // Format date from "2025-12-15T10:27:30.248Z" to "15-12-25" (DD-MM-YY)
             let formattedDate = '-';
@@ -154,7 +154,7 @@ const RoleUpgradeWhiteLabel = () => {
                     formattedDate = '-';
                 }
             }
-            
+
             // Map userRole codes to readable names
             const roleMap = {
                 'DI': 'Distributor',
@@ -162,7 +162,7 @@ const RoleUpgradeWhiteLabel = () => {
                 'MD': 'Master Distributor',
                 'EN': 'Enterprise'
             };
-            
+
             const formattedItem = {
                 // Table display fields
                 id: user.id || user._id || `row-${index}`,
@@ -175,7 +175,7 @@ const RoleUpgradeWhiteLabel = () => {
                 currentRole: roleMap[user.userRole] || user.userRole || '-',
                 upgradeRole: user.upgradeRole || user.requestedRole || '-',
                 userRole: user.userRole || '-', // Raw userRole for display
-                
+
                 // All user attributes from API response
                 userId: user.userId || null,
                 userRoleRaw: user.userRole || null,
@@ -188,25 +188,25 @@ const RoleUpgradeWhiteLabel = () => {
                 lock: user.lock || false,
                 onboardingTokenExpiresAt: user.onboardingTokenExpiresAt || null,
                 wallet: user.wallet || { mainWallet: 0, apesWallet: 0 },
-                
+
                 // Store full user object for modal (contains all attributes)
                 fullUserData: user
             };
-            
+
             if (index === 0) {
                 console.log('Sample raw user item:', user);
                 console.log('Sample formatted item:', formattedItem);
             }
-            
+
             return formattedItem;
         });
-        
+
         console.log('Total formatted items:', formatted.length);
         return formatted;
     };
 
     const tableData = formatTableData();
-    
+
     // Log table data whenever it changes
     useEffect(() => {
         console.log('=== Table Data ===');
@@ -370,10 +370,10 @@ const RoleUpgradeWhiteLabel = () => {
     const handleUpgradeClick = (row) => {
         const user = row.fullUserData || row;
         const userId = user.id || row.id;
-        
+
         console.log('Upgrade clicked for user ID:', userId);
         console.log('Full user data:', user);
-        
+
         // Map userRole codes to readable names
         const roleMap = {
             'DI': 'Distributor',
@@ -381,7 +381,7 @@ const RoleUpgradeWhiteLabel = () => {
             'MD': 'Master Distributor',
             'EN': 'Enterprise'
         };
-        
+
         setSelectedUser(user);
         setFormData({
             parentName: user.parentName || '',
@@ -488,9 +488,9 @@ const RoleUpgradeWhiteLabel = () => {
                                 className="w-10 h-10 rounded-xl bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
                             >
                                 <div className='border-[#FFFFFF] border-2 rounded-full p-0'>
-                                <X className="w-5 h-5" />
+                                    <X className="w-5 h-5" />
                                 </div>
-                              
+
                             </button>
                         </div>
 
@@ -501,16 +501,17 @@ const RoleUpgradeWhiteLabel = () => {
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
-                                        className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl bg-[#039155] text-[#FFFFFF] ${
-                                            activeTab === tab
+                                        className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl
+                ${activeTab === tab
                                                 ? 'bg-[#039155] text-white'
-                                                : 'text-gray-700 hover:text-gray-900'
-                                        }`}
+                                                : 'bg-transparent text-[#1B1717CC] hover:bg-[#039155]/10'
+                                            }`}
                                     >
                                         {tab}
                                     </button>
                                 ))}
                             </div>
+
                         </div>
 
                         {/* Tab Content */}
@@ -602,7 +603,7 @@ const RoleUpgradeWhiteLabel = () => {
                                             />
                                         </div>
                                     </div>
-                                    
+
                                     {/* Role Visualization */}
                                     <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">

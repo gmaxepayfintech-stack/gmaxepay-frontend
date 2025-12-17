@@ -167,7 +167,7 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
-               
+
         const response = await axios.post(
             `${API_ROUTE}/api/v1/company/user/list`,
             values,
@@ -178,7 +178,6 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
                 },
             }
         );
-
         const { data: roleDataComp, status, message } = response?.data ?? {};
         
         if (status === "SUCCESS") {
