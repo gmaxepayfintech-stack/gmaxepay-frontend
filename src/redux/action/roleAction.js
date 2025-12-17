@@ -166,34 +166,20 @@ export const roleDegradeMasterDistributor = (values) => async (dispatch) => {
 export const roleDataCompanyUser = (values) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
-        console.log('=== API Request (roleDataCompanyUser) ===');
-        console.log('Request URL:', `${API_ROUTE}/api/v1/company/user/list`);
-        console.log('Request Payload:', JSON.stringify(values, null, 2));
-        
+        const authToken = secureLocalStorage.getItem("userToken");
+               
         const response = await axios.post(
             `${API_ROUTE}/api/v1/company/user/list`,
             values,
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${authToken}`,
                 },
             }
         );
 
-        console.log('=== API Response (roleDataCompanyUser) ===');
-        console.log('Full response:', response);
-        console.log('Response data:', response?.data);
-        console.log('Response status:', response?.status);
-
         const { data: roleDataComp, status, message } = response?.data ?? {};
-        
-        console.log('Extracted values:');
-        console.log('- status:', status);
-        console.log('- message:', message);
-        console.log('- roleDataComp:', roleDataComp);
-        console.log('- roleDataComp type:', Array.isArray(roleDataComp) ? 'Array' : typeof roleDataComp);
-        console.log('- roleDataComp length:', roleDataComp?.length);
         
         if (status === "SUCCESS") {
             console.log('✅ SUCCESS - Dispatching ROLEDATA_COMPANY_USER_SUCCESS');
