@@ -518,7 +518,7 @@ const RoleUpgradeWhiteLabel = () => {
                             {activeTab === 'User Details' && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
-                                        <label className="block text-[14px] font-['Gilroy-SemiBold'] text-[#000000] mb-2">
+                                        <label className="block text-[14px] font-['Gilroy-Medium'] text-[#000000] mb-2">
                                             Parent Name
                                         </label>
                                         <input
@@ -527,7 +527,7 @@ const RoleUpgradeWhiteLabel = () => {
                                             value={formData.parentName}
                                             onChange={handleInputChange}
                                             placeholder="Enter Parent Name"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none  focus:ring-[#039155]"
                                         />
                                     </div>
                                     <div>
@@ -540,7 +540,7 @@ const RoleUpgradeWhiteLabel = () => {
                                             value={formData.userName}
                                             onChange={handleInputChange}
                                             placeholder="Enter User Name"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155]"
                                         />
                                     </div>
                                     <div>
