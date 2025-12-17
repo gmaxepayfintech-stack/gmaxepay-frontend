@@ -60,6 +60,7 @@ const RoleUpgradeWhiteLabel = () => {
     });
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
+    const tabs = ['User Details', 'Role Information', 'Status And Actions'];
 
     // Map status filter to kycStatus
     const getKycStatusFromFilter = (filter) => {
@@ -447,6 +448,23 @@ const RoleUpgradeWhiteLabel = () => {
         });
     };
 
+    const getActiveTabIndex = () => Math.max(0, tabs.indexOf(activeTab));
+
+    const handleBackStep = () => {
+        const idx = getActiveTabIndex();
+        if (idx === 0) {
+            handleCloseModal();
+            return;
+        }
+        setActiveTab(tabs[idx - 1]);
+    };
+
+    const handleNextStep = () => {
+        const idx = getActiveTabIndex();
+        if (idx >= tabs.length - 1) return;
+        setActiveTab(tabs[idx + 1]);
+    };
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData(prev => ({
@@ -462,8 +480,6 @@ const RoleUpgradeWhiteLabel = () => {
         // Close modal after save
         handleCloseModal();
     };
-
-    const tabs = ['User Details', 'Role Information', 'Status And Actions'];
 
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
@@ -539,7 +555,8 @@ const RoleUpgradeWhiteLabel = () => {
                                 {tabs.map((tab) => (
                                     <button
                                         key={tab}
-                                        onClick={() => setActiveTab(tab)}
+                                        type="button"
+                                        disabled
                                         className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl
                 ${activeTab === tab
                                                 ? 'bg-[#039155] text-white'
@@ -640,7 +657,7 @@ const RoleUpgradeWhiteLabel = () => {
 
                                         {/* Center dots - keep centered and slightly right */}
                                         <div className="flex-1 flex items-center justify-center">
-                                            <div className="flex items-center gap-[2px] translate-x-2">
+                                            <div className="flex items-center gap-[2px] -translate-x-4">
                                             {[...Array(5)].map((_, i) => (
                                                     <React.Fragment key={i}>
                                                         <div className="w-3 h-3 bg-[#039155] rounded-full" />
@@ -693,24 +710,23 @@ const RoleUpgradeWhiteLabel = () => {
                             )}
                         </div>
 
-                        {/* Modal Footer (fixed height for all tabs) */}
+                        {/* Modal Footer (Back / Next stepper) */}
                         <div className="flex justify-center gap-4 p-6 min-h-[88px]">
-                            {activeTab !== 'Status And Actions' && (
-                                <>
                             <button
-                                onClick={handleCloseModal}
-                                        className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
+                                type="button"
+                                onClick={handleBackStep}
+                                className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
                             >
-                                Cancel
+                                Back
                             </button>
                             <button
-                                onClick={handleSaveChanges}
-                                        className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition"
+                                type="button"
+                                onClick={handleNextStep}
+                                disabled={getActiveTabIndex() === tabs.length - 1}
+                                className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
                             >
-                                Save Changes
+                                Next
                             </button>
-                                </>
-                            )}
                         </div>
                     </div>
                 </div>
