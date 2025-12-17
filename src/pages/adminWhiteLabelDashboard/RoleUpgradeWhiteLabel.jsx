@@ -490,6 +490,42 @@ const RoleUpgradeWhiteLabel = () => {
         handleCloseModal();
     };
 
+    const handleApproveRequest = async () => {
+        const userId = selectedUser?.id;
+        const targetRole = Number(formData.requestedRole);
+
+        if (!userId) {
+            console.warn('Approve blocked: selectedUser.id not found', selectedUser);
+            return;
+        }
+
+        if (!formData.requestedRole) {
+            setActiveTab('Role Information');
+            setRequestedRoleError('Requested Role is required');
+            console.warn('Approve blocked: Requested Role not selected');
+            return;
+        }
+
+        if (Number.isNaN(targetRole)) {
+            console.warn('Approve blocked: targetRole is not a number', formData.requestedRole);
+            return;
+        }
+
+        const payload = { userId, targetRole };
+        console.log('=== Approve Request -> roleUpgradeCompanyUser (component) ===');
+        console.log('Payload:', payload);
+
+        try {
+            const response = await dispatch(roleUpgradeCompanyUser(payload));
+            console.log('=== roleUpgradeCompanyUser response (component) ===');
+            console.log(response);
+            handleCloseModal();
+        } catch (error) {
+            console.log('=== roleUpgradeCompanyUser error (component) ===');
+            console.error(error);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
             {/* Header Section */}
@@ -709,11 +745,7 @@ const RoleUpgradeWhiteLabel = () => {
                                                 Reject Request
                                             </button>
                                             <button
-                                                onClick={() => {
-                                                    console.log('Approve Request for user:', selectedUser?.id);
-                                                    // TODO: Add approve API call
-                                                    handleCloseModal();
-                                                }}
+                                                onClick={handleApproveRequest}
                                                 className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
                                             >
                                                 Approve Request
