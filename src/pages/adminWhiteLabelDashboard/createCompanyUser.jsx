@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaUpload } from "react-icons/fa";
+import { User, Sparkles } from "lucide-react";
 import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
 import { roleDataCompanyUser, roleUpgradeCompanyUser } from "../../redux/action/roleAction";
@@ -574,6 +575,37 @@ const CreateCompanyUser = () => {
                         {requestedRoleError && (
                           <p className="mt-1 text-sm text-red-500 font-medium">{requestedRoleError}</p>
                         )}
+                      </div>
+                    </div>
+
+                    {/* Role Visualization */}
+                    <div className="flex items-center justify-between py-6 px-2 bg-[#FAFAFA] rounded-lg">
+                      <div className="flex items-center gap-3 w-[220px]">
+                        <User className="w-6 h-6 text-[#039155]" />
+                        <span className="font-medium text-[#1B1717] truncate">
+                          {formData.currentRole || ''}
+                        </span>
+                      </div>
+
+                      {/* Center dots - keep centered and slightly right */}
+                      <div className="flex-1 flex items-center justify-center">
+                        <div className="flex items-center gap-[2px] -translate-x-4">
+                          {[...Array(5)].map((_, i) => (
+                            <React.Fragment key={i}>
+                              <div className="w-3 h-3 bg-[#039155] rounded-full" />
+                              {i < 4 && (
+                                <div className="w-4 h-[3px] bg-[#039155] opacity-80 rounded-full" />
+                              )}
+                            </React.Fragment>
+                          ))}
+                        </div>
+                      </div>
+
+                      <div className="flex items-center justify-end gap-3 w-[220px]">
+                        <Sparkles className="w-6 h-6 text-[#039155]" />
+                        <span className="font-medium text-[#1B1717] inline-block w-48 truncate">
+                          {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || ''}
+                        </span>
                       </div>
                     </div>
                   </div>
