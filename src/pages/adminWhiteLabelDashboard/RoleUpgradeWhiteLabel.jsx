@@ -127,11 +127,6 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Log Redux response whenever it changes
     useEffect(() => {
-        console.log('=== Role Data Response from Redux ===');
-        console.log('Full roleDataResponse:', roleDataResponse);
-        console.log('roleDataComp (raw):', roleDataComp);
-        console.log('roleDataList (flattened users):', roleDataList);
-        console.log('roleDataList length:', roleDataList?.length);
         if (roleDataList && roleDataList.length > 0) {
             console.log('First user in roleDataList:', roleDataList[0]);
         }
@@ -401,7 +396,7 @@ const RoleUpgradeWhiteLabel = () => {
                         ))
                     )}
                 </tbody>
-                </table>
+            </table>
             </div>
         );
     };
@@ -513,7 +508,7 @@ const RoleUpgradeWhiteLabel = () => {
             {/* Edit Role Request Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full h-[90vh] max-h-[90vh] flex flex-col">
+                    <div className="bg-white rounded-xl max-w-2xl w-full h-[30vh] max-h-[30vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-6 border-b">
                             <div className='flex-1 text-center'>
@@ -640,16 +635,16 @@ const RoleUpgradeWhiteLabel = () => {
 
                                         {/* Center dots - keep centered and slightly right */}
                                         <div className="flex-1 flex items-center justify-center">
-                                            <div className="flex items-center gap-[2px] translate-x-4">
-                                                {[...Array(5)].map((_, i) => (
+                                            <div className="flex items-center gap-[2px] -translate-x-[10px]">
+                                            {[...Array(5)].map((_, i) => (
                                                     <React.Fragment key={i}>
                                                         <div className="w-3 h-3 bg-[#039155] rounded-full" />
                                                         {i < 4 && (
                                                             <div className="w-4 h-[3px] bg-[#039155] opacity-80 rounded-full" />
                                                         )}
                                                     </React.Fragment>
-                                                ))}
-                                            </div>
+                                            ))}
+                                        </div>  
                                         </div>
 
                                         <div className="flex items-center justify-end gap-3 w-[220px]">
@@ -697,18 +692,18 @@ const RoleUpgradeWhiteLabel = () => {
                         <div className="flex justify-center gap-4 p-6 min-h-[88px]">
                             {activeTab !== 'Status And Actions' && (
                                 <>
-                                    <button
-                                        onClick={handleCloseModal}
+                            <button
+                                onClick={handleCloseModal}
                                         className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
-                                    >
-                                        Cancel
-                                    </button>
-                                    <button
-                                        onClick={handleSaveChanges}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={handleSaveChanges}
                                         className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition"
-                                    >
-                                        Save Changes
-                                    </button>
+                            >
+                                Save Changes
+                            </button>
                                 </>
                             )}
                         </div>
