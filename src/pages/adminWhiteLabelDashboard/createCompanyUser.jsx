@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { FaSearch, FaUpload } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import { useDispatch, useSelector } from "react-redux";
-import { roleDataCompanyUser } from "../../redux/action/roleAction";
+import { roleDataCompanyUser, roleUpgradeCompanyUser } from "../../redux/action/roleAction";
 
 import DistributorList from "./DistributorList";
 import MasterDistributerList from "./MasterDistributerList";
@@ -18,6 +18,46 @@ const CreateCompanyUser = () => {
   const [toDate, setToDate] = useState(() => new Date().toISOString().split("T")[0]);
 
   const [exportRows, setExportRows] = useState([]);
+
+  // Upgrade modal (same flow as RoleUpgradeWhiteLabel)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [activeTab, setActiveTab] = useState("User Details");
+  const [requestedRoleError, setRequestedRoleError] = useState("");
+
+  const requestedRoleOptions = [
+    { id: 3, label: "Master Distributor" },
+    { id: 4, label: "Distributor" },
+    { id: 5, label: "Retailer" },
+  ];
+
+  const tabs = ["User Details", "Role Information", "Status And Actions"];
+
+  const normalizeRequestedRoleId = (value) => {
+    if (value === null || value === undefined) return "";
+    if (typeof value === "number") return String(value);
+    const raw = String(value).trim();
+    if (!raw) return "";
+    if (/^\\d+$/.test(raw)) return raw;
+    const upper = raw.toUpperCase();
+    if (upper === "MD") return "3";
+    if (upper === "DI" || upper === "D") return "4";
+    if (upper === "RE" || upper === "R") return "5";
+    const lower = raw.toLowerCase();
+    if (lower.includes("master")) return "3";
+    if (lower.includes("retailer")) return "5";
+    if (lower.includes("distributor")) return "4";
+    return "";
+  };
+
+  const [formData, setFormData] = useState({
+    parentName: "",
+    userName: "",
+    mobileNumber: "",
+    emailId: "",
+    currentRole: "",
+    requestedRole: "",
+  });
 
   const getUserRoleFromNav = (nav) => {
     if (nav === "Master Distributor") return 3;
@@ -136,6 +176,7 @@ const CreateCompanyUser = () => {
         status: user.status || "-",
         lock: user.lock || false,
         wallet: user.wallet || { mainWallet: 0, apesWallet: 0 },
+        fullUserData: user,
       };
     });
   }, [roleDataList]);
@@ -183,6 +224,109 @@ const CreateCompanyUser = () => {
     );
   }, [filteredTableData]);
 
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (name === "requestedRole") setRequestedRoleError("");
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+    setSelectedUser(null);
+    setActiveTab("User Details");
+    setRequestedRoleError("");
+    setFormData({
+      parentName: "",
+      userName: "",
+      mobileNumber: "",
+      emailId: "",
+      currentRole: "",
+      requestedRole: "",
+    });
+  };
+
+  const handleUpgradeClick = (row) => {
+    const user = row?.fullUserData || row;
+
+    const roleMap = {
+      DI: "Distributor",
+      D: "Distributor",
+      RE: "Retailer",
+      R: "Retailer",
+      MD: "Master Distributor",
+      EN: "Enterprise",
+    };
+
+    setSelectedUser(user);
+    setFormData({
+      parentName: user?.parentName || row?.parentName || "",
+      userName: user?.name || row?.userName || "",
+      mobileNumber: user?.mobileNo || row?.mobileNumber || "",
+      emailId: user?.email || row?.emailId || "",
+      currentRole: roleMap[user?.userRole] || row?.currentRole || user?.userRole || "",
+      requestedRole: normalizeRequestedRoleId(user?.upgradeRole || user?.requestedRole || row?.upgradeRole),
+    });
+    setIsModalOpen(true);
+    setActiveTab("User Details");
+  };
+
+  const getActiveTabIndex = () => Math.max(0, tabs.indexOf(activeTab));
+
+  const handleBackStep = () => {
+    const idx = getActiveTabIndex();
+    if (idx === 0) {
+      handleCloseModal();
+      return;
+    }
+    setActiveTab(tabs[idx - 1]);
+  };
+
+  const handleNextStep = () => {
+    const idx = getActiveTabIndex();
+    if (activeTab === "Role Information" && !formData.requestedRole) {
+      setRequestedRoleError("Requested Role is required");
+      return;
+    }
+    if (idx >= tabs.length - 1) return;
+    setActiveTab(tabs[idx + 1]);
+  };
+
+  const handleApproveRequest = async () => {
+    const userId = selectedUser?.id;
+    const targetRole = Number(formData.requestedRole);
+
+    if (!userId) {
+      console.warn("Approve blocked: selectedUser.id not found", selectedUser);
+      return;
+    }
+
+    if (!formData.requestedRole) {
+      setActiveTab("Role Information");
+      setRequestedRoleError("Requested Role is required");
+      console.warn("Approve blocked: Requested Role not selected");
+      return;
+    }
+
+    if (Number.isNaN(targetRole)) {
+      console.warn("Approve blocked: targetRole is not a number", formData.requestedRole);
+      return;
+    }
+
+    const payload = { userId, targetRole };
+    console.log("=== Approve Request -> roleUpgradeCompanyUser (CreateCompanyUser) ===");
+    console.log("Payload:", payload);
+
+    try {
+      const response = await dispatch(roleUpgradeCompanyUser(payload));
+      console.log("=== roleUpgradeCompanyUser response (CreateCompanyUser) ===");
+      console.log(response);
+      handleCloseModal();
+    } catch (error) {
+      console.log("=== roleUpgradeCompanyUser error (CreateCompanyUser) ===");
+      console.error(error);
+    }
+  };
+
   const handleExportToExcel = () => {
     if (!exportRows || exportRows.length === 0) {
       alert("No data available to export");
@@ -206,6 +350,7 @@ const CreateCompanyUser = () => {
       searchTerm: debouncedSearchTerm,
       tableData: filteredTableData,
       isLoading,
+      onUpgradeClick: handleUpgradeClick,
     }),
     [statusFilter, fromDate, toDate, debouncedSearchTerm, filteredTableData, isLoading]
   );
@@ -324,6 +469,162 @@ const CreateCompanyUser = () => {
 
         {/* List Content */}
         {renderContent()}
+
+        {/* Upgrade Modal */}
+        {isModalOpen && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+            <div className="bg-white rounded-xl max-w-2xl w-full h-[80vh] max-h-[80vh] flex flex-col">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between p-6 border-b">
+                <div className="flex-1 text-center">
+                  <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#000000]">Edit Role Request</h2>
+                  {selectedUser?.id && (
+                    <p className="text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-[12px]">
+                      Request ID: #{selectedUser.id}
+                    </p>
+                  )}
+                </div>
+                <button
+                  type="button"
+                  onClick={handleCloseModal}
+                  className="w-10 h-10 rounded-xl bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
+                >
+                  <span className="border-[#FFFFFF] border-2 rounded-full px-2 py-0 leading-none">×</span>
+                </button>
+              </div>
+
+              {/* Tabs (display only) */}
+              <div className="px-6 py-4">
+                <div className="flex gap-4 rounded-lg border-2 border-[#1B1717] border-opacity-50 p-2">
+                  {tabs.map((tab) => (
+                    <button
+                      key={tab}
+                      type="button"
+                      disabled
+                      className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl ${
+                        activeTab === tab ? "bg-[#039155] text-white" : "bg-transparent text-[#1B1717] text-opacity-80"
+                      }`}
+                    >
+                      {tab}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Tab Content */}
+              <div className="p-6 flex-1 overflow-y-auto">
+                {activeTab === "User Details" && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[14px] font-['Gilroy-Medium'] text-[#000000] mb-2">Parent Name</label>
+                      <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                        {formData.parentName || "-"}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#1B1717] mb-2">User Name</label>
+                      <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                        {formData.userName || "-"}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#1B1717] mb-2">Mobile Number</label>
+                      <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                        {formData.mobileNumber || "-"}
+                      </div>
+                    </div>
+                    <div>
+                      <label className="block text-sm font-medium text-[#1B1717] mb-2">Email Id</label>
+                      <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                        {formData.emailId || "-"}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "Role Information" && (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-sm font-medium text-[#1B1717] mb-2">Current Role</label>
+                        <input
+                          type="text"
+                          name="currentRole"
+                          value={formData.currentRole}
+                          onChange={handleInputChange}
+                          disabled
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-sm font-medium text-[#1B1717] mb-2">Requested Role</label>
+                        <select
+                          name="requestedRole"
+                          value={formData.requestedRole}
+                          onChange={handleInputChange}
+                          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#039155]"
+                        >
+                          <option value="">Select Requested Role</option>
+                          {requestedRoleOptions.map((opt) => (
+                            <option key={opt.id} value={String(opt.id)}>
+                              {opt.label}
+                            </option>
+                          ))}
+                        </select>
+                        {requestedRoleError && (
+                          <p className="mt-1 text-sm text-red-500 font-medium">{requestedRoleError}</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {activeTab === "Status And Actions" && (
+                  <div className="space-y-6">
+                    <div>
+                      <h3 className="text-lg font-medium text-[#1B1717] mb-4">Quick Actions</h3>
+                      <div className="flex gap-4">
+                        <button
+                          type="button"
+                          onClick={handleCloseModal}
+                          className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition"
+                        >
+                          Reject Request
+                        </button>
+                        <button
+                          type="button"
+                          onClick={handleApproveRequest}
+                          className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                        >
+                          Approve Request
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Footer (Back / Next) */}
+              <div className="flex justify-center gap-4 p-6 min-h-[88px] border-t">
+                <button
+                  type="button"
+                  onClick={handleBackStep}
+                  className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
+                >
+                  Back
+                </button>
+                <button
+                  type="button"
+                  onClick={handleNextStep}
+                  disabled={getActiveTabIndex() === tabs.length - 1}
+                  className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
 
-const MasterDistributerList = ({ tableData = [], isLoading = false }) => {
+const MasterDistributerList = ({ tableData = [], isLoading = false, onUpgradeClick }) => {
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -91,7 +91,15 @@ const MasterDistributerList = ({ tableData = [], isLoading = false }) => {
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.mobileNumber}</td>
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.emailId}</td>
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.currentRole}</td>
-                <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.upgradeRole}</td>
+                <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                  <button
+                    type="button"
+                    onClick={() => onUpgradeClick?.(row)}
+                    className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
+                  >
+                    {row.upgradeRole && row.upgradeRole !== "-" ? row.upgradeRole : "Upgrade"}
+                  </button>
+                </td>
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.userId}</td>
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.parentRole}</td>
                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">{row.company}</td>
@@ -116,4 +124,5 @@ export default MasterDistributerList;
 MasterDistributerList.propTypes = {
   tableData: PropTypes.array,
   isLoading: PropTypes.bool,
+  onUpgradeClick: PropTypes.func,
 };
