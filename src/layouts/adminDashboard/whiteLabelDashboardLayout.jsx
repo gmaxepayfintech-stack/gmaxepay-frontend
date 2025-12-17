@@ -125,6 +125,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       children: [
         { name: "Users", path: "/adminDashboard/members/add" },
         { name: "Agents", path: "/adminDashboard/members/list" },
+        { name: "Role Upgrade", path: "/adminDashboard/members/roleUpgrade" },
       ],
     },
     {
@@ -133,7 +134,6 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       dropdown: true,
       children: [
         { name: "Resource List", path: "/adminDashboard/resources/list" },
-        { name: "Role Upgrade", path: "/adminDashboard/resources/roleUpgrade" },
       ],
     },
     {
