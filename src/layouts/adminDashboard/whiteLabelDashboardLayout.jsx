@@ -123,7 +123,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       dropdown: true,
       path: "/adminDashboard/members",
       children: [
-        { name: "Users", path: "/adminDashboard/members/add" },
+        { name: "Users", path: "/adminDashboard/members/companyUser" },
         { name: "Agents", path: "/adminDashboard/members/list" },
         { name: "Role Upgrade", path: "/adminDashboard/members/roleUpgrade" },
       ],
