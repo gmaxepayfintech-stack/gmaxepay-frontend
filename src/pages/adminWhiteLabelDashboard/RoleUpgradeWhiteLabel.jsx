@@ -615,7 +615,7 @@ const RoleUpgradeWhiteLabel = () => {
                                                 name="requestedRole"
                                                 value={formData.requestedRole}
                                                 onChange={handleInputChange}
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-[#039155]"
                                             >
                                                 <option value="">Select Requested Role</option>
                                                 {requestedRoleOptions.map((opt) => (
@@ -628,24 +628,35 @@ const RoleUpgradeWhiteLabel = () => {
                                     </div>
 
                                     {/* Role Visualization */}
-                                    <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
-                                        <div className="flex items-center gap-3">
-                                            <User className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717]">
+                                    <div className="flex items-center justify-between p-6 bg-white rounded-2xl border border-gray-200">
+                                        {/* Left: current role */}
+                                        <div className="flex items-center gap-4 w-56">
+                                            <div className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                                <User className="w-5 h-5 text-gray-500" />
+                                            </div>
+                                            <span className="font-medium text-[#1B1717] truncate">
                                                 {formData.currentRole || '-'}
                                             </span>
                                         </div>
-                                        <div className="flex items-center gap-1">
-                                            {[...Array(5)].map((_, i) => (
-                                                <div
-                                                    key={i}
-                                                    className="w-2 h-2 bg-[#039155] rounded-full"
-                                                />
-                                            ))}
+
+                                        {/* Center: progress dots */}
+                                        <div className="flex-1 flex items-center justify-center">
+                                            <div className="flex items-center">
+                                                {[...Array(5)].map((_, i) => (
+                                                    <React.Fragment key={i}>
+                                                        <div className="w-3 h-3 bg-[#039155] rounded-full" />
+                                                        {i < 4 && <div className="w-8 h-[2px] bg-[#039155] opacity-70" />}
+                                                    </React.Fragment>
+                                                ))}
+                                            </div>
                                         </div>
-                                        <div className="flex items-center gap-3">
-                                            <Sparkles className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717]">
+
+                                        {/* Right: requested role */}
+                                        <div className="flex items-center justify-end gap-4 w-56">
+                                            <div className="w-12 h-12 rounded-full bg-white border border-gray-200 flex items-center justify-center">
+                                                <Sparkles className="w-5 h-5 text-gray-500" />
+                                            </div>
+                                            <span className="font-medium text-[#1B1717] inline-block w-48 truncate text-right">
                                                 {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || '-'}
                                             </span>
                                         </div>
@@ -689,7 +700,7 @@ const RoleUpgradeWhiteLabel = () => {
                             <div className="flex justify-center gap-4 p-6 ">
                                 <button
                                     onClick={handleCloseModal}
-                                    className="px-6 py-2 border-2 border-[#1B1717] border-opacity-80 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
+                                    className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
                                 >
                                     Cancel
                                 </button>
