@@ -513,7 +513,7 @@ const RoleUpgradeWhiteLabel = () => {
             {/* Edit Role Request Modal */}
             {isModalOpen && (
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                    <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+                    <div className="bg-white rounded-xl max-w-2xl w-full h-[90vh] max-h-[90vh] flex flex-col">
                         {/* Modal Header */}
                         <div className="flex items-center justify-between p-6 border-b">
                             <div className='flex-1 text-center'>
@@ -554,7 +554,7 @@ const RoleUpgradeWhiteLabel = () => {
                         </div>
 
                         {/* Tab Content */}
-                        <div className="p-6">
+                        <div className="p-6 flex-1 overflow-y-auto">
                             {activeTab === 'User Details' && (
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                     <div>
@@ -693,23 +693,25 @@ const RoleUpgradeWhiteLabel = () => {
                             )}
                         </div>
 
-                        {/* Modal Footer (not for Status And Actions tab) */}
-                        {activeTab !== 'Status And Actions' && (
-                            <div className="flex justify-center gap-4 p-6 ">
-                                <button
-                                    onClick={handleCloseModal}
-                                    className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    onClick={handleSaveChanges}
-                                    className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition"
-                                >
-                                    Save Changes
-                                </button>
-                            </div>
-                        )}
+                        {/* Modal Footer (fixed height for all tabs) */}
+                        <div className="flex justify-center gap-4 p-6 min-h-[88px]">
+                            {activeTab !== 'Status And Actions' && (
+                                <>
+                                    <button
+                                        onClick={handleCloseModal}
+                                        className="px-6 py-2 border-2 border-[#1B1717] border-opacity-50 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleSaveChanges}
+                                        className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition"
+                                    >
+                                        Save Changes
+                                    </button>
+                                </>
+                            )}
+                        </div>
                     </div>
                 </div>
             )}
