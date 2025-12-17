@@ -559,57 +559,33 @@ const RoleUpgradeWhiteLabel = () => {
                                         <label className="block text-[14px] font-['Gilroy-Medium'] text-[#000000] mb-2">
                                             Parent Name
                                         </label>
-                                        <input
-                                            type="text"
-                                            name="parentName"
-                                            value={formData.parentName}
-                                            onChange={handleInputChange}
-                                            disabled={isPrefilledUser}
-                                            placeholder="Enter Parent Name"
-                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                                        />
+                                        <div className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg bg-gray-50 text-[#1B1717]">
+                                            {formData.parentName || '-'}
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             User Name
                                         </label>
-                                        <input
-                                            type="text"
-                                            name="userName"
-                                            value={formData.userName}
-                                            onChange={handleInputChange}
-                                            disabled={isPrefilledUser}
-                                            placeholder="Enter User Name"
-                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                                        />
+                                        <div className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg bg-gray-50 text-[#1B1717]">
+                                            {formData.userName || '-'}
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             Mobile Number
                                         </label>
-                                        <input
-                                            type="text"
-                                            name="mobileNumber"
-                                            value={formData.mobileNumber}
-                                            onChange={handleInputChange}
-                                            disabled={isPrefilledUser}
-                                            placeholder="Enter Mobile Number"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                                        />
+                                        <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717]">
+                                            {formData.mobileNumber || '-'}
+                                        </div>
                                     </div>
                                     <div>
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             Email Id
                                         </label>
-                                        <input
-                                            type="email"
-                                            name="emailId"
-                                            value={formData.emailId}
-                                            onChange={handleInputChange}
-                                            disabled={isPrefilledUser}
-                                            placeholder="Enter Email Id"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
-                                        />
+                                        <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717]">
+                                            {formData.emailId || '-'}
+                                        </div>
                                     </div>
                                 </div>
                             )}
@@ -655,7 +631,9 @@ const RoleUpgradeWhiteLabel = () => {
                                     <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
                                         <div className="flex items-center gap-3">
                                             <User className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717]">Retailer</span>
+                                            <span className="font-medium text-[#1B1717]">
+                                                {formData.currentRole || '-'}
+                                            </span>
                                         </div>
                                         <div className="flex items-center gap-1">
                                             {[...Array(5)].map((_, i) => (
@@ -667,7 +645,9 @@ const RoleUpgradeWhiteLabel = () => {
                                         </div>
                                         <div className="flex items-center gap-3">
                                             <Sparkles className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717]">Distributor</span>
+                                            <span className="font-medium text-[#1B1717]">
+                                                {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || '-'}
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -704,21 +684,23 @@ const RoleUpgradeWhiteLabel = () => {
                             )}
                         </div>
 
-                        {/* Modal Footer */}
-                        <div className="flex justify-end gap-4 p-6 border-t">
-                            <button
-                                onClick={handleCloseModal}
-                                className="px-6 py-2 border-2 border-[#039155] text-[#039155] rounded-lg font-medium hover:bg-gray-50 transition"
-                            >
-                                Cancel
-                            </button>
-                            <button
-                                onClick={handleSaveChanges}
-                                className="px-6 py-2 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
-                            >
-                                Save Changes
-                            </button>
-                        </div>
+                        {/* Modal Footer (not for Status And Actions tab) */}
+                        {activeTab !== 'Status And Actions' && (
+                            <div className="flex justify-center gap-4 p-6 border-t">
+                                <button
+                                    onClick={handleCloseModal}
+                                    className="px-6 py-2 border-2 border-[#039155] text-[#039155] rounded-lg font-medium hover:bg-gray-50 transition"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={handleSaveChanges}
+                                    className="px-6 py-2 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                                >
+                                    Save Changes
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
             )}
