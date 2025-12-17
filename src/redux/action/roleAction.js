@@ -2,7 +2,7 @@ import axios from "axios";
 import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE} from "../../data/env";
 import { LOADING_END, LOADING_START } from "../actionType/loadingActionType";
-import { ROLE_DEGRADE_COMPANY_USER_FAILURE, ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_COMPANY_USER_FAILURE, ROLEDATA_COMPANY_USER_SUCCESS, ROLEDATA_MASTER_DISTRIBUTOR_FAILURE, ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS } from "../actionType/roleActionType";
+import { ROLE_DEGRADE_COMPANY_USER_FAILURE, ROLE_DEGRADE_COMPANY_USER_SUCCESS, ROLE_DEGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_DEGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLE_UPGRADE_COMPANY_USER_FAILURE, ROLE_UPGRADE_COMPANY_USER_SUCCESS, ROLE_UPGRADE_MASTER_DISTRIBUTOR_FAILURE, ROLE_UPGRADE_MASTER_DISTRIBUTOR_SUCCESS, ROLEDATA_COMPANY_USER_FAILURE, ROLEDATA_COMPANY_USER_SUCCESS, ROLEDATA_MASTER_DISTRIBUTOR_FAILURE, ROLEDATA_MASTER_DISTRIBUTOR_SUCCESS } from "../actionType/roleActionType";
 const commonError = "Something went Wrong";
 const token = secureLocalStorage.getItem("userToken");
 
@@ -10,37 +10,49 @@ const token = secureLocalStorage.getItem("userToken");
 export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
+        const authToken = secureLocalStorage.getItem("userToken");
+        console.log('=== API Request (roleUpgradeCompanyUser) ===');
+        console.log('Payload:', values);
         const response = await axios.post(
             `${API_ROUTE}/api/v1/company/user/upgradeUser`,
             values,
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${String(authToken ?? '')}`,
                 },
             }
         );
 
         const { data: roleComp, status, message } = response?.data ?? {};
+        console.log('=== API Response (roleUpgradeCompanyUser) ===');
+        console.log('Response:', response?.data);
         if (status === "SUCCESS") {
             dispatch({
                 type: ROLE_UPGRADE_COMPANY_USER_SUCCESS,
                 payload: { roleComp, status, message },
             });
+            return response?.data;
         } else {
             dispatch({
-                type: ROLE_DEGRADE_COMPANY_USER_FAILURE,
+                type: ROLE_UPGRADE_COMPANY_USER_FAILURE,
                 payload: {
                     status: response?.data?.status ?? "FAILURE",
                     message: response?.data?.message ?? commonError,
                 },
             });
+            return response?.data;
         }
     } catch (error) {
+        console.log('=== API Error (roleUpgradeCompanyUser) ===');
+        console.error('Error:', error);
+        console.error('Error response:', error.response);
+        console.error('Error message:', error.message);
         dispatch({
-            type: ROLE_DEGRADE_COMPANY_USER_FAILURE,
+            type: ROLE_UPGRADE_COMPANY_USER_FAILURE,
             payload: error.response ? error.response.data.message : error.message,
         });
+        throw error;
     } finally {
         dispatch({ type: LOADING_END });
     }
@@ -55,7 +67,7 @@ export const roleDegradeCompanyUser = (values) => async (dispatch) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${String(token ?? '')}`,
                 },
             }
         );
@@ -94,7 +106,7 @@ export const roleUpgradeMasterDistributor = (values) => async (dispatch) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${String(token ?? '')}`,
                 },
             }
         );
@@ -133,7 +145,7 @@ export const roleDegradeMasterDistributor = (values) => async (dispatch) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${String(token ?? '')}`,
                 },
             }
         );
@@ -174,7 +186,7 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${authToken}`,
+                    Authorization: `Bearer ${String(authToken ?? '')}`,
                 },
             }
         );
@@ -219,7 +231,7 @@ export const roleDataMasterDistributorUser = (values) => async (dispatch) => {
             {
                 headers: {
                     "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
+                    Authorization: `Bearer ${String(token ?? '')}`,
                 },
             }
         );
