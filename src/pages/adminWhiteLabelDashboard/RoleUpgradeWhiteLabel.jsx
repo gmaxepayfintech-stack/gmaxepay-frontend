@@ -628,20 +628,14 @@ const RoleUpgradeWhiteLabel = () => {
                                     </div>
 
                                     {/* Role Visualization */}
-                                    <div className="flex items-center justify-between py-8 px-10 bg-[#EFEFEF] rounded-2xl">
-                                        {/* Left: current role */}
-                                        <div className="flex items-center gap-5 w-[260px]">
-                                            <div className="w-14 h-14 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                                                <User className="w-6 h-6 text-gray-500" />
-                                            </div>
-                                            <span className="font-medium text-gray-700 truncate">
+                                    <div className="flex items-center justify-between py-6 px-4 bg-gray-50 rounded-lg">
+                                        <div className="flex items-center gap-3">
+                                            <User className="w-6 h-6 text-[#039155]" />
+                                            <span className="font-medium text-[#1B1717]">
                                                 {formData.currentRole || '-'}
                                             </span>
                                         </div>
-
-                                        {/* Center: progress dots */}
-                                        <div className="flex-1 flex items-center justify-center">
-                                            <div className="flex items-center">
+                                        <div className="flex items-center">
                                                 {[...Array(5)].map((_, i) => (
                                                     <React.Fragment key={i}>
                                                         <div className="w-3 h-3 bg-[#039155] rounded-full" />
@@ -649,14 +643,9 @@ const RoleUpgradeWhiteLabel = () => {
                                                     </React.Fragment>
                                                 ))}
                                             </div>
-                                        </div>
-
-                                        {/* Right: requested role */}
-                                        <div className="flex items-center justify-end gap-5 w-[260px]">
-                                            <div className="w-14 h-14 rounded-full bg-[#F7F7F7] flex items-center justify-center">
-                                                <Sparkles className="w-6 h-6 text-gray-500" />
-                                            </div>
-                                            <span className="font-medium text-gray-700 inline-block w-[170px] truncate text-left">
+                                        <div className="flex items-center gap-3">
+                                            <Sparkles className="w-6 h-6 text-[#039155]" />
+                                            <span className="font-medium text-[#1B1717] inline-block w-48 truncate">
                                                 {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || '-'}
                                             </span>
                                         </div>
