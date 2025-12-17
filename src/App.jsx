@@ -90,8 +90,15 @@ function App() {
     (state) => state?.creditCard?.success || null
   );
  
-  const roleUpgradeSuccess = useSelector((state)=>state?.userProfile);
-  console.log("roleUpgradeSuccess", roleUpgradeSuccess);
+  const roleUpgradeSuccess = useSelector((state) => {
+    const roleState = state?.roles || state?.role;
+    return roleState?.success === "SUCCESS" ? { message: roleState?.message } : null;
+  });
+  
+  const roleUpgradeError = useSelector((state) => {
+    const roleState = state?.roles || state?.role;
+    return roleState?.error ? { message: roleState?.error || roleState?.message } : null;
+  });
 
   const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
 );
@@ -205,7 +212,17 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
         isCritical: true,
       });
     }
-  }, [roleUpgradeSuccess]);
+  }, [roleUpgradeSuccess, showNotification]);
+
+  useEffect(() => {
+    if (roleUpgradeError?.message) {
+      showNotification({
+        type: "error",
+        message: roleUpgradeError?.message,
+        isCritical: true,
+      });
+    }
+  }, [roleUpgradeError, showNotification]);
 
   useEffect(() => {
     if(OnboardingLink?.message) {

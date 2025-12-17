@@ -12,7 +12,7 @@ import RetailerList from "./RetailerList";
 const CreateCompanyUser = () => {
   const dispatch = useDispatch();
   const [activeNav, setActiveNav] = useState("Master Distributor");
-  const [statusFilter, setStatusFilter] = useState("Completed"); // Completed | Pending
+  const [statusFilter, setStatusFilter] = useState("Completed"); 
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
