@@ -12,6 +12,43 @@ const RoleUpgradeWhiteLabel = () => {
     const [selectedUser, setSelectedUser] = useState(null);
     const [activeTab, setActiveTab] = useState('User Details');
 
+    // If user details are loaded from API/table row, don't allow editing.
+    const isPrefilledUser = Boolean(selectedUser);
+
+    // Requested Role dropdown mapping (label + id)
+    const requestedRoleOptions = [
+        { id: 3, label: 'Master Distributor' },
+        { id: 4, label: 'Distributor' },
+        { id: 5, label: 'Retailer' }
+    ];
+
+    const normalizeRequestedRoleId = (value) => {
+        if (value === null || value === undefined) return '';
+
+        // If backend already sends a number/id
+        if (typeof value === 'number') return String(value);
+
+        const raw = String(value).trim();
+        if (!raw) return '';
+
+        // If backend sends "3"/"4"/"5"
+        if (/^\d+$/.test(raw)) return raw;
+
+        const upper = raw.toUpperCase();
+        // If backend sends codes like MD/DI/RE
+        if (upper === 'MD') return '3';
+        if (upper === 'DI') return '4';
+        if (upper === 'RE') return '5';
+
+        // If backend sends names
+        const lower = raw.toLowerCase();
+        if (lower.includes('master')) return '3';
+        if (lower.includes('retailer')) return '5';
+        if (lower.includes('distributor')) return '4';
+
+        return '';
+    };
+
     // Form state for modal
     const [formData, setFormData] = useState({
         parentName: '',
@@ -389,7 +426,7 @@ const RoleUpgradeWhiteLabel = () => {
             mobileNumber: user.mobileNo || '',
             emailId: user.email || '',
             currentRole: roleMap[user.userRole] || user.userRole || '',
-            requestedRole: user.upgradeRole || user.requestedRole || ''
+            requestedRole: normalizeRequestedRoleId(user.upgradeRole || user.requestedRole)
         });
         setIsModalOpen(true);
         setActiveTab('User Details');
@@ -504,7 +541,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         className={`px-2 py-3 font-['Gilroy-SemiBold'] text-[16px] transition flex-1 rounded-xl
                 ${activeTab === tab
                                                 ? 'bg-[#039155] text-white'
-                                                : 'bg-transparent text-[#1B1717CC] hover:bg-[#039155]/10'
+                                                : 'bg-transparent text-[#1B1717] text-opacity-80'
                                             }`}
                                     >
                                         {tab}
@@ -527,8 +564,9 @@ const RoleUpgradeWhiteLabel = () => {
                                             name="parentName"
                                             value={formData.parentName}
                                             onChange={handleInputChange}
+                                            disabled={isPrefilledUser}
                                             placeholder="Enter Parent Name"
-                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none  focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -540,8 +578,9 @@ const RoleUpgradeWhiteLabel = () => {
                                             name="userName"
                                             value={formData.userName}
                                             onChange={handleInputChange}
+                                            disabled={isPrefilledUser}
                                             placeholder="Enter User Name"
-                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg focus:outline-none focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -553,8 +592,9 @@ const RoleUpgradeWhiteLabel = () => {
                                             name="mobileNumber"
                                             value={formData.mobileNumber}
                                             onChange={handleInputChange}
+                                            disabled={isPrefilledUser}
                                             placeholder="Enter Mobile Number"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                         />
                                     </div>
                                     <div>
@@ -566,8 +606,9 @@ const RoleUpgradeWhiteLabel = () => {
                                             name="emailId"
                                             value={formData.emailId}
                                             onChange={handleInputChange}
+                                            disabled={isPrefilledUser}
                                             placeholder="Enter Email Id"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                         />
                                     </div>
                                 </div>
@@ -585,22 +626,28 @@ const RoleUpgradeWhiteLabel = () => {
                                                 name="currentRole"
                                                 value={formData.currentRole}
                                                 onChange={handleInputChange}
+                                            disabled={isPrefilledUser}
                                                 placeholder="Enter Current Role"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                                 Requested Role
                                             </label>
-                                            <input
-                                                type="text"
-                                                name="requestedRole"
-                                                value={formData.requestedRole}
-                                                onChange={handleInputChange}
-                                                placeholder="Enter Requested Role"
-                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
-                                            />
+                                        <select
+                                            name="requestedRole"
+                                            value={formData.requestedRole}
+                                            onChange={handleInputChange}
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                        >
+                                            <option value="">Select Requested Role</option>
+                                            {requestedRoleOptions.map((opt) => (
+                                                <option key={opt.id} value={String(opt.id)}>
+                                                    {opt.label} (ID: {opt.id})
+                                                </option>
+                                            ))}
+                                        </select>
                                         </div>
                                     </div>
 
