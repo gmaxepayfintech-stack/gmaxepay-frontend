@@ -559,7 +559,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <label className="block text-[14px] font-['Gilroy-Medium'] text-[#000000] mb-2">
                                             Parent Name
                                         </label>
-                                        <div className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg bg-gray-50 text-[#1B1717]">
+                                        <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                                             {formData.parentName || '-'}
                                         </div>
                                     </div>
@@ -567,7 +567,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             User Name
                                         </label>
-                                        <div className="w-full px-4 py-2 border border-[#1B1717] border-opacity-80 rounded-lg bg-gray-50 text-[#1B1717]">
+                                        <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                                             {formData.userName || '-'}
                                         </div>
                                     </div>
@@ -575,7 +575,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             Mobile Number
                                         </label>
-                                        <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717]">
+                                        <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                                             {formData.mobileNumber || '-'}
                                         </div>
                                     </div>
@@ -583,7 +583,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                             Email Id
                                         </label>
-                                        <div className="w-full px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717]">
+                                        <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                                             {formData.emailId || '-'}
                                         </div>
                                     </div>
@@ -602,28 +602,28 @@ const RoleUpgradeWhiteLabel = () => {
                                                 name="currentRole"
                                                 value={formData.currentRole}
                                                 onChange={handleInputChange}
-                                            disabled={isPrefilledUser}
+                                                disabled={isPrefilledUser}
                                                 placeholder="Enter Current Role"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] disabled:bg-gray-100 disabled:text-gray-500 disabled:cursor-not-allowed"
                                             />
                                         </div>
                                         <div>
                                             <label className="block text-sm font-medium text-[#1B1717] mb-2">
                                                 Requested Role
                                             </label>
-                                        <select
-                                            name="requestedRole"
-                                            value={formData.requestedRole}
-                                            onChange={handleInputChange}
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
-                                        >
-                                            <option value="">Select Requested Role</option>
-                                            {requestedRoleOptions.map((opt) => (
-                                                <option key={opt.id} value={String(opt.id)}>
-                                                    {opt.label} (ID: {opt.id})
-                                                </option>
-                                            ))}
-                                        </select>
+                                            <select
+                                                name="requestedRole"
+                                                value={formData.requestedRole}
+                                                onChange={handleInputChange}
+                                                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                                            >
+                                                <option value="">Select Requested Role</option>
+                                                {requestedRoleOptions.map((opt) => (
+                                                    <option key={opt.id} value={String(opt.id)}>
+                                                        {opt.label} (ID: {opt.id})
+                                                    </option>
+                                                ))}
+                                            </select>
                                         </div>
                                     </div>
 
@@ -686,16 +686,16 @@ const RoleUpgradeWhiteLabel = () => {
 
                         {/* Modal Footer (not for Status And Actions tab) */}
                         {activeTab !== 'Status And Actions' && (
-                            <div className="flex justify-center gap-4 p-6 border-t">
+                            <div className="flex justify-center gap-4 p-6 ">
                                 <button
                                     onClick={handleCloseModal}
-                                    className="px-6 py-2 border-2 border-[#039155] text-[#039155] rounded-lg font-medium hover:bg-gray-50 transition"
+                                    className="px-6 py-2 border-2 border-[#1B1717] border-opacity-80 text-[18px] text-[#1B1717] text-opacity-80 rounded-xl font-['Gilroy-Medium'] hover:bg-gray-50 transition"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={handleSaveChanges}
-                                    className="px-6 py-2 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                                    className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition"
                                 >
                                     Save Changes
                                 </button>
