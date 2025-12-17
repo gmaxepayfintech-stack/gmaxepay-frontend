@@ -58,6 +58,7 @@ const RoleUpgradeWhiteLabel = () => {
         currentRole: '',
         requestedRole: ''
     });
+    const [requestedRoleError, setRequestedRoleError] = useState('');
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
     const tabs = ['User Details', 'Role Information', 'Status And Actions'];
@@ -438,6 +439,7 @@ const RoleUpgradeWhiteLabel = () => {
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setSelectedUser(null);
+        setRequestedRoleError('');
         setFormData({
             parentName: '',
             userName: '',
@@ -461,12 +463,19 @@ const RoleUpgradeWhiteLabel = () => {
 
     const handleNextStep = () => {
         const idx = getActiveTabIndex();
+        if (activeTab === 'Role Information' && !formData.requestedRole) {
+            setRequestedRoleError('Requested Role is required');
+            return;
+        }
         if (idx >= tabs.length - 1) return;
         setActiveTab(tabs[idx + 1]);
     };
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
+        if (name === 'requestedRole') {
+            setRequestedRoleError('');
+        }
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -643,6 +652,11 @@ const RoleUpgradeWhiteLabel = () => {
                                                     </option>
                                                 ))}
                                             </select>
+                                            {requestedRoleError && (
+                                                <p className="mt-1 text-sm text-red-500 font-medium">
+                                                    {requestedRoleError}
+                                                </p>
+                                            )}
                                         </div>
                                     </div>
 
