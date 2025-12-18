@@ -24,7 +24,14 @@ export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
             }
         );
 
-        const { data: roleComp, status, message } = response?.data ?? {};
+        const apiResponse = response?.data ?? {};
+        const roleComp = apiResponse?.data;
+        const status = apiResponse?.status;
+        const message =
+            apiResponse?.message ??
+            apiResponse?.data?.message ??
+            apiResponse?.data?.msg ??
+            commonError;
         console.log('=== API Response (roleUpgradeCompanyUser) ===');
         console.log('Response:', response?.data);
         if (status === "SUCCESS") {
@@ -37,8 +44,8 @@ export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
             dispatch({
                 type: ROLE_UPGRADE_COMPANY_USER_FAILURE,
                 payload: {
-                    status: response?.data?.status ?? "FAILURE",
-                    message: response?.data?.message ?? commonError,
+                    status: apiResponse?.status ?? "FAILURE",
+                    message,
                 },
             });
             return response?.data;
@@ -48,9 +55,17 @@ export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
         console.error('Error:', error);
         console.error('Error response:', error.response);
         console.error('Error message:', error.message);
+        const errorPayload = {
+            status: "FAILURE",
+            message:
+                error?.response?.data?.message ??
+                error?.response?.data?.error ??
+                error?.message ??
+                commonError,
+        };
         dispatch({
             type: ROLE_UPGRADE_COMPANY_USER_FAILURE,
-            payload: error.response ? error.response.data.message : error.message,
+            payload: errorPayload,
         });
         throw error;
     } finally {
