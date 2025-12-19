@@ -1,4 +1,4 @@
-import { AEPS_TERMS_CONDITION_OTP_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_STATUS_CHECK_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS } from "../actionType/aepsActionType";
   
   const initialState = {
     loading: false,
@@ -22,6 +22,16 @@ import { AEPS_TERMS_CONDITION_OTP_SUCCESS } from "../actionType/aepsActionType";
           success:action.payload.status,
           message:action.payload.message,
         }; 
+
+        case AEPS_STATUS_CHECK_SUCCESS:
+            return{
+                ...state,
+                aepsStatus: action.payload,
+                loading: false,
+                error: null,
+                success:action.payload.status,
+                message:action.payload.message,
+            }
    
   
       default:
