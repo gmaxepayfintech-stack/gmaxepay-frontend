@@ -1,19 +1,44 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerification from "./BiometricVerification";
+import { getUserProfile } from "../../redux/action/userProfileAction";
 
-const OTP_LENGTH = 6;
+const OTP_LENGTH = 7;
 
 const IdentityVerification = ({ onBack }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
     const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
     const [touchedSubmit, setTouchedSubmit] = useState(false);
     const [showBiometric, setShowBiometric] = useState(false);
     const inputsRef = useRef([]);
 
-    const phone = "+91 98765 00001";
+    // Call getUserProfile on component mount
+    useEffect(() => {
+        dispatch(getUserProfile()).then((response) => {
+            console.log("getUserProfile response in IdentityVerification:", response);
+        }).catch((error) => {
+            console.error("getUserProfile error in IdentityVerification:", error);
+        });
+    }, [dispatch]);
+
+    // Format mobile number for display
+    const formatPhoneNumber = (mobile) => {
+        if (!mobile) return "+91 00000 00000";
+        // Remove any non-digit characters
+        const digits = mobile.replace(/\D/g, "");
+        // Format as +91 XXXXX XXXXX
+        if (digits.length === 10) {
+            return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+        }
+        return `+91 ${mobile}`;
+    };
+
+    const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
 
     const otpValue = useMemo(() => otp.join(""), [otp]);
 
@@ -114,7 +139,7 @@ const IdentityVerification = ({ onBack }) => {
                         Enter Verification Code
                     </div>
                     <div className="mt-[16px] text-[16px] text-[#000000] text font-['Gilroy-Medium']">
-                        We've Sent A 6-Digit Code To
+                        We've Sent A 7-Digit Code To
                     </div>
                     <div className="mt-[12px] text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
                         {phone}
