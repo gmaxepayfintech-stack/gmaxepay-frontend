@@ -1,8 +1,10 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import StartCapture from "../../../public/img/StartCapture.svg";
 import AEPSAccessConfirm from "./AEPSAccessConfirm";
+import { aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -10,10 +12,20 @@ const EyeIcon = "/img/Eye.svg";
 
 const FAVerification = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [mode, setMode] = useState("fingerprint"); // fingerprint | iris
   const [deviceConnected] = useState(true);
   const [comingSoon, setComingSoon] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
+
+  // Call aepsStatusCheck on component mount
+  useEffect(() => {
+    dispatch(aepsStatusCheck()).then((response) => {
+      console.log("aepsStatusCheck response in FAVerification:", response);
+    }).catch((error) => {
+      console.error("aepsStatusCheck error in FAVerification:", error);
+    });
+  }, [dispatch]);
 
   const modeTabs = useMemo(
     () => [
