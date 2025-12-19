@@ -72,7 +72,10 @@ function App() {
   );
 
   console.log("aepsStatusCheckSuccess",aepsStatusCheckSuccess);
-  
+  const aepsStatusCheck = useSelector(
+    (state) => state?.aeps || null
+  );
+  console.log("aepsStatusCheck",aepsStatusCheck);
   
   const moneyTransfer = useSelector(
     (state) => state?.moneyTransfer?.success || null
