@@ -28,6 +28,16 @@ const IdentityVerification = ({ onBack }) => {
         });
     }, [dispatch]);
 
+    // Countdown timer effect
+    useEffect(() => {
+        if (resendTimer > 0) {
+            const timer = setTimeout(() => {
+                setResendTimer(resendTimer - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendTimer]);
+
     // Format mobile number for display
     const formatPhoneNumber = (mobile) => {
         if (!mobile) return "+91 00000 00000";
@@ -102,17 +112,27 @@ const IdentityVerification = ({ onBack }) => {
             const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
             console.log("aepsSubmitOTP response:", response);
             
-            // After successful OTP submission, check status
+            // Check status regardless of success or failure
+            try {
+                const statusResponse = await dispatch(aepsStatusCheck());
+                console.log("aepsStatusCheck response after OTP submit:", statusResponse);
+            } catch (statusError) {
+                console.error("aepsStatusCheck error after OTP submit:", statusError);
+            }
+            
+            // Only navigate to next step if OTP submission was successful
             if (response?.status === "SUCCESS") {
-                await dispatch(aepsStatusCheck()).then((statusResponse) => {
-                    console.log("aepsStatusCheck response after OTP submit:", statusResponse);
-                }).catch((error) => {
-                    console.error("aepsStatusCheck error after OTP submit:", error);
-                });
                 setShowBiometric(true);
             }
         } catch (error) {
             console.error("aepsSubmitOTP error:", error);
+            // Check status even on error
+            try {
+                const statusResponse = await dispatch(aepsStatusCheck());
+                console.log("aepsStatusCheck response after OTP submit error:", statusResponse);
+            } catch (statusError) {
+                console.error("aepsStatusCheck error after OTP submit error:", statusError);
+            }
             // Handle error (you might want to show an error message to the user)
         }
     };
