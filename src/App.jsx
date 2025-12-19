@@ -42,6 +42,7 @@ function App() {
   const { showNotification } = useNotification();
   const { loading } = useCompany();
   const dispatch = useDispatch();
+  const lastAepsStatusRef = useRef(null);
   const error = useSelector((state) => state?.error?.error || null);
   const success = useSelector((state) => state?.employee?.success || null);
   const userSuccess = useSelector((state) => state?.user?.success || null);
