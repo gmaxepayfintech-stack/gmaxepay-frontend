@@ -66,6 +66,17 @@ function App() {
   const specialDomfailure = useSelector(
     (state) => state?.recharge?.specialData || null
   );
+
+  const aepsStatusCheckSuccess = useSelector(
+    (state) => state?.aeps?.aepsStatus || null
+  );
+
+  console.log("aepsStatusCheckSuccess",aepsStatusCheckSuccess);
+  const aepsStatusCheck = useSelector(
+    (state) => state?.aeps || null
+  );
+  console.log("aepsStatusCheck",aepsStatusCheck);
+  
   const moneyTransfer = useSelector(
     (state) => state?.moneyTransfer?.success || null
   );
@@ -174,6 +185,15 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [specialDomSuccess]);
+
+  useEffect(() => {
+    if (aepsStatusCheckSuccess) {
+      showNotification({
+        type: "success",
+        message: aepsStatusCheckSuccess.message,
+      });
+    }
+  }, [aepsStatusCheckSuccess]);
 
   useEffect(() => {
     if (operatorSuccess) {
