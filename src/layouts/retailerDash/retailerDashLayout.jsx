@@ -27,7 +27,6 @@ const RetailerDashLayout = ({ children }) => {
   const { email, name, unauthorized, error } = useSelector(
     (state) => state.userProfile
   );
-  const userProfile = useSelector((state) => state.userProfile);
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -38,17 +37,8 @@ const RetailerDashLayout = ({ children }) => {
 
   // Fetch user profile on component mount
   useEffect(() => {
-    dispatch(getUserProfile()).then((response) => {
-      console.log("getUserProfile response:", response);
-    }).catch((error) => {
-      console.error("getUserProfile error:", error);
-    });
+    dispatch(getUserProfile());
   }, [dispatch]);
-
-  // Log userProfile state when it changes
-  useEffect(() => {
-    console.log("userProfile state:", userProfile);
-  }, [userProfile]);
 
   // Handle unauthorized token expiration - redirect to login
   useEffect(() => {
