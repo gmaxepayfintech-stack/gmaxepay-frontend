@@ -50,10 +50,12 @@ const OnBoardingAeps = () => {
             daily2FAAuthentication
         });
 
-        // Check in order of flow
+        // If aepsOnboarding is pending, show welcome screen
         if (aepsOnboarding?.status === "pending" && !aepsOnboarding?.isCompleted) {
-            return "aepsAcceptance";
+            return null; // Show welcome screen
         }
+
+        // Check for other pending steps - navigate directly to them
         if (validateAgentOtp?.status === "pending" && !validateAgentOtp?.isCompleted) {
             return "identityVerification";
         }
@@ -64,12 +66,16 @@ const OnBoardingAeps = () => {
             return "faVerification";
         }
         // All completed - show Selectservice
-        return "selectService";
+        if (aepsOnboarding?.status === "SUCCESS" && validateAgentOtp?.status === "SUCCESS" && 
+            bioMetricVerification?.status === "SUCCESS" && daily2FAAuthentication?.status === "SUCCESS") {
+            return "selectService";
+        }
+        return null; // Default: show welcome screen
     };
 
     const currentStep = getCurrentStep();
 
-    // Conditional rendering based on status
+    // Conditional rendering based on status (skip initial screen check)
     if (currentStep === "identityVerification") {
         return <IdentityVerification onBack={() => setShowAcceptance(false)} />;
     }
@@ -82,7 +88,8 @@ const OnBoardingAeps = () => {
     if (currentStep === "selectService") {
         return <Selectservice />;
     }
-    if (currentStep === "aepsAcceptance" || showAcceptance) {
+    // Show AepsAcceptance only when button is clicked
+    if (showAcceptance) {
         return <AepsAcceptance />;
     }
     return (
