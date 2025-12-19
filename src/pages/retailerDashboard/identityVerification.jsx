@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerification from "./BiometricVerification";
 import { getUserProfile } from "../../redux/action/userProfileAction";
+import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const OTP_LENGTH = 7;
 
@@ -15,6 +16,7 @@ const IdentityVerification = ({ onBack }) => {
     const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
     const [touchedSubmit, setTouchedSubmit] = useState(false);
     const [showBiometric, setShowBiometric] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0); // Timer in seconds
     const inputsRef = useRef([]);
 
     // Call getUserProfile on component mount
@@ -83,7 +85,7 @@ const IdentityVerification = ({ onBack }) => {
         if (e.key === "ArrowRight" && idx < OTP_LENGTH - 1) focusIndex(idx + 1);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setTouchedSubmit(true);
 
@@ -95,10 +97,47 @@ const IdentityVerification = ({ onBack }) => {
             return;
         }
 
-        // TODO: hook up API verify
-        // eslint-disable-next-line no-console
-        console.log("OTP submit:", otpValue);
-        setShowBiometric(true);
+        try {
+            // Submit OTP in the required format
+            const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
+            console.log("aepsSubmitOTP response:", response);
+            
+            // After successful OTP submission, check status
+            if (response?.status === "SUCCESS") {
+                await dispatch(aepsStatusCheck()).then((statusResponse) => {
+                    console.log("aepsStatusCheck response after OTP submit:", statusResponse);
+                }).catch((error) => {
+                    console.error("aepsStatusCheck error after OTP submit:", error);
+                });
+                setShowBiometric(true);
+            }
+        } catch (error) {
+            console.error("aepsSubmitOTP error:", error);
+            // Handle error (you might want to show an error message to the user)
+        }
+    };
+
+    const handleResendOTP = async () => {
+        if (resendTimer > 0) return; // Don't allow resend if timer is active
+
+        try {
+            const response = await dispatch(aepsRescendOTP());
+            console.log("aepsRescendOTP response:", response);
+            
+            if (response?.status === "SUCCESS") {
+                // Start 3-minute countdown (180 seconds)
+                setResendTimer(180);
+            }
+        } catch (error) {
+            console.error("aepsRescendOTP error:", error);
+        }
+    };
+
+    // Format timer display (MM:SS)
+    const formatTimer = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
     if (showBiometric) {
@@ -146,7 +185,7 @@ const IdentityVerification = ({ onBack }) => {
                     </div>
 
                     {/* OTP Inputs */}
-                    <div className="mt-[32px] flex items-center justify-center gap-[42px]">
+                    <div className="mt-[32px] flex items-center justify-center gap-6">
                         {otp.map((digit, idx) => (
                             (() => {
                                 const showError = touchedSubmit && !String(digit).trim();
@@ -172,9 +211,18 @@ const IdentityVerification = ({ onBack }) => {
                     <div className="mt-[28px] text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
                         Didn't Receive The Code?
                     </div>
-                    <div className="mt-[12px] text-[16px] font-['Gilroy-Medium'] text-[#000000]">
-                        Resend In 0s
-                    </div>
+                    <button
+                        type="button"
+                        onClick={handleResendOTP}
+                        disabled={resendTimer > 0}
+                        className={`mt-[12px] text-[16px] font-['Gilroy-Medium'] transition ${
+                            resendTimer > 0
+                                ? "text-gray-400 cursor-not-allowed"
+                                : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+                        }`}
+                    >
+                        {resendTimer > 0 ? `Resend In ${formatTimer(resendTimer)}` : "Resend OTP"}
+                    </button>
 
                     <button
                         type="submit"
