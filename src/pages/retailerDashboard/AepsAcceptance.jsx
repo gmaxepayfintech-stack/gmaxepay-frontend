@@ -19,15 +19,14 @@ const AepsAcceptance = () => {
     const [showIdentityVerification, setShowIdentityVerification] = useState(false);
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
+    // Call aepsStatusCheck on component mount
     useEffect(() => {
-        if (!aepsStatus?.aepsStatus) {
-            dispatch(aepsStatusCheck()).then((response) => {
-                console.log("aepsStatusCheck response (fallback in AepsAcceptance):", response);
-            }).catch((error) => {
-                console.error("aepsStatusCheck error (fallback in AepsAcceptance):", error);
-            });
-        }
-    }, [dispatch, aepsStatus]);
+        dispatch(aepsStatusCheck()).then((response) => {
+            console.log("aepsStatusCheck response in AepsAcceptance:", response);
+        }).catch((error) => {
+            console.error("aepsStatusCheck error in AepsAcceptance:", error);
+        });
+    }, [dispatch]);
 
     // Log aepsStatus when it changes
     useEffect(() => {
