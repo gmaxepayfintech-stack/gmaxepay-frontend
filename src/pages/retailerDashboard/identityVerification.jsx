@@ -228,21 +228,23 @@ const IdentityVerification = ({ onBack }) => {
                         ))}
                     </div>
 
-                    <div className="mt-[28px] text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
-                        Didn't Receive The Code?
+                    <div className="mt-[28px]">
+                        <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+                            Didn't Receive The Code?
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleResendOTP}
+                            disabled={resendTimer > 0}
+                            className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
+                                resendTimer > 0
+                                    ? "text-gray-400 cursor-not-allowed"
+                                    : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+                            }`}
+                        >
+                            {resendTimer > 0 ? `Resend In ${formatTimer(resendTimer)}` : "Resend OTP"}
+                        </button>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleResendOTP}
-                        disabled={resendTimer > 0}
-                        className={`mt-[12px] text-[16px] font-['Gilroy-Medium'] transition ${
-                            resendTimer > 0
-                                ? "text-gray-400 cursor-not-allowed"
-                                : "text-[#039155] hover:text-[#027A47] cursor-pointer"
-                        }`}
-                    >
-                        {resendTimer > 0 ? `Resend In ${formatTimer(resendTimer)}` : "Resend OTP"}
-                    </button>
 
                     <button
                         type="submit"
