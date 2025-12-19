@@ -19,8 +19,6 @@ const AepsAcceptance = () => {
     const [showIdentityVerification, setShowIdentityVerification] = useState(false);
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
-    // Call aepsStatusCheck on component mount only if status is not already available
-    // (Status should already be checked in Services.jsx when AEPS card is clicked)
     useEffect(() => {
         if (!aepsStatus?.aepsStatus) {
             dispatch(aepsStatusCheck()).then((response) => {
