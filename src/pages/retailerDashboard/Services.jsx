@@ -1,7 +1,9 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
+import { aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const DEFAULT_DESCRIPTION =
     "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -57,11 +59,28 @@ ServiceCard.propTypes = {
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
         return servicesData.filter((s) => s.status === key);
     }, [activeTab]);
+
+    // Handle AEPS card click - check status and navigate accordingly
+    const handleAepsClick = async () => {
+        try {
+            const response = await dispatch(aepsStatusCheck());
+            console.log("aepsStatusCheck response in Services:", response);
+            
+            // Navigate to onboarding-aeps route
+            // The AepsAcceptance component will handle conditional rendering based on status
+            navigate("/retailerDashboard/onboarding-aeps");
+        } catch (error) {
+            console.error("aepsStatusCheck error in Services:", error);
+            // Still navigate even on error, let AepsAcceptance handle it
+            navigate("/retailerDashboard/onboarding-aeps");
+        }
+    };
 
     return (
         <div className="w-full">
@@ -116,7 +135,9 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") navigate("/retailerDashboard/onboarding-aeps");
+                            if (s.id === "Aeps") {
+                                handleAepsClick();
+                            }
                         }}
                     />
                 ))}
