@@ -14,7 +14,7 @@ import {
   EmployeeDashboard,
 } from "@/layouts";
 import "@/styles/globals.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PrivacyPolicy from "./mainPage/privacyPolicy";
@@ -182,13 +182,20 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [specialDomSuccess]);
 
   useEffect(() => {
-    if (aepsStatusCheck?.message) {
-      showNotification({
-        type: "success",
-        message: aepsStatusCheck?.message,
-      });
+    if (aepsStatusCheck?.success === "SUCCESS" && aepsStatusCheck?.message && aepsStatusCheck?.aepsStatus) {
+      // Only show notification if it's a new status update (prevent duplicate notifications)
+      const currentStatus = JSON.stringify(aepsStatusCheck?.aepsStatus);
+      if (lastAepsStatusRef.current !== currentStatus) {
+        lastAepsStatusRef.current = currentStatus;
+        console.log("Showing aepsStatusCheck notification:", aepsStatusCheck?.message);
+        showNotification({
+          type: "success",
+          message: aepsStatusCheck?.message,
+          duration: 3000,
+        });
+      }
     }
-  }, [aepsStatusCheck]);
+  }, [aepsStatusCheck, showNotification]);
 
   useEffect(() => {
     if (operatorSuccess) {
