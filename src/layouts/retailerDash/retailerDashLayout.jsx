@@ -152,7 +152,7 @@ const RetailerDashLayout = ({ children }) => {
     {
       name: "Services",
       icon: MaskGroup5,
-      path: "/superDashboard/services",
+      path: "/retailerDashboard/services",
       dropdown: false,
     },
   ];
