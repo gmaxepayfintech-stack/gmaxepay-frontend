@@ -67,11 +67,6 @@ function App() {
     (state) => state?.recharge?.specialData || null
   );
 
-  const aepsStatusCheckSuccess = useSelector(
-    (state) => state?.aeps?.aepsStatus || null
-  );
-
-  console.log("aepsStatusCheckSuccess",aepsStatusCheckSuccess);
   const aepsStatusCheck = useSelector(
     (state) => state?.aeps || null
   );
@@ -187,13 +182,13 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [specialDomSuccess]);
 
   useEffect(() => {
-    if (aepsStatusCheckSuccess) {
+    if (aepsStatusCheck?.message) {
       showNotification({
         type: "success",
-        message: aepsStatusCheckSuccess.message,
+        message: aepsStatusCheck?.message,
       });
     }
-  }, [aepsStatusCheckSuccess]);
+  }, [aepsStatusCheck]);
 
   useEffect(() => {
     if (operatorSuccess) {
