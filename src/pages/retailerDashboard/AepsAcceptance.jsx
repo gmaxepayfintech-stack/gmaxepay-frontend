@@ -1,26 +1,93 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import Mobile from "../../../public/img/Mobile.svg";
 import Daily2FA from "../../../public/img/DailyF2A.svg";
 import Biometric from "../../../public/img/Biometric.svg";
 import IdentityVerification from "./identityVerification";
-import { aepsTermsConditionOtp } from "../../redux/action/aepsAction";
+import BiometricVerification from "./BiometricVerification";
+import FAVerification from "./FAVerification";
+import Selectservice from "./Selectservice";
+import { aepsTermsConditionOtp, aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const AepsAcceptance = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { aepsStatus } = useSelector((state) => state.aeps || {});
     const [accepted, setAccepted] = useState(true);
     const [showIdentityVerification, setShowIdentityVerification] = useState(false);
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
-    const terms = useMemo(
+    // Call aepsStatusCheck on component mount
+    useEffect(() => {
+        dispatch(aepsStatusCheck()).then((response) => {
+            console.log("aepsStatusCheck response:", response);
+        }).catch((error) => {
+            console.error("aepsStatusCheck error:", error);
+        });
+    }, [dispatch]);
 
+    // Log aepsStatus when it changes
+    useEffect(() => {
+        if (aepsStatus?.aepsStatus) {
+            console.log("aepsStatus state:", aepsStatus.aepsStatus);
+        }
+    }, [aepsStatus]);
 
+    // Determine which component to show based on status
+    const getCurrentStep = () => {
+        if (!aepsStatus?.aepsStatus) {
+            return null; // Still loading or no data
+        }
 
+        // aepsStatus.aepsStatus is the data object from API response
+        const statusData = aepsStatus.aepsStatus;
+        const {
+            aepsOnboarding,
+            validateAgentOtp,
+            bioMetricVerification,
+            daily2FAAuthentication
+        } = statusData;
 
+        console.log("Current onboarding statuses:", {
+            aepsOnboarding,
+            validateAgentOtp,
+            bioMetricVerification,
+            daily2FAAuthentication
+        });
 
-        
-        () => [
+        // Check in order of flow
+        if (aepsOnboarding?.status === "pending" && !aepsOnboarding?.isCompleted) {
+            return "aepsAcceptance";
+        }
+        if (validateAgentOtp?.status === "pending" && !validateAgentOtp?.isCompleted) {
+            return "identityVerification";
+        }
+        if (bioMetricVerification?.status === "pending" && !bioMetricVerification?.isCompleted) {
+            return "biometricVerification";
+        }
+        if (daily2FAAuthentication?.status === "pending" && !daily2FAAuthentication?.isCompleted) {
+            return "faVerification";
+        }
+        // All completed - show Selectservice
+        return "selectService";
+    };
+
+    const currentStep = getCurrentStep();
+
+    const handleAcceptAndContinue = async () => {
+        try {
+            const response = await dispatch(aepsTermsConditionOtp());
+            console.log("aepsTermsConditionOtp response:", response);
+            // After successful OTP, show identity verification
+            setShowIdentityVerification(true);
+        } catch (error) {
+            console.error("aepsTermsConditionOtp error:", error);
+        }
+    };
+
+    const terms = useMemo(() => [
             {
                 title: "Acceptance Of Terms",
                 body:
@@ -40,9 +107,20 @@ const AepsAcceptance = () => {
         []
     );
 
-    if (showIdentityVerification) {
+    // Conditional rendering based on status
+    if (currentStep === "identityVerification" || showIdentityVerification) {
         return <IdentityVerification onBack={() => setShowIdentityVerification(false)} />;
     }
+    if (currentStep === "biometricVerification") {
+        return <BiometricVerification />;
+    }
+    if (currentStep === "faVerification") {
+        return <FAVerification />;
+    }
+    if (currentStep === "selectService") {
+        return <Selectservice />;
+    }
+    // Default: show AepsAcceptance (when aepsOnboarding is pending or no status yet)
 
     return (
         <div className="w-full">
