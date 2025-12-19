@@ -5,6 +5,7 @@ import Mobile from "../../../public/img/Mobile.svg";
 import Daily2FA from "../../../public/img/DailyF2A.svg";
 import Biometric from "../../../public/img/Biometric.svg";
 import IdentityVerification from "./identityVerification";
+import { aepsTermsConditionOtp } from "../../redux/action/aepsAction";
 
 const AepsAcceptance = () => {
     const navigate = useNavigate();
@@ -13,6 +14,12 @@ const AepsAcceptance = () => {
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
     const terms = useMemo(
+
+
+
+
+
+        
         () => [
             {
                 title: "Acceptance Of Terms",
@@ -162,7 +169,7 @@ const AepsAcceptance = () => {
                 <button
                     type="button"
                     disabled={!accepted}
-                    onClick={() => setShowIdentityVerification(true)}
+                    onClick={handleAcceptAndContinue}
                     className="flex items-center justify-between bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg px-6 py-2 text-[14px] font-['Gilroy-Medium'] transition md:w-[260px] sm:w-[260px]"
                 >
                     <span className="text-[16px] font-['Gilroy-SemiBold'] text-[#FFFFFF]">Accept And Continue</span>

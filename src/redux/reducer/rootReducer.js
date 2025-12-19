@@ -9,6 +9,7 @@ import whiteLabelReducer from './whiteLabelReducer';
 import errorReducer from './errorReducer';
 import retailerOnboardingReducer from './retailerOnboardingReducer';
 import roleReducer from './roleReducer';
+import aepsReducer from './aepsReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -19,6 +20,7 @@ const rootReducer = combineReducers({
     userProfile: userProfileReducer,
     whitelabel:whiteLabelReducer,
     retailerOnboarding: retailerOnboardingReducer,
+    aeps: aepsReducer,
     roles:roleReducer,
     error:errorReducer
 });
