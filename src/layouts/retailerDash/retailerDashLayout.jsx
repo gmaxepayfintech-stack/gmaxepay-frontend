@@ -148,7 +148,13 @@ const RetailerDashLayout = ({ children }) => {
       path: "/superDashboard/tax-history",
       dropdown: false,
     },
-  
+
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/superDashboard/services",
+      dropdown: false,
+    },
   ];
 
   return (
@@ -278,7 +284,7 @@ const RetailerDashLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-0 bg-white px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow-sm">
+        <header className="sticky top-0 bg-[#FAFAFA]  px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20">
           <div className="flex items-center gap-3">
             <button
               className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
