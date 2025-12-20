@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../public/img/StartCapture.svg";
 import FAVerification from "./FAVerification";
+import AEPSAccessConfirm from "./AEPSAccessConfirm";
 import { aepsOnboardingBiometricVerification, aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
@@ -17,6 +18,7 @@ const BiometricVerification = () => {
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
   const [show2FA, setShow2FA] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // RD Service states
   const [rdBaseUrl, setRdBaseUrl] = useState("");
@@ -39,6 +41,46 @@ const BiometricVerification = () => {
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
+
+  /* -------------------------------------------
+      CHECK IF ALL STATUS IS COMPLETED
+  --------------------------------------------*/
+  const checkIfAllStatusCompleted = (statusData) => {
+    if (!statusData) {
+      return false;
+    }
+
+    // Check all required steps are completed based on response structure
+    const aepsOnboarding = statusData?.aepsOnboarding;
+    const validateAgentOtp = statusData?.validateAgentOtp;
+    const bioMetricVerification = statusData?.bioMetricVerification;
+    const daily2FAAuthentication = statusData?.daily2FAAuthentication;
+
+    // Check if all four steps are completed
+    const isAepsOnboardingCompleted = 
+      aepsOnboarding?.status?.toLowerCase() === "completed" && 
+      aepsOnboarding?.isCompleted === true;
+
+    const isValidateAgentOtpCompleted = 
+      validateAgentOtp?.status?.toLowerCase() === "completed" && 
+      validateAgentOtp?.isCompleted === true;
+
+    const isBioMetricVerificationCompleted = 
+      bioMetricVerification?.status?.toLowerCase() === "completed" && 
+      bioMetricVerification?.isCompleted === true;
+
+    const isDaily2FAAuthenticationCompleted = 
+      daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
+      daily2FAAuthentication?.isCompleted === true;
+
+    const allCompleted = 
+      isAepsOnboardingCompleted &&
+      isValidateAgentOtpCompleted &&
+      isBioMetricVerificationCompleted &&
+      isDaily2FAAuthenticationCompleted;
+
+    return allCompleted;
+  };
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -258,6 +300,21 @@ const BiometricVerification = () => {
           dispatch(aepsStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
+              
+              // Extract status data from response
+              const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
+              
+              if (aepsStatusData) {
+                // Check if all status is completed
+                const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+                
+                if (isAllCompleted) {
+                  console.log("✅ All AEPS status completed, showing confirm page");
+                  setShowConfirm(true);
+                } else {
+                  console.log("📋 Some steps still pending");
+                }
+              }
             })
             .catch((error) => {
               console.error("❌ AEPS Status check error:", error);
@@ -292,9 +349,21 @@ const BiometricVerification = () => {
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
       console.log("AEPS Status updated:", aepsStatus);
-      // You can add navigation or UI updates here based on status
+      
+      // Extract status data from Redux state
+      const aepsStatusData = aepsStatus?.aepsStatus?.data || aepsStatus?.data || aepsStatus?.aepsStatus;
+      
+      if (aepsStatusData) {
+        // Check if all status is completed
+        const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+        
+        if (isAllCompleted && !showConfirm) {
+          console.log("✅ All AEPS status completed (from Redux), showing confirm page");
+          setShowConfirm(true);
+        }
+      }
     }
-  }, [aepsStatus]);
+  }, [aepsStatus, showConfirm]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -327,6 +396,11 @@ const BiometricVerification = () => {
     ],
     []
   );
+
+  // Show AEPSAccessConfirm if all status is completed
+  if (showConfirm) {
+    return <AEPSAccessConfirm />;
+  }
 
   if (show2FA) {
     return <FAVerification />;
