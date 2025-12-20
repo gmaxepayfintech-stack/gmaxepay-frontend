@@ -53,7 +53,7 @@ const Selectservice = () => {
     { key: "statement", label: "Statement" },
   ];
 
-  // Validation schema
+  // Validation schema (pidData validation removed as it will be captured on withdrawal)
   const validationSchema = Yup.object({
     selectedBank: Yup.object()
       .nullable()
@@ -63,7 +63,7 @@ const Selectservice = () => {
       .test("is-valid-amount", "Amount must be greater than 0", (value) => {
         if (!value) return false;
         const numericValue = value.replaceAll(",", "");
-        return numericValue && parseFloat(numericValue) > 0;
+        return numericValue && Number.parseFloat(numericValue) > 0;
       }),
     aadhaarNumber: Yup.string()
       .required("Aadhaar number is required")
@@ -71,8 +71,6 @@ const Selectservice = () => {
     mobileNumber: Yup.string()
       .required("Mobile number is required")
       .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
-    pidData: Yup.string()
-      .required("Please capture fingerprint first"),
   });
 
   // Formik setup
@@ -82,10 +80,10 @@ const Selectservice = () => {
       selectedAmount: "1000",
       aadhaarNumber: "",
       mobileNumber: "",
-      pidData: "",
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
+      // Validation is handled in button onClick, this won't be called directly
       await handleWithdrawal(values);
     },
   });
@@ -290,7 +288,6 @@ const Selectservice = () => {
         console.log("✅ PID Data captured successfully, errCode:", errCode);
         console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
-        formik.setFieldValue("pidData", captureText);
         setIsScanning(false);
       } else {
         // Reset progress on failure - thumb was not on device or capture failed
@@ -401,94 +398,92 @@ const Selectservice = () => {
     formik.setFieldValue("mobileNumber", mobileNumber);
   }, [mobileNumber, formik]);
 
-  useEffect(() => {
-    formik.setFieldValue("pidData", pidData);
-  }, [pidData, formik]);
 
-  // Handle withdrawal - captures fingerprint if needed, then calls API
+  // Handle withdrawal - validates, captures fingerprint, then calls API
   const handleWithdrawal = async (values) => {
-    const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile, pidData: pid } = values;
+    const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
 
-    // If pidData doesn't exist, capture fingerprint first
-    if (!pid || pid.trim() === "") {
-      if (!deviceConnected) {
-        alert("Device not connected. Please check device first.");
-        return;
-      }
-      
-      // Trigger capture
-      try {
-        setDeviceMessage("Capturing fingerprint for withdrawal...");
-        setIsScanning(true);
-        setScanProgress(0);
+    // Check if device is connected
+    if (!deviceConnected) {
+      alert("Device not connected. Please check device first.");
+      return;
+    }
 
-        // Start progress animation
-        const totalDuration = 10000;
-        const updateInterval = 100;
-        const incrementPerUpdate = (100 / (totalDuration / updateInterval));
-        let currentProgress = 0;
-        const progressInterval = setInterval(() => {
-          currentProgress += incrementPerUpdate;
-          if (currentProgress >= 100) {
-            currentProgress = 100;
-            clearInterval(progressInterval);
-          }
-          setScanProgress(currentProgress);
-        }, updateInterval);
+    if (!rdBaseUrl) {
+      alert("Device not ready. Please check device first.");
+      return;
+    }
 
-        const pidOptions = `<?xml version="1.0"?>
-          <PidOptions ver="1.0">
-            <Opts 
-              fCount="1"
-              fType="0"
-              format="0"
-              pidVer="2.0"
-              timeout="10000"
-              env="P"
-            />
-          </PidOptions>
-        `;
+    // Start fingerprint capture
+    try {
+      setDeviceMessage("Capturing fingerprint for withdrawal...");
+      setIsScanning(true);
+      setScanProgress(0);
 
-        const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
-          method: "CAPTURE",
-          headers: { "Content-Type": "text/xml; charset=utf-8" },
-          body: pidOptions,
-        });
-
-        const captureText = await captureResp.text();
-        clearInterval(progressInterval);
-
-        const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
-        const respNode = xmlDoc.getElementsByTagName("Resp")[0];
-        const errCode = respNode?.getAttribute("errCode");
-
-        if (errCode === "0") {
-          setScanProgress(100);
-          setDeviceMessage("Fingerprint captured successfully");
-          setPidData(captureText);
-          formik.setFieldValue("pidData", captureText);
-          setIsScanning(false);
-          
-          // Now proceed with withdrawal using the captured data
-          await proceedWithWithdrawal(captureText, bank, amount, aadhar, mobile);
-        } else {
-          setScanProgress(0);
-          const errInfo = respNode?.getAttribute("errInfo") || "";
-          setDeviceMessage(`Capture failed: ${errInfo}`);
-          setIsScanning(false);
-          alert(`Fingerprint capture failed: ${errInfo}`);
-          return;
+      // Start progress animation
+      const totalDuration = 10000; // 10 seconds
+      const updateInterval = 100; // Update every 100ms
+      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += incrementPerUpdate;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(progressInterval);
         }
-      } catch (err) {
-        setScanProgress(0);
-        setDeviceMessage("Capture failed. Please try again.");
+        setScanProgress(currentProgress);
+      }, updateInterval);
+
+      const pidOptions = `<?xml version="1.0"?>
+        <PidOptions ver="1.0">
+          <Opts 
+            fCount="1"
+            fType="0"
+            format="0"
+            pidVer="2.0"
+            timeout="10000"
+            env="P"
+          />
+        </PidOptions>
+      `;
+
+      const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
+        method: "CAPTURE",
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+        body: pidOptions,
+      });
+
+      const captureText = await captureResp.text();
+      clearInterval(progressInterval);
+
+      const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
+      const respNode = xmlDoc.getElementsByTagName("Resp")[0];
+      const errCode = respNode?.getAttribute("errCode");
+
+      if (errCode === "0") {
+        // Successful capture
+        setScanProgress(100);
+        setDeviceMessage("Fingerprint captured successfully");
+        setPidData(captureText);
         setIsScanning(false);
-        alert("Failed to capture fingerprint. Please try again.");
+        
+        // Now proceed with withdrawal using the captured data
+        await proceedWithWithdrawal(captureText, bank, amount, aadhar, mobile);
+      } else {
+        // Capture failed
+        setScanProgress(0);
+        const errInfo = respNode?.getAttribute("errInfo") || "";
+        setDeviceMessage(`Capture failed: ${errInfo}`);
+        setIsScanning(false);
+        alert(`Fingerprint capture failed: ${errInfo}`);
         return;
       }
-    } else {
-      // pidData already exists, proceed directly with withdrawal
-      await proceedWithWithdrawal(pid, bank, amount, aadhar, mobile);
+    } catch (err) {
+      setScanProgress(0);
+      setDeviceMessage("Capture failed. Please try again.");
+      setIsScanning(false);
+      alert("Failed to capture fingerprint. Please try again.");
+      return;
     }
   };
 
@@ -1134,13 +1129,14 @@ const Selectservice = () => {
                   return;
                 }
 
-                // If device not connected, show error
+                // Check if device is connected
                 if (!deviceConnected) {
                   alert("Device not connected. Please check device first.");
                   return;
                 }
 
-                // Proceed with withdrawal (will capture if needed)
+                // All validations passed, proceed with withdrawal
+                // This will capture fingerprint and then call API
                 formik.setSubmitting(true);
                 try {
                   await handleWithdrawal(formik.values);
@@ -1166,10 +1162,6 @@ const Selectservice = () => {
               ? "Check Balance"
               : "Check Statement"}
           </button>
-          {/* Show fingerprint validation error if not captured */}
-          {formik.touched.pidData && formik.errors.pidData && (
-            <p className="mt-2 text-[12px] text-red-500 text-center">{formik.errors.pidData}</p>
-          )}
         </div>
       </div>
     </div>
