@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -95,12 +95,163 @@ export const aepsTermsConditionOtp = () => async (dispatch) => {
     } finally {
       dispatch({ type: LOADING_END });
     }
-  };
+};
 
-  export const fetchAepsCwHistory = (filters = {}) => async (dispatch) => {
+export const aepsSubmitOTP = (values) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/aeps/validate-otp`,
+            values, // Send values directly, not wrapped in {values}
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: submitOtp, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_SUBMIT_OTP_SUCCESS,
+                payload: { submitOtp, status, message },
+            });
+            return { submitOtp, status, message };
+        } else {
+            dispatch({
+                type: AEPS_SUBMIT_OTP_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_SUBMIT_OTP_FAILURE,
+            payload: errorMessage,
+        });
+        throw error;
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsOnboardingBiometricVerification = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/aeps/bio-metric-verification`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: aepsBiometricstatus, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS,
+                payload: { aepsBiometricstatus, status, message },
+            });
+            return { aepsBiometricstatus, status, message };
+        } else {
+            dispatch({
+                type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        throw error;
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsOnboardingFAVerification = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/aeps/2fa-authentication`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: aepsFaStatus, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS,
+                payload: { aepsFaStatus, status, message },
+            });
+            return { aepsFaStatus, status, message };
+        } else {
+            dispatch({
+                type: AEPS_ONBOARDING_FA_VERIFICATION_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_ONBOARDING_FA_VERIFICATION_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        throw error;
+    } finally {
+      dispatch({ type: LOADING_END });
+    }
+};
+
+export const fetchAepsCwHistory = (filters = {}) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+        
+        // Get userRole from secureLocalStorage
+        const userData = secureLocalStorage.getItem("userData");
+        let userRole = null;
+        try {
+            const parsedUserData = typeof userData === 'string' ? JSON.parse(userData) : userData;
+            userRole = parsedUserData?.userRole;
+        } catch (e) {
+            console.error("Error parsing userData:", e);
+        }
 
         const {
             searchQuery = '',
@@ -143,6 +294,8 @@ export const aepsTermsConditionOtp = () => async (dispatch) => {
         const customSearch = {};
         if (searchQuery.trim()) {
             customSearch.transactionId = searchQuery.trim();
+            customSearch.mobileNo = searchQuery.trim();
+            customSearch.name = searchQuery.trim();
             customSearch.merchantTransactionId = searchQuery.trim();
             customSearch.bankRRN = searchQuery.trim();
             customSearch.fpTransactionId = searchQuery.trim();
@@ -158,52 +311,63 @@ export const aepsTermsConditionOtp = () => async (dispatch) => {
             }
         };
 
-      const response = await axios.post(
-        `${API_ROUTE}/api/v1/admin/reports/aeps`,
-        payload,
-        {
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${authToken}`,
-          },
+        // Determine API endpoint based on userRole
+        let apiEndpoint = '';
+        if (userRole === 1) {
+            apiEndpoint = `${API_ROUTE}/api/v1/admin/reports/aeps`;
+        } else if (userRole === 2) {
+            apiEndpoint = `${API_ROUTE}/api/v1/company/reports/aeps`;
+        } else if (userRole === 3 || userRole === 4 || userRole === 5) {
+            apiEndpoint = `${API_ROUTE}/api/v1/user/aeps/transaction-history`;
+        } else {
+            // Default to user endpoint if role is not recognized
+            apiEndpoint = `${API_ROUTE}/api/v1/user/aeps/transaction-history`;
         }
-      );
+
+        const response = await axios.post(
+            apiEndpoint,
+            payload,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
   
-      const responseData = response?.data ?? {};
-      const { data: aepsHistory, status, message, totalCount, total } = responseData;
-      
-      // Handle both response.data.data and response.data formats
-      const historyData = Array.isArray(aepsHistory) ? aepsHistory : (responseData?.data?.data || responseData?.data || []);
-      const count = totalCount || total || historyData?.length || 0;
-      
-      if (status === "SUCCESS") {
-        dispatch({
-          type: AEPS_CW_HISTORY_SUCCESS,
-          payload: { data: historyData, status, message, totalCount: count },
-        });
-        return { data: historyData, status, message, totalCount: count };
-      } else {
-        dispatch({
-          type: AEPS_CW_HISTORY_FAILURE,
-          payload: {
-            status: response?.data?.status ?? "FAILURE",
-            message: response?.data?.message ?? commonError,
-          },
-        });
-        return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
-      }
+        const responseData = response?.data ?? {};
+        const { data: aepsHistory, status, message, totalCount, total } = responseData;
+        
+        // Handle both response.data.data and response.data formats
+        const historyData = Array.isArray(aepsHistory) ? aepsHistory : (responseData?.data?.data || responseData?.data || []);
+        const count = totalCount || total || historyData?.length || 0;
+        
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_CW_HISTORY_SUCCESS,
+                payload: { data: historyData, status, message, totalCount: count },
+            });
+            return { data: historyData, status, message, totalCount: count };
+        } else {
+            dispatch({
+                type: AEPS_CW_HISTORY_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
     } catch (error) {
-      const errorMessage = error.response ? error.response.data.message : error.message;
-      dispatch({
-        type: AEPS_CW_HISTORY_FAILURE,
-        payload: errorMessage,
-      });
-      throw error;
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_CW_HISTORY_FAILURE,
+            payload: errorMessage,
+        });
+        throw error;
     } finally {
-      dispatch({ type: LOADING_END });
+        dispatch({ type: LOADING_END });
     }
-  };
-
-
+};
 
 
