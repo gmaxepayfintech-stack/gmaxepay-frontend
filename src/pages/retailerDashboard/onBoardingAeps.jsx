@@ -9,7 +9,7 @@ import { aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const OnBoardingAeps = () => {
     const dispatch = useDispatch();
-    const { aepsStatus } = useSelector((state) => state.aeps || {});
+    const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
     const [showAcceptance, setShowAcceptance] = useState(false);
 
     // Call aepsStatusCheck on component mount
@@ -50,27 +50,31 @@ const OnBoardingAeps = () => {
             daily2FAAuthentication
         });
 
-        // If aepsOnboarding is pending, show welcome screen
-        if (aepsOnboarding?.status === "pending" && !aepsOnboarding?.isCompleted) {
-            return null; // Show welcome screen
+        // Check in order of flow - find the first incomplete step
+        // If aepsOnboarding is not completed, show welcome screen
+        const isAepsOnboardingCompleted = aepsOnboarding?.status?.toLowerCase() === "completed" && aepsOnboarding?.isCompleted === true;
+        if (!isAepsOnboardingCompleted) {
+            return null; // Show welcome screen (user needs to start)
         }
 
         // Check for other pending steps - navigate directly to them
-        if (validateAgentOtp?.status === "pending" && !validateAgentOtp?.isCompleted) {
+        const isValidateAgentOtpCompleted = validateAgentOtp?.status?.toLowerCase() === "completed" && validateAgentOtp?.isCompleted === true;
+        if (!isValidateAgentOtpCompleted) {
             return "identityVerification";
         }
-        if (bioMetricVerification?.status === "pending" && !bioMetricVerification?.isCompleted) {
+        
+        const isBioMetricCompleted = bioMetricVerification?.status?.toLowerCase() === "completed" && bioMetricVerification?.isCompleted === true;
+        if (!isBioMetricCompleted) {
             return "biometricVerification";
         }
-        if (daily2FAAuthentication?.status === "pending" && !daily2FAAuthentication?.isCompleted) {
+        
+        const isDaily2FACompleted = daily2FAAuthentication?.status?.toLowerCase() === "completed" && daily2FAAuthentication?.isCompleted === true;
+        if (!isDaily2FACompleted) {
             return "faVerification";
         }
+        
         // All completed - show Selectservice
-        if (aepsOnboarding?.status === "SUCCESS" && validateAgentOtp?.status === "SUCCESS" && 
-            bioMetricVerification?.status === "SUCCESS" && daily2FAAuthentication?.status === "SUCCESS") {
-            return "selectService";
-        }
-        return null; // Default: show welcome screen
+        return "selectService";
     };
 
     const currentStep = getCurrentStep();

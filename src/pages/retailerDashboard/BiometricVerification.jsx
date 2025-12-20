@@ -30,10 +30,10 @@ const BiometricVerification = () => {
 
   // Redux states
   const biometricStatus = useSelector(
-    (state) => state.aepsReducer?.aepsBiometricstatus
+    (state) => state.aeps?.aepsBiometricstatus
   );
   const aepsStatus = useSelector(
-    (state) => state.aepsReducer?.aepsStatus
+    (state) => state.aeps?.aepsStatus
   );
 
   // Ref to track if API has been called for current pidData

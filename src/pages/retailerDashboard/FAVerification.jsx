@@ -31,10 +31,10 @@ const FAVerification = () => {
 
   // Redux states
   const faStatus = useSelector(
-    (state) => state.aepsReducer?.aepsFaStatus
+    (state) => state.aeps?.aepsFaStatus
   );
   const aepsStatus = useSelector(
-    (state) => state.aepsReducer?.aepsStatus
+    (state) => state.aeps?.aepsStatus
   );
 
   // Ref to track if API has been called for current pidData
