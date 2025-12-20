@@ -1,7 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
+import { useFormik } from "formik";
+import * as Yup from "yup";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsBankList } from "../../../redux/action/aepsAction";
+import { aepsBankList, aepsWithdrawl } from "../../../redux/action/aepsAction";
+import { getUserProfile } from "../../../redux/action/userProfileAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -10,6 +13,7 @@ const EyeIcon = "/img/Eye.svg";
 const Selectservice = () => {
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aeps?.bankList);
+  const userProfile = useSelector((state) => state.userProfile?.profile);
   
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
@@ -49,6 +53,43 @@ const Selectservice = () => {
     { key: "statement", label: "Statement" },
   ];
 
+  // Validation schema
+  const validationSchema = Yup.object({
+    selectedBank: Yup.object()
+      .nullable()
+      .required("Please select a bank"),
+    selectedAmount: Yup.string()
+      .required("Amount is required")
+      .test("is-valid-amount", "Amount must be greater than 0", (value) => {
+        if (!value) return false;
+        const numericValue = value.replaceAll(",", "");
+        return numericValue && parseFloat(numericValue) > 0;
+      }),
+    aadhaarNumber: Yup.string()
+      .required("Aadhaar number is required")
+      .matches(/^\d{12}$/, "Aadhaar number must be exactly 12 digits"),
+    mobileNumber: Yup.string()
+      .required("Mobile number is required")
+      .matches(/^\d{10}$/, "Mobile number must be exactly 10 digits"),
+    pidData: Yup.string()
+      .required("Please capture fingerprint first"),
+  });
+
+  // Formik setup
+  const formik = useFormik({
+    initialValues: {
+      selectedBank: null,
+      selectedAmount: "1000",
+      aadhaarNumber: "",
+      mobileNumber: "",
+      pidData: "",
+    },
+    validationSchema: validationSchema,
+    onSubmit: async (values) => {
+      await handleWithdrawal(values);
+    },
+  });
+
   // Get banks from API response
   // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
   const banks = bankList?.bankList || [];
@@ -65,6 +106,8 @@ const Selectservice = () => {
     setSelectedBank(bank);
     setBankSearchQuery(bank.bankName);
     setShowBankDropdown(false);
+    formik.setFieldValue("selectedBank", bank);
+    formik.setFieldTouched("selectedBank", true);
     
     // Update recent banks list - add selected bank to the front
     setRecentBanksList((prev) => {
@@ -247,6 +290,7 @@ const Selectservice = () => {
         console.log("✅ PID Data captured successfully, errCode:", errCode);
         console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
+        formik.setFieldValue("pidData", captureText);
         setIsScanning(false);
       } else {
         // Reset progress on failure - thumb was not on device or capture failed
@@ -264,6 +308,17 @@ const Selectservice = () => {
       setIsScanning(false);
     }
   };
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile())
+      .then((response) => {
+        console.log("User profile response:", response);
+      })
+      .catch((error) => {
+        console.error("User profile error:", error);
+      });
+  }, [dispatch]);
 
   // Fetch bank list on component mount
   useEffect(() => {
@@ -314,6 +369,93 @@ const Selectservice = () => {
       }
     }
   }, [deviceMessage]);
+
+  // Close bank dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (bankDropdownRef.current && !bankDropdownRef.current.contains(event.target)) {
+        setShowBankDropdown(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
+  // Sync Formik values with component state
+  useEffect(() => {
+    formik.setFieldValue("selectedBank", selectedBank);
+  }, [selectedBank, formik]);
+
+  useEffect(() => {
+    formik.setFieldValue("selectedAmount", selectedAmount);
+  }, [selectedAmount, formik]);
+
+  useEffect(() => {
+    formik.setFieldValue("aadhaarNumber", aadhaarNumber);
+  }, [aadhaarNumber, formik]);
+
+  useEffect(() => {
+    formik.setFieldValue("mobileNumber", mobileNumber);
+  }, [mobileNumber, formik]);
+
+  useEffect(() => {
+    formik.setFieldValue("pidData", pidData);
+  }, [pidData, formik]);
+
+  // Handle withdrawal button click
+  const handleWithdrawal = async (values) => {
+    const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile, pidData: pid } = values;
+
+    // Get location and IP from userProfile
+    const latitude = userProfile?.latitude || "";
+    const longitude = userProfile?.longitude || "";
+    const ipAddress = userProfile?.ipAddress || "";
+
+    // Prepare payload - pidData should already be the full XML response
+    // If it doesn't have PidData wrapper, wrap it; otherwise use as is
+    let biometricDataXml = pid;
+    if (!pid.includes("<PidData>")) {
+      biometricDataXml = `<?xml version="1.0"?><PidData>${pid}</PidData>`;
+    } else if (!pid.includes("<?xml version")) {
+      biometricDataXml = `<?xml version="1.0"?>${pid}`;
+    }
+
+    const payload = {
+      biometricData: biometricDataXml,
+      captureType: "FINGER",
+      amount: amount.replaceAll(",", ""), // Remove commas from amount
+      txnType: "CW",
+      bankiin: bank.bankIIN,
+      latitude: latitude,
+      longitude: longitude,
+      ipAddress: ipAddress,
+      aadharNumber: aadhar,
+      consumerNumber: mobile
+    };
+
+    try {
+      const response = await dispatch(aepsWithdrawl(payload));
+      if (response?.status === "SUCCESS") {
+        alert("Withdrawal successful!");
+        // Reset form
+        formik.resetForm();
+        setSelectedBank(null);
+        setSelectedAmount("1000");
+        setAadhaarNumber("");
+        setMobileNumber("");
+        setPidData("");
+        setBankSearchQuery("");
+      } else {
+        alert(response?.message || "Withdrawal failed");
+      }
+    } catch (error) {
+      console.error("Withdrawal error:", error);
+      alert("An error occurred during withdrawal. Please try again.");
+    }
+  };
 
   return (
     <div className="w-full">
@@ -735,9 +877,21 @@ const Selectservice = () => {
                 type="text"
                 placeholder="Enter Aadhar Number"
                 value={aadhaarNumber}
-                onChange={(e) => setAadhaarNumber(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 12);
+                  setAadhaarNumber(value);
+                  formik.setFieldValue("aadhaarNumber", value);
+                }}
+                onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                  formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
+              {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
+                <p className="mt-1 text-[12px] text-red-500">{formik.errors.aadhaarNumber}</p>
+              )}
             </div>
             <div>
               <label className="block text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
@@ -747,9 +901,21 @@ const Selectservice = () => {
                 type="text"
                 placeholder="Enter Your Number"
                 value={mobileNumber}
-                onChange={(e) => setMobileNumber(e.target.value)}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                onChange={(e) => {
+                  const value = e.target.value.replace(/\D/g, "").slice(0, 10);
+                  setMobileNumber(value);
+                  formik.setFieldValue("mobileNumber", value);
+                }}
+                onBlur={() => formik.setFieldTouched("mobileNumber", true)}
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
+              {formik.touched.mobileNumber && formik.errors.mobileNumber && (
+                <p className="mt-1 text-[12px] text-red-500">{formik.errors.mobileNumber}</p>
+              )}
             </div>
           </div>
 
@@ -838,14 +1004,38 @@ const Selectservice = () => {
           {/* Action Button */}
           <button
             type="button"
-            className="w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition"
+            onClick={() => {
+              if (activeTab === "cashWithdrawal") {
+                // Validate all fields before submitting
+                formik.setFieldTouched("selectedBank", true);
+                formik.setFieldTouched("selectedAmount", true);
+                formik.setFieldTouched("aadhaarNumber", true);
+                formik.setFieldTouched("mobileNumber", true);
+                formik.setFieldTouched("pidData", true);
+                formik.handleSubmit();
+              } else if (activeTab === "enquiry") {
+                // Handle enquiry
+                console.log("Check Balance clicked");
+              } else {
+                // Handle statement
+                console.log("Check Statement clicked");
+              }
+            }}
+            disabled={formik.isSubmitting}
+            className="w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {activeTab === "cashWithdrawal"
+            {formik.isSubmitting
+              ? "Processing..."
+              : activeTab === "cashWithdrawal"
               ? "Withdrawal"
               : activeTab === "enquiry"
               ? "Check Balance"
               : "Check Statement"}
           </button>
+          {/* Show fingerprint validation error if not captured */}
+          {formik.touched.pidData && formik.errors.pidData && (
+            <p className="mt-2 text-[12px] text-red-500 text-center">{formik.errors.pidData}</p>
+          )}
         </div>
       </div>
     </div>
