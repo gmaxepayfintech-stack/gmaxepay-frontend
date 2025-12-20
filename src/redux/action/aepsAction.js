@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -57,7 +57,7 @@ export const aepsStatusCheck = () => async (dispatch) => {
     try {
         const authToken = secureLocalStorage.getItem("userToken");
         const apiUrl = `${API_ROUTE}/api/v1/user/aeps/onboarding-status`;
-        
+
         // Debug logging to verify API call is being made
         console.log("🔍 [aepsStatusCheck] Making API call to:", apiUrl);
         console.log("🔍 [aepsStatusCheck] API_ROUTE value:", API_ROUTE);
@@ -73,7 +73,7 @@ export const aepsStatusCheck = () => async (dispatch) => {
                 },
             }
         );
-        
+
         console.log("✅ [aepsStatusCheck] API call successful, response:", response);
 
         const { data: aepsStatus, status, message } = response?.data ?? {};
@@ -188,6 +188,54 @@ export const aepsSubmitOTP = (values) => async (dispatch) => {
         dispatch({
             type: AEPS_SUBMIT_OTP_FAILURE,
             payload: errorMessage,
+        });
+        throw error;
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsOnboardingBiometricVerification = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/aeps/bio-metric-verification`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: aepsBiometricstatus, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS,
+                payload: { aepsBiometricstatus, status, message },
+            });
+            return { aepsBiometricstatus, status, message };
+        } else {
+            dispatch({
+                type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
         });
         throw error;
     } finally {

@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -9,6 +9,7 @@ const initialState = {
     rescendOtp: null,
     aepsStatus: null,
     submitOtp: null,
+    aepsBiometricstatus: null,
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -55,6 +56,15 @@ const aepsReducer = (state = initialState, action) => {
                 message: action.payload.message,
             }
 
+        case AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS:
+            return {
+                ...state,
+                aepsBiometricstatus: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
 
         default:
             return state;
