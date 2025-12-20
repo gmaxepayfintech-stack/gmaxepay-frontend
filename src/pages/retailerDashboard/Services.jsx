@@ -64,11 +64,6 @@ const Services = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // Get aepsStatus from Redux
-    const aepsStatus = useSelector(
-        (state) => state.aepsReducer?.aepsStatus
-    );
-
     /* -------------------------------------------
         CHECK IF ALL STATUS IS COMPLETED
     --------------------------------------------*/
@@ -109,36 +104,7 @@ const Services = () => {
         return allCompleted;
     };
 
-    // Check status on component mount
-    useEffect(() => {
-        dispatch(aepsStatusCheck()).then((response) => {
-            console.log("aepsStatusCheck response in Services:", response);
-            
-            // Check if all status is completed
-            const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
-            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
-            
-            if (isAllCompleted) {
-                console.log("✅ All AEPS status completed, showing confirm page");
-                setShowAepsConfirm(true);
-            }
-        }).catch((error) => {
-            console.error("aepsStatusCheck error in Services:", error);
-        });
-    }, [dispatch]);
-
-    // Also check from Redux state when it updates
-    useEffect(() => {
-        if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
-            const aepsStatusData = aepsStatus?.aepsStatus?.data || aepsStatus?.data || aepsStatus?.aepsStatus;
-            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
-            
-            if (isAllCompleted && !showAepsConfirm) {
-                console.log("✅ All AEPS status completed from Redux, showing confirm page");
-                setShowAepsConfirm(true);
-            }
-        }
-    }, [aepsStatus, showAepsConfirm]);
+    // Note: Status check only happens when AEPS card is clicked, not on mount
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
@@ -148,12 +114,21 @@ const Services = () => {
     // Handle AEPS card click - check status and process steps accordingly
     const handleAepsClick = async () => {
         try {
+            console.log("🖱️ AEPS card clicked, checking status...");
+            
             // Call status check to get current status
             const response = await dispatch(aepsStatusCheck());
-            console.log("aepsStatusCheck response in Services:", response);
+            console.log("✅ aepsStatusCheck response in Services:", response);
             
             // Extract status data from response
+            // Response structure: { status, message, data: { aepsOnboarding, validateAgentOtp, ... } }
             const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
+            
+            if (!aepsStatusData) {
+                console.log("⚠️ No status data found, navigating to onboarding");
+                navigate("/retailerDashboard/onboarding-aeps");
+                return;
+            }
             
             // Check if all status is completed
             const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
