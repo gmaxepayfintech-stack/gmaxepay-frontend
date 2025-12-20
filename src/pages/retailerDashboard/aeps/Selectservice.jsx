@@ -1,5 +1,5 @@
 import { useState } from "react";
-import StartCapture from "../../../public/img/StartCapture.svg";
+import StartCapture from "../../../../public/img/StartCapture.svg";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
