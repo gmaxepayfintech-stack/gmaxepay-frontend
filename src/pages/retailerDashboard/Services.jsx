@@ -1,6 +1,6 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
@@ -198,7 +198,7 @@ const Services = () => {
                         onClick={() => setActiveTab("Subscribed")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
                                 ? "bg-[#039155] text-white shadow-sm"
-                                : "text-[#1B1717] hover:bg-gray-50"
+                                : "text-[#1B1717] hover:bg-gray-50 "
                             }`}
                     >
                         Subscribed
@@ -221,7 +221,9 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") navigate("/retailerDashboard/onboarding-aeps");
+                            if (s.id === "Aeps") {
+                                handleAepsClick();
+                            }
                         }}
                     />
                 ))}
