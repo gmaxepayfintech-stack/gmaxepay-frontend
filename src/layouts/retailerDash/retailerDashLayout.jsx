@@ -145,7 +145,7 @@ const RetailerDashLayout = ({ children }) => {
     {
       name: "Txn History",
       icon: MaskGroup5,
-      path: "/superDashboard/txn-history",
+      path: "/superDashboard/tax-history",
       dropdown: false,
     },
 
