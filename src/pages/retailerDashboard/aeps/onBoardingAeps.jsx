@@ -6,7 +6,7 @@ import Selectservice from "./Selectservice";
 import AEPSAccessConfirm from "./AEPSAccessConfirm";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { aepsStatusCheck } from "../../redux/action/aepsAction";
+import { aepsStatusCheck } from "../../../redux/action/aepsAction";
 
 const OnBoardingAeps = () => {
     const dispatch = useDispatch();

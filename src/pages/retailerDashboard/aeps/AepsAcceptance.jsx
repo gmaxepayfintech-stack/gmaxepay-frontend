@@ -2,14 +2,14 @@ import { useMemo, useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import Mobile from "../../../public/img/Mobile.svg";
-import Daily2FA from "../../../public/img/DailyF2A.svg";
-import Biometric from "../../../public/img/Biometric.svg";
+import Mobile from "../../../../public/img/Mobile.svg";
+import Daily2FA from "../../../../public/img/DailyF2A.svg";
+import Biometric from "../../../../public/img/Biometric.svg";
 import IdentityVerification from "./identityVerification";
 import BiometricVerification from "./BiometricVerification";
 import FAVerification from "./FAVerification";
 import Selectservice from "./Selectservice";
-import { aepsTermsConditionOtp, aepsStatusCheck } from "../../redux/action/aepsAction";
+import { aepsTermsConditionOtp, aepsStatusCheck } from "../../../redux/action/aepsAction";
 
 const AepsAcceptance = () => {
     const navigate = useNavigate();
