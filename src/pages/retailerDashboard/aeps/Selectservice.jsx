@@ -23,6 +23,9 @@ const Selectservice = () => {
   const [showBankDropdown, setShowBankDropdown] = useState(false);
   const bankDropdownRef = useRef(null);
   
+  // Recent banks state - tracks recently selected banks
+  const [recentBanksList, setRecentBanksList] = useState([]);
+  
   // RD Service states
   const [rdBaseUrl, setRdBaseUrl] = useState("");
   const [pidData, setPidData] = useState("");
@@ -57,8 +60,36 @@ const Selectservice = () => {
       )
     : banks;
 
-  // Get recent banks (first 4 from the list, or you can implement logic to track recently used)
-  const recentBanks = banks.slice(0, 4);
+  // Function to handle bank selection and update recent banks
+  const handleBankSelection = (bank) => {
+    setSelectedBank(bank);
+    setBankSearchQuery(bank.bankName);
+    setShowBankDropdown(false);
+    
+    // Update recent banks list - add selected bank to the front
+    setRecentBanksList((prev) => {
+      // Remove the bank if it already exists in the list
+      const filtered = prev.filter((b) => b.id !== bank.id);
+      // Add selected bank to the front, limit to 4 banks total
+      return [bank, ...filtered].slice(0, 4);
+    });
+  };
+
+  // Get recent banks - selected bank first, then other recent banks, then fallback to first 4 from API
+  const recentBanks = (() => {
+    if (selectedBank) {
+      // If a bank is selected, show it first
+      const otherRecent = recentBanksList.filter((b) => b.id !== selectedBank.id);
+      const result = [selectedBank, ...otherRecent].slice(0, 4);
+      return result;
+    } else if (recentBanksList.length > 0) {
+      // If no bank is selected but we have recent banks, show them
+      return recentBanksList.slice(0, 4);
+    } else {
+      // Fallback to first 4 from API
+      return banks.slice(0, 4);
+    }
+  })();
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -451,7 +482,7 @@ const Selectservice = () => {
                   aria-label={deviceConnected ? "Device Info" : "Ready"}
                 >
                   {isDeviceChecking
-                    ? "Checking..."
+                    ? "Checking..." 
                     : isGettingDeviceInfo
                     ? "Fetching..."
                     : deviceConnected
@@ -561,9 +592,7 @@ const Selectservice = () => {
                     key={bank.id}
                     type="button"
                     onClick={() => {
-                      setSelectedBank(bank);
-                      setBankSearchQuery(bank.bankName);
-                      setShowBankDropdown(false);
+                      handleBankSelection(bank);
                     }}
                     className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
                       selectedBank?.id === bank.id
@@ -572,7 +601,7 @@ const Selectservice = () => {
                     }`}
                   >
                     <div className="flex flex-col items-center gap-2">
-                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                      <div className="w-full h-full bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
                         {bank.bankLogo ? (
                           <img
                             src={bank.bankLogo}
@@ -649,15 +678,13 @@ const Selectservice = () => {
                       key={bank.id}
                       type="button"
                       onClick={() => {
-                        setSelectedBank(bank);
-                        setBankSearchQuery(bank.bankName);
-                        setShowBankDropdown(false);
+                        handleBankSelection(bank);
                       }}
                       className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
                         selectedBank?.id === bank.id ? "bg-[#E5FFF4]" : ""
                       }`}
                     >
-                      <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center overflow-hidden relative">
+                      <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
                         {bank.bankLogo ? (
                           <img
                             src={bank.bankLogo}
@@ -732,12 +759,22 @@ const Selectservice = () => {
               <label className="block text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
                 Amount To Withdrawal
               </label>
-              <input
-                type="text"
-                value={`₹ ${selectedAmount}`}
-                readOnly
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Medium'] text-[#1B1717] bg-gray-50 mb-3"
-              />
+              <div className="relative mb-3">
+                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[14px] font-['Gilroy-Medium'] text-[#1B1717] pointer-events-none">
+                  ₹
+                </span>
+                <input
+                  type="text"
+                  value={selectedAmount ? selectedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
+                  onChange={(e) => {
+                    // Extract only numbers from the input
+                    const numericValue = e.target.value.replace(/[^\d]/g, '');
+                    setSelectedAmount(numericValue);
+                  }}
+                  placeholder="Enter amount"
+                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Medium'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                />
+              </div>
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
