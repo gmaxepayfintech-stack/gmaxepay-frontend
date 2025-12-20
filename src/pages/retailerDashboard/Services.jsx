@@ -145,26 +145,45 @@ const Services = () => {
         return servicesData.filter((s) => s.status === key);
     }, [activeTab]);
 
-    // Handle AEPS card click - check status and navigate accordingly
+    // Handle AEPS card click - check status and process steps accordingly
     const handleAepsClick = async () => {
         try {
+            // Call status check to get current status
             const response = await dispatch(aepsStatusCheck());
             console.log("aepsStatusCheck response in Services:", response);
             
-            // Check if all status is completed
+            // Extract status data from response
             const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
+            
+            // Check if all status is completed
             const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
             
             if (isAllCompleted) {
                 // Show confirm page if all completed
+                console.log("✅ All AEPS status completed, showing confirm page");
                 setShowAepsConfirm(true);
             } else {
-                // Navigate to onboarding-aeps route if not completed
+                // Determine which step needs to be completed
+                const aepsOnboarding = aepsStatusData?.aepsOnboarding;
+                const validateAgentOtp = aepsStatusData?.validateAgentOtp;
+                const bioMetricVerification = aepsStatusData?.bioMetricVerification;
+                const daily2FAAuthentication = aepsStatusData?.daily2FAAuthentication;
+
+                console.log("🔍 Current AEPS onboarding status:", {
+                    aepsOnboarding: aepsOnboarding?.status,
+                    validateAgentOtp: validateAgentOtp?.status,
+                    bioMetricVerification: bioMetricVerification?.status,
+                    daily2FAAuthentication: daily2FAAuthentication?.status
+                });
+
+                // Navigate to onboarding-aeps route
+                // The OnBoardingAeps component will automatically determine which step to show
+                console.log("📋 Navigating to onboarding flow to process next step");
                 navigate("/retailerDashboard/onboarding-aeps");
             }
         } catch (error) {
-            console.error("aepsStatusCheck error in Services:", error);
-            // Still navigate even on error, let AepsAcceptance handle it
+            console.error("❌ aepsStatusCheck error in Services:", error);
+            // Still navigate even on error, let OnBoardingAeps handle it
             navigate("/retailerDashboard/onboarding-aeps");
         }
     };
