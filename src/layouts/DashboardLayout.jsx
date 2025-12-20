@@ -145,10 +145,9 @@ const DashboardLayout = ({ children }) => {
     {
       name: "Txn History",
       icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
+      path: "/superDashboard/txn-history",
       dropdown: false,
     },
-  
   ];
 
   return (

@@ -1,43 +1,93 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Search, Download, User } from 'lucide-react';
+import { Search, Download, User, ChevronLeft, ChevronRight } from 'lucide-react';
 import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchAepsCwHistory } from '../../redux/action/aepsAction';
 import TransactioDetails from './TransactioDetails';
 
 const AepsCWHistory = ({ onBack }) => {
+    const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [statusFilter, setStatusFilter] = useState('All');
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
+    const [currentPage, setCurrentPage] = useState(1);
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
     const [selectedTransaction, setSelectedTransaction] = useState(null);
 
-    // Sample transaction data - matching image exactly
-    const transactions = Array.from({ length: 12 }, (_, index) => {
-        // Cycle through statuses: Success, Pending, Failed
-        const statuses = ['Success', 'Pending', 'Failed'];
-        const status = statuses[index % 3];
-        
-        return {
-            id: index + 1,
-            srNo: '01',
-            createdAt: '13-10-25',
-            userRole: 'RT',
-            bankName: 'Canara Bank Erstwhile Syndicat...',
-            taxId: 'SHARY2157214174',
-            via: 'APP',
-            bankRefNumber: '530812192893',
-            amount: '₹10000',
-            status: status,
-        };
-    });
+    // Get data from Redux
+    const aepsHistoryData = useSelector((state) => state?.aeps?.aepsCwHistory || []);
+    const totalCount = useSelector((state) => state?.aeps?.aepsCwHistoryTotalCount || 0);
+    const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     const statusFilters = ['All', 'Success', 'Pending', 'Failed'];
 
-    // Filter transactions based on selected status
-    const filteredTransactions = statusFilter === 'All' 
-        ? transactions 
-        : transactions.filter(transaction => transaction.status === statusFilter);
+    // Debounce search query
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+            setCurrentPage(1); // Reset to first page when search changes
+        }, 500); // 500ms delay
+
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Fetch data when filters change
+    useEffect(() => {
+        const filters = {
+            searchQuery: debouncedSearchQuery,
+            statusFilter: statusFilter,
+            fromDate: fromDate,
+            toDate: toDate,
+            page: currentPage,
+            paginate: 5
+        };
+        dispatch(fetchAepsCwHistory(filters));
+    }, [debouncedSearchQuery, statusFilter, fromDate, toDate, currentPage, dispatch]);
+
+    // Map API response to component format
+    const formatTransaction = (item, index) => {
+        const pageStartIndex = (currentPage - 1) * 5;
+        
+        // Format date
+        let formattedDate = '-';
+        if (item.createdAt) {
+            const date = new Date(item.createdAt);
+            formattedDate = `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getFullYear()).slice(-2)}`;
+        }
+
+        // Map status
+        let statusText = 'Failed';
+        if (item.status === 'SUCCESS') {
+            statusText = 'Success';
+        } else if (item.status === 'PENDING') {
+            statusText = 'Pending';
+        } else if (item.status === 'FAILED') {
+            statusText = 'Failed';
+        }
+
+        return {
+            id: item.id || index + 1,
+            srNo: String(pageStartIndex + index + 1).padStart(2, '0'),
+            createdAt: formattedDate,
+            userRole: 'RT', // Default role - adjust if API provides this
+            bankName: item.bankiin || '-', // Use bankiin for Bank Name
+            taxId: item.transactionId || '-', // Use transactionId for Tax ID
+            via: item.captureType || 'APP',
+            bankRefNumber: item.bankRRN || '-',
+            amount: `₹${item.amount || 0}`,
+            status: statusText,
+            companyName: item.companyName || '-', // Store company name
+            rawData: item // Store raw data for details view
+        };
+    };
+
+    const transactions = Array.isArray(aepsHistoryData) ? aepsHistoryData.map(formatTransaction) : [];
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalCount / 5);
 
     // If TransactionDetails should be shown, render it
     if (showTransactionDetails) {
@@ -72,7 +122,10 @@ const AepsCWHistory = ({ onBack }) => {
                         {statusFilters.map((status) => (
                             <button
                                 key={status}
-                                onClick={() => setStatusFilter(status)}
+                                onClick={() => {
+                                    setStatusFilter(status);
+                                    setCurrentPage(1); // Reset to first page when status changes
+                                }}
                                 className={`px-4 py-3 sm:px-4 sm:py-3 rounded-2xl text-[16px] sm:text-sm font-['Gilroy-Medium'] transition whitespace-nowrap ${
                                     statusFilter === status
                                         ? 'bg-[#039155] text-white shadow-md'
@@ -111,7 +164,10 @@ const AepsCWHistory = ({ onBack }) => {
                             id="fromDate"
                             type="date"
                             value={fromDate}
-                            onChange={(e) => setFromDate(e.target.value)}
+                            onChange={(e) => {
+                                setFromDate(e.target.value);
+                                setCurrentPage(1); // Reset to first page when date changes
+                            }}
                             placeholder="From Date"
                             className="w-full pl-4 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base bg-white text-[#1B1717]"
                         />
@@ -126,7 +182,10 @@ const AepsCWHistory = ({ onBack }) => {
                             id="toDate"
                             type="date"
                             value={toDate}
-                            onChange={(e) => setToDate(e.target.value)}
+                            onChange={(e) => {
+                                setToDate(e.target.value);
+                                setCurrentPage(1); // Reset to first page when date changes
+                            }}
                             placeholder="To Date"
                             className="w-full pl-4 pr-4 py-2.5 sm:py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base bg-white text-[#1B1717]"
                         />
@@ -155,9 +214,6 @@ const AepsCWHistory = ({ onBack }) => {
                                     Profile
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                                    Created At
-                                </th>
-                                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
                                     User Role
                                 </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
@@ -178,10 +234,26 @@ const AepsCWHistory = ({ onBack }) => {
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
                                     Status
                                 </th>
+                                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]">
+                                    Created At
+                                </th>
                             </tr>
                         </thead>
                         <tbody className="bg-white divide-y divide-gray-200">
-                            {filteredTransactions.map((transaction, index) => (
+                            {isLoading ? (
+                                <tr>
+                                    <td colSpan={11} className="px-4 sm:px-6 py-8 text-center">
+                                        <span className="text-sm text-gray-500">Loading...</span>
+                                    </td>
+                                </tr>
+                            ) : transactions.length === 0 ? (
+                                <tr>
+                                    <td colSpan={11} className="px-4 sm:px-6 py-8 text-center">
+                                        <span className="text-sm text-gray-500">No transactions found</span>
+                                    </td>
+                                </tr>
+                            ) : (
+                                transactions.map((transaction, index) => (
                                 <tr
                                     key={transaction.id}
                                     className={`transition-colors ${
@@ -207,11 +279,6 @@ const AepsCWHistory = ({ onBack }) => {
                                                 <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                                             </div>
                                         </button>
-                                    </td>
-                                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                        <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#1B1717]">
-                                            {transaction.createdAt}
-                                        </span>
                                     </td>
                                     <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                         <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#1B1717]">
@@ -256,11 +323,62 @@ const AepsCWHistory = ({ onBack }) => {
                                             {transaction.status}
                                         </span>
                                     </td>
+                                    <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                                        <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#1B1717]">
+                                            {transaction.createdAt}
+                                        </span>
+                                    </td>
                                 </tr>
-                            ))}
+                                ))
+                            )}
                         </tbody>
                     </table>
                 </div>
+                {/* Pagination */}
+                {totalCount > 5 && totalPages > 0 && (
+                    <div className="flex flex-col sm:flex-row items-center justify-between px-4 sm:px-6 py-4 border-t border-gray-200 gap-4">
+                        <div className="text-sm text-gray-700">
+                            Showing {((currentPage - 1) * 5) + 1} to {Math.min(currentPage * 5, totalCount)} of {totalCount} results
+                        </div>
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                                disabled={currentPage === 1}
+                                className={`p-2 rounded-lg border border-gray-300 transition ${
+                                    currentPage === 1
+                                        ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-[#1B1717] hover:bg-gray-50'
+                                }`}
+                            >
+                                <ChevronLeft className="w-5 h-5" />
+                            </button>
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                <button
+                                    key={page}
+                                    onClick={() => setCurrentPage(page)}
+                                    className={`w-10 h-10 rounded-lg font-medium transition ${
+                                        page === currentPage
+                                            ? 'bg-[#039155] text-white'
+                                            : 'bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50'
+                                    }`}
+                                >
+                                    {page}
+                                </button>
+                            ))}
+                            <button
+                                onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                                disabled={currentPage === totalPages}
+                                className={`p-2 rounded-lg border border-gray-300 transition ${
+                                    currentPage === totalPages
+                                        ? 'bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed'
+                                        : 'bg-white text-[#1B1717] hover:bg-gray-50'
+                                }`}
+                            >
+                                <ChevronRight className="w-5 h-5" />
+                            </button>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );
