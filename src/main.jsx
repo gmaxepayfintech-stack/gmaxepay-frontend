@@ -8,7 +8,24 @@ import { Provider } from 'react-redux';
 import '../public/css/tailwind.css';
 import App from './App';
 import { store } from './redux/store'; 
-import { CompanyProvider } from './context/CompanyContext';
+import { CompanyProvider, useCompany } from './context/CompanyContext';
+
+// Wrapper component to wait for company data to load
+const AppWithCompany = () => {
+  const { loading } = useCompany();
+
+  // Wait for company data to load before rendering App
+  if (loading) {
+    return null;
+  }
+
+  // Render App only after company data is loaded
+  return (
+    <NotificationProvider>
+      <App />
+    </NotificationProvider>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -16,9 +33,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <MaterialTailwindControllerProvider>
         <Provider store={store}>
           <CompanyProvider>
-            <NotificationProvider>
-              <App />
-            </NotificationProvider>
+            <AppWithCompany />
           </CompanyProvider>
         </Provider>
       </MaterialTailwindControllerProvider>

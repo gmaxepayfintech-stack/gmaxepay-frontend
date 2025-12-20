@@ -59,10 +59,10 @@ ServiceCard.propTypes = {
 };
 
 const Services = () => {
+    const dispatch = useDispatch();
     const [activeTab, setActiveTab] = useState("Available");
     const [showAepsConfirm, setShowAepsConfirm] = useState(false);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
 
     /* -------------------------------------------
         CHECK IF ALL STATUS IS COMPLETED
@@ -221,9 +221,7 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") {
-                                handleAepsClick();
-                            }
+                            if (s.id === "Aeps") navigate("/retailerDashboard/onboarding-aeps");
                         }}
                     />
                 ))}
