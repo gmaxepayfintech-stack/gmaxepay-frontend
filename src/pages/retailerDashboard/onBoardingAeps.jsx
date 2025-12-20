@@ -1,9 +1,94 @@
 import AepsAcceptance from "./AepsAcceptance";
-import { useState } from "react";
+import IdentityVerification from "./identityVerification";
+import BiometricVerification from "./BiometricVerification";
+import FAVerification from "./FAVerification";
+import Selectservice from "./Selectservice";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { aepsStatusCheck } from "../../redux/action/aepsAction";
 
 const OnBoardingAeps = () => {
+    const dispatch = useDispatch();
+    const { aepsStatus } = useSelector((state) => state.aeps || {});
     const [showAcceptance, setShowAcceptance] = useState(false);
 
+    // Call aepsStatusCheck on component mount
+    useEffect(() => {
+        dispatch(aepsStatusCheck()).then((response) => {
+            console.log("aepsStatusCheck response in OnBoardingAeps:", response);
+        }).catch((error) => {
+            console.error("aepsStatusCheck error in OnBoardingAeps:", error);
+        });
+    }, [dispatch]);
+
+    // Log aepsStatus when it changes
+    useEffect(() => {
+        if (aepsStatus?.aepsStatus) {
+            console.log("aepsStatus state in OnBoardingAeps:", aepsStatus.aepsStatus);
+        }
+    }, [aepsStatus]);
+
+    // Determine which component to show based on status
+    const getCurrentStep = () => {
+        if (!aepsStatus?.aepsStatus) {
+            return null; // Still loading or no data
+        }
+
+        // aepsStatus.aepsStatus is the data object from API response
+        const statusData = aepsStatus.aepsStatus;
+        const {
+            aepsOnboarding,
+            validateAgentOtp,
+            bioMetricVerification,
+            daily2FAAuthentication
+        } = statusData;
+
+        console.log("Current onboarding statuses in OnBoardingAeps:", {
+            aepsOnboarding,
+            validateAgentOtp,
+            bioMetricVerification,
+            daily2FAAuthentication
+        });
+
+        // If aepsOnboarding is pending, show welcome screen
+        if (aepsOnboarding?.status === "pending" && !aepsOnboarding?.isCompleted) {
+            return null; // Show welcome screen
+        }
+
+        // Check for other pending steps - navigate directly to them
+        if (validateAgentOtp?.status === "pending" && !validateAgentOtp?.isCompleted) {
+            return "identityVerification";
+        }
+        if (bioMetricVerification?.status === "pending" && !bioMetricVerification?.isCompleted) {
+            return "biometricVerification";
+        }
+        if (daily2FAAuthentication?.status === "pending" && !daily2FAAuthentication?.isCompleted) {
+            return "faVerification";
+        }
+        // All completed - show Selectservice
+        if (aepsOnboarding?.status === "SUCCESS" && validateAgentOtp?.status === "SUCCESS" && 
+            bioMetricVerification?.status === "SUCCESS" && daily2FAAuthentication?.status === "SUCCESS") {
+            return "selectService";
+        }
+        return null; // Default: show welcome screen
+    };
+
+    const currentStep = getCurrentStep();
+
+    // Conditional rendering based on status (skip initial screen check)
+    if (currentStep === "identityVerification") {
+        return <IdentityVerification onBack={() => setShowAcceptance(false)} />;
+    }
+    if (currentStep === "biometricVerification") {
+        return <BiometricVerification />;
+    }
+    if (currentStep === "faVerification") {
+        return <FAVerification />;
+    }
+    if (currentStep === "selectService") {
+        return <Selectservice />;
+    }
+    // Show AepsAcceptance only when button is clicked
     if (showAcceptance) {
         return <AepsAcceptance />;
     }

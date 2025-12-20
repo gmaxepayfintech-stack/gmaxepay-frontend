@@ -1,4 +1,4 @@
-import { AEPS_STATUS_CHECK_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -6,9 +6,11 @@ const initialState = {
     aepsOtp: null,
     success: null,
     message: null,
-    aepsCwHistory: null,
-    aepsCwHistoryTotalCount: 0,
-
+    rescendOtp: null,
+    aepsStatus: null,
+    submitOtp: null,
+    aepsBiometricstatus: null,
+    aepsFaStatus:null
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -33,29 +35,47 @@ const aepsReducer = (state = initialState, action) => {
                 error: null,
                 success: action.payload.status,
                 message: action.payload.message,
-            };
+            }
 
-        case AEPS_CW_HISTORY_SUCCESS:
+        case AEPS_RESCEND_OTP_SUCCESS:
             return {
                 ...state,
-                aepsCwHistory: action.payload.data,
-                aepsCwHistoryTotalCount: action.payload.totalCount || 0,
+                rescendOtp: action.payload,
                 loading: false,
                 error: null,
                 success: action.payload.status,
                 message: action.payload.message,
-            };
+            }
 
-        case AEPS_CW_HISTORY_FAILURE:
+        case AEPS_SUBMIT_OTP_SUCCESS:
             return {
                 ...state,
-                aepsCwHistory: null,
-                aepsCwHistoryTotalCount: 0,
+                submitOtp: action.payload,
                 loading: false,
-                error: action.payload,
-                success: null,
-                message: action.payload?.message || action.payload,
-            };
+                error: null,
+                success: action.payload.status,
+                message: action.payload.message,
+            }
+
+        case AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS:
+            return {
+                ...state,
+                aepsBiometricstatus: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
+        case AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS:
+            return{
+                ...state,
+                aepsFaStatus: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
 
         default:
             return state;
@@ -63,4 +83,3 @@ const aepsReducer = (state = initialState, action) => {
 };
 
 export default aepsReducer;
-
