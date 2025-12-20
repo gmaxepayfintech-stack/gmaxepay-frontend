@@ -4,7 +4,6 @@ import StartCapture from "../../../public/img/StartCapture.svg";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
-const EyeClosed = "/img/EyeClosed.svg";
 
 const Selectservice = () => {
   const [activeTab, setActiveTab] = useState("cashWithdrawal");

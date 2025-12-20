@@ -22,9 +22,9 @@ const AepsAcceptance = () => {
     // Call aepsStatusCheck on component mount
     useEffect(() => {
         dispatch(aepsStatusCheck()).then((response) => {
-            console.log("aepsStatusCheck response:", response);
+            console.log("aepsStatusCheck response in AepsAcceptance:", response);
         }).catch((error) => {
-            console.error("aepsStatusCheck error:", error);
+            console.error("aepsStatusCheck error in AepsAcceptance:", error);
         });
     }, [dispatch]);
 
