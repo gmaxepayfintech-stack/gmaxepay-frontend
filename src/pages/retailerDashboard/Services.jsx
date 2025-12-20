@@ -1,9 +1,11 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
+import AEPSAccessConfirm from "./AEPSAccessConfirm";
+
 
 const DEFAULT_DESCRIPTION =
     "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -58,8 +60,85 @@ ServiceCard.propTypes = {
 
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
+    const [showAepsConfirm, setShowAepsConfirm] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
+
+    // Get aepsStatus from Redux
+    const aepsStatus = useSelector(
+        (state) => state.aepsReducer?.aepsStatus
+    );
+
+    /* -------------------------------------------
+        CHECK IF ALL STATUS IS COMPLETED
+    --------------------------------------------*/
+    const checkIfAllStatusCompleted = (statusData) => {
+        if (!statusData) {
+            return false;
+        }
+
+        // Check all required steps are completed based on response structure
+        const aepsOnboarding = statusData?.aepsOnboarding;
+        const validateAgentOtp = statusData?.validateAgentOtp;
+        const bioMetricVerification = statusData?.bioMetricVerification;
+        const daily2FAAuthentication = statusData?.daily2FAAuthentication;
+
+        // Check if all four steps are completed
+        const isAepsOnboardingCompleted = 
+            aepsOnboarding?.status?.toLowerCase() === "completed" && 
+            aepsOnboarding?.isCompleted === true;
+
+        const isValidateAgentOtpCompleted = 
+            validateAgentOtp?.status?.toLowerCase() === "completed" && 
+            validateAgentOtp?.isCompleted === true;
+
+        const isBioMetricVerificationCompleted = 
+            bioMetricVerification?.status?.toLowerCase() === "completed" && 
+            bioMetricVerification?.isCompleted === true;
+
+        const isDaily2FAAuthenticationCompleted = 
+            daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
+            daily2FAAuthentication?.isCompleted === true;
+
+        const allCompleted = 
+            isAepsOnboardingCompleted &&
+            isValidateAgentOtpCompleted &&
+            isBioMetricVerificationCompleted &&
+            isDaily2FAAuthenticationCompleted;
+
+        return allCompleted;
+    };
+
+    // Check status on component mount
+    useEffect(() => {
+        dispatch(aepsStatusCheck()).then((response) => {
+            console.log("aepsStatusCheck response in Services:", response);
+            
+            // Check if all status is completed
+            const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
+            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+            
+            if (isAllCompleted) {
+                console.log("✅ All AEPS status completed, showing confirm page");
+                setShowAepsConfirm(true);
+            }
+        }).catch((error) => {
+            console.error("aepsStatusCheck error in Services:", error);
+        });
+    }, [dispatch]);
+
+    // Also check from Redux state when it updates
+    useEffect(() => {
+        if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
+            const aepsStatusData = aepsStatus?.aepsStatus?.data || aepsStatus?.data || aepsStatus?.aepsStatus;
+            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+            
+            if (isAllCompleted && !showAepsConfirm) {
+                console.log("✅ All AEPS status completed from Redux, showing confirm page");
+                setShowAepsConfirm(true);
+            }
+        }
+    }, [aepsStatus, showAepsConfirm]);
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
@@ -72,15 +151,28 @@ const Services = () => {
             const response = await dispatch(aepsStatusCheck());
             console.log("aepsStatusCheck response in Services:", response);
             
-            // Navigate to onboarding-aeps route
-            // The AepsAcceptance component will handle conditional rendering based on status
-            navigate("/retailerDashboard/onboarding-aeps");
+            // Check if all status is completed
+            const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
+            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+            
+            if (isAllCompleted) {
+                // Show confirm page if all completed
+                setShowAepsConfirm(true);
+            } else {
+                // Navigate to onboarding-aeps route if not completed
+                navigate("/retailerDashboard/onboarding-aeps");
+            }
         } catch (error) {
             console.error("aepsStatusCheck error in Services:", error);
             // Still navigate even on error, let AepsAcceptance handle it
             navigate("/retailerDashboard/onboarding-aeps");
         }
     };
+
+    // Show AEPSAccessConfirm if all status is completed
+    if (showAepsConfirm) {
+        return <AEPSAccessConfirm />;
+    }
 
     return (
         <div className="w-full">
