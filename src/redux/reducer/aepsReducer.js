@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_BANK_LIST_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -10,8 +10,9 @@ const initialState = {
     aepsStatus: null,
     submitOtp: null,
     aepsBiometricstatus: null,
-    aepsFaStatus:null,
-    bankList:null
+    aepsFaStatus: null,
+    bankList: null,
+    withdrawal:null
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -69,7 +70,7 @@ const aepsReducer = (state = initialState, action) => {
             }
 
         case AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS:
-            return{
+            return {
                 ...state,
                 aepsFaStatus: action?.payload,
                 loading: false,
@@ -77,14 +78,22 @@ const aepsReducer = (state = initialState, action) => {
                 success: action?.payload?.status,
                 message: action?.payload?.message,
             }
-            case AEPS_BANK_LIST_SUCCESS:
-                return{
-                    ...state,
-                    error:null,
-                    bankList: action?.payload,
-                    message: action?.payload?.message,
-                    success:action?.payload?.status
-                }
+        case AEPS_BANK_LIST_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                bankList: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status
+            }
+        case AEPS_WITHDRAWAL_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                withdrawal: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status
+            }
 
         default:
             return state;
