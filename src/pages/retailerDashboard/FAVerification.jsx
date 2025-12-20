@@ -41,6 +41,55 @@ const FAVerification = () => {
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
 
+  /* -------------------------------------------
+      CHECK IF ALL STATUS IS COMPLETED
+  --------------------------------------------*/
+  const checkIfAllStatusCompleted = (statusData) => {
+    if (!statusData) {
+      console.log("⚠️ No status data available");
+      return false;
+    }
+
+    // Check all required steps are completed based on response structure
+    const aepsOnboarding = statusData?.aepsOnboarding;
+    const validateAgentOtp = statusData?.validateAgentOtp;
+    const bioMetricVerification = statusData?.bioMetricVerification;
+    const daily2FAAuthentication = statusData?.daily2FAAuthentication;
+
+    // Check if all four steps are completed
+    const isAepsOnboardingCompleted = 
+      aepsOnboarding?.status?.toLowerCase() === "completed" && 
+      aepsOnboarding?.isCompleted === true;
+
+    const isValidateAgentOtpCompleted = 
+      validateAgentOtp?.status?.toLowerCase() === "completed" && 
+      validateAgentOtp?.isCompleted === true;
+
+    const isBioMetricVerificationCompleted = 
+      bioMetricVerification?.status?.toLowerCase() === "completed" && 
+      bioMetricVerification?.isCompleted === true;
+
+    const isDaily2FAAuthenticationCompleted = 
+      daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
+      daily2FAAuthentication?.isCompleted === true;
+
+    const allCompleted = 
+      isAepsOnboardingCompleted &&
+      isValidateAgentOtpCompleted &&
+      isBioMetricVerificationCompleted &&
+      isDaily2FAAuthenticationCompleted;
+
+    console.log("🔍 Status check:", {
+      aepsOnboarding: isAepsOnboardingCompleted,
+      validateAgentOtp: isValidateAgentOtpCompleted,
+      bioMetricVerification: isBioMetricVerificationCompleted,
+      daily2FAAuthentication: isDaily2FAAuthenticationCompleted,
+      allCompleted
+    });
+
+    return allCompleted;
+  };
+
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
   ---------------------------------*/
@@ -261,8 +310,20 @@ const FAVerification = () => {
           dispatch(aepsStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
-              // Navigate to confirm page on success
-              setShowConfirm(true);
+              
+              // Check if all status is completed
+              // Response structure: { status, message, data: { aepsOnboarding, validateAgentOtp, bioMetricVerification, daily2FAAuthentication } }
+              const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
+              const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+              
+              if (isAllCompleted) {
+                console.log("✅ All AEPS status completed, navigating to confirm page");
+                // Navigate to confirm page only when all status is completed
+                setShowConfirm(true);
+              } else {
+                console.log("⚠️ AEPS status not fully completed yet");
+                setDeviceMessage("Verification in progress. Please wait...");
+              }
             })
             .catch((error) => {
               console.error("❌ AEPS Status check error:", error);
@@ -297,8 +358,18 @@ const FAVerification = () => {
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
       console.log("AEPS Status updated:", aepsStatus);
+      
+      // Check if all status is completed from Redux state
+      // Redux structure: { status, message, aepsStatus: { status, message, data: {...} } }
+      const aepsStatusData = aepsStatus?.aepsStatus?.data || aepsStatus?.data || aepsStatus?.aepsStatus;
+      const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+      
+      if (isAllCompleted && !showConfirm) {
+        console.log("✅ All AEPS status completed from Redux, navigating to confirm page");
+        setShowConfirm(true);
+      }
     }
-  }, [aepsStatus]);
+  }, [aepsStatus, showConfirm]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
