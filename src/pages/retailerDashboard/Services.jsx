@@ -1,10 +1,9 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
-import AEPSAccessConfirm from "./AEPSAccessConfirm";
 
 
 const DEFAULT_DESCRIPTION =
@@ -60,49 +59,8 @@ ServiceCard.propTypes = {
 
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
-    const [showAepsConfirm, setShowAepsConfirm] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
-
-    /* -------------------------------------------
-        CHECK IF ALL STATUS IS COMPLETED
-    --------------------------------------------*/
-    const checkIfAllStatusCompleted = (statusData) => {
-        if (!statusData) {
-            return false;
-        }
-
-        // Check all required steps are completed based on response structure
-        const aepsOnboarding = statusData?.aepsOnboarding;
-        const validateAgentOtp = statusData?.validateAgentOtp;
-        const bioMetricVerification = statusData?.bioMetricVerification;
-        const daily2FAAuthentication = statusData?.daily2FAAuthentication;
-
-        // Check if all four steps are completed
-        const isAepsOnboardingCompleted = 
-            aepsOnboarding?.status?.toLowerCase() === "completed" && 
-            aepsOnboarding?.isCompleted === true;
-
-        const isValidateAgentOtpCompleted = 
-            validateAgentOtp?.status?.toLowerCase() === "completed" && 
-            validateAgentOtp?.isCompleted === true;
-
-        const isBioMetricVerificationCompleted = 
-            bioMetricVerification?.status?.toLowerCase() === "completed" && 
-            bioMetricVerification?.isCompleted === true;
-
-        const isDaily2FAAuthenticationCompleted = 
-            daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
-            daily2FAAuthentication?.isCompleted === true;
-
-        const allCompleted = 
-            isAepsOnboardingCompleted &&
-            isValidateAgentOtpCompleted &&
-            isBioMetricVerificationCompleted &&
-            isDaily2FAAuthenticationCompleted;
-
-        return allCompleted;
-    };
 
     // Note: Status check only happens when AEPS card is clicked, not on mount
 
@@ -111,62 +69,13 @@ const Services = () => {
         return servicesData.filter((s) => s.status === key);
     }, [activeTab]);
 
-    // Handle AEPS card click - check status and process steps accordingly
-    const handleAepsClick = async () => {
-        try {
-            console.log("🖱️ AEPS card clicked, checking status...");
-            
-            // Call status check to get current status
-            const response = await dispatch(aepsStatusCheck());
-            console.log("✅ aepsStatusCheck response in Services:", response);
-            
-            // Extract status data from response
-            // Response structure: { status, message, data: { aepsOnboarding, validateAgentOtp, ... } }
-            const aepsStatusData = response?.data || response?.aepsStatus?.data || response?.aepsStatus;
-            
-            if (!aepsStatusData) {
-                console.log("⚠️ No status data found, navigating to onboarding");
-                navigate("/retailerDashboard/onboarding-aeps");
-                return;
-            }
-            
-            // Check if all status is completed
-            const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
-            
-            if (isAllCompleted) {
-                // Show confirm page if all completed
-                console.log("✅ All AEPS status completed, showing confirm page");
-                setShowAepsConfirm(true);
-            } else {
-                // Determine which step needs to be completed
-                const aepsOnboarding = aepsStatusData?.aepsOnboarding;
-                const validateAgentOtp = aepsStatusData?.validateAgentOtp;
-                const bioMetricVerification = aepsStatusData?.bioMetricVerification;
-                const daily2FAAuthentication = aepsStatusData?.daily2FAAuthentication;
-
-                console.log("🔍 Current AEPS onboarding status:", {
-                    aepsOnboarding: aepsOnboarding?.status,
-                    validateAgentOtp: validateAgentOtp?.status,
-                    bioMetricVerification: bioMetricVerification?.status,
-                    daily2FAAuthentication: daily2FAAuthentication?.status
-                });
-
-                // Navigate to onboarding-aeps route
-                // The OnBoardingAeps component will automatically determine which step to show
-                console.log("📋 Navigating to onboarding flow to process next step");
-                navigate("/retailerDashboard/onboarding-aeps");
-            }
-        } catch (error) {
-            console.error("❌ aepsStatusCheck error in Services:", error);
-            // Still navigate even on error, let OnBoardingAeps handle it
-            navigate("/retailerDashboard/onboarding-aeps");
-        }
+    // Handle AEPS card click - always navigate to onboarding-aeps route
+    // The OnBoardingAeps component will handle all status checks and component rendering
+    const handleAepsClick = () => {
+        console.log("🖱️ AEPS card clicked, navigating to onboarding-aeps");
+        // Always navigate to onboarding-aeps - let that component handle everything
+        navigate("/retailerDashboard/onboarding-aeps");
     };
-
-    // Show AEPSAccessConfirm if all status is completed
-    if (showAepsConfirm) {
-        return <AEPSAccessConfirm />;
-    }
 
     return (
         <div className="w-full">

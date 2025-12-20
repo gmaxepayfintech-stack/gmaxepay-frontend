@@ -3,6 +3,7 @@ import IdentityVerification from "./identityVerification";
 import BiometricVerification from "./BiometricVerification";
 import FAVerification from "./FAVerification";
 import Selectservice from "./Selectservice";
+import AEPSAccessConfirm from "./AEPSAccessConfirm";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
@@ -11,6 +12,46 @@ const OnBoardingAeps = () => {
     const dispatch = useDispatch();
     const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
     const [showAcceptance, setShowAcceptance] = useState(false);
+
+    /* -------------------------------------------
+        CHECK IF ALL STATUS IS COMPLETED
+    --------------------------------------------*/
+    const checkIfAllStatusCompleted = (statusData) => {
+        if (!statusData) {
+            return false;
+        }
+
+        // Check all required steps are completed based on response structure
+        const aepsOnboarding = statusData?.aepsOnboarding;
+        const validateAgentOtp = statusData?.validateAgentOtp;
+        const bioMetricVerification = statusData?.bioMetricVerification;
+        const daily2FAAuthentication = statusData?.daily2FAAuthentication;
+
+        // Check if all four steps are completed
+        const isAepsOnboardingCompleted = 
+            aepsOnboarding?.status?.toLowerCase() === "completed" && 
+            aepsOnboarding?.isCompleted === true;
+
+        const isValidateAgentOtpCompleted = 
+            validateAgentOtp?.status?.toLowerCase() === "completed" && 
+            validateAgentOtp?.isCompleted === true;
+
+        const isBioMetricVerificationCompleted = 
+            bioMetricVerification?.status?.toLowerCase() === "completed" && 
+            bioMetricVerification?.isCompleted === true;
+
+        const isDaily2FAAuthenticationCompleted = 
+            daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
+            daily2FAAuthentication?.isCompleted === true;
+
+        const allCompleted = 
+            isAepsOnboardingCompleted &&
+            isValidateAgentOtpCompleted &&
+            isBioMetricVerificationCompleted &&
+            isDaily2FAAuthenticationCompleted;
+
+        return allCompleted;
+    };
 
     // Call aepsStatusCheck on component mount
     useEffect(() => {
@@ -73,13 +114,22 @@ const OnBoardingAeps = () => {
             return "faVerification";
         }
         
-        // All completed - show Selectservice
+        // All completed - check if we should show confirm or select service
+        const isAllCompleted = checkIfAllStatusCompleted(statusData);
+        if (isAllCompleted) {
+            return "aepsAccessConfirm";
+        }
+        
+        // All steps completed but not fully confirmed - show Selectservice
         return "selectService";
     };
 
     const currentStep = getCurrentStep();
 
-    // Conditional rendering based on status (skip initial screen check)
+    // Conditional rendering based on status - all components render under this route
+    if (currentStep === "aepsAccessConfirm") {
+        return <AEPSAccessConfirm />;
+    }
     if (currentStep === "identityVerification") {
         return <IdentityVerification onBack={() => setShowAcceptance(false)} />;
     }
