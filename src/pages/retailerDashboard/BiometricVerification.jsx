@@ -26,6 +26,7 @@ const BiometricVerification = () => {
   const [isGettingDeviceInfo, setIsGettingDeviceInfo] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [deviceMessage, setDeviceMessage] = useState("");
+  const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
   const biometricStatus = useSelector(
@@ -138,9 +139,25 @@ const BiometricVerification = () => {
     pidDataProcessedRef.current = false;
     lastPidDataRef.current = "";
     setPidData(""); // Clear previous pidData to ensure useEffect triggers
+    setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint...");
+    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+
+    // Start smooth progress animation that fills to 100% during capture
+    const totalDuration = 10000; // 10 seconds (matches timeout)
+    const updateInterval = 100; // Update every 100ms
+    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+    
+    let currentProgress = 0;
+    const progressInterval = setInterval(() => {
+      currentProgress += incrementPerUpdate;
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(progressInterval);
+      }
+      setScanProgress(currentProgress);
+    }, updateInterval);
 
     const pidOptions = `<?xml version="1.0"?>
       <PidOptions ver="1.0">
@@ -164,29 +181,33 @@ const BiometricVerification = () => {
 
       const captureText = await captureResp.text();
 
+      // Clear progress interval
+      clearInterval(progressInterval);
+
       const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
       const respNode = xmlDoc.getElementsByTagName("Resp")[0];
       const errCode = respNode?.getAttribute("errCode");
 
       if (errCode === "0") {
+        // Only complete to 100% on successful capture (thumb was on device)
+        setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
         console.log("✅ PID Data captured successfully, errCode:", errCode);
         console.log("📦 Setting pidData, length:", captureText.length);
-        console.log("📦 First 100 chars:", captureText.substring(0, 100));
         setPidData(captureText);
-        // Log immediately after setting to verify state update
-        setTimeout(() => {
-          console.log("⏱️ After setPidData - checking if useEffect will trigger");
-        }, 100);
         setIsScanning(false);
       } else {
+        // Reset progress on failure - thumb was not on device or capture failed
+        setScanProgress(0);
         const errInfo = respNode?.getAttribute("errInfo") || "";
         setDeviceMessage(`Capture failed: ${errInfo}`);
         console.error(`Capture failed: ${errInfo}`);
         setIsScanning(false);
       }
     } catch (err) {
+      clearInterval(progressInterval);
+      setScanProgress(0);
       setDeviceMessage("Capture failed. Please try again.");
       console.error("Capture failed:", err);
       setIsScanning(false);
@@ -417,12 +438,23 @@ const BiometricVerification = () => {
             {/* Keep same UI visible; dim/disable when comingSoon */}
             <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
               <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
+                {/* Outer circle background */}
                 <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
-                <div className="absolute inset-[18px] rounded-full bg-white" />
+                {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
+                {isScanning && (
+                  <div
+                    className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
+                    style={{
+                      background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
+                    }}
+                  />
+                )}
+                {/* Inner white circle */}
+                <div className="absolute inset-[18px] rounded-full bg-white z-10" />
                 <img
                   src={mode === "iris" ? IrisIcon : FingerPrintIcon}
                   alt={mode === "iris" ? "Iris" : "Fingerprint"}
-                  className="relative w-10 h-10"
+                  className="relative w-10 h-10 z-20"
                 />
                 <button
                   type="button"
