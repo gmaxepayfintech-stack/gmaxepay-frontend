@@ -306,42 +306,28 @@ const Selectservice = () => {
     }
   };
 
-  // Fetch user profile on component mount
-  useEffect(() => {
-    dispatch(getUserProfile())
-      .then((response) => {
-        console.log("User profile response:", response);
-      })
-      .catch((error) => {
-        console.error("User profile error:", error);
-      });
-  }, [dispatch]);
-
-  // Fetch bank list on component mount
-  useEffect(() => {
-    const payload = {
-      query: { isActive: true },
-      customSearch: {},
-      options: {
-        page: 1,
-        paginate: 100,
-        sort: { id: 1 }
-      }
-    };
-    
-    dispatch(aepsBankList(payload))
-      .then((response) => {
-        console.log("Bank list response:", response);
-      })
-      .catch((error) => {
-        console.error("Bank list error:", error);
-      });
-  }, [dispatch]);
-
-  // Check device on component mount
-  useEffect(() => {
-    discoverAvdm();
-  }, []);
+  // Fetch bank list when user interacts with bank dropdown
+  const fetchBankList = () => {
+    if (banks.length === 0) {
+      const payload = {
+        query: { isActive: true },
+        customSearch: {},
+        options: {
+          page: 1,
+          paginate: 100,
+          sort: { id: 1 }
+        }
+      };
+      
+      dispatch(aepsBankList(payload))
+        .then((response) => {
+          console.log("Bank list response:", response);
+        })
+        .catch((error) => {
+          console.error("Bank list error:", error);
+        });
+    }
+  };
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -489,7 +475,7 @@ const Selectservice = () => {
 
   // Proceed with withdrawal API call
   const proceedWithWithdrawal = async (capturedPidData, bank, amount, aadhar, mobile) => {
-    // Get location and IP from userProfile
+    // Get location and IP from userProfile (should be fetched before withdrawal)
     const latitude = userProfile?.latitude || "";
     const longitude = userProfile?.longitude || "";
     const ipAddress = userProfile?.ipAddress || "";
@@ -809,7 +795,10 @@ const Selectservice = () => {
               <div className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
                 Recent Used Bank
               </div>
-              <div className="flex gap-3 overflow-x-auto pb-2">
+              <div 
+                className="flex gap-3 overflow-x-auto pb-2"
+                onMouseEnter={fetchBankList} // Fetch bank list when hovering over recent banks
+              >
                 {recentBanks.map((bank) => (
                   <button
                     key={bank.id}
@@ -870,7 +859,10 @@ const Selectservice = () => {
                     setSelectedBank(null);
                   }
                 }}
-                onFocus={() => setShowBankDropdown(true)}
+                onFocus={() => {
+                  setShowBankDropdown(true);
+                  fetchBankList(); // Fetch bank list when user focuses on input
+                }}
                 onBlur={() => formik.setFieldTouched("selectedBank", true)}
                 placeholder={selectedBank ? selectedBank.bankName : "Search bank..."}
                 className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
@@ -1039,7 +1031,10 @@ const Selectservice = () => {
               <div className="flex flex-wrap gap-3">
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("500")}
+                  onClick={() => {
+                    setSelectedAmount("500");
+                    formik.setFieldValue("selectedAmount", "500");
+                  }}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
                     selectedAmount === "500"
                       ? "bg-[#039155] text-white border-[#039155]"
@@ -1092,7 +1087,10 @@ const Selectservice = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("10000")}
+                  onClick={() => {
+                    setSelectedAmount("10000");
+                    formik.setFieldValue("selectedAmount", "10000");
+                  }}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
                     selectedAmount === "10000"
                       ? "bg-[#039155] text-white border-[#039155]"
