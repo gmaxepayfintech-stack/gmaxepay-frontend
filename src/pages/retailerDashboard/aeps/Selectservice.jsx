@@ -405,10 +405,95 @@ const Selectservice = () => {
     formik.setFieldValue("pidData", pidData);
   }, [pidData, formik]);
 
-  // Handle withdrawal button click
+  // Handle withdrawal - captures fingerprint if needed, then calls API
   const handleWithdrawal = async (values) => {
     const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile, pidData: pid } = values;
 
+    // If pidData doesn't exist, capture fingerprint first
+    if (!pid || pid.trim() === "") {
+      if (!deviceConnected) {
+        alert("Device not connected. Please check device first.");
+        return;
+      }
+      
+      // Trigger capture
+      try {
+        setDeviceMessage("Capturing fingerprint for withdrawal...");
+        setIsScanning(true);
+        setScanProgress(0);
+
+        // Start progress animation
+        const totalDuration = 10000;
+        const updateInterval = 100;
+        const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+        let currentProgress = 0;
+        const progressInterval = setInterval(() => {
+          currentProgress += incrementPerUpdate;
+          if (currentProgress >= 100) {
+            currentProgress = 100;
+            clearInterval(progressInterval);
+          }
+          setScanProgress(currentProgress);
+        }, updateInterval);
+
+        const pidOptions = `<?xml version="1.0"?>
+          <PidOptions ver="1.0">
+            <Opts 
+              fCount="1"
+              fType="0"
+              format="0"
+              pidVer="2.0"
+              timeout="10000"
+              env="P"
+            />
+          </PidOptions>
+        `;
+
+        const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
+          method: "CAPTURE",
+          headers: { "Content-Type": "text/xml; charset=utf-8" },
+          body: pidOptions,
+        });
+
+        const captureText = await captureResp.text();
+        clearInterval(progressInterval);
+
+        const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
+        const respNode = xmlDoc.getElementsByTagName("Resp")[0];
+        const errCode = respNode?.getAttribute("errCode");
+
+        if (errCode === "0") {
+          setScanProgress(100);
+          setDeviceMessage("Fingerprint captured successfully");
+          setPidData(captureText);
+          formik.setFieldValue("pidData", captureText);
+          setIsScanning(false);
+          
+          // Now proceed with withdrawal using the captured data
+          await proceedWithWithdrawal(captureText, bank, amount, aadhar, mobile);
+        } else {
+          setScanProgress(0);
+          const errInfo = respNode?.getAttribute("errInfo") || "";
+          setDeviceMessage(`Capture failed: ${errInfo}`);
+          setIsScanning(false);
+          alert(`Fingerprint capture failed: ${errInfo}`);
+          return;
+        }
+      } catch (err) {
+        setScanProgress(0);
+        setDeviceMessage("Capture failed. Please try again.");
+        setIsScanning(false);
+        alert("Failed to capture fingerprint. Please try again.");
+        return;
+      }
+    } else {
+      // pidData already exists, proceed directly with withdrawal
+      await proceedWithWithdrawal(pid, bank, amount, aadhar, mobile);
+    }
+  };
+
+  // Proceed with withdrawal API call
+  const proceedWithWithdrawal = async (capturedPidData, bank, amount, aadhar, mobile) => {
     // Get location and IP from userProfile
     const latitude = userProfile?.latitude || "";
     const longitude = userProfile?.longitude || "";
@@ -416,11 +501,11 @@ const Selectservice = () => {
 
     // Prepare payload - pidData should already be the full XML response
     // If it doesn't have PidData wrapper, wrap it; otherwise use as is
-    let biometricDataXml = pid;
-    if (!pid.includes("<PidData>")) {
-      biometricDataXml = `<?xml version="1.0"?><PidData>${pid}</PidData>`;
-    } else if (!pid.includes("<?xml version")) {
-      biometricDataXml = `<?xml version="1.0"?>${pid}`;
+    let biometricDataXml = capturedPidData;
+    if (!capturedPidData.includes("<PidData>")) {
+      biometricDataXml = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
+    } else if (!capturedPidData.includes("<?xml version")) {
+      biometricDataXml = `<?xml version="1.0"?>${capturedPidData}`;
     }
 
     const payload = {
@@ -448,6 +533,7 @@ const Selectservice = () => {
         setMobileNumber("");
         setPidData("");
         setBankSearchQuery("");
+        setScanProgress(0);
       } else {
         alert(response?.message || "Withdrawal failed");
       }
@@ -790,9 +876,17 @@ const Selectservice = () => {
                   }
                 }}
                 onFocus={() => setShowBankDropdown(true)}
+                onBlur={() => formik.setFieldTouched("selectedBank", true)}
                 placeholder={selectedBank ? selectedBank.bankName : "Search bank..."}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                  formik.touched.selectedBank && formik.errors.selectedBank
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
+              {formik.touched.selectedBank && formik.errors.selectedBank && (
+                <p className="mt-1 text-[12px] text-red-500">{formik.errors.selectedBank}</p>
+              )}
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg
                   width="16"
@@ -936,9 +1030,15 @@ const Selectservice = () => {
                     // Extract only numbers from the input
                     const numericValue = e.target.value.replace(/[^\d]/g, '');
                     setSelectedAmount(numericValue);
+                    formik.setFieldValue("selectedAmount", numericValue);
                   }}
+                  onBlur={() => formik.setFieldTouched("selectedAmount", true)}
                   placeholder="Enter amount"
-                  className="w-full pl-8 pr-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Medium'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+                  className={`w-full pl-8 pr-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Medium'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                    formik.touched.selectedAmount && formik.errors.selectedAmount
+                      ? "border-red-500"
+                      : "border-gray-300"
+                  }`}
                 />
               </div>
               <div className="flex flex-wrap gap-3">
@@ -955,7 +1055,10 @@ const Selectservice = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("1000")}
+                  onClick={() => {
+                    setSelectedAmount("1000");
+                    formik.setFieldValue("selectedAmount", "1000");
+                  }}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
                     selectedAmount === "1000"
                       ? "bg-[#039155] text-white border-[#039155]"
@@ -966,7 +1069,10 @@ const Selectservice = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("2000")}
+                  onClick={() => {
+                    setSelectedAmount("2000");
+                    formik.setFieldValue("selectedAmount", "2000");
+                  }}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
                     selectedAmount === "2000"
                       ? "bg-[#039155] text-white border-[#039155]"
@@ -977,7 +1083,10 @@ const Selectservice = () => {
                 </button>
                 <button
                   type="button"
-                  onClick={() => setSelectedAmount("5000")}
+                  onClick={() => {
+                    setSelectedAmount("5000");
+                    formik.setFieldValue("selectedAmount", "5000");
+                  }}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
                     selectedAmount === "5000"
                       ? "bg-[#039155] text-white border-[#039155]"
@@ -1004,15 +1113,40 @@ const Selectservice = () => {
           {/* Action Button */}
           <button
             type="button"
-            onClick={() => {
+            onClick={async () => {
               if (activeTab === "cashWithdrawal") {
                 // Validate all fields before submitting
                 formik.setFieldTouched("selectedBank", true);
                 formik.setFieldTouched("selectedAmount", true);
                 formik.setFieldTouched("aadhaarNumber", true);
                 formik.setFieldTouched("mobileNumber", true);
-                formik.setFieldTouched("pidData", true);
-                formik.handleSubmit();
+                
+                // Check if form is valid (except pidData which will be captured if needed)
+                const errors = await formik.validateForm();
+                const hasErrors = errors.selectedBank || errors.selectedAmount || errors.aadhaarNumber || errors.mobileNumber;
+                
+                if (hasErrors) {
+                  // Show validation errors
+                  formik.setFieldTouched("selectedBank", true);
+                  formik.setFieldTouched("selectedAmount", true);
+                  formik.setFieldTouched("aadhaarNumber", true);
+                  formik.setFieldTouched("mobileNumber", true);
+                  return;
+                }
+
+                // If device not connected, show error
+                if (!deviceConnected) {
+                  alert("Device not connected. Please check device first.");
+                  return;
+                }
+
+                // Proceed with withdrawal (will capture if needed)
+                formik.setSubmitting(true);
+                try {
+                  await handleWithdrawal(formik.values);
+                } finally {
+                  formik.setSubmitting(false);
+                }
               } else if (activeTab === "enquiry") {
                 // Handle enquiry
                 console.log("Check Balance clicked");
@@ -1021,11 +1155,11 @@ const Selectservice = () => {
                 console.log("Check Statement clicked");
               }
             }}
-            disabled={formik.isSubmitting}
+            disabled={formik.isSubmitting || isScanning}
             className="w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {formik.isSubmitting
-              ? "Processing..."
+            {formik.isSubmitting || isScanning
+              ? isScanning ? "Capturing..." : "Processing..."
               : activeTab === "cashWithdrawal"
               ? "Withdrawal"
               : activeTab === "enquiry"
