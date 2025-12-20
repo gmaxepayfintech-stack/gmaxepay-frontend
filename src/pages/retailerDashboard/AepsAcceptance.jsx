@@ -17,6 +17,7 @@ const AepsAcceptance = () => {
     const { aepsStatus } = useSelector((state) => state.aeps || {});
     const [accepted, setAccepted] = useState(true);
     const [showIdentityVerification, setShowIdentityVerification] = useState(false);
+    const [isLoading, setIsLoading] = useState(false);
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
     // Call aepsStatusCheck on component mount
@@ -77,13 +78,18 @@ const AepsAcceptance = () => {
     const currentStep = getCurrentStep();
 
     const handleAcceptAndContinue = async () => {
+        setIsLoading(true);
         try {
             const response = await dispatch(aepsTermsConditionOtp());
             console.log("aepsTermsConditionOtp response:", response);
             // After successful OTP, show identity verification
-            setShowIdentityVerification(true);
+            if (response?.status === "SUCCESS") {
+                setShowIdentityVerification(true);
+            }
         } catch (error) {
             console.error("aepsTermsConditionOtp error:", error);
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -246,34 +252,60 @@ const AepsAcceptance = () => {
 
                 <button
                     type="button"
-                    disabled={!accepted}
+                    disabled={!accepted || isLoading}
                     onClick={handleAcceptAndContinue}
                     className="flex items-center justify-between bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg px-6 py-2 text-[14px] font-['Gilroy-Medium'] transition md:w-[260px] sm:w-[260px]"
                 >
-                    <span className="text-[16px] font-['Gilroy-SemiBold'] text-[#FFFFFF]">Accept And Continue</span>
+                    <span className="text-[16px] font-['Gilroy-SemiBold'] text-[#FFFFFF]">
+                        {isLoading ? "Processing..." : "Accept And Continue"}
+                    </span>
                     <span className="inline-flex items-center justify-center w-8 h-8 ml-auto">
-                        <svg
-                            width="22"
-                            height="22"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                            aria-hidden="true"
-                        >
-                            <path
-                                d="M5 12h12"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                            />
-                            <path
-                                d="M13 6l6 6-6 6"
-                                stroke="currentColor"
-                                strokeWidth="2"
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                            />
-                        </svg>
+                        {isLoading ? (
+                            <svg
+                                className="animate-spin h-5 w-5 text-white"
+                                xmlns="http://www.w3.org/2000/svg"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                aria-hidden="true"
+                            >
+                                <circle
+                                    className="opacity-25"
+                                    cx="12"
+                                    cy="12"
+                                    r="10"
+                                    stroke="currentColor"
+                                    strokeWidth="4"
+                                />
+                                <path
+                                    className="opacity-75"
+                                    fill="currentColor"
+                                    d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                                />
+                            </svg>
+                        ) : (
+                            <svg
+                                width="22"
+                                height="22"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                xmlns="http://www.w3.org/2000/svg"
+                                aria-hidden="true"
+                            >
+                                <path
+                                    d="M5 12h12"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                />
+                                <path
+                                    d="M13 6l6 6-6 6"
+                                    stroke="currentColor"
+                                    strokeWidth="2"
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                />
+                            </svg>
+                        )}
                     </span>
                 </button>
             </div>
