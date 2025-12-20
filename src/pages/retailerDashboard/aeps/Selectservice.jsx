@@ -1,17 +1,42 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
+import { aepsBankList } from "../../../redux/action/aepsAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
 const Selectservice = () => {
+  const dispatch = useDispatch();
+  const bankList = useSelector((state) => state.aeps?.bankList);
+  
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
-  const [selectedBank, setSelectedBank] = useState("yesBank");
+  const [selectedBank, setSelectedBank] = useState(null); // Store full bank object
   const [selectedAmount, setSelectedAmount] = useState("1000");
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
+  
+  // Bank search states
+  const [bankSearchQuery, setBankSearchQuery] = useState("");
+  const [showBankDropdown, setShowBankDropdown] = useState(false);
+  const bankDropdownRef = useRef(null);
+  
+  // RD Service states
+  const [rdBaseUrl, setRdBaseUrl] = useState("");
+  const [pidData, setPidData] = useState("");
+  const [deviceInfoXml, setDeviceInfoXml] = useState("");
+  const [isDeviceChecking, setIsDeviceChecking] = useState(false);
+  const [isGettingDeviceInfo, setIsGettingDeviceInfo] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [deviceConnected, setDeviceConnected] = useState(false);
+  const [deviceMessage, setDeviceMessage] = useState("");
+  const [scanProgress, setScanProgress] = useState(0); // For fill animation
+
+  // Ref to track if API has been called for current pidData
+  const pidDataProcessedRef = useRef(false);
+  const lastPidDataRef = useRef("");
   
   const comingSoon = biometricMethod === "iris";
 
@@ -21,13 +46,243 @@ const Selectservice = () => {
     { key: "statement", label: "Statement" },
   ];
 
-  const recentBanks = [
-    { id: "yesBank", name: "Yes Bank", logo: "YES BANK" },
-    { id: "kotak1", name: "Kotak Mahindra Bank", logo: "KOTAK" },
-    { id: "kotak2", name: "Kotak Mahindra Bank", logo: "KOTAK" },
-    { id: "axis", name: "Axis Bank", logo: "AXIS" },
-  ];
+  // Get banks from API response
+  // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
+  const banks = bankList?.bankList || [];
+  
+  // Filter banks based on search query (show all if search is empty)
+  const filteredBanks = bankSearchQuery
+    ? banks.filter((bank) =>
+        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase())
+      )
+    : banks;
 
+  // Get recent banks (first 4 from the list, or you can implement logic to track recently used)
+  const recentBanks = banks.slice(0, 4);
+
+  /* -------------------------------
+      STEP 1 → Discover RD SERVICE
+  ---------------------------------*/
+  const discoverAvdm = async () => {
+    setIsDeviceChecking(true);
+    setDeviceConnected(false);
+    setRdBaseUrl("");
+    setDeviceMessage("Checking device...");
+
+    const baseURL = "https://127.0.0.1:11100";
+
+    try {
+      // ---- CALL 1: RDSERVICE ----
+      const rdResp = await fetch(baseURL, {
+        method: "RDSERVICE",
+        headers: {
+          "Content-Type": "text/xml; charset=utf-8",
+        },
+      });
+
+      if (!rdResp.ok) {
+        throw new Error("RD Service not responding");
+      }
+
+      const rdText = await rdResp.text();
+      setDeviceInfoXml(rdText);
+
+      const xmlDoc = new DOMParser().parseFromString(rdText, "text/xml");
+      const rdService = xmlDoc.getElementsByTagName("RDService")[0];
+      const status = rdService?.getAttribute("status");
+
+      if (status !== "READY") {
+        setDeviceConnected(false);
+        setDeviceMessage("Device detected but not ready");
+        setIsDeviceChecking(false);
+        return;
+      }
+
+      setRdBaseUrl(baseURL);
+      setDeviceConnected(true);
+      setDeviceMessage("Device detected and READY");
+    } catch (err) {
+      console.error(err);
+      setDeviceConnected(false);
+      setDeviceMessage("RD Service not found! Install ACPL/FM220U RD Service.");
+    }
+
+    setIsDeviceChecking(false);
+  };
+
+  /* -------------------------------
+      STEP 2 → GET DEVICE INFO
+  ---------------------------------*/
+  const getDeviceInfo = async () => {
+    if (!rdBaseUrl) {
+      setDeviceMessage("Please check device first.");
+      return;
+    }
+
+    setIsGettingDeviceInfo(true);
+    setDeviceMessage("Fetching device info...");
+
+    try {
+      const infoResp = await fetch(`${rdBaseUrl}/rd/info`, {
+        method: "DEVICEINFO",
+      });
+
+      const infoText = await infoResp.text();
+      setDeviceInfoXml(infoText);
+
+      // Parse XML to extract device name
+      const xmlDoc = new DOMParser().parseFromString(infoText, "text/xml");
+      const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
+      const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
+
+      setDeviceMessage(`Device Name: ${deviceName}`);
+      console.log("Device Info:", infoText);
+      console.log("Device Name:", deviceName);
+    } catch (err) {
+      setDeviceMessage("Failed to read device info");
+      console.error("Device info error:", err);
+    }
+
+    setIsGettingDeviceInfo(false);
+  };
+
+  /* -------------------------------
+      STEP 3 → CAPTURE FINGER
+  ---------------------------------*/
+  const captureAvdm = async () => {
+    if (!rdBaseUrl) {
+      setDeviceMessage("No device found. Check device first.");
+      return;
+    }
+
+    // Reset refs for new capture
+    pidDataProcessedRef.current = false;
+    lastPidDataRef.current = "";
+    setPidData(""); // Clear previous pidData to ensure useEffect triggers
+    setScanProgress(0); // Reset progress
+
+    setIsScanning(true);
+    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+
+    // Start smooth progress animation that fills to 100% during capture
+    const totalDuration = 10000; // 10 seconds (matches timeout)
+    const updateInterval = 100; // Update every 100ms
+    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+    
+    let currentProgress = 0;
+    const progressInterval = setInterval(() => {
+      currentProgress += incrementPerUpdate;
+      if (currentProgress >= 100) {
+        currentProgress = 100;
+        clearInterval(progressInterval);
+      }
+      setScanProgress(currentProgress);
+    }, updateInterval);
+
+    const pidOptions = `<?xml version="1.0"?>
+      <PidOptions ver="1.0">
+        <Opts 
+          fCount="1"
+          fType="0"
+          format="0"
+          pidVer="2.0"
+          timeout="10000"
+          env="P"
+        />
+      </PidOptions>
+    `;
+
+    try {
+      const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
+        method: "CAPTURE",
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+        body: pidOptions,
+      });
+
+      const captureText = await captureResp.text();
+
+      // Clear progress interval
+      clearInterval(progressInterval);
+
+      const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
+      const respNode = xmlDoc.getElementsByTagName("Resp")[0];
+      const errCode = respNode?.getAttribute("errCode");
+
+      if (errCode === "0") {
+        // Only complete to 100% on successful capture (thumb was on device)
+        setScanProgress(100);
+        setDeviceMessage("Fingerprint captured successfully");
+        // Store pidData
+        console.log("✅ PID Data captured successfully, errCode:", errCode);
+        console.log("📦 Setting pidData, length:", captureText.length);
+        setPidData(captureText);
+        setIsScanning(false);
+      } else {
+        // Reset progress on failure - thumb was not on device or capture failed
+        setScanProgress(0);
+        const errInfo = respNode?.getAttribute("errInfo") || "";
+        setDeviceMessage(`Capture failed: ${errInfo}`);
+        console.error(`Capture failed: ${errInfo}`);
+        setIsScanning(false);
+      }
+    } catch (err) {
+      clearInterval(progressInterval);
+      setScanProgress(0);
+      setDeviceMessage("Capture failed. Please try again.");
+      console.error("Capture failed:", err);
+      setIsScanning(false);
+    }
+  };
+
+  // Fetch bank list on component mount
+  useEffect(() => {
+    const payload = {
+      query: { isActive: true },
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: 100,
+        sort: { id: 1 }
+      }
+    };
+    
+    dispatch(aepsBankList(payload))
+      .then((response) => {
+        console.log("Bank list response:", response);
+      })
+      .catch((error) => {
+        console.error("Bank list error:", error);
+      });
+  }, [dispatch]);
+
+  // Check device on component mount
+  useEffect(() => {
+    discoverAvdm();
+  }, []);
+
+  // Clear temporary device messages after 3 seconds, but keep important ones
+  useEffect(() => {
+    if (deviceMessage) {
+      // Messages to keep (don't clear these)
+      const persistentMessages = [
+        "Device Name:",
+        "Device detected and READY",
+        "Device Connected",
+        "Device Not Connected"
+      ];
+      
+      // Check if this is a persistent message
+      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
+      
+      // Only clear non-persistent messages after 3 seconds
+      if (!isPersistent) {
+        const timer = setTimeout(() => {
+          setDeviceMessage("");
+        }, 3000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [deviceMessage]);
 
   return (
     <div className="w-full">
@@ -117,26 +372,39 @@ const Selectservice = () => {
 
           {/* Connected Device Indicator */}
           <div className="mb-6">
-            <div className="inline-flex items-center gap-2 bg-[#039155] text-white rounded-full px-4 py-2">
-              <svg
-                width="14"
-                height="14"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                aria-hidden="true"
-              >
-                <path
-                  d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              <span className="text-[12px] font-['Gilroy-Medium']">
-                Connected Device
-              </span>
+            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
+              deviceConnected ? "bg-[#039155] text-white" : "bg-[#DC2626] text-white"
+            }`}>
+              {deviceMessage ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-[12px] font-['Gilroy-Medium']">
+                    {deviceMessage}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={discoverAvdm}
+                    disabled={isDeviceChecking}
+                    className="text-[10px] font-['Gilroy-Regular'] text-white hover:opacity-100 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDeviceChecking ? "Checking..." : "Check Again"}
+                  </button>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <span className={`w-2 h-2 rounded-full bg-white`} />
+                  <span className="text-[12px] font-['Gilroy-Medium']">
+                    {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={discoverAvdm}
+                    disabled={isDeviceChecking}
+                    className="text-[10px] font-['Gilroy-Regular'] text-white hover:opacity-100 whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {isDeviceChecking ? "Checking..." : "Check Again"}
+                  </button>
+                </div>
+              )}
             </div>
           </div>
 
@@ -149,18 +417,47 @@ const Selectservice = () => {
               comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""
             }`}>
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
+                {/* Outer circle background */}
                 <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
-                <div className="absolute inset-[18px] rounded-full bg-white" />
+                {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
+                {isScanning && biometricMethod === "thumb" && (
+                  <div
+                    className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
+                    style={{
+                      background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
+                    }}
+                  />
+                )}
+                {/* Inner white circle */}
+                <div className="absolute inset-[18px] rounded-full bg-white z-10" />
                 <img
                   src={biometricMethod === "iris" ? IrisIcon : FingerPrintIcon}
                   alt={biometricMethod === "iris" ? "Iris" : "Fingerprint"}
-                  className={`relative w-16 h-16 ${
+                  className={`relative w-16 h-16 z-20 ${
                     biometricMethod === "iris" ? "" : "opacity-60"
                   }`}
                 />
-                <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-white text-[12px] font-['Gilroy-Medium'] px-3 py-1 rounded-md">
-                  Ready
-                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (deviceConnected) {
+                      getDeviceInfo();
+                    } else {
+                      discoverAvdm();
+                    }
+                  }}
+                  disabled={isDeviceChecking || isGettingDeviceInfo}
+                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-white text-[10px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
+                  aria-label={deviceConnected ? "Device Info" : "Ready"}
+                >
+                  {isDeviceChecking
+                    ? "Checking..."
+                    : isGettingDeviceInfo
+                    ? "Fetching..."
+                    : deviceConnected
+                    ? "Device Info"
+                    : "Ready"}
+                </button>
               </div>
 
               <div className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717]">
@@ -178,7 +475,15 @@ const Selectservice = () => {
               {biometricMethod === "thumb" && (
                 <button
                   type="button"
-                  className="mt-4 inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px]"
+                  onClick={() => {
+                    if (!deviceConnected) {
+                      discoverAvdm();
+                      return;
+                    }
+                    captureAvdm();
+                  }}
+                  disabled={isScanning || comingSoon}
+                  className="mt-4 inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="inline-flex items-center justify-center w-6 h-6">
                     <img
@@ -188,7 +493,7 @@ const Selectservice = () => {
                       aria-hidden="true"
                     />
                   </span>
-                  Start Capture
+                  {isScanning ? "Scanning..." : "Start Capture"}
                 </button>
               )}
 
@@ -245,54 +550,78 @@ const Selectservice = () => {
           </div>
 
           {/* Recent Used Bank */}
-          <div className="mb-6">
-            <div className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
-              Recent Used Bank
-            </div>
-            <div className="flex gap-3 overflow-x-auto pb-2">
-              {recentBanks.map((bank) => (
-                <button
-                  key={bank.id}
-                  type="button"
-                  onClick={() => setSelectedBank(bank.id)}
-                  className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
-                    selectedBank === bank.id
-                      ? "bg-[#E5FFF4] border-[#039155]"
-                      : "bg-white border-gray-200"
-                  }`}
-                >
-                  <div className="flex flex-col items-center gap-2">
-                    <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <span className="text-[10px] font-['Gilroy-Medium'] text-gray-600">
-                        {bank.logo}
-                      </span>
+          {recentBanks.length > 0 && (
+            <div className="mb-6">
+              <div className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
+                Recent Used Bank
+              </div>
+              <div className="flex gap-3 overflow-x-auto pb-2">
+                {recentBanks.map((bank) => (
+                  <button
+                    key={bank.id}
+                    type="button"
+                    onClick={() => {
+                      setSelectedBank(bank);
+                      setBankSearchQuery(bank.bankName);
+                      setShowBankDropdown(false);
+                    }}
+                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
+                      selectedBank?.id === bank.id
+                        ? "bg-[#E5FFF4] border-[#039155]"
+                        : "bg-white border-gray-200"
+                    }`}
+                  >
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center overflow-hidden">
+                        {bank.bankLogo ? (
+                          <img
+                            src={bank.bankLogo}
+                            alt={bank.bankName}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              const fallback = e.target.parentElement.querySelector(".bank-fallback");
+                              if (fallback) fallback.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className="bank-fallback w-full h-full bg-gray-100 rounded-lg flex items-center justify-center" 
+                          style={{ display: bank.bankLogo ? "none" : "flex" }}
+                        >
+                          <span className="text-[8px] font-['Gilroy-Medium'] text-gray-600 text-center px-1">
+                            {bank.bankName?.substring(0, 3).toUpperCase() || "BANK"}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-[10px] font-['Gilroy-Medium'] text-[#1B1717] text-center">
-                      {bank.name}
-                    </div>
-                  </div>
-                </button>
-              ))}
+                  </button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
-          {/* Select Bank Dropdown */}
-          <div className="mb-6">
+          {/* Select Bank Dropdown - Searchable */}
+          <div className="mb-6" ref={bankDropdownRef}>
             <label className="block text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
               Select Bank *
             </label>
             <div className="relative">
-              <select
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white appearance-none focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
-                defaultValue=""
-              >
-                <option value="">Select</option>
-                <option value="yesBank">Yes Bank</option>
-                <option value="kotak">Kotak Mahindra Bank</option>
-                <option value="axis">Axis Bank</option>
-                <option value="hdfc">HDFC Bank</option>
-                <option value="icici">ICICI Bank</option>
-              </select>
+              <input
+                type="text"
+                value={bankSearchQuery}
+                onChange={(e) => {
+                  setBankSearchQuery(e.target.value);
+                  setShowBankDropdown(true);
+                  // Clear selection if user starts typing
+                  if (e.target.value !== selectedBank?.bankName) {
+                    setSelectedBank(null);
+                  }
+                }}
+                onFocus={() => setShowBankDropdown(true)}
+                placeholder={selectedBank ? selectedBank.bankName : "Search bank..."}
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
+              />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
                 <svg
                   width="16"
@@ -311,6 +640,61 @@ const Selectservice = () => {
                   />
                 </svg>
               </div>
+              
+              {/* Bank Dropdown List */}
+              {showBankDropdown && filteredBanks.length > 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
+                  {filteredBanks.map((bank) => (
+                    <button
+                      key={bank.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedBank(bank);
+                        setBankSearchQuery(bank.bankName);
+                        setShowBankDropdown(false);
+                      }}
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
+                        selectedBank?.id === bank.id ? "bg-[#E5FFF4]" : ""
+                      }`}
+                    >
+                      <div className="w-10 h-10 bg-gray-100 rounded flex items-center justify-center overflow-hidden relative">
+                        {bank.bankLogo ? (
+                          <img
+                            src={bank.bankLogo}
+                            alt={bank.bankName}
+                            className="w-full h-full object-contain"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              const fallback = e.target.parentElement.querySelector(".dropdown-bank-fallback");
+                              if (fallback) fallback.style.display = "flex";
+                            }}
+                          />
+                        ) : null}
+                        <div 
+                          className="dropdown-bank-fallback w-full h-full bg-gray-100 rounded flex items-center justify-center" 
+                          style={{ display: bank.bankLogo ? "none" : "flex" }}
+                        >
+                          <span className="text-[10px] font-['Gilroy-Medium'] text-gray-600">
+                            {bank.bankName?.substring(0, 2).toUpperCase() || "BK"}
+                          </span>
+                        </div>
+                      </div>
+                      <span className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-left">
+                        {bank.bankName}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              
+              {/* No results message */}
+              {showBankDropdown && bankSearchQuery && filteredBanks.length === 0 && (
+                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                  <p className="text-[14px] font-['Gilroy-Regular'] text-gray-500 text-center">
+                    No banks found
+                  </p>
+                </div>
+              )}
             </div>
           </div>
 
