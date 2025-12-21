@@ -3,7 +3,11 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
+<<<<<<< HEAD
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE } from "../actionType/aepsActionType";
+=======
 import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE } from "../actionType/aepsActionType";
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
 
 const commonError = "Something went wrong!";
 
@@ -291,14 +295,37 @@ export const aepsOnboardingFAVerification = (data) => async (dispatch) => {
     }
 };
 
+<<<<<<< HEAD
+export const getAepsCwHistory = (payload) => async (dispatch) => {
+=======
 export const aepsBankList = (data) => async (dispatch) => {
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
 
+<<<<<<< HEAD
+        const requestPayload = {
+            query: {
+                aepsTxnType: "CW",
+                ...(payload?.query || {}),
+            },
+            customSearch: payload?.customSearch || {},
+            options: {
+                page: payload?.options?.page || 1,
+                paginate: payload?.options?.paginate || 10,
+                sort: payload?.options?.sort || { createdAt: -1 },
+            },
+        };
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/reports/aeps`,
+            requestPayload,
+=======
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/bank/get-all-banks`,
             data,
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -307,6 +334,18 @@ export const aepsBankList = (data) => async (dispatch) => {
             }
         );
 
+<<<<<<< HEAD
+        const { data: aepsCwHistory, status, message, total, count, paginator } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_CW_HISTORY_SUCCESS,
+                payload: { data: aepsCwHistory, status, message, total, count, paginator },
+            });
+            return { data: aepsCwHistory, status, message, total, count, paginator };
+        } else {
+            dispatch({
+                type: AEPS_CW_HISTORY_FAILURE,
+=======
         const { data: bankList, status, message } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
@@ -317,6 +356,7 @@ export const aepsBankList = (data) => async (dispatch) => {
         } else {
             dispatch({
                 type: AEPS_BANK_LIST_FAILURE,
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
                 payload: {
                     status: response?.data?.status ?? "FAILURE",
                     message: response?.data?.message ?? commonError,
@@ -327,7 +367,11 @@ export const aepsBankList = (data) => async (dispatch) => {
     } catch (error) {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
+<<<<<<< HEAD
+            type: AEPS_CW_HISTORY_FAILURE,
+=======
             type: AEPS_BANK_LIST_FAILURE,
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
             payload: {
                 status: "FAILURE",
                 message: errorMessage,
@@ -339,6 +383,8 @@ export const aepsBankList = (data) => async (dispatch) => {
     }
 };
 
+<<<<<<< HEAD
+=======
 export const aepsWithdrawl = (data) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     console.log("🔵 aepsWithdrawl action called with data:", {
@@ -422,5 +468,6 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
     }
 };
 
+>>>>>>> 2c8e5ac62127a740e8171080275fdd65ca262d0e
 
 
