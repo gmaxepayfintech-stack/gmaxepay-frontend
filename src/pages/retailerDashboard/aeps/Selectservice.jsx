@@ -411,7 +411,53 @@ const Selectservice = () => {
 
   // Handle withdrawal - validates, captures fingerprint, gets location/IP, then calls API
   const handleWithdrawal = async (values) => {
+    console.log("🚀 handleWithdrawal called with values:", values);
     const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    
+    // Validate required fields
+    if (!bank || !bank.bankIIN) {
+      console.error("❌ Bank or bankIIN is missing");
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please select a bank",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!amount || parseFloat(amount.replaceAll(",", "")) <= 0) {
+      console.error("❌ Invalid amount");
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid amount",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!aadhar || aadhar.length !== 12) {
+      console.error("❌ Invalid Aadhaar number");
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 12-digit Aadhaar number",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!mobile || mobile.length !== 10) {
+      console.error("❌ Invalid mobile number");
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 10-digit mobile number",
+        type: "error",
+      });
+      return;
+    }
 
     // Check if device is connected
     if (!deviceConnected) {
@@ -489,7 +535,14 @@ const Selectservice = () => {
         
         // Get location and IP using getLocationAndIP utility
         setDeviceMessage("Getting location and IP address...");
-        const locationAndIP = await getLocationAndIP();
+        let locationAndIP;
+        try {
+          locationAndIP = await getLocationAndIP();
+          console.log("📍 Location and IP retrieved:", locationAndIP);
+        } catch (locationError) {
+          console.warn("⚠️ Failed to get location/IP, using empty values:", locationError);
+          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+        }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
         const ipAddress = locationAndIP?.ipAddress || "";
@@ -515,11 +568,18 @@ const Selectservice = () => {
           consumerNumber: mobile
         };
 
+        console.log("📤 Sending withdrawal request with payload:", {
+          ...payload,
+          biometricData: payload.biometricData?.substring(0, 100) + "... (truncated)"
+        });
+
         // Call withdrawal API
         setDeviceMessage("Processing withdrawal...");
-        const response = await dispatch(aepsWithdrawl(payload));
-        
-        if (response?.status === "SUCCESS") {
+        try {
+          const response = await dispatch(aepsWithdrawl(payload));
+          console.log("📥 Withdrawal API response:", response);
+          
+          if (response?.status === "SUCCESS") {
           showNotification({
             type: "success",
             message: "Withdrawal successful!",
@@ -541,6 +601,32 @@ const Selectservice = () => {
           });
           setDeviceMessage("Withdrawal failed");
         }
+        } catch (apiError) {
+          console.error("❌ Withdrawal API error caught in component:", apiError);
+          console.error("❌ Error details:", {
+            message: apiError?.message,
+            response: apiError?.response,
+            responseData: apiError?.response?.data,
+            status: apiError?.response?.status,
+            statusText: apiError?.response?.statusText,
+          });
+          
+          // Check if error response was returned from action
+          if (apiError?.status === "FAILURE" || apiError?.message) {
+            showNotification({
+              type: "error",
+              message: apiError?.message || "Withdrawal failed",
+            });
+          } else {
+            setModal({
+              isOpen: true,
+              title: "API Error",
+              message: apiError?.response?.data?.message || apiError?.message || "Failed to process withdrawal. Please check the console for details.",
+              type: "error",
+            });
+          }
+          setDeviceMessage("API call failed");
+        }
       } else {
         // Capture failed
         setScanProgress(0);
@@ -556,6 +642,7 @@ const Selectservice = () => {
         return;
       }
     } catch (err) {
+      console.error("❌ Error in handleWithdrawal:", err);
       setScanProgress(0);
       setDeviceMessage("Capture failed. Please try again.");
       setIsScanning(false);
