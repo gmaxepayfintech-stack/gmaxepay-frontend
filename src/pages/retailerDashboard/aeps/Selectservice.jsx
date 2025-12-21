@@ -14,7 +14,6 @@ const EyeIcon = "/img/Eye.svg";
 
 const Selectservice = () => {
   const dispatch = useDispatch();
-  const { showNotification } = useNotification();
   const bankList = useSelector((state) => state.aeps?.bankList);
   
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
@@ -821,32 +820,66 @@ const Selectservice = () => {
 
         // Call API
         setDeviceMessage("Processing balance enquiry...");
-        const response = await dispatch(aepsWithdrawl(payload));
-        
-        if (response?.status === "SUCCESS") {
-          console.log("✅ Balance enquiry successful!");
-          console.log("📊 Transaction data:", response?.data || response?.withdrawal);
-          setModal({
-            isOpen: true,
-            title: "Balance Enquiry Successful",
-            message: response?.message || "Balance enquiry successful!",
-            type: "success",
-            transactionData: response?.withdrawal || response?.data || null,
-          });
-          setDeviceMessage("Balance enquiry completed successfully");
-        } else {
-          console.log("❌ Balance enquiry failed:", response?.message);
-          console.log("📊 Failure data:", response?.data || response?.withdrawal);
+        try {
+          const response = await dispatch(aepsWithdrawl(payload));
           
-          // Show failure modal with error details
-          setModal({
-            isOpen: true,
-            title: "Balance Enquiry Failed",
-            message: response?.message || "Balance enquiry failed",
-            type: "error",
-            transactionData: response?.data || response?.withdrawal || null,
+          if (response?.status === "SUCCESS") {
+            console.log("✅ Balance enquiry successful!");
+            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+            setModal({
+              isOpen: true,
+              title: "Balance Enquiry Successful",
+              message: response?.message || "Balance enquiry successful!",
+              type: "success",
+              transactionData: response?.withdrawal || response?.data || null,
+            });
+            setDeviceMessage("Balance enquiry completed successfully");
+          } else {
+            console.log("❌ Balance enquiry failed:", response?.message);
+            console.log("📊 Failure data:", response?.data || response?.withdrawal);
+            
+            // Show failure modal with error details
+            setModal({
+              isOpen: true,
+              title: "Balance Enquiry Failed",
+              message: response?.message || "Balance enquiry failed",
+              type: "error",
+              transactionData: response?.data || response?.withdrawal || null,
+            });
+            setDeviceMessage("Balance enquiry failed");
+          }
+        } catch (apiError) {
+          console.error("❌ Balance enquiry API error caught in component:", apiError);
+          console.error("❌ Error details:", {
+            message: apiError?.message,
+            response: apiError?.response,
+            responseData: apiError?.response?.data,
+            status: apiError?.response?.status,
+            statusText: apiError?.response?.statusText,
           });
-          setDeviceMessage("Balance enquiry failed");
+          
+          // Check if error response was returned from action
+          if (apiError?.status === "FAILURE" || apiError?.message) {
+            // Show modal with error details
+            setModal({
+              isOpen: true,
+              title: "Balance Enquiry Failed",
+              message: apiError?.message || "Balance enquiry failed",
+              type: "error",
+              transactionData: apiError?.withdrawal || apiError?.data || null,
+            });
+          } else {
+            // Network or other errors
+            const errorResponseData = apiError?.response?.data;
+            setModal({
+              isOpen: true,
+              title: "API Error",
+              message: errorResponseData?.message || apiError?.message || "Failed to process balance enquiry. Please check the console for details.",
+              type: "error",
+              transactionData: errorResponseData?.data || null,
+            });
+          }
+          setDeviceMessage("API call failed");
         }
       } else {
         setScanProgress(0);
@@ -1016,32 +1049,66 @@ const Selectservice = () => {
 
         // Call API
         setDeviceMessage("Processing statement enquiry...");
-        const response = await dispatch(aepsWithdrawl(payload));
-        
-        if (response?.status === "SUCCESS") {
-          console.log("✅ Statement enquiry successful!");
-          console.log("📊 Transaction data:", response?.data || response?.withdrawal);
-          setModal({
-            isOpen: true,
-            title: "Statement Enquiry Successful",
-            message: response?.message || "Statement enquiry successful!",
-            type: "success",
-            transactionData: response?.withdrawal || response?.data || null,
-          });
-          setDeviceMessage("Statement enquiry completed successfully");
-        } else {
-          console.log("❌ Statement enquiry failed:", response?.message);
-          console.log("📊 Failure data:", response?.data || response?.withdrawal);
+        try {
+          const response = await dispatch(aepsWithdrawl(payload));
           
-          // Show failure modal with error details
-          setModal({
-            isOpen: true,
-            title: "Statement Enquiry Failed",
-            message: response?.message || "Statement enquiry failed",
-            type: "error",
-            transactionData: response?.data || response?.withdrawal || null,
+          if (response?.status === "SUCCESS") {
+            console.log("✅ Statement enquiry successful!");
+            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+            setModal({
+              isOpen: true,
+              title: "Statement Enquiry Successful",
+              message: response?.message || "Statement enquiry successful!",
+              type: "success",
+              transactionData: response?.withdrawal || response?.data || null,
+            });
+            setDeviceMessage("Statement enquiry completed successfully");
+          } else {
+            console.log("❌ Statement enquiry failed:", response?.message);
+            console.log("📊 Failure data:", response?.data || response?.withdrawal);
+            
+            // Show failure modal with error details
+            setModal({
+              isOpen: true,
+              title: "Statement Enquiry Failed",
+              message: response?.message || "Statement enquiry failed",
+              type: "error",
+              transactionData: response?.data || response?.withdrawal || null,
+            });
+            setDeviceMessage("Statement enquiry failed");
+          }
+        } catch (apiError) {
+          console.error("❌ Statement enquiry API error caught in component:", apiError);
+          console.error("❌ Error details:", {
+            message: apiError?.message,
+            response: apiError?.response,
+            responseData: apiError?.response?.data,
+            status: apiError?.response?.status,
+            statusText: apiError?.response?.statusText,
           });
-          setDeviceMessage("Statement enquiry failed");
+          
+          // Check if error response was returned from action
+          if (apiError?.status === "FAILURE" || apiError?.message) {
+            // Show modal with error details
+            setModal({
+              isOpen: true,
+              title: "Statement Enquiry Failed",
+              message: apiError?.message || "Statement enquiry failed",
+              type: "error",
+              transactionData: apiError?.withdrawal || apiError?.data || null,
+            });
+          } else {
+            // Network or other errors
+            const errorResponseData = apiError?.response?.data;
+            setModal({
+              isOpen: true,
+              title: "API Error",
+              message: errorResponseData?.message || apiError?.message || "Failed to process statement enquiry. Please check the console for details.",
+              type: "error",
+              transactionData: errorResponseData?.data || null,
+            });
+          }
+          setDeviceMessage("API call failed");
         }
       } else {
         setScanProgress(0);
