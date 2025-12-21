@@ -15,7 +15,14 @@ const AEPSAccessConfirm = () => {
 
   if (showSelectService) {
     console.log("Rendering Selectservice component");
-    return <Selectservice key="selectservice" />;
+    return (
+      <div className="w-full">
+        <div className="bg-yellow-100 border border-yellow-400 p-4 mb-4">
+          <p className="text-yellow-800">Debug: Selectservice wrapper is rendering</p>
+        </div>
+        <Selectservice key="selectservice" />
+      </div>
+    );
   }
 
   return (
