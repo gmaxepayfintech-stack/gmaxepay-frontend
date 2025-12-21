@@ -49,6 +49,7 @@ const Selectservice = () => {
     title: "",
     message: "",
     type: "info", // success, error, warning, info
+    transactionData: null, // For success modal with transaction details
   });
 
   // Ref to track if API has been called for current pidData
@@ -580,21 +581,30 @@ const Selectservice = () => {
           console.log("📥 Withdrawal API response:", response);
           
           if (response?.status === "SUCCESS") {
-          showNotification({
-            type: "success",
-            message: "Withdrawal successful!",
-          });
-          // Reset form
-          formik.resetForm();
-          setSelectedBank(null);
-          setSelectedAmount("1000");
-          setAadhaarNumber("");
-          setMobileNumber("");
-          setPidData("");
-          setBankSearchQuery("");
-          setScanProgress(0);
-          setDeviceMessage("Withdrawal completed successfully");
-        } else {
+            console.log("✅ Withdrawal successful!");
+            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+            
+            // Show success modal with transaction details
+            // The action returns { withdrawal, status, message } where withdrawal is the data object
+            setModal({
+              isOpen: true,
+              title: "Transaction Successful",
+              message: response?.message || "Withdrawal successful!",
+              type: "success",
+              transactionData: response?.withdrawal || response?.data || null,
+            });
+            
+            // Reset form
+            formik.resetForm();
+            setSelectedBank(null);
+            setSelectedAmount("1000");
+            setAadhaarNumber("");
+            setMobileNumber("");
+            setPidData("");
+            setBankSearchQuery("");
+            setScanProgress(0);
+            setDeviceMessage("Withdrawal completed successfully");
+          } else {
           showNotification({
             type: "error",
             message: response?.message || "Withdrawal failed",
@@ -656,8 +666,384 @@ const Selectservice = () => {
     }
   };
 
+  // Handle Enquiry (Check Balance) - txnType: "CB"
+  const handleEnquiry = async (values) => {
+    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+
+    // Validate required fields
+    if (!bank || !bank.bankIIN) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please select a bank",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!aadhar || aadhar.length !== 12) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 12-digit Aadhaar number",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!mobile || mobile.length !== 10) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 10-digit mobile number",
+        type: "error",
+      });
+      return;
+    }
+
+    // Check if device is connected
+    if (!deviceConnected) {
+      setModal({
+        isOpen: true,
+        title: "Device Not Connected",
+        message: "Device not connected. Please check device first.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!rdBaseUrl) {
+      setModal({
+        isOpen: true,
+        title: "Device Not Ready",
+        message: "Device not ready. Please check device first.",
+        type: "error",
+      });
+      return;
+    }
+
+    // Start fingerprint capture
+    try {
+      setDeviceMessage("Capturing fingerprint for balance enquiry...");
+      setIsScanning(true);
+      setScanProgress(0);
+
+      const totalDuration = 10000;
+      const updateInterval = 100;
+      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += incrementPerUpdate;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(progressInterval);
+        }
+        setScanProgress(currentProgress);
+      }, updateInterval);
+
+      const pidOptions = `<?xml version="1.0"?>
+        <PidOptions ver="1.0">
+          <Opts 
+            fCount="1"
+            fType="0"
+            format="0"
+            pidVer="2.0"
+            timeout="10000"
+            env="P"
+          />
+        </PidOptions>
+      `;
+
+      const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
+        method: "CAPTURE",
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+        body: pidOptions,
+      });
+
+      const captureText = await captureResp.text();
+      clearInterval(progressInterval);
+
+      const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
+      const respNode = xmlDoc.getElementsByTagName("Resp")[0];
+      const errCode = respNode?.getAttribute("errCode");
+
+      if (errCode === "0") {
+        setScanProgress(100);
+        setDeviceMessage("Fingerprint captured successfully");
+        const capturedPidData = captureText;
+        setIsScanning(false);
+        
+        // Get location and IP
+        setDeviceMessage("Getting location and IP address...");
+        let locationAndIP;
+        try {
+          locationAndIP = await getLocationAndIP();
+        } catch (locationError) {
+          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+        }
+        const latitude = locationAndIP?.location?.latitude || "";
+        const longitude = locationAndIP?.location?.longitude || "";
+        const ipAddress = locationAndIP?.ipAddress || "";
+
+        // Prepare payload
+        let biometricDataXml = capturedPidData;
+        if (!capturedPidData.includes("<PidData>")) {
+          biometricDataXml = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
+        } else if (!capturedPidData.includes("<?xml version")) {
+          biometricDataXml = `<?xml version="1.0"?>${capturedPidData}`;
+        }
+
+        const payload = {
+          biometricData: biometricDataXml,
+          captureType: "FINGER",
+          txnType: "CB", // Check Balance
+          bankiin: bank.bankIIN,
+          latitude: latitude,
+          longitude: longitude,
+          ipAddress: ipAddress,
+          aadharNumber: aadhar,
+          consumerNumber: mobile
+        };
+
+        // Call API
+        setDeviceMessage("Processing balance enquiry...");
+        const response = await dispatch(aepsWithdrawl(payload));
+        
+        if (response?.status === "SUCCESS") {
+          console.log("✅ Balance enquiry successful!");
+          console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+          setModal({
+            isOpen: true,
+            title: "Balance Enquiry Successful",
+            message: response?.message || "Balance enquiry successful!",
+            type: "success",
+            transactionData: response?.withdrawal || response?.data || null,
+          });
+          setDeviceMessage("Balance enquiry completed successfully");
+        } else {
+          showNotification({
+            type: "error",
+            message: response?.message || "Balance enquiry failed",
+          });
+          setDeviceMessage("Balance enquiry failed");
+        }
+      } else {
+        setScanProgress(0);
+        const errInfo = respNode?.getAttribute("errInfo") || "";
+        setDeviceMessage(`Capture failed: ${errInfo}`);
+        setIsScanning(false);
+        setModal({
+          isOpen: true,
+          title: "Capture Failed",
+          message: `Fingerprint capture failed: ${errInfo}`,
+          type: "error",
+        });
+        return;
+      }
+    } catch (err) {
+      setScanProgress(0);
+      setDeviceMessage("Capture failed. Please try again.");
+      setIsScanning(false);
+      setModal({
+        isOpen: true,
+        title: "Capture Error",
+        message: "Failed to capture fingerprint. Please try again.",
+        type: "error",
+      });
+      return;
+    }
+  };
+
+  // Handle Statement (Check Statement) - txnType: "CS"
+  const handleStatement = async (values) => {
+    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+
+    // Validate required fields
+    if (!bank || !bank.bankIIN) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please select a bank",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!aadhar || aadhar.length !== 12) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 12-digit Aadhaar number",
+        type: "error",
+      });
+      return;
+    }
+    
+    if (!mobile || mobile.length !== 10) {
+      setModal({
+        isOpen: true,
+        title: "Validation Error",
+        message: "Please enter a valid 10-digit mobile number",
+        type: "error",
+      });
+      return;
+    }
+
+    // Check if device is connected
+    if (!deviceConnected) {
+      setModal({
+        isOpen: true,
+        title: "Device Not Connected",
+        message: "Device not connected. Please check device first.",
+        type: "error",
+      });
+      return;
+    }
+
+    if (!rdBaseUrl) {
+      setModal({
+        isOpen: true,
+        title: "Device Not Ready",
+        message: "Device not ready. Please check device first.",
+        type: "error",
+      });
+      return;
+    }
+
+    // Start fingerprint capture
+    try {
+      setDeviceMessage("Capturing fingerprint for statement enquiry...");
+      setIsScanning(true);
+      setScanProgress(0);
+
+      const totalDuration = 10000;
+      const updateInterval = 100;
+      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      let currentProgress = 0;
+      const progressInterval = setInterval(() => {
+        currentProgress += incrementPerUpdate;
+        if (currentProgress >= 100) {
+          currentProgress = 100;
+          clearInterval(progressInterval);
+        }
+        setScanProgress(currentProgress);
+      }, updateInterval);
+
+      const pidOptions = `<?xml version="1.0"?>
+        <PidOptions ver="1.0">
+          <Opts 
+            fCount="1"
+            fType="0"
+            format="0"
+            pidVer="2.0"
+            timeout="10000"
+            env="P"
+          />
+        </PidOptions>
+      `;
+
+      const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
+        method: "CAPTURE",
+        headers: { "Content-Type": "text/xml; charset=utf-8" },
+        body: pidOptions,
+      });
+
+      const captureText = await captureResp.text();
+      clearInterval(progressInterval);
+
+      const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
+      const respNode = xmlDoc.getElementsByTagName("Resp")[0];
+      const errCode = respNode?.getAttribute("errCode");
+
+      if (errCode === "0") {
+        setScanProgress(100);
+        setDeviceMessage("Fingerprint captured successfully");
+        const capturedPidData = captureText;
+        setIsScanning(false);
+        
+        // Get location and IP
+        setDeviceMessage("Getting location and IP address...");
+        let locationAndIP;
+        try {
+          locationAndIP = await getLocationAndIP();
+        } catch (locationError) {
+          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+        }
+        const latitude = locationAndIP?.location?.latitude || "";
+        const longitude = locationAndIP?.location?.longitude || "";
+        const ipAddress = locationAndIP?.ipAddress || "";
+
+        // Prepare payload
+        let biometricDataXml = capturedPidData;
+        if (!capturedPidData.includes("<PidData>")) {
+          biometricDataXml = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
+        } else if (!capturedPidData.includes("<?xml version")) {
+          biometricDataXml = `<?xml version="1.0"?>${capturedPidData}`;
+        }
+
+        const payload = {
+          biometricData: biometricDataXml,
+          captureType: "FINGER",
+          txnType: "CS", // Check Statement
+          bankiin: bank.bankIIN,
+          latitude: latitude,
+          longitude: longitude,
+          ipAddress: ipAddress,
+          aadharNumber: aadhar,
+          consumerNumber: mobile
+        };
+
+        // Call API
+        setDeviceMessage("Processing statement enquiry...");
+        const response = await dispatch(aepsWithdrawl(payload));
+        
+        if (response?.status === "SUCCESS") {
+          console.log("✅ Statement enquiry successful!");
+          console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+          setModal({
+            isOpen: true,
+            title: "Statement Enquiry Successful",
+            message: response?.message || "Statement enquiry successful!",
+            type: "success",
+            transactionData: response?.withdrawal || response?.data || null,
+          });
+          setDeviceMessage("Statement enquiry completed successfully");
+        } else {
+          showNotification({
+            type: "error",
+            message: response?.message || "Statement enquiry failed",
+          });
+          setDeviceMessage("Statement enquiry failed");
+        }
+      } else {
+        setScanProgress(0);
+        const errInfo = respNode?.getAttribute("errInfo") || "";
+        setDeviceMessage(`Capture failed: ${errInfo}`);
+        setIsScanning(false);
+        setModal({
+          isOpen: true,
+          title: "Capture Failed",
+          message: `Fingerprint capture failed: ${errInfo}`,
+          type: "error",
+        });
+        return;
+      }
+    } catch (err) {
+      setScanProgress(0);
+      setDeviceMessage("Capture failed. Please try again.");
+      setIsScanning(false);
+      setModal({
+        isOpen: true,
+        title: "Capture Error",
+        message: "Failed to capture fingerprint. Please try again.",
+        type: "error",
+      });
+      return;
+    }
+  };
+
   // Modal component
-  const Modal = ({ isOpen, onClose, title, message, type }) => {
+  const Modal = ({ isOpen, onClose, title, message, type, transactionData }) => {
     if (!isOpen) return null;
 
     const getColors = () => {
@@ -733,7 +1119,7 @@ const Selectservice = () => {
 
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-md w-full p-6`}>
+        <div className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}>
           <div className="flex items-start gap-4">
             <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
               {getIcon()}
@@ -745,6 +1131,57 @@ const Selectservice = () => {
               <p className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}>
                 {message}
               </p>
+              
+              {/* Transaction Details */}
+              {transactionData && type === "success" && (
+                <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+                  <div className="space-y-3">
+                    {transactionData.transactionId && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction ID:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionId}</span>
+                      </div>
+                    )}
+                    {transactionData.referenceId && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Reference ID:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.referenceId}</span>
+                      </div>
+                    )}
+                    {transactionData.amount !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.amount}</span>
+                      </div>
+                    )}
+                    {transactionData.remainingBalance !== undefined && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Remaining Balance:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.remainingBalance}</span>
+                      </div>
+                    )}
+                    {transactionData.bankName && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.bankName}</span>
+                      </div>
+                    )}
+                    {transactionData.transactionDate && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionDate}</span>
+                      </div>
+                    )}
+                    {transactionData.transactionTime && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Time:</span>
+                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionTime}</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               <button
                 onClick={onClose}
                 className={`${colors.button} text-white px-6 py-2 rounded-lg text-sm font-['Gilroy-Medium'] transition`}
@@ -772,10 +1209,11 @@ const Selectservice = () => {
       {/* Modal */}
       <Modal
         isOpen={modal.isOpen}
-        onClose={() => setModal({ ...modal, isOpen: false })}
+        onClose={() => setModal({ ...modal, isOpen: false, transactionData: null })}
         title={modal.title}
         message={modal.message}
         type={modal.type}
+        transactionData={modal.transactionData}
       />
       {/* Header */}
       <div className="mb-6">
@@ -1355,7 +1793,6 @@ const Selectservice = () => {
                 }
 
                 // All validations passed, proceed with withdrawal
-                // This will capture fingerprint and then call API
                 formik.setSubmitting(true);
                 try {
                   await handleWithdrawal(formik.values);
@@ -1363,11 +1800,69 @@ const Selectservice = () => {
                   formik.setSubmitting(false);
                 }
               } else if (activeTab === "enquiry") {
-                // Handle enquiry
-                console.log("Check Balance clicked");
-              } else {
-                // Handle statement
-                console.log("Check Statement clicked");
+                // Validate fields for enquiry
+                formik.setFieldTouched("selectedBank", true);
+                formik.setFieldTouched("aadhaarNumber", true);
+                formik.setFieldTouched("mobileNumber", true);
+                
+                const errors = await formik.validateForm();
+                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
+                
+                if (hasErrors) {
+                  formik.setFieldTouched("selectedBank", true);
+                  formik.setFieldTouched("aadhaarNumber", true);
+                  formik.setFieldTouched("mobileNumber", true);
+                  return;
+                }
+
+                if (!deviceConnected) {
+                  setModal({
+                    isOpen: true,
+                    title: "Device Not Connected",
+                    message: "Device not connected. Please check device first.",
+                    type: "error",
+                  });
+                  return;
+                }
+
+                formik.setSubmitting(true);
+                try {
+                  await handleEnquiry(formik.values);
+                } finally {
+                  formik.setSubmitting(false);
+                }
+              } else if (activeTab === "statement") {
+                // Validate fields for statement
+                formik.setFieldTouched("selectedBank", true);
+                formik.setFieldTouched("aadhaarNumber", true);
+                formik.setFieldTouched("mobileNumber", true);
+                
+                const errors = await formik.validateForm();
+                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
+                
+                if (hasErrors) {
+                  formik.setFieldTouched("selectedBank", true);
+                  formik.setFieldTouched("aadhaarNumber", true);
+                  formik.setFieldTouched("mobileNumber", true);
+                  return;
+                }
+
+                if (!deviceConnected) {
+                  setModal({
+                    isOpen: true,
+                    title: "Device Not Connected",
+                    message: "Device not connected. Please check device first.",
+                    type: "error",
+                  });
+                  return;
+                }
+
+                formik.setSubmitting(true);
+                try {
+                  await handleStatement(formik.values);
+                } finally {
+                  formik.setSubmitting(false);
+                }
               }
             }}
             disabled={formik.isSubmitting || isScanning}
