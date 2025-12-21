@@ -381,14 +381,21 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
             });
             return { withdrawal, status, message };
         } else {
+            const failureData = response?.data?.data || null;
             dispatch({
                 type: AEPS_WITHDRAWAL_FAILURE,
                 payload: {
                     status: response?.data?.status ?? "FAILURE",
                     message: response?.data?.message ?? commonError,
+                    data: failureData,
                 },
             });
-            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+            return { 
+                status: response?.data?.status ?? "FAILURE", 
+                message: response?.data?.message ?? commonError,
+                data: failureData,
+                withdrawal: failureData, // Also include as withdrawal for consistency
+            };
         }
     } catch (error) {
         console.error("❌ aepsWithdrawl API error:", error);
@@ -413,9 +420,13 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
         });
         
         // Return error response instead of throwing to allow component to handle it
+        // Try to extract data from error response if available
+        const errorData = error?.response?.data?.data || null;
         return {
             status: "FAILURE",
             message: errorMessage,
+            data: errorData,
+            withdrawal: errorData, // Also include as withdrawal for consistency
         };
     } finally {
         dispatch({ type: LOADING_END });
