@@ -526,6 +526,8 @@ const Selectservice = () => {
     }
   };
 
+  console.log("Selectservice - About to return JSX");
+  
   return (
     <div className="w-full">
       {/* Header */}

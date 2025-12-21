@@ -16,11 +16,18 @@ const AEPSAccessConfirm = () => {
   if (showSelectService) {
     console.log("Rendering Selectservice component");
     return (
-      <div className="w-full">
+      <div className="w-full" style={{ minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
         <div className="bg-yellow-100 border border-yellow-400 p-4 mb-4">
-          <p className="text-yellow-800">Debug: Selectservice wrapper is rendering</p>
+          <p className="text-yellow-800 font-bold">Debug: Selectservice wrapper is rendering</p>
+          <p className="text-yellow-700 text-sm mt-2">If you see this, the wrapper is working</p>
+        </div>
+        <div className="bg-blue-100 border border-blue-400 p-4 mb-4">
+          <p className="text-blue-800 font-bold">About to render Selectservice...</p>
         </div>
         <Selectservice key="selectservice" />
+        <div className="bg-green-100 border border-green-400 p-4 mt-4">
+          <p className="text-green-800 font-bold">After Selectservice (if you see this, Selectservice rendered)</p>
+        </div>
       </div>
     );
   }
