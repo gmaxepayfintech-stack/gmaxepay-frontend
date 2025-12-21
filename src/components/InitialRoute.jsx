@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import secureLocalStorage from "react-secure-storage";
 import { getUserProfile } from "../redux/action/userProfileAction";
@@ -8,6 +8,7 @@ import { loginSuccess } from "../redux/action/authAction";
 
 const InitialRoute = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const hasInitialized = useRef(false);
   const hasRedirected = useRef(false);
@@ -59,9 +60,25 @@ const InitialRoute = () => {
           };
           
           if (!hasRedirected.current) {
-            hasRedirected.current = true;
-            const redirectPath = rolePaths[userRole] || "/superDashboard/home";
-            navigate(redirectPath, { replace: true });
+            const currentPath = location.pathname;
+            const defaultPath = rolePaths[userRole] || "/superDashboard/home";
+            
+            // Check if user is already on a valid dashboard route for their role
+            const isValidDashboardRoute = 
+              (currentPath.startsWith(`/superDashboard`) && userRole === 1) ||
+              (currentPath.startsWith(`/adminDashboard`) && userRole === 2) ||
+              (currentPath.startsWith(`/masterDistributerDashboard`) && userRole === 3) ||
+              (currentPath.startsWith(`/distributerDashboard`) && userRole === 4) ||
+              (currentPath.startsWith(`/retailerDashboard`) && userRole === 5) ||
+              (currentPath.startsWith(`/employeeDashboard`) && userRole === 6);
+            
+            // Only redirect if on root path "/" 
+            // If already on a valid dashboard route, don't redirect - let it render
+            if (currentPath === "/") {
+              hasRedirected.current = true;
+              navigate(defaultPath, { replace: true });
+            }
+            // If already on valid route, don't redirect - allow route to render normally
           }
           return;
         } catch (e) {
@@ -100,7 +117,7 @@ const InitialRoute = () => {
     };
 
     initializeApp();
-  }, [dispatch, navigate]);
+  }, [dispatch, navigate, location.pathname]);
 
   // Handle redirect based on profile validation result
   useEffect(() => {
@@ -135,7 +152,6 @@ const InitialRoute = () => {
       } else if (profile) {
         // Token is valid and profile loaded, redirect to dashboard based on role
         if (!hasRedirected.current) {
-          hasRedirected.current = true;
           const userRole = profile?.userRole;
           const rolePaths = {
             1: "/superDashboard/home",
@@ -145,8 +161,25 @@ const InitialRoute = () => {
             5: "/retailerDashboard/home",
             6: "/employeeDashboard/home",
           };
-          const redirectPath = rolePaths[userRole] || "/superDashboard/home";
-          navigate(redirectPath, { replace: true });
+          const currentPath = location.pathname;
+          const defaultPath = rolePaths[userRole] || "/superDashboard/home";
+          
+          // Check if user is already on a valid dashboard route for their role
+          const isValidDashboardRoute = 
+            (currentPath.startsWith(`/superDashboard`) && userRole === 1) ||
+            (currentPath.startsWith(`/adminDashboard`) && userRole === 2) ||
+            (currentPath.startsWith(`/masterDistributerDashboard`) && userRole === 3) ||
+            (currentPath.startsWith(`/distributerDashboard`) && userRole === 4) ||
+            (currentPath.startsWith(`/retailerDashboard`) && userRole === 5) ||
+            (currentPath.startsWith(`/employeeDashboard`) && userRole === 6);
+          
+          // Only redirect if on root path "/"
+          // If already on a valid dashboard route, don't redirect - let it render
+          if (currentPath === "/") {
+            hasRedirected.current = true;
+            navigate(defaultPath, { replace: true });
+          }
+          // If already on valid route, don't redirect - allow route to render normally
         }
       } else {
         // No profile and not unauthorized - token might be invalid or error occurred
@@ -157,7 +190,7 @@ const InitialRoute = () => {
         }
       }
     }
-  }, [unauthorized, profile, loading, navigate]);
+  }, [unauthorized, profile, loading, navigate, location.pathname]);
 
   // Check for home page component - render it if it exists
   const currentDomain = window.location.hostname;

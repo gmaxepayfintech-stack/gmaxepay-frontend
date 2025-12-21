@@ -1,11 +1,18 @@
 import React, { useState } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, ChevronRight, Fingerprint } from 'lucide-react';
 import AepsCWHistory from './AepsCWHistory';
 
 const TaxHistory = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [activeTab, setActiveTab] = useState('Banking');
     const [currentPage, setCurrentPage] = useState(1);
-    const [showAepsCWHistory, setShowAepsCWHistory] = useState(false);
+    
+    // Check if we're viewing a specific history (from URL search params)
+    const searchParams = new URLSearchParams(location.search);
+    const viewHistory = searchParams.get('view');
+    const showAepsCWHistory = viewHistory === 'aeps-cw-history';
 
     const tabs = ['Banking', 'Utility Payment', 'E-Governance', 'Insurance', 'Travel', 'Verification History'];
 
@@ -50,7 +57,7 @@ const TaxHistory = () => {
 
     // If AepsCWHistory should be shown, render it
     if (showAepsCWHistory) {
-        return <AepsCWHistory onBack={() => setShowAepsCWHistory(false)} />;
+        return <AepsCWHistory onBack={() => navigate('/superDashboard/txn-history')} />;
     }
 
     return (
@@ -129,7 +136,7 @@ const TaxHistory = () => {
                             <button 
                                 onClick={() => {
                                     if (card.title === 'AEPS CW History') {
-                                        setShowAepsCWHistory(true);
+                                        navigate('/superDashboard/txn-history?view=aeps-cw-history');
                                     }
                                 }}
                                 className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-lg font-medium hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto"
