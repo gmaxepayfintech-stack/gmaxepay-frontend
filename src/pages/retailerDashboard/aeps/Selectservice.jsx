@@ -796,7 +796,7 @@ const Selectservice = () => {
         const payload = {
           biometricData: biometricDataXml,
           captureType: "FINGER",
-          txnType: "CB", // Check Balance
+          txnType: "BE", // Check Balance
           bankiin: bank.bankIIN,
           latitude: latitude,
           longitude: longitude,
@@ -984,7 +984,7 @@ const Selectservice = () => {
         const payload = {
           biometricData: biometricDataXml,
           captureType: "FINGER",
-          txnType: "CS", // Check Statement
+          txnType: "MS", // Check Statement
           bankiin: bank.bankIIN,
           latitude: latitude,
           longitude: longitude,
