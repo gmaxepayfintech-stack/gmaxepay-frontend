@@ -341,11 +341,23 @@ export const aepsBankList = (data) => async (dispatch) => {
 
 export const aepsWithdrawl = (data) => async (dispatch) => {
     dispatch({ type: LOADING_START });
+    console.log("🔵 aepsWithdrawl action called with data:", {
+        ...data,
+        biometricData: data?.biometricData?.substring(0, 100) + "... (truncated)"
+    });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
+        console.log("🔑 Auth token exists:", !!authToken);
 
+        const apiUrl = `${API_ROUTE}/api/v1/user/aeps/transaction`;
+        console.log("🌐 Making API call to:", apiUrl);
+        console.log("📦 Request payload:", {
+            ...data,
+            biometricData: data?.biometricData?.substring(0, 200) + "... (truncated)"
+        });
+        
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/transaction`,
+            apiUrl,
             data,
             {
                 headers: {
@@ -354,6 +366,12 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                 },
             }
         );
+        
+        console.log("📥 API response received:", {
+            status: response?.status,
+            statusText: response?.statusText,
+            data: response?.data
+        });
 
         const { data: withdrawal, status, message } = response?.data ?? {};
         if (status === "SUCCESS") {
@@ -373,7 +391,19 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
             return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
         }
     } catch (error) {
+        console.error("❌ aepsWithdrawl API error:", error);
+        console.error("❌ Error details:", {
+            message: error?.message,
+            response: error?.response,
+            responseData: error?.response?.data,
+            status: error?.response?.status,
+            statusText: error?.response?.statusText,
+            request: error?.request,
+        });
+        
         const errorMessage = error.response ? error.response.data.message : error.message;
+        console.error("❌ Error message to dispatch:", errorMessage);
+        
         dispatch({
             type: AEPS_WITHDRAWAL_FAILURE,
             payload: {
@@ -381,7 +411,12 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                 message: errorMessage,
             },
         });
-        throw error;
+        
+        // Return error response instead of throwing to allow component to handle it
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
     } finally {
         dispatch({ type: LOADING_END });
     }
