@@ -529,7 +529,12 @@ const Selectservice = () => {
   console.log("Selectservice - About to return JSX");
   
   return (
-    <div className="w-full">
+    <div className="w-full" style={{ backgroundColor: '#fff', padding: '20px', minHeight: '200px' }}>
+      {/* Test div to verify rendering */}
+      <div style={{ backgroundColor: 'red', color: 'white', padding: '20px', marginBottom: '20px', fontSize: '24px', fontWeight: 'bold' }}>
+        TEST: If you see this red box, Selectservice is rendering!
+      </div>
+      
       {/* Header */}
       <div className="mb-6">
         <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
