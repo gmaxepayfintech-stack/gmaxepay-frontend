@@ -605,12 +605,19 @@ const Selectservice = () => {
             setScanProgress(0);
             setDeviceMessage("Withdrawal completed successfully");
           } else {
-          showNotification({
-            type: "error",
-            message: response?.message || "Withdrawal failed",
-          });
-          setDeviceMessage("Withdrawal failed");
-        }
+            console.log("❌ Withdrawal failed:", response?.message);
+            console.log("📊 Failure data:", response?.data || response?.withdrawal);
+            
+            // Show failure modal with error details
+            setModal({
+              isOpen: true,
+              title: "Transaction Failed",
+              message: response?.message || "Withdrawal failed",
+              type: "error",
+              transactionData: response?.data || response?.withdrawal || null,
+            });
+            setDeviceMessage("Withdrawal failed");
+          }
         } catch (apiError) {
           console.error("❌ Withdrawal API error caught in component:", apiError);
           console.error("❌ Error details:", {
@@ -623,16 +630,23 @@ const Selectservice = () => {
           
           // Check if error response was returned from action
           if (apiError?.status === "FAILURE" || apiError?.message) {
-            showNotification({
-              type: "error",
+            // Show modal with error details
+            setModal({
+              isOpen: true,
+              title: "Transaction Failed",
               message: apiError?.message || "Withdrawal failed",
+              type: "error",
+              transactionData: apiError?.withdrawal || apiError?.data || null,
             });
           } else {
+            // Network or other errors
+            const errorResponseData = apiError?.response?.data;
             setModal({
               isOpen: true,
               title: "API Error",
-              message: apiError?.response?.data?.message || apiError?.message || "Failed to process withdrawal. Please check the console for details.",
+              message: errorResponseData?.message || apiError?.message || "Failed to process withdrawal. Please check the console for details.",
               type: "error",
+              transactionData: errorResponseData?.data || null,
             });
           }
           setDeviceMessage("API call failed");
@@ -821,9 +835,16 @@ const Selectservice = () => {
           });
           setDeviceMessage("Balance enquiry completed successfully");
         } else {
-          showNotification({
-            type: "error",
+          console.log("❌ Balance enquiry failed:", response?.message);
+          console.log("📊 Failure data:", response?.data || response?.withdrawal);
+          
+          // Show failure modal with error details
+          setModal({
+            isOpen: true,
+            title: "Balance Enquiry Failed",
             message: response?.message || "Balance enquiry failed",
+            type: "error",
+            transactionData: response?.data || response?.withdrawal || null,
           });
           setDeviceMessage("Balance enquiry failed");
         }
@@ -1009,9 +1030,16 @@ const Selectservice = () => {
           });
           setDeviceMessage("Statement enquiry completed successfully");
         } else {
-          showNotification({
-            type: "error",
+          console.log("❌ Statement enquiry failed:", response?.message);
+          console.log("📊 Failure data:", response?.data || response?.withdrawal);
+          
+          // Show failure modal with error details
+          setModal({
+            isOpen: true,
+            title: "Statement Enquiry Failed",
             message: response?.message || "Statement enquiry failed",
+            type: "error",
+            transactionData: response?.data || response?.withdrawal || null,
           });
           setDeviceMessage("Statement enquiry failed");
         }
@@ -1132,51 +1160,101 @@ const Selectservice = () => {
                 {message}
               </p>
               
-              {/* Transaction Details */}
-              {transactionData && type === "success" && (
-                <div className="bg-white rounded-lg p-4 mb-4 border border-gray-200">
+              {/* Transaction/Response Details */}
+              {transactionData && (
+                <div className={`rounded-lg p-4 mb-4 border ${
+                  type === "success" 
+                    ? "bg-white border-gray-200" 
+                    : "bg-red-50 border-red-200"
+                }`}>
                   <div className="space-y-3">
-                    {transactionData.transactionId && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction ID:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionId}</span>
-                      </div>
+                    {/* Success Transaction Details */}
+                    {type === "success" && (
+                      <>
+                        {transactionData.transactionId && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction ID:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionId}</span>
+                          </div>
+                        )}
+                        {transactionData.referenceId && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Reference ID:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.referenceId}</span>
+                          </div>
+                        )}
+                        {transactionData.amount !== undefined && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.amount}</span>
+                          </div>
+                        )}
+                        {transactionData.remainingBalance !== undefined && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Remaining Balance:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.remainingBalance}</span>
+                          </div>
+                        )}
+                        {transactionData.bankName && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.bankName}</span>
+                          </div>
+                        )}
+                        {transactionData.transactionDate && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionDate}</span>
+                          </div>
+                        )}
+                        {transactionData.transactionTime && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Time:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionTime}</span>
+                          </div>
+                        )}
+                      </>
                     )}
-                    {transactionData.referenceId && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Reference ID:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.referenceId}</span>
-                      </div>
-                    )}
-                    {transactionData.amount !== undefined && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.amount}</span>
-                      </div>
-                    )}
-                    {transactionData.remainingBalance !== undefined && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Remaining Balance:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.remainingBalance}</span>
-                      </div>
-                    )}
-                    {transactionData.bankName && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.bankName}</span>
-                      </div>
-                    )}
-                    {transactionData.transactionDate && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionDate}</span>
-                      </div>
-                    )}
-                    {transactionData.transactionTime && (
-                      <div className="flex justify-between items-center">
-                        <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Time:</span>
-                        <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionTime}</span>
-                      </div>
+                    
+                    {/* Error/Failure Details */}
+                    {type === "error" && (
+                      <>
+                        {transactionData.paymentStatus && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Payment Status:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.paymentStatus}</span>
+                          </div>
+                        )}
+                        {transactionData.transactionStatus && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Transaction Status:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.transactionStatus}</span>
+                          </div>
+                        )}
+                        {transactionData.merchantTransactionId && (
+                          <div className="flex justify-between items-center">
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Merchant Transaction ID:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.merchantTransactionId}</span>
+                          </div>
+                        )}
+                        {transactionData.gatewayResponse && (
+                          <div className="mt-3 pt-3 border-t border-red-200">
+                            <div className="text-xs font-['Gilroy-Medium'] text-red-600 mb-2">Gateway Response:</div>
+                            {transactionData.gatewayResponse.status && (
+                              <div className="flex justify-between items-center mb-1">
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Status:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.status}</span>
+                              </div>
+                            )}
+                            {transactionData.gatewayResponse.message && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Message:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.message}</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>
