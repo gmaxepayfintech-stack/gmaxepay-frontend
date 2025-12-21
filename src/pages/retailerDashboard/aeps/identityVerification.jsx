@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerification from "./BiometricVerification";
-import { getUserProfile } from "../../redux/action/userProfileAction";
-import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../redux/action/aepsAction";
+import { getUserProfile } from "../../../redux/action/userProfileAction";
+import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../../redux/action/aepsAction";
 
 const OTP_LENGTH = 7;
 

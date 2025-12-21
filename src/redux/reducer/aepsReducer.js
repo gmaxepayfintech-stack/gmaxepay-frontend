@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -12,7 +12,9 @@ const initialState = {
     aepsBiometricstatus: null,
     aepsFaStatus: null,
     aepsCwHistory: null,
-    aepsCwHistoryError: null
+    aepsCwHistoryError: null,
+    bankList: null,
+    withdrawal: null
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -70,13 +72,29 @@ const aepsReducer = (state = initialState, action) => {
             }
 
         case AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS:
-            return{
+            return {
                 ...state,
                 aepsFaStatus: action?.payload,
                 loading: false,
                 error: null,
                 success: action?.payload?.status,
                 message: action?.payload?.message,
+            }
+        case AEPS_BANK_LIST_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                bankList: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status
+            }
+        case AEPS_WITHDRAWAL_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                withdrawal: action?.payload,
+                message: action?.payload?.message,
+                success: action?.payload?.status
             }
 
         case AEPS_CW_HISTORY_SUCCESS:

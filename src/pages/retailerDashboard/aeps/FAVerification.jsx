@@ -2,10 +2,10 @@ import { useMemo, useState, useEffect, useRef } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import StartCapture from "../../../public/img/StartCapture.svg";
+import StartCapture from "../../../../public/img/StartCapture.svg";
 import AEPSAccessConfirm from "./AEPSAccessConfirm";
-import { aepsStatusCheck } from "../../redux/action/aepsAction";
-import { aepsOnboardingFAVerification } from "../../redux/action/aepsAction";
+import { aepsStatusCheck } from "../../../redux/action/aepsAction";
+import { aepsOnboardingFAVerification } from "../../../redux/action/aepsAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";

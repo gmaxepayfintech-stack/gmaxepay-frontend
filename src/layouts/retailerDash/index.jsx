@@ -2,7 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import RetailerDashLayout from "./retailerDashLayout";
 import RetailerDashboard from "../../pages/retailerDashboard/RetailerDashboard";
 import Services from "../../pages/retailerDashboard/Services";
-import OnBoardingAeps from "../../pages/retailerDashboard/onBoardingAeps";
+import OnBoardingAeps from "../../pages/retailerDashboard/aeps/onBoardingAeps";
 const RetailerDash = () => {
     return (
         <RetailerDashLayout>
