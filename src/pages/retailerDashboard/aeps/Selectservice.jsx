@@ -11,6 +11,8 @@ const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
 const Selectservice = () => {
+  console.log("Selectservice component is rendering...");
+  
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aeps?.bankList);
   const userProfile = useSelector((state) => state.userProfile?.profile);
