@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import Selectservice from "./Selectservice";
@@ -8,8 +8,14 @@ const AEPSAccessConfirm = () => {
   const navigate = useNavigate();
   const [showSelectService, setShowSelectService] = useState(false);
 
+  // Debug: Log state changes
+  useEffect(() => {
+    console.log("AEPSAccessConfirm - showSelectService changed to:", showSelectService);
+  }, [showSelectService]);
+
   if (showSelectService) {
-    return <Selectservice />;
+    console.log("Rendering Selectservice component");
+    return <Selectservice key="selectservice" />;
   }
 
   return (
@@ -110,7 +116,10 @@ const AEPSAccessConfirm = () => {
 
           <button
             type="button"
-            onClick={() => setShowSelectService(true)}
+            onClick={() => {
+              console.log("Button clicked - setting showSelectService to true");
+              setShowSelectService(true);
+            }}
             className="mt-8 flex items-center justify-between bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] mx-auto"
           >
             <span>Perform Your Transaction</span>
