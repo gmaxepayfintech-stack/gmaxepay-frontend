@@ -6,6 +6,7 @@ import StartCapture from "../../../../public/img/StartCapture.svg";
 import { aepsBankList, aepsWithdrawl } from "../../../redux/action/aepsAction";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
+import { useNotification } from "../../../context/NotificationContext";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -13,8 +14,8 @@ const EyeIcon = "/img/Eye.svg";
 
 const Selectservice = () => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const bankList = useSelector((state) => state.aeps?.bankList);
-  const userProfile = useSelector((state) => state.userProfile?.profile);
   
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
@@ -41,6 +42,14 @@ const Selectservice = () => {
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [deviceMessage, setDeviceMessage] = useState("");
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
+
+  // Modal state
+  const [modal, setModal] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+    type: "info", // success, error, warning, info
+  });
 
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
@@ -406,12 +415,22 @@ const Selectservice = () => {
 
     // Check if device is connected
     if (!deviceConnected) {
-      alert("Device not connected. Please check device first.");
+      setModal({
+        isOpen: true,
+        title: "Device Not Connected",
+        message: "Device not connected. Please check device first.",
+        type: "error",
+      });
       return;
     }
 
     if (!rdBaseUrl) {
-      alert("Device not ready. Please check device first.");
+      setModal({
+        isOpen: true,
+        title: "Device Not Ready",
+        message: "Device not ready. Please check device first.",
+        type: "error",
+      });
       return;
     }
 
@@ -501,7 +520,10 @@ const Selectservice = () => {
         const response = await dispatch(aepsWithdrawl(payload));
         
         if (response?.status === "SUCCESS") {
-          alert("Withdrawal successful!");
+          showNotification({
+            type: "success",
+            message: "Withdrawal successful!",
+          });
           // Reset form
           formik.resetForm();
           setSelectedBank(null);
@@ -513,7 +535,10 @@ const Selectservice = () => {
           setScanProgress(0);
           setDeviceMessage("Withdrawal completed successfully");
         } else {
-          alert(response?.message || "Withdrawal failed");
+          showNotification({
+            type: "error",
+            message: response?.message || "Withdrawal failed",
+          });
           setDeviceMessage("Withdrawal failed");
         }
       } else {
@@ -522,20 +547,149 @@ const Selectservice = () => {
         const errInfo = respNode?.getAttribute("errInfo") || "";
         setDeviceMessage(`Capture failed: ${errInfo}`);
         setIsScanning(false);
-        alert(`Fingerprint capture failed: ${errInfo}`);
+        setModal({
+          isOpen: true,
+          title: "Capture Failed",
+          message: `Fingerprint capture failed: ${errInfo}`,
+          type: "error",
+        });
         return;
       }
     } catch (err) {
       setScanProgress(0);
       setDeviceMessage("Capture failed. Please try again.");
       setIsScanning(false);
-      alert("Failed to capture fingerprint. Please try again.");
+      setModal({
+        isOpen: true,
+        title: "Capture Error",
+        message: "Failed to capture fingerprint. Please try again.",
+        type: "error",
+      });
       return;
     }
   };
 
+  // Modal component
+  const Modal = ({ isOpen, onClose, title, message, type }) => {
+    if (!isOpen) return null;
+
+    const getColors = () => {
+      switch (type) {
+        case "success":
+          return {
+            bg: "bg-green-50",
+            border: "border-green-200",
+            text: "text-green-800",
+            title: "text-green-900",
+            button: "bg-green-600 hover:bg-green-700",
+            icon: "text-green-600",
+          };
+        case "error":
+          return {
+            bg: "bg-red-50",
+            border: "border-red-200",
+            text: "text-red-800",
+            title: "text-red-900",
+            button: "bg-red-600 hover:bg-red-700",
+            icon: "text-red-600",
+          };
+        case "warning":
+          return {
+            bg: "bg-yellow-50",
+            border: "border-yellow-200",
+            text: "text-yellow-800",
+            title: "text-yellow-900",
+            button: "bg-yellow-600 hover:bg-yellow-700",
+            icon: "text-yellow-600",
+          };
+        default:
+          return {
+            bg: "bg-blue-50",
+            border: "border-blue-200",
+            text: "text-blue-800",
+            title: "text-blue-900",
+            button: "bg-blue-600 hover:bg-blue-700",
+            icon: "text-blue-600",
+          };
+      }
+    };
+
+    const colors = getColors();
+    const getIcon = () => {
+      switch (type) {
+        case "success":
+          return (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          );
+        case "error":
+          return (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          );
+        case "warning":
+          return (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            </svg>
+          );
+        default:
+          return (
+            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          );
+      }
+    };
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+        <div className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-md w-full p-6`}>
+          <div className="flex items-start gap-4">
+            <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
+              {getIcon()}
+            </div>
+            <div className="flex-1">
+              <h3 className={`${colors.title} text-lg font-['Gilroy-SemiBold'] mb-2`}>
+                {title}
+              </h3>
+              <p className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}>
+                {message}
+              </p>
+              <button
+                onClick={onClose}
+                className={`${colors.button} text-white px-6 py-2 rounded-lg text-sm font-['Gilroy-Medium'] transition`}
+              >
+                OK
+              </button>
+            </div>
+            <button
+              onClick={onClose}
+              className={`${colors.icon} hover:opacity-70 transition p-1`}
+              aria-label="Close"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="w-full">
+      {/* Modal */}
+      <Modal
+        isOpen={modal.isOpen}
+        onClose={() => setModal({ ...modal, isOpen: false })}
+        title={modal.title}
+        message={modal.message}
+        type={modal.type}
+      />
       {/* Header */}
       <div className="mb-6">
         <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
@@ -1104,7 +1258,12 @@ const Selectservice = () => {
 
                 // Check if device is connected
                 if (!deviceConnected) {
-                  alert("Device not connected. Please check device first.");
+                  setModal({
+                    isOpen: true,
+                    title: "Device Not Connected",
+                    message: "Device not connected. Please check device first.",
+                    type: "error",
+                  });
                   return;
                 }
 
