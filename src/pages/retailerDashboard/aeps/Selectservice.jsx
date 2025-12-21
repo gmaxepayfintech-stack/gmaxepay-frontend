@@ -835,9 +835,16 @@ const Selectservice = () => {
           });
           setDeviceMessage("Balance enquiry completed successfully");
         } else {
-          showNotification({
-            type: "error",
+          console.log("❌ Balance enquiry failed:", response?.message);
+          console.log("📊 Failure data:", response?.data || response?.withdrawal);
+          
+          // Show failure modal with error details
+          setModal({
+            isOpen: true,
+            title: "Balance Enquiry Failed",
             message: response?.message || "Balance enquiry failed",
+            type: "error",
+            transactionData: response?.data || response?.withdrawal || null,
           });
           setDeviceMessage("Balance enquiry failed");
         }
