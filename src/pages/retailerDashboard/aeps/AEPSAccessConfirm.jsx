@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import Selectservice from "./Selectservice";
@@ -8,28 +8,8 @@ const AEPSAccessConfirm = () => {
   const navigate = useNavigate();
   const [showSelectService, setShowSelectService] = useState(false);
 
-  // Debug: Log state changes
-  useEffect(() => {
-    console.log("AEPSAccessConfirm - showSelectService changed to:", showSelectService);
-  }, [showSelectService]);
-
   if (showSelectService) {
-    console.log("Rendering Selectservice component");
-    return (
-      <div className="w-full" style={{ minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
-        <div className="bg-yellow-100 border border-yellow-400 p-4 mb-4">
-          <p className="text-yellow-800 font-bold">Debug: Selectservice wrapper is rendering</p>
-          <p className="text-yellow-700 text-sm mt-2">If you see this, the wrapper is working</p>
-        </div>
-        <div className="bg-blue-100 border border-blue-400 p-4 mb-4">
-          <p className="text-blue-800 font-bold">About to render Selectservice...</p>
-        </div>
-        <Selectservice key="selectservice" />
-        <div className="bg-green-100 border border-green-400 p-4 mt-4">
-          <p className="text-green-800 font-bold">After Selectservice (if you see this, Selectservice rendered)</p>
-        </div>
-      </div>
-    );
+    return <Selectservice />;
   }
 
   return (
@@ -130,10 +110,7 @@ const AEPSAccessConfirm = () => {
 
           <button
             type="button"
-            onClick={() => {
-              console.log("Button clicked - setting showSelectService to true");
-              setShowSelectService(true);
-            }}
+            onClick={() => setShowSelectService(true)}
             className="mt-8 flex items-center justify-between bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] mx-auto"
           >
             <span>Perform Your Transaction</span>
