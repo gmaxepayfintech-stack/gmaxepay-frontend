@@ -112,3 +112,30 @@ code {
   animation: slide-circle 1.5s ease-in-out infinite;
 }
 
+/* Custom Scrollbar Styles - Hidden Scrollbar */
+/* Webkit browsers (Chrome, Safari, Edge) - Hide scrollbar */
+::-webkit-scrollbar {
+  width: 0px; /* Hide scrollbar */
+  height: 0px;
+  background: transparent; /* Make scrollbar invisible */
+}
+
+::-webkit-scrollbar-track {
+  background: transparent; /* Hide track */
+}
+
+::-webkit-scrollbar-thumb {
+  background: transparent; /* Hide thumb */
+}
+
+/* Firefox - Hide scrollbar */
+html {
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+}
+
+/* Apply to all scrollable containers */
+* {
+  scrollbar-width: none; /* Hide scrollbar in Firefox */
+  -ms-overflow-style: none; /* Hide scrollbar in IE and Edge */
+}
+

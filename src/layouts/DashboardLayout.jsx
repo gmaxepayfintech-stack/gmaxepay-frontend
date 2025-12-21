@@ -35,52 +35,6 @@ const DashboardLayout = ({ children }) => {
   // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-  // Fetch user profile on component mount
-  useEffect(() => {
-    dispatch(getUserProfile());
-  }, [dispatch]);
-
-  // Handle unauthorized token expiration - redirect to login
-  useEffect(() => {
-    if (unauthorized) {
-      const errorMessage = error || "Invalid token. Please login again.";
-      showNotification({
-        message: errorMessage,
-        type: "error",
-        duration: 3000,
-        isCritical: true, // Mark as critical so it shows on dashboard
-      });
-      // Redirect to login after a short delay to show notification
-      setTimeout(() => {
-        navigate("/auth/login", { replace: true });
-      }, 500);
-    }
-  }, [unauthorized, error, navigate, showNotification]);
-
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
-
-  const handleMenuClick = (name, dropdown, path) => {
-    if (dropdown) {
-      // toggle dropdown open/close
-      setOpenDropdown((prev) => (prev === name ? null : name));
-      // also set it as active parent
-      setActiveMenu(name);
-    } else {
-      // close any open dropdown
-      setOpenDropdown(null);
-      // mark this as active
-      setActiveMenu(name);
-      if (path) {
-        navigate(path);
-      }
-    }
-  };
-
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  const closeSidebar = () => setIsSidebarOpen(false);
-
   const menuItems = [
     {
       name: "Dashboard",
@@ -145,11 +99,89 @@ const DashboardLayout = ({ children }) => {
     {
       name: "Txn History",
       icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
+      path: "/superDashboard/txn-history",
       dropdown: false,
     },
   
   ];
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
+
+  // Handle unauthorized token expiration - redirect to login
+  useEffect(() => {
+    if (unauthorized) {
+      const errorMessage = error || "Invalid token. Please login again.";
+      showNotification({
+        message: errorMessage,
+        type: "error",
+        duration: 3000,
+        isCritical: true, // Mark as critical so it shows on dashboard
+      });
+      // Redirect to login after a short delay to show notification
+      setTimeout(() => {
+        navigate("/auth/login", { replace: true });
+      }, 500);
+    }
+  }, [unauthorized, error, navigate, showNotification]);
+
+  // Update active menu based on current pathname
+  useEffect(() => {
+    setIsSidebarOpen(false);
+    
+    const currentPath = location.pathname;
+    const currentMenuItem = menuItems.find(item => {
+      if (item.path && currentPath === item.path) {
+        return true;
+      }
+      if (item.children) {
+        return item.children.some(child => child.path === currentPath);
+      }
+      return false;
+    });
+    
+    if (currentMenuItem) {
+      setActiveMenu(currentMenuItem.name);
+      // If it's a dropdown and a child is active, open the dropdown
+      if (currentMenuItem.dropdown && currentMenuItem.children) {
+        const activeChild = currentMenuItem.children.find(child => child.path === currentPath);
+        if (activeChild) {
+          setOpenDropdown(currentMenuItem.name);
+        } else {
+          setOpenDropdown(null);
+        }
+      } else {
+        setOpenDropdown(null);
+      }
+    }
+  }, [location.pathname]);
+
+  const handleMenuClick = (name, dropdown, path) => {
+    if (dropdown) {
+      // toggle dropdown open/close
+      setOpenDropdown((prev) => (prev === name ? null : name));
+      // also set it as active parent
+      setActiveMenu(name);
+      // If dropdown has a path, navigate to it
+      if (path) {
+        navigate(path, { replace: true });
+      }
+    } else {
+      // close any open dropdown
+      setOpenDropdown(null);
+      // mark this as active
+      setActiveMenu(name);
+      if (path) {
+        // Use replace: true to prevent intermediate navigation history
+        navigate(path, { replace: true });
+      }
+    }
+  };
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
@@ -205,15 +237,7 @@ const DashboardLayout = ({ children }) => {
                         e.target.src = "/img/gmaxepay.png";
                       }}
                     />
-                    {dropdown ? (
-                      path ? (
-                        <Link to={path}>{name}</Link>
-                      ) : (
-                        <span>{name}</span>
-                      )
-                    ) : (
-                      <Link to={path}>{name}</Link>
-                    )}
+                    <span>{name}</span>
                   </div>
 
                   {dropdown &&
