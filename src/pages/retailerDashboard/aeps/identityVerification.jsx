@@ -7,7 +7,7 @@ import BiometricVerification from "./BiometricVerification";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../../redux/action/aepsAction";
 
-const OTP_LENGTH = 7;
+const OTP_LENGTH = 6;
 
 const IdentityVerification = ({ onBack }) => {
     const navigate = useNavigate();
