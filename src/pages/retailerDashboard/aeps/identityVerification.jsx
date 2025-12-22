@@ -198,7 +198,7 @@ const IdentityVerification = ({ onBack }) => {
                         Enter Verification Code
                     </div>
                     <div className="mt-[16px] text-[16px] text-[#000000] text font-['Gilroy-Medium']">
-                        We've Sent A 7-Digit Code To
+                        We've Sent A 6-Digit Code To
                     </div>
                     <div className="mt-[12px] text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
                         {phone}
