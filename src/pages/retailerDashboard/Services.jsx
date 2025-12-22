@@ -62,7 +62,7 @@ const Services = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
-    // Note: Status check only happens when AEPS card is clicked, not on mount
+    // Note: Status check only happens when AEPS card is clicked, not mount
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
