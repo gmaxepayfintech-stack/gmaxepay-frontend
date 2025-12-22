@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Search, Download, User, ChevronLeft, ChevronRight, RefreshCw } from 'lucide-react';
 import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
 import TransactioDetails from './TransactioDetails';
-import { getAepsCwHistory } from '../../redux/action/aepsAction';
+import { getAepsCwHistory, getAepsTransactionDetails } from '../../redux/action/aepsAction';
 import { ButtonLoader } from '../../widgets/layout/loader';
 
 const AepsCWHistory = ({ onBack }) => {
@@ -14,10 +14,11 @@ const AepsCWHistory = ({ onBack }) => {
     const [fromDate, setFromDate] = useState('');
     const [toDate, setToDate] = useState('');
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-    const [selectedTransaction, setSelectedTransaction] = useState(null);
+    const [selectedTransactionId, setSelectedTransactionId] = useState(null);
     const [currentPage, setCurrentPage] = useState(1);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
     const [isReloading, setIsReloading] = useState(false);
+    const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
 
     // Get data from Redux
     const aepsCwHistoryResponse = useSelector((state) => state?.aeps?.aepsCwHistory);
@@ -25,6 +26,7 @@ const AepsCWHistory = ({ onBack }) => {
     const paginator = aepsCwHistoryResponse?.paginator || {};
     const totalCount = aepsCwHistoryResponse?.total || 0;
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+    const transactionDetailsResponse = useSelector((state) => state?.aeps?.transactionDetails);
 
     // Transform API response data to table format
     const transformApiData = (dataArray) => {
@@ -225,9 +227,54 @@ const AepsCWHistory = ({ onBack }) => {
         setCurrentPage(1);
     }, [statusFilter]);
 
+    // Watch for transaction details to be loaded
+    useEffect(() => {
+        if (selectedTransactionId && isLoadingTransactionDetails) {
+            // Check if loading has completed (isLoading becomes false)
+            if (!isLoading) {
+                // Wait a small delay to ensure state is updated
+                const timer = setTimeout(() => {
+                    setIsLoadingTransactionDetails(false);
+                    setShowTransactionDetails(true);
+                }, 100);
+                
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
+
+    // Handle profile click - fetch transaction details first
+    const handleProfileClick = (transactionId) => {
+        if (!transactionId || isLoadingTransactionDetails) return;
+        
+        setIsLoadingTransactionDetails(true);
+        setSelectedTransactionId(transactionId);
+        
+        // Dispatch action to fetch transaction details
+        dispatch(getAepsTransactionDetails(transactionId));
+    };
+
+    // Show loading overlay when fetching transaction details
+    if (isLoadingTransactionDetails && selectedTransactionId) {
+        return (
+            <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
+                <div className="flex flex-col items-center gap-4">
+                    <ButtonLoader color="#039155" size={40} thickness={4} />
+                    <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
+                        Loading transaction details...
+                    </p>
+                </div>
+            </div>
+        );
+    }
+
     // If TransactionDetails should be shown, render it
     if (showTransactionDetails) {
-        return <TransactioDetails onBack={() => setShowTransactionDetails(false)} />;
+        return <TransactioDetails transactionId={selectedTransactionId} onBack={() => {
+            setShowTransactionDetails(false);
+            setSelectedTransactionId(null);
+            setIsLoadingTransactionDetails(false);
+        }} />;
     }
 
     return (
@@ -442,11 +489,9 @@ const AepsCWHistory = ({ onBack }) => {
                                     </td>
                                     <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                                         <button
-                                            onClick={() => {
-                                                setSelectedTransaction(transaction);
-                                                setShowTransactionDetails(true);
-                                            }}
+                                            onClick={() => handleProfileClick(transaction.id)}
                                             className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
+                                            disabled={isLoadingTransactionDetails}
                                         >
                                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                                                 {transaction.profileImage ? (
