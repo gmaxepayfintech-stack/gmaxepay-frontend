@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -14,7 +14,9 @@ const initialState = {
     aepsCwHistory: null,
     aepsCwHistoryError: null,
     bankList: null,
-    withdrawal: null
+    withdrawal: null,
+    transactionDetails: null,
+    transactionDetailsError: null
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -113,6 +115,28 @@ const aepsReducer = (state = initialState, action) => {
                 ...state,
                 aepsCwHistory: null,
                 aepsCwHistoryError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            }
+
+        case AEPS_TRANSACTION_DETAILS_SUCCESS:
+            return {
+                ...state,
+                transactionDetails: action?.payload,
+                transactionDetailsError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
+        case AEPS_TRANSACTION_DETAILS_FAILURE:
+            return {
+                ...state,
+                transactionDetails: null,
+                transactionDetailsError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,
