@@ -74,6 +74,7 @@ function App() {
     (state) => state?.aeps || null
   );
   console.log("aepsStatusCheck",aepsStatusCheck);
+
   
   const moneyTransfer = useSelector(
     (state) => state?.moneyTransfer?.success || null
@@ -185,37 +186,14 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [specialDomSuccess]);
 
   useEffect(() => {
-    if (aepsStatusCheck?.success === "SUCCESS" && aepsStatusCheck?.message && aepsStatusCheck?.aepsStatus) {
-      // Only show notification if it's a new status update (prevent duplicate notifications)
-      const currentStatus = JSON.stringify(aepsStatusCheck?.aepsStatus);
-      if (lastAepsStatusRef.current !== currentStatus) {
-        lastAepsStatusRef.current = currentStatus;
-        console.log("Showing aepsStatusCheck success notification:", aepsStatusCheck?.message);
-        showNotification({
-          type: "success",
-          message: aepsStatusCheck?.message,
-          duration: 3000,
-        });
-      }
-    }
-  }, [aepsStatusCheck, showNotification]);
-
-  // Handle aepsStatusCheck failure notifications
-  useEffect(() => {
-    // Check if error message exists and is different from last shown error
-    const currentErrorMessage = errorMessage || (typeof error === 'object' && error?.message) || (typeof error === 'string' && error) || null;
-    
-    if (currentErrorMessage && currentErrorMessage !== lastAepsErrorRef.current) {
-      console.log("Showing aepsStatusCheck failure notification:", currentErrorMessage);
+    if (aepsStatusCheck) {
       showNotification({
-        type: "error",
-        message: currentErrorMessage,
-        duration: 3000,
+        type: "success",
+        message: aepsStatusCheck.message,
       });
-      // Track to prevent duplicate notifications
-      lastAepsErrorRef.current = currentErrorMessage;
     }
-  }, [error, errorMessage, showNotification]);
+  }, [aepsStatusCheck]);
+
 
   useEffect(() => {
     if (operatorSuccess) {
