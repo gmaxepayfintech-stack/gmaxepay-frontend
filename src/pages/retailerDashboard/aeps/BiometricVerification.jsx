@@ -268,6 +268,58 @@ const BiometricVerification = () => {
   };
 
   /* -------------------------------------------
+      GET NEXT STEP BASED ON STATUS
+  --------------------------------------------*/
+  const getNextStep = (statusData) => {
+    if (!statusData) {
+      return null;
+    }
+
+    const {
+      aepsOnboarding,
+      validateAgentOtp,
+      bioMetricVerification,
+      daily2FAAuthentication
+    } = statusData;
+
+    // Check each step status
+    const isAepsOnboardingCompleted =
+      aepsOnboarding?.status?.toLowerCase() === "completed" &&
+      aepsOnboarding?.isCompleted === true;
+
+    const isValidateAgentOtpCompleted =
+      validateAgentOtp?.status?.toLowerCase() === "completed" &&
+      validateAgentOtp?.isCompleted === true;
+
+    const isBioMetricCompleted =
+      bioMetricVerification?.status?.toLowerCase() === "completed" &&
+      bioMetricVerification?.isCompleted === true;
+
+    const isDaily2FACompleted =
+      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+      daily2FAAuthentication?.isCompleted === true;
+
+    // If biometric is completed but 2FA is not, show 2FA
+    if (isBioMetricCompleted && !isDaily2FACompleted) {
+      return "faVerification";
+    }
+
+    // If all steps are completed, show confirm
+    const isAllCompleted =
+      isAepsOnboardingCompleted &&
+      isValidateAgentOtpCompleted &&
+      isBioMetricCompleted &&
+      isDaily2FACompleted;
+
+    if (isAllCompleted) {
+      return "aepsAccessConfirm";
+    }
+
+    // Otherwise, stay on biometric verification
+    return null;
+  };
+
+  /* -------------------------------------------
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
@@ -316,14 +368,17 @@ const BiometricVerification = () => {
               const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
 
               if (aepsStatusData) {
-                // Check if all status is completed
-                const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+                // Get next step based on status
+                const nextStep = getNextStep(aepsStatusData);
 
-                if (isAllCompleted) {
+                if (nextStep === "faVerification") {
+                  console.log("✅ Biometric completed, moving to 2FA verification");
+                  setShow2FA(true);
+                } else if (nextStep === "aepsAccessConfirm") {
                   console.log("✅ All AEPS status completed, showing confirm page");
                   setShowConfirm(true);
                 } else {
-                  console.log("📋 Some steps still pending");
+                  console.log("📋 Staying on biometric verification");
                 }
               }
             })
@@ -355,26 +410,29 @@ const BiometricVerification = () => {
   }, [dispatch]);
 
   /* -------------------------------------------
-      HANDLE STATUS CHECK RESPONSE
+      HANDLE STATUS CHECK RESPONSE FROM REDUX
   --------------------------------------------*/
   useEffect(() => {
-    if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
-      console.log("AEPS Status updated:", aepsStatus);
+    if (aepsStatus?.status === "SUCCESS" && aepsStatus?.aepsStatus) {
+      console.log("AEPS Status updated from Redux:", aepsStatus);
 
       // Extract status data from Redux state
-      const aepsStatusData = aepsStatus?.aepsStatus?.data || aepsStatus?.data || aepsStatus?.aepsStatus;
+      const aepsStatusData = aepsStatus?.aepsStatus;
 
       if (aepsStatusData) {
-        // Check if all status is completed
-        const isAllCompleted = checkIfAllStatusCompleted(aepsStatusData);
+        // Get next step based on status
+        const nextStep = getNextStep(aepsStatusData);
 
-        if (isAllCompleted && !showConfirm) {
+        if (nextStep === "faVerification" && !show2FA && !showConfirm) {
+          console.log("✅ Biometric completed (from Redux), moving to 2FA verification");
+          setShow2FA(true);
+        } else if (nextStep === "aepsAccessConfirm" && !showConfirm) {
           console.log("✅ All AEPS status completed (from Redux), showing confirm page");
           setShowConfirm(true);
         }
       }
     }
-  }, [aepsStatus, showConfirm]);
+  }, [aepsStatus, showConfirm, show2FA]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
