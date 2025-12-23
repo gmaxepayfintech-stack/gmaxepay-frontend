@@ -357,44 +357,73 @@ const BiometricVerification = () => {
     dispatch(aepsOnboardingBiometricVerification(requestData))
       .then((response) => {
         console.log("✅ Biometric verification response:", response);
-        if (response?.status === "SUCCESS") {
-          setDeviceMessage("Biometric verification successful");
-          // Call aepsStatusCheck after successful verification
-          dispatch(aepsStatusCheck())
-            .then((statusResponse) => {
-              console.log("✅ AEPS Status check response:", statusResponse);
+        
+        // Always call aepsStatusCheck after biometric verification dispatch
+        // This ensures we check the latest status regardless of response structure
+        console.log("🔄 Calling aepsStatusCheck after biometric verification...");
+        
+        dispatch(aepsStatusCheck())
+          .then((statusResponse) => {
+            console.log("✅ AEPS Status check response:", statusResponse);
 
-              // Extract status data from response
-              const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
+            // Extract status data from response
+            const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
 
-              if (aepsStatusData) {
-                // Get next step based on status
-                const nextStep = getNextStep(aepsStatusData);
+            if (aepsStatusData) {
+              // Get next step based on status
+              const nextStep = getNextStep(aepsStatusData);
 
-                if (nextStep === "faVerification") {
-                  console.log("✅ Biometric completed, moving to 2FA verification");
-                  setShow2FA(true);
-                } else if (nextStep === "aepsAccessConfirm") {
-                  console.log("✅ All AEPS status completed, showing confirm page");
-                  setShowConfirm(true);
+              if (nextStep === "faVerification") {
+                console.log("✅ Biometric completed, moving to 2FA verification");
+                setDeviceMessage("Biometric verification successful");
+                setShow2FA(true);
+              } else if (nextStep === "aepsAccessConfirm") {
+                console.log("✅ All AEPS status completed, showing confirm page");
+                setDeviceMessage("Biometric verification successful");
+                setShowConfirm(true);
+              } else {
+                console.log("📋 Staying on biometric verification");
+                // Check if biometric verification was successful
+                if (response?.status === "SUCCESS") {
+                  setDeviceMessage("Biometric verification successful");
                 } else {
-                  console.log("📋 Staying on biometric verification");
+                  setDeviceMessage(response?.message || "Biometric verification completed");
                 }
               }
-            })
-            .catch((error) => {
-              console.error("❌ AEPS Status check error:", error);
-            });
-        } else {
-          console.log("⚠️ Biometric verification failed:", response?.message);
-          setDeviceMessage(response?.message || "Biometric verification failed");
-          pidDataProcessedRef.current = false;
-        }
+            } else {
+              // If status data is not available, check response status
+              if (response?.status === "SUCCESS") {
+                setDeviceMessage("Biometric verification successful");
+              } else {
+                setDeviceMessage(response?.message || "Biometric verification failed");
+                pidDataProcessedRef.current = false;
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("❌ AEPS Status check error:", error);
+            // Even if status check fails, check the biometric response
+            if (response?.status === "SUCCESS") {
+              setDeviceMessage("Biometric verification successful");
+            } else {
+              setDeviceMessage(response?.message || "Biometric verification failed");
+              pidDataProcessedRef.current = false;
+            }
+          });
       })
       .catch((error) => {
         console.error("❌ Biometric verification error:", error);
         setDeviceMessage("Biometric verification failed. Please try again.");
         pidDataProcessedRef.current = false;
+        
+        // Still try to check status even on error
+        dispatch(aepsStatusCheck())
+          .then((statusResponse) => {
+            console.log("✅ AEPS Status check after error:", statusResponse);
+          })
+          .catch((statusError) => {
+            console.error("❌ AEPS Status check error after biometric failure:", statusError);
+          });
       });
   }, [pidData, dispatch]);
 
