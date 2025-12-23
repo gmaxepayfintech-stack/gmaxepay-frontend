@@ -43,7 +43,9 @@ function App() {
   const { loading } = useCompany();
   const dispatch = useDispatch();
   const lastAepsStatusRef = useRef(null);
+  const lastAepsErrorRef = useRef(null);
   const error = useSelector((state) => state?.error?.error || null);
+  const errorMessage = useSelector((state) => state?.error?.message || null);
   const success = useSelector((state) => state?.employee?.success || null);
   const userSuccess = useSelector((state) => state?.user?.success || null);
   const slabSuccess = useSelector(
@@ -188,7 +190,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       const currentStatus = JSON.stringify(aepsStatusCheck?.aepsStatus);
       if (lastAepsStatusRef.current !== currentStatus) {
         lastAepsStatusRef.current = currentStatus;
-        console.log("Showing aepsStatusCheck notification:", aepsStatusCheck?.message);
+        console.log("Showing aepsStatusCheck success notification:", aepsStatusCheck?.message);
         showNotification({
           type: "success",
           message: aepsStatusCheck?.message,
@@ -197,6 +199,23 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       }
     }
   }, [aepsStatusCheck, showNotification]);
+
+  // Handle aepsStatusCheck failure notifications
+  useEffect(() => {
+    // Check if error message exists and is different from last shown error
+    const currentErrorMessage = errorMessage || (typeof error === 'object' && error?.message) || (typeof error === 'string' && error) || null;
+    
+    if (currentErrorMessage && currentErrorMessage !== lastAepsErrorRef.current) {
+      console.log("Showing aepsStatusCheck failure notification:", currentErrorMessage);
+      showNotification({
+        type: "error",
+        message: currentErrorMessage,
+        duration: 3000,
+      });
+      // Track to prevent duplicate notifications
+      lastAepsErrorRef.current = currentErrorMessage;
+    }
+  }, [error, errorMessage, showNotification]);
 
   useEffect(() => {
     if (operatorSuccess) {

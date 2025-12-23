@@ -58,11 +58,6 @@ export const aepsStatusCheck = () => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
         const apiUrl = `${API_ROUTE}/api/v1/user/aeps/onboarding-status`;
 
-        // Debug logging to verify API call is being made
-        console.log("🔍 [aepsStatusCheck] Making API call to:", apiUrl);
-        console.log("🔍 [aepsStatusCheck] API_ROUTE value:", API_ROUTE);
-        console.log("🔍 [aepsStatusCheck] Auth token exists:", !!authToken);
-
         const response = await axios.post(
             apiUrl,
             {},
@@ -73,8 +68,6 @@ export const aepsStatusCheck = () => async (dispatch) => {
                 },
             }
         );
-
-        console.log("✅ [aepsStatusCheck] API call successful, response:", response);
 
         const { data: aepsStatus, status, message } = response?.data ?? {};
         if (status === "SUCCESS") {
@@ -97,7 +90,10 @@ export const aepsStatusCheck = () => async (dispatch) => {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_STATUS_CHECK_FAILURE,
-            payload: errorMessage,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage || commonError,
+            },
         });
         throw error;
     } finally {
