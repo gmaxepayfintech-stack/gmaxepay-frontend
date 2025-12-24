@@ -69,6 +69,7 @@ export const aepsStatusCheck = () => async (dispatch) => {
             }
         );
 
+
         const { data: aepsStatus, status, message } = response?.data ?? {};
         if (status === "SUCCESS") {
             dispatch({
@@ -90,10 +91,7 @@ export const aepsStatusCheck = () => async (dispatch) => {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_STATUS_CHECK_FAILURE,
-            payload: {
-                status: "FAILURE",
-                message: errorMessage || commonError,
-            },
+            payload: errorMessage,
         });
         throw error;
     } finally {
