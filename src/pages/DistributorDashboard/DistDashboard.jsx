@@ -7,12 +7,14 @@ import {
     Bar,
     Tooltip,
 } from "recharts";
+import { useNavigate } from "react-router-dom";
 
 const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
 const Earning = "/img/Earning.png";
 
 const DistDashboard = () => {
+    const navigate = useNavigate();
 
     // Chart data for Rcent Transaction - Monthly data (Jan-Dec)
     const chartData = [
@@ -46,6 +48,7 @@ const DistDashboard = () => {
         { name: "Mobile & DTH Recharge", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
         { name: "DMT-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
         { name: "Micro ATM", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+        { name: "AEPS", icon: "/img/MobileIcon.svg", amount: "₹ 2054456" },
         { name: "CMS-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
         { name: "BBPS", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
         { name: "DMT-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
@@ -249,7 +252,12 @@ const DistDashboard = () => {
                     {quickServices.map((service, index) => (
                         <div
                             key={index}
-                            className="bg-[#FFFFFF] rounded-xl p-3 sm:p-4 flex items-start gap-[28px] transition cursor-pointer"
+                            onClick={() => {
+                                if (service.name === "AEPS") {
+                                    navigate("/distributerDashboard/aeps");
+                                }
+                            }}
+                            className="bg-[#FFFFFF] rounded-xl p-3 sm:p-4 flex items-start gap-[28px] transition cursor-pointer hover:shadow-md"
                         >
                             <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-blue-100 flex items-center justify-center shrink-0 relative">
                                 <img
