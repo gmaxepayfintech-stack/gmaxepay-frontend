@@ -177,6 +177,55 @@ const FAVerification = () => {
   };
 
   /* -------------------------------
+      DETECT DEVICE TYPE
+  ---------------------------------*/
+  const detectDeviceType = (deviceInfoXml) => {
+    if (!deviceInfoXml) {
+      return "unknown"; // Default to unknown if no device info
+    }
+
+    try {
+      const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+      const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
+      
+      if (!deviceInfo) {
+        return "unknown";
+      }
+
+      // Check device name/model info (mi attribute)
+      const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
+      // Check manufacturer code (mc attribute) if available
+      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      // Check device provider ID (dpId attribute) if available
+      const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
+
+      // Check for Mantra devices
+      if (
+        deviceName.includes("mantra") ||
+        manufacturerCode.includes("mantra") ||
+        dpId.includes("mantra")
+      ) {
+        return "mantra";
+      }
+
+      // Check for Startek devices
+      if (
+        deviceName.includes("startek") ||
+        deviceName.includes("fm220") ||
+        manufacturerCode.includes("startek") ||
+        dpId.includes("startek")
+      ) {
+        return "startek";
+      }
+
+      return "unknown";
+    } catch (err) {
+      console.error("Error detecting device type:", err);
+      return "unknown";
+    }
+  };
+
+  /* -------------------------------
       STEP 3 → CAPTURE FINGER
   ---------------------------------*/
   const captureAvdm = async () => {
@@ -210,18 +259,40 @@ const FAVerification = () => {
       setScanProgress(currentProgress);
     }, updateInterval);
 
-    const pidOptions = `<?xml version="1.0"?>
-      <PidOptions ver="1.0">
-        <Opts 
-          fCount="1"
-          fType="0"
-          format="0"
-          pidVer="2.0"
-          timeout="10000"
-          env="P"
-        />
-      </PidOptions>
-    `;
+    // Extract DString from deviceInfoXml (DeviceInfo XML content)
+    const DString = deviceInfoXml || "";
+    
+    // Detect device type
+    const deviceType = detectDeviceType(deviceInfoXml);
+    
+    // Build CustOpts based on device type
+    let custOpts = "";
+    if (deviceType === "mantra") {
+      // Mantra devices require mantrakey parameter
+      custOpts = '<CustOpts> \
+                    <Param name="mantrakey" value="" /> \
+                  </CustOpts>';
+    } else if (deviceType === "startek") {
+      // Startek devices typically don't need CustOpts, but we can include empty one if needed
+      // For Startek, you can either omit CustOpts or include empty/device-specific params
+      // custOpts = '<CustOpts></CustOpts>'; // Uncomment if Startek needs empty CustOpts
+      custOpts = ""; // Startek devices usually don't need CustOpts
+    } else {
+      // For unknown devices, default to Mantra format (backward compatibility)
+      custOpts = '<CustOpts> \
+                    <Param name="mantrakey" value="" /> \
+                  </CustOpts>';
+    }
+    
+    const pidOptions = '<?xml version="1.0"?> \
+                <PidOptions ver="1.0"> \
+                  <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
+                        pidVer="2.0" timeout="10000" posh="UNKNOWN" \
+                        wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
+                        env="P" /> \
+                  ' + DString + ' \
+                  ' + custOpts + ' \
+                </PidOptions>';
 
     try {
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
