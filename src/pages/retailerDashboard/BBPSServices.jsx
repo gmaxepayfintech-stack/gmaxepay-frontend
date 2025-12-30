@@ -68,33 +68,46 @@ const BBPSServices = ({ onBack }) => {
         // Add navigation logic here based on service ID
         // navigate(`/retailerDashboard/bbps/${serviceId}`);
     };
-
+ 
     return (
         <div className="w-full">
-            {/* Back Button */}
-            {onBack && (
-                <div className="mb-6">
-                    <button
-                        type="button"
-                        aria-label="Back"
-                        onClick={onBack}
-                        className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
-                    >
-                        <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-                    </button>
-                </div>
-            )}
-
             {/* Header */}
             <div className="mb-[44px]">
-                <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                    BBPS Services
-                </div>
-                <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
-                    Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
-                    Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
-                    At Your Fingertips.
-                </div>
+                {onBack && (
+                    <div className="flex items-start gap-3 mb-6">
+                        <button
+                            type="button"
+                            aria-label="Back"
+                            onClick={onBack}
+                            className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
+                        >
+                            <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+                        </button>
+                        <div className="flex-1">
+                            <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+                                BBPS Services
+                            </div>
+                            <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed">
+                                Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
+                                Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
+                                At Your Fingertips.
+                            </div>
+                        </div>
+                    </div>
+                )}
+
+                {!onBack && (
+                    <>
+                        <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+                            BBPS Services
+                        </div>
+                        <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
+                            Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
+                            Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
+                            At Your Fingertips.
+                        </div>
+                    </>
+                )}
 
                 {/* Tabs */}
                 <div className="mt-[28px] inline-flex items-center gap-4 bg-[#FFFFFF] rounded-3xl border border-[#1B1717] border-opacity-50 p-2">
