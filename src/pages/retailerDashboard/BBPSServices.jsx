@@ -1,32 +1,26 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
-import { aepsStatusCheck } from "../../redux/action/aepsAction";
-import BBPSServices from "./BBPSServices";
-
 
 const DEFAULT_DESCRIPTION =
-    "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
+    "You Can Now Pay Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services Through BBPS, Making Bill Payments Convenient And Hassle-Free";
 
-const servicesData = [
-    { id: "mobile-dth", title: "Mobile & DTH Recharge", status: "available" },
-    { id: "Aeps", title: "AEPS", status: "available" },
-    { id: "BBPS", title: "BBPS", status: "available" },
-    { id: "dmt-1", title: "DMT-1", status: "available" },
-    { id: "dmt-2", title: "DMT-2", status: "available" },
-    { id: "micro-atm", title: "Micro ATM", status: "available" },
-    { id: "cms-1", title: "CMS-1", status: "available" },
-    { id: "cms-2", title: "CMS-2", status: "available" },
-    { id: "bbps", title: "BBPS", status: "available" },
-    { id: "unified-dmt", title: "Unified DMT", status: "available" },
-    { id: "dmt", title: "DMT", status: "available" },
-    { id: "dmt-11", title: "DMT-1", status: "available" },
-    { id: "pan-card", title: "Pan Card Creation", status: "subscribed" },
-    { id: "aeps-cash-deposit", title: "AEPS Cash Deposit", status: "subscribed" },
-    { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
-    { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
+const bbpsServicesData = [
+    { id: "electricity", title: "Electricity Bill Payment", status: "available" },
+    { id: "gas", title: "Gas Bill Payment", status: "available" },
+    { id: "water", title: "Water Bill Payment", status: "available" },
+    { id: "landline", title: "Landline/Postpaid Bill", status: "available" },
+    { id: "insurance", title: "Insurance Premium", status: "available" },
+    { id: "loan-repayment", title: "Loan Repayment", status: "available" },
+    { id: "credit-card", title: "Credit Card Bill", status: "available" },
+    { id: "fastag", title: "FastTag Recharge", status: "available" },
+    { id: "lic", title: "LIC Premium", status: "available" },
+    { id: "broadband", title: "Broadband Bill", status: "subscribed" },
+    { id: "cable-tv", title: "Cable TV Bill", status: "subscribed" },
+    { id: "education-fee", title: "Education Fee Payment", status: "subscribed" },
+    { id: "municipal-tax", title: "Municipal Tax", status: "subscribed" },
+    { id: "housing-society", title: "Housing Society Maintenance", status: "subscribed" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
 const ServiceCard = ({ title, description, onClick }) => {
@@ -59,49 +53,58 @@ ServiceCard.propTypes = {
     onClick: PropTypes.func,
 };
 
-const Services = () => {
+const BBPSServices = ({ onBack }) => {
     const [activeTab, setActiveTab] = useState("Available");
-    const [showBBPSServices, setShowBBPSServices] = useState(false);
     const navigate = useNavigate();
-    const dispatch = useDispatch();
-
-    // Note: Status check only happens when AEPS card is clicked, not mount
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
-        return servicesData.filter((s) => s.status === key);
+        return bbpsServicesData.filter((s) => s.status === key);
     }, [activeTab]);
 
-    // Handle AEPS card click - always navigate to onboarding-aeps route
-    // The OnBoardingAeps component will handle all status checks and component rendering
-    const handleAepsClick = () => {
-        console.log("🖱️ AEPS card clicked, navigating to onboarding-aeps");
-        // Always navigate to onboarding-aeps - let that component handle everything
-        navigate("/retailerDashboard/onboarding-aeps");
+    const handleServiceClick = (serviceId) => {
+        console.log(`🖱️ ${serviceId} service clicked`);
+        // Add navigation logic here based on service ID
+        // navigate(`/retailerDashboard/bbps/${serviceId}`);
     };
-
-    // Handle BBPS card click - show BBPS services component
-    const handleBBPSClick = () => {
-        console.log("🖱️ BBPS card clicked, showing BBPS services");
-        setShowBBPSServices(true);
-    };
-
-    // If BBPS services should be shown, render that component
-    if (showBBPSServices) {
-        return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
-    }
 
     return (
         <div className="w-full">
+            {/* Back Button */}
+            {onBack && (
+                <div className="mb-6">
+                    <button
+                        type="button"
+                        onClick={onBack}
+                        className="flex items-center gap-2 text-[#1B1717] hover:text-[#039155] transition font-['Gilroy-Medium']"
+                    >
+                        <svg
+                            className="w-5 h-5"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                        >
+                            <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M15 19l-7-7 7-7"
+                            />
+                        </svg>
+                        Back to Services
+                    </button>
+                </div>
+            )}
+
             {/* Header */}
             <div className="mb-[44px]">
-                <div className="text-[24px] font-['Gilroy-Medium'	] text-[#1B1717]">
-                    Make Your Wallet Grow
+                <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    BBPS Services
                 </div>
-                <div className="mt-[12px] text-[16px]  text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
-                    Do You Know? By Upgrading Your Membership To A Premium Scheme, You Can
-                    Earn Attractive Commissions On Various Services. To Know More About
-                    Your Current Scheme And Upgrade
+                <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
+                    Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
+                    Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
+                    At Your Fingertips.
                 </div>
 
                 {/* Tabs */}
@@ -132,7 +135,7 @@ const Services = () => {
             {/* Title */}
             <div className="mb-[20px]">
                 <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                    Services
+                    BBPS Services
                 </div>
             </div>
 
@@ -143,13 +146,7 @@ const Services = () => {
                         key={s.id}
                         title={s.title}
                         description={s.description}
-                        onClick={() => {
-                            if (s.id === "Aeps") {
-                                handleAepsClick();
-                            } else if (s.id === "BBPS" || s.id === "bbps") {
-                                handleBBPSClick();
-                            }
-                        }}
+                        onClick={() => handleServiceClick(s.id)}
                     />
                 ))}
             </div>
@@ -157,4 +154,8 @@ const Services = () => {
     );
 };
 
-export default Services;
+BBPSServices.propTypes = {
+    onBack: PropTypes.func,
+};
+
+export default BBPSServices;
