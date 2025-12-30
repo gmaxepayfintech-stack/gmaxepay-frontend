@@ -12,7 +12,7 @@ const DEFAULT_DESCRIPTION =
 const servicesData = [
     { id: "mobile-dth", title: "Mobile & DTH Recharge", status: "available" },
     { id: "Aeps", title: "AEPS", status: "available" },
-    { id: "BBPS", title: "BBPS Electricity", status: "available" },
+    { id: "BBPS", title: "BBPS", status: "available" },
     { id: "dmt-1", title: "DMT-1", status: "available" },
     { id: "dmt-2", title: "DMT-2", status: "available" },
     { id: "micro-atm", title: "Micro ATM", status: "available" },
