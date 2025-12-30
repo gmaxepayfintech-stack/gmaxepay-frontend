@@ -12,6 +12,7 @@ const DEFAULT_DESCRIPTION =
 const servicesData = [
     { id: "mobile-dth", title: "Mobile & DTH Recharge", status: "available" },
     { id: "Aeps", title: "AEPS", status: "available" },
+    { id: "BBPS", title: "BBPS Electricity", status: "available" },
     { id: "dmt-1", title: "DMT-1", status: "available" },
     { id: "dmt-2", title: "DMT-2", status: "available" },
     { id: "micro-atm", title: "Micro ATM", status: "available" },
@@ -96,8 +97,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Available")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Available"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-gray-700 hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-gray-700 hover:bg-gray-50"
                             }`}
                     >
                         Available
@@ -106,8 +107,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Subscribed")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-[#1B1717] hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-[#1B1717] hover:bg-gray-50"
                             }`}
                     >
                         Subscribed
