@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 
@@ -75,23 +76,11 @@ const BBPSServices = ({ onBack }) => {
                 <div className="mb-6">
                     <button
                         type="button"
+                        aria-label="Back"
                         onClick={onBack}
-                        className="flex items-center gap-2 text-[#1B1717] hover:text-[#039155] transition font-['Gilroy-Medium']"
+                        className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
                     >
-                        <svg
-                            className="w-5 h-5"
-                            fill="none"
-                            stroke="currentColor"
-                            viewBox="0 0 24 24"
-                        >
-                            <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M15 19l-7-7 7-7"
-                            />
-                        </svg>
-                        Back to Services
+                        <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
                     </button>
                 </div>
             )}
