@@ -315,9 +315,21 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                   name="email"
                   value={formData.email || ""}
                   onChange={handleChange}
+                  onKeyDown={(e) => {
+                    if (
+                      e.key === "Enter" &&
+                      formData.email &&
+                      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email) &&
+                      !(verifuSuccess === "SUCCESS" && successCooldown > 0)
+                    ) {
+                      e.preventDefault();
+                      handleVerifyOrResend(); // SAME as clicking Verify
+                    }
+                  }}
                   placeholder="Enter your Email"
                   className="w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 sm:border-r-0 rounded-lg sm:rounded-l-lg sm:rounded-r-none pl-8 sm:pl-9 md:pl-10 lg:pl-12 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 sm:focus:border-r-0 transition"
                 />
+
               </div>
 
               <button
@@ -325,18 +337,18 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                 onClick={handleVerifyOrResend}
                 disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
                 className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 px-2.5 sm:px-3 md:px-3 lg:px-4 xl:px-5 h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md w-[100px] sm:w-[110px] md:w-[120px] lg:w-[140px] xl:w-[150px] flex items-center justify-center ${verifuSuccess === "SUCCESS" && successCooldown > 0
-                    ? "bg-gray-400 border-gray-400 cursor-not-allowed"
-                    : ""
+                  ? "bg-gray-400 border-gray-400 cursor-not-allowed"
+                  : ""
                   }`}
               >
                 <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold leading-none">
                   {verifuSuccess === "SUCCESS"
                     ? successCooldown > 0
                       ? (
-                          <>
-                            Resend (<span className="font-mono tabular-nums">{formatCountdown(successCooldown)}</span>)
-                          </>
-                        )
+                        <>
+                          Resend (<span className="font-mono tabular-nums">{formatCountdown(successCooldown)}</span>)
+                        </>
+                      )
                       : "Resend OTP"
                     : "Verify"}
                 </span>
@@ -367,12 +379,24 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                 name="emailOtp"
                 value={formData.emailOtp || ""}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (
+                    e.key === "Enter" &&
+                    formData.emailOtp &&
+                    formData.emailOtp.length === 6 &&
+                    /^[0-9]{6}$/.test(formData.emailOtp)
+                  ) {
+                    e.preventDefault();
+                    submitEmailOtp(); 
+                  }
+                }}
                 placeholder="Enter Email OTP"
                 maxLength={6}
                 inputMode="numeric"
                 pattern="[0-9]*"
                 className="w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 rounded-lg pl-8 sm:pl-9 md:pl-10 lg:pl-12 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 transition"
               />
+
             </div>
 
             {emailSubmitStatus !== "SUCCESS" && emailSubmitMessage && (
