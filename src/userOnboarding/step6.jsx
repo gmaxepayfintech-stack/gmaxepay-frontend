@@ -30,11 +30,18 @@ function Step6({ formData, setFormData, onNext, onBack }) {
 
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
-      .matches(/^\d{9,18}$/, "Account number must be 9-18 digits")
+      .matches(/^\d{13}$/, "Account number must be exactly 13 digits")
       .required("Account number is required"),
     ifscCode: Yup.string()
-      .matches(/^[A-Z]{4}0[A-Z0-9]{6}$/, "Enter valid IFSC code (e.g., ABCD0123456)")
-      .required("IFSC code is required"),
+      .required("IFSC code is required")
+      .test("length", "IFSC code must be exactly 11 characters", (value) => {
+        if (!value) return false;
+        return value.length === 11;
+      })
+      .test("format", "Enter valid IFSC code (e.g., ABCD0123456)", (value) => {
+        if (!value || value.length !== 11) return true; // Don't validate format if not 11 chars
+        return /^[A-Z]{4}0[A-Z0-9]{6}$/.test(value);
+      }),
   });
 
   const formik = useFormik({
@@ -44,7 +51,7 @@ function Step6({ formData, setFormData, onNext, onBack }) {
       beneficiaryName: formData.beneficiaryName || "",
     },
     validationSchema,
-    validateOnBlur: true,
+    validateOnBlur: false,
     validateOnChange: false,
     onSubmit: async () => {
       const errors = await formik.validateForm();
@@ -183,7 +190,15 @@ function Step6({ formData, setFormData, onNext, onBack }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    const processedValue = name === "ifscCode" ? value.toUpperCase() : value;
+    let processedValue = value;
+
+    if (name === "bankAccountNumber") {
+      // Only allow digits and limit to 13
+      processedValue = value.replace(/\D/g, "").slice(0, 13);
+    } else if (name === "ifscCode") {
+      // Convert to uppercase and limit to 11 characters
+      processedValue = value.toUpperCase().slice(0, 11);
+    }
 
     formik.setFieldValue(name, processedValue);
     setFormData((d) => ({ ...d, [name]: processedValue }));
@@ -254,11 +269,13 @@ function Step6({ formData, setFormData, onNext, onBack }) {
                 onChange={handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Enter Account Number"
+                maxLength={13}
+                inputMode="numeric"
                 className={`w-full border-2 border-gray-300 
                   h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
                   rounded-lg py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-2.5 pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 
                   text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none
-                  focus:border-[#039155] focus:border-opacity-100 transition
+                  focus:border-[#1B1717] focus:border-opacity-80 transition
                   ${formik.errors.bankAccountNumber &&
                     formik.touched.bankAccountNumber
                     ? "border-red-500"
@@ -297,14 +314,21 @@ function Step6({ formData, setFormData, onNext, onBack }) {
                   name="ifscCode"
                   value={formik.values.ifscCode}
                   onChange={handleChange}
-                  onBlur={formik.handleBlur}
+                  onBlur={(e) => {
+                    formik.handleBlur(e);
+                    // Validate on blur to show Yup messages for any length
+                    if (formik.values.ifscCode) {
+                      formik.validateField("ifscCode");
+                    }
+                  }}
                   placeholder="Enter IFSC Code"
+                  maxLength={11}
                   className={`w-full border-2 border-gray-300 
                     h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
                     rounded-l-lg py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-2.5 pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 
                     text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base
                     outline-none uppercase transition
-                    focus:border-[#039155] focus:border-opacity-100
+                    focus:border-[#1B1717] focus:border-opacity-80
                     ${formik.errors.ifscCode && formik.touched.ifscCode
                       ? "border-red-500"
                       : ""
@@ -316,14 +340,14 @@ function Step6({ formData, setFormData, onNext, onBack }) {
               <button
                 type="button"
                 onClick={handleVerify}
-                disabled={!formik.values.ifscCode || !!formik.errors.ifscCode}
+                disabled={!formik.values.ifscCode || formik.values.ifscCode.length !== 11}
                 className={`
                   text-white font-semibold 
                   w-[70px] sm:w-[80px] md:w-[90px] lg:w-[100px] xl:w-[110px]
                   h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
                   text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm
                   rounded-r-lg transition flex-shrink-0 whitespace-nowrap shadow-md
-                  ${!formik.values.ifscCode || !!formik.errors.ifscCode
+                  ${!formik.values.ifscCode || formik.values.ifscCode.length !== 11
                     ? "bg-[#039155] cursor-not-allowed opacity-70"
                     : "bg-[#039155] hover:bg-green-700 active:scale-95"
                   }`}
@@ -369,7 +393,7 @@ function Step6({ formData, setFormData, onNext, onBack }) {
                   outline-none transition
                   ${!formData.ifscVerified
                     ? "bg-gray-50 cursor-not-allowed"
-                    : "focus:border-[#039155] focus:border-opacity-100"
+                    : "focus:border-[#1B1717] focus:border-opacity-80"
                   }`}
               />
             </div>

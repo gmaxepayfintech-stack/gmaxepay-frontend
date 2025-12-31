@@ -236,7 +236,7 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
 
   return (
     <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-4 overflow-y-auto">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] 2xl:max-w-[700px] my-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[500px] xl:max-w-[540px] 2xl:max-w-[580px] my-auto">
         <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-2.5 sm:p-3 md:p-3 lg:p-3 xl:p-3 space-y-1.5 sm:space-y-2 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
 
           {/* Header with Back Button */}
@@ -260,7 +260,7 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
           </div>
 
           {/* Frame */}
-          <div className="w-full h-[140px] sm:h-[160px] md:h-[170px] lg:h-[180px] xl:h-[190px] mx-auto">
+          <div className="w-full h-[200px] sm:h-[220px] md:h-[250px] lg:h-[280px] xl:h-[250px] mx-auto">
             <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
               <video
                 ref={videoRef}
@@ -302,7 +302,12 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
                       setFormData((d) => ({ ...d, profilePhotoDataUrl: "" }));
                       startCamera();
                     }}
-                    className="bg-[#039155] text-white px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold hover:bg-green-700 transition shadow-lg active:scale-95"
+                    disabled={isCameraActive || !formData.profilePhotoDataUrl}
+                    className={`px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition shadow-lg active:scale-95 ${
+                      isCameraActive || !formData.profilePhotoDataUrl
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#039155] text-white hover:bg-green-700"
+                    }`}
                   >
                     Retake
                   </button>
@@ -310,11 +315,11 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
                   <button
                     type="button"
                     onClick={capturePhoto}
-                    disabled={!isCameraActive}
+                    disabled={!isCameraActive || formData.profilePhotoDataUrl}
                     className={`px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition shadow-lg active:scale-95 ${
-                      isCameraActive
-                        ? "bg-[#039155] text-white hover:bg-green-700"
-                        : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                      !isCameraActive || formData.profilePhotoDataUrl
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#039155] text-white hover:bg-green-700"
                     }`}
                   >
                     Capture
