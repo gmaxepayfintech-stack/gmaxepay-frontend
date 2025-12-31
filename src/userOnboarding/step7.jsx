@@ -204,7 +204,7 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
         if (referCode) {
           window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity`;
+          window.location.href = `/unity?skip=true`;
         }
       }, 3000); // 3 seconds delay
 
