@@ -182,6 +182,16 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
         setFormData((d) => ({ ...d, completed: true }));
       }
 
+      // Clear temporary onboarding storage after successful completion
+      try {
+        localStorage.removeItem("step1Completed");
+        localStorage.removeItem("referralCodeFromUrl");
+        // Keep onboardingSteps and onboardingToken as they might be needed for authenticated session
+        console.log("Cleared temporary onboarding storage");
+      } catch (e) {
+        console.error("Error clearing onboarding storage:", e);
+      }
+
       // Show success notification first
       showNotification({
         type: "success",

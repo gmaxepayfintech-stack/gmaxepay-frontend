@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { referalCodeCheck } from "../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
+import secureLocalStorage from "react-secure-storage";
 import OnboardingRetailerById from "./[id]";
 
 const Welcome = () => {
@@ -37,6 +38,22 @@ const Welcome = () => {
     try {
       const storedReferral = localStorage.getItem("referralCodeCompleted");
       const step1Completed = localStorage.getItem("step1Completed") === "true";
+      
+      // Check if onboarding is already complete (steps data exists)
+      const onboardingSteps = secureLocalStorage.getItem("onboardingSteps");
+      if (onboardingSteps) {
+        try {
+          const stepsData = JSON.parse(onboardingSteps);
+          // If onboarding is complete, clear temporary onboarding storage
+          if (stepsData?.allCompleted || stepsData?.kycStatus === "COMPLETED") {
+            localStorage.removeItem("step1Completed");
+            localStorage.removeItem("referralCodeFromUrl");
+            console.log("Cleared temporary onboarding storage - onboarding already complete");
+          }
+        } catch (e) {
+          console.error("Error parsing onboarding steps:", e);
+        }
+      }
 
       if (storedReferral) {
         const parsed = JSON.parse(storedReferral);
