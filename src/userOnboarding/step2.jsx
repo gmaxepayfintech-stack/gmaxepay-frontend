@@ -236,7 +236,7 @@ function Step2({ formData, setFormData, onNext, onBack }) {
         if (referCode) {
           window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity`;
+          window.location.href = `/unity?skip=true`;
         }
       }, 500);
     }

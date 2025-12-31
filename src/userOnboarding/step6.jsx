@@ -80,7 +80,7 @@ function Step6({ formData, setFormData, onNext, onBack }) {
         if (referCode) {
           window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity`;
+          window.location.href = `/unity?skip=true`;
         }
       } else {
         // If not verified, show error

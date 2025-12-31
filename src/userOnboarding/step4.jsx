@@ -365,7 +365,7 @@ function RetailerPan({ setFormData, onNext, onBack }) {
         if (referCode) {
           window.location.href = `/unity/${referCode}`;
         } else {
-          window.location.href = `/unity`;
+          window.location.href = `/unity?skip=true`;
         }
       }, 500);
     } else if (error) {
