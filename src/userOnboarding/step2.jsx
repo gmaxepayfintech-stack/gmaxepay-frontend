@@ -324,16 +324,18 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                 type="button"
                 onClick={handleVerifyOrResend}
                 disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
-                className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 px-2.5 sm:px-3 md:px-3 lg:px-4 xl:px-5 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md min-w-[80px] sm:min-w-[90px] md:min-w-[100px] lg:min-w-[120px] xl:min-w-[130px] ${verifuSuccess === "SUCCESS" && successCooldown > 0
+                className={`bg-[#039155] text-white rounded-lg sm:rounded-r-lg sm:rounded-l-none border-2 sm:border-l-0 border-gray-300 px-2.5 sm:px-3 md:px-3 lg:px-4 xl:px-5 h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 hover:bg-green-700 hover:border-gray-400 transition whitespace-nowrap flex-shrink-0 shadow-md w-[100px] sm:w-[110px] md:w-[120px] lg:w-[140px] xl:w-[150px] flex items-center justify-center ${verifuSuccess === "SUCCESS" && successCooldown > 0
                     ? "bg-gray-400 border-gray-400 cursor-not-allowed"
                     : ""
                   }`}
               >
-                {verifuSuccess === "SUCCESS"
-                  ? successCooldown > 0
-                    ? `Resend (${formatCountdown(successCooldown)})`
-                    : "Resend OTP"
-                  : "Verify"}
+                <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold leading-none">
+                  {verifuSuccess === "SUCCESS"
+                    ? successCooldown > 0
+                      ? `Resend (${formatCountdown(successCooldown)})`
+                      : "Resend OTP"
+                    : "Verify"}
+                </span>
               </button>
             </div>
           </div>
