@@ -10,7 +10,7 @@ import { useCompany } from '../context/CompanyContext';
 import { useNotification } from '../context/NotificationContext';
 import secureLocalStorage from 'react-secure-storage';
 
-function Step5({ formData, setFormData, onComplete, onBack }) {
+function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -262,17 +262,14 @@ function Step5({ formData, setFormData, onComplete, onBack }) {
         message: postShopDetailsMessage || postShopDetailsResponse?.message || "Shop details saved successfully",
       });
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity?skip=true`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     }
-  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, showNotification]);
+  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, showNotification, onShowSteps]);
 
   // Handle error notifications
   useEffect(() => {
