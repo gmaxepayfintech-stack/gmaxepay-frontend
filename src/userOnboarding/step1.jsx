@@ -8,7 +8,7 @@ import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferralCode }) {
+function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -163,21 +163,18 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
         message: OTPSubmitResponseData?.message || "Mobile verification successful",
       });
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     }
     // Reset when status changes away from SUCCESS
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification]);
+  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification, onShowSteps]);
   useEffect(() => {
     const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
 
@@ -340,17 +337,14 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
         setFormData((prev) => ({ ...prev, completed: true }));
       }
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity`;
-        }
-      }, 200);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 200);
+      }
     }
-  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification]);
+  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, onShowSteps]);
 
   // Start countdown when OTP is sent successfully
   useEffect(() => {
