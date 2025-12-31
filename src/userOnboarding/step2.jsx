@@ -332,7 +332,11 @@ function Step2({ formData, setFormData, onNext, onBack }) {
                 <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold leading-none">
                   {verifuSuccess === "SUCCESS"
                     ? successCooldown > 0
-                      ? `Resend (${formatCountdown(successCooldown)})`
+                      ? (
+                          <>
+                            Resend (<span className="font-mono tabular-nums">{formatCountdown(successCooldown)}</span>)
+                          </>
+                        )
                       : "Resend OTP"
                     : "Verify"}
                 </span>
