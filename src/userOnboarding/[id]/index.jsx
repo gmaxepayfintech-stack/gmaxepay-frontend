@@ -558,6 +558,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                     formData={formData}
                     setFormData={setFormData}
                     onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
                       try {
                         localStorage.removeItem("moveAadhaar");
