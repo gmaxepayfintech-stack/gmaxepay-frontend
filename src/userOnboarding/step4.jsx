@@ -7,7 +7,7 @@ import { useNotification } from "../context/NotificationContext";
 import { connectPanVerification, downloadPanDocument, uploadPanDocument } from "../redux/action/retailerOnboardingAction";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function RetailerPan({ setFormData, onNext, onBack }) {
+function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -359,15 +359,12 @@ function RetailerPan({ setFormData, onNext, onBack }) {
         message: response?.message || "PAN document uploaded successfully",
       });
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity?skip=true`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     } else if (error) {
       setIsUploading(false); // Hide loader on error
       showNotification({
@@ -375,7 +372,7 @@ function RetailerPan({ setFormData, onNext, onBack }) {
         message: typeof error === "string" ? error : error?.message || "Failed to upload PAN document",
       });
     }
-  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification]);
+  }, [retailerOnboardingState?.uploadPanResponse, retailerOnboardingState?.uploadPanError, panImage, setFormData, showNotification, onShowSteps]);
 
   return (
     <>

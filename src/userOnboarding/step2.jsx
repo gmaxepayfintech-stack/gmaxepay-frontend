@@ -7,7 +7,7 @@ import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step2({ formData, setFormData, onNext, onBack }) {
+function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
   const dispatch = useDispatch();
   const { referCode: urlReferralCode } = useParams();
   const { company } = useCompany();
@@ -230,22 +230,19 @@ function Step2({ formData, setFormData, onNext, onBack }) {
       // Update formData
       setFormData((d) => ({ ...d, emailOtpVerified: true }));
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity?skip=true`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     }
 
     // Reset when status changes away from SUCCESS
     if (emailSubmitStatus !== "SUCCESS") {
       emailSubmitHandled.current = false;
     }
-  }, [emailSubmitStatus, emailSubmitResponse, emailSubmitMessage, showNotification, setFormData]);
+  }, [emailSubmitStatus, emailSubmitResponse, emailSubmitMessage, showNotification, setFormData, onShowSteps]);
 
   // Format countdown timer to show minutes and seconds
   const formatCountdown = (seconds) => {

@@ -7,7 +7,7 @@ import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { postProfile } from "../redux/action/retailerOnboardingAction";
 
-function Step7({ formData, setFormData, onComplete, onBack }) {
+function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -198,15 +198,12 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
         message: response?.message || "Profile uploaded successfully",
       });
 
-      // Redirect to KYC index page using window.location.href after 3 seconds
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity?skip=true`;
-        }
-      }, 3000); // 3 seconds delay
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 3000); // 3 seconds delay
+      }
 
       if (onComplete) onComplete();
     } else if (error) {
@@ -215,7 +212,7 @@ function Step7({ formData, setFormData, onComplete, onBack }) {
         message: typeof error === "string" ? error : error?.message || "Failed to upload profile",
       });
     }
-  }, [retailerOnboardingState?.postProfileResponse, retailerOnboardingState?.postProfileError, setFormData, onComplete, showNotification]);
+  }, [retailerOnboardingState?.postProfileResponse, retailerOnboardingState?.postProfileError, setFormData, onComplete, showNotification, onShowSteps]);
 
   useEffect(() => {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
