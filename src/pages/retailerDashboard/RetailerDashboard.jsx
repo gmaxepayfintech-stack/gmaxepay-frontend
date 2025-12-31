@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     XAxis,
     YAxis,
@@ -94,6 +94,18 @@ const RetailerDashboard = () => {
         setPayout(true);
     }
 
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (payoutOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [payoutOpen]);
+
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
             {/* Header Section */}
@@ -117,7 +129,7 @@ const RetailerDashboard = () => {
                                 $4,21,40,238
                             </p>
                             <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                            ▲
+                                ▲
                                 +0.24% Today
                             </span>
                         </div>
@@ -184,11 +196,11 @@ const RetailerDashboard = () => {
                                 Main Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                             ₹4,21,40,238
+                                ₹4,21,40,238
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                ▲  0.45%
+                                    ▲  0.45%
                                 </span>
                             </div>
                             <p className="text-[14px] lg:text-sm text-gray-600 mb-3">
@@ -211,7 +223,7 @@ const RetailerDashboard = () => {
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                ▲  0.45%
+                                    ▲  0.45%
                                 </span>
                             </div>
                             <p className="text-xs lg:text-sm text-gray-600 mb-3">
@@ -219,7 +231,7 @@ const RetailerDashboard = () => {
                             </p>
                         </div>
                         <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4"
-                        onClick={()=>handlePayout()}
+                            onClick={() => handlePayout()}
                         >
                             Wallet Transfer
                         </button>
@@ -334,7 +346,7 @@ const RetailerDashboard = () => {
                 </div>
             </div>
             {payoutOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm m-0 p-0">
                     <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
                         <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
                             Transferring Amount
