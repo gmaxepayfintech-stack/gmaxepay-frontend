@@ -420,6 +420,12 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
                 name="phone"
                 value={formik.values.phone}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && formik.values.phone && formik.values.phone.length === 10 && resendCountdown === 0) {
+                    e.preventDefault();
+                    sendOtp();
+                  }
+                }}
                 placeholder="Enter your number"
                 className={`w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 sm:border-r-0 rounded-lg sm:rounded-l-lg sm:rounded-r-none ${formik.errors.phone ? "border-red-500" : "border-gray-300"
                   } pl-9 sm:pl-10 md:pl-12 lg:pl-14 xl:pl-18 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 sm:focus:border-r-0 transition`}
@@ -473,6 +479,12 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
               name="otp"
               value={formik.values.otp}
               onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && formik.values.otp && formik.values.otp.trim() !== "") {
+                  e.preventDefault();
+                  formik.handleSubmit();
+                }
+              }}
               onBlur={(e) => {
                 // Don't validate on blur, just handle the blur event
                 formik.handleBlur(e);
