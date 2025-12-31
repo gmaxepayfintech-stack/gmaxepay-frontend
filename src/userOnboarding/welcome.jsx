@@ -429,7 +429,7 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#039155] focus:border-opacity-100 transition ${error ? "border-red-500" : "border-gray-300"
+              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#1B1717] focus:border-opacity-80 transition ${error ? "border-red-500" : "border-gray-300"
                 }`}
               disabled={loading}
             />
