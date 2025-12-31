@@ -341,12 +341,8 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
         setFormData((prev) => ({ ...prev, completed: true }));
       }
 
-      // Show steps page instead of redirecting
-      if (onShowSteps) {
-        setTimeout(() => {
-          onShowSteps();
-        }, 200);
-      }
+      // Don't automatically show steps - let user stay on step form
+      // User can manually proceed or the form will handle navigation after OTP submission
     }
     
     // Reset when status changes away from verified
