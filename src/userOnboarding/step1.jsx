@@ -99,6 +99,7 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
   const failureHandled = useRef(false);
   const componentMounted = useRef(false);
   const otpSubmittedRef = useRef(false);
+  const verifiedHandled = useRef(false);
 
   // Reset refs on mount to allow fresh error detection
   useEffect(() => {
@@ -106,6 +107,7 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     failureHandled.current = false;
     successHandled.current = false;
     otpSubmittedRef.current = false;
+    verifiedHandled.current = false;
     return () => {
       componentMounted.current = false;
     };
@@ -292,7 +294,9 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     const isVerified = OTPResponseStatus === "SUCCESS" && 
                       (OTPResponseData?.status === "verified" || OTPResponseData?.data?.status === "verified");
     
-    if (isVerified) {
+    // Only handle verified status once to prevent multiple navigations
+    if (isVerified && !verifiedHandled.current) {
+      verifiedHandled.current = true;
       // Get the data object - it might be directly in OTPResponseData or in OTPResponseData.data
       const verifiedData = OTPResponseData?.data || OTPResponseData;
       
@@ -343,6 +347,11 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
           onShowSteps();
         }, 200);
       }
+    }
+    
+    // Reset when status changes away from verified
+    if (!isVerified) {
+      verifiedHandled.current = false;
     }
   }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, onShowSteps]);
 
