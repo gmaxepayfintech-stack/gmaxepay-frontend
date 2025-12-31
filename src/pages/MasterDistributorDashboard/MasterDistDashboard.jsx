@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
     XAxis,
     YAxis,
@@ -117,6 +117,18 @@ const MasterDistDashboard = () => {
     const handlePayout = () => {
         setPayout(true);
     }
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (payoutOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [payoutOpen]);
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
@@ -392,7 +404,7 @@ const MasterDistDashboard = () => {
                 </div>
             </div>
             {payoutOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm m-0 p-0">
                     <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
                         <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
                             Transferring Amount
