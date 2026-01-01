@@ -123,7 +123,7 @@ const RetailerDashboard = () => {
     }, [payoutOpen]);
 
     return (
-        <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
+        <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
             {/* Header Section */}
 
             {/* Chart and Wallet Section */}
