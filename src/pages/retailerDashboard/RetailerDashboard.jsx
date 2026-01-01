@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
     XAxis,
     YAxis,
@@ -19,6 +19,7 @@ const RetailerDashboard = () => {
     const [requestType, setRequestType] = useState("");
     const [amount, setAmount] = useState("1000");
     const [selectedBank, setSelectedBank] = useState("kotak");
+    const scrollYRef = useRef(0);
 
     const banks = [
         {
@@ -98,23 +99,22 @@ const RetailerDashboard = () => {
     useEffect(() => {
         if (payoutOpen) {
             // Save current scroll position
-            const scrollY = window.scrollY;
+            scrollYRef.current = window.scrollY;
             document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollY}px`;
+            document.body.style.top = `-${scrollYRef.current}px`;
             document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
         } else {
             // Restore scroll position
-            const scrollY = document.body.style.top;
+            const scrollY = scrollYRef.current;
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
             document.body.style.overflow = 'unset';
-            if (scrollY) {
-                window.scrollTo(0, parseInt(scrollY || '0') * -1);
-            }
+            window.scrollTo(0, scrollY);
         }
         return () => {
+            // Cleanup: reset styles only
             document.body.style.position = '';
             document.body.style.top = '';
             document.body.style.width = '';
