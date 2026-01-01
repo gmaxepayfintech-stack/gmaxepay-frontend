@@ -97,11 +97,27 @@ const RetailerDashboard = () => {
     // Prevent body scroll when modal is open
     useEffect(() => {
         if (payoutOpen) {
+            // Save current scroll position
+            const scrollY = window.scrollY;
+            document.body.style.position = 'fixed';
+            document.body.style.top = `-${scrollY}px`;
+            document.body.style.width = '100%';
             document.body.style.overflow = 'hidden';
         } else {
+            // Restore scroll position
+            const scrollY = document.body.style.top;
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = 'unset';
+            if (scrollY) {
+                window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            }
         }
         return () => {
+            document.body.style.position = '';
+            document.body.style.top = '';
+            document.body.style.width = '';
             document.body.style.overflow = 'unset';
         };
     }, [payoutOpen]);
@@ -346,8 +362,8 @@ const RetailerDashboard = () => {
                 </div>
             </div>
             {payoutOpen && (
-                <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm m-0 p-0">
-                    <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+                    <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
                         <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
                             Transferring Amount
                         </h2>
