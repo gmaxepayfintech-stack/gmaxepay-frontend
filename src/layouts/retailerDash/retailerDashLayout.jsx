@@ -123,14 +123,14 @@ const RetailerDashLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Wallet Load", path: "/superDashboard/fund-manage/wallet-load" },
+        { name: "Wallet Load", path: "/retailerDashboard/fund-management/wallet-load" },
         {
           name: "Fund Request",
-          path: "/superDashboard/fund-manage/fund-request",
+          path: "/retailerDashboard/fund-management/fund-request",
         },
         {
           name: "QR UPI Transaction",
-          path: "/superDashboard/fund-manage/qr-upi-transaction",
+          path: "/retailerDashboard/fund-management/qr-upi-transaction",
         },
       ],
     },
