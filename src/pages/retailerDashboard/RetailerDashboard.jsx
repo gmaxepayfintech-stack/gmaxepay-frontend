@@ -8,49 +8,21 @@ import {
     Bar,
     Tooltip,
 } from "recharts";
-
-const Distributor = "/img/DistributorM.png";
-const Ratailer = "/img/MRetailer.png";
-const Earning = "/img/Earning.png";
+import { useDispatch, useSelector } from "react-redux";
+import { payoutBankList } from "../../redux/action/payoutAction";
 
 const RetailerDashboard = () => {
+    const dispatch = useDispatch();
     const [payoutOpen, setPayout] = useState(false);
     const [walletType, setWalletType] = useState("Move To Bank");
     const [requestType, setRequestType] = useState("");
     const [amount, setAmount] = useState("1000");
-    const [selectedBank, setSelectedBank] = useState("kotak");
+    const [selectedBank, setSelectedBank] = useState(null);
+    const [banks, setBanks] = useState([]);
     const scrollYRef = useRef(0);
 
-    const banks = [
-        {
-            id: "kotak",
-            name: "Kotak Mahindra Bank",
-            logo: "/img/kotak-logo.png",
-            accountNumber: "XXXXXX2333",
-            ifscCode: "KKBK0002333"
-        },
-        {
-            id: "yes",
-            name: "Yes Bank",
-            logo: "/img/yes-bank-logo.png",
-            accountNumber: "XXXXXX2333",
-            ifscCode: "KKBK0002333"
-        },
-        {
-            id: "axis",
-            name: "Axis Bank",
-            logo: "/img/axis-bank-logo.png",
-            accountNumber: "XXXXXX2333",
-            ifscCode: "KKBK0002333"
-        },
-        {
-            id: "sbi",
-            name: "State Bank of India",
-            logo: "/img/sbi-logo.png",
-            accountNumber: "XXXXXX2333",
-            ifscCode: "KKBK0002333"
-        }
-    ];
+    // Get bank list from Redux
+    const payoutBankListData = useSelector((state) => state?.payout?.payoutBankList);
     // Chart data for Recent Transaction - Monthly data (Jan-Dec)
     const chartData = [
         { name: "Jan", value: 2000 },
@@ -95,7 +67,48 @@ const RetailerDashboard = () => {
         setPayout(true);
     }
 
-    // Prevent body scroll when modal is open
+    // Fetch bank list when modal opens
+    useEffect(() => {
+        if (payoutOpen) {
+            const fetchBanks = async () => {
+                const response = await dispatch(payoutBankList({}));
+                if (response?.status === "SUCCESS" && response?.data?.banks) {
+                    // Transform API data to match component format
+                    const transformedBanks = response.data.banks.map((bank, index) => ({
+                        id: bank.id?.toString() || index.toString(),
+                        name: bank.bankName || "",
+                        logo: "/img/kotak-logo.png", // Default logo, can be updated based on bank name
+                        accountNumber: bank.accountNumber || "",
+                        ifscCode: bank.ifsc || ""
+                    }));
+                    setBanks(transformedBanks);
+                    // Set first bank as selected if available
+                    if (transformedBanks.length > 0 && !selectedBank) {
+                        setSelectedBank(transformedBanks[0].id);
+                    }
+                }
+            };
+            fetchBanks();
+        }
+    }, [payoutOpen, dispatch]);
+
+    // Also use Redux data if available
+    useEffect(() => {
+        if (payoutBankListData?.data?.banks && payoutBankListData.data.banks.length > 0) {
+            const transformedBanks = payoutBankListData.data.banks.map((bank, index) => ({
+                id: bank.id?.toString() || index.toString(),
+                name: bank.bankName || "",
+                logo: "/img/kotak-logo.png",
+                accountNumber: bank.accountNumber || "",
+                ifscCode: bank.ifsc || ""
+            }));
+            setBanks(transformedBanks);
+            if (transformedBanks.length > 0 && !selectedBank) {
+                setSelectedBank(transformedBanks[0].id);
+            }
+        }
+    }, [payoutBankListData]);
+
     useEffect(() => {
         if (payoutOpen) {
             // Save current scroll position
@@ -121,6 +134,8 @@ const RetailerDashboard = () => {
             document.body.style.overflow = 'unset';
         };
     }, [payoutOpen]);
+
+    
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
@@ -461,7 +476,10 @@ const RetailerDashboard = () => {
                                 Settlements Banks Added
                             </h3>
                             <div className="space-y-3 max-h-56 overflow-y-auto">
-                                {banks.map((bank) => (
+                                {banks.length === 0 ? (
+                                    <p className="text-[14px] text-gray-500 text-center py-4">No banks available</p>
+                                ) : (
+                                    banks.map((bank) => (
                                     <div
                                         key={bank.id}
                                         role="button"
@@ -480,18 +498,19 @@ const RetailerDashboard = () => {
                                     >
                                         <div className="flex items-start gap-4">
                                             {/* Bank Logo */}
-                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center ">
+                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
                                                 <img
                                                     src={bank.logo}
                                                     alt={bank.name}
                                                     className="w-10 h-10 object-cover"
                                                     onError={(e) => {
                                                         e.target.style.display = "none";
-                                                        e.target.nextSibling.style.display = "block";
+                                                        const fallback = e.target.nextElementSibling;
+                                                        if (fallback) fallback.style.display = "block";
                                                     }}
                                                 />
-                                                <span className=" text-[12px] font-['Gilroy-SemiBold'] text-['#1B1717']">
-                                                    {bank.name.substring(0, 2).toUpperCase()}
+                                                <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
+                                                    {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
                                                 </span>
                                             </div>
 
@@ -519,7 +538,8 @@ const RetailerDashboard = () => {
                                             </div>
                                         </div>
                                     </div>
-                                ))}
+                                    ))
+                                )}
                             </div>
                         </div>
 

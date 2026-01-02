@@ -10,6 +10,7 @@ import errorReducer from './errorReducer';
 import retailerOnboardingReducer from './retailerOnboardingReducer';
 import roleReducer from './roleReducer';
 import aepsReducer from './aepsReducer';
+import payoutReducer from './payoutReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -21,6 +22,7 @@ const rootReducer = combineReducers({
     whitelabel:whiteLabelReducer,
     retailerOnboarding: retailerOnboardingReducer,
     aeps: aepsReducer,
+    payout: payoutReducer,
     roles:roleReducer,
     error:errorReducer
 });

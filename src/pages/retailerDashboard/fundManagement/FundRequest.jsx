@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
+import * as XLSX from "xlsx";
+
 
 const FundRequest = () => {
     const [searchTerm, setSearchTerm] = useState("");
-    const [fromDate, setFromDate] = useState("");
-    const [toDate, setToDate] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
@@ -182,9 +182,31 @@ const FundRequest = () => {
     const paginatedData = filteredData.slice(startIndex, endIndex);
 
     const handleExport = () => {
-        // Implement export functionality
-        console.log("Exporting data...");
+        // 1️⃣ Prepare data (remove UI-only fields if needed)
+        const exportData = filteredData.map((item) => ({
+            "SR No": item.srNo,
+            "Created At": item.createdAt,
+            "Request By": item.requestBy,
+            "Deposit Bank Name": item.depositBankName,
+            "Deposit Bank Account": item.depositBankAccount,
+            "Ref Number": item.refNumber,
+            "Txn Id": item.txnId,
+            "Amount": item.amount,
+            "Approved": item.approved ? "Yes" : "No",
+            "Status": "Success",
+        }));
+
+        // 2️⃣ Convert JSON to worksheet
+        const worksheet = XLSX.utils.json_to_sheet(exportData);
+
+        // 3️⃣ Create workbook & append sheet
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Fund Requests");
+
+        // 4️⃣ Download Excel file
+        XLSX.writeFile(workbook, "Fund_Request_List.xlsx");
     };
+
 
     const handlePageChange = (page) => {
         setCurrentPage(page);
@@ -237,7 +259,10 @@ const FundRequest = () => {
                         </div>
 
                         {/* Export */}
-                        <button className="h-[44px] px-6 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center justify-center gap-2 whitespace-nowrap">
+                        <button
+                            onClick={handleExport}
+                            className="h-[44px] px-6 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center justify-center gap-2 whitespace-nowrap"
+                        >
                             Export
                             <svg
                                 className="w-4 h-4"
@@ -253,6 +278,7 @@ const FundRequest = () => {
                                 />
                             </svg>
                         </button>
+
 
                     </div>
                 </div>
