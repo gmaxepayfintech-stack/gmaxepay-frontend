@@ -135,7 +135,7 @@ const RetailerDashboard = () => {
         };
     }, [payoutOpen]);
 
-    
+
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
@@ -429,7 +429,7 @@ const RetailerDashboard = () => {
                                         htmlFor="requestType"
                                         className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2 "
                                     >
-                                        Request Type
+                                        Mode Type
                                     </label>
                                     <select
                                         id="requestType"
@@ -480,64 +480,64 @@ const RetailerDashboard = () => {
                                     <p className="text-[14px] text-gray-500 text-center py-4">No banks available</p>
                                 ) : (
                                     banks.map((bank) => (
-                                    <div
-                                        key={bank.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() => setSelectedBank(bank.id)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ") {
-                                                e.preventDefault();
-                                                setSelectedBank(bank.id);
-                                            }
-                                        }}
-                                        className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
-                                            ? "border-[#039155] bg-green-50"
-                                            : "border-[#1B1717] border-opacity-80"
-                                            }`}
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            {/* Bank Logo */}
-                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
-                                                <img
-                                                    src={bank.logo}
-                                                    alt={bank.name}
-                                                    className="w-10 h-10 object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display = "none";
-                                                        const fallback = e.target.nextElementSibling;
-                                                        if (fallback) fallback.style.display = "block";
-                                                    }}
-                                                />
-                                                <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
-                                                    {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
-                                                </span>
-                                            </div>
-
-                                            {/* Bank Details */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        Bank Name: {bank.name}
-                                                    </p>
-                                                    {/* FIX: remove margin that increases card height and center the indicator */}
-                                                    {selectedBank === bank.id && (
-                                                        <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
-                  flex items-center justify-center self-center">
-                                                            <div className="w-[8px] h-[8px] rounded-full bg-white" />
-                                                        </div>
-                                                    )}
-
+                                        <div
+                                            key={bank.id}
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => setSelectedBank(bank.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" || e.key === " ") {
+                                                    e.preventDefault();
+                                                    setSelectedBank(bank.id);
+                                                }
+                                            }}
+                                            className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
+                                                ? "border-[#039155] bg-green-50"
+                                                : "border-[#1B1717] border-opacity-80"
+                                                }`}
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                {/* Bank Logo */}
+                                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                                                    <img
+                                                        src={bank.logo}
+                                                        alt={bank.name}
+                                                        className="w-10 h-10 object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = "none";
+                                                            const fallback = e.target.nextElementSibling;
+                                                            if (fallback) fallback.style.display = "block";
+                                                        }}
+                                                    />
+                                                    <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
+                                                        {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
+                                                    </span>
                                                 </div>
-                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
-                                                    Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
-                                                </p>
-                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
-                                                    IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
-                                                </p>
+
+                                                {/* Bank Details */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            Bank Name: {bank.name}
+                                                        </p>
+                                                        {/* FIX: remove margin that increases card height and center the indicator */}
+                                                        {selectedBank === bank.id && (
+                                                            <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
+                  flex items-center justify-center self-center">
+                                                                <div className="w-[8px] h-[8px] rounded-full bg-white" />
+                                                            </div>
+                                                        )}
+
+                                                    </div>
+                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
+                                                        Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
+                                                    </p>
+                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
+                                                        IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     ))
                                 )}
                             </div>
