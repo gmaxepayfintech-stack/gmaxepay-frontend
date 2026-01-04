@@ -9,7 +9,8 @@ import {
     Tooltip,
 } from "recharts";
 import { useDispatch, useSelector } from "react-redux";
-import { payoutBankList } from "../../redux/action/payoutAction";
+import { payoutBankList, payoutTransaction } from "../../redux/action/payoutAction";
+import { getLocationAndIP } from "../../util/getLocationAndIP";
 
 const RetailerDashboard = () => {
     const dispatch = useDispatch();
@@ -135,7 +136,7 @@ const RetailerDashboard = () => {
         };
     }, [payoutOpen]);
 
-    
+
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
@@ -415,11 +416,17 @@ const RetailerDashboard = () => {
                                     <select
                                         id="walletType"
                                         value={walletType}
-                                        onChange={(e) => setWalletType(e.target.value)}
+                                        onChange={(e) => {
+                                            setWalletType(e.target.value);
+                                            // Reset requestType when switching to wallet mode
+                                            if (e.target.value === "wallet") {
+                                                setRequestType("");
+                                            }
+                                        }}
                                         className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
                                     >
-                                        <option value="Move To Bank" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Move To Bank</option>
-                                        <option value="Move To Wallet" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Move To Wallet</option>
+                                        <option value="bank" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Aeps Wallet To Bank</option>
+                                        <option value="wallet" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">AEPS wallet To Main Wallet</option>
                                     </select>
                                 </div>
 
@@ -429,17 +436,18 @@ const RetailerDashboard = () => {
                                         htmlFor="requestType"
                                         className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2 "
                                     >
-                                        Request Type
+                                        Mode Type
                                     </label>
                                     <select
                                         id="requestType"
                                         value={requestType}
                                         onChange={(e) => setRequestType(e.target.value)}
-                                        className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
+                                        disabled={walletType === "wallet"}
+                                        className={`w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
                                     >
                                         <option value="" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Select</option>
-                                        <option value="Immediate">Immediate</option>
-                                        <option value="Scheduled" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Scheduled</option>
+                                        <option value="IMPS">IMPS</option>
+                                        <option value="NEFT" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">NEFT</option>
                                     </select>
                                 </div>
 
@@ -480,64 +488,64 @@ const RetailerDashboard = () => {
                                     <p className="text-[14px] text-gray-500 text-center py-4">No banks available</p>
                                 ) : (
                                     banks.map((bank) => (
-                                    <div
-                                        key={bank.id}
-                                        role="button"
-                                        tabIndex={0}
-                                        onClick={() => setSelectedBank(bank.id)}
-                                        onKeyDown={(e) => {
-                                            if (e.key === "Enter" || e.key === " ") {
-                                                e.preventDefault();
-                                                setSelectedBank(bank.id);
-                                            }
-                                        }}
-                                        className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
-                                            ? "border-[#039155] bg-green-50"
-                                            : "border-[#1B1717] border-opacity-80"
-                                            }`}
-                                    >
-                                        <div className="flex items-start gap-4">
-                                            {/* Bank Logo */}
-                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
-                                                <img
-                                                    src={bank.logo}
-                                                    alt={bank.name}
-                                                    className="w-10 h-10 object-cover"
-                                                    onError={(e) => {
-                                                        e.target.style.display = "none";
-                                                        const fallback = e.target.nextElementSibling;
-                                                        if (fallback) fallback.style.display = "block";
-                                                    }}
-                                                />
-                                                <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
-                                                    {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
-                                                </span>
-                                            </div>
-
-                                            {/* Bank Details */}
-                                            <div className="flex-1 min-w-0">
-                                                <div className="flex items-center justify-between mb-1">
-                                                    <p className="text-sm font-medium text-gray-900">
-                                                        Bank Name: {bank.name}
-                                                    </p>
-                                                    {/* FIX: remove margin that increases card height and center the indicator */}
-                                                    {selectedBank === bank.id && (
-                                                        <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
-                  flex items-center justify-center self-center">
-                                                            <div className="w-[8px] h-[8px] rounded-full bg-white" />
-                                                        </div>
-                                                    )}
-
+                                        <div
+                                            key={bank.id}
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={() => setSelectedBank(bank.id)}
+                                            onKeyDown={(e) => {
+                                                if (e.key === "Enter" || e.key === " ") {
+                                                    e.preventDefault();
+                                                    setSelectedBank(bank.id);
+                                                }
+                                            }}
+                                            className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
+                                                ? "border-[#039155] bg-green-50"
+                                                : "border-[#1B1717] border-opacity-80"
+                                                }`}
+                                        >
+                                            <div className="flex items-start gap-4">
+                                                {/* Bank Logo */}
+                                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                                                    <img
+                                                        src={bank.logo}
+                                                        alt={bank.name}
+                                                        className="w-10 h-10 object-cover"
+                                                        onError={(e) => {
+                                                            e.target.style.display = "none";
+                                                            const fallback = e.target.nextElementSibling;
+                                                            if (fallback) fallback.style.display = "block";
+                                                        }}
+                                                    />
+                                                    <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
+                                                        {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
+                                                    </span>
                                                 </div>
-                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
-                                                    Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
-                                                </p>
-                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
-                                                    IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
-                                                </p>
+
+                                                {/* Bank Details */}
+                                                <div className="flex-1 min-w-0">
+                                                    <div className="flex items-center justify-between mb-1">
+                                                        <p className="text-sm font-medium text-gray-900">
+                                                            Bank Name: {bank.name}
+                                                        </p>
+                                                        {/* FIX: remove margin that increases card height and center the indicator */}
+                                                        {selectedBank === bank.id && (
+                                                            <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
+                  flex items-center justify-center self-center">
+                                                                <div className="w-[8px] h-[8px] rounded-full bg-white" />
+                                                            </div>
+                                                        )}
+
+                                                    </div>
+                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
+                                                        Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
+                                                    </p>
+                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
+                                                        IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
+                                                    </p>
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
                                     ))
                                 )}
                             </div>
@@ -558,14 +566,54 @@ const RetailerDashboard = () => {
                                 className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
                font-['Gilroy-SemiBold']
                hover:bg-[#027a47] transition"
-                                onClick={() => {
-                                    console.log("Processing transfer:", {
-                                        walletType,
-                                        requestType,
-                                        amount,
-                                        selectedBank,
-                                    });
-                                    setPayout(false);
+                                onClick={async () => {
+                                    try {
+                                        let payload = {};
+
+                                        if (walletType === "wallet") {
+                                            // Get location data
+                                            const locationInfo = await getLocationAndIP();
+                                            const latitude = locationInfo?.location?.latitude?.toString() || "";
+                                            const longitude = locationInfo?.location?.longitude?.toString() || "";
+
+                                            payload = {
+                                                amount: amount.toString(),
+                                                mode: "wallet",
+                                                latitude: latitude,
+                                                longitude: longitude
+                                            };
+                                        } else if (walletType === "bank") {
+                                            // Bank transfer - include paymentMode if selected
+                                            payload = {
+                                                amount: amount.toString(),
+                                                mode: "bank",
+                                                bankId: selectedBank,
+                                            };
+                                            if (requestType) {
+                                                payload.paymentMode = requestType;
+                                            }
+                                        }
+
+                                        console.log("Processing transfer with payload:", payload);
+                                        
+                                        const response = await dispatch(payoutTransaction(payload));
+                                        
+                                        if (response?.status === "SUCCESS") {
+                                            console.log("Transfer successful:", response);
+                                            setPayout(false);
+                                            // Reset form
+                                            setWalletType("Move To Bank");
+                                            setRequestType("");
+                                            setAmount("1000");
+                                            setSelectedBank(null);
+                                        } else {
+                                            console.error("Transfer failed:", response?.message);
+                                            // You might want to show an error message to the user here
+                                        }
+                                    } catch (error) {
+                                        console.error("Error processing transfer:", error);
+                                        // You might want to show an error message to the user here
+                                    }
                                 }}
                             >
                                 Processed Transfer
