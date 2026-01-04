@@ -66,7 +66,7 @@ export const payoutTransaction = (payload) => async (dispatch) => {
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/payout`,
-            { payload },
+            payload,
             {
                 headers: {
                     "Content-Type": "application/json",
