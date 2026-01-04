@@ -588,6 +588,8 @@ const RetailerDashboard = () => {
                                                 amount: amount.toString(),
                                                 mode: "bank",
                                                 bankId: selectedBank,
+                                                latitude: latitude,
+                                                longitude: longitude
                                             };
                                             if (requestType) {
                                                 payload.paymentMode = requestType;
