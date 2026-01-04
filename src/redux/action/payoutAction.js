@@ -59,14 +59,14 @@ export const payoutBankList = (values) => async (dispatch) => {
     }
 };
 
-export const payoutTransaction = (values) => async (dispatch) => {
+export const payoutTransaction = (payload) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/payout`,
-            { values },
+            { payload },
             {
                 headers: {
                     "Content-Type": "application/json",
