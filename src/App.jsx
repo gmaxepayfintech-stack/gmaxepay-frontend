@@ -64,7 +64,7 @@ function App() {
     (state) => state?.recharge?.success || null
   );
   const payoutSuccess = useSelector((state) => state?.payout?.payoutTransaction);
-console.log('payoutSuccess',payoutSuccess);
+  console.log('payoutSuccess', payoutSuccess);
 
   const operatorSuccess = useSelector(
     (state) => state?.operatorM?.success || null
@@ -356,8 +356,8 @@ console.log('payoutSuccess',payoutSuccess);
   }, [rangeMasterSuccess]);
 
   useEffect(() => {
-    if (payoutSuccess && payoutSuccess.status === "SUCCESS" && payoutSuccess.message) {
-      console.log('payoutSuccess message',payoutSuccess?.message);
+    if (payoutSuccess?.message) {
+      console.log('payoutSuccess message', payoutSuccess?.message);
       showNotification({
         type: "success",
         message: payoutSuccess?.message,
