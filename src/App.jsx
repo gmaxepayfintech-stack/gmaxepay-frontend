@@ -363,7 +363,8 @@ function App() {
       console.log('Showing notification with message:', payoutTransaction.message);
       showNotification({
         type: "success",
-        message: payoutTransaction.message,
+        message: payoutTransaction?.message,
+        isCritical: true, // Required to show on dashboard routes
       });
     } else {
       console.log('Condition not met:', {
