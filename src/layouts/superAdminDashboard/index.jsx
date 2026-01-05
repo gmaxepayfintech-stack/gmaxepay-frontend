@@ -10,6 +10,7 @@ import TaxHistory from "../../pages/superAdminDashboard/TaxHistory"
 import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
 import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
 import EarningReport from "../../pages/superAdminDashboard/EarningReport";
+import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
 
 const SuperAdminDashboard = () => {
   return (
@@ -27,6 +28,7 @@ const SuperAdminDashboard = () => {
         <Route path="/reports/business" element={<BusinessReport/>} />
         <Route path="/reports/user-performance" element={<UserPerformance/>} />
         <Route path="/reports/earning" element={<EarningReport/>} />
+        <Route path="/bbps-settings/list" element={<BBPSSettings/>} />
       </Routes>
     </DashboardLayout>
   );

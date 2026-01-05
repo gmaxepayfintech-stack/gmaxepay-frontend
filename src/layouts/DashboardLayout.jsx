@@ -59,7 +59,7 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup2,
       dropdown: true,
       children: [
-        { name: "Operator List", path: "/superDashboard/api-operator/list" },
+        { name: "BBPS Settings", path: "/superDashboard/bbps-settings/list" },
         { name: "API Settings", path: "/superDashboard/api-operator/settings" },
       ],
     },
