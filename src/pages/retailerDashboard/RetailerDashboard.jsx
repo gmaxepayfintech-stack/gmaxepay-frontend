@@ -573,10 +573,8 @@ const RetailerDashboard = () => {
                                         if (walletType === "wallet") {
                                             // Get location data
                                             const locationInfo = await getLocationAndIP();
-                                            console.log("Wallet - Location Info:", locationInfo);
                                             const latitude = locationInfo?.location?.latitude != null ? locationInfo.location.latitude.toString() : "";
                                             const longitude = locationInfo?.location?.longitude != null ? locationInfo.location.longitude.toString() : "";
-                                            console.log("Wallet - Latitude:", latitude, "Longitude:", longitude);
 
                                             payload = {
                                                 amount: amount.toString(),
@@ -586,10 +584,8 @@ const RetailerDashboard = () => {
                                             };
                                         } else if (walletType === "bank") {
                                             const locationInfo = await getLocationAndIP();
-                                            console.log("Bank - Location Info:", locationInfo);
                                             const latitude = locationInfo?.location?.latitude != null ? locationInfo.location.latitude.toString() : "";
                                             const longitude = locationInfo?.location?.longitude != null ? locationInfo.location.longitude.toString() : "";
-                                            console.log("Bank - Latitude:", latitude, "Longitude:", longitude);
                                             payload = {
                                                 amount: amount.toString(),
                                                 mode: "bank",
@@ -602,14 +598,11 @@ const RetailerDashboard = () => {
                                             }
                                         }
 
-                                        console.log("Processing transfer with payload:", payload);
 
                                         const response = await dispatch(payoutTransaction(payload));
 
                                         if (response?.status === "SUCCESS") {
-                                            console.log("Transfer successful:", response);
                                             setPayout(false);
-                                            // Reset form
                                             setWalletType("Move To Bank");
                                             setRequestType("");
                                             setAmount("1000");
