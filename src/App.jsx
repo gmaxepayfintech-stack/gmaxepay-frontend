@@ -357,9 +357,10 @@ console.log('payoutSuccess',payoutSuccess);
 
   useEffect(() => {
     if (payoutSuccess && payoutSuccess.status === "SUCCESS" && payoutSuccess.message) {
+      console.log('payoutSuccess message',payoutSuccess?.message);
       showNotification({
         type: "success",
-        message: payoutSuccess.message,
+        message: payoutSuccess?.message,
       });
     }
   }, [payoutSuccess, showNotification]);
