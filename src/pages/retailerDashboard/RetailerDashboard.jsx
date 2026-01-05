@@ -583,7 +583,9 @@ const RetailerDashboard = () => {
                                                 longitude: longitude
                                             };
                                         } else if (walletType === "bank") {
-                                            // Bank transfer - include paymentMode if selected
+                                            const locationInfo = await getLocationAndIP();
+                                            const latitude = locationInfo?.location?.latitude?.toString() || "";
+                                            const longitude = locationInfo?.location?.longitude?.toString() || "";
                                             payload = {
                                                 amount: amount.toString(),
                                                 mode: "bank",
@@ -597,9 +599,9 @@ const RetailerDashboard = () => {
                                         }
 
                                         console.log("Processing transfer with payload:", payload);
-                                        
+
                                         const response = await dispatch(payoutTransaction(payload));
-                                        
+
                                         if (response?.status === "SUCCESS") {
                                             console.log("Transfer successful:", response);
                                             setPayout(false);
