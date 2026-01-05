@@ -15,7 +15,7 @@ import { getLocationAndIP } from "../../util/getLocationAndIP";
 const RetailerDashboard = () => {
     const dispatch = useDispatch();
     const [payoutOpen, setPayout] = useState(false);
-    const [walletType, setWalletType] = useState("Move To Bank");
+    const [walletType, setWalletType] = useState("bank");
     const [requestType, setRequestType] = useState("");
     const [amount, setAmount] = useState("1000");
     const [selectedBank, setSelectedBank] = useState(null);
@@ -602,6 +602,13 @@ const RetailerDashboard = () => {
                                             }
                                         }
 
+                                        // Validate payload before sending
+                                        if (!payload || Object.keys(payload).length === 0) {
+                                            console.error("Payload is empty! WalletType:", walletType);
+                                            alert("Please select a valid wallet type and fill in the required fields.");
+                                            return;
+                                        }
+
                                         console.log("Processing transfer with payload:", payload);
 
                                         const response = await dispatch(payoutTransaction(payload));
@@ -610,7 +617,7 @@ const RetailerDashboard = () => {
                                             console.log("Transfer successful:", response);
                                             setPayout(false);
                                             // Reset form
-                                            setWalletType("Move To Bank");
+                                            setWalletType("bank");
                                             setRequestType("");
                                             setAmount("1000");
                                             setSelectedBank(null);
