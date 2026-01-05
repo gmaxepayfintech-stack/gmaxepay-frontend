@@ -63,6 +63,8 @@ function App() {
   const specialDomSuccess = useSelector(
     (state) => state?.recharge?.success || null
   );
+  const payoutSuccess = useSelector((state) => state?.payout?.payoutTransaction);
+  
   const operatorSuccess = useSelector(
     (state) => state?.operatorM?.success || null
   );
@@ -351,6 +353,15 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [rangeMasterSuccess]);
+
+  useEffect(() => {
+    if (payoutSuccess && payoutSuccess.status === "SUCCESS" && payoutSuccess.message) {
+      showNotification({
+        type: "success",
+        message: payoutSuccess.message,
+      });
+    }
+  }, [payoutSuccess, showNotification]);
 
   useEffect(() => {
     if (prepaidRechargeSucess) {
