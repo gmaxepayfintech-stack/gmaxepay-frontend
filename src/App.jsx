@@ -63,7 +63,7 @@ function App() {
   const specialDomSuccess = useSelector(
     (state) => state?.recharge?.success || null
   );
-  const payoutSuccess = useSelector((state) => state?.payout?.payoutTransaction);
+  const payoutSuccess = useSelector((state) => state?.payout);
   console.log('payoutSuccess', payoutSuccess);
 
   const operatorSuccess = useSelector(
