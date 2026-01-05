@@ -356,11 +356,20 @@ function App() {
   }, [rangeMasterSuccess]);
 
   useEffect(() => {
-    if (payoutSuccess?.message) {
-      console.log('payoutSuccess message', payoutSuccess?.message);
+    console.log('useEffect triggered - payoutSuccess:', payoutSuccess);
+    const payoutTransaction = payoutSuccess?.payoutTransaction;
+    console.log('payoutTransaction:', payoutTransaction);
+    if (payoutTransaction && payoutTransaction.status === "SUCCESS" && payoutTransaction.message) {
+      console.log('Showing notification with message:', payoutTransaction.message);
       showNotification({
         type: "success",
-        message: payoutSuccess?.message,
+        message: payoutTransaction.message,
+      });
+    } else {
+      console.log('Condition not met:', {
+        hasTransaction: !!payoutTransaction,
+        status: payoutTransaction?.status,
+        message: payoutTransaction?.message
       });
     }
   }, [payoutSuccess, showNotification]);
