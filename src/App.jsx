@@ -64,7 +64,6 @@ function App() {
     (state) => state?.recharge?.success || null
   );
   const payoutSuccess = useSelector((state) => state?.payout);
-  console.log('payoutSuccess', payoutSuccess);
 
   const operatorSuccess = useSelector(
     (state) => state?.operatorM?.success || null
@@ -76,7 +75,6 @@ function App() {
   const aepsStatusCheck = useSelector(
     (state) => state?.aeps || null
   );
-  console.log("aepsStatusCheck", aepsStatusCheck);
 
 
   const moneyTransfer = useSelector(
