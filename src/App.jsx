@@ -356,11 +356,8 @@ function App() {
   }, [rangeMasterSuccess]);
 
   useEffect(() => {
-    console.log('useEffect triggered - payoutSuccess:', payoutSuccess);
     const payoutTransaction = payoutSuccess?.payoutTransaction;
-    console.log('payoutTransaction:', payoutTransaction);
     if (payoutTransaction && payoutTransaction.status === "SUCCESS" && payoutTransaction.message) {
-      console.log('Showing notification with message:', payoutTransaction.message);
       showNotification({
         type: "success",
         message: payoutTransaction?.message,
