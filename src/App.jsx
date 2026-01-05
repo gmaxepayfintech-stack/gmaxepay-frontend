@@ -356,12 +356,12 @@ function App() {
   }, [rangeMasterSuccess]);
 
   useEffect(() => {
-    
+    const payoutTransaction = payoutSuccess?.payoutTransaction;
     if (payoutTransaction && payoutTransaction.status === "SUCCESS" && payoutTransaction.message) {
       showNotification({
         type: "success",
         message: payoutTransaction?.message,
-        isCritical: true, 
+        isCritical: true, // Required to show on dashboard routes
       });
     } else {
       console.log('Condition not met:', {
