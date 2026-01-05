@@ -64,7 +64,8 @@ function App() {
     (state) => state?.recharge?.success || null
   );
   const payoutSuccess = useSelector((state) => state?.payout?.payoutTransaction);
-  
+console.log('payoutSuccess',payoutSuccess);
+
   const operatorSuccess = useSelector(
     (state) => state?.operatorM?.success || null
   );
@@ -75,9 +76,9 @@ function App() {
   const aepsStatusCheck = useSelector(
     (state) => state?.aeps || null
   );
-  console.log("aepsStatusCheck",aepsStatusCheck);
+  console.log("aepsStatusCheck", aepsStatusCheck);
 
-  
+
   const moneyTransfer = useSelector(
     (state) => state?.moneyTransfer?.success || null
   );
@@ -101,20 +102,20 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
- 
+
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
     return roleState?.success === "SUCCESS" ? { message: roleState?.message } : null;
   });
-  
+
   const roleUpgradeError = useSelector((state) => {
     const roleState = state?.roles || state?.role;
     return roleState?.error ? { message: roleState?.error || roleState?.message } : null;
   });
 
   const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
-);
-const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding)  
+  );
+  const OnboardingLink = useSelector((state) => state?.whitelabel?.rescendOnboarding)
 
   const whiteLabelPanMessageFailure = useSelector(
     (state) => state?.error?.error
@@ -176,7 +177,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [success]);
- 
+
 
   useEffect(() => {
     if (specialDomSuccess) {
@@ -247,7 +248,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [roleUpgradeError, showNotification]);
 
   useEffect(() => {
-    if(OnboardingLink?.message) {
+    if (OnboardingLink?.message) {
       showNotification({
         type: "success",
         message: OnboardingLink?.message,
@@ -550,7 +551,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
           path="/auth/login"
           element={
             <ProtectedAuthRoute>
-              <Auth/>
+              <Auth />
             </ProtectedAuthRoute>
           }
         />
