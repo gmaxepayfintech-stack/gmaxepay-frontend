@@ -1,156 +1,253 @@
-import { useMemo, useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import MobileIcon from "../../../public/img/MobileIcon.svg";
+import { CreditCard, ChevronDown, Download } from "lucide-react";
 import PropTypes from "prop-types";
 
-const DEFAULT_DESCRIPTION =
-    "You Can Now Pay Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services Through BBPS, Making Bill Payments Convenient And Hassle-Free";
+// Sample transaction data
+const lastTransactions = [
+    {
+        id: 1,
+        type: "Credit Card",
+        date: "11/09/2025 01:28 PM",
+        transactionId: "KKBK002254",
+        amount: "₹ 500",
+        status: "Success"
+    },
+    {
+        id: 2,
+        type: "Credit Card",
+        date: "11/09/2025 01:28 PM",
+        transactionId: "KKBK002255",
+        amount: "₹ 500",
+        status: "Success"
+    },
+    {
+        id: 3,
+        type: "Credit Card",
+        date: "11/09/2025 01:28 PM",
+        transactionId: "KKBK002256",
+        amount: "₹ 500",
+        status: "Failed"
+    },
+    {
+        id: 4,
+        type: "Credit Card",
+        date: "11/09/2025 01:28 PM",
+        transactionId: "KKBK002257",
+        amount: "₹ 500",
+        status: "Success"
+    }
+];
 
-const bbpsServicesData = [
-    { id: "electricity", title: "Electricity Bill Payment", status: "available" },
-    { id: "gas", title: "Gas Bill Payment", status: "available" },
-    { id: "water", title: "Water Bill Payment", status: "available" },
-    { id: "landline", title: "Landline/Postpaid Bill", status: "available" },
-    { id: "insurance", title: "Insurance Premium", status: "available" },
-    { id: "loan-repayment", title: "Loan Repayment", status: "available" },
-    { id: "credit-card", title: "Credit Card Bill", status: "available" },
-    { id: "fastag", title: "FastTag Recharge", status: "available" },
-    { id: "lic", title: "LIC Premium", status: "available" },
-    { id: "broadband", title: "Broadband Bill", status: "subscribed" },
-    { id: "cable-tv", title: "Cable TV Bill", status: "subscribed" },
-    { id: "education-fee", title: "Education Fee Payment", status: "subscribed" },
-    { id: "municipal-tax", title: "Municipal Tax", status: "subscribed" },
-    { id: "housing-society", title: "Housing Society Maintenance", status: "subscribed" },
-].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
+const categories = ["Select", "Electricity", "Gas", "Water", "Credit Card", "Insurance", "Loan Repayment"];
 
-const ServiceCard = ({ title, description, onClick }) => {
+const TransactionCard = ({ transaction }) => {
+    const isSuccess = transaction.status === "Success";
+
     return (
-        <button
-            type="button"
-            onClick={onClick}
-            className="bg-[#FFFFFF] rounded-xl shadow-sm border border-gray-100 px-6 py-4 min-h-[182px] relative text-left hover:shadow-md transition"
-        >
-            <div className="flex gap-3">
-                <div className="w-[60px] h-[60px] rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
-                    <img src={MobileIcon} alt="MobileIcon" className="w-[32px] h-[32px]" />
-                </div>
-                <div className="min-w-0 flex flex-col justify-center">
-                    <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] capitalize">
-                        {title}
+        <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition">
+            {/* Top Row */}
+            <div className="flex justify-between items-start">
+                <div className="flex items-start gap-3">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center shrink-0">
+                        <CreditCard className="w-5 h-5 text-white" />
                     </div>
-                    <div className="mt-[12px] text-[12.5px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed line-clamp-4 capitalize">
-                        {description}
+
+                    <div>
+                        <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                            {transaction.type}
+                        </div>
+                        <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500">
+                            {transaction.date}
+                        </div>
+                        <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500 mt-1">
+                            Transaction ID : {transaction.transactionId}
+                        </div>
+                    </div>
+                </div>
+
+                {/* Amount + Status */}
+                <div className="text-right">
+                    <div className="text-[14px] font-['Gilroy-Medium'] text-[#039155]">
+                        {transaction.amount}
+                    </div>
+                    <div
+                        className={`text-[12px] font-['Gilroy-Medium'] ${isSuccess ? "text-green-600" : "text-red-600"
+                            }`}
+                    >
+                        {transaction.status}
                     </div>
                 </div>
             </div>
-        </button>
+
+            {/* Button */}
+            <button className="w-full mt-4 bg-[#039155] hover:bg-[#027a46] text-white px-4 py-2 rounded-lg text-[13px] font-['Gilroy-Medium'] flex items-center justify-center gap-2 transition">
+                <Download className="w-4 h-4" />
+                Download Receipt
+            </button>
+        </div>
     );
 };
 
-ServiceCard.propTypes = {
-    title: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-    onClick: PropTypes.func,
+
+TransactionCard.propTypes = {
+    transaction: PropTypes.object.isRequired,
 };
 
 const BBPSServices = ({ onBack }) => {
-    const [activeTab, setActiveTab] = useState("Available");
     const navigate = useNavigate();
+    const [selectedCategory, setSelectedCategory] = useState("Select");
+    const [billerName, setBillerName] = useState("");
+    const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const dropdownRef = useRef(null);
 
-    const filtered = useMemo(() => {
-        const key = activeTab.toLowerCase();
-        return bbpsServicesData.filter((s) => s.status === key);
-    }, [activeTab]);
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsDropdownOpen(false);
+            }
+        };
 
-    const handleServiceClick = (serviceId) => {
-        console.log(`🖱️ ${serviceId} service clicked`);
-        // Add navigation logic here based on service ID
-        // navigate(`/retailerDashboard/bbps/${serviceId}`);
+        if (isDropdownOpen) {
+            document.addEventListener('mousedown', handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [isDropdownOpen]);
+
+    const handleProceed = () => {
+        console.log("Proceed clicked", { selectedCategory, billerName });
+        // Add navigation or form submission logic here
     };
- 
+
+    const handleCancel = () => {
+        setSelectedCategory("Select");
+        setBillerName("");
+    };
+
     return (
         <div className="w-full">
             {/* Header */}
-            <div className="mb-[44px]">
-                {onBack && (
-                    <div className="flex items-start gap-3 mb-6">
-                        <button
-                            type="button"
-                            aria-label="Back"
-                            onClick={onBack}
-                            className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
-                        >
-                            <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-                        </button>
-                        <div className="flex-1">
-                            <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                                BBPS Services
-                            </div>
-                            <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed">
-                                Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
-                                Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
-                                At Your Fingertips.
-                            </div>
+            {onBack && (
+                <div className="flex items-start gap-3 mb-6">
+                    <button
+                        type="button"
+                        aria-label="Back"
+                        onClick={onBack}
+                        className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
+                    >
+                        <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+                    </button>
+                    <div className="flex-1">
+                        <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+                            Bharat Connect Service
                         </div>
                     </div>
-                )}
-
-                {!onBack && (
-                    <>
-                        <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                            BBPS Services
-                        </div>
-                        <div className="mt-[12px] text-[16px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
-                            Pay All Your Utility Bills, Insurance Premiums, Loan Repayments And Other Services
-                            Through Bharat Bill Payment System (BBPS). Convenient, Secure, And Fast Bill Payments
-                            At Your Fingertips.
-                        </div>
-                    </>
-                )}
-
-                {/* Tabs */}
-                <div className="mt-[28px] inline-flex items-center gap-4 bg-[#FFFFFF] rounded-3xl border border-[#1B1717] border-opacity-50 p-2">
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab("Available")}
-                        className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Available"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-gray-700 hover:bg-gray-50"
-                            }`}
-                    >
-                        Available
-                    </button>
-                    <button
-                        type="button"
-                        onClick={() => setActiveTab("Subscribed")}
-                        className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-[#1B1717] hover:bg-gray-50"
-                            }`}
-                    >
-                        Subscribed
-                    </button>
                 </div>
-            </div>
+            )}
 
-            {/* Title */}
-            <div className="mb-[20px]">
-                <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                    BBPS Services
+            {!onBack && (
+                <div className="mb-6">
+                    <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        Bharat Connect Service
+                    </div>
                 </div>
-            </div>
+            )}
 
-            {/* Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 mt-[32px] gap-6">
-                {filtered.map((s) => (
-                    <ServiceCard
-                        key={s.id}
-                        title={s.title}
-                        description={s.description}
-                        onClick={() => handleServiceClick(s.id)}
-                    />
-                ))}
+            {/* Main Content - Two Column Layout */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Left Side - Information */}
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+                        Information
+                    </div>
+
+                    <div className="space-y-4">
+                        {/* Select Category */}
+                        <div>
+                            <label className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                                Select Category
+                            </label>
+                            <div className="relative" ref={dropdownRef}>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                                    className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white text-left flex items-center justify-between text-[14px] font-['Gilroy-Medium'] text-[#1B1717]"
+                                >
+                                    <span className={selectedCategory === "Select" ? "text-gray-400" : "text-[#1B1717]"}>
+                                        {selectedCategory}
+                                    </span>
+                                    <ChevronDown className={`w-4 h-4 text-gray-400 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                                </button>
+                                {isDropdownOpen && (
+                                    <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-48 overflow-y-auto">
+                                        {categories.map((category) => (
+                                            <div
+                                                key={category}
+                                                onClick={() => {
+                                                    setSelectedCategory(category);
+                                                    setIsDropdownOpen(false);
+                                                }}
+                                                className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
+                                            >
+                                                {category}
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Billers Name */}
+                        <div>
+                            <label className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                                Billers Name
+                            </label>
+                            <input
+                                type="text"
+                                value={billerName}
+                                onChange={(e) => setBillerName(e.target.value)}
+                                placeholder="Enter Billers Name"
+                                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-[14px] font-['Gilroy-Medium']"
+                            />
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 pt-4">
+                            <button
+                                type="button"
+                                onClick={handleCancel}
+                                className="flex-1 px-6 py-3 h-[48px] rounded-lg border border-gray-300 bg-white text-[16px] text-[#1B1717] font-['Gilroy-Medium'] hover:bg-gray-50 transition"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleProceed}
+                                className="flex-1 px-6 py-3 h-[48px] rounded-lg bg-[#039155] text-[16px] text-white font-['Gilroy-Medium'] hover:bg-[#027a46] transition"
+                            >
+                                Proceed
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Right Side - Last Transaction */}
+                <div className="bg-white rounded-xl border border-gray-200 p-6">
+                    <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+                        Last Transaction
+                    </div>
+
+                    <div className="max-h-[600px] overflow-y-auto">
+                        {lastTransactions.map((transaction) => (
+                            <TransactionCard key={transaction.id} transaction={transaction} />
+                        ))}
+                    </div>
+                </div>
             </div>
         </div>
     );
