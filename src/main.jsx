@@ -8,7 +8,19 @@ import { Provider } from 'react-redux';
 import '../public/css/tailwind.css';
 import App from './App';
 import { store } from './redux/store'; 
-import { CompanyProvider } from './context/CompanyContext';
+import { CompanyProvider, useCompany } from './context/CompanyContext';
+
+const AppWithCompany = () => {
+  const { loading } = useCompany();
+  if (loading) {
+    return null;
+  }
+  return (
+    <NotificationProvider>
+      <App />
+    </NotificationProvider>
+  );
+};
 
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
@@ -16,9 +28,7 @@ ReactDOM.createRoot(document.getElementById('root')).render(
       <MaterialTailwindControllerProvider>
         <Provider store={store}>
           <CompanyProvider>
-            <NotificationProvider>
-              <App />
-            </NotificationProvider>
+            <AppWithCompany />
           </CompanyProvider>
         </Provider>
       </MaterialTailwindControllerProvider>

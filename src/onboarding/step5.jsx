@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { postShopDetails } from './../redux/action/onboardingAction';
 import { getLocationAndIP } from './../util/getLocationAndIP';
 
-function Step5({ formData, setFormData, onNext }) {
+function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
   const {
     postShopDetailsLoading,
@@ -139,14 +139,23 @@ function Step5({ formData, setFormData, onNext }) {
           latitude
         )
       );
-
-      // If successful, proceed to next step
-      onNext();
+      // Success will be handled in useEffect below
     } catch (error) {
       // Error is handled by Redux state and displayed above
       console.error('Failed to submit shop details:', error);
     }
   };
+
+  // Watch for successful shop details submission
+  useEffect(() => {
+    if (postShopDetailsSuccess) {
+      // Refresh steps after successful completion
+      if (onRefreshSteps) {
+        onRefreshSteps();
+      }
+      onNext();
+    }
+  }, [postShopDetailsSuccess, onNext, onRefreshSteps]);
 
   // Effect to ensure video stream is properly connected when camera becomes active
   useEffect(() => {

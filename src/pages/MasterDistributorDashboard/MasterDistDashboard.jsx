@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import {
     XAxis,
     YAxis,
@@ -13,6 +14,44 @@ const Ratailer = "/img/MRetailer.png";
 const Earning = "/img/Earning.png";
 
 const MasterDistDashboard = () => {
+
+    const [payoutOpen, setPayout] = useState(false);
+    const [walletType, setWalletType] = useState("Move To Bank");
+    const [requestType, setRequestType] = useState("");
+    const [amount, setAmount] = useState("1000");
+    const [selectedBank, setSelectedBank] = useState("kotak");
+
+    // Bank data
+    const banks = [
+        {
+            id: "kotak",
+            name: "Kotak Mahindra Bank",
+            logo: "/img/kotak-logo.png",
+            accountNumber: "XXXXXX2333",
+            ifscCode: "KKBK0002333"
+        },
+        {
+            id: "yes",
+            name: "Yes Bank",
+            logo: "/img/yes-bank-logo.png",
+            accountNumber: "XXXXXX2333",
+            ifscCode: "KKBK0002333"
+        },
+        {
+            id: "axis",
+            name: "Axis Bank",
+            logo: "/img/axis-bank-logo.png",
+            accountNumber: "XXXXXX2333",
+            ifscCode: "KKBK0002333"
+        },
+        {
+            id: "sbi",
+            name: "State Bank of India",
+            logo: "/img/sbi-logo.png",
+            accountNumber: "XXXXXX2333",
+            ifscCode: "KKBK0002333"
+        }
+    ];
 
     // Chart data for Recent Transaction - Monthly data (Jan-Dec)
     const chartData = [
@@ -75,6 +114,22 @@ const MasterDistDashboard = () => {
         },
     ];
 
+    const handlePayout = () => {
+        setPayout(true);
+    }
+
+    // Prevent body scroll when modal is open
+    useEffect(() => {
+        if (payoutOpen) {
+            document.body.style.overflow = 'hidden';
+        } else {
+            document.body.style.overflow = 'unset';
+        }
+        return () => {
+            document.body.style.overflow = 'unset';
+        };
+    }, [payoutOpen]);
+
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
             {/* Header Section */}
@@ -132,7 +187,7 @@ const MasterDistDashboard = () => {
                                 $4,21,40,238
                             </p>
                             <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                            ▲
+                                ▲
                                 +0.24% Today
                             </span>
                         </div>
@@ -199,11 +254,11 @@ const MasterDistDashboard = () => {
                                 Main Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                             ₹4,21,40,238
+                                ₹4,21,40,238
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                ▲  0.45%
+                                    ▲  0.45%
                                 </span>
                             </div>
                             <p className="text-[14px] lg:text-sm text-gray-600 mb-3">
@@ -226,14 +281,16 @@ const MasterDistDashboard = () => {
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                ▲  0.45%
+                                    ▲  0.45%
                                 </span>
                             </div>
                             <p className="text-xs lg:text-sm text-gray-600 mb-3">
                                 Today's Earning: <strong className="text-[#1B1717]"> ₹200</strong>
                             </p>
                         </div>
-                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4">
+                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4"
+                            onClick={() => handlePayout()}
+                        >
                             Wallet Transfer
                         </button>
                     </div>
@@ -346,7 +403,204 @@ const MasterDistDashboard = () => {
                     </div>
                 </div>
             </div>
+            {payoutOpen && (
+                <div className="fixed top-0 left-0 right-0 bottom-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm m-0 p-0">
+                    <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative">
+                        <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
+                            Transferring Amount
+                        </h2>
+                        <button
+                            onClick={() => setPayout(false)}
+                            className="absolute top-4 right-4 w-10 h-10
+             flex items-center justify-center
+             rounded-xl bg-[#039155]
+             hover:opacity-90 transition"
+                        >
+                            <span
+                                className="w-6 h-6 flex items-center justify-center
+               rounded-full border-2 border-white
+               text-white text-sm font-bold"
+                            >
+                                ✕
+                            </span>
+                        </button>
+
+
+
+                        {/* Input Fields */}
+                        <div className="space-y-4 mb-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+
+                                {/* Wallet Type */}
+                                <div>
+                                    <label
+                                        htmlFor="walletType"
+                                        className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-4 "
+                                    >
+                                        Wallet Type
+                                    </label>
+                                    <select
+                                        id="walletType"
+                                        value={walletType}
+                                        onChange={(e) => setWalletType(e.target.value)}
+                                        className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
+                                    >
+                                        <option value="Move To Bank" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Move To Bank</option>
+                                        <option value="Move To Wallet" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Move To Wallet</option>
+                                    </select>
+                                </div>
+
+                                {/* Request Type */}
+                                <div>
+                                    <label
+                                        htmlFor="requestType"
+                                        className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2 "
+                                    >
+                                        Request Type
+                                    </label>
+                                    <select
+                                        id="requestType"
+                                        value={requestType}
+                                        onChange={(e) => setRequestType(e.target.value)}
+                                        className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
+                                    >
+                                        <option value="" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Select</option>
+                                        <option value="Immediate">Immediate</option>
+                                        <option value="Scheduled" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Scheduled</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+
+                            {/* Amount To Withdrawal */}
+                            <div className="">
+                                <label htmlFor="amount" className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                                    Amount To Withdrawal
+                                </label>
+                                <div className="relative text-[24px]">
+                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1B1717] text-opacity-80">₹</span>
+                                    <input
+                                        id="amount"
+                                        type="text"
+                                        value={amount}
+                                        onChange={(e) => setAmount(e.target.value)}
+                                        placeholder="Enter amount"
+                                        className="
+    w-full pl-10 pr-4 py-2.5 h-[78px] font-['Gilroy-SemiBold'] text-[#1B1717] text-opacity-80
+    border border-dashed border-[#1B1717] border-opacity-80
+    rounded-lg focus:outline-none 
+  "
+                                    />
+
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Settlements Banks Added */}
+                        <div className="mb-6">
+                            <h3 className="text-[14px] text-[#1B1717] font-['Gilroy-Medium'] mb-2">
+                                Settlements Banks Added
+                            </h3>
+                            <div className="space-y-3 max-h-56 overflow-y-auto">
+                                {banks.map((bank) => (
+                                    <div
+                                        key={bank.id}
+                                        role="button"
+                                        tabIndex={0}
+                                        onClick={() => setSelectedBank(bank.id)}
+                                        onKeyDown={(e) => {
+                                            if (e.key === "Enter" || e.key === " ") {
+                                                e.preventDefault();
+                                                setSelectedBank(bank.id);
+                                            }
+                                        }}
+                                        className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
+                                            ? "border-[#039155] bg-green-50"
+                                            : "border-[#1B1717] border-opacity-80"
+                                            }`}
+                                    >
+                                        <div className="flex items-start gap-4">
+                                            {/* Bank Logo */}
+                                            <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center ">
+                                                <img
+                                                    src={bank.logo}
+                                                    alt={bank.name}
+                                                    className="w-10 h-10 object-cover"
+                                                    onError={(e) => {
+                                                        e.target.style.display = "none";
+                                                        e.target.nextSibling.style.display = "block";
+                                                    }}
+                                                />
+                                                <span className=" text-[12px] font-['Gilroy-SemiBold'] text-['#1B1717']">
+                                                    {bank.name.substring(0, 2).toUpperCase()}
+                                                </span>
+                                            </div>
+
+                                            {/* Bank Details */}
+                                            <div className="flex-1 min-w-0">
+                                                <div className="flex items-center justify-between mb-1">
+                                                    <p className="text-sm font-medium text-gray-900">
+                                                        Bank Name: {bank.name}
+                                                    </p>
+                                                    {/* FIX: remove margin that increases card height and center the indicator */}
+                                                    {selectedBank === bank.id && (
+                                                        <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
+                  flex items-center justify-center self-center">
+                                                            <div className="w-[8px] h-[8px] rounded-full bg-white" />
+                                                        </div>
+                                                    )}
+
+                                                </div>
+                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
+                                                    Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
+                                                </p>
+                                                <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
+                                                    IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex w-full gap-3 pt-4 border-gray-200">
+                            <button
+                                className="w-1/2 px-6 py-4 text-[18px] rounded-lg border border-gray-300 bg-[#FFFFFF]
+               text-[#1B1717] font-['Gilroy-Medium']
+               hover:bg-gray-50 transition"
+                                onClick={() => setPayout(false)}
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
+               font-['Gilroy-SemiBold']
+               hover:bg-[#027a47] transition"
+                                onClick={() => {
+                                    console.log("Processing transfer:", {
+                                        walletType,
+                                        requestType,
+                                        amount,
+                                        selectedBank,
+                                    });
+                                    setPayout(false);
+                                }}
+                            >
+                                Processed Transfer
+                            </button>
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
         </div>
+
+
     );
 };
 

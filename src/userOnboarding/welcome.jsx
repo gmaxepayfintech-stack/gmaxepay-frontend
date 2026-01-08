@@ -3,6 +3,7 @@ import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useCompany } from "../context/CompanyContext";
 import { referalCodeCheck } from "../redux/action/retailerOnboardingAction";
 import { useSelector, useDispatch } from "react-redux";
+import secureLocalStorage from "react-secure-storage";
 import OnboardingRetailerById from "./[id]";
 
 const Welcome = () => {
@@ -37,6 +38,22 @@ const Welcome = () => {
     try {
       const storedReferral = localStorage.getItem("referralCodeCompleted");
       const step1Completed = localStorage.getItem("step1Completed") === "true";
+      
+      // Check if onboarding is already complete (steps data exists)
+      const onboardingSteps = secureLocalStorage.getItem("onboardingSteps");
+      if (onboardingSteps) {
+        try {
+          const stepsData = JSON.parse(onboardingSteps);
+          // If onboarding is complete, clear temporary onboarding storage
+          if (stepsData?.allCompleted || stepsData?.kycStatus === "COMPLETED") {
+            localStorage.removeItem("step1Completed");
+            localStorage.removeItem("referralCodeFromUrl");
+            console.log("Cleared temporary onboarding storage - onboarding already complete");
+          }
+        } catch (e) {
+          console.error("Error parsing onboarding steps:", e);
+        }
+      }
 
       if (storedReferral) {
         const parsed = JSON.parse(storedReferral);
@@ -412,7 +429,7 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#039155] focus:border-opacity-100 transition ${error ? "border-red-500" : "border-gray-300"
+              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#1B1717] focus:border-opacity-80 transition ${error ? "border-red-500" : "border-gray-300"
                 }`}
               disabled={loading}
             />

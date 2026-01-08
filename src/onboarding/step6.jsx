@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { postBankDetails } from "../redux/action/onboardingAction";
 
-function Step6({ formData, setFormData, onNext }) {
+function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
@@ -37,6 +37,10 @@ function Step6({ formData, setFormData, onNext }) {
 
       // Check if IFSC is verified and beneficiary name is fetched
       if (formData.ifscVerified && formik.values.beneficiaryName) {
+        // Refresh steps after successful completion
+        if (onRefreshSteps) {
+          onRefreshSteps();
+        }
         onNext();
       }
     },
@@ -100,6 +104,16 @@ function Step6({ formData, setFormData, onNext }) {
 
   const handleChange = e => {
     const { name, value } = e.target;
+    
+    // Handle account number - only allow digits, max 18 (min 9 validated by Yup)
+    if (name === "bankAccountNumber") {
+      const numericValue = value.replace(/\D/g, ""); 
+      const processedValue = numericValue.slice(0, 18); 
+      formik.setFieldValue(name, processedValue);
+      setFormData(d => ({ ...d, [name]: processedValue }));
+      return;
+    }
+    
     // Convert IFSC code to uppercase
     const processedValue = name === "ifscCode" ? value.toUpperCase() : value;
     formik.setFieldValue(name, processedValue);

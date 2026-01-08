@@ -55,7 +55,7 @@ npm run preview
 ```
 .
 ├── src/
-│   ├── assets/       # Static assets (images, etc.)
+│   ├── assets/       # Static   (images, etc.)
 │   ├── App.jsx       # Main App component
 │   ├── main.jsx      # Application entry point
 │   └── index.css     # Global styles with Tailwind directives

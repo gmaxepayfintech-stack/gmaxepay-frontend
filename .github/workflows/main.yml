@@ -51,16 +51,29 @@ jobs:
     #         }]
     #       }
 
-    - name: Install Dependencies
-      run: npm install
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
 
-    - name: Inject Development Environment Variables
-      env:
-        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
-        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
+    - name: Build with Docker (Development)
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        target: builder
+        build-args: |
+          VITE_REACT_APP_API_ROUTE=${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
+          VITE_REACT_APP_ROUTE=${{ secrets.VITE_REACT_APP_ROUTE }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+        outputs: type=docker,dest=/tmp/build-image.tar
+        push: false
+
+    - name: Extract build artifacts
       run: |
-        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
-        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
+        docker load -i /tmp/build-image.tar
+        docker create --name build-container $(docker images --format "{{.Repository}}:{{.Tag}}" | head -1)
+        docker cp build-container:/app/dist ./dist
+        docker rm build-container
+        echo "✅ Build artifacts extracted from Docker"
 
     - name: Deploy to Vercel Production
       env:
