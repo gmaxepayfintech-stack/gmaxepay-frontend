@@ -22,7 +22,7 @@ const OperatorCard = ({ operator, onEditClick }) => {
     const [deleted, setDeleted] = useState(operator.toggles.deleted);
 
     return (
-        <div className="border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
+        <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
             {/* Header */}
             <div className="flex justify-between items-center mb-4">
                 <div className="flex items-center gap-2">

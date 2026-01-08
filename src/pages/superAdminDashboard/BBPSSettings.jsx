@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
 import OperatorCard from './OperatorCard';
+import BillerSettings from './BillerSettings';
+import PaymentSettings from './PaymentSettings';
+
+
 const operators = [
     // Original 6 Cards
     {
@@ -581,6 +585,7 @@ const AddOperatorModal = ({ isOpen, onClose, onAdd, onEdit, operator, mode = "ad
 };
 
 const BBPSSettings = () => {
+    const [activeTab, setActiveTab] = useState("operators"); // 'operators', 'biller', 'payment'
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -605,7 +610,7 @@ const BBPSSettings = () => {
             // If total pages is 3 or less, show all
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
-        
+
         if (currentPage <= 2) {
             // Show first 3 pages: 1, 2, 3
             return [1, 2, 3];
@@ -659,47 +664,77 @@ const BBPSSettings = () => {
         <div className="p-1 bg-gray-50 min-h-screen">
             {/* Tabs */}
             <div className="inline-flex gap-[143px] bg-[#FFFFFF] rounded-3xl p-4 mb-[24px]">
-                <button className="px-5 py-2.5 bg-[#039155] h-[40px] text-white rounded-full text-sm font-['Gilroy-Medium'] shadow-sm">
+                <button 
+                    onClick={() => setActiveTab("operators")}
+                    className={`px-5 py-2.5 h-[40px] rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
+                        activeTab === "operators" 
+                            ? "bg-[#039155] text-white shadow-sm" 
+                            : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                >
                     Operator Settings
                 </button>
-                <button className="px-5 py-2.5 bg-white  rounded-full text-sm font-['Gilroy-Medium'] text-gray-700 hover:bg-gray-50 transition-colors">
+                <button 
+                    onClick={() => setActiveTab("biller")}
+                    className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
+                        activeTab === "biller" 
+                            ? "bg-[#039155] text-white shadow-sm" 
+                            : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                >
                     Biller Settings
                 </button>
-                <button className="px-5 py-2.5 bg-white rounded-full text-sm font-['Gilroy-Medium'] text-gray-700 hover:bg-gray-50 transition-colors">
+                <button 
+                    onClick={() => setActiveTab("payment")}
+                    className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
+                        activeTab === "payment" 
+                            ? "bg-[#039155] text-white shadow-sm" 
+                            : "bg-white text-gray-700 hover:bg-gray-50"
+                    }`}
+                >
                     Payment Setting
                 </button>
             </div>
 
-            {/* Search & Add */}
-            <div className="flex justify-between bg-white rounded-xl p-4 items-center mb-6">
-                <div className="relative ">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-                    <input
-                        type="text"
-                        placeholder="Search Operator"
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="border border-[#1B1717] border-opacity-50 border-[0.5px] px-10 py-2.5 rounded-lg w-[622px] focus:outline-none text-sm"
-                    />
-                </div>
-                <button
-                    onClick={handleAddClick}
-                    className="bg-[#039155] hover:bg-[#027a46] text-white px-5 py-2.5 rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center gap-2 transition-colors shadow-sm"
-                >
-                    <Plus className="w-3 h-3 rounded-3xl border border-[#FFFFFF]" />
-                    Add New Operator
-                </button>
-            </div>
+            {/* Conditional Content Rendering */}
+            {activeTab === "operators" && (
+                <>
+                    {/* Search & Add */}
+                    <div className="flex justify-between bg-white rounded-xl p-4 items-center mb-6">
+                        <div className="relative ">
+                            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                            <input
+                                type="text"
+                                placeholder="Search Operator"
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="border border-[#1B1717] border-opacity-50 border-[0.5px] px-10 py-2.5 rounded-lg w-[622px] focus:outline-none text-sm"
+                            />
+                        </div>
+                        <button
+                            onClick={handleAddClick}
+                            className="bg-[#039155] hover:bg-[#027a46] text-white px-5 py-2.5 rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center gap-2 transition-colors shadow-sm"
+                        >
+                            <Plus className="w-3 h-3 rounded-3xl border border-[#FFFFFF]" />
+                            Add New Operator
+                        </button>
+                    </div>
 
-            {/* Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 bg-[#FFFFFF] rounded-xl p-4 lg:grid-cols-3 gap-6">
-                {currentOperators.map((op) => (
-                    <OperatorCard key={op.name} operator={op} onEditClick={handleEditClick} />
-                ))}
-            </div>
+                    {/* Cards Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 bg-[#FFFFFF] rounded-xl p-4 lg:grid-cols-3 gap-6">
+                        {currentOperators.map((op) => (
+                            <OperatorCard key={op.name} operator={op} onEditClick={handleEditClick} />
+                        ))}
+                    </div>
+                </>
+            )}
+
+            {activeTab === "biller" && <BillerSettings />}
+
+            {activeTab === "payment" && <PaymentSettings />}
 
             {/* Pagination */}
-            {totalPages > 0 && (
+            {activeTab === "operators" && totalPages > 0 && (
                 <div className="flex justify-center items-center gap-2 mt-8">
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
@@ -714,8 +749,8 @@ const BBPSSettings = () => {
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             className={`px-4 py-1.5 rounded font-medium transition-colors ${currentPage === page
-                                    ? "bg-[#039155] text-white"
-                                    : "border border-gray-300 hover:bg-gray-50"
+                                ? "bg-[#039155] text-white"
+                                : "border border-gray-300 hover:bg-gray-50"
                                 }`}
                         >
                             {page}
