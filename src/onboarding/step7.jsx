@@ -2,7 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { postProfile } from '../redux/action/onboardingAction';
 
-function Step7({ formData, setFormData, onComplete }) {
+function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
   const dispatch = useDispatch();
   const {
     postProfileLoading,
@@ -22,41 +22,41 @@ function Step7({ formData, setFormData, onComplete }) {
       if (mediaStreamRef.current) {
         mediaStreamRef.current.getTracks().forEach(t => t.stop());
       }
-      
+
       // Try to get front camera first (for profile photos), fallback to any available camera
       let stream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
             facingMode: { ideal: 'user' }, // Front camera for profile photos
             width: { ideal: 1280 },
             height: { ideal: 720 }
-          }, 
-          audio: false 
+          },
+          audio: false
         });
       } catch (frontCameraError) {
         // Fallback to any available camera
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: false 
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
         });
       }
-      
+
       mediaStreamRef.current = stream;
       setIsCameraActive(true);
-      
+
       // Ensure video element is ready and connected
       if (videoRef.current) {
         const video = videoRef.current;
         video.srcObject = stream;
-        
+
         // Wait for video to be ready before playing
         const handleCanPlay = () => {
           video.play().catch(err => {
             console.error('Error playing video:', err);
           });
         };
-        
+
         if (video.readyState >= 2) {
           // Video already has data, play immediately
           video.play().catch(err => {
@@ -81,7 +81,7 @@ function Step7({ formData, setFormData, onComplete }) {
           t.stop();
           t.enabled = false;
         });
-      mediaStreamRef.current = null;
+        mediaStreamRef.current = null;
       } catch (error) {
         console.error('Error stopping camera:', error);
       }
@@ -123,24 +123,28 @@ function Step7({ formData, setFormData, onComplete }) {
   // Handle success when profile is posted successfully
   useEffect(() => {
     if (postProfileSuccess) {
+      // Refresh steps after successful completion
+      if (onRefreshSteps) {
+        onRefreshSteps();
+      }
       setFormData(d => ({ ...d, completed: true }));
       if (onComplete) {
         onComplete();
       }
     }
-  }, [postProfileSuccess, onComplete, setFormData]);
+  }, [postProfileSuccess, onComplete, setFormData, onRefreshSteps]);
 
   // Effect to ensure video stream is properly connected when camera becomes active
   useEffect(() => {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
       const video = videoRef.current;
       const stream = mediaStreamRef.current;
-      
+
       // Only set if not already set or if different
       if (video.srcObject !== stream) {
         video.srcObject = stream;
       }
-      
+
       // Handle video ready state - ensure it plays when metadata is loaded
       const handleLoadedMetadata = () => {
         if (video.paused && isCameraActive) {
@@ -149,26 +153,26 @@ function Step7({ formData, setFormData, onComplete }) {
           });
         }
       };
-      
+
       const handlePlay = () => {
         console.log('Video started playing');
       };
-      
+
       const handleError = (e) => {
         console.error('Video error:', e);
       };
-      
+
       video.addEventListener('loadedmetadata', handleLoadedMetadata);
       video.addEventListener('play', handlePlay);
       video.addEventListener('error', handleError);
-      
+
       // Try to play immediately if video is ready
       if (video.readyState >= 2) { // HAVE_CURRENT_DATA
         video.play().catch(err => {
           console.error('Error playing video:', err);
         });
       }
-      
+
       return () => {
         video.removeEventListener('loadedmetadata', handleLoadedMetadata);
         video.removeEventListener('play', handlePlay);
@@ -198,22 +202,22 @@ function Step7({ formData, setFormData, onComplete }) {
         <div className="w-[534px] h-[276px] mx-auto mb-4">
           <div className="border-2 border-dashed border-[#1B1717] border-opacity-30 rounded-lg h-full relative overflow-hidden bg-gray-50">
             {/* Always render video element but hide/show it based on state */}
-            <video 
-              ref={videoRef} 
+            <video
+              ref={videoRef}
               className={`w-full h-full object-cover rounded-lg ${isCameraActive ? 'block' : 'hidden'}`}
-              playsInline 
-              muted 
+              playsInline
+              muted
               autoPlay
-              style={{ 
+              style={{
                 minHeight: '100%',
                 minWidth: '100%',
                 backgroundColor: '#000'
               }}
             />
-            
+
             {/* Show placeholder when no photo and camera not active */}
             {!formData.profilePhotoDataUrl && !isCameraActive && (
-              <div 
+              <div
                 className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
                 onClick={startCamera}
               >
@@ -224,21 +228,21 @@ function Step7({ formData, setFormData, onComplete }) {
                 />
               </div>
             )}
-            
+
             {/* Show captured image when photo exists and camera not active */}
             {formData.profilePhotoDataUrl && !isCameraActive && (
               <img
-                src={formData.profilePhotoDataUrl} 
-                alt="Profile" 
+                src={formData.profilePhotoDataUrl}
+                alt="Profile"
                 className="w-full h-full object-cover rounded-lg absolute inset-0"
               />
             )}
-            
+
             {/* Buttons - Show when camera is active or when photo exists */}
             {(isCameraActive || formData.profilePhotoDataUrl) && (
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
-            <button
-              type="button"
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (formData.profilePhotoDataUrl) {
@@ -252,24 +256,23 @@ function Step7({ formData, setFormData, onComplete }) {
                   className="bg-[#039155] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition shadow-md"
                 >
                   Retake
-            </button>
-            <button
-              type="button"
+                </button>
+                <button
+                  type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${
-                    isCameraActive
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${isCameraActive
                       ? 'bg-[#039155] text-white hover:bg-green-700'
                       : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                  }`}
+                    }`}
                 >
                   Capture
-            </button>
+                </button>
               </div>
-          )}
+            )}
           </div>
           <canvas ref={canvasRef} className="hidden" />
         </div>
@@ -294,29 +297,28 @@ function Step7({ formData, setFormData, onComplete }) {
           </div>
 
           {/* Error Message */}
-        {postProfileError && (
+          {postProfileError && (
             <div className="w-full p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-4 mt-4">
-            {postProfileError}
-          </div>
-        )}
+              {postProfileError}
+            </div>
+          )}
 
           {/* Success Message */}
           {postProfileSuccess && postProfileMessage && (
             <div className="w-full p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm mb-4 mt-4">
               {postProfileMessage}
-          </div>
-        )}
+            </div>
+          )}
 
           {/* Submit Button */}
           <button
             type="button"
             onClick={handleSubmit}
             disabled={postProfileLoading || !formData.profilePhotoDataUrl}
-            className={`w-full py-2 rounded-lg text-white text-[24px] font-medium h-[60px] transition mt-5 ${
-              postProfileLoading || !formData.profilePhotoDataUrl
+            className={`w-full py-2 rounded-lg text-white text-[24px] font-medium h-[60px] transition mt-5 ${postProfileLoading || !formData.profilePhotoDataUrl
                 ? 'bg-[#039155] text-white cursor-not-allowed'
                 : 'bg-[#039155] hover:bg-green-700'
-            }`}
+              }`}
           >
             {postProfileLoading ? 'Submitting...' : 'Submit'}
           </button>

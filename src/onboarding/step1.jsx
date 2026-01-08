@@ -8,7 +8,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
 
-function Step1({ formData, setFormData, onNext }) {
+function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
 
   const [timer, setTimer] = useState(0);
@@ -90,9 +90,13 @@ function Step1({ formData, setFormData, onNext }) {
 
   useEffect(() => {
     if (FormSuccess === "SUCCESS") {
+      // Refresh steps after successful completion
+      if (onRefreshSteps) {
+        onRefreshSteps();
+      }
       onNext();
     }
-  }, [FormSuccess]);
+  }, [FormSuccess, onRefreshSteps]);
 
   useEffect(() => {
     if (successCooldown > 0) {
