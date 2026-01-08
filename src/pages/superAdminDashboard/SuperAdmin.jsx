@@ -1,5 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
+import { getAlsWallet } from "../../redux/action/walletAction";
 import {
   XAxis,
   YAxis,
@@ -25,9 +27,22 @@ const OtherCharges = "/img/OtherCharges.png";
 const TotalRevenue = "/img/TotalRevenue.png";
 
 const SuperAdmin = () => {
+  const dispatch = useDispatch();
   const [selectedDay, setSelectedDay] = useState("Sun");
+  const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+  // Get wallet data from Redux
+  const alsWalletResponse = useSelector((state) => state?.wallet?.alsWallet);
+  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+
+  // Update opening balance when wallet data is fetched
+  useEffect(() => {
+    if (alsWalletResponse?.data?.data?.openingBalance) {
+      setAlsOpeningBalance(alsWalletResponse.data.data.openingBalance);
+    }
+  }, [alsWalletResponse]);
 
   const data = [
     { name: "Rupaisa", value: 400 },
@@ -218,22 +233,44 @@ const SuperAdmin = () => {
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {[...Array(6)].map((_, i) => (
-              <div
-                key={i}
-                className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col justify-between hover:shadow-md transition"
-              >
-                <p className="font-md text-[#1B1717] text-xl  mb-1">
-                  Rupaisa Pay Wallet {i + 1}
-                </p>
-                <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
-                  $4,21,40,238
-                </p>
-                <button className="mt-3 text-xs sm:text-sm w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors">
-                  Refresh
-                </button>
-              </div>
-            ))}
+            {[...Array(6)].map((_, i) => {
+              const isAslWallet = i === 0;
+              const walletName = isAslWallet ? "ASL" : `Rupaisa Pay Wallet ${i + 1}`;
+              const displayBalance = isAslWallet && alsOpeningBalance 
+                ? `₹${parseFloat(alsOpeningBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                : "$4,21,40,238";
+
+              return (
+                <div
+                  key={i}
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col justify-between hover:shadow-md transition cursor-pointer"
+                  onClick={() => {
+                    if (isAslWallet) {
+                      dispatch(getAlsWallet());
+                    }
+                  }}
+                >
+                  <p className="font-md text-[#1B1717] text-xl mb-1">
+                    {walletName}
+                  </p>
+                  <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
+                    {isLoading && isAslWallet ? "Loading..." : displayBalance}
+                  </p>
+                  <button 
+                    className="mt-3 text-xs sm:text-sm w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (isAslWallet) {
+                        dispatch(getAlsWallet());
+                      }
+                    }}
+                    disabled={isLoading && isAslWallet}
+                  >
+                    {isLoading && isAslWallet ? "Loading..." : "Refresh"}
+                  </button>
+                </div>
+              );
+            })}
           </div>
         </div>
 

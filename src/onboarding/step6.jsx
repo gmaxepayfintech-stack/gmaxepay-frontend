@@ -48,15 +48,18 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
 
   const handleVerify = async () => {
     // Validate both account number and IFSC code
-    await formik.validateField("bankAccountNumber");
-    await formik.validateField("ifscCode");
+    // validateField returns the error message or undefined
+    const accountError = await formik.validateField("bankAccountNumber");
+    const ifscError = await formik.validateField("ifscCode");
+    
+    // Mark fields as touched to show errors
+    formik.setTouched({ 
+      bankAccountNumber: true,
+      ifscCode: true 
+    });
     
     // Check if there are errors
-    if (formik.errors.bankAccountNumber || formik.errors.ifscCode) {
-      formik.setTouched({ 
-        bankAccountNumber: true,
-        ifscCode: true 
-      });
+    if (accountError || ifscError) {
       return;
     }
 
@@ -104,6 +107,26 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
 
   const handleChange = e => {
     const { name, value } = e.target;
+    
+    // Handle account number - only allow digits, max 18 (min 9 validated by Yup)
+    if (name === "bankAccountNumber") {
+      const numericValue = value.replace(/\D/g, ""); 
+      const processedValue = numericValue.slice(0, 18); 
+      formik.setFieldValue(name, processedValue);
+      setFormData(d => ({ ...d, [name]: processedValue }));
+      
+      // Reset verification status if account number changes after verification
+      if (formData.ifscVerified && processedValue !== formData.bankAccountNumber) {
+        setFormData(d => ({ 
+          ...d, 
+          ifscVerified: false,
+          beneficiaryName: ""
+        }));
+        formik.setFieldValue("beneficiaryName", "");
+      }
+      return;
+    }
+    
     // Convert IFSC code to uppercase
     const processedValue = name === "ifscCode" ? value.toUpperCase() : value;
     formik.setFieldValue(name, processedValue);
@@ -123,6 +146,8 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
   // Check if Next button should be enabled
   const isNextEnabled = 
     formik.values.bankAccountNumber &&
+    formik.values.bankAccountNumber.length >= 9 &&
+    formik.values.bankAccountNumber.length <= 18 &&
     formik.values.ifscCode &&
     !formik.errors.bankAccountNumber &&
     !formik.errors.ifscCode &&
@@ -166,7 +191,9 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               value={formik.values.bankAccountNumber}
               onChange={handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter Account Number"
+              placeholder="Enter Account Number (9-18 digits)"
+              maxLength={18}
+              inputMode="numeric"
               className={`w-full border border-[#1B1717] border-opacity-80 h-[60px] rounded-lg py-2 pl-14 pr-3 text-sm outline-none ${
                 formik.errors.bankAccountNumber && formik.touched.bankAccountNumber
                   ? "border-red-500"
@@ -176,6 +203,16 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           </div>
           {formik.errors.bankAccountNumber && formik.touched.bankAccountNumber && (
             <p className="text-red-500 text-sm mt-1">{formik.errors.bankAccountNumber}</p>
+          )}
+          {formik.values.bankAccountNumber && !formik.errors.bankAccountNumber && (
+            <p className={`text-sm mt-1 ${
+              formik.values.bankAccountNumber.length >= 9 && formik.values.bankAccountNumber.length <= 18
+                ? "text-green-600"
+                : "text-gray-500"
+            }`}>
+              {formik.values.bankAccountNumber.length} / 18 digits entered
+              {formik.values.bankAccountNumber.length < 9 && " (minimum 9 required)"}
+            </p>
           )}
         </div>
 
@@ -221,10 +258,16 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
             <button
               type="button"
               onClick={handleVerify}
-              disabled={!formik.values.ifscCode || !!formik.errors.ifscCode}
+              disabled={
+                !formik.values.bankAccountNumber || 
+                !formik.values.ifscCode ||
+                formik.values.bankAccountNumber.length < 9
+              }
               className={`w-40 px-6 rounded-r-lg text-sm font-medium transition h-[60px] text-white
                 ${
-                  !formik.values.ifscCode || !!formik.errors.ifscCode
+                  !formik.values.bankAccountNumber || 
+                  !formik.values.ifscCode ||
+                  formik.values.bankAccountNumber.length < 9
                     ? "bg-[#039155] cursor-not-allowed opacity-70"
                     : "bg-[#039155] hover:bg-green-700"
                 }
