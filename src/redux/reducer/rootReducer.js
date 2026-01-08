@@ -10,11 +10,8 @@ import errorReducer from './errorReducer';
 import retailerOnboardingReducer from './retailerOnboardingReducer';
 import roleReducer from './roleReducer';
 import aepsReducer from './aepsReducer';
-<<<<<<< HEAD
 import walletReducer from './walletReducer';
-=======
 import payoutReducer from './payoutReducer';
->>>>>>> 1f2c45761ebbd387f9a3be3b999a017fe20a3719
 
 const rootReducer = combineReducers({
     auth: authReducer,
