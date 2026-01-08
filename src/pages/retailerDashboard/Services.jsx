@@ -82,7 +82,6 @@ const Services = () => {
 
     // Handle BBPS card click - show BBPS services component
     const handleBBPSClick = () => {
-        console.log("🖱️ BBPS card clicked, showing BBPS services");
         setShowBBPSServices(true);
     };
 
