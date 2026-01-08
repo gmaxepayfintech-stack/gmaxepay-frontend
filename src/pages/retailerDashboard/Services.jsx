@@ -1,7 +1,11 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
+import { aepsStatusCheck } from "../../redux/action/aepsAction";
+import BBPSServices from "./BBPSServices";
+
 
 const DEFAULT_DESCRIPTION =
     "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -9,6 +13,7 @@ const DEFAULT_DESCRIPTION =
 const servicesData = [
     { id: "mobile-dth", title: "Mobile & DTH Recharge", status: "available" },
     { id: "Aeps", title: "AEPS", status: "available" },
+    { id: "BBPS", title: "BBPS", status: "available" },
     { id: "dmt-1", title: "DMT-1", status: "available" },
     { id: "dmt-2", title: "DMT-2", status: "available" },
     { id: "micro-atm", title: "Micro ATM", status: "available" },
@@ -56,12 +61,35 @@ ServiceCard.propTypes = {
 
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
+    const [showBBPSServices, setShowBBPSServices] = useState(false);
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+
+    // Note: Status check only happens when AEPS card is clicked, not mount
 
     const filtered = useMemo(() => {
         const key = activeTab.toLowerCase();
         return servicesData.filter((s) => s.status === key);
     }, [activeTab]);
+
+    // Handle AEPS card click - always navigate to onboarding-aeps route
+    // The OnBoardingAeps component will handle all status checks and component rendering
+    const handleAepsClick = () => {
+        console.log("🖱️ AEPS card clicked, navigating to onboarding-aeps");
+        // Always navigate to onboarding-aeps - let that component handle everything
+        navigate("/retailerDashboard/onboarding-aeps");
+    };
+
+    // Handle BBPS card click - show BBPS services component
+    const handleBBPSClick = () => {
+        console.log("🖱️ BBPS card clicked, showing BBPS services");
+        setShowBBPSServices(true);
+    };
+
+    // If BBPS services should be shown, render that component
+    if (showBBPSServices) {
+        return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
+    }
 
     return (
         <div className="w-full">
@@ -116,7 +144,11 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") navigate("/retailerDashboard/onboarding-aeps");
+                            if (s.id === "Aeps") {
+                                handleAepsClick();
+                            } else if (s.id === "BBPS" || s.id === "bbps") {
+                                handleBBPSClick();
+                            }
                         }}
                     />
                 ))}

@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { postBankDetails } from "../redux/action/onboardingAction";
 
-function Step6({ formData, setFormData, onNext }) {
+function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
@@ -37,6 +37,10 @@ function Step6({ formData, setFormData, onNext }) {
 
       // Check if IFSC is verified and beneficiary name is fetched
       if (formData.ifscVerified && formik.values.beneficiaryName) {
+        // Refresh steps after successful completion
+        if (onRefreshSteps) {
+          onRefreshSteps();
+        }
         onNext();
       }
     },

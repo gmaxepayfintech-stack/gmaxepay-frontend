@@ -7,7 +7,7 @@ import { useNotification } from "../context/NotificationContext";
 import { connectAadhaarVerification, downloadAadhaarDocument, uploadAadhaarDocuments } from "../redux/action/retailerOnboardingAction";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function RetailerAadhaar({ setFormData, onNext, onBack }) {
+function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -376,15 +376,12 @@ function RetailerAadhaar({ setFormData, onNext, onBack }) {
         message: response?.message || "Aadhaar documents uploaded successfully",
       });
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     } else if (error) {
       setIsUploading(false); // Hide loader on error
       showNotification({
@@ -392,7 +389,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack }) {
         message: typeof error === "string" ? error : error?.message || "Failed to upload Aadhaar documents",
       });
     }
-  }, [retailerOnboardingState?.uploadAadhaarResponse, retailerOnboardingState?.uploadAadhaarError, frontImage, backImage, setFormData, showNotification]);
+  }, [retailerOnboardingState?.uploadAadhaarResponse, retailerOnboardingState?.uploadAadhaarError, frontImage, backImage, setFormData, showNotification, onShowSteps]);
 
   return (
     <>

@@ -95,6 +95,15 @@ function OnboardingById() {
     dispatch(updateOnboardingStep(newStep));
   };
 
+  // Function to refresh onboarding steps after completion
+  const refreshOnboardingSteps = () => {
+    const tokenFromQuery = searchParams.get("token");
+    const token = tokenFromQuery || id || localStorage.getItem("onboardingToken");
+    if (token) {
+      dispatch(fetchOnboarding(token));
+    }
+  };
+
   // Helper function to check if a step is done based on API data
   const isStepDone = (stepNumber) => {
     if (!onboardingState.steps || onboardingState.steps.length === 0) {
@@ -462,6 +471,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -470,6 +480,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -478,6 +489,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -486,6 +498,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -494,6 +507,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -502,6 +516,7 @@ function OnboardingById() {
                 formData={formData}
                 setFormData={setFormData}
                 onNext={next}
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
 
@@ -512,6 +527,7 @@ function OnboardingById() {
                 onComplete={() =>
                   setFormData((d) => ({ ...d, completed: true }))
                 }
+                onRefreshSteps={refreshOnboardingSteps}
               />
             )}
           </div>

@@ -6,7 +6,7 @@ import {
   emailOtpVerify,
 } from "../redux/action/onboardingAction";
 
-function Step2({ formData, setFormData, onNext }) {
+function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
   const [successCooldown, setSuccessCooldown] = useState(18);
 
@@ -120,11 +120,15 @@ function Step2({ formData, setFormData, onNext }) {
   useEffect(() => {
     if (emailVerifyStatus === "SUCCESS") {
       setVerifyError(null);
+      // Refresh steps after successful completion
+      if (onRefreshSteps) {
+        onRefreshSteps();
+      }
       onNext();
     } else if (emailVerifyStatus && emailVerifyStatus !== "SUCCESS") {
       setVerifyError(emailVerifyMessage || "OTP verification failed");
     }
-  }, [emailVerifyStatus]);
+  }, [emailVerifyStatus, onRefreshSteps]);
 
   return (
     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>

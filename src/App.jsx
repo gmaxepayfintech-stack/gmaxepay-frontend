@@ -14,7 +14,7 @@ import {
   EmployeeDashboard,
 } from "@/layouts";
 import "@/styles/globals.css";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import PrivacyPolicy from "./mainPage/privacyPolicy";
@@ -42,7 +42,10 @@ function App() {
   const { showNotification } = useNotification();
   const { loading } = useCompany();
   const dispatch = useDispatch();
+  const lastAepsStatusRef = useRef(null);
+  const lastAepsErrorRef = useRef(null);
   const error = useSelector((state) => state?.error?.error || null);
+  const errorMessage = useSelector((state) => state?.error?.message || null);
   const success = useSelector((state) => state?.employee?.success || null);
   const userSuccess = useSelector((state) => state?.user?.success || null);
   const slabSuccess = useSelector(
@@ -60,6 +63,8 @@ function App() {
   const specialDomSuccess = useSelector(
     (state) => state?.recharge?.success || null
   );
+  const payoutSuccess = useSelector((state) => state?.payout);
+
   const operatorSuccess = useSelector(
     (state) => state?.operatorM?.success || null
   );
@@ -70,8 +75,8 @@ function App() {
   const aepsStatusCheck = useSelector(
     (state) => state?.aeps || null
   );
-  console.log("aepsStatusCheck",aepsStatusCheck);
-  
+
+
   const moneyTransfer = useSelector(
     (state) => state?.moneyTransfer?.success || null
   );
@@ -95,20 +100,20 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
- 
+
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
     return roleState?.success === "SUCCESS" ? { message: roleState?.message } : null;
   });
-  
+
   const roleUpgradeError = useSelector((state) => {
     const roleState = state?.roles || state?.role;
     return roleState?.error ? { message: roleState?.error || roleState?.message } : null;
   });
 
   const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
-);
-const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding)  
+  );
+  const OnboardingLink = useSelector((state) => state?.whitelabel?.rescendOnboarding)
 
   const whiteLabelPanMessageFailure = useSelector(
     (state) => state?.error?.error
@@ -170,7 +175,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [success]);
- 
+
 
   useEffect(() => {
     if (specialDomSuccess) {
@@ -182,13 +187,14 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [specialDomSuccess]);
 
   useEffect(() => {
-    if (aepsStatusCheck?.message) {
+    if (aepsStatusCheck) {
       showNotification({
         type: "success",
-        message: aepsStatusCheck?.message,
+        message: aepsStatusCheck.message,
       });
     }
   }, [aepsStatusCheck]);
+
 
   useEffect(() => {
     if (operatorSuccess) {
@@ -240,7 +246,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
   }, [roleUpgradeError, showNotification]);
 
   useEffect(() => {
-    if(OnboardingLink?.message) {
+    if (OnboardingLink?.message) {
       showNotification({
         type: "success",
         message: OnboardingLink?.message,
@@ -346,6 +352,23 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
       });
     }
   }, [rangeMasterSuccess]);
+
+  useEffect(() => {
+    const payoutTransaction = payoutSuccess?.payoutTransaction;
+    if (payoutTransaction && payoutTransaction.status === "SUCCESS" && payoutTransaction.message) {
+      showNotification({
+        type: "success",
+        message: payoutTransaction?.message,
+        isCritical: true, // Required to show on dashboard routes
+      });
+    } else {
+      console.log('Condition not met:', {
+        hasTransaction: !!payoutTransaction,
+        status: payoutTransaction?.status,
+        message: payoutTransaction?.message
+      });
+    }
+  }, [payoutSuccess, showNotification]);
 
   useEffect(() => {
     if (prepaidRechargeSucess) {
@@ -534,7 +557,7 @@ const OnboardingLink = useSelector((state)=>state?.whitelabel?.rescendOnboarding
           path="/auth/login"
           element={
             <ProtectedAuthRoute>
-              <Auth/>
+              <Auth />
             </ProtectedAuthRoute>
           }
         />

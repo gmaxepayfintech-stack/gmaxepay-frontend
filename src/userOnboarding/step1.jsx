@@ -8,7 +8,7 @@ import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferralCode }) {
+function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCode: propReferralCode }) {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
@@ -99,6 +99,7 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
   const failureHandled = useRef(false);
   const componentMounted = useRef(false);
   const otpSubmittedRef = useRef(false);
+  const verifiedHandled = useRef(false);
 
   // Reset refs on mount to allow fresh error detection
   useEffect(() => {
@@ -106,6 +107,7 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
     failureHandled.current = false;
     successHandled.current = false;
     otpSubmittedRef.current = false;
+    verifiedHandled.current = false;
     return () => {
       componentMounted.current = false;
     };
@@ -163,21 +165,18 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
         message: OTPSubmitResponseData?.message || "Mobile verification successful",
       });
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity`;
-        }
-      }, 500);
+      // Show steps page instead of redirecting
+      if (onShowSteps) {
+        setTimeout(() => {
+          onShowSteps();
+        }, 500);
+      }
     }
     // Reset when status changes away from SUCCESS
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification]);
+  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification, onShowSteps]);
   useEffect(() => {
     const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
 
@@ -295,7 +294,9 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
     const isVerified = OTPResponseStatus === "SUCCESS" && 
                       (OTPResponseData?.status === "verified" || OTPResponseData?.data?.status === "verified");
     
-    if (isVerified) {
+    // Only handle verified status once to prevent multiple navigations
+    if (isVerified && !verifiedHandled.current) {
+      verifiedHandled.current = true;
       // Get the data object - it might be directly in OTPResponseData or in OTPResponseData.data
       const verifiedData = OTPResponseData?.data || OTPResponseData;
       
@@ -340,17 +341,15 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
         setFormData((prev) => ({ ...prev, completed: true }));
       }
 
-      // Redirect to KYC index page using window.location.href
-      setTimeout(() => {
-        const referCode = getReferCode();
-        if (referCode) {
-          window.location.href = `/unity/${referCode}`;
-        } else {
-          window.location.href = `/unity`;
-        }
-      }, 200);
+      // Don't automatically show steps - let user stay on step form
+      // User can manually proceed or the form will handle navigation after OTP submission
     }
-  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification]);
+    
+    // Reset when status changes away from verified
+    if (!isVerified) {
+      verifiedHandled.current = false;
+    }
+  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, onShowSteps]);
 
   // Start countdown when OTP is sent successfully
   useEffect(() => {
@@ -420,6 +419,12 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
                 name="phone"
                 value={formik.values.phone}
                 onChange={handleChange}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && formik.values.phone && formik.values.phone.length === 10 && resendCountdown === 0) {
+                    e.preventDefault();
+                    sendOtp();
+                  }
+                }}
                 placeholder="Enter your number"
                 className={`w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 sm:border-r-0 rounded-lg sm:rounded-l-lg sm:rounded-r-none ${formik.errors.phone ? "border-red-500" : "border-gray-300"
                   } pl-9 sm:pl-10 md:pl-12 lg:pl-14 xl:pl-18 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 sm:focus:border-r-0 transition`}
@@ -473,6 +478,12 @@ function Step1({ formData, setFormData, onNext, onBack, referralCode: propReferr
               name="otp"
               value={formik.values.otp}
               onChange={handleChange}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && formik.values.otp && formik.values.otp.trim() !== "") {
+                  e.preventDefault();
+                  formik.handleSubmit();
+                }
+              }}
               onBlur={(e) => {
                 // Don't validate on blur, just handle the blur event
                 formik.handleBlur(e);

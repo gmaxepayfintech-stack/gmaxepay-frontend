@@ -1,19 +1,56 @@
-import { useMemo, useRef, useState } from "react";
+import { useMemo, useRef, useState, useEffect } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerification from "./BiometricVerification";
+import { getUserProfile } from "../../../redux/action/userProfileAction";
+import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../../redux/action/aepsAction";
 
 const OTP_LENGTH = 6;
 
 const IdentityVerification = ({ onBack }) => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
     const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
     const [touchedSubmit, setTouchedSubmit] = useState(false);
     const [showBiometric, setShowBiometric] = useState(false);
+    const [resendTimer, setResendTimer] = useState(0); // Timer in seconds
     const inputsRef = useRef([]);
 
-    const phone = "+91 98765 00001";
+    // Call getUserProfile on component mount
+    useEffect(() => {
+        dispatch(getUserProfile()).then((response) => {
+            console.log("getUserProfile response in IdentityVerification:", response);
+        }).catch((error) => {
+            console.error("getUserProfile error in IdentityVerification:", error);
+        });
+    }, [dispatch]);
+
+    // Countdown timer effect
+    useEffect(() => {
+        if (resendTimer > 0) {
+            const timer = setTimeout(() => {
+                setResendTimer(resendTimer - 1);
+            }, 1000);
+            return () => clearTimeout(timer);
+        }
+    }, [resendTimer]);
+
+    // Format mobile number for display
+    const formatPhoneNumber = (mobile) => {
+        if (!mobile) return "+91 00000 00000";
+        // Remove any non-digit characters
+        const digits = mobile.replace(/\D/g, "");
+        // Format as +91 XXXXX XXXXX
+        if (digits.length === 10) {
+            return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+        }
+        return `+91 ${mobile}`;
+    };
+
+    const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
 
     const otpValue = useMemo(() => otp.join(""), [otp]);
 
@@ -58,7 +95,7 @@ const IdentityVerification = ({ onBack }) => {
         if (e.key === "ArrowRight" && idx < OTP_LENGTH - 1) focusIndex(idx + 1);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         setTouchedSubmit(true);
 
@@ -70,10 +107,57 @@ const IdentityVerification = ({ onBack }) => {
             return;
         }
 
-        // TODO: hook up API verify
-        // eslint-disable-next-line no-console
-        console.log("OTP submit:", otpValue);
-        setShowBiometric(true);
+        try {
+            // Submit OTP in the required format
+            const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
+            console.log("aepsSubmitOTP response:", response);
+            
+            // Check status regardless of success or failure
+            try {
+                const statusResponse = await dispatch(aepsStatusCheck());
+                console.log("aepsStatusCheck response after OTP submit:", statusResponse);
+            } catch (statusError) {
+                console.error("aepsStatusCheck error after OTP submit:", statusError);
+            }
+            
+            // Only navigate to next step if OTP submission was successful
+            if (response?.status === "SUCCESS") {
+                setShowBiometric(true);
+            }
+        } catch (error) {
+            console.error("aepsSubmitOTP error:", error);
+            // Check status even on error
+            try {
+                const statusResponse = await dispatch(aepsStatusCheck());
+                console.log("aepsStatusCheck response after OTP submit error:", statusResponse);
+            } catch (statusError) {
+                console.error("aepsStatusCheck error after OTP submit error:", statusError);
+            }
+            // Handle error (you might want to show an error message to the user)
+        }
+    };
+
+    const handleResendOTP = async () => {
+        if (resendTimer > 0) return; // Don't allow resend if timer is active
+
+        try {
+            const response = await dispatch(aepsRescendOTP());
+            console.log("aepsRescendOTP response:", response);
+            
+            if (response?.status === "SUCCESS") {
+                // Start 3-minute countdown (180 seconds)
+                setResendTimer(180);
+            }
+        } catch (error) {
+            console.error("aepsRescendOTP error:", error);
+        }
+    };
+
+    // Format timer display (MM:SS)
+    const formatTimer = (seconds) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, "0")}`;
     };
 
     if (showBiometric) {
@@ -121,7 +205,7 @@ const IdentityVerification = ({ onBack }) => {
                     </div>
 
                     {/* OTP Inputs */}
-                    <div className="mt-[32px] flex items-center justify-center gap-[42px]">
+                    <div className="mt-[32px] flex items-center justify-center gap-6">
                         {otp.map((digit, idx) => (
                             (() => {
                                 const showError = touchedSubmit && !String(digit).trim();
@@ -144,11 +228,22 @@ const IdentityVerification = ({ onBack }) => {
                         ))}
                     </div>
 
-                    <div className="mt-[28px] text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
-                        Didn't Receive The Code?
-                    </div>
-                    <div className="mt-[12px] text-[16px] font-['Gilroy-Medium'] text-[#000000]">
-                        Resend In 0s
+                    <div className="mt-[28px]">
+                        <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+                            Didn't Receive The Code?
+                        </div>
+                        <button
+                            type="button"
+                            onClick={handleResendOTP}
+                            disabled={resendTimer > 0}
+                            className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
+                                resendTimer > 0
+                                    ? "text-gray-400 cursor-not-allowed"
+                                    : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+                            }`}
+                        >
+                            {resendTimer > 0 ? `Resend In ${formatTimer(resendTimer)}` : "Resend OTP"}
+                        </button>
                     </div>
 
                     <button
