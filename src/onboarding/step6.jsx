@@ -176,7 +176,9 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               value={formik.values.bankAccountNumber}
               onChange={handleChange}
               onBlur={formik.handleBlur}
-              placeholder="Enter Account Number"
+              placeholder="Enter Account Number (9-18 digits)"
+              maxLength={18}
+              inputMode="numeric"
               className={`w-full border border-[#1B1717] border-opacity-80 h-[60px] rounded-lg py-2 pl-14 pr-3 text-sm outline-none ${
                 formik.errors.bankAccountNumber && formik.touched.bankAccountNumber
                   ? "border-red-500"
