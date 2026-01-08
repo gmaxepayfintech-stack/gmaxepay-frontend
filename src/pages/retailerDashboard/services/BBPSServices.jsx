@@ -174,7 +174,6 @@ const BBPSServices = ({ onBack }) => {
             {/* Main Content - Two Column Layout */}
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Information */}
-                {/* Left Side - Information */}
                 <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1.6]">                    {/* Dynamic Title */}
                     {step === "category" && (
                         <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
