@@ -171,7 +171,7 @@ const BBPSServices = ({ onBack }) => {
                 </div>
             )}
 
-            {/* Main Content - Two Column Layout */}
+            {/* Min Content - Two Column Layout */}
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Information */}
                 <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1.6]">                    {/* Dynamic Title */}
