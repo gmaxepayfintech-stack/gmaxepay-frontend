@@ -7,7 +7,7 @@ import {
 } from "../redux/action/onboardingAction";
 import { UPLOAD_AADHAAR_SUCCESS } from "../redux/actionType/onboardingActionType";
 
-function Step3({ setFormData, onNext }) {
+function Step3({ setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
 
   const [isVerified, setIsVerified] = useState(false);
@@ -210,13 +210,17 @@ function Step3({ setFormData, onNext }) {
       const status = uploadResponse?.status || uploadResponse?.uploadResponse?.status;
       if (status === "SUCCESS") {
         setUploading(false);
+        // Refresh steps after successful completion
+        if (onRefreshSteps) {
+          onRefreshSteps();
+        }
         // Small delay to show success state before moving to next step
         setTimeout(() => {
           onNext();
         }, 1000);
       }
     }
-  }, [uploadResponse, onNext]);
+  }, [uploadResponse, onNext, onRefreshSteps]);
 
   // Reset uploading state when loading completes and handle errors
   useEffect(() => {
