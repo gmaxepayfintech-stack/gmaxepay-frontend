@@ -30,7 +30,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
-      .matches(/^\d{13}$/, "Account number must be exactly 13 digits")
+      .matches(/^\d{13,18}$/, "Account number must be between 13 and 18 digits")
       .required("Account number is required"),
     ifscCode: Yup.string()
       .required("IFSC code is required")
@@ -191,7 +191,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
     if (name === "bankAccountNumber") {
       // Only allow digits and limit to 13
-      processedValue = value.replace(/\D/g, "").slice(0, 13);
+      processedValue = value.replace(/\D/g, "").slice(0, 18);
     } else if (name === "ifscCode") {
       // Convert to uppercase and limit to 11 characters
       processedValue = value.toUpperCase().slice(0, 11);
@@ -266,7 +266,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 onChange={handleChange}
                 onBlur={formik.handleBlur}
                 placeholder="Enter Account Number"
-                maxLength={13}
+                maxLength={18}
                 inputMode="numeric"
                 className={`w-full border-2 border-gray-300 
                   h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12
