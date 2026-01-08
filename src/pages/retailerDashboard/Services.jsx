@@ -4,7 +4,7 @@ import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
-import BBPSServices from "./BBPSServices";
+import BBPSServices from "./services/BBPSServices";
 
 
 const DEFAULT_DESCRIPTION =
