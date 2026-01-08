@@ -63,7 +63,6 @@ const RetailerDashLayout = ({ children }) => {
 
   const handleMenuClick = (name, dropdown, path) => {
     if (dropdown) {
-      // toggle dropdown open/close
       setOpenDropdown((prev) => (prev === name ? null : name));
       // also set it as active parent
       setActiveMenu(name);
