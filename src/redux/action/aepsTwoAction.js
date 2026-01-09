@@ -16,6 +16,8 @@ import {
   AEPSTWO_STATUS_CHECK_SUCCESS,
   AEPSTWO_SUBMIT_OTP_FAILURE,
   AEPSTWO_SUBMIT_OTP_SUCCESS,
+  AEPSTWO_TWO_FA_VERIFICATION_FAILURE,
+  AEPSTWO_TWO_FA_VERIFICATION_SUCCESS,
 } from "../actionType/aepsTwoActionType";
 
 const commonError = "Something went wrong!";
@@ -313,6 +315,56 @@ export const aepsTwoBiometricSubmit = (values) => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoFAVerification = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/daily-authentication`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: twoFaVerification, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_TWO_FA_VERIFICATION_SUCCESS,
+        payload: { twoFaVerification, status, message },
+      });
+      return { twoFaVerification, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_TWO_FA_VERIFICATION_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_TWO_FA_VERIFICATION_FAILURE,
       payload: errorMessage,
     });
     throw error;
