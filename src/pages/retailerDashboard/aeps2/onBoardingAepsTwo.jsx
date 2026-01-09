@@ -13,46 +13,6 @@ const OnBoardingAepsTwo = () => {
   const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
   const [showAcceptance, setShowAcceptance] = useState(false);
 
-  /* -------------------------------------------
-        CHECK IF ALL STATUS IS COMPLETED
-    --------------------------------------------*/
-  const checkIfAllStatusCompleted = (statusData) => {
-    if (!statusData) {
-      return false;
-    }
-
-    // Check all required steps are completed based on response structure
-    const aepsOnboarding = statusData?.aepsOnboarding;
-    const validateAgentOtp = statusData?.validateAgentOtp;
-    const bioMetricVerification = statusData?.bioMetricVerification;
-    const daily2FAAuthentication = statusData?.daily2FAAuthentication;
-
-    // Check if all four steps are completed
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
-
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-
-    const isBioMetricVerificationCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-
-    const isDaily2FAAuthenticationCompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-
-    const allCompleted =
-      isAepsOnboardingCompleted &&
-      isValidateAgentOtpCompleted &&
-      isBioMetricVerificationCompleted &&
-      isDaily2FAAuthenticationCompleted;
-
-    return allCompleted;
-  };
-
   // Call aepsTwoStatusCheck on component mount
   useEffect(() => {
     dispatch(aepsTwoStatusCheck())
@@ -67,7 +27,7 @@ const OnBoardingAepsTwo = () => {
   // Log aepsStatus when it changes
   useEffect(() => {
     if (aepsStatus?.aepsStatus) {
-      console.log("aepsStatus state in OnBoardingAeps:", aepsStatus.aepsStatus);
+      console.log("aepsStatus state in OnBoardingAepsTwo:", aepsStatus.aepsStatus);
     }
   }, [aepsStatus]);
 
@@ -81,20 +41,20 @@ const OnBoardingAepsTwo = () => {
     const statusData = aepsStatus.aepsStatus;
     const {
       aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
+      ekycOtp,
+      ekycBiometric,
       daily2FAAuthentication,
     } = statusData;
 
-    console.log("Current onboarding statuses in OnBoardingAeps:", {
+    console.log("Current AEPS-2 onboarding statuses:", {
       aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
+      ekycOtp,
+      ekycBiometric,
       daily2FAAuthentication,
     });
 
     // Check in order of flow - find the first incomplete step
-    // If aepsOnboarding is not completed, show welcome screen
+    // Step 1: Check if aepsOnboarding is completed
     const isAepsOnboardingCompleted =
       aepsOnboarding?.status?.toLowerCase() === "completed" &&
       aepsOnboarding?.isCompleted === true;
@@ -102,21 +62,23 @@ const OnBoardingAepsTwo = () => {
       return null; // Show welcome screen (user needs to start)
     }
 
-    // Check for other pending steps - navigate directly to them
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-    if (!isValidateAgentOtpCompleted) {
+    // Step 2: Check if ekycOtp is pending - show identity verification
+    const isEkycOtpCompleted =
+      ekycOtp?.status?.toLowerCase() === "completed" &&
+      ekycOtp?.isCompleted === true;
+    if (!isEkycOtpCompleted) {
       return "identityVerification";
     }
 
-    const isBioMetricCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-    if (!isBioMetricCompleted) {
+    // Step 3: Check if ekycBiometric is pending - show biometric verification
+    const isEkycBiometricCompleted =
+      ekycBiometric?.status?.toLowerCase() === "completed" &&
+      ekycBiometric?.isCompleted === true;
+    if (!isEkycBiometricCompleted) {
       return "biometricVerification";
     }
 
+    // Step 4: Check if daily2FAAuthentication is pending - show 2FA verification
     const isDaily2FACompleted =
       daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
       daily2FAAuthentication?.isCompleted === true;
@@ -124,14 +86,8 @@ const OnBoardingAepsTwo = () => {
       return "faVerification";
     }
 
-    // All completed - check if we should show confirm or select service
-    const isAllCompleted = checkIfAllStatusCompleted(statusData);
-    if (isAllCompleted) {
-      return "aepsAccessConfirm";
-    }
-
-    // All steps completed but not fully confirmed - show Selectservice
-    return "selectService";
+    // All completed - show access confirm
+    return "aepsAccessConfirm";
   };
 
   const currentStep = getCurrentStep();
