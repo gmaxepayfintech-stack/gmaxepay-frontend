@@ -1,7 +1,9 @@
 import {
   AEPSTWO_ONBOARDING_SUCCESS,
+  AEPSTWO_RESEND_OTP_SUCCESS,
   AEPSTWO_SEND_OTP_SUCCESS,
   AEPSTWO_STATUS_CHECK_SUCCESS,
+  AEPSTWO_SUBMIT_OTP_SUCCESS,
 } from "../actionType/aepsTwoActionType";
 
 const initialState = {
@@ -11,6 +13,8 @@ const initialState = {
   message: null,
   aepsStatus: null,
   onBoarding: null,
+  rescendOtp: null,
+  submitOtp: null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -44,7 +48,25 @@ const aepsTwoReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
       };
+      case AEPSTWO_RESEND_OTP_SUCCESS:
+        return{
+            ...state,
+            loading: false,
+            error: null,
+            rescendOtp: action?.payload,
+            success: action?.payload?.status,
+            message: action?.payload?.message,
+        };
 
+        case AEPSTWO_SUBMIT_OTP_SUCCESS:
+            return{
+                ...state,
+                loading: false,
+                error: null,
+                submitOtp: action?.payload,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
     default:
       return state;
   }
