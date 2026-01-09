@@ -3,52 +3,164 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPSTWO_STATUS_CHECK_FAILURE, AEPSTWO_STATUS_CHECK_SUCCESS } from "../actionType/aepsTwoActionType";
+import {
+  AEPSTWO_ONBOARDING_FAILURE,
+  AEPSTWO_ONBOARDING_SUCCESS,
+  AEPSTWO_SEND_OTP_FAILURE,
+  AEPSTWO_SEND_OTP_SUCCESS,
+  AEPSTWO_STATUS_CHECK_FAILURE,
+  AEPSTWO_STATUS_CHECK_SUCCESS,
+} from "../actionType/aepsTwoActionType";
 
 const commonError = "Something went wrong!";
 
 export const aepsTwoStatusCheck = () => async (dispatch) => {
-    dispatch({ type: LOADING_START });
-    try {
-        const authToken = secureLocalStorage.getItem("userToken");
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
 
-        const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps2/onboarding-status`,
-            {},
-            {
-                headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${authToken}`,
-                },
-            }
-        );
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/onboarding-status`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
 
-        const { data: aepsStatus, status, message } = response?.data ?? {};
-        if (status === "SUCCESS") {
-            dispatch({
-                type: AEPSTWO_STATUS_CHECK_SUCCESS,
-                payload: { aepsStatus, status, message },
-            });
-            return { aepsStatus, status, message };
-        } else {
-            dispatch({
-                type: AEPSTWO_STATUS_CHECK_FAILURE,
-                payload: {
-                    status: response?.data?.status ?? "FAILURE",
-                    message: response?.data?.message ?? commonError,
-                },
-            });
-            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
-        }
-    } catch (error) {
-        const errorMessage = error.response ? error.response.data.message : error.message;
-        dispatch({
-            type: AEPSTWO_STATUS_CHECK_FAILURE,
-            payload: errorMessage,
-        });
-        throw error;
-    } finally {
-        dispatch({ type: LOADING_END });
+    const { data: aepsStatus, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_STATUS_CHECK_SUCCESS,
+        payload: { aepsStatus, status, message },
+      });
+      return { aepsStatus, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_STATUS_CHECK_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
     }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_STATUS_CHECK_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
 };
 
+export const aepsOnboarding = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/onboarding`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: onBoarding, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_ONBOARDING_SUCCESS,
+        payload: { onBoarding, status, message },
+      });
+      return { onBoarding, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_ONBOARDING_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_ONBOARDING_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoOtp = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const apiUrl = `${API_ROUTE}/api/v1/user/aeps2/send-ekyc-otp`;
+
+    const response = await axios.post(
+      apiUrl,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: otpStatus, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_SEND_OTP_SUCCESS,
+        payload: { otpStatus, status, message },
+      });
+      return { otpStatus, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_SEND_OTP_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_SEND_OTP_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
