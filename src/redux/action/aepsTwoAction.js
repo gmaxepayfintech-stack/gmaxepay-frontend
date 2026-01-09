@@ -4,6 +4,8 @@ import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import {
+  AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
+  AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
   AEPSTWO_ONBOARDING_FAILURE,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_FAILURE,
@@ -226,7 +228,7 @@ export const aepsTwoSubmitOTP = (values) => async (dispatch) => {
 
     const response = await axios.post(
       `${API_ROUTE}/api/v1/user/aeps2/validate-ekyc-otp`,
-      values, 
+      values,
       {
         headers: {
           "Content-Type": "application/json",
@@ -261,6 +263,56 @@ export const aepsTwoSubmitOTP = (values) => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_SUBMIT_OTP_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoBiometricSubmit = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/ekyc-submit`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: biometricVerification, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
+        payload: { biometricVerification, status, message },
+      });
+      return { biometricVerification, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
       payload: errorMessage,
     });
     throw error;

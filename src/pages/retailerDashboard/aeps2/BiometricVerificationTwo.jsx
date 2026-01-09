@@ -5,10 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
 import FAVerificationTwo from "./FAVerificationTwo";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
-import {
-  aepsOnboardingBiometricVerification,
-} from "../../../redux/action/aepsAction";
-import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
+import { aepsTwoStatusCheck, aepsTwoBiometricSubmit } from "../../../redux/action/aepsTwoAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -33,54 +30,11 @@ const BiometricVerificationTwo = () => {
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
-  const biometricStatus = useSelector(
-    (state) => state.aeps?.aepsBiometricstatus
-  );
   const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
 
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
-
-  /* -------------------------------------------
-      CHECK IF ALL STATUS IS COMPLETED
-  --------------------------------------------*/
-  const checkIfAllStatusCompleted = (statusData) => {
-    if (!statusData) {
-      return false;
-    }
-
-    // Check all required steps are completed based on response structure
-    const aepsOnboarding = statusData?.aepsOnboarding;
-    const validateAgentOtp = statusData?.validateAgentOtp;
-    const bioMetricVerification = statusData?.bioMetricVerification;
-    const daily2FAAuthentication = statusData?.daily2FAAuthentication;
-
-    // Check if all four steps are completed
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
-
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-
-    const isBioMetricVerificationCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-
-    const isDaily2FAAuthenticationCompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-
-    const allCompleted =
-      isAepsOnboardingCompleted &&
-      isValidateAgentOtpCompleted &&
-      isBioMetricVerificationCompleted &&
-      isDaily2FAAuthenticationCompleted;
-
-    return allCompleted;
-  };
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -309,9 +263,9 @@ const BiometricVerificationTwo = () => {
       custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
     }
 
-    // Build proper XML structure without backslashes
+    // Build proper XML structure with the required format
     const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="10000" posh="UNKNOWN" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" env="P" />' +
+      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="1" iCount="0" format="0" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
       DString +
       custOpts +
       "</PidOptions>";
@@ -359,58 +313,6 @@ const BiometricVerificationTwo = () => {
   };
 
   /* -------------------------------------------
-      GET NEXT STEP BASED ON STATUS
-  --------------------------------------------*/
-  const getNextStep = (statusData) => {
-    if (!statusData) {
-      return null;
-    }
-
-    const {
-      aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
-      daily2FAAuthentication,
-    } = statusData;
-
-    // Check each step status
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
-
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-
-    const isBioMetricCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-
-    const isDaily2FACompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-
-    // If biometric is completed but 2FA is not, show 2FA
-    if (isBioMetricCompleted && !isDaily2FACompleted) {
-      return "faVerification";
-    }
-
-    // If all steps are completed, show confirm
-    const isAllCompleted =
-      isAepsOnboardingCompleted &&
-      isValidateAgentOtpCompleted &&
-      isBioMetricCompleted &&
-      isDaily2FACompleted;
-
-    if (isAllCompleted) {
-      return "aepsAccessConfirm";
-    }
-
-    // Otherwise, stay on biometric verification
-    return null;
-  };
-
-  /* -------------------------------------------
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
@@ -442,205 +344,85 @@ const BiometricVerificationTwo = () => {
     lastPidDataRef.current = pidData;
 
     const requestData = {
-      biometricData: pidData,
-      captureType: "FINGER",
+      txtPidData: pidData,
     };
 
     console.log(
-      "📤 Dispatching aepsOnboardingBiometricVerification with data:",
+      "📤 Dispatching aepsTwoBiometricSubmit with data:",
       {
-        biometricDataLength: requestData.biometricData.length,
-        captureType: requestData.captureType,
+        txtPidDataLength: requestData.txtPidData.length,
       }
     );
 
-    dispatch(aepsOnboardingBiometricVerification(requestData))
+    dispatch(aepsTwoBiometricSubmit(requestData))
       .then((response) => {
         console.log("✅ Biometric verification response:", response);
 
-        // Always call aepsTwoStatusCheck after biometric verification dispatch
-        // This ensures we check the latest status regardless of response structure
-        console.log(
-          "🔄 Calling aepsTwoStatusCheck after biometric verification..."
-        );
+        // Only check status after successful submission
+        if (response?.status === "SUCCESS") {
+          setDeviceMessage("Biometric verification successful");
+          
+          // Check status ONCE after successful biometric verification
+          console.log(
+            "🔄 Calling aepsTwoStatusCheck after successful biometric verification..."
+          );
 
-        dispatch(aepsTwoStatusCheck())
-          .then((statusResponse) => {
-            console.log("✅ AEPS Status check response:", statusResponse);
+          dispatch(aepsTwoStatusCheck())
+            .then((statusResponse) => {
+              console.log("✅ AEPS Status check response:", statusResponse);
 
-            // Extract status data from response
-            const aepsStatusData =
-              statusResponse?.data ||
-              statusResponse?.aepsStatus?.data ||
-              statusResponse?.aepsStatus;
+              // Extract status data from response
+              const aepsStatusData = statusResponse?.aepsStatus;
 
-            if (aepsStatusData) {
-              // Get next step based on status
-              const nextStep = getNextStep(aepsStatusData);
+              if (aepsStatusData) {
+                const { ekycBiometric, daily2FAAuthentication } = aepsStatusData;
 
-              if (nextStep === "faVerification") {
-                console.log(
-                  "✅ Biometric completed, moving to 2FA verification"
-                );
-                setDeviceMessage("Biometric verification successful");
-                setShow2FA(true);
-              } else if (nextStep === "aepsAccessConfirm") {
-                console.log(
-                  "✅ All AEPS status completed, showing confirm page"
-                );
-                setDeviceMessage("Biometric verification successful");
-                setShowConfirm(true);
-              } else {
-                console.log("📋 Staying on biometric verification");
-                // Check if biometric verification was successful
-                if (response?.status === "SUCCESS") {
-                  setDeviceMessage("Biometric verification successful");
-                } else {
-                  setDeviceMessage(
-                    response?.message || "Biometric verification completed"
-                  );
+                // Check if biometric is completed and what's next
+                if (
+                  ekycBiometric?.status?.toLowerCase() === "completed" &&
+                  ekycBiometric?.isCompleted === true
+                ) {
+                  // Check if 2FA is next
+                  if (
+                    daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+                    (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+                  ) {
+                    console.log(
+                      "✅ Biometric completed, moving to 2FA verification"
+                    );
+                    setShow2FA(true);
+                  } 
+                  // Check if all completed
+                  else if (
+                    daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+                    daily2FAAuthentication?.isCompleted === true
+                  ) {
+                    console.log(
+                      "✅ All AEPS status completed, showing confirm page"
+                    );
+                    setShowConfirm(true);
+                  }
                 }
               }
-            } else {
-              // If status data is not available, check response status
-              if (response?.status === "SUCCESS") {
-                setDeviceMessage("Biometric verification successful");
-              } else {
-                setDeviceMessage(
-                  response?.message || "Biometric verification failed"
-                );
-                pidDataProcessedRef.current = false;
-              }
-            }
-          })
-          .catch((error) => {
-            console.error("❌ AEPS Status check error:", error);
-            // Even if status check fails, check the biometric response
-            if (response?.status === "SUCCESS") {
-              setDeviceMessage("Biometric verification successful");
-            } else {
-              setDeviceMessage(
-                response?.message || "Biometric verification failed"
-              );
-              pidDataProcessedRef.current = false;
-            }
-          });
+            })
+            .catch((error) => {
+              console.error("❌ AEPS Status check error:", error);
+            });
+        } else {
+          setDeviceMessage(
+            response?.message || "Biometric verification failed"
+          );
+          pidDataProcessedRef.current = false;
+        }
       })
       .catch((error) => {
         console.error("❌ Biometric verification error:", error);
         setDeviceMessage("Biometric verification failed. Please try again.");
         pidDataProcessedRef.current = false;
-
-        // Still try to check status even on error
-        dispatch(aepsTwoStatusCheck())
-          .then((statusResponse) => {
-            console.log("✅ AEPS Status check after error:", statusResponse);
-          })
-          .catch((statusError) => {
-            console.error(
-              "❌ AEPS Status check error after biometric failure:",
-              statusError
-            );
-          });
       });
   }, [pidData, dispatch]);
 
-  /* -------------------------------------------
-      CALL aepsTwoStatusCheck ON COMPONENT MOUNT
-  --------------------------------------------*/
-  useEffect(() => {
-    dispatch(aepsTwoStatusCheck())
-      .then((response) => {
-        console.log(
-          "aepsTwoStatusCheck response in BiometricVerification:",
-          response
-        );
-        
-        // Check if we should be on this step
-        const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
-        if (statusData) {
-          const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
-          
-          // If aepsOnboarding is still pending, redirect back
-          if (
-            aepsOnboarding?.status?.toLowerCase() === "pending" ||
-            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
-          ) {
-            console.log("aepsOnboarding is pending, redirecting...");
-            navigate(-1);
-            return;
-          }
-          
-          // If ekycOtp is still pending, redirect to identity verification
-          if (
-            ekycOtp?.status?.toLowerCase() === "pending" ||
-            (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
-          ) {
-            console.log("ekycOtp is pending, redirecting to identity verification...");
-            navigate(-1);
-            return;
-          }
-          
-          // If ekycBiometric is completed, check next step
-          if (
-            ekycBiometric?.status?.toLowerCase() === "completed" &&
-            ekycBiometric?.isCompleted === true
-          ) {
-            // Check if 2FA is next
-            if (
-              daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-              (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
-            ) {
-              console.log("ekycBiometric completed, moving to 2FA verification");
-              setShow2FA(true);
-              return;
-            }
-            
-            // If all completed, show confirm
-            if (
-              daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-              daily2FAAuthentication?.isCompleted === true
-            ) {
-              console.log("All steps completed, showing confirm page");
-              setShowConfirm(true);
-              return;
-            }
-          }
-        }
-      })
-      .catch((error) => {
-        console.error("aepsTwoStatusCheck error in BiometricVerification:", error);
-      });
-  }, [dispatch, navigate, aepsStatus]);
 
-  /* -------------------------------------------
-      HANDLE STATUS CHECK RESPONSE FROM REDUX
-  --------------------------------------------*/
-  useEffect(() => {
-    if (aepsStatus?.status === "SUCCESS" && aepsStatus?.aepsStatus) {
-      console.log("AEPS Status updated from Redux:", aepsStatus);
-
-      // Extract status data from Redux state
-      const aepsStatusData = aepsStatus?.aepsStatus;
-
-      if (aepsStatusData) {
-        // Get next step based on status
-        const nextStep = getNextStep(aepsStatusData);
-
-        if (nextStep === "faVerification" && !show2FA && !showConfirm) {
-          console.log(
-            "✅ Biometric completed (from Redux), moving to 2FA verification"
-          );
-          setShow2FA(true);
-        } else if (nextStep === "aepsAccessConfirm" && !showConfirm) {
-          console.log(
-            "✅ All AEPS status completed (from Redux), showing confirm page"
-          );
-          setShowConfirm(true);
-        }
-      }
-    }
-  }, [aepsStatus, showConfirm, show2FA]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -743,9 +525,8 @@ const BiometricVerificationTwo = () => {
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
             <div
-              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+                } text-white`}
             >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
@@ -765,9 +546,8 @@ const BiometricVerificationTwo = () => {
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        deviceConnected ? "bg-white" : "bg-white"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                        }`}
                     />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected
@@ -792,9 +572,8 @@ const BiometricVerificationTwo = () => {
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
           <div
-            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
@@ -813,11 +592,9 @@ const BiometricVerificationTwo = () => {
                     <div
                       className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
                       style={{
-                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${
-                          (scanProgress / 100) * 360
-                        }deg, transparent ${
-                          (scanProgress / 100) * 360
-                        }deg, transparent 360deg)`,
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360
+                          }deg, transparent ${(scanProgress / 100) * 360
+                          }deg, transparent 360deg)`,
                       }}
                     />
                   )}
@@ -844,10 +621,10 @@ const BiometricVerificationTwo = () => {
                     {isDeviceChecking
                       ? "Checking..."
                       : isGettingDeviceInfo
-                      ? "Fetching..."
-                      : deviceConnected
-                      ? "Device Info"
-                      : "Ready"}
+                        ? "Fetching..."
+                        : deviceConnected
+                          ? "Device Info"
+                          : "Ready"}
                   </button>
                 </div>
 
@@ -886,8 +663,8 @@ const BiometricVerificationTwo = () => {
                   {isScanning
                     ? "Scanning..."
                     : mode === "iris"
-                    ? "Start Iris Scan"
-                    : "Start Capture"}
+                      ? "Start Iris Scan"
+                      : "Start Capture"}
                 </button>
               </div>
 

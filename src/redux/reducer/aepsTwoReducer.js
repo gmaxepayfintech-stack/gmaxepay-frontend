@@ -1,4 +1,5 @@
 import {
+  AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_SUCCESS,
   AEPSTWO_SEND_OTP_SUCCESS,
@@ -15,6 +16,7 @@ const initialState = {
   onBoarding: null,
   rescendOtp: null,
   submitOtp: null,
+  biometricVerification:null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -66,7 +68,16 @@ const aepsTwoReducer = (state = initialState, action) => {
                 submitOtp: action?.payload,
                 success: action?.payload?.status,
                 message: action?.payload?.message,
-            }
+            };
+        case AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS:
+          return{
+            ...state,
+            error:null,
+            loading:false,
+            biometricVerification: action?.payload,
+            success: action?.payload?.status,
+            message: action?.payload?.message,
+          }
     default:
       return state;
   }
