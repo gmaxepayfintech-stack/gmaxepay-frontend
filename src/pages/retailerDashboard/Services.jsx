@@ -5,6 +5,7 @@ import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import BBPSServices from "./services/BBPSServices";
+import MobileRecharge from "./services/MobileRecharge";
 
 
 const DEFAULT_DESCRIPTION =
@@ -109,8 +110,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Available")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Available"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-gray-700 hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-gray-700 hover:bg-gray-50"
                             }`}
                     >
                         Available
@@ -119,8 +120,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Subscribed")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-[#1B1717] hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-[#1B1717] hover:bg-gray-50"
                             }`}
                     >
                         Subscribed
