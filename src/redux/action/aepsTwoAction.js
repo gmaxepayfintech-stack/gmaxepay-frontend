@@ -225,8 +225,8 @@ export const aepsTwoSubmitOTP = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps/validate-otp`,
-      values, // Send values directly, not wrapped in {values}
+      `${API_ROUTE}/api/v1/user/aeps2/validate-ekyc-otp`,
+      values, 
       {
         headers: {
           "Content-Type": "application/json",
