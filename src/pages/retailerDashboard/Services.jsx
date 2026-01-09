@@ -63,6 +63,7 @@ ServiceCard.propTypes = {
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
     const [showBBPSServices, setShowBBPSServices] = useState(false);
+    const [showMobileRecharge, setShowMobileRecharge] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -85,6 +86,16 @@ const Services = () => {
     const handleBBPSClick = () => {
         setShowBBPSServices(true);
     };
+
+    // Handle Mobile & DTH card click - show Mobile Recharge component
+    const handleMobileRechargeClick = () => {
+        setShowMobileRecharge(true);
+    };
+
+    // If Mobile Recharge should be shown, render that component
+    if (showMobileRecharge) {
+        return <MobileRecharge onBack={() => setShowMobileRecharge(false)} />;
+    }
 
     // If BBPS services should be shown, render that component
     if (showBBPSServices) {
@@ -144,7 +155,9 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") {
+                            if (s.id === "mobile-dth") {
+                                handleMobileRechargeClick();
+                            } else if (s.id === "Aeps") {
                                 handleAepsClick();
                             } else if (s.id === "BBPS" || s.id === "bbps") {
                                 handleBBPSClick();
