@@ -44,7 +44,6 @@ const OnBoardingAepsTwo = () => {
       ekycOtp,
       ekycBiometric,
       daily2FAAuthentication,
-      isOtpSent,
     } = statusData;
 
     console.log("Current AEPS-2 onboarding statuses:", {
@@ -52,41 +51,26 @@ const OnBoardingAepsTwo = () => {
       ekycOtp,
       ekycBiometric,
       daily2FAAuthentication,
-      isOtpSent,
     });
 
-    // Check in order of flow - find the first incomplete step
-    // Step 1: Check if aepsOnboarding is not started
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
-    
-    // If aepsOnboarding not started and OTP not sent yet, show welcome screen
-    if (!isAepsOnboardingCompleted && !isOtpSent) {
-      return null; // Show welcome screen (user needs to start)
+    // Check each step based on status field only
+    // Step 1: Check if aepsOnboarding status is pending - show welcome screen
+    if (aepsOnboarding?.status?.toLowerCase() === "pending") {
+      return null; // Show welcome screen (OnBoardingAepsTwo)
     }
 
-    // Step 2: Check if ekycOtp is pending - show identity verification for OTP entry
-    const isEkycOtpCompleted =
-      ekycOtp?.status?.toLowerCase() === "completed" &&
-      ekycOtp?.isCompleted === true;
-    if (!isEkycOtpCompleted) {
+    // Step 2: Check if ekycOtp status is pending - show identity verification
+    if (ekycOtp?.status?.toLowerCase() === "pending") {
       return "identityVerification";
     }
 
-    // Step 3: Check if ekycBiometric is pending - show biometric verification
-    const isEkycBiometricCompleted =
-      ekycBiometric?.status?.toLowerCase() === "completed" &&
-      ekycBiometric?.isCompleted === true;
-    if (!isEkycBiometricCompleted) {
+    // Step 3: Check if ekycBiometric status is pending - show biometric verification
+    if (ekycBiometric?.status?.toLowerCase() === "pending") {
       return "biometricVerification";
     }
 
-    // Step 4: Check if daily2FAAuthentication is pending - show 2FA verification
-    const isDaily2FACompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-    if (!isDaily2FACompleted) {
+    // Step 4: Check if daily2FAAuthentication status is pending - show 2FA verification
+    if (daily2FAAuthentication?.status?.toLowerCase() === "pending") {
       return "faVerification";
     }
 
