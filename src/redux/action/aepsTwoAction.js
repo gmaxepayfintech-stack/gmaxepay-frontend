@@ -6,10 +6,14 @@ import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import {
   AEPSTWO_ONBOARDING_FAILURE,
   AEPSTWO_ONBOARDING_SUCCESS,
+  AEPSTWO_RESEND_OTP_FAILURE,
+  AEPSTWO_RESEND_OTP_SUCCESS,
   AEPSTWO_SEND_OTP_FAILURE,
   AEPSTWO_SEND_OTP_SUCCESS,
   AEPSTWO_STATUS_CHECK_FAILURE,
   AEPSTWO_STATUS_CHECK_SUCCESS,
+  AEPSTWO_SUBMIT_OTP_FAILURE,
+  AEPSTWO_SUBMIT_OTP_SUCCESS,
 } from "../actionType/aepsTwoActionType";
 
 const commonError = "Something went wrong!";
@@ -157,6 +161,106 @@ export const aepsTwoOtp = () => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_SEND_OTP_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoRescendOTP = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/send-ekyc-otp`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: rescendOtp, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_RESEND_OTP_SUCCESS,
+        payload: { rescendOtp, status, message },
+      });
+      return { rescendOtp, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_RESEND_OTP_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_RESEND_OTP_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoSubmitOTP = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps/validate-otp`,
+      values, // Send values directly, not wrapped in {values}
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: submitOtp, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_SUBMIT_OTP_SUCCESS,
+        payload: { submitOtp, status, message },
+      });
+      return { submitOtp, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_SUBMIT_OTP_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_SUBMIT_OTP_FAILURE,
       payload: errorMessage,
     });
     throw error;
