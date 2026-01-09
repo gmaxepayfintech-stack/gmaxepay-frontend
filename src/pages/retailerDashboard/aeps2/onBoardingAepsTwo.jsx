@@ -1,9 +1,9 @@
-import AepsAcceptance from "./AepsAcceptance";
-import IdentityVerification from "./identityVerification";
-import BiometricVerification from "./BiometricVerification";
-import FAVerification from "./FAVerification";
-import Selectservice from "./Selectservice";
-import AEPSAccessConfirm from "./AEPSAccessConfirm";
+import AepsAcceptanceTwo from "./AepsAcceptanceTwo";
+import IdentityVerificationTwo from "./identityVerificationTwo";
+import BiometricVerificationTwo from "./BiometricVerificationTwo";
+import FAVerificationTwo from "./FAVerificationTwo";
+import SelectserviceTwo from "./SelectserviceTwo";
+import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { aepsStatusCheck } from "../../../redux/action/aepsAction";
