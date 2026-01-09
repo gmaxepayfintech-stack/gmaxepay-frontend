@@ -138,23 +138,23 @@ const OnBoardingAepsTwo = () => {
 
   // Conditional rendering based on status - all components render under this route
   if (currentStep === "aepsAccessConfirm") {
-    return <AEPSAccessConfirm />;
+    return <AEPSAccessConfirmTwo />;
   }
   if (currentStep === "identityVerification") {
-    return <IdentityVerification onBack={() => setShowAcceptance(false)} />;
+    return <IdentityVerificationTwo onBack={() => setShowAcceptance(false)} />;
   }
   if (currentStep === "biometricVerification") {
-    return <BiometricVerification />;
+    return <BiometricVerificationTwo />;
   }
   if (currentStep === "faVerification") {
-    return <FAVerification />;
+    return <FAVerificationTwo />;
   }
   if (currentStep === "selectService") {
-    return <Selectservice />;
+    return <SelectserviceTwo />;
   }
   // Show AepsAcceptance only when button is clicked
   if (showAcceptance) {
-    return <AepsAcceptance />;
+    return <AepsAcceptanceTwo />;
   }
   return (
     <div className="w-full">
