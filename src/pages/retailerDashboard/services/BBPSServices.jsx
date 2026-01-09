@@ -105,6 +105,8 @@ const BBPSServices = ({ onBack }) => {
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const dropdownRef = useRef(null);
     const [amount, setAmount] = useState("");
+    const [showConfirmModal, setShowConfirmModal] = useState(false);
+
 
     const [step, setStep] = useState("category");
     const [confirmedCategory, setConfirmedCategory] = useState("");
@@ -174,7 +176,10 @@ const BBPSServices = ({ onBack }) => {
             {/* Min Content - Two Column Layout */}
             <div className="flex flex-col lg:flex-row gap-6">
                 {/* Left Side - Information */}
-                <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1.6]">                    {/* Dynamic Title */}
+                <div
+                    className={`rounded-xl p-6 lg:flex-[1.6] ${step !== "summary" ? "bg-white border border-gray-200" : ""
+                        }`}
+                >
                     {step === "category" && (
                         <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
                             Information
@@ -399,81 +404,159 @@ const BBPSServices = ({ onBack }) => {
                     {step === "summary" && (
                         <div className="space-y-8">
 
-                            {/* BILL DETAILS */}
-                            <div>
-                                <p className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
+                            {/* BILL DETAILS CARD */}
+                            <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-4">
+                                <p className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
                                     Bill Details
                                 </p>
 
-                                <div className="bg-white border border-gray-200 rounded-[16px] p-6 space-y-4 shadow-sm">
+                                <div className="flex justify-between text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                                    <span>Bill Number :1233210</span>
+                                </div>
 
-                                    <div className="flex justify-between text-[14px] font-['Gilroy-Regular'] text-[#1B1717]">
-                                        <span>Bill Number :1233210</span>
+                                <div className="grid grid-cols-3 gap-y-8 ">
+                                    <div>
+                                        <p className=" font-['Gilroy-Medium'] text-[#1B1717] ">Customer Name</p>
+                                        <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">Shrinivas</p>
                                     </div>
 
-                                    <div className="grid grid-cols-2 gap-y-4 text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                                        <div>
-                                            <p className="opacity-60 font-['Gilroy-Regular']">Customer Name</p>
-                                            <p>Shrinivas</p>
-                                        </div>
-
-                                        <div>
-                                            <p className="opacity-60 font-['Gilroy-Regular']">Service Provider</p>
-                                            <p>{confirmedCategory}</p>
-                                        </div>
-
-                                        <div>
-                                            <p className="opacity-60 font-['Gilroy-Regular']">Bill Period</p>
-                                            <p>Monthly</p>
-                                        </div>
-
-                                        <div>
-                                            <p className="opacity-60 font-['Gilroy-Regular']">Due Date</p>
-                                            <p>2026-01-18</p>
-                                        </div>
-
-                                        <div>
-                                            <p className="opacity-60 font-['Gilroy-Regular']">Amount Due</p>
-                                            <p className="text-[#039155] font-['Gilroy-Medium']">{amount}</p>
-                                        </div>
+                                    <div>
+                                        <p className=" font-['Gilroy-Medium'] text-[#1B1717] ">Service Provider</p>
+                                        <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">{confirmedCategory}</p>
                                     </div>
 
+                                    <div>
+                                        <p className="font-['Gilroy-Medium'] text-[#1B1717]">Bill Period</p>
+                                        <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">Monthly</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-['Gilroy-Medium'] text-[#1B1717]">Due Date</p>
+                                        <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">2026-01-18</p>
+                                    </div>
+
+                                    <div>
+                                        <p className="font-['Gilroy-Medium'] text-[#1B1717]">Amount Due</p>
+                                        <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">{amount}</p>
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* PAYMENT PART */}
-                            <div>
-                                <p className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
+                            {/* PAYMENT CARD */}
+                            <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-6">
+                                <p className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
                                     Payment
                                 </p>
 
-                                <div className="bg-white border border-gray-200 rounded-[16px] p-6 space-y-6 shadow-sm">
+                                <div className="flex items-center gap-2 text-[20px] font-['Gilroy-Medium'] text-[#1B1717]">
+                                    <span className="w-1 p-1 h-1 bg-[#FFFFFF] border border-[#039155] border-[5px] rounded-full"></span>
+                                    Main Wallet
+                                </div>
 
-                                    <div className="flex items-center gap-2 text-[16px] font-['Gilroy-Regular'] text-[#1B1717]">
-                                        <span className="w-3 h-3 bg-[#039155] rounded-full"></span>
-                                        Main Wallet
-                                    </div>
+                                <div className="flex gap-4">
+                                    <button
+                                        onClick={() => setStep("bill")}
+                                        className="flex-1 h-[48px] border border-gray-300 rounded-lg font-['Gilroy-Medium'] hover:bg-gray-50"
+                                    >
+                                        Cancel
+                                    </button>
 
-                                    <div className="flex gap-4">
-                                        <button
-                                            onClick={() => setStep("bill")}
-                                            className="flex-1 h-[48px] border border-gray-300 rounded-lg font-['Gilroy-Medium'] hover:bg-gray-50"
-                                        >
-                                            Cancel
-                                        </button>
-
-                                        <button
-                                            className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] text-white rounded-lg font-['Gilroy-Medium']"
-                                        >
-                                            Pay Now
-                                        </button>
-                                    </div>
+                                    <button
+                                        onClick={() => setShowConfirmModal(true)}
+                                        className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] text-white rounded-lg font-['Gilroy-Medium']"
+                                    >
+                                        Pay Now
+                                    </button>
 
                                 </div>
                             </div>
 
                         </div>
                     )}
+
+                    {step === "success" && (
+                        <div className="  p-4 shadow-sm">
+
+                            {/* Success Icon */}
+                            <div className="flex justify-center mb-4">
+                                <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
+                                    <svg
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        className="h-7 w-7 text-white"
+                                        fill="none"
+                                        viewBox="0 0 24 24"
+                                        stroke="currentColor"
+                                        strokeWidth={3}
+                                    >
+                                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            {/* Title */}
+                            <h2 className="text-center text-[22px] font-['Gilroy-SemiBold']">
+                                Payment Successful
+                            </h2>
+                            <p className="text-center text-gray-500 mt-1">
+                                Your Payment Has Been Completed
+                            </p>
+
+                            {/* Amount */}
+                            <div className="border border-dashed border-gray-300 rounded-lg py-6 mt-6 text-center">
+                                <span className="text-[28px] font-['Gilroy-SemiBold']">
+                                    ₹ {amount}
+                                </span>
+                            </div>
+
+                            {/* Details */}
+                            <div className="grid grid-cols-2 gap-y-4 mt-6 text-[14px]">
+                                <div>
+                                    <p className="text-gray-500">Transaction Id</p>
+                                    <p className="font-['Gilroy-Medium']">GPTXN88392010</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-500">Customer Name</p>
+                                    <p className="font-['Gilroy-Medium']">Srinivas</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-500">Biller Number</p>
+                                    <p className="font-['Gilroy-Medium']">1011</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-500">Transaction Status</p>
+                                    <p className="font-['Gilroy-Medium'] text-green-600">Success</p>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-500">Date Time</p>
+                                    <p className="font-['Gilroy-Medium']">
+                                        Oct 24, 2023, 10:42 AM
+                                    </p>
+                                </div>
+
+                                <div>
+                                    <p className="text-gray-500">CCF</p>
+                                    <p className="font-['Gilroy-Medium']">0</p>
+                                </div>
+                            </div>
+
+                            {/* Buttons */}
+                            <div className="flex gap-4 mt-8">
+                                <button className="flex-1 h-[44px] border border-gray-300 rounded-lg">
+                                    Share
+                                </button>
+
+                                <button className="flex-1 h-[44px] bg-[#039155] text-white rounded-lg flex items-center justify-center gap-2">
+                                    <Download size={16} />
+                                    Download Receipt
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
 
 
 
@@ -493,6 +576,73 @@ const BBPSServices = ({ onBack }) => {
                     </div>
                 </div>
             </div>
+            {showConfirmModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+                    <div className="bg-white rounded-2xl w-[90%] max-w-[520px] p-8 relative">
+
+                        {/* Header */}
+                        <h2 className="text-[24px] font-['Gilroy-Medium'] text-center">
+                            Confirm Payment Method
+                        </h2>
+                        <p className="text-center text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-1">
+                            Review Your Payment Details
+                        </p>
+
+                        {/* Title */}
+                        <p className="text-center text-[18px] text-[#1B1717] font-['Gilroy-Medium'] mt-6">
+                            Confirm Electricity Bill Payment
+                        </p>
+
+                        {/* Amount */}
+                        <div className="border border-dashed border-gray-300 rounded-lg py-6 mt-4 text-center">
+                            <span className="text-[28px] font-['Gilroy-SemiBold']">
+                                ₹ {amount}
+                            </span>
+                        </div>
+
+                        {/* Details */}
+                        <div className="mt-6 space-y-3 text-[14px]">
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Customer Name</span>
+                                <span className="font-['Gilroy-Medium']">Srinivas</span>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Payment Date</span>
+                                <span className="font-['Gilroy-Medium']">07-01-2026</span>
+                            </div>
+
+                            <div className="flex justify-between">
+                                <span className="text-gray-500">Bill Number</span>
+                                <span className="font-['Gilroy-Medium']">1232021</span>
+                            </div>
+                        </div>
+
+                        {/* Buttons */}
+                        <div className="flex gap-4 mt-8">
+                            <button
+                                onClick={() => setShowConfirmModal(false)}
+                                className="flex-1 h-[48px] border border-gray-300 rounded-lg font-['Gilroy-Medium']"
+                            >
+                                Cancel
+                            </button>
+
+                            <button
+                                onClick={() => {
+                                    setShowConfirmModal(false);
+                                    setStep("success"); // ✅ THIS IS THE KEY
+                                }}
+                                className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] text-white rounded-lg font-['Gilroy-Medium']"
+                            >
+                                Confirm Payment
+                            </button>
+
+                        </div>
+
+                    </div>
+                </div>
+            )}
+
         </div>
     );
 };
