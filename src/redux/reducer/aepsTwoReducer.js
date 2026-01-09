@@ -5,6 +5,7 @@ import {
   AEPSTWO_SEND_OTP_SUCCESS,
   AEPSTWO_STATUS_CHECK_SUCCESS,
   AEPSTWO_SUBMIT_OTP_SUCCESS,
+  AEPSTWO_TWO_FA_VERIFICATION_SUCCESS,
 } from "../actionType/aepsTwoActionType";
 
 const initialState = {
@@ -16,6 +17,7 @@ const initialState = {
   onBoarding: null,
   rescendOtp: null,
   submitOtp: null,
+  twoFaVerification: null,
   biometricVerification:null,
 };
 
@@ -78,6 +80,17 @@ const aepsTwoReducer = (state = initialState, action) => {
             success: action?.payload?.status,
             message: action?.payload?.message,
           }
+
+          case AEPSTWO_TWO_FA_VERIFICATION_SUCCESS:
+            return{
+              ...state,
+              loading: false,
+              error: null,
+              twoFaVerification: action?.payload,
+              success: action?.payload?.status,
+              message: action?.payload?.message,
+            }
+
     default:
       return state;
   }
