@@ -555,11 +555,63 @@ const BiometricVerificationTwo = () => {
           "aepsTwoStatusCheck response in BiometricVerification:",
           response
         );
+        
+        // Check if we should be on this step
+        const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
+        if (statusData) {
+          const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
+          
+          // If aepsOnboarding is still pending, redirect back
+          if (
+            aepsOnboarding?.status?.toLowerCase() === "pending" ||
+            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+          ) {
+            console.log("aepsOnboarding is pending, redirecting...");
+            navigate(-1);
+            return;
+          }
+          
+          // If ekycOtp is still pending, redirect to identity verification
+          if (
+            ekycOtp?.status?.toLowerCase() === "pending" ||
+            (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+          ) {
+            console.log("ekycOtp is pending, redirecting to identity verification...");
+            navigate(-1);
+            return;
+          }
+          
+          // If ekycBiometric is completed, check next step
+          if (
+            ekycBiometric?.status?.toLowerCase() === "completed" &&
+            ekycBiometric?.isCompleted === true
+          ) {
+            // Check if 2FA is next
+            if (
+              daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+              (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+            ) {
+              console.log("ekycBiometric completed, moving to 2FA verification");
+              setShow2FA(true);
+              return;
+            }
+            
+            // If all completed, show confirm
+            if (
+              daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+              daily2FAAuthentication?.isCompleted === true
+            ) {
+              console.log("All steps completed, showing confirm page");
+              setShowConfirm(true);
+              return;
+            }
+          }
+        }
       })
       .catch((error) => {
         console.error("aepsTwoStatusCheck error in BiometricVerification:", error);
       });
-  }, [dispatch]);
+  }, [dispatch, navigate, aepsStatus]);
 
   /* -------------------------------------------
       HANDLE STATUS CHECK RESPONSE FROM REDUX

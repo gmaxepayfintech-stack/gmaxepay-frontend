@@ -53,13 +53,12 @@ const OnBoardingAepsTwo = () => {
       daily2FAAuthentication,
     });
 
-    // For each step, check the `status` and fallback to `isCompleted` when present
-    // Step 1: aepsOnboarding pending or not completed => show welcome (OnBoardingAepsTwo)
+    // Step 1: If aepsOnboarding is pending or not completed, show initial onboarding screen
     if (
       aepsOnboarding?.status?.toLowerCase() === "pending" ||
       (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
     ) {
-      return null;
+      return null; // Show initial onboarding screen
     }
 
     // Step 2: ekycOtp pending or not completed => show identity verification (OTP entry)

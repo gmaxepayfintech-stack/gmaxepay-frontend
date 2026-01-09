@@ -42,6 +42,68 @@ const FAVerificationTwo = () => {
   const lastPidDataRef = useRef("");
 
   /* -------------------------------------------
+      CALL aepsTwoStatusCheck ON COMPONENT MOUNT
+  --------------------------------------------*/
+  useEffect(() => {
+    dispatch(aepsTwoStatusCheck())
+      .then((response) => {
+        console.log(
+          "aepsTwoStatusCheck response in FAVerificationTwo:",
+          response
+        );
+        
+        // Check if we should be on this step
+        const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
+        if (statusData) {
+          const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
+          
+          // If aepsOnboarding is still pending, redirect back
+          if (
+            aepsOnboarding?.status?.toLowerCase() === "pending" ||
+            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+          ) {
+            console.log("aepsOnboarding is pending, redirecting...");
+            navigate(-1);
+            return;
+          }
+          
+          // If ekycOtp is still pending, redirect to identity verification
+          if (
+            ekycOtp?.status?.toLowerCase() === "pending" ||
+            (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+          ) {
+            console.log("ekycOtp is pending, redirecting to identity verification...");
+            navigate(-1);
+            return;
+          }
+          
+          // If ekycBiometric is still pending, redirect to biometric verification
+          if (
+            ekycBiometric?.status?.toLowerCase() === "pending" ||
+            (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+          ) {
+            console.log("ekycBiometric is pending, redirecting to biometric verification...");
+            navigate(-1);
+            return;
+          }
+          
+          // If daily2FAAuthentication is completed, show confirm
+          if (
+            daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+            daily2FAAuthentication?.isCompleted === true
+          ) {
+            console.log("2FA completed, showing confirm page");
+            setShowConfirm(true);
+            return;
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("aepsTwoStatusCheck error in FAVerificationTwo:", error);
+      });
+  }, [dispatch, navigate, aepsStatus]);
+
+  /* -------------------------------------------
       CHECK IF ALL STATUS IS COMPLETED
   --------------------------------------------*/
   const checkIfAllStatusCompleted = (statusData) => {
@@ -396,6 +458,19 @@ const FAVerificationTwo = () => {
           dispatch(aepsTwoStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
+              
+              // Check if 2FA is now completed
+              const statusData = statusResponse?.aepsStatus || aepsStatus?.aepsStatus;
+              if (statusData) {
+                const { daily2FAAuthentication } = statusData;
+                if (
+                  daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+                  daily2FAAuthentication?.isCompleted === true
+                ) {
+                  console.log("2FA completed, showing confirm page");
+                  setShowConfirm(true);
+                }
+              }
             })
             .catch((err) => {
               console.error("aepsTwoStatusCheck error after FA verification:", err);
@@ -404,9 +479,15 @@ const FAVerificationTwo = () => {
       })
       .catch((err) => {
         console.error("aepsOnboardingFAVerification error:", err);
+        pidDataProcessedRef.current = false;
       });
 
   }, [pidData, dispatch]);
+
+  // Show confirm page if 2FA is completed
+  if (showConfirm) {
+    return <AEPSAccessConfirmTwo />;
+  }
 
   return (
     <div className="w-full">
