@@ -53,24 +53,36 @@ const OnBoardingAepsTwo = () => {
       daily2FAAuthentication,
     });
 
-    // Check each step based on status field only
-    // Step 1: Check if aepsOnboarding status is pending - show welcome screen
-    if (aepsOnboarding?.status?.toLowerCase() === "pending") {
-      return null; // Show welcome screen (OnBoardingAepsTwo)
+    // For each step, check the `status` and fallback to `isCompleted` when present
+    // Step 1: aepsOnboarding pending or not completed => show welcome (OnBoardingAepsTwo)
+    if (
+      aepsOnboarding?.status?.toLowerCase() === "pending" ||
+      (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+    ) {
+      return null;
     }
 
-    // Step 2: Check if ekycOtp status is pending - show identity verification
-    if (ekycOtp?.status?.toLowerCase() === "pending") {
+    // Step 2: ekycOtp pending or not completed => show identity verification (OTP entry)
+    if (
+      ekycOtp?.status?.toLowerCase() === "pending" ||
+      (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+    ) {
       return "identityVerification";
     }
 
-    // Step 3: Check if ekycBiometric status is pending - show biometric verification
-    if (ekycBiometric?.status?.toLowerCase() === "pending") {
+    // Step 3: ekycBiometric pending or not completed => show biometric verification
+    if (
+      ekycBiometric?.status?.toLowerCase() === "pending" ||
+      (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+    ) {
       return "biometricVerification";
     }
 
-    // Step 4: Check if daily2FAAuthentication status is pending - show 2FA verification
-    if (daily2FAAuthentication?.status?.toLowerCase() === "pending") {
+    // Step 4: daily2FAAuthentication pending or not completed => show 2FA verification
+    if (
+      daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+      (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+    ) {
       return "faVerification";
     }
 
