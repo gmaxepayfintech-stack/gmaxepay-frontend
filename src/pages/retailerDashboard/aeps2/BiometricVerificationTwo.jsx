@@ -7,9 +7,8 @@ import FAVerificationTwo from "./FAVerificationTwo";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import {
   aepsOnboardingBiometricVerification,
-  aepsStatusCheck,
 } from "../../../redux/action/aepsAction";
-
+import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -459,13 +458,13 @@ const BiometricVerificationTwo = () => {
       .then((response) => {
         console.log("✅ Biometric verification response:", response);
 
-        // Always call aepsStatusCheck after biometric verification dispatch
+        // Always call aepsTwoStatusCheck after biometric verification dispatch
         // This ensures we check the latest status regardless of response structure
         console.log(
-          "🔄 Calling aepsStatusCheck after biometric verification..."
+          "🔄 Calling aepsTwoStatusCheck after biometric verification..."
         );
 
-        dispatch(aepsStatusCheck())
+        dispatch(aepsTwoStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check response:", statusResponse);
 
@@ -533,7 +532,7 @@ const BiometricVerificationTwo = () => {
         pidDataProcessedRef.current = false;
 
         // Still try to check status even on error
-        dispatch(aepsStatusCheck())
+        dispatch(aepsTwoStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check after error:", statusResponse);
           })
@@ -547,18 +546,18 @@ const BiometricVerificationTwo = () => {
   }, [pidData, dispatch]);
 
   /* -------------------------------------------
-      CALL aepsStatusCheck ON COMPONENT MOUNT
+      CALL aepsTwoStatusCheck ON COMPONENT MOUNT
   --------------------------------------------*/
   useEffect(() => {
-    dispatch(aepsStatusCheck())
+    dispatch(aepsTwoStatusCheck())
       .then((response) => {
         console.log(
-          "aepsStatusCheck response in BiometricVerification:",
+          "aepsTwoStatusCheck response in BiometricVerification:",
           response
         );
       })
       .catch((error) => {
-        console.error("aepsStatusCheck error in BiometricVerification:", error);
+        console.error("aepsTwoStatusCheck error in BiometricVerification:", error);
       });
   }, [dispatch]);
 

@@ -2,7 +2,6 @@ import { useState } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import SelectserviceTwo from "./SelectserviceTwo";
-import { aepsStatusCheck } from "../../../redux/action/aepsAction";
 
 const AEPSAccessConfirmTwo = () => {
   const navigate = useNavigate();
