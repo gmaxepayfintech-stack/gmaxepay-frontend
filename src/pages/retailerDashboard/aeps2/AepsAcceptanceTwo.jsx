@@ -23,28 +23,54 @@ const AepsAcceptanceTwo = () => {
       const onboardResp = await dispatch(aepsOnboarding());
       console.log("aepsOnboarding response:", onboardResp);
 
-      // If onboarding succeeded, request OTP for AEPS-2
+      // If onboarding succeeded, check status first
       if (onboardResp?.status === "SUCCESS") {
-        const otpResp = await dispatch(aepsTwoOtp());
-        console.log("aepsTwoOtp response:", otpResp);
+        // Check status to determine next step
+        const statusResponse = await dispatch(aepsTwoStatusCheck());
+        console.log("aepsTwoStatusCheck response after onboarding:", statusResponse);
         
-        if (otpResp?.status === "SUCCESS") {
-          // Check status ONCE after successful onboarding and OTP
-          const statusResponse = await dispatch(aepsTwoStatusCheck());
-          console.log("aepsTwoStatusCheck response after onboarding:", statusResponse);
+        if (statusResponse?.status === "SUCCESS") {
+          const statusData = statusResponse?.aepsStatus;
           
-          // Verify the status and then navigate to IdentityVerification
-          if (statusResponse?.status === "SUCCESS") {
-            const statusData = statusResponse?.aepsStatus;
-            // Check if we should proceed to identity verification
-            if (statusData) {
-              const { ekycOtp } = statusData;
-              // If ekycOtp is pending, proceed to identity verification
-              if (
-                ekycOtp?.status?.toLowerCase() === "pending" ||
-                (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
-              ) {
+          if (statusData) {
+            const { ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
+            
+            // If ekycOtp is pending, send OTP first
+            if (
+              ekycOtp?.status?.toLowerCase() === "pending" ||
+              (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+            ) {
+              // Send OTP for AEPS-2
+              const otpResp = await dispatch(aepsTwoOtp());
+              console.log("aepsTwoOtp response:", otpResp);
+              
+              if (otpResp?.status === "SUCCESS") {
+                // Navigate to identity verification
                 setShowIdentityVerification(true);
+              }
+            } 
+            // If ekycOtp is completed, check next step
+            else if (
+              ekycOtp?.status?.toLowerCase() === "completed" &&
+              ekycOtp?.isCompleted === true
+            ) {
+              // Check if biometric is next
+              if (
+                ekycBiometric?.status?.toLowerCase() === "pending" ||
+                (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+              ) {
+                // Should navigate to biometric verification (handled by parent component)
+                console.log("ekycOtp completed, biometric verification is next");
+              }
+              // Check if 2FA is next
+              else if (
+                ekycBiometric?.status?.toLowerCase() === "completed" &&
+                ekycBiometric?.isCompleted === true &&
+                (daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+                (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false))
+              ) {
+                // Should navigate to 2FA verification (handled by parent component)
+                console.log("ekycBiometric completed, 2FA verification is next");
               }
             }
           }
