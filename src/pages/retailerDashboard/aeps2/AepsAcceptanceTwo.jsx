@@ -6,6 +6,9 @@ import Mobile from "../../../../public/img/Mobile.svg";
 import Daily2FA from "../../../../public/img/DailyF2A.svg";
 import Biometric from "../../../../public/img/Biometric.svg";
 import IdentityVerificationTwo from "./identityVerificationTwo";
+import BiometricVerificationTwo from "./BiometricVerificationTwo";
+import FAVerificationTwo from "./FAVerificationTwo";
+import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import { aepsTwoStatusCheck, aepsTwoOtp, aepsOnboarding } from "../../../redux/action/aepsTwoAction";
 const AepsAcceptanceTwo = () => {
   const navigate = useNavigate();
@@ -13,6 +16,10 @@ const AepsAcceptanceTwo = () => {
   const [accepted, setAccepted] = useState(true);
   const [showIdentityVerification, setShowIdentityVerification] =
     useState(false);
+  const [showBiometricVerification, setShowBiometricVerification] =
+    useState(false);
+  const [showFAVerification, setShowFAVerification] = useState(false);
+  const [showAccessConfirm, setShowAccessConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
@@ -59,8 +66,9 @@ const AepsAcceptanceTwo = () => {
                 ekycBiometric?.status?.toLowerCase() === "pending" ||
                 (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
               ) {
-                // Should navigate to biometric verification (handled by parent component)
-                console.log("ekycOtp completed, biometric verification is next");
+                // Navigate to biometric verification
+                console.log("ekycOtp completed, navigating to biometric verification");
+                setShowBiometricVerification(true);
               }
               // Check if 2FA is next
               else if (
@@ -69,8 +77,20 @@ const AepsAcceptanceTwo = () => {
                 (daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
                 (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false))
               ) {
-                // Should navigate to 2FA verification (handled by parent component)
-                console.log("ekycBiometric completed, 2FA verification is next");
+                // Navigate to 2FA verification
+                console.log("ekycBiometric completed, navigating to 2FA verification");
+                setShowFAVerification(true);
+              }
+              // Check if all completed
+              else if (
+                ekycBiometric?.status?.toLowerCase() === "completed" &&
+                ekycBiometric?.isCompleted === true &&
+                daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+                daily2FAAuthentication?.isCompleted === true
+              ) {
+                // All steps completed, show access confirm
+                console.log("All steps completed, showing access confirm");
+                setShowAccessConfirm(true);
               }
             }
           }
@@ -101,7 +121,16 @@ const AepsAcceptanceTwo = () => {
     []
   );
 
-  // Conditional rendering - only show IdentityVerification when explicitly set
+  // Conditional rendering based on current step
+  if (showAccessConfirm) {
+    return <AEPSAccessConfirmTwo />;
+  }
+  if (showFAVerification) {
+    return <FAVerificationTwo />;
+  }
+  if (showBiometricVerification) {
+    return <BiometricVerificationTwo />;
+  }
   if (showIdentityVerification) {
     return (
       <IdentityVerificationTwo
