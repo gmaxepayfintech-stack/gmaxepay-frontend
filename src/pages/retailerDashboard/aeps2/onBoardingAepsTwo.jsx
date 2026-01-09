@@ -6,7 +6,7 @@ import SelectserviceTwo from "./SelectserviceTwo";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { aepsStatusCheck } from "../../../redux/action/aepsAction";
+import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
 
 const OnBoardingAepsTwo = () => {
   const dispatch = useDispatch();
@@ -53,14 +53,14 @@ const OnBoardingAepsTwo = () => {
     return allCompleted;
   };
 
-  // Call aepsStatusCheck on component mount
+  // Call aepsTwoStatusCheck on component mount
   useEffect(() => {
-    dispatch(aepsStatusCheck())
+    dispatch(aepsTwoStatusCheck())
       .then((response) => {
-        console.log("aepsStatusCheck response in OnBoardingAeps:", response);
+        console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
       })
       .catch((error) => {
-        console.error("aepsStatusCheck error in OnBoardingAeps:", error);
+        console.error("aepsTwoStatusCheck error in OnBoardingAeps:", error);
       });
   }, [dispatch]);
 

@@ -5,8 +5,8 @@ import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerificationTwo from "./BiometricVerificationTwo";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
-import { aepsSubmitOTP, aepsRescendOTP, aepsStatusCheck } from "../../../redux/action/aepsAction";
-
+import { aepsSubmitOTP, aepsRescendOTP } from "../../../redux/action/aepsAction";
+import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
 const OTP_LENGTH = 6;
 
 const IdentityVerificationTwo = ({ onBack }) => {
@@ -114,10 +114,10 @@ const IdentityVerificationTwo = ({ onBack }) => {
             
             // Check status regardless of success or failure
             try {
-                const statusResponse = await dispatch(aepsStatusCheck());
-                console.log("aepsStatusCheck response after OTP submit:", statusResponse);
+                const statusResponse = await dispatch(aepsTwoStatusCheck());
+                console.log("aepsTwoStatusCheck response after OTP submit:", statusResponse);
             } catch (statusError) {
-                console.error("aepsStatusCheck error after OTP submit:", statusError);
+                console.error("aepsTwoStatusCheck error after OTP submit:", statusError);
             }
             
             // Only navigate to next step if OTP submission was successful
@@ -128,10 +128,10 @@ const IdentityVerificationTwo = ({ onBack }) => {
             console.error("aepsSubmitOTP error:", error);
             // Check status even on error
             try {
-                const statusResponse = await dispatch(aepsStatusCheck());
-                console.log("aepsStatusCheck response after OTP submit error:", statusResponse);
+                const statusResponse = await dispatch(aepsTwoStatusCheck());
+                console.log("aepsTwoStatusCheck response after OTP submit error:", statusResponse);
             } catch (statusError) {
-                console.error("aepsStatusCheck error after OTP submit error:", statusError);
+                console.error("aepsTwoStatusCheck error after OTP submit error:", statusError);
             }
             // Handle error (you might want to show an error message to the user)
         }

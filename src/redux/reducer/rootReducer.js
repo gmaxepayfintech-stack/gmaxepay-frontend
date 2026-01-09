@@ -12,6 +12,7 @@ import roleReducer from './roleReducer';
 import aepsReducer from './aepsReducer';
 import walletReducer from './walletReducer';
 import payoutReducer from './payoutReducer';
+import aepsTwoReducer from './aepsTwoReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -26,7 +27,8 @@ const rootReducer = combineReducers({
     payout: payoutReducer,
     roles:roleReducer,
     error:errorReducer,
-    wallet: walletReducer
+    wallet: walletReducer,
+    aepsTwo: aepsTwoReducer,
 });
 
 export default rootReducer;

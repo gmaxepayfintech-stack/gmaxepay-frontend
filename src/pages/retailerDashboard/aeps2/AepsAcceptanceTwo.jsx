@@ -9,8 +9,8 @@ import IdentityVerificationTwo from "./identityVerificationTwo";
 import BiometricVerificationTwo from "./BiometricVerificationTwo";
 import FAVerificationTwo from "./FAVerificationTwo";
 import SelectserviceTwo from "./SelectserviceTwo";
-import { aepsTermsConditionOtp, aepsStatusCheck } from "../../../redux/action/aepsAction";
-
+import { aepsTermsConditionOtp } from "../../../redux/action/aepsAction";
+import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
 const AepsAcceptanceTwo = () => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -20,12 +20,12 @@ const AepsAcceptanceTwo = () => {
     const [isLoading, setIsLoading] = useState(false);
     const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
 
-    // Call aepsStatusCheck on component mount
+    // Call aepsTwoStatusCheck on component mount
     useEffect(() => {
-        dispatch(aepsStatusCheck()).then((response) => {
-            console.log("aepsStatusCheck response in AepsAcceptanceTwo:", response);
+        dispatch(aepsTwoStatusCheck()).then((response) => {
+            console.log("aepsTwoStatusCheck response in AepsAcceptanceTwo:", response);
         }).catch((error) => {
-            console.error("aepsStatusCheck error in AepsAcceptanceTwo:", error);
+            console.error("aepsTwoStatusCheck error in AepsAcceptanceTwo:", error);
         });
     }, [dispatch]);
 

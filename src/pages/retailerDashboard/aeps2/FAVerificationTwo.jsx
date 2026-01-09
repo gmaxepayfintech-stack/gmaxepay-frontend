@@ -4,8 +4,8 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
-import { aepsStatusCheck } from "../../../redux/action/aepsAction";
 import { aepsOnboardingFAVerification } from "../../../redux/action/aepsAction";
+import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -392,13 +392,13 @@ const FAVerificationTwo = () => {
         console.log("✅ FA Verification response:", response);
         if (response?.status === "SUCCESS") {
           setDeviceMessage("2FA verification successful");
-          // Call aepsStatusCheck after successful verification
-          dispatch(aepsStatusCheck())
+          // Call aepsTwoStatusCheck after successful verification
+          dispatch(aepsTwoStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
             })
             .catch((err) => {
-              console.error("aepsStatusCheck error after FA verification:", err);
+              console.error("aepsTwoStatusCheck error after FA verification:", err);
             });
         }
       })
