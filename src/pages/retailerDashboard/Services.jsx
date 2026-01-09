@@ -5,6 +5,7 @@ import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import BBPSServices from "./services/BBPSServices";
+import MobileRecharge from "./services/MobileRecharge";
 
 
 const DEFAULT_DESCRIPTION =
@@ -62,6 +63,7 @@ ServiceCard.propTypes = {
 const Services = () => {
     const [activeTab, setActiveTab] = useState("Available");
     const [showBBPSServices, setShowBBPSServices] = useState(false);
+    const [showMobileRecharge, setShowMobileRecharge] = useState(false);
     const navigate = useNavigate();
     const dispatch = useDispatch();
 
@@ -84,6 +86,16 @@ const Services = () => {
     const handleBBPSClick = () => {
         setShowBBPSServices(true);
     };
+
+    // Handle Mobile & DTH card click - show Mobile Recharge component
+    const handleMobileRechargeClick = () => {
+        setShowMobileRecharge(true);
+    };
+
+    // If Mobile Recharge should be shown, render that component
+    if (showMobileRecharge) {
+        return <MobileRecharge onBack={() => setShowMobileRecharge(false)} />;
+    }
 
     // If BBPS services should be shown, render that component
     if (showBBPSServices) {
@@ -109,8 +121,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Available")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Available"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-gray-700 hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-gray-700 hover:bg-gray-50"
                             }`}
                     >
                         Available
@@ -119,8 +131,8 @@ const Services = () => {
                         type="button"
                         onClick={() => setActiveTab("Subscribed")}
                         className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
-                                ? "bg-[#039155] text-white shadow-sm"
-                                : "text-[#1B1717] hover:bg-gray-50"
+                            ? "bg-[#039155] text-white shadow-sm"
+                            : "text-[#1B1717] hover:bg-gray-50"
                             }`}
                     >
                         Subscribed
@@ -143,7 +155,9 @@ const Services = () => {
                         title={s.title}
                         description={s.description}
                         onClick={() => {
-                            if (s.id === "Aeps") {
+                            if (s.id === "mobile-dth") {
+                                handleMobileRechargeClick();
+                            } else if (s.id === "Aeps") {
                                 handleAepsClick();
                             } else if (s.id === "BBPS" || s.id === "bbps") {
                                 handleBBPSClick();
