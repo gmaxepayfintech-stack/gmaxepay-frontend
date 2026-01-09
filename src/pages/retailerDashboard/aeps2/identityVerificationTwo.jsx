@@ -12,11 +12,59 @@ const IdentityVerificationTwo = ({ onBack }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
+  const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
   const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
   const [touchedSubmit, setTouchedSubmit] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
   const [resendTimer, setResendTimer] = useState(0); 
   const inputsRef = useRef([]);
+
+  // Check status on component mount and verify we should be on this step
+  useEffect(() => {
+    dispatch(aepsTwoStatusCheck())
+      .then((response) => {
+        console.log("aepsTwoStatusCheck response in IdentityVerificationTwo:", response);
+        
+        // Check if we should be on this step
+        const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
+        if (statusData) {
+          const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
+          
+          // If aepsOnboarding is still pending, we shouldn't be here
+          if (
+            aepsOnboarding?.status?.toLowerCase() === "pending" ||
+            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+          ) {
+            console.log("aepsOnboarding is pending, redirecting...");
+            if (typeof onBack === "function") {
+              onBack();
+            } else {
+              navigate(-1);
+            }
+            return;
+          }
+          
+          // If ekycOtp is completed, move to next step
+          if (
+            ekycOtp?.status?.toLowerCase() === "completed" &&
+            ekycOtp?.isCompleted === true
+          ) {
+            // Check if biometric is next
+            if (
+              ekycBiometric?.status?.toLowerCase() === "pending" ||
+              (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+            ) {
+              console.log("ekycOtp completed, moving to biometric verification");
+              setShowBiometric(true);
+              return;
+            }
+          }
+        }
+      })
+      .catch((error) => {
+        console.error("aepsTwoStatusCheck error in IdentityVerificationTwo:", error);
+      });
+  }, [dispatch, navigate, onBack, aepsStatus]);
 
   // Call getUserProfile on component mount
   useEffect(() => {
