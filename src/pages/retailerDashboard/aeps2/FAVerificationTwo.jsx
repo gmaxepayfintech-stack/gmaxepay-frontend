@@ -51,12 +51,12 @@ const FAVerificationTwo = () => {
           "aepsTwoStatusCheck response in FAVerificationTwo:",
           response
         );
-        
+
         // Check if we should be on this step
         const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
         if (statusData) {
           const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
-          
+
           // If aepsOnboarding is still pending, redirect back
           if (
             aepsOnboarding?.status?.toLowerCase() === "pending" ||
@@ -66,7 +66,7 @@ const FAVerificationTwo = () => {
             navigate(-1);
             return;
           }
-          
+
           // If ekycOtp is still pending, redirect to identity verification
           if (
             ekycOtp?.status?.toLowerCase() === "pending" ||
@@ -76,7 +76,7 @@ const FAVerificationTwo = () => {
             navigate(-1);
             return;
           }
-          
+
           // If ekycBiometric is still pending, redirect to biometric verification
           if (
             ekycBiometric?.status?.toLowerCase() === "pending" ||
@@ -86,7 +86,7 @@ const FAVerificationTwo = () => {
             navigate(-1);
             return;
           }
-          
+
           // If daily2FAAuthentication is completed, show confirm
           if (
             daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
@@ -119,23 +119,23 @@ const FAVerificationTwo = () => {
     const daily2FAAuthentication = statusData?.daily2FAAuthentication;
 
     // Check if all four steps are completed
-    const isAepsOnboardingCompleted = 
-      aepsOnboarding?.status?.toLowerCase() === "completed" && 
+    const isAepsOnboardingCompleted =
+      aepsOnboarding?.status?.toLowerCase() === "completed" &&
       aepsOnboarding?.isCompleted === true;
 
-    const isValidateAgentOtpCompleted = 
-      validateAgentOtp?.status?.toLowerCase() === "completed" && 
+    const isValidateAgentOtpCompleted =
+      validateAgentOtp?.status?.toLowerCase() === "completed" &&
       validateAgentOtp?.isCompleted === true;
 
-    const isBioMetricVerificationCompleted = 
-      bioMetricVerification?.status?.toLowerCase() === "completed" && 
+    const isBioMetricVerificationCompleted =
+      bioMetricVerification?.status?.toLowerCase() === "completed" &&
       bioMetricVerification?.isCompleted === true;
 
-    const isDaily2FAAuthenticationCompleted = 
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" && 
+    const isDaily2FAAuthenticationCompleted =
+      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
       daily2FAAuthentication?.isCompleted === true;
 
-    const allCompleted = 
+    const allCompleted =
       isAepsOnboardingCompleted &&
       isValidateAgentOtpCompleted &&
       isBioMetricVerificationCompleted &&
@@ -249,7 +249,7 @@ const FAVerificationTwo = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -309,7 +309,7 @@ const FAVerificationTwo = () => {
     const totalDuration = 8000; // 8 seconds
     const updateInterval = 50; // Update every 50ms
     const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~0.625% per update
-    
+
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
       currentProgress += incrementPerUpdate;
@@ -351,10 +351,10 @@ const FAVerificationTwo = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build CustOpts based on device type
     let custOpts = "";
     if (deviceType === "mantra") {
@@ -367,7 +367,7 @@ const FAVerificationTwo = () => {
       // For unknown devices, default to Mantra format (backward compatibility)
       custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
     }
-    
+
     // Build proper XML structure without backslashes
     const pidOptions = '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="10000" posh="UNKNOWN" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" env="P" />' + DString + custOpts + '</PidOptions>';
 
@@ -421,7 +421,7 @@ const FAVerificationTwo = () => {
     console.log("🔍 useEffect triggered - pidData:", pidData ? `exists (${pidData.length} chars)` : "empty");
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
     console.log("🔍 lastPidDataRef.current length:", lastPidDataRef.current.length);
-    
+
     if (!pidData) {
       console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
@@ -458,7 +458,7 @@ const FAVerificationTwo = () => {
           dispatch(aepsTwoStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
-              
+
               // Check if 2FA is now completed
               const statusData = statusResponse?.aepsStatus || aepsStatus?.aepsStatus;
               if (statusData) {
