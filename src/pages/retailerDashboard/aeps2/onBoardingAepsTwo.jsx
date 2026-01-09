@@ -44,6 +44,7 @@ const OnBoardingAepsTwo = () => {
       ekycOtp,
       ekycBiometric,
       daily2FAAuthentication,
+      isOtpSent,
     } = statusData;
 
     console.log("Current AEPS-2 onboarding statuses:", {
@@ -51,18 +52,21 @@ const OnBoardingAepsTwo = () => {
       ekycOtp,
       ekycBiometric,
       daily2FAAuthentication,
+      isOtpSent,
     });
 
     // Check in order of flow - find the first incomplete step
-    // Step 1: Check if aepsOnboarding is completed
+    // Step 1: Check if aepsOnboarding is not started
     const isAepsOnboardingCompleted =
       aepsOnboarding?.status?.toLowerCase() === "completed" &&
       aepsOnboarding?.isCompleted === true;
-    if (!isAepsOnboardingCompleted) {
+    
+    // If aepsOnboarding not started and OTP not sent yet, show welcome screen
+    if (!isAepsOnboardingCompleted && !isOtpSent) {
       return null; // Show welcome screen (user needs to start)
     }
 
-    // Step 2: Check if ekycOtp is pending - show identity verification
+    // Step 2: Check if ekycOtp is pending - show identity verification for OTP entry
     const isEkycOtpCompleted =
       ekycOtp?.status?.toLowerCase() === "completed" &&
       ekycOtp?.isCompleted === true;
