@@ -1,95 +1,20 @@
-import { useMemo, useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import Mobile from "../../../../public/img/Mobile.svg";
 import Daily2FA from "../../../../public/img/DailyF2A.svg";
 import Biometric from "../../../../public/img/Biometric.svg";
 import IdentityVerificationTwo from "./identityVerificationTwo";
-import BiometricVerificationTwo from "./BiometricVerificationTwo";
-import FAVerificationTwo from "./FAVerificationTwo";
-import SelectserviceTwo from "./SelectserviceTwo";
 import { aepsTwoStatusCheck, aepsTwoOtp, aepsOnboarding } from "../../../redux/action/aepsTwoAction";
 const AepsAcceptanceTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { aepsStatus } = useSelector((state) => state.aeps || {});
   const [accepted, setAccepted] = useState(true);
   const [showIdentityVerification, setShowIdentityVerification] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
-
-  // Call aepsTwoStatusCheck on component mount
-  useEffect(() => {
-    dispatch(aepsTwoStatusCheck())
-      .then((response) => {
-        console.log(
-          "aepsTwoStatusCheck response in AepsAcceptanceTwo:",
-          response
-        );
-      })
-      .catch((error) => {
-        console.error("aepsTwoStatusCheck error in AepsAcceptanceTwo:", error);
-      });
-  }, [dispatch]);
-
-  // Log aepsStatus when it changes
-  useEffect(() => {
-    if (aepsStatus?.aepsStatus) {
-      console.log("aepsStatus state:", aepsStatus.aepsStatus);
-    }
-  }, [aepsStatus]);
-
-  // Determine which component to show based on status
-  const getCurrentStep = () => {
-    if (!aepsStatus?.aepsStatus) {
-      return null; // Still loading or no data
-    }
-
-    // aepsStatus.aepsStatus is the data object from API response
-    const statusData = aepsStatus.aepsStatus;
-    const {
-      aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
-      daily2FAAuthentication,
-    } = statusData;
-
-    console.log("Current onboarding statuses:", {
-      aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
-      daily2FAAuthentication,
-    });
-
-    // Check in order of flow
-    if (aepsOnboarding?.status === "pending" && !aepsOnboarding?.isCompleted) {
-      return "aepsAcceptance";
-    }
-    if (
-      validateAgentOtp?.status === "pending" &&
-      !validateAgentOtp?.isCompleted
-    ) {
-      return "identityVerification";
-    }
-    if (
-      bioMetricVerification?.status === "pending" &&
-      !bioMetricVerification?.isCompleted
-    ) {
-      return "biometricVerification";
-    }
-    if (
-      daily2FAAuthentication?.status === "pending" &&
-      !daily2FAAuthentication?.isCompleted
-    ) {
-      return "faVerification";
-    }
-    // All completed - show Selectservice
-    return "selectService";
-  };
-
-  const currentStep = getCurrentStep();
 
   const handleAcceptAndContinue = async () => {
     setIsLoading(true);
@@ -102,8 +27,27 @@ const AepsAcceptanceTwo = () => {
       if (onboardResp?.status === "SUCCESS") {
         const otpResp = await dispatch(aepsTwoOtp());
         console.log("aepsTwoOtp response:", otpResp);
+        
         if (otpResp?.status === "SUCCESS") {
-          setShowIdentityVerification(true);
+          // Check status ONCE after successful onboarding and OTP
+          const statusResponse = await dispatch(aepsTwoStatusCheck());
+          console.log("aepsTwoStatusCheck response after onboarding:", statusResponse);
+          
+          // Verify the status and then navigate to IdentityVerification
+          if (statusResponse?.status === "SUCCESS") {
+            const statusData = statusResponse?.aepsStatus;
+            // Check if we should proceed to identity verification
+            if (statusData) {
+              const { ekycOtp } = statusData;
+              // If ekycOtp is pending, proceed to identity verification
+              if (
+                ekycOtp?.status?.toLowerCase() === "pending" ||
+                (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+              ) {
+                setShowIdentityVerification(true);
+              }
+            }
+          }
         }
       }
     } catch (error) {
@@ -131,35 +75,28 @@ const AepsAcceptanceTwo = () => {
     []
   );
 
-  // Conditional rendering based on status
-  if (currentStep === "identityVerification" || showIdentityVerification) {
+  // Conditional rendering - only show IdentityVerification when explicitly set
+  if (showIdentityVerification) {
     return (
       <IdentityVerificationTwo
         onBack={() => setShowIdentityVerification(false)}
       />
     );
   }
-  if (currentStep === "biometricVerification") {
-    return <BiometricVerificationTwo />;
-  }
-  if (currentStep === "faVerification") {
-    return <FAVerificationTwo />;
-  }
-  if (currentStep === "selectService") {
-    return <SelectserviceTwo />;
-  }
-  // Default: show AepsAcceptance (when aepsOnboarding is pending or no status yet)
+  // Default: show AepsAcceptance
 
   return (
     <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        <div
+        <button
+          type="button"
           onClick={onBack}
-          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer"
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer hover:bg-gray-50 transition"
+          aria-label="Go back"
         >
           <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-        </div>
+        </button>
 
         <div className="flex-1">
           <div className="text-[24px]  font-['Gilroy-Medium'] text-[#1B1717]">
@@ -197,6 +134,7 @@ const AepsAcceptanceTwo = () => {
               icon: (
                 <img
                   src={Biometric}
+                  alt="Biometric"
                   className="w-6 h-6 text-[#FFFFFF]"
                   aria-hidden="true"
                 />
