@@ -343,16 +343,28 @@ const BiometricVerificationTwo = () => {
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
-    // Send pidData (XML string) directly in XML format
+    // Convert pidData (XML string) to base64
+    let base64PidData = "";
+    try {
+      // Convert the XML string to base64
+      base64PidData = btoa(unescape(encodeURIComponent(pidData)));
+      console.log("✅ PidData converted to base64, length:", base64PidData.length);
+    } catch (encodeError) {
+      console.error("❌ Error encoding pidData to base64:", encodeError);
+      setDeviceMessage("Error encoding biometric data. Please try again.");
+      pidDataProcessedRef.current = false;
+      return;
+    }
+
     const requestData = {
-      txtPidData: pidData, // Send XML string directly
+      txtPidData: base64PidData,
     };
 
     console.log(
       "📤 Dispatching aepsTwoBiometricSubmit with data:",
       {
         txtPidDataLength: requestData.txtPidData.length,
-        format: "XML",
+        isBase64: true,
       }
     );
 
