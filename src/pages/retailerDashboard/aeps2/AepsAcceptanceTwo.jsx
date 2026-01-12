@@ -21,7 +21,7 @@ const AepsAcceptanceTwo = () => {
   const [showFAVerification, setShowFAVerification] = useState(false);
   const [showAccessConfirm, setShowAccessConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const onBack = () => navigate("/retailerDashboard/onboarding-aeps");
+  const onBack = () => navigate("/retailerDashboard/services/aeps2/onboarding");
 
   const handleAcceptAndContinue = async () => {
     setIsLoading(true);
