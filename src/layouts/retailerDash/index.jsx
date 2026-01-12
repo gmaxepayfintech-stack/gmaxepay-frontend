@@ -7,12 +7,13 @@ import OnBoardingAepsTwo from "../../pages/retailerDashboard/aeps2/onBoardingAep
 import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceTwo";
 import WalletLoad from "../../pages/retailerDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/retailerDashboard/fundManagement/FundRequest";
+import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharge";
 const RetailerDash = () => {
     return (
         <RetailerDashLayout>
             <Routes>
-                <Route path="/" element={<RetailerDashboard />} />
-                <Route path="/home" element={<RetailerDashboard />} />
+                <Route path="/" element={<Services />} />
+                <Route path="/home" element={<Services />} />
                 <Route path="/services" element={<Services />} />
                 <Route path="/onboarding-aeps" element={<OnBoardingAeps />} />
                 <Route path="/services/aeps1/onboarding" element={<OnBoardingAeps />} />

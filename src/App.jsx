@@ -37,6 +37,7 @@ import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./userOnboarding/welcome";
 import RetailerOnboarding from "./userOnboarding/[id]";
 import { statsBuffer } from "framer-motion";
+import RetailerDash from "./layouts/retailerDash";
 
 function App() {
   const { showNotification } = useNotification();
@@ -557,7 +558,7 @@ function App() {
           path="/auth/login"
           element={
             <ProtectedAuthRoute>
-              <Auth />
+              <RetailerDash />
             </ProtectedAuthRoute>
           }
         />
