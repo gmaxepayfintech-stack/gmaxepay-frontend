@@ -7,7 +7,6 @@ import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
-import Loader from "../../../widgets/layout/loader";
 
 const OnBoardingAepsTwo = () => {
   const dispatch = useDispatch();
@@ -154,7 +153,14 @@ const OnBoardingAepsTwo = () => {
 
   // Show loading state while checking status
   if (isLoading) {
-    return <Loader />;
+    return (
+      <div className="w-full flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-t-4 border-b-4 border-[#039155]"></div>
+          <p className="mt-4 text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
   }
 
   // Conditional rendering based on status - all components render under this route
