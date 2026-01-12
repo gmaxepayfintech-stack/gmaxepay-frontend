@@ -174,10 +174,10 @@ const BBPSServices = ({ onBack }) => {
             )}
 
             {/* Min Content - Two Column Layout */}
-            <div className="flex flex-col lg:flex-row gap-6">
+            <div className="flex flex-col lg:flex-row gap-6 items-start">
                 {/* Left Side - Information */}
                 <div
-                    className={`rounded-xl p-6 lg:flex-[1.6] ${step !== "summary" ? "bg-white border border-gray-200" : ""
+                    className={`rounded-xl p-6 lg:flex-[1.6] w-full lg:w-auto self-start ${step !== "summary" ? "bg-white border border-gray-200" : ""
                         }`}
                 >
                     {step === "category" && (
