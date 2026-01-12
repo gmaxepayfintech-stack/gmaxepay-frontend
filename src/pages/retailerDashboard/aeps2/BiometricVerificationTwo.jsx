@@ -265,7 +265,7 @@ const BiometricVerificationTwo = () => {
 
     // Build proper XML structure with the required format
     const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="1" iCount="0" format="2" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
+      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="1" iCount="0" format="0" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
       DString +
       custOpts +
       "</PidOptions>";
@@ -375,7 +375,7 @@ const BiometricVerificationTwo = () => {
         // Only check status after successful submission
         if (response?.status === "SUCCESS") {
           setDeviceMessage("Biometric verification successful");
-          
+
           // Check status ONCE after successful biometric verification
           console.log(
             "🔄 Calling aepsTwoStatusCheck after successful biometric verification..."
@@ -405,7 +405,7 @@ const BiometricVerificationTwo = () => {
                       "✅ Biometric completed, moving to 2FA verification"
                     );
                     setShow2FA(true);
-                  } 
+                  }
                   // Check if all completed
                   else if (
                     daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
