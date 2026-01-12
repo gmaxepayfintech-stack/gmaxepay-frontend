@@ -12,84 +12,153 @@ const OnBoardingAepsTwo = () => {
   const dispatch = useDispatch();
   const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
   const [showAcceptance, setShowAcceptance] = useState(false);
+  const [currentStep, setCurrentStep] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Call aepsTwoStatusCheck on component mount
+  // Call aepsTwoStatusCheck on component mount and determine step
   useEffect(() => {
-    dispatch(aepsTwoStatusCheck())
-      .then((response) => {
+    const checkStatus = async () => {
+      try {
+        setIsLoading(true);
+        const response = await dispatch(aepsTwoStatusCheck());
         console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
-      })
-      .catch((error) => {
+        
+        // Get status data from response or Redux state
+        const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
+        
+        if (statusData) {
+          const {
+            aepsOnboarding,
+            ekycOtp,
+            ekycBiometric,
+            daily2FAAuthentication,
+          } = statusData;
+
+          console.log("Current AEPS-2 onboarding statuses:", {
+            aepsOnboarding,
+            ekycOtp,
+            ekycBiometric,
+            daily2FAAuthentication,
+          });
+
+          // Step 1: If aepsOnboarding is pending or not completed, show initial onboarding screen
+          if (
+            aepsOnboarding?.status?.toLowerCase() === "pending" ||
+            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+          ) {
+            setCurrentStep(null); // Show initial onboarding screen
+            return;
+          }
+
+          // Step 2: ekycOtp pending or not completed => show identity verification (OTP entry)
+          if (
+            ekycOtp?.status?.toLowerCase() === "pending" ||
+            ekycOtp?.status?.toLowerCase() !== "completed" ||
+            (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+          ) {
+            setCurrentStep("identityVerification");
+            return;
+          }
+
+          // Step 3: ekycBiometric pending or not completed => show biometric verification
+          if (
+            ekycBiometric?.status?.toLowerCase() === "pending" ||
+            ekycBiometric?.status?.toLowerCase() !== "completed" ||
+            (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+          ) {
+            setCurrentStep("biometricVerification");
+            return;
+          }
+
+          // Step 4: daily2FAAuthentication pending or not completed => show 2FA verification
+          if (
+            daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+            daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
+            (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+          ) {
+            setCurrentStep("faVerification");
+            return;
+          }
+
+          // All completed - show access confirm
+          setCurrentStep("aepsAccessConfirm");
+        } else {
+          setCurrentStep(null); // No status data, show initial screen
+        }
+      } catch (error) {
         console.error("aepsTwoStatusCheck error in OnBoardingAeps:", error);
-      });
+        setCurrentStep(null); // On error, show initial screen
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkStatus();
   }, [dispatch]);
 
-  // Log aepsStatus when it changes
+  // Also update step when Redux state changes (in case status is updated elsewhere)
   useEffect(() => {
-    if (aepsStatus?.aepsStatus) {
-      console.log("aepsStatus state in OnBoardingAepsTwo:", aepsStatus.aepsStatus);
+    if (aepsStatus?.aepsStatus && !isLoading) {
+      const statusData = aepsStatus.aepsStatus;
+      const {
+        aepsOnboarding,
+        ekycOtp,
+        ekycBiometric,
+        daily2FAAuthentication,
+      } = statusData;
+
+      // Step 1: If aepsOnboarding is pending or not completed
+      if (
+        aepsOnboarding?.status?.toLowerCase() === "pending" ||
+        (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+      ) {
+        setCurrentStep(null);
+        return;
+      }
+
+      // Step 2: ekycOtp pending or not completed
+      if (
+        ekycOtp?.status?.toLowerCase() === "pending" ||
+        ekycOtp?.status?.toLowerCase() !== "completed" ||
+        (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+      ) {
+        setCurrentStep("identityVerification");
+        return;
+      }
+
+      // Step 3: ekycBiometric pending or not completed
+      if (
+        ekycBiometric?.status?.toLowerCase() === "pending" ||
+        ekycBiometric?.status?.toLowerCase() !== "completed" ||
+        (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+      ) {
+        setCurrentStep("biometricVerification");
+        return;
+      }
+
+      // Step 4: daily2FAAuthentication pending or not completed
+      if (
+        daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
+        daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
+        (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+      ) {
+        setCurrentStep("faVerification");
+        return;
+      }
+
+      // All completed
+      setCurrentStep("aepsAccessConfirm");
     }
-  }, [aepsStatus]);
+  }, [aepsStatus, isLoading]);
 
-  // Determine which component to show based on status
-  const getCurrentStep = () => {
-    if (!aepsStatus?.aepsStatus) {
-      return null; // Still loading or no data
-    }
-
-    // aepsStatus.aepsStatus is the data object from API response
-    const statusData = aepsStatus.aepsStatus;
-    const {
-      aepsOnboarding,
-      ekycOtp,
-      ekycBiometric,
-      daily2FAAuthentication,
-    } = statusData;
-
-    console.log("Current AEPS-2 onboarding statuses:", {
-      aepsOnboarding,
-      ekycOtp,
-      ekycBiometric,
-      daily2FAAuthentication,
-    });
-
-    // Step 1: If aepsOnboarding is pending or not completed, show initial onboarding screen
-    if (
-      aepsOnboarding?.status?.toLowerCase() === "pending" ||
-      (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
-    ) {
-      return null; // Show initial onboarding screen
-    }
-
-    // Step 2: ekycOtp pending or not completed => show identity verification (OTP entry)
-    if (
-      ekycOtp?.status?.toLowerCase() === "pending" ||
-      (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
-    ) {
-      return "identityVerification";
-    }
-
-    // Step 3: ekycBiometric pending or not completed => show biometric verification
-    if (
-      ekycBiometric?.status?.toLowerCase() === "pending" ||
-      (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
-    ) {
-      return "biometricVerification";
-    }
-
-    // Step 4: daily2FAAuthentication pending or not completed => show 2FA verification
-    if (
-      daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-      (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
-    ) {
-      return "faVerification";
-    }
-
-    // All completed - show access confirm
-    return "aepsAccessConfirm";
-  };
-
-  const currentStep = getCurrentStep();
+  // Show loading state while checking status
+  if (isLoading) {
+    return (
+      <div className="w-full flex items-center justify-center min-h-[400px]">
+        <div className="text-[16px] text-gray-600">Loading...</div>
+      </div>
+    );
+  }
 
   // Conditional rendering based on status - all components render under this route
   if (currentStep === "aepsAccessConfirm") {
