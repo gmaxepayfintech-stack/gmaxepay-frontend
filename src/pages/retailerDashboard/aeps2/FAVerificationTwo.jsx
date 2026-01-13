@@ -130,7 +130,7 @@ const FAVerificationTwo = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -191,7 +191,7 @@ const FAVerificationTwo = () => {
     const totalDuration = 8000; // 8 seconds
     const updateInterval = 50; // Update every 50ms
     const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~0.625% per update
-    
+
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
       currentProgress += incrementPerUpdate;
@@ -233,10 +233,10 @@ const FAVerificationTwo = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build CustOpts based on device type
     let custOpts = "";
     if (deviceType === "mantra") {
@@ -249,10 +249,13 @@ const FAVerificationTwo = () => {
       // For unknown devices, default to Mantra format (backward compatibility)
       custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
     }
-    
-    // Build proper XML structure without backslashes
-    const pidOptions = '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="10000" posh="UNKNOWN" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" env="P" />' + DString + custOpts + '</PidOptions>';
 
+    // Build proper XML structure without backslashes
+    const pidOptions =
+      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
+      DString +
+      custOpts +
+      "</PidOptions>";
     try {
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
@@ -329,7 +332,7 @@ const FAVerificationTwo = () => {
         const locationData = await getLocationAndIP();
         const latitude = locationData?.location?.latitude || "";
         const longitude = locationData?.location?.longitude || "";
-        
+
         console.log("📍 Location data:", { latitude, longitude });
 
         // Convert pidData (XML string) to base64
@@ -359,7 +362,7 @@ const FAVerificationTwo = () => {
         dispatch(aepsTwoFAVerification(requestData))
           .then((response) => {
             console.log("✅ FA Verification response:", response);
-            
+
             // Only check status after successful submission
             if (response?.status === "SUCCESS") {
               // Check status ONCE after successful 2FA verification
@@ -421,10 +424,10 @@ const FAVerificationTwo = () => {
         "Device Connected",
         "Device Not Connected"
       ];
-      
+
       // Check if this is a persistent message
       const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
-      
+
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
         const timer = setTimeout(() => {
@@ -503,9 +506,8 @@ const FAVerificationTwo = () => {
           </div>
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
-            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-              deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-            } text-white`}>
+            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}>
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="text-[12px] font-['Gilroy-Medium'] flex-1">
@@ -523,9 +525,8 @@ const FAVerificationTwo = () => {
               ) : (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${
-                      deviceConnected ? "bg-white" : "bg-white"
-                    }`} />
+                    <span className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                      }`} />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected ? "Device Connected" : "Device Not Connected"}
                     </span>
@@ -546,104 +547,103 @@ const FAVerificationTwo = () => {
 
         {/* Capture area */}
         <div className="mt-[20px] pt-4 border-t border-gray-200">
-          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-            comingSoon ? "bg-gray-50" : "bg-white"
-          }`}>
-          <div className="max-w-2xl mx-auto text-center relative">
-            {/* Keep same UI visible; dim/disable when comingSoon */}
-            <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
-              <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
-                {/* Outer circle background */}
-                <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
-                {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
-                {isScanning && (
-                  <div
-                    className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
-                    style={{
-                      background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
-                    }}
+          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+            }`}>
+            <div className="max-w-2xl mx-auto text-center relative">
+              {/* Keep same UI visible; dim/disable when comingSoon */}
+              <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
+                <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
+                  {/* Outer circle background */}
+                  <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
+                  {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
+                  {isScanning && (
+                    <div
+                      className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
+                      style={{
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
+                      }}
+                    />
+                  )}
+                  {/* Inner white circle */}
+                  <div className="absolute inset-[18px] rounded-full bg-white z-10" />
+                  <img
+                    src={mode === "iris" ? IrisIcon : FingerPrintIcon}
+                    alt={mode === "iris" ? "Iris" : "Fingerprint"}
+                    className="relative w-10 h-10 z-20"
                   />
-                )}
-                {/* Inner white circle */}
-                <div className="absolute inset-[18px] rounded-full bg-white z-10" />
-                <img
-                  src={mode === "iris" ? IrisIcon : FingerPrintIcon}
-                  alt={mode === "iris" ? "Iris" : "Fingerprint"}
-                  className="relative w-10 h-10 z-20"
-                />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (deviceConnected) {
+                        getDeviceInfo();
+                      } else {
+                        discoverAvdm();
+                      }
+                    }}
+                    disabled={isDeviceChecking || isGettingDeviceInfo}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
+                    aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  >
+                    {isDeviceChecking
+                      ? "Checking..."
+                      : isGettingDeviceInfo
+                        ? "Fetching..."
+                        : deviceConnected
+                          ? "Device Info"
+                          : "Ready"}
+                  </button>
+                </div>
+
+                <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                  {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
+                </div>
+                <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
+                  {mode === "iris"
+                    ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
+                    : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
-                    if (deviceConnected) {
-                      getDeviceInfo();
-                    } else {
+                    if (mode === "iris" || comingSoon) return;
+                    if (!deviceConnected) {
                       discoverAvdm();
+                      return;
                     }
+                    captureAvdm();
                   }}
-                  disabled={isDeviceChecking || isGettingDeviceInfo}
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
-                  aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  disabled={isScanning || comingSoon || (mode === "iris")}
+                  className="mt-[24px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isDeviceChecking
-                    ? "Checking..."
-                    : isGettingDeviceInfo
-                    ? "Fetching..."
-                    : deviceConnected
-                    ? "Device Info"
-                    : "Ready"}
+                  <span className="inline-flex items-center justify-center w-6 h-6 ">
+                    <img
+                      src={mode === "iris" ? EyeIcon : StartCapture}
+                      alt=""
+                      className="w-full h-full"
+                      aria-hidden="true"
+                    />
+                  </span>{" "}
+                  {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
                 </button>
               </div>
 
-              <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
-              </div>
-              <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
-                {mode === "iris"
-                  ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
-                  : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (mode === "iris" || comingSoon) return;
-                  if (!deviceConnected) {
-                    discoverAvdm();
-                    return;
-                  }
-                  captureAvdm();
-                }}
-                disabled={isScanning || comingSoon || (mode === "iris")}
-                className="mt-[24px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="inline-flex items-center justify-center w-6 h-6 ">
-                  <img
-                    src={mode === "iris" ? EyeIcon : StartCapture}
-                    alt=""
-                    className="w-full h-full"
-                    aria-hidden="true"
-                  />
-                </span>{" "}
-                {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
-              </button>
-            </div>
-
-            {comingSoon && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Disabled background overlay */}
-                <div className="absolute inset-0" />
-                {/* Coming Soon container */}
-                <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
-                  <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    Iris Scan Coming Soon
-                  </div>
-                  <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                    This authentication mode will be available in a future update.
+              {comingSoon && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Disabled background overlay */}
+                  <div className="absolute inset-0" />
+                  {/* Coming Soon container */}
+                  <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
+                    <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      Iris Scan Coming Soon
+                    </div>
+                    <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
+                      This authentication mode will be available in a future update.
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
