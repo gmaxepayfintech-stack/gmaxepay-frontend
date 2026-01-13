@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import BiometricVerificationTwo from "./BiometricVerificationTwo";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { aepsTwoStatusCheck, aepsTwoSubmitOTP, aepsTwoRescendOTP } from "../../../redux/action/aepsTwoAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 const OTP_LENGTH = 6;
 
 const IdentityVerificationTwo = ({ onBack }) => {
@@ -15,7 +16,8 @@ const IdentityVerificationTwo = ({ onBack }) => {
   const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
   const [touchedSubmit, setTouchedSubmit] = useState(false);
   const [showBiometric, setShowBiometric] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0); 
+  const [resendTimer, setResendTimer] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
   const inputsRef = useRef([]);
 
   // Call getUserProfile on component mount
@@ -114,6 +116,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
       return;
     }
 
+    setIsLoading(true);
     try {
       // Submit OTP for AEPS-2
       const response = await dispatch(aepsTwoSubmitOTP({ otp: otpValue }));
@@ -152,6 +155,8 @@ const IdentityVerificationTwo = ({ onBack }) => {
     } catch (error) {
       console.error("aepsTwoSubmitOTP error:", error);
       // Handle error (you might want to show an error message to the user)
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -274,9 +279,11 @@ const IdentityVerificationTwo = ({ onBack }) => {
 
           <button
             type="submit"
-            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition"
+            disabled={isLoading}
+            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
           >
-            Submit
+            {isLoading && <ButtonLoader color="#FFFFFF" size={20} thickness={3} />}
+            {isLoading ? "Processing..." : "Submit"}
           </button>
         </div>
       </form>
