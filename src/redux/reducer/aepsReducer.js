@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -16,7 +16,10 @@ const initialState = {
     bankList: null,
     withdrawal: null,
     transactionDetails: null,
-    transactionDetailsError: null
+    transactionDetailsError: null,
+    bankOtp: null,
+    bankSubmit: null,
+    bankKyc: null,
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -142,11 +145,36 @@ const aepsReducer = (state = initialState, action) => {
                 success: null,
                 message: action?.payload?.message || action?.payload,
             }
+        case AEPS_BANK_OTP_SUCCESS:
+            return {
+                ...state,
+                bankOtp: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case AEPS_BANK_OTP_SUBMIT_SUCCESS:
+            return {
+                ...state,
+                bankSubmit: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case AEPS_BANK_KYC_SUCCESS:
+            return {
+                ...state,
+                bankKyc: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
 
         default:
             return state;
     }
 };
-
 export default aepsReducer;
-

@@ -3,9 +3,9 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import FAVerification from "./FAVerification";
 import AEPSAccessConfirm from "./AEPSAccessConfirm";
-import { aepsOnboardingBiometricVerification, aepsStatusCheck } from "../../../redux/action/aepsAction";
+import { aepsOnboardingBiometricVerification, aepsStatusCheck, aepsBankOtp } from "../../../redux/action/aepsAction";
+import BankOtp from "./BankOtp";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -17,8 +17,7 @@ const BiometricVerification = () => {
   const [mode, setMode] = useState("fingerprint");
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
-  const [show2FA, setShow2FA] = useState(false);
-  const [showConfirm, setShowConfirm] = useState(false);
+  const [showBankOtp, setShowBankOtp] = useState(false);
 
   // RD Service states
   const [rdBaseUrl, setRdBaseUrl] = useState("");
@@ -31,9 +30,6 @@ const BiometricVerification = () => {
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
-  const biometricStatus = useSelector(
-    (state) => state.aeps?.aepsBiometricstatus
-  );
   const aepsStatus = useSelector(
     (state) => state.aeps?.aepsStatus
   );
@@ -42,45 +38,6 @@ const BiometricVerification = () => {
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
 
-  /* -------------------------------------------
-      CHECK IF ALL STATUS IS COMPLETED
-  --------------------------------------------*/
-  const checkIfAllStatusCompleted = (statusData) => {
-    if (!statusData) {
-      return false;
-    }
-
-    // Check all required steps are completed based on response structure
-    const aepsOnboarding = statusData?.aepsOnboarding;
-    const validateAgentOtp = statusData?.validateAgentOtp;
-    const bioMetricVerification = statusData?.bioMetricVerification;
-    const daily2FAAuthentication = statusData?.daily2FAAuthentication;
-
-    // Check if all four steps are completed
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
-
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-
-    const isBioMetricVerificationCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-
-    const isDaily2FAAuthenticationCompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-
-    const allCompleted =
-      isAepsOnboardingCompleted &&
-      isValidateAgentOtpCompleted &&
-      isBioMetricVerificationCompleted &&
-      isDaily2FAAuthenticationCompleted;
-
-    return allCompleted;
-  };
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -352,43 +309,17 @@ const BiometricVerification = () => {
     }
 
     const {
-      aepsOnboarding,
-      validateAgentOtp,
-      bioMetricVerification,
-      daily2FAAuthentication
+      ekycBiometric
     } = statusData;
 
-    // Check each step status
-    const isAepsOnboardingCompleted =
-      aepsOnboarding?.status?.toLowerCase() === "completed" &&
-      aepsOnboarding?.isCompleted === true;
+    // Check ekycBiometric status
+    const isEkycBiometricCompleted =
+      ekycBiometric?.status?.toLowerCase() === "success" &&
+      ekycBiometric?.isCompleted === true;
 
-    const isValidateAgentOtpCompleted =
-      validateAgentOtp?.status?.toLowerCase() === "completed" &&
-      validateAgentOtp?.isCompleted === true;
-
-    const isBioMetricCompleted =
-      bioMetricVerification?.status?.toLowerCase() === "completed" &&
-      bioMetricVerification?.isCompleted === true;
-
-    const isDaily2FACompleted =
-      daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-      daily2FAAuthentication?.isCompleted === true;
-
-    // If biometric is completed but 2FA is not, show 2FA
-    if (isBioMetricCompleted && !isDaily2FACompleted) {
-      return "faVerification";
-    }
-
-    // If all steps are completed, show confirm
-    const isAllCompleted =
-      isAepsOnboardingCompleted &&
-      isValidateAgentOtpCompleted &&
-      isBioMetricCompleted &&
-      isDaily2FACompleted;
-
-    if (isAllCompleted) {
-      return "aepsAccessConfirm";
+    // If ekycBiometric is completed, move to bankKycOtp (BankOtp component)
+    if (isEkycBiometricCompleted) {
+      return "bankOtp";
     }
 
     // Otherwise, stay on biometric verification
@@ -435,7 +366,6 @@ const BiometricVerification = () => {
         console.log("✅ Biometric verification response:", response);
         
         // Always call aepsStatusCheck after biometric verification dispatch
-        // This ensures we check the latest status regardless of response structure
         console.log("🔄 Calling aepsStatusCheck after biometric verification...");
         
         dispatch(aepsStatusCheck())
@@ -443,23 +373,30 @@ const BiometricVerification = () => {
             console.log("✅ AEPS Status check response:", statusResponse);
 
             // Extract status data from response
-            const aepsStatusData = statusResponse?.data || statusResponse?.aepsStatus?.data || statusResponse?.aepsStatus;
+            // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
+            const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
 
             if (aepsStatusData) {
               // Get next step based on status
               const nextStep = getNextStep(aepsStatusData);
 
-              if (nextStep === "faVerification") {
-                console.log("✅ Biometric completed, moving to 2FA verification");
+              if (nextStep === "bankOtp" && response?.status === "SUCCESS") {
+                console.log("✅ Biometric completed, calling aepsBankOtp and moving to BankOtp");
                 setDeviceMessage("Biometric verification successful");
-                setShow2FA(true);
-              } else if (nextStep === "aepsAccessConfirm") {
-                console.log("✅ All AEPS status completed, showing confirm page");
-                setDeviceMessage("Biometric verification successful");
-                setShowConfirm(true);
+                
+                // Call aepsBankOtp API
+                dispatch(aepsBankOtp())
+                  .then((bankOtpResponse) => {
+                    console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                    setShowBankOtp(true);
+                  })
+                  .catch((bankOtpError) => {
+                    console.error("❌ Bank OTP error:", bankOtpError);
+                    setDeviceMessage("Failed to send bank OTP. Please try again.");
+                    pidDataProcessedRef.current = false;
+                  });
               } else {
                 console.log("📋 Staying on biometric verification");
-                // Check if biometric verification was successful
                 if (response?.status === "SUCCESS") {
                   setDeviceMessage("Biometric verification successful");
                 } else {
@@ -470,6 +407,15 @@ const BiometricVerification = () => {
               // If status data is not available, check response status
               if (response?.status === "SUCCESS") {
                 setDeviceMessage("Biometric verification successful");
+                // Still try to call aepsBankOtp
+                dispatch(aepsBankOtp())
+                  .then((bankOtpResponse) => {
+                    console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                    setShowBankOtp(true);
+                  })
+                  .catch((bankOtpError) => {
+                    console.error("❌ Bank OTP error:", bankOtpError);
+                  });
               } else {
                 setDeviceMessage(response?.message || "Biometric verification failed");
                 pidDataProcessedRef.current = false;
@@ -481,6 +427,15 @@ const BiometricVerification = () => {
             // Even if status check fails, check the biometric response
             if (response?.status === "SUCCESS") {
               setDeviceMessage("Biometric verification successful");
+              // Try to call aepsBankOtp
+              dispatch(aepsBankOtp())
+                .then((bankOtpResponse) => {
+                  console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                  setShowBankOtp(true);
+                })
+                .catch((bankOtpError) => {
+                  console.error("❌ Bank OTP error:", bankOtpError);
+                });
             } else {
               setDeviceMessage(response?.message || "Biometric verification failed");
               pidDataProcessedRef.current = false;
@@ -522,22 +477,27 @@ const BiometricVerification = () => {
       console.log("AEPS Status updated from Redux:", aepsStatus);
 
       // Extract status data from Redux state
-      const aepsStatusData = aepsStatus?.aepsStatus;
+      // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
+      const aepsStatusData = aepsStatus?.aepsStatus || aepsStatus?.data;
 
       if (aepsStatusData) {
         // Get next step based on status
         const nextStep = getNextStep(aepsStatusData);
 
-        if (nextStep === "faVerification" && !show2FA && !showConfirm) {
-          console.log("✅ Biometric completed (from Redux), moving to 2FA verification");
-          setShow2FA(true);
-        } else if (nextStep === "aepsAccessConfirm" && !showConfirm) {
-          console.log("✅ All AEPS status completed (from Redux), showing confirm page");
-          setShowConfirm(true);
+        if (nextStep === "bankOtp" && !showBankOtp && !showConfirm) {
+          console.log("✅ Biometric completed (from Redux), moving to BankOtp");
+          dispatch(aepsBankOtp())
+            .then((bankOtpResponse) => {
+              console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+              setShowBankOtp(true);
+            })
+            .catch((bankOtpError) => {
+              console.error("❌ Bank OTP error:", bankOtpError);
+            });
         }
       }
     }
-  }, [aepsStatus, showConfirm, show2FA]);
+  }, [aepsStatus, showConfirm, showBankOtp, dispatch]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -576,8 +536,8 @@ const BiometricVerification = () => {
     return <AEPSAccessConfirm />;
   }
 
-  if (show2FA) {
-    return <FAVerification />;
+  if (showBankOtp) {
+    return <BankOtp />;
   }
 
   return (

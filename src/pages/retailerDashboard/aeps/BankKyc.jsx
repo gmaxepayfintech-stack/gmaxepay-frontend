@@ -3,19 +3,22 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsStatusCheck, aepsOnboardingFAVerification } from "../../../redux/action/aepsAction";
+import { aepsStatusCheck, aepsSubmitBiomatric } from "../../../redux/action/aepsAction";
+import { getLocationAndIP } from "../../../util/getLocationAndIP";
+import FAVerification from "./FAVerification";
 import Selectservice from "./Selectservice";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
-const FAVerification = () => {
+const BankKyc = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const [mode, setMode] = useState("fingerprint"); // fingerprint | iris
+  const [mode, setMode] = useState("fingerprint");
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
+  const [show2FA, setShow2FA] = useState(false);
   const [showSelectService, setShowSelectService] = useState(false);
 
   // RD Service states
@@ -37,28 +40,6 @@ const FAVerification = () => {
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
 
-  /* -------------------------------------------
-      CHECK IF 2FA IS COMPLETED
-  --------------------------------------------*/
-  const checkIf2FACompleted = (statusData) => {
-    if (!statusData) {
-      console.log("⚠️ No status data available");
-      return false;
-    }
-
-    // Check aeps2FaAuthentication status
-    const aeps2FaAuthentication = statusData?.aeps2FaAuthentication;
-
-    const is2FACompleted = 
-      aeps2FaAuthentication?.status?.toLowerCase() === "success" && 
-      aeps2FaAuthentication?.isCompleted === true;
-
-    console.log("🔍 2FA Status check:", {
-      aeps2FaAuthentication: is2FACompleted
-    });
-
-    return is2FACompleted;
-  };
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -213,12 +194,11 @@ const FAVerification = () => {
     setIsScanning(true);
     setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
 
-    // Start smooth progress animation that fills during capture
-    // Fill over ~8 seconds to match typical capture time
-    const totalDuration = 8000; // 8 seconds
-    const updateInterval = 50; // Update every 50ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~0.625% per update
-    
+    // Start smooth progress animation that fills to 100% during capture
+    const totalDuration = 10000; // 10 seconds (matches timeout)
+    const updateInterval = 100; // Update every 100ms
+    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
       currentProgress += incrementPerUpdate;
@@ -289,15 +269,16 @@ const FAVerification = () => {
 
       const captureText = await captureResp.text();
 
-      // Clear progress interval and complete the fill
+      // Clear progress interval
       clearInterval(progressInterval);
-      setScanProgress(100);
 
       const xmlDoc = new DOMParser().parseFromString(captureText, "text/xml");
       const respNode = xmlDoc.getElementsByTagName("Resp")[0];
       const errCode = respNode?.getAttribute("errCode");
 
       if (errCode === "0") {
+        // Only complete to 100% on successful capture (thumb was on device)
+        setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
         console.log("✅ PID Data captured successfully, errCode:", errCode);
@@ -305,14 +286,12 @@ const FAVerification = () => {
         setPidData(captureText);
         setIsScanning(false);
       } else {
+        // Reset progress on failure - thumb was not on device or capture failed
+        setScanProgress(0);
         const errInfo = respNode?.getAttribute("errInfo") || "";
         setDeviceMessage(`Capture failed: ${errInfo}`);
         console.error(`Capture failed: ${errInfo}`);
         setIsScanning(false);
-        // Reset progress on failure after a brief delay
-        setTimeout(() => {
-          setScanProgress(0);
-        }, 500);
       }
     } catch (err) {
       clearInterval(progressInterval);
@@ -324,13 +303,50 @@ const FAVerification = () => {
   };
 
   /* -------------------------------------------
+      GET NEXT STEP BASED ON STATUS
+  --------------------------------------------*/
+  const getNextStep = (statusData) => {
+    if (!statusData) {
+      return null;
+    }
+
+    const {
+      bankKycBiometric,
+      aeps2FaAuthentication
+    } = statusData;
+
+    // Check bankKycBiometric status
+    const isBankKycBiometricCompleted =
+      bankKycBiometric?.status?.toLowerCase() === "success" &&
+      bankKycBiometric?.isCompleted === true;
+
+    // Check aeps2FaAuthentication status
+    const is2FACompleted =
+      aeps2FaAuthentication?.status?.toLowerCase() === "success" &&
+      aeps2FaAuthentication?.isCompleted === true;
+
+    // If bankKycBiometric is completed but 2FA is not, show 2FA
+    if (isBankKycBiometricCompleted && !is2FACompleted) {
+      return "faVerification";
+    }
+
+    // If 2FA is completed, show SelectService
+    if (is2FACompleted) {
+      return "selectService";
+    }
+
+    // Otherwise, stay on bankKyc
+    return null;
+  };
+
+  /* -------------------------------------------
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
     console.log("🔍 useEffect triggered - pidData:", pidData ? `exists (${pidData.length} chars)` : "empty");
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
     console.log("🔍 lastPidDataRef.current length:", lastPidDataRef.current.length);
-    
+
     if (!pidData) {
       console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
@@ -348,84 +364,151 @@ const FAVerification = () => {
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
-    const requestData = {
-      biometricData: pidData,
-      captureType: "FINGER"
-    };
+    // Get location and IP first
+    getLocationAndIP()
+      .then(async (locationAndIP) => {
+        console.log("📍 Location and IP retrieved:", locationAndIP);
+        const latitude = locationAndIP?.location?.latitude || "";
+        const longitude = locationAndIP?.location?.longitude || "";
 
-    console.log("📤 Dispatching aepsOnboardingFAVerification with data:", {
-      biometricDataLength: requestData.biometricData.length,
-      captureType: requestData.captureType
-    });
+        // Prepare request data with biometric data, lat, and long
+        const requestData = {
+          biometricData: pidData,
+          captureType: "FINGER",
+          latitude: latitude,
+          longitude: longitude
+        };
 
-    dispatch(aepsOnboardingFAVerification(requestData))
+        console.log("📤 Dispatching aepsSubmitBiomatric with data:", {
+          biometricDataLength: requestData.biometricData.length,
+          captureType: requestData.captureType,
+          latitude: requestData.latitude,
+          longitude: requestData.longitude
+        });
+
+        return dispatch(aepsSubmitBiomatric(requestData));
+      })
       .then((response) => {
-        console.log("✅ FA Verification response:", response);
-        if (response?.status === "SUCCESS") {
-          setDeviceMessage("2FA verification successful");
-          // Call aepsStatusCheck after successful verification
-          dispatch(aepsStatusCheck())
-            .then((statusResponse) => {
-              console.log("✅ AEPS Status check response:", statusResponse);
-              
-              // Check if 2FA is completed
-              // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
-              const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
-              const is2FACompleted = checkIf2FACompleted(aepsStatusData);
-              
-              if (is2FACompleted) {
-                console.log("✅ 2FA completed, navigating to SelectService");
+        console.log("✅ Bank KYC biometric verification response:", response);
+        
+        // Always call aepsStatusCheck after biometric verification dispatch
+        console.log("🔄 Calling aepsStatusCheck after bank KYC biometric verification...");
+        
+        dispatch(aepsStatusCheck())
+          .then((statusResponse) => {
+            console.log("✅ AEPS Status check response:", statusResponse);
+
+            // Extract status data from response
+            // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
+            const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
+
+            if (aepsStatusData) {
+              // Get next step based on status
+              const nextStep = getNextStep(aepsStatusData);
+
+              if (nextStep === "faVerification") {
+                console.log("✅ Bank KYC biometric completed, moving to 2FA verification");
+                setDeviceMessage("Bank KYC biometric verification successful");
+                setShow2FA(true);
+              } else if (nextStep === "selectService") {
+                console.log("✅ 2FA completed, moving to SelectService");
+                setDeviceMessage("Bank KYC biometric verification successful");
                 setShowSelectService(true);
               } else {
-                console.log("⚠️ 2FA status not completed yet");
-                setDeviceMessage("Verification in progress. Please wait...");
+                console.log("📋 Staying on bank KYC biometric verification");
+                if (response?.status === "SUCCESS") {
+                  setDeviceMessage("Bank KYC biometric verification successful");
+                } else {
+                  setDeviceMessage(response?.message || "Bank KYC biometric verification completed");
+                }
               }
-            })
-            .catch((error) => {
-              console.error("❌ AEPS Status check error:", error);
-            });
-        } else {
-          console.log("⚠️ FA Verification failed:", response?.message);
-          setDeviceMessage(response?.message || "2FA verification failed");
-          pidDataProcessedRef.current = false;
-        }
+            } else {
+              // If status data is not available, check response status
+              if (response?.status === "SUCCESS") {
+                setDeviceMessage("Bank KYC biometric verification successful");
+              } else {
+                setDeviceMessage(response?.message || "Bank KYC biometric verification failed");
+                pidDataProcessedRef.current = false;
+              }
+            }
+          })
+          .catch((error) => {
+            console.error("❌ AEPS Status check error:", error);
+            // Even if status check fails, check the biometric response
+            if (response?.status === "SUCCESS") {
+              setDeviceMessage("Bank KYC biometric verification successful");
+            } else {
+              setDeviceMessage(response?.message || "Bank KYC biometric verification failed");
+              pidDataProcessedRef.current = false;
+            }
+          });
       })
       .catch((error) => {
-        console.error("❌ FA Verification error:", error);
-        setDeviceMessage("2FA verification failed. Please try again.");
+        console.error("❌ Error getting location or Bank KYC biometric verification error:", error);
+        setDeviceMessage("Bank KYC biometric verification failed. Please try again.");
         pidDataProcessedRef.current = false;
+        
+        // Still try to check status even on error
+        dispatch(aepsStatusCheck())
+          .then((statusResponse) => {
+            console.log("✅ AEPS Status check after error:", statusResponse);
+          })
+          .catch((statusError) => {
+            console.error("❌ AEPS Status check error after bank KYC biometric failure:", statusError);
+          });
+      })
+      .catch((error) => {
+        console.error("❌ Error getting location or Bank KYC biometric verification error:", error);
+        setDeviceMessage("Bank KYC biometric verification failed. Please try again.");
+        pidDataProcessedRef.current = false;
+        
+        // Still try to check status even on error
+        dispatch(aepsStatusCheck())
+          .then((statusResponse) => {
+            console.log("✅ AEPS Status check after error:", statusResponse);
+          })
+          .catch((statusError) => {
+            console.error("❌ AEPS Status check error after bank KYC biometric failure:", statusError);
+          });
       });
   }, [pidData, dispatch]);
 
-  // Call aepsStatusCheck on component mount
+  /* -------------------------------------------
+      CALL aepsStatusCheck ON COMPONENT MOUNT
+  --------------------------------------------*/
   useEffect(() => {
     dispatch(aepsStatusCheck()).then((response) => {
-      console.log("aepsStatusCheck response in FAVerification:", response);
+      console.log("aepsStatusCheck response in BankKyc:", response);
     }).catch((error) => {
-      console.error("aepsStatusCheck error in FAVerification:", error);
+      console.error("aepsStatusCheck error in BiometricVerification:", error);
     });
-    // Also check device on mount
-    discoverAvdm();
   }, [dispatch]);
 
   /* -------------------------------------------
-      HANDLE STATUS CHECK RESPONSE
+      HANDLE STATUS CHECK RESPONSE FROM REDUX
   --------------------------------------------*/
   useEffect(() => {
-    if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
-      console.log("AEPS Status updated:", aepsStatus);
-      
-      // Check if 2FA is completed from Redux state
+    if (aepsStatus?.status === "SUCCESS" && aepsStatus?.aepsStatus) {
+      console.log("AEPS Status updated from Redux:", aepsStatus);
+
+      // Extract status data from Redux state
       // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
       const aepsStatusData = aepsStatus?.aepsStatus || aepsStatus?.data;
-      const is2FACompleted = checkIf2FACompleted(aepsStatusData);
-      
-      if (is2FACompleted && !showSelectService) {
-        console.log("✅ 2FA completed from Redux, navigating to SelectService");
-        setShowSelectService(true);
+
+      if (aepsStatusData) {
+        // Get next step based on status
+        const nextStep = getNextStep(aepsStatusData);
+
+        if (nextStep === "faVerification" && !show2FA && !showSelectService) {
+          console.log("✅ Bank KYC biometric completed (from Redux), moving to 2FA verification");
+          setShow2FA(true);
+        } else if (nextStep === "selectService" && !showSelectService) {
+          console.log("✅ 2FA completed (from Redux), moving to SelectService");
+          setShowSelectService(true);
+        }
       }
     }
-  }, [aepsStatus, showSelectService]);
+  }, [aepsStatus, showSelectService, show2FA]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -437,10 +520,10 @@ const FAVerification = () => {
         "Device Connected",
         "Device Not Connected"
       ];
-      
+
       // Check if this is a persistent message
       const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
-      
+
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
         const timer = setTimeout(() => {
@@ -463,6 +546,10 @@ const FAVerification = () => {
     return <Selectservice />;
   }
 
+  if (show2FA) {
+    return <FAVerification />;
+  }
+
   return (
     <div className="w-full">
       {/* Header */}
@@ -478,10 +565,11 @@ const FAVerification = () => {
 
         <div className="flex-1">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-            2FA Verification
+            Bio Metric Verification
           </div>
-          <div className="mt-[10px] text-[16px] text-[#000000] font-['Gilroy-Regular']">
-            Mandatory Daily Authentication Requires A Registered Biometric Device
+          <div className="mt-[10px] text-[16px]  text-[000000] font-['Gilroy-Regular']">
+            Connect Your RD Service Device To Proceed With Aadhaar
+            Authentication. Ensure Your Fingers Are Clean And Dry
           </div>
         </div>
       </div>
@@ -494,7 +582,7 @@ const FAVerification = () => {
               Authentication Mode
             </div>
 
-            <div className="inline-flex gap-[80px] items-center bg-[#FFFFFF] border border-gray-200 rounded-3xl p-2">
+            <div className="inline-flex gap-[80px]  items-center bg-[#FFFFFF] border border-gray-200 rounded-3xl p-2">
               {modeTabs.map((t) => {
                 const active = mode === t.key;
                 const isIris = t.key === "iris";
@@ -518,9 +606,8 @@ const FAVerification = () => {
           </div>
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
-            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-              deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-            } text-white`}>
+            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}>
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="text-[12px] font-['Gilroy-Medium'] flex-1">
@@ -538,9 +625,8 @@ const FAVerification = () => {
               ) : (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${
-                      deviceConnected ? "bg-white" : "bg-white"
-                    }`} />
+                    <span className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                      }`} />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected ? "Device Connected" : "Device Not Connected"}
                     </span>
@@ -560,105 +646,104 @@ const FAVerification = () => {
         </div>
 
         {/* Capture area */}
-        <div className="mt-[20px] pt-4 border-t border-gray-200">
-          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-            comingSoon ? "bg-gray-50" : "bg-white"
-          }`}>
-          <div className="max-w-2xl mx-auto text-center relative">
-            {/* Keep same UI visible; dim/disable when comingSoon */}
-            <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
-              <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
-                {/* Outer circle background */}
-                <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
-                {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
-                {isScanning && (
-                  <div
-                    className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
-                    style={{
-                      background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
-                    }}
+        <div className="mt-[28px] pt-5 ">
+          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+            }`}>
+            <div className="max-w-2xl mx-auto text-center relative">
+              {/* Keep same UI visible; dim/disable when comingSoon */}
+              <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
+                <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
+                  {/* Outer circle background */}
+                  <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
+                  {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
+                  {isScanning && (
+                    <div
+                      className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
+                      style={{
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
+                      }}
+                    />
+                  )}
+                  {/* Inner white circle */}
+                  <div className="absolute inset-[18px] rounded-full bg-white z-10" />
+                  <img
+                    src={mode === "iris" ? IrisIcon : FingerPrintIcon}
+                    alt={mode === "iris" ? "Iris" : "Fingerprint"}
+                    className="relative w-10 h-10 z-20"
                   />
-                )}
-                {/* Inner white circle */}
-                <div className="absolute inset-[18px] rounded-full bg-white z-10" />
-                <img
-                  src={mode === "iris" ? IrisIcon : FingerPrintIcon}
-                  alt={mode === "iris" ? "Iris" : "Fingerprint"}
-                  className="relative w-10 h-10 z-20"
-                />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (deviceConnected) {
+                        getDeviceInfo();
+                      } else {
+                        discoverAvdm();
+                      }
+                    }}
+                    disabled={isDeviceChecking || isGettingDeviceInfo}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  >
+                    {isDeviceChecking
+                      ? "Checking..."
+                      : isGettingDeviceInfo
+                        ? "Fetching..."
+                        : deviceConnected
+                          ? "Device Info"
+                          : "Ready"}
+                  </button>
+                </div>
+
+                <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                  {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
+                </div>
+                <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
+                  {mode === "iris"
+                    ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
+                    : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
-                    if (deviceConnected) {
-                      getDeviceInfo();
-                    } else {
+                    if (mode === "iris" || comingSoon) return;
+                    if (!deviceConnected) {
                       discoverAvdm();
+                      return;
                     }
+                    captureAvdm();
                   }}
-                  disabled={isDeviceChecking || isGettingDeviceInfo}
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
-                  aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  disabled={isScanning || comingSoon || (mode === "iris")}
+                  className="mt-[28px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[260px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isDeviceChecking
-                    ? "Checking..."
-                    : isGettingDeviceInfo
-                    ? "Fetching..."
-                    : deviceConnected
-                    ? "Device Info"
-                    : "Ready"}
+                  <span className="inline-flex items-center justify-center w-6 h-6 ">
+                    <img
+                      src={mode === "iris" ? EyeIcon : StartCapture}
+                      alt=""
+                      className="w-full h-full"
+                      aria-hidden="true"
+                    />
+                  </span>{" "}
+                  {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
                 </button>
               </div>
 
-              <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
-              </div>
-              <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
-                {mode === "iris"
-                  ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
-                  : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (mode === "iris" || comingSoon) return;
-                  if (!deviceConnected) {
-                    discoverAvdm();
-                    return;
-                  }
-                  captureAvdm();
-                }}
-                disabled={isScanning || comingSoon || (mode === "iris")}
-                className="mt-[24px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="inline-flex items-center justify-center w-6 h-6 ">
-                  <img
-                    src={mode === "iris" ? EyeIcon : StartCapture}
-                    alt=""
-                    className="w-full h-full"
-                    aria-hidden="true"
-                  />
-                </span>{" "}
-                {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
-              </button>
-            </div>
-
-            {comingSoon && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Disabled background overlay */}
-                <div className="absolute inset-0" />
-                {/* Coming Soon container */}
-                <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
-                  <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    Iris Scan Coming Soon
-                  </div>
-                  <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                    This authentication mode will be available in a future update.
+              {comingSoon && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Disabled background overlay */}
+                  <div className="absolute inset-0 " />
+                  {/* Coming Soon container */}
+                  <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
+                    <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      Iris Scan Coming Soon
+                    </div>
+                    <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
+                      This authentication mode will be available in a future update.
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -666,5 +751,5 @@ const FAVerification = () => {
   );
 };
 
-export default FAVerification;
+export default BankKyc;
 
