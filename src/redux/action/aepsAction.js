@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -539,4 +539,155 @@ export const getAepsTransactionDetails = (transactionId) => async (dispatch) => 
     }
 };
 
+export const aepsBankOtp = () => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
 
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-send-otp`,
+            {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: bankOtp, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_BANK_OTP_SUCCESS,
+                payload: { data: bankOtp, status, message },
+            });
+            return { data: bankOtp, status, message };
+        } else {
+            dispatch({
+                type: AEPS_BANK_OTP_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_BANK_OTP_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsSubmitBankOtp = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-validate-otp`,
+            data || {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: bankSubmit, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_BANK_OTP_SUBMIT_SUCCESS,
+                payload: { data: bankSubmit, status, message },
+            });
+            return { data: bankSubmit, status, message };
+        } else {
+            dispatch({
+                type: AEPS_BANK_OTP_SUBMIT_SUCCESS,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_BANK_OTP_SUBMIT_SUCCESS,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsSubmitBiomatric = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-biometric-validate`,
+            data || {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: bankKyc, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_BANK_KYC_SUCCESS,
+                payload: { data: bankKyc, status, message },
+            });
+            return { data: bankKyc, status, message };
+        } else {
+            dispatch({
+                type: AEPS_BANK_KYC_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_BANK_KYC_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
