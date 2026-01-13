@@ -189,7 +189,8 @@ const BBPSServices = ({ onBack }) => {
 
                     {/* STEP 1: Category */}
                     {step === "category" && (
-                        <div className="space-y-4">
+                        <div className="category-step-container">
+                            <div className="space-y-4">
                             {/* Select Category */}
                             <div>
                                 <label className="block text-[14px] font-['Gilroy-Medium'] mb-2">
@@ -264,11 +265,13 @@ const BBPSServices = ({ onBack }) => {
                                     Proceed
                                 </button>
                             </div>
+                            </div>
                         </div>
                     )}
 
                     {step === "customer" && (
-                        <div className="space-y-6">
+                        <div className="customer-step-container">
+                            <div className="space-y-6">
 
                             {/* Normal Header Content (NOT a card) */}
                             <div className="flex justify-between items-start">
@@ -336,10 +339,12 @@ const BBPSServices = ({ onBack }) => {
                                 </button>
 
                             </div>
+                            </div>
                         </div>
                     )}
                     {step === "bill" && (
-                        <div className="space-y-6">
+                        <div className="bill-step-container">
+                            <div className="space-y-6">
 
                             {/* Bill Number */}
                             <div>
@@ -398,11 +403,13 @@ const BBPSServices = ({ onBack }) => {
                                 </button>
 
                             </div>
+                            </div>
                         </div>
                     )}
 
                     {step === "summary" && (
-                        <div className="space-y-8">
+                        <div className="summary-step-container">
+                            <div className="space-y-8">
 
                             {/* BILL DETAILS CARD */}
                             <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-4">
@@ -470,96 +477,103 @@ const BBPSServices = ({ onBack }) => {
 
                                 </div>
                             </div>
-
+                            </div>
                         </div>
                     )}
-
+                    
                     {step === "success" && (
-                        <div className="  p-4 shadow-sm">
+                        <div className="relative bg-white rounded-xl border-2 border-[#2F80ED] p-6 overflow-hidden shadow-sm">
+                            {/* ===== Ticket Side Cutouts (Outlets) ===== */}
+                            <div className="absolute left-0 top-[110px] w-6 h-6 bg-white rounded-full -translate-x-1/2 border-2 border-[#2F80ED] z-10"></div>
+                            <div className="absolute right-0 top-[110px] w-6 h-6 bg-white rounded-full translate-x-1/2 border-2 border-[#2F80ED] z-10"></div>
+                            <div className="absolute left-0 bottom-[90px] w-6 h-6 bg-white rounded-full -translate-x-1/2 border-2 border-[#2F80ED] z-10"></div>
+                            <div className="absolute right-0 bottom-[90px] w-6 h-6 bg-white rounded-full translate-x-1/2 border-2 border-[#2F80ED] z-10"></div>
 
-                            {/* Success Icon */}
-                            <div className="flex justify-center mb-4">
-                                <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-                                    <svg
-                                        xmlns="http://www.w3.org/2000/svg"
-                                        className="h-7 w-7 text-white"
-                                        fill="none"
-                                        viewBox="0 0 24 24"
-                                        stroke="currentColor"
-                                        strokeWidth={3}
-                                    >
+                            {/* ===== Success Icon Section ===== */}
+                            <div className="flex justify-center mb-6 mt-2">
+                                <div className="w-20 h-20 bg-[#039155] rounded-full flex items-center justify-center shadow-sm">
+                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
                                         <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                                     </svg>
                                 </div>
                             </div>
 
-                            {/* Title */}
-                            <h2 className="text-center text-[22px] font-['Gilroy-SemiBold']">
-                                Payment Successful
-                            </h2>
-                            <p className="text-center text-gray-500 mt-1">
-                                Your Payment Has Been Completed
-                            </p>
+                            {/* ===== Title Section ===== */}
+                            <div className="text-center mb-8">
+                                <h2 className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
+                                    Payment Successful
+                                </h2>
+                                <p className="text-[16px] text-gray-600 font-['Gilroy-Regular']">
+                                    Your Payment Has Been Completed
+                                </p>
+                            </div>
 
-                            {/* Amount */}
-                            <div className="border border-dashed border-gray-300 rounded-lg py-6 mt-6 text-center">
-                                <span className="text-[28px] font-['Gilroy-SemiBold']">
-                                    ₹ {amount}
+                            {/* ===== Amount Section ===== */}
+                            <div className="border-2 border-dashed border-gray-300 rounded-lg py-8 px-4 text-center mb-8">
+                                <span className="text-[36px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                                    {amount}
                                 </span>
                             </div>
 
-                            {/* Details */}
-                            <div className="grid grid-cols-2 gap-y-4 mt-6 text-[14px]">
+                            {/* ===== Transaction Details Section ===== */}
+                            <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-8">
+                                {/* Left Column */}
                                 <div>
-                                    <p className="text-gray-500">Transaction Id</p>
-                                    <p className="font-['Gilroy-Medium']">GPTXN88392010</p>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">Transaction Id</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">GPTXN88392010</p>
                                 </div>
 
+                                {/* Right Column */}
                                 <div>
-                                    <p className="text-gray-500">Customer Name</p>
-                                    <p className="font-['Gilroy-Medium']">Srinivas</p>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">Customer Name</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">Srinivas</p>
                                 </div>
 
+                                {/* Left Column */}
                                 <div>
-                                    <p className="text-gray-500">Biller Number</p>
-                                    <p className="font-['Gilroy-Medium']">1011</p>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">Biller Number</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">1011</p>
                                 </div>
 
+                                {/* Right Column */}
                                 <div>
-                                    <p className="text-gray-500">Transaction Status</p>
-                                    <p className="font-['Gilroy-Medium'] text-green-600">Success</p>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">B-Connect Transaction ID</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">SPIB993953342640647</p>
                                 </div>
 
+                                {/* Left Column */}
                                 <div>
-                                    <p className="text-gray-500">Date Time</p>
-                                    <p className="font-['Gilroy-Medium']">
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">Transaction Status</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#039155]">Success</p>
+                                </div>
+
+                                {/* Right Column */}
+                                <div>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">Date Time</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                                         Oct 24, 2023, 10:42 AM
                                     </p>
                                 </div>
 
+                                {/* Left Column */}
                                 <div>
-                                    <p className="text-gray-500">CCF</p>
-                                    <p className="font-['Gilroy-Medium']">0</p>
+                                    <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">CCF</p>
+                                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">0</p>
                                 </div>
                             </div>
 
-                            {/* Buttons */}
-                            <div className="flex gap-4 mt-8">
-                                <button className="flex-1 h-[44px] border border-gray-300 rounded-lg">
+                            {/* ===== Action Buttons Section ===== */}
+                            <div className="flex gap-4">
+                                <button className="flex-1 h-[48px] bg-white border-2 border-gray-300 rounded-lg text-[#1B1717] font-['Gilroy-Medium'] hover:bg-gray-50 transition-colors">
                                     Share
                                 </button>
-
-                                <button className="flex-1 h-[44px] bg-[#039155] text-white rounded-lg flex items-center justify-center gap-2">
-                                    <Download size={16} />
+                                <button className="flex-1 h-[48px] bg-[#039155] text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2 hover:bg-[#027A47] transition-colors">
+                                    <Download size={18} />
                                     Download Receipt
                                 </button>
                             </div>
                         </div>
                     )}
-
-
-
-
                 </div>
 
 
