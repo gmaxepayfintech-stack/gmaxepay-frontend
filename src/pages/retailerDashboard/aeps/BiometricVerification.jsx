@@ -3,7 +3,6 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import AEPSAccessConfirm from "./AEPSAccessConfirm";
 import { aepsOnboardingBiometricVerification, aepsStatusCheck, aepsBankOtp } from "../../../redux/action/aepsAction";
 import BankOtp from "./BankOtp";
 
@@ -484,7 +483,7 @@ const BiometricVerification = () => {
         // Get next step based on status
         const nextStep = getNextStep(aepsStatusData);
 
-        if (nextStep === "bankOtp" && !showBankOtp && !showConfirm) {
+        if (nextStep === "bankOtp" && !showBankOtp) {
           console.log("✅ Biometric completed (from Redux), moving to BankOtp");
           dispatch(aepsBankOtp())
             .then((bankOtpResponse) => {
@@ -497,7 +496,7 @@ const BiometricVerification = () => {
         }
       }
     }
-  }, [aepsStatus, showConfirm, showBankOtp, dispatch]);
+  }, [aepsStatus, showBankOtp, dispatch]);
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -530,11 +529,6 @@ const BiometricVerification = () => {
     ],
     []
   );
-
-  // Show AEPSAccessConfirm if all status is completed
-  if (showConfirm) {
-    return <AEPSAccessConfirm />;
-  }
 
   if (showBankOtp) {
     return <BankOtp />;
