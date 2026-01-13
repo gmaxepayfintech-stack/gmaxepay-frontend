@@ -114,7 +114,7 @@ const IdentityVerification = ({ onBack }) => {
             // Submit OTP in the required format
             const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
             console.log("aepsSubmitOTP response:", response);
-            
+
             // Check status regardless of success or failure
             try {
                 const statusResponse = await dispatch(aepsStatusCheck());
@@ -122,7 +122,7 @@ const IdentityVerification = ({ onBack }) => {
             } catch (statusError) {
                 console.error("aepsStatusCheck error after OTP submit:", statusError);
             }
-            
+
             // Only navigate to next step if OTP submission was successful
             if (response?.status === "SUCCESS") {
                 setShowBiometric(true);
@@ -148,7 +148,7 @@ const IdentityVerification = ({ onBack }) => {
         try {
             const response = await dispatch(aepsRescendOTP());
             console.log("aepsRescendOTP response:", response);
-            
+
             if (response?.status === "SUCCESS") {
                 // Start 3-minute countdown (180 seconds)
                 setResendTimer(180);
@@ -215,19 +215,19 @@ const IdentityVerification = ({ onBack }) => {
                             (() => {
                                 const showError = touchedSubmit && !String(digit).trim();
                                 return (
-                            <input
-                                key={idx}
-                                ref={(el) => {
-                                    inputsRef.current[idx] = el;
-                                }}
-                                value={digit}
-                                inputMode="numeric"
-                                autoComplete="one-time-code"
-                                maxLength={OTP_LENGTH}
-                                onChange={(e) => handleChange(idx, e.target.value)}
-                                onKeyDown={(e) => handleKeyDown(idx, e)}
-                                className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${showError ? "border-red-500 focus:ring-red-200 focus:border-red-500" : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"}`}
-                            />
+                                    <input
+                                        key={idx}
+                                        ref={(el) => {
+                                            inputsRef.current[idx] = el;
+                                        }}
+                                        value={digit}
+                                        inputMode="numeric"
+                                        autoComplete="one-time-code"
+                                        maxLength={OTP_LENGTH}
+                                        onChange={(e) => handleChange(idx, e.target.value)}
+                                        onKeyDown={(e) => handleKeyDown(idx, e)}
+                                        className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${showError ? "border-red-500 focus:ring-red-200 focus:border-red-500" : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"}`}
+                                    />
                                 );
                             })()
                         ))}
@@ -241,11 +241,10 @@ const IdentityVerification = ({ onBack }) => {
                             type="button"
                             onClick={handleResendOTP}
                             disabled={resendTimer > 0}
-                            className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
-                                resendTimer > 0
+                            className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${resendTimer > 0
                                     ? "text-gray-400 cursor-not-allowed"
                                     : "text-[#039155] hover:text-[#027A47] cursor-pointer"
-                            }`}
+                                }`}
                         >
                             {resendTimer > 0 ? `Resend In ${formatTimer(resendTimer)}` : "Resend OTP"}
                         </button>
@@ -254,7 +253,7 @@ const IdentityVerification = ({ onBack }) => {
                     <button
                         type="submit"
                         disabled={isLoading}
-                        className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition flex items-center justify-center gap-2"
+                        className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
                     >
                         {isLoading && <ButtonLoader color="#FFFFFF" size={20} thickness={3} />}
                         {isLoading ? "Processing..." : "Submit"}
