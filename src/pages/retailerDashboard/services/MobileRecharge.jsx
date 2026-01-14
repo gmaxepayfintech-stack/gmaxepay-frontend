@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { Search, ChevronRight } from "lucide-react";
+import { Search, ChevronRight, X, CheckCircle } from "lucide-react";
 import PropTypes from "prop-types";
 
 // Sample recent recharge data
@@ -110,7 +110,16 @@ const detailedPlans = [
     validity: "28 Days",
     data: "1.0 GB/Day",
     calls: "Unlimited",
-    validityExtra: "Unlimited 5G + 2GB/Day"
+    validityExtra: "Unlimited 5G + 2GB/Day",
+    planName: "Kannada Super Value",
+    channels: "244",
+    features: [
+      "Paid Channels : 89 • HD",
+      "Free Channels 32 Channels",
+      "Entertainment And News Channels",
+      "Access To 244 Premium Channels",
+      "Regional Kannada Content"
+    ]
   },
   {
     id: 2,
@@ -118,7 +127,16 @@ const detailedPlans = [
     validity: "28 Days",
     data: "1.0 GB/Day",
     calls: "Unlimited",
-    validityExtra: "Unlimited 5G + 2GB/Day"
+    validityExtra: "Unlimited 5G + 2GB/Day",
+    planName: "Kannada Super Value",
+    channels: "244",
+    features: [
+      "Paid Channels : 89 • HD",
+      "Free Channels 32 Channels",
+      "Entertainment And News Channels",
+      "Access To 244 Premium Channels",
+      "Regional Kannada Content"
+    ]
   }
 ];
 
@@ -132,6 +150,25 @@ const MobileRecharge = ({ onBack }) => {
   const [activeFilter, setActiveFilter] = useState("28 Days Validity");
   const [activeCategory, setActiveCategory] = useState("Recommended Packs");
   const [searchQuery, setSearchQuery] = useState("");
+  const [showOperatorModal, setShowOperatorModal] = useState(false);
+  const [showDetailsModal, setShowDetailsModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
+  const [selectedPlanForRecharge, setSelectedPlanForRecharge] = useState(null);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentSuccess, setPaymentSuccess] = useState(false);
+  const [transactionDetails, setTransactionDetails] = useState(null);
+
+  // Get unique operators from recent recharges
+  const operators = recentRecharges.reduce((acc, recharge) => {
+    if (!acc.find(op => op.operator === recharge.operator)) {
+      acc.push({
+        operator: recharge.operator,
+        operatorType: recharge.operatorType,
+        logo: recharge.logo
+      });
+    }
+    return acc;
+  }, []);
 
   const handleProceed = () => {
     if (!mobileNumber || mobileNumber.length !== 10) {
@@ -233,148 +270,406 @@ const MobileRecharge = ({ onBack }) => {
             </>
           ) : (
             <div className="space-y-4">
-              {/* Mobile Number and Operator Info - Separate Card */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="flex items-center gap-4">
-                  {/* Operator Logo */}
-                  <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
-                      {selectedOperator.name.charAt(0)}
+              {paymentSuccess && transactionDetails ? (
+                /* Payment Success Screen */
+                <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+                  {/* Top Notch - U-shaped cutout inside */}
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
+                  {/* Bottom Notch - U-shaped cutout inside */}
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
+                  {/* Left Notch - U-shaped cutout inside */}
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full"></div>
+                  {/* Right Notch - U-shaped cutout inside */}
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full"></div>
+                  {/* Content Container - ensures content stays within card, inside the notches */}
+                  <div className="relative z-10 pt-12 pb-12 pl-12 pr-12">
+                  {/* Success Icon and Header */}
+                  <div className="text-center mb-4">
+                    <div className="flex justify-center mb-3">
+                      <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                        </svg>
+                      </div>
+                    </div>
+                    <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+                      Payment Successful
+                    </h2>
+                    <p className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                      Your Payment Has Been Completed
+                    </p>
+                  </div>
+
+                  {/* Transaction Amount */}
+                  <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-4 mx-auto max-w-[400px]">
+                    <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      ₹ {transactionDetails.amount}
                     </div>
                   </div>
 
-                  <div className="flex-1">
-                    <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
-                      {mobileNumber}
+                  {/* Transaction Details */}
+                  <div className="grid grid-cols-2 gap-4 mb-4">
+                    {/* Left Column */}
+                    <div className="space-y-2.5">
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          Transaction Id
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717] leading-tight break-words">
+                          {transactionDetails.transactionId}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          Validity
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
+                          {selectedPlanForRecharge.validity}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          Transaction Status
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#039155]">
+                          Success
+                        </div>
+                      </div>
                     </div>
-                    <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-1 flex items-center gap-[12px]">
-                      <span>{selectedOperator.name}</span>
-                      <span className="text-[#039155] text-[40px] leading-none inline-flex items-center justify-center">•</span>
-                      <span>{selectedOperator.circle}</span>
+
+                    {/* Right Column */}
+                    <div className="space-y-2.5">
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          Mobile Number
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
+                          {mobileNumber}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          B-Connect Transaction ID
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717] leading-tight break-words">
+                          {transactionDetails.bConnectId}
+                        </div>
+                      </div>
+                      <div>
+                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                          Date Time
+                        </div>
+                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
+                          {transactionDetails.dateTime}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex gap-3 pt-3  border-gray-200 -mx-12 px-12">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Handle share logic
+                        console.log('Sharing receipt');
+                      }}
+                      className="flex-1 px-4 py-2 border border-[#039155] rounded-lg text-[16px] font-['Gilroy-Medium'] text-[#039155] bg-white hover:bg-green-50 transition"
+                    >
+                      Share
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Handle download receipt logic
+                        console.log('Downloading receipt');
+                      }}
+                      className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[16px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+                    >
+                      Download Receipt
+                    </button>
+                  </div>
+                  </div>
+                </div>
+              ) : selectedPlanForRecharge ? (
+                /* Plan Confirmation Card */
+                <div className="   ">
+                  {/* Operator and Number */}
+                  <div className="flex bg-[#FFFFFF] mb-[24px] p-4 rounded-xl items-center gap-4">
+                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
+                        {selectedOperator.name.charAt(0)}
+                      </div>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {mobileNumber}
+                      </div>
+                      <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-1 flex items-center gap-[12px]">
+                        <span>{selectedOperator.name}</span>
+                        <span className="text-[#039155] text-[40px] leading-none inline-flex items-center justify-center">•</span>
+                        <span>{selectedOperator.circle}</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="bg-[#FFFFFF] p-3  rounded-xl">
+                    {/* Plan Summary */}
+                    <div className=" border-gray-200 pt-4">
+                      <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
+                        {selectedPlanForRecharge.price}
+                      </div>
+                      <div className="flex items-center justify-between mb-3">
+                        <div>
+                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                            Validity
+                          </div>
+                          <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                            {selectedPlanForRecharge.validity}
+                          </div>
+                        </div>
+                        <div>
+                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                            Data
+                          </div>
+                          <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                            {selectedPlanForRecharge.data}
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedPlanForRecharge(null)}
+                          className="text-[#039155] text-[14px] underline font-['Gilroy-Medium'] hover:underline"
+                        >
+                          Change Plan
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Plan Details */}
+                    <div className="border-t border-[#1B1717] border-opacity-30 pt-4 space-y-3">
+                      <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                        Data: {selectedPlanForRecharge.data.replace('/Day', '')}
+                      </div>
+                      <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                        Validity: {selectedPlanForRecharge.validity} (Valid With Active Bundle Pack)
+                      </div>
+                      <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                        Added Benefit: {selectedPlanForRecharge.validityExtra}
+                      </div>
+                      <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                        Calls: {selectedPlanForRecharge.calls}
+                      </div>
+                    </div>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-4 pt-8 border-gray-200">
                       <button
                         type="button"
-                        onClick={() => setStep("input")}
-                        className="text-[#039155] text-[14px] underline font-['Gilroy-Medium'] hover:underline"
+                        onClick={() => setSelectedPlanForRecharge(null)}
+                        className="flex-1 px-4 py-3 border border-[#1B1717] border-opacity-30 rounded-lg text-[18px] font-['Gilroy-Medium'] text-[#1B1717] hover:bg-gray-50 transition"
                       >
-                        Change
+                        Cancel
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowPaymentModal(true);
+                        }}
+                        className="flex-1 px-4 py-3 bg-[#039155]  rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+                      >
+                        Proceed
                       </button>
                     </div>
                   </div>
-
-
                 </div>
-              </div>
-
-              {/* Suggested Plans - Separate Card */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4">
-                <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
-                  Suggest Plans
-                </div>
-                <div className="flex items-stretch gap-4">
-                  {suggestedPlans.map((plan, index) => (
-                    <div key={plan.id} className="contents">
-                      <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
-                        <div className="flex items-start gap-2">
-                          <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                            {plan.operator.charAt(0)}
-                          </div>
-                          <div className="flex-1">
-                            <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                              {plan.price}
-                            </div>
-                            <div className="text-[18px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                              {plan.lastRecharge}
-                            </div>
-                            <div className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
-                              <span>{plan.data}</span>
-                              <span className="text-[#1B1717] p-0 text-center w-5 h-5 inline-flex items-center justify-center">•</span>
-                              <span>{plan.validity}</span>
-                            </div>
-                          </div>
+              ) : (
+                <>
+                  {/* Mobile Number and Operator Info - Separate Card */}
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
+                    <div className="flex items-center gap-4">
+                      {/* Operator Logo */}
+                      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
+                          {selectedOperator.name.charAt(0)}
                         </div>
                       </div>
-                      {index < suggestedPlans.length - 1 && (
-                        <div className="w-px bg-gray-300"></div>
-                      )}
+
+                      <div className="flex-1">
+                        <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
+                          {mobileNumber}
+                        </div>
+                        <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-1 flex items-center gap-[12px]">
+                          <span>{selectedOperator.name}</span>
+                          <span className="text-[#039155] text-[40px] leading-none inline-flex items-center justify-center">•</span>
+                          <span>{selectedOperator.circle}</span>
+                          <button
+                            type="button"
+                            onClick={() => setShowOperatorModal(true)}
+                            className="text-[#039155] text-[14px] underline font-['Gilroy-Medium'] hover:underline"
+                          >
+                            Change
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                  ))}
-                </div>
-              </div>
+                  </div>
+
+                  {/* Suggested Plans - Separate Card */}
+                  <div className="bg-white border border-gray-200 rounded-xl p-4">
+                    <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
+                      Suggest Plans
+                    </div>
+                    <div className="flex items-stretch gap-2">
+                      {suggestedPlans.map((plan, index) => (
+                        <div key={plan.id} className="contents">
+                          <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
+                            <div className="flex items-start gap-2">
+                              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
+                                {plan.operator.charAt(0)}
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+                                  {plan.price}
+                                </div>
+                                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-0">
+                                  {plan.lastRecharge}
+                                </div>
+                                <div className=" font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
+                                  <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
+                                  <span className="text-[#1B1717] text-[30px] text-center w-2  ">•</span>
+                                  <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                          {index < suggestedPlans.length - 1 && (
+                            <div className="w-px bg-gray-300"></div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Search, Filters, Categories and Plans - Single Card */}
-              <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-4">
-                {/* Search Bar */}
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                  <input
-                    type="text"
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search For A Plan, Eg 249 Or 28 Days"
-                    className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none text-[#1B1717]"
-                  />
-                </div>
+              {!selectedPlanForRecharge && (
+                <div className="bg-white border border-gray-200  rounded-xl p-4 space-y-4">
+                  {/* Search Bar */}
+                  <div className="relative font-['Gilroy-Medium']">
+                    <Search className="absolute left-4 top-1/2 text-[#1B1717] text-opacity-50 -translate-y-1/2  w-5 h-5" />
+                    <input
+                      type="text"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search For A Plan, Eg 249 Or 28 Days"
+                      className="w-full pl-12 pr-4 py-3 border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717]"
+                    />
+                  </div>
 
-                {/* Filter Buttons */}
-                <div className="flex flex-wrap gap-2">
-                  {filterButtons.map((filter) => (
-                    <button
-                      key={filter}
-                      type="button"
-                      onClick={() => setActiveFilter(filter)}
-                      className={`px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${activeFilter === filter
-                        ? "bg-[#039155] text-white"
-                        : "bg-gray-100 text-[#1B1717] hover:bg-gray-200"
-                        }`}
-                    >
-                      {filter}
-                    </button>
-                  ))}
-                </div>
+                  {/* Filter Buttons */}
+                  <div className="flex flex-wrap gap-[17px]">
+                    {filterButtons.map((filter) => (
+                      <button
+                        key={filter}
+                        type="button"
+                        onClick={() => setActiveFilter(filter)}
+                        className={`px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${activeFilter === filter
+                          ? "bg-[#039155] text-white"
+                          : "bg-gray-100 text-[#1B1717] hover:bg-gray-200"
+                          }`}
+                      >
+                        {filter}
+                      </button>
+                    ))}
+                  </div>
 
-                {/* Category Tabs */}
-                <div className="flex gap-4 overflow-x-auto pb-2 border-b border-gray-200">
-                  {categoryTabs.map((category) => (
-                    <button
-                      key={category}
-                      type="button"
-                      onClick={() => setActiveCategory(category)}
-                      className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
-                        ? "text-[#039155]"
-                        : "text-gray-600 hover:text-[#1B1717]"
-                        }`}
-                    >
-                      {category}
-                      {activeCategory === category && (
-                        <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#039155]" />
-                      )}
-                    </button>
-                  ))}
-                </div>
+                  {/* Category Tabs */}
+                  <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200">
+                    {categoryTabs.map((category) => (
+                      <button
+                        key={category}
+                        type="button"
+                        onClick={() => setActiveCategory(category)}
+                        className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
+                          ? "text-[#039155]"
+                          : "text-gray-600 hover:text-[#1B1717]"
+                          }`}
+                      >
+                        {category}
+                        {activeCategory === category && (
+                          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[3px] bg-[#039155]" />
+                        )}
+                      </button>
+                    ))}
+                  </div>
 
-                {/* Detailed Plan Cards */}
-                <div className="space-y-4">
-                  {detailedPlans.map((plan) => (
-                    <div
-                      key={plan.id}
-                      className="bg-gray-50 border border-gray-200 rounded-xl p-4 hover:shadow-sm transition cursor-pointer flex items-center justify-between"
-                    >
-                      <div className="flex-1">
-                        <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
-                          {plan.price}
+                  {/* Detailed Plan Cards */}
+                  <div className="space-y-4 gap-[18px]">
+                    {detailedPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        onClick={() => setSelectedPlanForRecharge(plan)}
+                        className="bg-white border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-4 hover:shadow-sm transition cursor-pointer"
+                      >
+                        {/* Top Section */}
+                        <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
+                          {/* Price */}
+                          <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                            {plan.price}
+                          </div>
+
+                          {/* Vertical Divider */}
+                          <div className="h-12 w-[1px]  mx-6 bg-[#1B1717] bg-opacity-80" />
+
+                          {/* Validity and Data */}
+                          <div className="flex-1 flex gap-6">
+                            <div>
+                              <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                                Validity
+                              </div>
+                              <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                                {plan.validity}
+                              </div>
+                            </div>
+                            <div>
+                              <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                                Data
+                              </div>
+                              <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                                {plan.data}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Arrow Icon */}
+                          <ChevronRight className="text-[#1B1717] text-opacity-80 w-5 h-5" />
                         </div>
-                        <div className="space-y-1 text-[14px] font-['Gilroy-Regular'] text-gray-600">
-                          <div>Validity: {plan.validity}</div>
-                          <div>Data: {plan.data}</div>
-                          <div>Calls: {plan.calls}</div>
-                          <div>{plan.validityExtra}</div>
+
+                        {/* Bottom Section */}
+                        <div className="pt-3 space-y-1">
+                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                            Calls : {plan.calls}
+                          </div>
+                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
+                            <span>Validity : {plan.validityExtra}</span>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedPlan(plan);
+                                setShowDetailsModal(true);
+                              }}
+                              className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] cursor-pointer hover:underline"
+                            >
+                              Details
+                            </button>
+                          </div>
                         </div>
                       </div>
-                      <ChevronRight className="text-gray-400 w-6 h-6" />
-                    </div>
-                  ))}
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
             </div>
           )}
         </div>
@@ -399,6 +694,260 @@ const MobileRecharge = ({ onBack }) => {
           </div>
         </div>
       </div>
+
+      {/* Select Operator Modal */}
+      {showOperatorModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-[#FFFFFF] rounded-xl w-full max-w-md mx-4 relative">
+            {/* Modal Header */}
+            <div className="flex items-center justify-center p-4  border-gray-200">
+              <h2 className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                Select Operator
+              </h2>
+              <button
+                type="button"
+                onClick={() => setShowOperatorModal(false)}
+                className="absolute right-2 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border border-[2.5px] border-[#FFFFFF] p-1" />
+              </button>
+
+            </div>
+
+            {/* Operator List */}
+            <div className="max-h-[400px] overflow-y-auto">
+              {operators.map((operator, index) => (
+                <div key={index}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedOperator({
+                        name: operator.operator,
+                        circle: "Karnataka"
+                      });
+                      setShowOperatorModal(false);
+                    }}
+                    className="w-full flex items-center gap-3 p-4  transition"
+                  >
+                    {/* Operator Logo */}
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      {operator.logo ? (
+                        <img
+                          src={operator.logo}
+                          alt={operator.operator}
+                          className="w-10 h-10 rounded-full"
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                          {operator.operator.charAt(0)}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Operator Name */}
+                    <div className="flex-1 text-left">
+                      <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {operator.operatorType}
+                      </div>
+
+                    </div>
+
+                  </button>
+                  {index < operators.length - 1 && (
+                    <div className="h-[0.5px] bg-[#1B1717] bg-opacity-30 ml-[70px] mr-4" />
+                  )}
+
+                </div>
+              ))}
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-[19px] p-4 border-[#1B1717] mt-[18px] border-opacity-30">
+              <button
+                type="button"
+                onClick={() => setShowOperatorModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-[18px] font-['Gilroy-Medium'] text-[#1B1717] hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowOperatorModal(false)}
+                className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+              >
+                Change
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Plan Details Modal */}
+      {showDetailsModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-full max-w-md mx-4 relative">
+            {/* Modal Header */}
+            <div className="flex items-center justify-between p-4 border-gray-200 relative">
+              <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                {selectedPlan.price}
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowDetailsModal(false)}
+                className="absolute right-2 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border border-[2.5px] border-[#FFFFFF] p-1" />
+              </button>
+            </div>
+
+            {/* Summary Section */}
+            <div className="p-4 border-b border-gray-200">
+              <div className="flex items-center">
+                <div>
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                    Validity
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    {selectedPlan.validity}
+                  </div>
+                </div>
+                <div className="flex-1 flex flex-col items-center">
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                    Data
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    {selectedPlan.data}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Details Section */}
+            <div className="p-4">
+              <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
+                Plan Summary
+              </div>
+              <div className="space-y-2">
+                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                  • Calls : {selectedPlan.calls}
+                </div>
+                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                  • Validity : {selectedPlan.validityExtra}
+                </div>
+                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                  • Data : {selectedPlan.data}
+                </div>
+                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                  • Plan Validity : {selectedPlan.validity}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Confirm Payment Method Modal */}
+      {showPaymentModal && selectedPlanForRecharge && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl w-full max-w-md mx-4 relative">
+            {/* Modal Header */}
+            <div className="p-4 text-center border-gray-200">
+              <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1  ">
+                Confirm Payment Method
+              </h2>
+              <p className="text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                Review Your Payment Details
+              </p>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-4  space-y-4">
+              {/* Section Title */}
+              <div className="text-[16px] mb-[16px] text-center font-['Gilroy-Medium'] text-[#1B1717]">
+                Confirm Recharge Payment
+              </div>
+
+              {/* Payment Amount */}
+              <div>
+                <div className="border-2 border-dashed border-[#1B1717]  border-opacity-80 rounded-lg p-4 text-center">
+                  <div className="text-[32px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                    {selectedPlanForRecharge.price.replace('₹', '₹ ')}
+                  </div>
+                </div>
+              </div>
+
+              {/* Recharge Details Summary */}
+              <div className="space-y-3 pt-2">
+                <div className="flex items-center justify-between">
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    Phone Number
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    {mobileNumber}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    Payment Date
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    {new Date().toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\//g, '-')}
+                  </div>
+                </div>
+                <div className="flex items-center justify-between">
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    Validity
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                    {selectedPlanForRecharge.validity}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Modal Footer */}
+            <div className="flex gap-[18px] p-4 border-gray-200">
+              <button
+                type="button"
+                onClick={() => setShowPaymentModal(false)}
+                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-[18px] font-['Gilroy-Medium'] text-[#1B1717] hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  // Generate transaction details
+                  const transactionId = 'GPTXN' + Math.random().toString(36).substr(2, 10).toUpperCase();
+                  const bConnectId = 'SPIB' + Math.random().toString().substr(2, 15);
+                  const dateTime = new Date().toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    hour12: true
+                  });
+
+                  setTransactionDetails({
+                    transactionId,
+                    bConnectId,
+                    dateTime,
+                    amount: selectedPlanForRecharge.price.replace('₹', '').trim()
+                  });
+
+                  setShowPaymentModal(false);
+                  setPaymentSuccess(true);
+                  // You can add additional logic here like API call, etc.
+                }}
+                className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+              >
+                Confirm Payment
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
