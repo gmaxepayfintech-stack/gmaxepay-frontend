@@ -265,20 +265,18 @@ const FAVerification = () => {
     const deviceType = detectDeviceType(deviceInfoXml);
     
     // Build CustOpts based on device type
-    let custOpts = "";
-    if (deviceType === "mantra") {
-      // Mantra devices require mantrakey parameter
-      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
-    } else if (deviceType === "startek") {
-      // Startek devices typically don't need CustOpts
-      custOpts = ""; // Startek devices usually don't need CustOpts
-    } else {
-      // For unknown devices, default to Mantra format (backward compatibility)
-      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
-    }
-    
-    // Build proper XML structure without backslashes
-    const pidOptions = '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="10000" posh="UNKNOWN" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" env="P" />' + DString + custOpts + '</PidOptions>';
+    // Build proper XML structure
+    const pidOptions = '<?xml version="1.0"?> \
+      <PidOptions ver="1.0"> \
+        <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
+              pidVer="2.0" timeout="10000" posh="UNKNOWN" \
+              wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
+              env="P" /> \
+        ' + DString + ' \
+        <CustOpts> \
+          <Param name="mantrakey" value="" /> \
+        </CustOpts> \
+      </PidOptions>';
 
     try {
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
