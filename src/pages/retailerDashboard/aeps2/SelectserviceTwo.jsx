@@ -360,16 +360,19 @@ const SelectserviceTwo = () => {
 
     // Build proper XML structure without backslashes
     const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" env="P" />' +
       DString +
       custOpts +
       "</PidOptions>";
+
+    // Convert to base64
+    const pidOptionsBase64 = btoa(pidOptions);
 
     try {
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
         headers: { "Content-Type": "text/xml; charset=utf-8" },
-        body: pidOptions,
+        body: pidOptionsBase64,
       });
 
       const captureText = await captureResp.text();
@@ -587,16 +590,33 @@ const SelectserviceTwo = () => {
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
 
+      // Build CustOpts based on device type
+      let custOpts = "";
+      if (deviceType === "mantra") {
+        // Mantra devices require mantrakey parameter
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      } else if (deviceType === "startek") {
+        // Startek devices typically don't need CustOpts
+        custOpts = ""; // Startek devices usually don't need CustOpts
+      } else {
+        // For unknown devices, default to Mantra format (backward compatibility)
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      }
+
+      // Build proper XML structure without backslashes
       const pidOptions =
-        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" env="P" />' +
         DString +
         custOpts +
         "</PidOptions>";
 
+      // Convert to base64
+      const pidOptionsBase64 = btoa(pidOptions);
+
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
         headers: { "Content-Type": "text/xml; charset=utf-8" },
-        body: pidOptions,
+        body: pidOptionsBase64,
       });
 
       const captureText = await captureResp.text();
@@ -852,15 +872,18 @@ const SelectserviceTwo = () => {
 
       // Build proper XML structure without backslashes
       const pidOptions =
-        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" env="P" />' +
         DString +
         custOpts +
         "</PidOptions>";
 
+      // Convert to base64
+      const pidOptionsBase64 = btoa(pidOptions);
+
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
         headers: { "Content-Type": "text/xml; charset=utf-8" },
-        body: pidOptions,
+        body: pidOptionsBase64,
       });
 
       const captureText = await captureResp.text();
@@ -1091,15 +1114,18 @@ const SelectserviceTwo = () => {
 
       // Build proper XML structure without backslashes
       const pidOptions =
-        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" env="P" />' +
         DString +
         custOpts +
         "</PidOptions>";
 
+      // Convert to base64
+      const pidOptionsBase64 = btoa(pidOptions);
+
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
         headers: { "Content-Type": "text/xml; charset=utf-8" },
-        body: pidOptions,
+        body: pidOptionsBase64,
       });
 
       const captureText = await captureResp.text();
