@@ -345,8 +345,20 @@ const SelectserviceTwo = () => {
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
 
-    // Build proper XML structure
-    const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
+    // Build CustOpts based on device type
+    let custOpts = "";
+    if (deviceType === "mantra") {
+      // Mantra devices require mantrakey parameter
+      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+    } else if (deviceType === "startek") {
+      // Startek devices typically don't need CustOpts
+      custOpts = ""; // Startek devices usually don't need CustOpts
+    } else {
+      // For unknown devices, default to Mantra format (backward compatibility)
+      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+    }
+
+    // Build proper XML structure without backslashes
     const pidOptions =
       '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
       DString +
@@ -825,8 +837,20 @@ const SelectserviceTwo = () => {
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
 
-      // Build proper XML structure
-      const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
+      // Build CustOpts based on device type
+      let custOpts = "";
+      if (deviceType === "mantra") {
+        // Mantra devices require mantrakey parameter
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      } else if (deviceType === "startek") {
+        // Startek devices typically don't need CustOpts
+        custOpts = ""; // Startek devices usually don't need CustOpts
+      } else {
+        // For unknown devices, default to Mantra format (backward compatibility)
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      }
+
+      // Build proper XML structure without backslashes
       const pidOptions =
         '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
         DString +
@@ -1052,8 +1076,20 @@ const SelectserviceTwo = () => {
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
 
-      // Build proper XML structure
-      const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
+      // Build CustOpts based on device type
+      let custOpts = "";
+      if (deviceType === "mantra") {
+        // Mantra devices require mantrakey parameter
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      } else if (deviceType === "startek") {
+        // Startek devices typically don't need CustOpts
+        custOpts = ""; // Startek devices usually don't need CustOpts
+      } else {
+        // For unknown devices, default to Mantra format (backward compatibility)
+        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      }
+
+      // Build proper XML structure without backslashes
       const pidOptions =
         '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
         DString +
