@@ -876,6 +876,9 @@ const SelectserviceTwo = () => {
           txtPidData: txtPidData,
           latitude: latitude,
           longitude: longitude,
+          aadhaarNumber: aadhar,
+          customerNumber: mobile,
+          bankIIN: bank.bankIIN,
         };
 
         // Call API
@@ -1100,6 +1103,9 @@ const SelectserviceTwo = () => {
           txtPidData: txtPidData,
           latitude: latitude,
           longitude: longitude,
+          aadhaarNumber: aadhar,
+          customerNumber: mobile,
+          bankIIN: bank.bankIIN,
         };
 
         // Call API
