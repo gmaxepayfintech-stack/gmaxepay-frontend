@@ -4,8 +4,14 @@ import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import {
+  AEPSTWO_BALANCE_ENQUIRY_FAILURE,
+  AEPSTWO_BALANCE_ENQUIRY_SUCCESS,
   AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
   AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
+  AEPSTWO_CASH_WITHDRAWL_FAILURE,
+  AEPSTWO_CASH_WITHDRAWL_SUCCESS,
+  AEPSTWO_MINI_STATEMENT_FAILURE,
+  AEPSTWO_MINI_STATEMENT_SUCCESS,
   AEPSTWO_ONBOARDING_FAILURE,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_FAILURE,
@@ -365,6 +371,156 @@ export const aepsTwoFAVerification = (values) => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_TWO_FA_VERIFICATION_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsCashWithdrawl = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/cash-withdrawal`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: cashWithdrawl, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_CASH_WITHDRAWL_SUCCESS,
+        payload: { cashWithdrawl, status, message },
+      });
+      return { cashWithdrawl, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_CASH_WITHDRAWL_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_CASH_WITHDRAWL_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoBalanceEnquiry = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/balance-enquiry`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: balanceEnquiry, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_BALANCE_ENQUIRY_SUCCESS,
+        payload: { balanceEnquiry, status, message },
+      });
+      return { balanceEnquiry, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_BALANCE_ENQUIRY_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_BALANCE_ENQUIRY_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoMiniStatement = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/mini-statement`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: miniStatement, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_MINI_STATEMENT_SUCCESS,
+        payload: { miniStatement, status, message },
+      });
+      return { miniStatement, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_MINI_STATEMENT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_MINI_STATEMENT_FAILURE,
       payload: errorMessage,
     });
     throw error;

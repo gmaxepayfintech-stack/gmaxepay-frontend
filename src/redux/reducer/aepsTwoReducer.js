@@ -1,5 +1,8 @@
 import {
+  AEPSTWO_BALANCE_ENQUIRY_SUCCESS,
   AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
+  AEPSTWO_CASH_WITHDRAWL_SUCCESS,
+  AEPSTWO_MINI_STATEMENT_SUCCESS,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_SUCCESS,
   AEPSTWO_SEND_OTP_SUCCESS,
@@ -19,6 +22,9 @@ const initialState = {
   submitOtp: null,
   twoFaVerification: null,
   biometricVerification:null,
+  cashWithdrawl:null,
+  balanceEnquiry:null,
+  miniStatement: null
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -87,6 +93,33 @@ const aepsTwoReducer = (state = initialState, action) => {
               loading: false,
               error: null,
               twoFaVerification: action?.payload,
+              success: action?.payload?.status,
+              message: action?.payload?.message,
+            }
+          case AEPSTWO_CASH_WITHDRAWL_SUCCESS:
+            return{
+              ...state,
+              loading: false,
+              error: null,
+              cashWithdrawl: action?.payload,
+              success: action?.payload?.status,
+              message: action?.payload?.message,
+            }
+          case AEPSTWO_BALANCE_ENQUIRY_SUCCESS:
+            return{
+              ...state,
+              loading: false,
+              error: null,
+              balanceEnquiry: action?.payload,
+              success: action?.payload?.status,
+              message: action?.payload?.message,
+            }
+          case AEPSTWO_MINI_STATEMENT_SUCCESS:
+            return{
+              ...state,
+              loading: false,
+              error: null,
+              miniStatement: action?.payload,
               success: action?.payload?.status,
               message: action?.payload?.message,
             }
