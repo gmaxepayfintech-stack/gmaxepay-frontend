@@ -3,17 +3,17 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsBankList } from "../../../redux/action/aepsAction";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
-import { aepsCashWithdrawl, aepsTwoBalanceEnquiry, aepsTwoMiniStatement } from "../../../redux/action/aepsTwoAction";
+import { aepsCashWithdrawl, aepsTwoBalanceEnquiry, aepsTwoMiniStatement, aepsTwoBankList } from "../../../redux/action/aepsTwoAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
+
 const SelectserviceTwo = () => {
   const dispatch = useDispatch();
-  const bankList = useSelector((state) => state.aeps?.bankList);
+  const bankList = useSelector((state) => state.aepsTwo?.bankList);
 
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
@@ -99,6 +99,7 @@ const SelectserviceTwo = () => {
 
   // Get banks from API response
   // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
+  // The API returns { status, message, data: [...] } and action returns { bankList: data, status, message }
   const banks = bankList?.bankList || [];
 
   // Filter banks based on search query (show all if search is empty)
@@ -118,8 +119,8 @@ const SelectserviceTwo = () => {
 
     // Update recent banks list - add selected bank to the front
     setRecentBanksList((prev) => {
-      // Remove the bank if it already exists in the list
-      const filtered = prev.filter((b) => b.id !== bank.id);
+      // Remove the bank if it already exists in the list (using bankIIN as unique identifier)
+      const filtered = prev.filter((b) => b.bankIIN !== bank.bankIIN);
       // Add selected bank to the front, limit to 4 banks total
       return [bank, ...filtered].slice(0, 4);
     });
@@ -129,7 +130,7 @@ const SelectserviceTwo = () => {
   const recentBanks = (() => {
     if (selectedBank) {
       // If a bank is selected, show it first
-      const otherRecent = recentBanksList.filter((b) => b.id !== selectedBank.id);
+      const otherRecent = recentBanksList.filter((b) => b.bankIIN !== selectedBank.bankIIN);
       const result = [selectedBank, ...otherRecent].slice(0, 4);
       return result;
     } else if (recentBanksList.length > 0) {
@@ -345,6 +346,7 @@ const SelectserviceTwo = () => {
     const deviceType = detectDeviceType(deviceInfoXml);
 
     // Build proper XML structure
+    const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
     const pidOptions =
       '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
       DString +
@@ -406,17 +408,7 @@ const SelectserviceTwo = () => {
 
   // Fetch bank list on component mount
   useEffect(() => {
-    const payload = {
-      query: { isActive: true },
-      customSearch: {},
-      options: {
-        page: 1,
-        paginate: 100,
-        sort: { id: 1 }
-      }
-    };
-
-    dispatch(aepsBankList(payload))
+    dispatch(aepsTwoBankList({}))
       .then((response) => {
         console.log("Bank list response:", response);
       })
@@ -584,10 +576,10 @@ const SelectserviceTwo = () => {
       const deviceType = detectDeviceType(deviceInfoXml);
 
       const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
-      DString +
-      custOpts +
-      "</PidOptions>";
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        DString +
+        custOpts +
+        "</PidOptions>";
 
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
@@ -636,6 +628,9 @@ const SelectserviceTwo = () => {
           latitude: latitude,
           longitude: longitude,
           transactionAmount: amount.replaceAll(",", ""), // Remove commas from amount
+          aadhaarNumber: aadhar,
+          customerNumber: mobile,
+          bankIIN: bank.bankIIN,
         };
 
         console.log("📤 Sending withdrawal request with payload:", {
@@ -830,11 +825,13 @@ const SelectserviceTwo = () => {
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
 
+      // Build proper XML structure
+      const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
-      DString +
-      custOpts +
-      "</PidOptions>";
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        DString +
+        custOpts +
+        "</PidOptions>";
 
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
@@ -1052,11 +1049,13 @@ const SelectserviceTwo = () => {
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
 
+      // Build proper XML structure
+      const custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       const pidOptions =
-      '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
-      DString +
-      custOpts +
-      "</PidOptions>";
+        '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+        DString +
+        custOpts +
+        "</PidOptions>";
 
       const captureResp = await fetch(`${rdBaseUrl}/rd/capture`, {
         method: "CAPTURE",
@@ -1286,8 +1285,8 @@ const SelectserviceTwo = () => {
               {/* Transaction/Response Details */}
               {transactionData && (
                 <div className={`rounded-lg p-4 mb-4 border ${type === "success"
-                    ? "bg-white border-gray-200"
-                    : "bg-red-50 border-red-200"
+                  ? "bg-white border-gray-200"
+                  : "bg-red-50 border-red-200"
                   }`}>
                   <div className="space-y-3">
                     {/* Success Transaction Details */}
@@ -1433,8 +1432,8 @@ const SelectserviceTwo = () => {
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${isActive
-                    ? "bg-[#039155] text-[#FFFFFF]"
-                    : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
+                  ? "bg-[#039155] text-[#FFFFFF]"
+                  : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
                   }`}
               >
                 {tab.label}
@@ -1462,8 +1461,8 @@ const SelectserviceTwo = () => {
               type="button"
               onClick={() => setBiometricMethod("thumb")}
               className={`p-8 rounded-xl border-2 transition ${biometricMethod === "thumb"
-                  ? "bg-[#E5FFF4] border-[#039155]"
-                  : "bg-white border-gray-200"
+                ? "bg-[#E5FFF4] border-[#039155]"
+                : "bg-white border-gray-200"
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -1483,8 +1482,8 @@ const SelectserviceTwo = () => {
               type="button"
               onClick={() => setBiometricMethod("iris")}
               className={`p-4 rounded-xl border-2 transition ${biometricMethod === "iris"
-                  ? "bg-[#E5FFF4] border-[#039155]"
-                  : "bg-white border-gray-200"
+                ? "bg-[#E5FFF4] border-[#039155]"
+                : "bg-white border-gray-200"
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -1680,14 +1679,14 @@ const SelectserviceTwo = () => {
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {recentBanks.map((bank) => (
                   <button
-                    key={bank.id}
+                    key={bank.bankIIN}
                     type="button"
                     onClick={() => {
                       handleBankSelection(bank);
                     }}
-                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.id === bank.id
-                        ? "bg-[#E5FFF4] border-[#039155]"
-                        : "bg-white border-gray-200"
+                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.bankIIN === bank.bankIIN
+                      ? "bg-[#E5FFF4] border-[#039155]"
+                      : "bg-white border-gray-200"
                       }`}
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -1765,12 +1764,12 @@ const SelectserviceTwo = () => {
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
                   {filteredBanks.map((bank) => (
                     <button
-                      key={bank.id}
+                      key={bank.bankIIN}
                       type="button"
                       onClick={() => {
                         handleBankSelection(bank);
                       }}
-                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.id === bank.id ? "bg-[#E5FFF4]" : ""
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.bankIIN === bank.bankIIN ? "bg-[#E5FFF4]" : ""
                         }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
@@ -1831,8 +1830,8 @@ const SelectserviceTwo = () => {
                 }}
                 onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
                 className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
-                    ? "border-red-500"
-                    : "border-gray-300"
+                  ? "border-red-500"
+                  : "border-gray-300"
                   }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
@@ -1854,8 +1853,8 @@ const SelectserviceTwo = () => {
                 }}
                 onBlur={() => formik.setFieldTouched("mobileNumber", true)}
                 className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.mobileNumber && formik.errors.mobileNumber
-                    ? "border-red-500"
-                    : "border-gray-300"
+                  ? "border-red-500"
+                  : "border-gray-300"
                   }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
@@ -1891,8 +1890,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("500")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "500"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 500
@@ -1901,8 +1900,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("1000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "1000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 1,000
@@ -1911,8 +1910,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("2000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "2000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 2,000
@@ -1921,8 +1920,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("5000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "5000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 5,000
@@ -1931,8 +1930,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("10000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "10000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 10,000
