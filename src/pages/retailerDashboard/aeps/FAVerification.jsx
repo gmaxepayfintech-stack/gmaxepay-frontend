@@ -270,7 +270,6 @@ const FAVerification = () => {
       <PidOptions ver="1.0"> \
         <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
               pidVer="2.0" timeout="10000" posh="UNKNOWN" \
-              wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
               env="P" /> \
         ' + DString + ' \
         <CustOpts> \
