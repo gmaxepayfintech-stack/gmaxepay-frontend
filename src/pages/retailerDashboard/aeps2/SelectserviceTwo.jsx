@@ -689,7 +689,7 @@ const SelectserviceTwo = () => {
         const longitude = locationAndIP?.location?.longitude || "";
         const ipAddress = locationAndIP?.ipAddress || "";
 
-        // Prepare payload - txtPidData should be the full XML response
+        // Prepare payload - txtPidData should be the full XML response converted to base64
         let txtPidData = capturedPidData;
         if (!capturedPidData.includes("<PidData>")) {
           txtPidData = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
@@ -697,8 +697,11 @@ const SelectserviceTwo = () => {
           txtPidData = `<?xml version="1.0"?>${capturedPidData}`;
         }
 
+        // Convert txtPidData to base64
+        const txtPidDataBase64 = btoa(txtPidData);
+
         const payload = {
-          txtPidData: txtPidData,
+          txtPidData: txtPidDataBase64,
           latitude: latitude,
           longitude: longitude,
           transactionAmount: amount.replaceAll(",", ""), // Remove commas from amount
@@ -993,7 +996,7 @@ const SelectserviceTwo = () => {
         const longitude = locationAndIP?.location?.longitude || "";
         const ipAddress = locationAndIP?.ipAddress || "";
 
-        // Prepare payload
+        // Prepare payload - txtPidData should be the full XML response converted to base64
         let txtPidData = capturedPidData;
         if (!capturedPidData.includes("<PidData>")) {
           txtPidData = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
@@ -1001,8 +1004,11 @@ const SelectserviceTwo = () => {
           txtPidData = `<?xml version="1.0"?>${capturedPidData}`;
         }
 
+        // Convert txtPidData to base64
+        const txtPidDataBase64 = btoa(txtPidData);
+
         const payload = {
-          txtPidData: txtPidData,
+          txtPidData: txtPidDataBase64,
           latitude: latitude,
           longitude: longitude,
           aadhaarNumber: aadhar,
@@ -1275,7 +1281,7 @@ const SelectserviceTwo = () => {
         const longitude = locationAndIP?.location?.longitude || "";
         const ipAddress = locationAndIP?.ipAddress || "";
 
-        // Prepare payload
+        // Prepare payload - txtPidData should be the full XML response converted to base64
         let txtPidData = capturedPidData;
         if (!capturedPidData.includes("<PidData>")) {
           txtPidData = `<?xml version="1.0"?><PidData>${capturedPidData}</PidData>`;
@@ -1283,8 +1289,11 @@ const SelectserviceTwo = () => {
           txtPidData = `<?xml version="1.0"?>${capturedPidData}`;
         }
 
+        // Convert txtPidData to base64
+        const txtPidDataBase64 = btoa(txtPidData);
+
         const payload = {
-          txtPidData: txtPidData,
+          txtPidData: txtPidDataBase64,
           latitude: latitude,
           longitude: longitude,
           aadhaarNumber: aadhar,
