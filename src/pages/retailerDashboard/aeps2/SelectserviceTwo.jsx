@@ -732,7 +732,7 @@ const SelectserviceTwo = () => {
               title: "Transaction Successful",
               message: response?.message || "Withdrawal successful!",
               type: "success",
-              transactionData: response?.cashWithdrawl || response?.data || null,
+              transactionData: response?.data || response?.cashWithdrawl || null,
             });
 
             // Reset form
@@ -1029,7 +1029,7 @@ const SelectserviceTwo = () => {
               title: "Balance Enquiry Successful",
               message: response?.message || "Balance enquiry successful!",
               type: "success",
-              transactionData: response?.balanceEnquiry || response?.data || null,
+              transactionData: response?.data || response?.balanceEnquiry || null,
             });
             setDeviceMessage("Balance enquiry completed successfully");
           } else {
@@ -1314,7 +1314,7 @@ const SelectserviceTwo = () => {
               title: "Statement Enquiry Successful",
               message: response?.message || "Statement enquiry successful!",
               type: "success",
-              transactionData: response?.miniStatement || response?.data || null,
+              transactionData: response?.data || response?.miniStatement || null,
             });
             setDeviceMessage("Statement enquiry completed successfully");
           } else {
@@ -1491,46 +1491,130 @@ const SelectserviceTwo = () => {
                     {/* Success Transaction Details */}
                     {type === "success" && (
                       <>
-                        {transactionData.transactionId && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionId}</span>
+                        {/* Cash Withdrawal & Balance Enquiry - result object */}
+                        {transactionData?.result && (
+                          <>
+                            {transactionData.result.fpTransactionId && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">FP Transaction ID:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.fpTransactionId}</span>
+                              </div>
+                            )}
+                            {transactionData.result.merchantTransactionId && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Merchant Transaction ID:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.merchantTransactionId}</span>
+                              </div>
+                            )}
+                            {transactionData.result.bankRRN && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank RRN:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.bankRRN}</span>
+                              </div>
+                            )}
+                            {transactionData.result.transactionAmount !== undefined && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Amount:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.result.transactionAmount}</span>
+                              </div>
+                            )}
+                            {transactionData.result.balanceAmount !== undefined && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Balance Amount:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.result.balanceAmount}</span>
+                              </div>
+                            )}
+                            {transactionData.result.requestTransactionTime && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Time:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.requestTransactionTime}</span>
+                              </div>
+                            )}
+                            {transactionData.result.transactionType && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Type:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.transactionType}</span>
+                              </div>
+                            )}
+                            {transactionData.result.transactionStatus && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Status:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">{transactionData.result.transactionStatus}</span>
+                              </div>
+                            )}
+                            {transactionData.result.device && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Device:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.device}</span>
+                              </div>
+                            )}
+                            {transactionData.result.terminalId && (
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Terminal ID:</span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.terminalId}</span>
+                              </div>
+                            )}
+                          </>
+                        )}
+
+                        {/* Mini Statement - ministatement array */}
+                        {transactionData?.ministatement && Array.isArray(transactionData.ministatement) && transactionData.ministatement.length > 0 && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="text-xs font-['Gilroy-SemiBold'] text-gray-900 mb-3">Mini Statement:</div>
+                            <div className="space-y-2 max-h-60 overflow-y-auto">
+                              {transactionData.ministatement.map((stmt, index) => (
+                                <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
+                                    <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{stmt.date}</span>
+                                  </div>
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Type:</span>
+                                    <span className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
+                                      {stmt.txnType}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center mb-1">
+                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
+                                    <span className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
+                                      ₹ {stmt.amount}
+                                    </span>
+                                  </div>
+                                  <div className="flex justify-between items-center">
+                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Narration:</span>
+                                    <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900 text-right max-w-[60%]">{stmt.narration}</span>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
-                        {transactionData.referenceId && (
+
+                        {/* Common fields from data object */}
+                        {transactionData.balanceAmount !== undefined && !transactionData.result && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Reference ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.referenceId}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Balance Amount:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.balanceAmount}</span>
                           </div>
                         )}
-                        {transactionData.amount !== undefined && (
+                        {transactionData.partnerTxnid && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.amount}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Partner Transaction ID:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.partnerTxnid}</span>
                           </div>
                         )}
-                        {transactionData.remainingBalance !== undefined && (
+                        {transactionData.utr && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Remaining Balance:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.remainingBalance}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">UTR:</span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.utr}</span>
                           </div>
                         )}
-                        {transactionData.bankName && (
+                        {transactionData.url && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.bankName}</span>
-                          </div>
-                        )}
-                        {transactionData.transactionDate && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionDate}</span>
-                          </div>
-                        )}
-                        {transactionData.transactionTime && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Time:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionTime}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Receipt URL:</span>
+                            <a href={transactionData.url} target="_blank" rel="noopener noreferrer" className="text-xs font-['Gilroy-SemiBold'] text-blue-600 hover:underline">
+                              View Receipt
+                            </a>
                           </div>
                         )}
                       </>
