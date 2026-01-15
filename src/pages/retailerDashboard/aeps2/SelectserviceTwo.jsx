@@ -1561,31 +1561,31 @@ const SelectserviceTwo = () => {
                         {transactionData?.ministatement && Array.isArray(transactionData.ministatement) && transactionData.ministatement.length > 0 && (
                           <div className="mt-4 pt-4 border-t border-gray-200">
                             <div className="text-xs font-['Gilroy-SemiBold'] text-gray-900 mb-3">Mini Statement:</div>
-                            <div className="space-y-2 max-h-60 overflow-y-auto">
-                              {transactionData.ministatement.map((stmt, index) => (
-                                <div key={index} className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
-                                    <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{stmt.date}</span>
-                                  </div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Type:</span>
-                                    <span className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
+                            <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                              {/* Table Header */}
+                              <div className="grid grid-cols-4 gap-2 bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Date</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Type</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Amount</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Narration</div>
+                              </div>
+                              {/* Table Body */}
+                              <div className="max-h-60 overflow-y-auto">
+                                {transactionData.ministatement.map((stmt, index) => (
+                                  <div key={index} className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100">
+                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900">{stmt.date}</div>
+                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
                                       {stmt.txnType}
-                                    </span>
-                                  </div>
-                                  <div className="flex justify-between items-center mb-1">
-                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
-                                    <span className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
+                                    </div>
+                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
                                       ₹ {stmt.amount}
-                                    </span>
+                                    </div>
+                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900 truncate" title={stmt.narration}>
+                                      {stmt.narration}
+                                    </div>
                                   </div>
-                                  <div className="flex justify-between items-center">
-                                    <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Narration:</span>
-                                    <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900 text-right max-w-[60%]">{stmt.narration}</span>
-                                  </div>
-                                </div>
-                              ))}
+                                ))}
+                              </div>
                             </div>
                           </div>
                         )}
