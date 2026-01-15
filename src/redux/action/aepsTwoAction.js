@@ -6,6 +6,8 @@ import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import {
   AEPSTWO_BALANCE_ENQUIRY_FAILURE,
   AEPSTWO_BALANCE_ENQUIRY_SUCCESS,
+  AEPSTWO_BANKLIST_FAILURE,
+  AEPSTWO_BANKLIST_SUCCESS,
   AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE,
   AEPSTWO_BIOMETRIC_VERIFICATION_SUCCESS,
   AEPSTWO_CASH_WITHDRAWL_FAILURE,
@@ -521,6 +523,56 @@ export const aepsTwoMiniStatement = (values) => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_MINI_STATEMENT_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoBankList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/bank-list`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: bankList, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_BANKLIST_SUCCESS,
+        payload: { bankList, status, message },
+      });
+      return { bankList, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_BANKLIST_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_BANKLIST_FAILURE,
       payload: errorMessage,
     });
     throw error;

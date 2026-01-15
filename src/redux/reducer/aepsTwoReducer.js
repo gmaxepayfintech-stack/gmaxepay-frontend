@@ -24,7 +24,8 @@ const initialState = {
   biometricVerification:null,
   cashWithdrawl:null,
   balanceEnquiry:null,
-  miniStatement: null
+  miniStatement: null,
+  bankList:null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -124,6 +125,15 @@ const aepsTwoReducer = (state = initialState, action) => {
               message: action?.payload?.message,
             }
 
+        case AEPSTWO_BANKLIST_SUCCESS:
+          return{
+            ...state,
+            loading: false,
+            error: null,
+            bankList: action?.payload,
+            success: action?.payload?.status,
+            message: action?.payload?.message,
+          }
     default:
       return state;
   }
