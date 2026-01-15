@@ -13,6 +13,7 @@ import aepsReducer from './aepsReducer';
 import walletReducer from './walletReducer';
 import payoutReducer from './payoutReducer';
 import aepsTwoReducer from './aepsTwoReducer';
+import rechargeReducer from './rechargeReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -21,14 +22,15 @@ const rootReducer = combineReducers({
     onboarding: onboardingReducer,
     login: loginReducer,
     userProfile: userProfileReducer,
-    whitelabel:whiteLabelReducer,
+    whitelabel: whiteLabelReducer,
     retailerOnboarding: retailerOnboardingReducer,
     aeps: aepsReducer,
     payout: payoutReducer,
-    roles:roleReducer,
-    error:errorReducer,
+    roles: roleReducer,
+    error: errorReducer,
     wallet: walletReducer,
     aepsTwo: aepsTwoReducer,
+    recharge: rechargeReducer,
 });
 
 export default rootReducer;
