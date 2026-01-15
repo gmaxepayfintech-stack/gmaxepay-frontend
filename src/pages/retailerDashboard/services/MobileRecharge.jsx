@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight, X, CheckCircle } from "lucide-react";
 import PropTypes from "prop-types";
+import { rechargefindOperator } from "../../../redux/action/rechargeAction";
 
-// Sample recent recharge data
 const recentRecharges = [
   {
     id: 1,
@@ -144,6 +145,7 @@ const filterButtons = ["28 Days Validity", "1 GB Data", "2 GB Data", "Unlimited 
 const categoryTabs = ["Recommended Packs", "Popular", "Top Data Packs", "Maxx Data", "Monthly Packs", "Cricket"];
 
 const MobileRecharge = ({ onBack }) => {
+  const dispatch = useDispatch();
   const [mobileNumber, setMobileNumber] = useState("");
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({ name: "Airtel", circle: "Karnataka" });
@@ -170,12 +172,29 @@ const MobileRecharge = ({ onBack }) => {
     return acc;
   }, []);
 
-  const handleProceed = () => {
+  const handleProceed = async () => {
     if (!mobileNumber || mobileNumber.length !== 10) {
       return;
     }
-    // Move to plan selection step
-    setStep("plans");
+    try {
+      // Call the API to find operator with mobile number
+      const response = await dispatch(rechargefindOperator({ mobileNumber }));
+      
+      // Update selectedOperator with the response data
+      if (response?.mobileOperator) {
+        const operatorData = response.mobileOperator;
+        setSelectedOperator({
+          name: operatorData.company || "Airtel",
+          circle: operatorData.circle || "Karnataka"
+        });
+      }
+      
+      // Move to plan selection step
+      setStep("plans");
+    } catch (error) {
+      console.error("Error finding operator:", error);
+      // You might want to show an error message to the user here
+    }
   };
 
   const handleCancel = () => {
@@ -273,122 +292,128 @@ const MobileRecharge = ({ onBack }) => {
               {paymentSuccess && transactionDetails ? (
                 /* Payment Success Screen */
                 <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
-                  {/* Top Notch - U-shaped cutout inside */}
+                  {/* Notches */}
                   <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
-                  {/* Bottom Notch - U-shaped cutout inside */}
                   <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
-                  {/* Left Notch - U-shaped cutout inside */}
                   <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full"></div>
-                  {/* Right Notch - U-shaped cutout inside */}
                   <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full"></div>
-                  {/* Content Container - ensures content stays within card, inside the notches */}
-                  <div className="relative z-10 pt-12 pb-12 pl-12 pr-12">
-                  {/* Success Icon and Header */}
-                  <div className="text-center mb-4">
-                    <div className="flex justify-center mb-3">
-                      <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
+
+                  <div className="relative z-10 pt-12 pb-12 px-12">
+                    {/* Success Header */}
+                    <div className="text-center mb-6">
+                      <div className="flex justify-center mb-3">
+                        <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+
+                      <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                        Payment Successful
+                      </h2>
+                      <p className="text-[12px] text-[#1B1717]/80">
+                        Your Payment Has Been Completed
+                      </p>
+                    </div>
+
+                    {/* Amount */}
+                    <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
+                      <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                        ₹ {transactionDetails.amount}
                       </div>
                     </div>
-                    <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                      Payment Successful
-                    </h2>
-                    <p className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                      Your Payment Has Been Completed
-                    </p>
-                  </div>
 
-                  {/* Transaction Amount */}
-                  <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-4 mx-auto max-w-[400px]">
-                    <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                      ₹ {transactionDetails.amount}
-                    </div>
-                  </div>
-
-                  {/* Transaction Details */}
-                  <div className="grid grid-cols-2 gap-4 mb-4">
-                    {/* Left Column */}
-                    <div className="space-y-2.5">
+                    {/* Details Grid */}
+                    <div className="grid grid-cols-2 gap-4 mb-20">
                       <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                          Transaction Id
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Transaction ID
                         </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717] leading-tight break-words">
+                        <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
                           {transactionDetails.transactionId}
                         </div>
                       </div>
-                      <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                          Validity
-                        </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
-                          {selectedPlanForRecharge.validity}
-                        </div>
-                      </div>
-                      <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                          Transaction Status
-                        </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#039155]">
-                          Success
-                        </div>
-                      </div>
-                    </div>
 
-                    {/* Right Column */}
-                    <div className="space-y-2.5">
                       <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
                           Mobile Number
                         </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        <div className="font-['Gilroy-Medium'] text-sm">
                           {mobileNumber}
                         </div>
                       </div>
+
                       <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Transaction Status
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-[#039155]">
+                          Success
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Validity
+                        </div>
+                        <div className="font-['Gilroy-Medium']">
+                          {selectedPlanForRecharge.validity}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
                           B-Connect Transaction ID
                         </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717] leading-tight break-words">
+                        <div className="font-['Gilroy-Medium']">
                           {transactionDetails.bConnectId}
                         </div>
                       </div>
+
                       <div>
-                        <div className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                          Date Time
-                        </div>
-                        <div className="text-[13px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        <div className="text-[#1B1717]/80 text-[11px]">Date</div>
+                        <div className="font-['Gilroy-Medium']">
                           {transactionDetails.dateTime}
                         </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex gap-3 pt-3  border-gray-200 -mx-12 px-12">
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Handle share logic
-                        console.log('Sharing receipt');
-                      }}
-                      className="flex-1 px-4 py-2 border border-[#039155] rounded-lg text-[16px] font-['Gilroy-Medium'] text-[#039155] bg-white hover:bg-green-50 transition"
-                    >
-                      Share
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        // Handle download receipt logic
-                        console.log('Downloading receipt');
-                      }}
-                      className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[16px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
-                    >
-                      Download Receipt
-                    </button>
-                  </div>
+                    {/* Buttons */}
+                    <div className="absolute left-5 right-5 bottom-2 flex gap-28">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Handle share logic
+                          console.log('Sharing receipt');
+                        }}
+                        className="flex-1 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium']"
+                      >
+                        Share
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          // Handle download receipt logic
+                          console.log('Downloading receipt');
+                        }}
+                        className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold']"
+                      >
+                        Download Receipt
+                      </button>
+                    </div>
                   </div>
                 </div>
               ) : selectedPlanForRecharge ? (
@@ -957,5 +982,3 @@ MobileRecharge.propTypes = {
 };
 
 export default MobileRecharge;
-
-
