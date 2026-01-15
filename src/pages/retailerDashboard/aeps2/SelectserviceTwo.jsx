@@ -97,9 +97,6 @@ const SelectserviceTwo = () => {
     },
   });
 
-  // Get banks from API response
-  // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
-  // The API returns { status, message, data: [...] } and action returns { bankList: data, status, message }
   const banks = bankList?.bankList || [];
 
   // Filter banks based on search query (show all if search is empty)
@@ -584,8 +581,37 @@ const SelectserviceTwo = () => {
         setScanProgress(currentProgress);
       }, updateInterval);
 
-      // Extract DString from deviceInfoXml (DeviceInfo XML content)
-      const DString = deviceInfoXml || "";
+      // Extract DeviceInfo element from deviceInfoXml (DString should be the DeviceInfo element)
+      let DString = "";
+      if (deviceInfoXml) {
+        try {
+          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
+          if (deviceInfo) {
+            // Get the DeviceInfo element as string
+            if (typeof XMLSerializer !== 'undefined') {
+              DString = new XMLSerializer().serializeToString(deviceInfo);
+            } else {
+              // Fallback: extract DeviceInfo using regex
+              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              if (deviceInfoMatch) {
+                DString = deviceInfoMatch[0];
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error extracting DeviceInfo:", err);
+          // Fallback: try to extract DeviceInfo using regex
+          try {
+            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            if (deviceInfoMatch) {
+              DString = deviceInfoMatch[0];
+            }
+          } catch (regexErr) {
+            console.error("Error extracting DeviceInfo with regex:", regexErr);
+          }
+        }
+      }
 
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
@@ -851,8 +877,37 @@ const SelectserviceTwo = () => {
         setScanProgress(currentProgress);
       }, updateInterval);
 
-      // Extract DString from deviceInfoXml (DeviceInfo XML content)
-      const DString = deviceInfoXml || "";
+      // Extract DeviceInfo element from deviceInfoXml (DString should be the DeviceInfo element)
+      let DString = "";
+      if (deviceInfoXml) {
+        try {
+          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
+          if (deviceInfo) {
+            // Get the DeviceInfo element as string
+            if (typeof XMLSerializer !== 'undefined') {
+              DString = new XMLSerializer().serializeToString(deviceInfo);
+            } else {
+              // Fallback: extract DeviceInfo using regex
+              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              if (deviceInfoMatch) {
+                DString = deviceInfoMatch[0];
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error extracting DeviceInfo:", err);
+          // Fallback: try to extract DeviceInfo using regex
+          try {
+            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            if (deviceInfoMatch) {
+              DString = deviceInfoMatch[0];
+            }
+          } catch (regexErr) {
+            console.error("Error extracting DeviceInfo with regex:", regexErr);
+          }
+        }
+      }
 
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
@@ -1093,8 +1148,37 @@ const SelectserviceTwo = () => {
         setScanProgress(currentProgress);
       }, updateInterval);
 
-      // Extract DString from deviceInfoXml (DeviceInfo XML content)
-      const DString = deviceInfoXml || "";
+      // Extract DeviceInfo element from deviceInfoXml (DString should be the DeviceInfo element)
+      let DString = "";
+      if (deviceInfoXml) {
+        try {
+          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
+          if (deviceInfo) {
+            // Get the DeviceInfo element as string
+            if (typeof XMLSerializer !== 'undefined') {
+              DString = new XMLSerializer().serializeToString(deviceInfo);
+            } else {
+              // Fallback: extract DeviceInfo using regex
+              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              if (deviceInfoMatch) {
+                DString = deviceInfoMatch[0];
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error extracting DeviceInfo:", err);
+          // Fallback: try to extract DeviceInfo using regex
+          try {
+            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            if (deviceInfoMatch) {
+              DString = deviceInfoMatch[0];
+            }
+          } catch (regexErr) {
+            console.error("Error extracting DeviceInfo with regex:", regexErr);
+          }
+        }
+      }
 
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
