@@ -1572,15 +1572,15 @@ const SelectserviceTwo = () => {
                               {/* Table Body */}
                               <div className="max-h-60 overflow-y-auto">
                                 {transactionData.ministatement.map((stmt, index) => (
-                                  <div key={index} className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100">
+                                  <div key={index} className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start">
                                     <div className="text-xs font-['Gilroy-Medium'] text-gray-900">{stmt.date}</div>
                                     <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
                                       {stmt.txnType}
                                     </div>
-                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
+                                    <div className={`text-xs font-['Gilroy-SemiBold'] text-left ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
                                       ₹ {stmt.amount}
                                     </div>
-                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900 truncate" title={stmt.narration}>
+                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900 break-words whitespace-normal">
                                       {stmt.narration}
                                     </div>
                                   </div>
