@@ -54,9 +54,9 @@ const RecentRechargeCard = ({ recharge }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition cursor-pointer">
       <div className="flex items-start gap-3">
         {/* Operator Logo */}
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
           {recharge.logo ? (
-            <img src={recharge.logo} alt={recharge.operator} className="w-10 h-10 rounded-full" />
+            <img src={recharge.logo} alt={recharge.operator} className="w-full h-full rounded-full object-cover" />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               {recharge.operator.charAt(0)}
@@ -151,9 +151,9 @@ const getOperatorLogo = (operatorName) => {
     "Jio": "/img/Jio.svg",
     "Airtel": "/img/Airtel.svg",
     "BSNL": "/img/BSNL.svg",
-    "VI": "/img/VIPrepaid",
-    "Vodafone": "/img/VIPrepaid",
-    "Idea": "/img/VIPrepaid"
+    "VI": "/img/VIPrepaid.svg",
+    "Vodafone": "/img/VIPrepaid.svg",
+    "Idea": "/img/VIPrepaid.svg"
   };
   return logoMap[operatorName] || null;
 };
@@ -190,12 +190,12 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to extract suggested plans from offers API response
   const getSuggestedPlansFromOffers = () => {
-    if (!rechargeOffers?.data?.data || !Array.isArray(rechargeOffers.data.data)) {
+    if (!rechargeOffers?.data || !Array.isArray(rechargeOffers.data)) {
       return [];
     }
 
     // Get first 3-4 offers
-    const offers = rechargeOffers.data.data.slice(0, 4);
+    const offers = rechargeOffers.data.slice(0, 4);
 
     return offers.map((offer, index) => {
       const offerText = offer.offer || "";
@@ -286,11 +286,11 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to get plans based on category
   const getPlansByCategory = () => {
-    if (!rechargePlans?.data?.data) {
+    if (!rechargePlans?.data) {
       return [];
     }
 
-    const plansData = rechargePlans.data.data;
+    const plansData = rechargePlans.data;
     let selectedPlans = [];
 
     switch (activeCategory) {
@@ -675,12 +675,12 @@ const MobileRecharge = ({ onBack }) => {
                 <div className="   ">
                   {/* Operator and Number */}
                   <div className="flex bg-[#FFFFFF] mb-[24px] p-4 rounded-xl items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {getOperatorLogo(selectedOperator.name) ? (
                         <img 
                           src={getOperatorLogo(selectedOperator.name)} 
                           alt={selectedOperator.name} 
-                          className="w-10 h-10 rounded-full" 
+                          className="w-full h-full rounded-full object-cover" 
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
@@ -775,12 +775,12 @@ const MobileRecharge = ({ onBack }) => {
                   <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       {/* Operator Logo */}
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                         {getOperatorLogo(selectedOperator.name) ? (
                           <img 
                             src={getOperatorLogo(selectedOperator.name)} 
                             alt={selectedOperator.name} 
-                            className="w-10 h-10 rounded-full" 
+                            className="w-full h-full rounded-full object-cover" 
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
@@ -820,12 +820,12 @@ const MobileRecharge = ({ onBack }) => {
                           <div key={plan.id} className="contents">
                             <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
                               <div className="flex items-start gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                                   {getOperatorLogo(plan.operator) ? (
                                     <img 
                                       src={getOperatorLogo(plan.operator)} 
                                       alt={plan.operator} 
-                                      className="w-8 h-8 rounded-full" 
+                                      className="w-full h-full rounded-full object-cover" 
                                     />
                                   ) : (
                                     <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
@@ -1044,12 +1044,12 @@ const MobileRecharge = ({ onBack }) => {
                     className="w-full flex items-center gap-3 p-4  transition"
                   >
                     {/* Operator Logo */}
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
                       {operator.logo ? (
                         <img
                           src={operator.logo}
                           alt={operator.operator}
-                          className="w-10 h-10 rounded-full"
+                          className="w-full h-full rounded-full object-cover"
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
