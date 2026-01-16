@@ -3,7 +3,7 @@ import { useDispatch } from "react-redux";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight, X } from "lucide-react";
 import PropTypes from "prop-types";
-import { rechargefindOperator,rechargefindPlan , rechargefindOffers  } from "../../../redux/action/rechargeAction";
+import { rechargefindOperator,rechargefindPlan , rechargefindOffers, rechargePay  } from "../../../redux/action/rechargeAction";
 
 
 const recentRecharges = [
@@ -37,7 +37,7 @@ const recentRecharges = [
     operatorType: "VI Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/VIPrepaid"
+    logo: "/img/VIPrepaid.svg"
   },
   {
     id: 5,
@@ -198,19 +198,48 @@ const MobileRecharge = ({ onBack }) => {
     const offers = rechargeOffers.data.data.slice(0, 4);
 
     return offers.map((offer, index) => {
-      // Extract data from offer text (e.g., "12GB", "Unlimited data", "2GB")
-      const dataMatch = offer.offer?.match(/(\d+(?:\.\d+)?\s*GB|Unlimited\s+data)/i);
-      const dataText = dataMatch ? dataMatch[1].trim() : "N/A";
-
-      // Extract validity from offer text (e.g., "30days", "1 day", "28 days", "1M")
-      const validityMatch = offer.offer?.match(/(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i);
-      let validityText = validityMatch ? validityMatch[1].trim() : "N/A";
+      const offerText = offer.offer || "";
       
-      // Format validity text
-      if (validityText.toLowerCase().includes("m")) {
-        validityText = validityText.replace(/m/i, " Month");
-      } else if (validityText.toLowerCase().includes("d") && !validityText.toLowerCase().includes("day")) {
-        validityText = validityText.replace(/d/i, " Day");
+      // Extract data from offer text - try multiple patterns
+      let dataText = "N/A";
+      const dataPatterns = [
+        /(\d+(?:\.\d+)?\s*GB)\s+data/i,        // "2GB data", "12GB data"
+        /(Unlimited\s+data)/i,                  // "Unlimited data"
+        /=\s*(\d+(?:\.\d+)?\s*GB)/i,           // "=2GB", "=12GB" (from after =)
+        /(\d+(?:\.\d+)?\s*GB)/i                // Just "2GB", "12GB" anywhere
+      ];
+      
+      for (const pattern of dataPatterns) {
+        const match = offerText.match(pattern);
+        if (match) {
+          dataText = match[1].trim();
+          break;
+        }
+      }
+
+      // Extract validity from offer text - try multiple patterns
+      let validityText = "N/A";
+      const validityPatterns = [
+        /(\d+\s*(?:day|days|Day|Days))/i,      // "1 day", "30 days", "28 Day"
+        /(\d+)\s*M\b/i,                        // "1M", "6M" (months) - word boundary
+        /(\d+)\s*D\b/i,                        // "28D", "56D" (days) - word boundary
+        /=\s*.*?(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i  // From after "="
+      ];
+      
+      for (const pattern of validityPatterns) {
+        const match = offerText.match(pattern);
+        if (match) {
+          let validity = match[1].trim();
+          // Format validity text
+          if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+            validityText = validity.replace(/\s*M\b/i, " Month");
+          } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+            validityText = validity.replace(/\s*D\b/i, " Day");
+          } else {
+            validityText = validity;
+          }
+          break;
+        }
       }
 
       return {
@@ -558,7 +587,7 @@ const MobileRecharge = ({ onBack }) => {
                           Transaction ID
                         </div>
                         <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-                          {transactionDetails.transactionId}
+                          {transactionDetails.transactionId || 'N/A'}
                         </div>
                       </div>
 
@@ -576,7 +605,7 @@ const MobileRecharge = ({ onBack }) => {
                           Transaction Status
                         </div>
                         <div className="font-['Gilroy-Medium'] text-[#039155]">
-                          Success
+                          {transactionDetails.status || 'Success'}
                         </div>
                       </div>
 
@@ -585,7 +614,7 @@ const MobileRecharge = ({ onBack }) => {
                           Validity
                         </div>
                         <div className="font-['Gilroy-Medium']">
-                          {selectedPlanForRecharge.validity}
+                          {selectedPlanForRecharge?.validity || 'N/A'}
                         </div>
                       </div>
 
@@ -594,14 +623,23 @@ const MobileRecharge = ({ onBack }) => {
                           B-Connect Transaction ID
                         </div>
                         <div className="font-['Gilroy-Medium']">
-                          {transactionDetails.bConnectId}
+                          {transactionDetails.bConnectId || 'N/A'}
+                        </div>
+                      </div>
+
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Order ID
+                        </div>
+                        <div className="font-['Gilroy-Medium']">
+                          {transactionDetails.orderid || 'N/A'}
                         </div>
                       </div>
 
                       <div>
                         <div className="text-[#1B1717]/80 text-[11px]">Date</div>
                         <div className="font-['Gilroy-Medium']">
-                          {transactionDetails.dateTime}
+                          {transactionDetails.dateTime || 'N/A'}
                         </div>
                       </div>
                     </div>
@@ -1202,29 +1240,55 @@ const MobileRecharge = ({ onBack }) => {
               </button>
               <button
                 type="button"
-                onClick={() => {
-                  // Generate transaction details
-                  const transactionId = 'GPTXN' + Math.random().toString(36).substr(2, 10).toUpperCase();
-                  const bConnectId = 'SPIB' + Math.random().toString().substr(2, 15);
-                  const dateTime = new Date().toLocaleString('en-US', {
-                    month: 'short',
-                    day: 'numeric',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    hour12: true
-                  });
+                onClick={async () => {
+                  try {
+                    // Prepare payment payload
+                    const paymentPayload = {
+                      mobileNumber: mobileNumber,
+                      opcode: operatorData?.opcode || "A",
+                      amount: selectedPlanForRecharge.price.replace('₹', '').trim(),
+                      circle: operatorData?.circle || "06"
+                    };
 
-                  setTransactionDetails({
-                    transactionId,
-                    bConnectId,
-                    dateTime,
-                    amount: selectedPlanForRecharge.price.replace('₹', '').trim()
-                  });
+                    // Call rechargePay API
+                    const paymentResponse = await dispatch(rechargePay(paymentPayload));
 
-                  setShowPaymentModal(false);
-                  setPaymentSuccess(true);
-                  // You can add additional logic here like API call, etc.
+                    if (paymentResponse?.mobileRechargePay) {
+                      const paymentData = paymentResponse.mobileRechargePay;
+                      const apiResponse = paymentData.apiResponse || {};
+
+                      // Format date time
+                      const dateTime = new Date().toLocaleString('en-US', {
+                        month: 'short',
+                        day: 'numeric',
+                        year: 'numeric',
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: true
+                      });
+
+                      // Store transaction details from API response
+                      setTransactionDetails({
+                        transactionId: apiResponse.txid?.toString() || paymentData.orderid || 'N/A',
+                        bConnectId: apiResponse.opid?.toString() || 'N/A',
+                        dateTime: dateTime,
+                        amount: apiResponse.amount || paymentPayload.amount,
+                        orderid: paymentData.orderid || 'N/A',
+                        status: apiResponse.status || 'Success',
+                        dr_amount: apiResponse.dr_amount || null
+                      });
+
+                      setShowPaymentModal(false);
+                      setPaymentSuccess(true);
+                    } else {
+                      // Handle error case
+                      console.error("Payment failed:", paymentResponse);
+                      // You might want to show an error message to the user here
+                    }
+                  } catch (error) {
+                    console.error("Error processing payment:", error);
+                    // You might want to show an error message to the user here
+                  }
                 }}
                 className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
               >
