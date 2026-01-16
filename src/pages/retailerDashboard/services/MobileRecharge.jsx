@@ -199,13 +199,65 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to transform API plan to UI format
   const transformPlanToUIFormat = (plan, index) => {
-    // Extract data from desc field
-    const dataMatch = plan.desc?.match(/Data\s*:\s*([^|]+)/i);
-    const dataText = dataMatch ? dataMatch[1].trim() : "N/A";
+    // Extract data from desc field - handles multiple formats (Airtel and Jio)
+    let dataText = "N/A";
+    
+    // Pattern 1: "Data : 50GB" (Airtel format)
+    const dataMatch1 = plan.desc?.match(/Data\s*:\s*([^|]+)/i);
+    if (dataMatch1) {
+      dataText = dataMatch1[1].trim();
+    } else {
+      // Pattern 2: "Unlimited data - 28GB(2GB/Day)" or "UNLIMITED DATA - 42 GB (1.5GB/Day)" (Jio format)
+      const unlimitedDataMatch = plan.desc?.match(/(?:Unlimited|UNLIMITED)\s+[Dd]ata\s*[-\s]+\s*([^,|]+)/i);
+      if (unlimitedDataMatch) {
+        dataText = unlimitedDataMatch[1].trim();
+      } else {
+        // Pattern 3: "Unlimited Data (10GB High Speed Data, thereafter unlimited at 64Kbps)" (Jio format)
+        const unlimitedDataParenMatch = plan.desc?.match(/Unlimited\s+Data\s*\(([^)]+)/i);
+        if (unlimitedDataParenMatch) {
+          dataText = unlimitedDataParenMatch[1].trim();
+        } else {
+          // Pattern 4: "5 GB 4G/5G Data" or standalone data amounts (Jio format)
+          const standaloneDataMatch = plan.desc?.match(/(\d+(?:\s*\.\d+)?\s*(?:GB|MB|TB)(?:\s*[^,|]+)?)/i);
+          if (standaloneDataMatch) {
+            dataText = standaloneDataMatch[1].trim();
+          } else {
+            // Pattern 5: Any data amount with GB/MB/TB
+            const fallbackDataMatch = plan.desc?.match(/(\d+(?:\.\d+)?\s*(?:GB|MB|TB))/i);
+            if (fallbackDataMatch) {
+              dataText = fallbackDataMatch[1].trim();
+            }
+          }
+        }
+      }
+    }
 
-    // Extract calls from desc field
-    const callsMatch = plan.desc?.match(/Calls\s*:\s*([^|]+)/i);
-    const callsText = callsMatch ? callsMatch[1].trim() : "N/A";
+    // Extract calls from desc field - handles multiple formats (Airtel and Jio)
+    let callsText = "N/A";
+    
+    // Pattern 1: "Calls : Unlimited local, STD & Roaming" (Airtel format)
+    const callsMatch1 = plan.desc?.match(/Calls\s*:\s*([^|]+)/i);
+    if (callsMatch1) {
+      callsText = callsMatch1[1].trim();
+    } else {
+      // Pattern 2: "Unlimited Voice" or "UNLIMITED Voice Calls" (Jio format)
+      const unlimitedVoiceMatch = plan.desc?.match(/(Unlimited\s+Voice(?:\s+Calls)?|UNLIMITED\s+Voice\s+Calls)/i);
+      if (unlimitedVoiceMatch) {
+        callsText = unlimitedVoiceMatch[1].trim();
+      } else {
+        // Pattern 3: "Unlimited local, STD & Roaming" (Airtel format without "Calls :")
+        const unlimitedLocalMatch = plan.desc?.match(/(Unlimited\s+local[^,|]+)/i);
+        if (unlimitedLocalMatch) {
+          callsText = unlimitedLocalMatch[1].trim();
+        } else {
+          // Pattern 4: "Voice : ..." format
+          const voiceMatch = plan.desc?.match(/Voice\s*:\s*([^|]+)/i);
+          if (voiceMatch) {
+            callsText = voiceMatch[1].trim();
+          }
+        }
+      }
+    }
 
     // Extract additional benefits
     const benefitMatch = plan.desc?.match(/Additional\s+(?:Benefit|Benenifit)\s*:\s*(.+)/i);
