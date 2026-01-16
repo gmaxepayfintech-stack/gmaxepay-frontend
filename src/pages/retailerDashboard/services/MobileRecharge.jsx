@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import { Search, ChevronRight, X, CheckCircle } from "lucide-react";
+import { Search, ChevronRight, X } from "lucide-react";
 import PropTypes from "prop-types";
-import { rechargefindOperator } from "../../../redux/action/rechargeAction";
+import { rechargefindOperator,rechargefindPlan , rechargefindOffers  } from "../../../redux/action/rechargeAction";
+
 
 const recentRecharges = [
   {
@@ -12,7 +13,7 @@ const recentRecharges = [
     operatorType: "Jio Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/jio-logo.svg"
+    logo: "/img/Jio.svg"
   },
   {
     id: 2,
@@ -20,7 +21,7 @@ const recentRecharges = [
     operatorType: "Airtel Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/airtel-logo.svg"
+    logo: "/img/Airtel.svg"
   },
   {
     id: 3,
@@ -28,7 +29,7 @@ const recentRecharges = [
     operatorType: "BSNL Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/bsnl-logo.svg"
+    logo: "/img/BSNL.svg"
   },
   {
     id: 4,
@@ -36,7 +37,7 @@ const recentRecharges = [
     operatorType: "VI Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/vi-logo.svg"
+    logo: "/img/VIPrepaid"
   },
   {
     id: 5,
@@ -44,7 +45,7 @@ const recentRecharges = [
     operatorType: "Airtel Prepaid",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/jio-logo.svg" // Note: Image shows Jio logo but Airtel text
+    logo: "/img/Airtel.svg"
   }
 ];
 
@@ -144,6 +145,19 @@ const detailedPlans = [
 const filterButtons = ["28 Days Validity", "1 GB Data", "2 GB Data", "Unlimited Data 5G"];
 const categoryTabs = ["Recommended Packs", "Popular", "Top Data Packs", "Maxx Data", "Monthly Packs", "Cricket"];
 
+// Helper function to get operator logo path
+const getOperatorLogo = (operatorName) => {
+  const logoMap = {
+    "Jio": "/img/Jio.svg",
+    "Airtel": "/img/Airtel.svg",
+    "BSNL": "/img/BSNL.svg",
+    "VI": "/img/VIPrepaid",
+    "Vodafone": "/img/VIPrepaid",
+    "Idea": "/img/VIPrepaid"
+  };
+  return logoMap[operatorName] || null;
+};
+
 const MobileRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
   const [mobileNumber, setMobileNumber] = useState("");
@@ -159,6 +173,8 @@ const MobileRecharge = ({ onBack }) => {
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentSuccess, setPaymentSuccess] = useState(false);
   const [transactionDetails, setTransactionDetails] = useState(null);
+  const [rechargePlans, setRechargePlans] = useState(null);
+  const [rechargeOffers, setRechargeOffers] = useState(null);
 
   // Get unique operators from recent recharges
   const operators = recentRecharges.reduce((acc, recharge) => {
@@ -172,27 +188,227 @@ const MobileRecharge = ({ onBack }) => {
     return acc;
   }, []);
 
+  // Helper function to extract suggested plans from offers API response
+  const getSuggestedPlansFromOffers = () => {
+    if (!rechargeOffers?.data?.data || !Array.isArray(rechargeOffers.data.data)) {
+      return [];
+    }
+
+    // Get first 3-4 offers
+    const offers = rechargeOffers.data.data.slice(0, 4);
+
+    return offers.map((offer, index) => {
+      // Extract data from offer text (e.g., "12GB", "Unlimited data", "2GB")
+      const dataMatch = offer.offer?.match(/(\d+(?:\.\d+)?\s*GB|Unlimited\s+data)/i);
+      const dataText = dataMatch ? dataMatch[1].trim() : "N/A";
+
+      // Extract validity from offer text (e.g., "30days", "1 day", "28 days", "1M")
+      const validityMatch = offer.offer?.match(/(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i);
+      let validityText = validityMatch ? validityMatch[1].trim() : "N/A";
+      
+      // Format validity text
+      if (validityText.toLowerCase().includes("m")) {
+        validityText = validityText.replace(/m/i, " Month");
+      } else if (validityText.toLowerCase().includes("d") && !validityText.toLowerCase().includes("day")) {
+        validityText = validityText.replace(/d/i, " Day");
+      }
+
+      return {
+        id: index + 1,
+        price: `₹${offer.amount}`,
+        operator: selectedOperator.name,
+        lastRecharge: "Last Recharge On 08 Jan 26", // You can update this with actual data if available
+        data: dataText,
+        validity: validityText,
+        originalOffer: offer // Store original offer data for reference
+      };
+    });
+  };
+
+  // Get suggested plans (use offers if available, otherwise use default)
+  const displaySuggestedPlans = rechargeOffers ? getSuggestedPlansFromOffers() : suggestedPlans;
+
+  // Helper function to transform API plan to UI format
+  const transformPlanToUIFormat = (plan, index) => {
+    // Extract data from desc field
+    const dataMatch = plan.desc?.match(/Data\s*:\s*([^|]+)/i);
+    const dataText = dataMatch ? dataMatch[1].trim() : "N/A";
+    
+    // Extract calls from desc field
+    const callsMatch = plan.desc?.match(/Calls\s*:\s*([^|]+)/i);
+    const callsText = callsMatch ? callsMatch[1].trim() : "N/A";
+    
+    // Extract additional benefits
+    const benefitMatch = plan.desc?.match(/Additional\s+(?:Benefit|Benenifit)\s*:\s*(.+)/i);
+    const validityExtra = benefitMatch ? benefitMatch[1].trim() : "";
+
+    return {
+      id: index + 1,
+      price: `₹${plan.rs}`,
+      validity: plan.validity || "N/A",
+      data: dataText,
+      calls: callsText,
+      validityExtra: validityExtra,
+      planName: plan.Type || "",
+      desc: plan.desc || "",
+      originalPlan: plan
+    };
+  };
+
+  // Helper function to get plans based on category
+  const getPlansByCategory = () => {
+    if (!rechargePlans?.data?.data) {
+      return [];
+    }
+
+    const plansData = rechargePlans.data.data;
+    let selectedPlans = [];
+
+    switch (activeCategory) {
+      case "Recommended Packs":
+        // Show STV (Entertainment) plans
+        selectedPlans = plansData.STV || [];
+        break;
+      case "Popular":
+        // Show FULLTT (Truly Unlimited) plans
+        selectedPlans = plansData.FULLTT || [];
+        break;
+      case "Top Data Packs":
+        // Show DATA plans
+        selectedPlans = plansData.DATA || [];
+        break;
+      case "Maxx Data":
+        // Show all DATA plans
+        selectedPlans = plansData.DATA || [];
+        break;
+      case "Monthly Packs": {
+        // Filter plans with monthly validity from FULLTT and STV
+        const monthlyPlans = [
+          ...(plansData.FULLTT || []),
+          ...(plansData.STV || [])
+        ].filter(plan => {
+          const validity = plan.validity?.toLowerCase() || "";
+          return validity.includes("month") || 
+                 validity.includes("28 day") || 
+                 validity.includes("30 day") ||
+                 validity.includes("84 day") ||
+                 validity.includes("56 day");
+        });
+        selectedPlans = monthlyPlans;
+        break;
+      }
+      case "Cricket":
+        // Cricket plans - could be empty or special category
+        selectedPlans = [];
+        break;
+      default:
+        // Default to STV
+        selectedPlans = plansData.STV || [];
+    }
+
+    return selectedPlans;
+  };
+
+  // Apply filters and search
+  const getFilteredPlans = () => {
+    let plans = getPlansByCategory();
+    
+    // Apply search filter
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      plans = plans.filter(plan => {
+        const price = plan.rs?.toString() || "";
+        const validity = plan.validity?.toLowerCase() || "";
+        const desc = plan.desc?.toLowerCase() || "";
+        return price.includes(query) || 
+               validity.includes(query) || 
+               desc.includes(query);
+      });
+    }
+
+    // Apply active filter
+    if (activeFilter) {
+      switch (activeFilter) {
+        case "28 Days Validity":
+          plans = plans.filter(plan => 
+            plan.validity?.toLowerCase().includes("28 day")
+          );
+          break;
+        case "1 GB Data":
+          plans = plans.filter(plan => 
+            plan.desc?.toLowerCase().includes("1gb") || 
+            plan.desc?.toLowerCase().includes("1 gb")
+          );
+          break;
+        case "2 GB Data":
+          plans = plans.filter(plan => 
+            plan.desc?.toLowerCase().includes("2gb") || 
+            plan.desc?.toLowerCase().includes("2 gb")
+          );
+          break;
+        case "Unlimited Data 5G":
+          plans = plans.filter(plan => 
+            plan.desc?.toLowerCase().includes("unlimited") && 
+            plan.desc?.toLowerCase().includes("5g")
+          );
+          break;
+        default:
+          break;
+      }
+    }
+
+    // Transform to UI format
+    return plans.map((plan, index) => transformPlanToUIFormat(plan, index));
+  };
+
+  // Get filtered plans for display
+  const displayDetailedPlans = rechargePlans ? getFilteredPlans() : detailedPlans;
+
   const handleProceed = async () => {
     if (!mobileNumber || mobileNumber.length !== 10) {
       return;
     }
     try {
       // Call the API to find operator with mobile number
-      const response = await dispatch(rechargefindOperator({ mobileNumber }));
+      const operatorResponse = await dispatch(rechargefindOperator({ mobileNumber }));
       
       // Update selectedOperator with the response data
-      if (response?.mobileOperator) {
-        const operatorData = response.mobileOperator;
+      if (operatorResponse?.mobileOperator) {
+        const operatorData = operatorResponse.mobileOperator;
         setSelectedOperator({
           name: operatorData.company || "Airtel",
           circle: operatorData.circle || "Karnataka"
         });
+
+        // Call rechargefindPlan with the required payload
+        const planPayload = {
+          mobileNumber: mobileNumber,
+          opCode: operatorData.company_code || "A",
+          circle: operatorData.circle_code || "06"
+        };
+
+        const planResponse = await dispatch(rechargefindPlan(planPayload));
+        
+        // Store the plans data
+        if (planResponse?.mobileRechargePlan) {
+          const plansData = planResponse.mobileRechargePlan;
+          setRechargePlans(plansData);
+        }
+
+        // Call rechargefindOffers with the same payload
+        const offersResponse = await dispatch(rechargefindOffers(planPayload));
+        
+        // Store the offers data
+        if (offersResponse?.mobileRechargeOffers) {
+          const offersData = offersResponse.mobileRechargeOffers;
+          setRechargeOffers(offersData);
+        }
       }
       
       // Move to plan selection step
       setStep("plans");
     } catch (error) {
-      console.error("Error finding operator:", error);
+      console.error("Error finding operator or plans:", error);
       // You might want to show an error message to the user here
     }
   };
@@ -421,10 +637,18 @@ const MobileRecharge = ({ onBack }) => {
                 <div className="   ">
                   {/* Operator and Number */}
                   <div className="flex bg-[#FFFFFF] mb-[24px] p-4 rounded-xl items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                      <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
-                        {selectedOperator.name.charAt(0)}
-                      </div>
+                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                      {getOperatorLogo(selectedOperator.name) ? (
+                        <img 
+                          src={getOperatorLogo(selectedOperator.name)} 
+                          alt={selectedOperator.name} 
+                          className="w-10 h-10 rounded-full" 
+                        />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
+                          {selectedOperator.name.charAt(0)}
+                        </div>
+                      )}
                     </div>
                     <div className="flex-1">
                       <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
@@ -513,10 +737,18 @@ const MobileRecharge = ({ onBack }) => {
                   <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       {/* Operator Logo */}
-                      <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center flex-shrink-0">
-                        <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
-                          {selectedOperator.name.charAt(0)}
-                        </div>
+                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                        {getOperatorLogo(selectedOperator.name) ? (
+                          <img 
+                            src={getOperatorLogo(selectedOperator.name)} 
+                            alt={selectedOperator.name} 
+                            className="w-10 h-10 rounded-full" 
+                          />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
+                            {selectedOperator.name.charAt(0)}
+                          </div>
+                        )}
                       </div>
 
                       <div className="flex-1">
@@ -540,40 +772,52 @@ const MobileRecharge = ({ onBack }) => {
                   </div>
 
                   {/* Suggested Plans - Separate Card */}
-                  <div className="bg-white border border-gray-200 rounded-xl p-4">
-                    <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
-                      Suggest Plans
-                    </div>
-                    <div className="flex items-stretch gap-2">
-                      {suggestedPlans.map((plan, index) => (
-                        <div key={plan.id} className="contents">
-                          <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
-                            <div className="flex items-start gap-2">
-                              <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs flex-shrink-0">
-                                {plan.operator.charAt(0)}
-                              </div>
-                              <div className="flex-1">
-                                <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                                  {plan.price}
+                  {displaySuggestedPlans.length > 0 && (
+                    <div className="bg-white border border-gray-200 rounded-xl p-4">
+                      <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
+                        Suggest Plans
+                      </div>
+                      <div className="flex items-stretch gap-2">
+                        {displaySuggestedPlans.map((plan, index) => (
+                          <div key={plan.id} className="contents">
+                            <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
+                              <div className="flex items-start gap-2">
+                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+                                  {getOperatorLogo(plan.operator) ? (
+                                    <img 
+                                      src={getOperatorLogo(plan.operator)} 
+                                      alt={plan.operator} 
+                                      className="w-8 h-8 rounded-full" 
+                                    />
+                                  ) : (
+                                    <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
+                                      {plan.operator.charAt(0)}
+                                    </div>
+                                  )}
                                 </div>
-                                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-0">
-                                  {plan.lastRecharge}
-                                </div>
-                                <div className=" font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
-                                  <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
-                                  <span className="text-[#1B1717] text-[30px] text-center w-2  ">•</span>
-                                  <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
+                                <div className="flex-1">
+                                  <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+                                    {plan.price}
+                                  </div>
+                                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-0">
+                                    {plan.lastRecharge}
+                                  </div>
+                                  <div className=" font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
+                                    <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
+                                    <span className="text-[#1B1717] text-[30px] text-center w-2  ">•</span>
+                                    <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
+                                  </div>
                                 </div>
                               </div>
                             </div>
+                            {index < displaySuggestedPlans.length - 1 && (
+                              <div className="w-px bg-gray-300"></div>
+                            )}
                           </div>
-                          {index < suggestedPlans.length - 1 && (
-                            <div className="w-px bg-gray-300"></div>
-                          )}
-                        </div>
-                      ))}
+                        ))}
+                      </div>
                     </div>
-                  </div>
+                  )}
                 </>
               )}
 
@@ -631,67 +875,74 @@ const MobileRecharge = ({ onBack }) => {
 
                   {/* Detailed Plan Cards */}
                   <div className="space-y-4 gap-[18px]">
-                    {detailedPlans.map((plan) => (
-                      <div
-                        key={plan.id}
-                        onClick={() => setSelectedPlanForRecharge(plan)}
-                        className="bg-white border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-4 hover:shadow-sm transition cursor-pointer"
-                      >
-                        {/* Top Section */}
-                        <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
-                          {/* Price */}
-                          <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                            {plan.price}
-                          </div>
+                    {displayDetailedPlans.length > 0 ? (
+                      displayDetailedPlans.map((plan) => (
+                        <div
+                          key={plan.id}
+                          onClick={() => setSelectedPlanForRecharge(plan)}
+                          className="bg-white border border-[#1B1717] border-opacity-80 border-[0.5px] rounded-xl p-4 hover:shadow-sm transition cursor-pointer"
+                        >
+                          {/* Top Section */}
+                          <div className="flex items-center justify-between pb-3 border-b border-[#1B1717] border-opacity-80 ">
+                            {/* Price */}
+                            <div className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                              {plan.price}
+                            </div>
 
-                          {/* Vertical Divider */}
-                          <div className="h-12 w-[1px]  mx-6 bg-[#1B1717] bg-opacity-80" />
+                            {/* Vertical Divider */}
+                            <div className="h-12 w-[1px]  mx-6 bg-[#1B1717] bg-opacity-80" />
 
-                          {/* Validity and Data */}
-                          <div className="flex-1 flex gap-6">
-                            <div>
-                              <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                                Validity
+                            {/* Validity and Data */}
+                            <div className="flex-1 flex gap-6">
+                              <div>
+                                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                                  Validity
+                                </div>
+                                <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                                  {plan.validity}
+                                </div>
                               </div>
-                              <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
-                                {plan.validity}
+                              <div>
+                                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
+                                  Data
+                                </div>
+                                <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
+                                  {plan.data}
+                                </div>
                               </div>
                             </div>
-                            <div>
-                              <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mb-1">
-                                Data
-                              </div>
-                              <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717]">
-                                {plan.data}
-                              </div>
+
+                            {/* Arrow Icon */}
+                            <ChevronRight className="text-[#1B1717] text-opacity-80 w-5 h-5" />
+                          </div>
+
+                          {/* Bottom Section */}
+                          <div className="pt-3 space-y-1">
+                            <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                              Calls : {plan.calls}
+                            </div>
+                            <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
+                              <span>Validity : {plan.validityExtra || plan.desc || "N/A"}</span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setSelectedPlan(plan);
+                                  setShowDetailsModal(true);
+                                }}
+                                className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] cursor-pointer hover:underline"
+                              >
+                                Details
+                              </button>
                             </div>
                           </div>
-
-                          {/* Arrow Icon */}
-                          <ChevronRight className="text-[#1B1717] text-opacity-80 w-5 h-5" />
                         </div>
-
-                        {/* Bottom Section */}
-                        <div className="pt-3 space-y-1">
-                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                            Calls : {plan.calls}
-                          </div>
-                          <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
-                            <span>Validity : {plan.validityExtra}</span>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setSelectedPlan(plan);
-                                setShowDetailsModal(true);
-                              }}
-                              className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] cursor-pointer hover:underline"
-                            >
-                              Details
-                            </button>
-                          </div>
-                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-8 text-[#1B1717] text-opacity-60">
+                        No plans found for this category.
                       </div>
-                    ))}
+                    )}
                   </div>
                 </div>
               )}
@@ -852,20 +1103,30 @@ const MobileRecharge = ({ onBack }) => {
               <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
                 Plan Summary
               </div>
-              <div className="space-y-2">
-                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                  • Calls : {selectedPlan.calls}
+              {selectedPlan.desc ? (
+                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 whitespace-pre-line">
+                  {selectedPlan.desc.split('|').map((item, index) => (
+                    <div key={index} className="mb-2">
+                      • {item.trim()}
+                    </div>
+                  ))}
                 </div>
-                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                  • Validity : {selectedPlan.validityExtra}
+              ) : (
+                <div className="space-y-2">
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    • Calls : {selectedPlan.calls}
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    • Validity : {selectedPlan.validityExtra || selectedPlan.validity}
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    • Data : {selectedPlan.data}
+                  </div>
+                  <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+                    • Plan Validity : {selectedPlan.validity}
+                  </div>
                 </div>
-                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                  • Data : {selectedPlan.data}
-                </div>
-                <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
-                  • Plan Validity : {selectedPlan.validity}
-                </div>
-              </div>
+              )}
             </div>
           </div>
         </div>
