@@ -202,27 +202,66 @@ const MobileRecharge = ({ onBack }) => {
     // Extract data from desc field - handles multiple formats (Airtel and Jio)
     let dataText = "N/A";
     
+    // Helper function to clean extracted data text
+    const cleanDataText = (text) => {
+      if (!text) return "N/A";
+      let cleaned = text.trim();
+      
+      // Stop at "thereafter" or "then" or "after" clauses
+      const stopPatterns = [
+        /thereafter/i,
+        /\s+then\s+/i,
+        /\s+after\s+/i,
+        /\s+at\s+64/i,
+        /\s+@\s*64/i
+      ];
+      
+      for (const pattern of stopPatterns) {
+        const match = cleaned.search(pattern);
+        if (match !== -1) {
+          cleaned = cleaned.substring(0, match).trim();
+        }
+      }
+      
+      // Stop at numbered list items (e.g., "2. Subscription")
+      const numberedMatch = cleaned.match(/^(.+?)(?:\s*\d+\.\s+)/);
+      if (numberedMatch) {
+        cleaned = numberedMatch[1].trim();
+      }
+      
+      // Stop at "Note -" or "Note:" 
+      const noteMatch = cleaned.match(/^(.+?)(?:\s*Note\s*[-:])/i);
+      if (noteMatch) {
+        cleaned = noteMatch[1].trim();
+      }
+      
+      // Remove trailing periods, commas, and extra spaces
+      cleaned = cleaned.replace(/[.,]\s*$/, "").trim();
+      
+      return cleaned || "N/A";
+    };
+    
     // Pattern 1: "Data : 50GB" (Airtel format)
     const dataMatch1 = plan.desc?.match(/Data\s*:\s*([^|]+)/i);
     if (dataMatch1) {
-      dataText = dataMatch1[1].trim();
+      dataText = cleanDataText(dataMatch1[1]);
     } else {
       // Pattern 2: "Unlimited data - 28GB(2GB/Day)" or "UNLIMITED DATA - 42 GB (1.5GB/Day)" (Jio format)
       const unlimitedDataMatch = plan.desc?.match(/(?:Unlimited|UNLIMITED)\s+[Dd]ata\s*[-\s]+\s*([^,|]+)/i);
       if (unlimitedDataMatch) {
-        dataText = unlimitedDataMatch[1].trim();
+        dataText = cleanDataText(unlimitedDataMatch[1]);
       } else {
-        // Pattern 3: "Unlimited Data (10GB High Speed Data, thereafter unlimited at 64Kbps)" (Jio format)
-        const unlimitedDataParenMatch = plan.desc?.match(/Unlimited\s+Data\s*\(([^)]+)/i);
+        // Pattern 3: "Unlimited Data ( 3GB 4G/5G data thereafter unlimited at 64Kbps)" (Jio format with parentheses)
+        const unlimitedDataParenMatch = plan.desc?.match(/Unlimited\s+Data\s*\(\s*([^)]+)/i);
         if (unlimitedDataParenMatch) {
-          dataText = unlimitedDataParenMatch[1].trim();
+          dataText = cleanDataText(unlimitedDataParenMatch[1]);
         } else {
-          // Pattern 4: "5 GB 4G/5G Data" or standalone data amounts (Jio format)
-          const standaloneDataMatch = plan.desc?.match(/(\d+(?:\s*\.\d+)?\s*(?:GB|MB|TB)(?:\s*[^,|]+)?)/i);
+          // Pattern 4: "5 GB 4G/5G Data thereafter unlimited" (Jio standalone format)
+          const standaloneDataMatch = plan.desc?.match(/(\d+(?:\s*\.\d+)?\s*(?:GB|MB|TB)(?:\s*[^,|thereafter]+)?)/i);
           if (standaloneDataMatch) {
-            dataText = standaloneDataMatch[1].trim();
+            dataText = cleanDataText(standaloneDataMatch[1]);
           } else {
-            // Pattern 5: Any data amount with GB/MB/TB
+            // Pattern 5: Any data amount with GB/MB/TB (fallback)
             const fallbackDataMatch = plan.desc?.match(/(\d+(?:\.\d+)?\s*(?:GB|MB|TB))/i);
             if (fallbackDataMatch) {
               dataText = fallbackDataMatch[1].trim();
