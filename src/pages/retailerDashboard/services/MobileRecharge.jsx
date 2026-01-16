@@ -236,8 +236,31 @@ const MobileRecharge = ({ onBack }) => {
     return allPlans;
   };
 
-  // Get dynamic category tabs based on plan types from API
+  // Map API Type values to display category names
+  const getCategoryTypeMapping = () => {
+    return {
+      "Internet": ["Internet"],
+      "DATA": ["Data Packs", "DATA"],
+      "Entertainment": ["Entertainment Plans", "Entertainment"],
+      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited"],
+      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher"],
+      "Talktime": ["Top-up", "TOPUP", "Talktime"]
+    };
+  };
+
+  // Get category tabs - only show specific allowed categories
   const getCategoryTabs = () => {
+    // Allowed category tabs
+    const allowedCategories = [
+      "Recommended",
+      "Internet",
+      "DATA",
+      "Entertainment",
+      "Truly Unlimited",
+      "Plan Vouchers",
+      "Talktime"
+    ];
+
     if (!rechargePlans?.data) {
       return ["Recommended"];
     }
@@ -245,10 +268,18 @@ const MobileRecharge = ({ onBack }) => {
     const plansData = rechargePlans.data;
     const allPlans = getAllPlansFromData(plansData);
 
-    // Get unique plan types
+    // Get unique plan types from API
     const uniqueTypes = [...new Set(allPlans.map(plan => plan.Type).filter(Boolean))];
-    // Add "Recommended" as the first option
-    return ["Recommended", ...uniqueTypes];
+    const typeMapping = getCategoryTypeMapping();
+    
+    // Filter to only include allowed categories that have matching plans in API
+    const availableCategories = allowedCategories.filter(category => {
+      if (category === "Recommended") return true;
+      const mappedTypes = typeMapping[category] || [];
+      return mappedTypes.some(type => uniqueTypes.includes(type));
+    });
+
+    return availableCategories;
   };
 
   // Helper function to get plans based on category (Type)
@@ -264,9 +295,14 @@ const MobileRecharge = ({ onBack }) => {
     if (activeCategory === "Recommended" || !activeCategory) {
       selectedPlans = getAllPlansFromData(plansData);
     } else {
-      // Filter by Type (category)
+      // Filter by Type using category mapping
       const allPlans = getAllPlansFromData(plansData);
-      selectedPlans = allPlans.filter(plan => plan.Type === activeCategory);
+      const typeMapping = getCategoryTypeMapping();
+      const mappedTypes = typeMapping[activeCategory] || [activeCategory];
+      
+      selectedPlans = allPlans.filter(plan => 
+        mappedTypes.includes(plan.Type)
+      );
     }
 
     return selectedPlans;
@@ -761,7 +797,7 @@ const MobileRecharge = ({ onBack }) => {
                                   {plan.price}
                                 </div>
                                 <div className="font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
-                                  <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
+                                  <span className="text-[12px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
                                   <span className="text-[#1B1717] text-[30px] text-center w-2">•</span>
                                   <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
                                 </div>
@@ -815,7 +851,7 @@ const MobileRecharge = ({ onBack }) => {
 
                   {/* Category Tabs */}
                   {getCategoryTabs().length > 0 && (
-                    <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200">
+                    <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200 w-fit">
                       {getCategoryTabs().map((category) => (
                         <button
                           key={category}
