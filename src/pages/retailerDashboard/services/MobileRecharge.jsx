@@ -89,10 +89,13 @@ RecentRechargeCard.propTypes = {
 const getOperatorLogo = (operatorName) => {
   const logoMap = {
     "Jio": "/img/Jio.svg",
+    "RELIANCE JIO": "/img/Jio.svg",
     "Airtel": "/img/Airtel.svg",
     "BSNL": "/img/BSNL.svg",
     "VI": "/img/VIPrepaid.svg",
     "Vodafone": "/img/VIPrepaid.svg",
+    "Vodafone Idea": "/img/VIPrepaid.svg",
+    "VODAFONE": "/img/VIPrepaid.svg",
     "Idea": "/img/VIPrepaid.svg"
   };
   return logoMap[operatorName] || null;
@@ -116,6 +119,7 @@ const MobileRecharge = ({ onBack }) => {
   const [rechargePlans, setRechargePlans] = useState(null);
   const [rechargeOffers, setRechargeOffers] = useState(null);
   const [isLoadingProceed, setIsLoadingProceed] = useState(false);
+  const [operatorData, setOperatorData] = useState(null);
 
   // Get unique operators from recent recharges
   const operators = recentRecharges.reduce((acc, recharge) => {
@@ -332,10 +336,10 @@ const MobileRecharge = ({ onBack }) => {
   const getCategoryTypeMapping = () => {
     return {
       "Internet": ["Internet"],
-      "DATA": ["Data Packs", "DATA"],
+      "DATA": ["Data Packs", "DATA", "Data"], // Added "Data" for VI
       "Entertainment": ["Entertainment Plans", "Entertainment"],
-      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited"],
-      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher"],
+      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited", "Unlimited"], // Added "Unlimited" for VI
+      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher", "Plan Voucher"], // Added "Plan Voucher" for VI
       "Talktime": ["Top-up", "TOPUP", "Talktime"]
     };
   };
@@ -447,17 +451,19 @@ const MobileRecharge = ({ onBack }) => {
 
       // Update selectedOperator with the response data
       if (operatorResponse?.mobileOperator) {
-        const operatorData = operatorResponse.mobileOperator;
+        const operatorDataFromResponse = operatorResponse.mobileOperator;
+        // Store operator data for later use (payment)
+        setOperatorData(operatorDataFromResponse);
         setSelectedOperator({
-          name: operatorData.company || "Airtel",
-          circle: operatorData.circle || "Karnataka"
+          name: operatorDataFromResponse.company || "Airtel",
+          circle: operatorDataFromResponse.circle || "Karnataka"
         });
 
         // Call rechargefindPlan with the required payload
         const planPayload = {
           mobileNumber: mobileNumber,
-          opCode: operatorData.company_code || "A",
-          circle: operatorData.circle_code || "06"
+          opCode: operatorDataFromResponse.company_code || "A",
+          circle: operatorDataFromResponse.circle_code || "06"
         };
 
         const planResponse = await dispatch(rechargefindPlan(planPayload));
@@ -1310,9 +1316,9 @@ const MobileRecharge = ({ onBack }) => {
                     // Prepare payment payload
                     const paymentPayload = {
                       mobileNumber: mobileNumber,
-                      opcode: operatorData?.opcode || "A",
+                      opcode: operatorData?.company_code || "A",
                       amount: selectedPlanForRecharge.price.replace('₹', '').trim(),
-                      circle: operatorData?.circle || "06"
+                      circle: operatorData?.circle_code || "06"
                     };
 
                     // Call rechargePay API
