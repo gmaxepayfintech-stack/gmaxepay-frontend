@@ -104,7 +104,7 @@ const MobileRecharge = ({ onBack }) => {
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({ name: "Airtel", circle: "Karnataka" });
   const [activeFilter, setActiveFilter] = useState(null);
-  const [activeCategory, setActiveCategory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState("Recommended");
   const [searchQuery, setSearchQuery] = useState("");
   const [showOperatorModal, setShowOperatorModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -224,24 +224,31 @@ const MobileRecharge = ({ onBack }) => {
     };
   };
 
+  // Helper function to get all plans from all categories dynamically
+  const getAllPlansFromData = (plansData) => {
+    const allPlans = [];
+    // Iterate through all keys in plansData to get plans from all categories
+    Object.keys(plansData).forEach(key => {
+      if (Array.isArray(plansData[key])) {
+        allPlans.push(...plansData[key]);
+      }
+    });
+    return allPlans;
+  };
+
   // Get dynamic category tabs based on plan types from API
   const getCategoryTabs = () => {
     if (!rechargePlans?.data) {
-      return [];
+      return ["Recommended"];
     }
 
     const plansData = rechargePlans.data;
-    const allPlans = [
-      ...(plansData.DATA || []),
-      ...(plansData.STV || []),
-      ...(plansData.FULLTT || []),
-      ...(plansData.PlanVoucher || []),
-      ...(plansData.TOPUP || [])
-    ];
+    const allPlans = getAllPlansFromData(plansData);
 
     // Get unique plan types
     const uniqueTypes = [...new Set(allPlans.map(plan => plan.Type).filter(Boolean))];
-    return uniqueTypes;
+    // Add "Recommended" as the first option
+    return ["Recommended", ...uniqueTypes];
   };
 
   // Helper function to get plans based on category (Type)
@@ -253,39 +260,21 @@ const MobileRecharge = ({ onBack }) => {
     const plansData = rechargePlans.data;
     let selectedPlans = [];
 
-    // If no category selected, show all plans
-    if (!activeCategory) {
-      selectedPlans = [
-        ...(plansData.DATA || []),
-        ...(plansData.STV || []),
-        ...(plansData.FULLTT || []),
-        ...(plansData.PlanVoucher || []),
-        ...(plansData.TOPUP || [])
-      ];
+    // If "Recommended" is selected, show all plans
+    if (activeCategory === "Recommended" || !activeCategory) {
+      selectedPlans = getAllPlansFromData(plansData);
     } else {
       // Filter by Type (category)
-      const allPlans = [
-        ...(plansData.DATA || []),
-        ...(plansData.STV || []),
-        ...(plansData.FULLTT || []),
-        ...(plansData.PlanVoucher || []),
-        ...(plansData.TOPUP || [])
-      ];
+      const allPlans = getAllPlansFromData(plansData);
       selectedPlans = allPlans.filter(plan => plan.Type === activeCategory);
     }
 
     return selectedPlans;
   };
 
-  // Get unique plan types from current category for filter buttons
+  // Get filter buttons (static buttons)
   const getFilterButtons = () => {
-    if (!rechargePlans?.data) {
-      return [];
-    }
-
-    const plans = getPlansByCategory();
-    const uniqueTypes = [...new Set(plans.map(plan => plan.Type).filter(Boolean))];
-    return uniqueTypes;
+    return ["28 Days Validity", "1 GB Data", "2 GB Data", "Unlimited Data 5G"];
   };
 
   // Apply filters and search
@@ -740,45 +729,44 @@ const MobileRecharge = ({ onBack }) => {
                     </div>
                   </div>
 
-                  {/* Suggested Plans - Separate Card */}
+                  {/* Suggested Plans - Separate Cards */}
                   {displaySuggestedPlans.length > 0 && (
                     <div className="bg-white border border-gray-200 rounded-xl p-4">
                       <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
                         Suggest Plans
                       </div>
-                      <div className="flex items-stretch gap-2">
-                        {displaySuggestedPlans.map((plan, index) => (
-                          <div key={plan.id} className="contents">
-                            <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
-                              <div className="flex items-start gap-2">
-                                <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
-                                  {getOperatorLogo(plan.operator) ? (
-                                    <img
-                                      src={getOperatorLogo(plan.operator)}
-                                      alt={plan.operator}
-                                      className="w-8 h-8"
-                                    />
-                                  ) : (
-                                    <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
-                                      {plan.operator.charAt(0)}
-                                    </div>
-                                  )}
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {displaySuggestedPlans.map((plan) => (
+                          <div
+                            key={plan.id}
+                            onClick={() => setSelectedPlanForRecharge(plan)}
+                            className="bg-white border border-gray-200 rounded-lg p-4 transition cursor-pointer hover:shadow-sm"
+                          >
+                            <div className="flex items-start gap-2">
+                              <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
+                                {getOperatorLogo(plan.operator) ? (
+                                  <img
+                                    src={getOperatorLogo(plan.operator)}
+                                    alt={plan.operator}
+                                    className="w-8 h-8"
+                                  />
+                                ) : (
+                                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
+                                    {plan.operator.charAt(0)}
+                                  </div>
+                                )}
+                              </div>
+                              <div className="flex-1">
+                                <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+                                  {plan.price}
                                 </div>
-                                <div className="flex-1">
-                                  <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                                    {plan.price}
-                                  </div>
-                                  <div className=" font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
-                                    <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
-                                    <span className="text-[#1B1717] text-[30px] text-center w-2  ">•</span>
-                                    <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
-                                  </div>
+                                <div className="font-['Gilroy-Medium'] text-[#1B1717] flex items-center gap-1">
+                                  <span className="text-[14px] text-opacity-80 text-[#1B1717]">{plan.data}</span>
+                                  <span className="text-[#1B1717] text-[30px] text-center w-2">•</span>
+                                  <span className="text-[14px] text-[#1B1717]">{plan.validity}</span>
                                 </div>
                               </div>
                             </div>
-                            {index < displaySuggestedPlans.length - 1 && (
-                              <div className="w-px bg-gray-300"></div>
-                            )}
                           </div>
                         ))}
                       </div>
@@ -810,7 +798,7 @@ const MobileRecharge = ({ onBack }) => {
                           key={filter}
                           type="button"
                           onClick={() => {
-                            // Always populate search and make button inactive
+                            // Populate search bar with filter text and make button inactive
                             setSearchQuery(filter);
                             setActiveFilter(null);
                           }}
@@ -833,7 +821,13 @@ const MobileRecharge = ({ onBack }) => {
                           key={category}
                           type="button"
                           onClick={() => {
-                            setActiveCategory(activeCategory === category ? null : category);
+                            // For "Recommended", always set it (don't toggle)
+                            if (category === "Recommended") {
+                              setActiveCategory("Recommended");
+                            } else {
+                              // For other categories, toggle
+                              setActiveCategory(activeCategory === category ? "Recommended" : category);
+                            }
                             setActiveFilter(null); // Reset filter when category changes
                           }}
                           className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
