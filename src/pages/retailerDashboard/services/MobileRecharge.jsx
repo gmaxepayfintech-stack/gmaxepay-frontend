@@ -4,7 +4,7 @@ import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight, X } from "lucide-react";
 import PropTypes from "prop-types";
 import { rechargefindOperator, rechargefindPlan, rechargefindOffers, rechargePay } from "../../../redux/action/rechargeAction";
-
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const recentRecharges = [
   {
@@ -89,10 +89,13 @@ RecentRechargeCard.propTypes = {
 const getOperatorLogo = (operatorName) => {
   const logoMap = {
     "Jio": "/img/Jio.svg",
+    "RELIANCE JIO": "/img/Jio.svg",
     "Airtel": "/img/Airtel.svg",
     "BSNL": "/img/BSNL.svg",
     "VI": "/img/VIPrepaid.svg",
     "Vodafone": "/img/VIPrepaid.svg",
+    "Vodafone Idea": "/img/VIPrepaid.svg",
+    "VODAFONE": "/img/VIPrepaid.svg",
     "Idea": "/img/VIPrepaid.svg"
   };
   return logoMap[operatorName] || null;
@@ -115,6 +118,8 @@ const MobileRecharge = ({ onBack }) => {
   const [transactionDetails, setTransactionDetails] = useState(null);
   const [rechargePlans, setRechargePlans] = useState(null);
   const [rechargeOffers, setRechargeOffers] = useState(null);
+  const [isLoadingProceed, setIsLoadingProceed] = useState(false);
+  const [operatorData, setOperatorData] = useState(null);
 
   // Get unique operators from recent recharges
   const operators = recentRecharges.reduce((acc, recharge) => {
@@ -201,12 +206,12 @@ const MobileRecharge = ({ onBack }) => {
   const transformPlanToUIFormat = (plan, index) => {
     // Extract data from desc field - handles multiple formats (Airtel and Jio)
     let dataText = "N/A";
-    
+
     // Helper function to clean extracted data text
     const cleanDataText = (text) => {
       if (!text) return "N/A";
       let cleaned = text.trim();
-      
+
       // Stop at "thereafter" or "then" or "after" clauses
       const stopPatterns = [
         /thereafter/i,
@@ -215,32 +220,32 @@ const MobileRecharge = ({ onBack }) => {
         /\s+at\s+64/i,
         /\s+@\s*64/i
       ];
-      
+
       for (const pattern of stopPatterns) {
         const match = cleaned.search(pattern);
         if (match !== -1) {
           cleaned = cleaned.substring(0, match).trim();
         }
       }
-      
+
       // Stop at numbered list items (e.g., "2. Subscription")
       const numberedMatch = cleaned.match(/^(.+?)(?:\s*\d+\.\s+)/);
       if (numberedMatch) {
         cleaned = numberedMatch[1].trim();
       }
-      
+
       // Stop at "Note -" or "Note:" 
       const noteMatch = cleaned.match(/^(.+?)(?:\s*Note\s*[-:])/i);
       if (noteMatch) {
         cleaned = noteMatch[1].trim();
       }
-      
+
       // Remove trailing periods, commas, and extra spaces
       cleaned = cleaned.replace(/[.,]\s*$/, "").trim();
-      
+
       return cleaned || "N/A";
     };
-    
+
     // Pattern 1: "Data : 50GB" (Airtel format)
     const dataMatch1 = plan.desc?.match(/Data\s*:\s*([^|]+)/i);
     if (dataMatch1) {
@@ -273,7 +278,7 @@ const MobileRecharge = ({ onBack }) => {
 
     // Extract calls from desc field - handles multiple formats (Airtel and Jio)
     let callsText = "N/A";
-    
+
     // Pattern 1: "Calls : Unlimited local, STD & Roaming" (Airtel format)
     const callsMatch1 = plan.desc?.match(/Calls\s*:\s*([^|]+)/i);
     if (callsMatch1) {
@@ -331,10 +336,10 @@ const MobileRecharge = ({ onBack }) => {
   const getCategoryTypeMapping = () => {
     return {
       "Internet": ["Internet"],
-      "DATA": ["Data Packs", "DATA"],
+      "DATA": ["Data Packs", "DATA", "Data"], // Added "Data" for VI
       "Entertainment": ["Entertainment Plans", "Entertainment"],
-      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited"],
-      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher"],
+      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited", "Unlimited"], // Added "Unlimited" for VI
+      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher", "Plan Voucher"], // Added "Plan Voucher" for VI
       "Talktime": ["Top-up", "TOPUP", "Talktime"]
     };
   };
@@ -362,7 +367,7 @@ const MobileRecharge = ({ onBack }) => {
     // Get unique plan types from API
     const uniqueTypes = [...new Set(allPlans.map(plan => plan.Type).filter(Boolean))];
     const typeMapping = getCategoryTypeMapping();
-    
+
     // Filter to only include allowed categories that have matching plans in API
     const availableCategories = allowedCategories.filter(category => {
       if (category === "Recommended") return true;
@@ -390,8 +395,8 @@ const MobileRecharge = ({ onBack }) => {
       const allPlans = getAllPlansFromData(plansData);
       const typeMapping = getCategoryTypeMapping();
       const mappedTypes = typeMapping[activeCategory] || [activeCategory];
-      
-      selectedPlans = allPlans.filter(plan => 
+
+      selectedPlans = allPlans.filter(plan =>
         mappedTypes.includes(plan.Type)
       );
     }
@@ -439,23 +444,26 @@ const MobileRecharge = ({ onBack }) => {
     if (!mobileNumber || mobileNumber.length !== 10) {
       return;
     }
+    setIsLoadingProceed(true);
     try {
       // Call the API to find operator with mobile number
       const operatorResponse = await dispatch(rechargefindOperator({ mobileNumber }));
 
       // Update selectedOperator with the response data
       if (operatorResponse?.mobileOperator) {
-        const operatorData = operatorResponse.mobileOperator;
+        const operatorDataFromResponse = operatorResponse.mobileOperator;
+        // Store operator data for later use (payment)
+        setOperatorData(operatorDataFromResponse);
         setSelectedOperator({
-          name: operatorData.company || "Airtel",
-          circle: operatorData.circle || "Karnataka"
+          name: operatorDataFromResponse.company || "Airtel",
+          circle: operatorDataFromResponse.circle || "Karnataka"
         });
 
         // Call rechargefindPlan with the required payload
         const planPayload = {
           mobileNumber: mobileNumber,
-          opCode: operatorData.company_code || "A",
-          circle: operatorData.circle_code || "06"
+          opCode: operatorDataFromResponse.company_code || "A",
+          circle: operatorDataFromResponse.circle_code || "06"
         };
 
         const planResponse = await dispatch(rechargefindPlan(planPayload));
@@ -464,6 +472,7 @@ const MobileRecharge = ({ onBack }) => {
         if (planResponse?.status !== "SUCCESS" || !planResponse?.mobileRechargePlan) {
           console.error("Failed to fetch recharge plans");
           // Don't proceed to next step if plan API fails
+          setIsLoadingProceed(false);
           return;
         }
 
@@ -483,8 +492,10 @@ const MobileRecharge = ({ onBack }) => {
         // Move to plan selection step only if plans were successfully fetched
         setStep("plans");
       }
+      setIsLoadingProceed(false);
     } catch (error) {
       console.error("Error finding operator or plans:", error);
+      setIsLoadingProceed(false);
       // You might want to show an error message to the user here
     }
   };
@@ -571,10 +582,10 @@ const MobileRecharge = ({ onBack }) => {
                   <button
                     type="button"
                     onClick={handleProceed}
-                    disabled={mobileNumber?.length !== 10}
-                    className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={mobileNumber?.length !== 10 || isLoadingProceed}
+                    className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
                   >
-                    Proceed
+                    {isLoadingProceed ? <ButtonLoader /> : "Proceed"}
                   </button>
                 </div>
               </div>
@@ -1019,7 +1030,7 @@ const MobileRecharge = ({ onBack }) => {
                             <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
                               Calls : {plan.calls}
                             </div>
-                            <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
+                            <div className="text-[14px] font-['Gilroy-Medium'] underline text-[#1B1717] text-opacity-80 flex items-center justify-between">
                               <span>Validity : {plan.validityExtra || plan.desc || "N/A"}</span>
                               <button
                                 type="button"
@@ -1028,7 +1039,7 @@ const MobileRecharge = ({ onBack }) => {
                                   setSelectedPlan(plan);
                                   setShowDetailsModal(true);
                                 }}
-                                className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] cursor-pointer hover:underline"
+                                className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] cursor-pointer hover:underline"
                               >
                                 Details
                               </button>
@@ -1305,9 +1316,9 @@ const MobileRecharge = ({ onBack }) => {
                     // Prepare payment payload
                     const paymentPayload = {
                       mobileNumber: mobileNumber,
-                      opcode: operatorData?.opcode || "A",
+                      opcode: operatorData?.company_code || "A",
                       amount: selectedPlanForRecharge.price.replace('₹', '').trim(),
-                      circle: operatorData?.circle || "06"
+                      circle: operatorData?.circle_code || "06"
                     };
 
                     // Call rechargePay API
