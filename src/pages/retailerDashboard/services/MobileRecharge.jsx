@@ -54,9 +54,9 @@ const RecentRechargeCard = ({ recharge }) => {
     <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition cursor-pointer">
       <div className="flex items-start gap-3">
         {/* Operator Logo */}
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
           {recharge.logo ? (
-            <img src={recharge.logo} alt={recharge.operator} className="w-full h-full rounded-full object-cover" />
+            <img src={recharge.logo} alt={recharge.operator} className="w-12 h-12" />
           ) : (
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
               {recharge.operator.charAt(0)}
@@ -85,65 +85,6 @@ RecentRechargeCard.propTypes = {
   recharge: PropTypes.object.isRequired,
 };
 
-// Sample plan data
-const suggestedPlans = [
-  {
-    id: 1,
-    price: "₹22",
-    operator: "Airtel",
-    lastRecharge: "Last Recharge On 08 Jan 26",
-    data: "1.0 GB/Pack",
-    validity: "1 Day"
-  },
-  {
-    id: 2,
-    price: "₹22",
-    operator: "Airtel",
-    lastRecharge: "Last Recharge On 08 Jan 26",
-    data: "1.0 GB/Pack",
-    validity: "1 Day"
-  }
-];
-
-const detailedPlans = [
-  {
-    id: 1,
-    price: "₹22",
-    validity: "28 Days",
-    data: "1.0 GB/Day",
-    calls: "Unlimited",
-    validityExtra: "Unlimited 5G + 2GB/Day",
-    planName: "Kannada Super Value",
-    channels: "244",
-    features: [
-      "Paid Channels : 89 • HD",
-      "Free Channels 32 Channels",
-      "Entertainment And News Channels",
-      "Access To 244 Premium Channels",
-      "Regional Kannada Content"
-    ]
-  },
-  {
-    id: 2,
-    price: "₹22",
-    validity: "28 Days",
-    data: "1.0 GB/Day",
-    calls: "Unlimited",
-    validityExtra: "Unlimited 5G + 2GB/Day",
-    planName: "Kannada Super Value",
-    channels: "244",
-    features: [
-      "Paid Channels : 89 • HD",
-      "Free Channels 32 Channels",
-      "Entertainment And News Channels",
-      "Access To 244 Premium Channels",
-      "Regional Kannada Content"
-    ]
-  }
-];
-
-const categoryTabs = ["Recommended Packs", "Popular", "Top Data Packs", "Maxx Data", "Monthly Packs", "Cricket"];
-
 // Helper function to get operator logo path
 const getOperatorLogo = (operatorName) => {
   const logoMap = {
@@ -163,7 +104,7 @@ const MobileRecharge = ({ onBack }) => {
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({ name: "Airtel", circle: "Karnataka" });
   const [activeFilter, setActiveFilter] = useState(null);
-  const [activeCategory, setActiveCategory] = useState("Recommended Packs");
+  const [activeCategory, setActiveCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [showOperatorModal, setShowOperatorModal] = useState(false);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -253,8 +194,8 @@ const MobileRecharge = ({ onBack }) => {
     });
   };
 
-  // Get suggested plans (use offers if available, otherwise use default)
-  const displaySuggestedPlans = rechargeOffers ? getSuggestedPlansFromOffers() : suggestedPlans;
+  // Get suggested plans (only show if API data is available, don't show default)
+  const displaySuggestedPlans = rechargeOffers ? getSuggestedPlansFromOffers() : [];
 
   // Helper function to transform API plan to UI format
   const transformPlanToUIFormat = (plan, index) => {
@@ -283,7 +224,27 @@ const MobileRecharge = ({ onBack }) => {
     };
   };
 
-  // Helper function to get plans based on category
+  // Get dynamic category tabs based on plan types from API
+  const getCategoryTabs = () => {
+    if (!rechargePlans?.data) {
+      return [];
+    }
+
+    const plansData = rechargePlans.data;
+    const allPlans = [
+      ...(plansData.DATA || []),
+      ...(plansData.STV || []),
+      ...(plansData.FULLTT || []),
+      ...(plansData.PlanVoucher || []),
+      ...(plansData.TOPUP || [])
+    ];
+
+    // Get unique plan types
+    const uniqueTypes = [...new Set(allPlans.map(plan => plan.Type).filter(Boolean))];
+    return uniqueTypes;
+  };
+
+  // Helper function to get plans based on category (Type)
   const getPlansByCategory = () => {
     if (!rechargePlans?.data) {
       return [];
@@ -292,46 +253,25 @@ const MobileRecharge = ({ onBack }) => {
     const plansData = rechargePlans.data;
     let selectedPlans = [];
 
-    switch (activeCategory) {
-      case "Recommended Packs":
-        // Show STV (Entertainment) plans
-        selectedPlans = plansData.STV || [];
-        break;
-      case "Popular":
-        // Show FULLTT (Truly Unlimited) plans
-        selectedPlans = plansData.FULLTT || [];
-        break;
-      case "Top Data Packs":
-        // Show DATA plans
-        selectedPlans = plansData.DATA || [];
-        break;
-      case "Maxx Data":
-        // Show all DATA plans
-        selectedPlans = plansData.DATA || [];
-        break;
-      case "Monthly Packs": {
-        // Filter plans with monthly validity from FULLTT and STV
-        const monthlyPlans = [
-          ...(plansData.FULLTT || []),
-          ...(plansData.STV || [])
-        ].filter(plan => {
-          const validity = plan.validity?.toLowerCase() || "";
-          return validity.includes("month") ||
-            validity.includes("28 day") ||
-            validity.includes("30 day") ||
-            validity.includes("84 day") ||
-            validity.includes("56 day");
-        });
-        selectedPlans = monthlyPlans;
-        break;
-      }
-      case "Cricket":
-        // Cricket plans - could be empty or special category
-        selectedPlans = [];
-        break;
-      default:
-        // Default to STV
-        selectedPlans = plansData.STV || [];
+    // If no category selected, show all plans
+    if (!activeCategory) {
+      selectedPlans = [
+        ...(plansData.DATA || []),
+        ...(plansData.STV || []),
+        ...(plansData.FULLTT || []),
+        ...(plansData.PlanVoucher || []),
+        ...(plansData.TOPUP || [])
+      ];
+    } else {
+      // Filter by Type (category)
+      const allPlans = [
+        ...(plansData.DATA || []),
+        ...(plansData.STV || []),
+        ...(plansData.FULLTT || []),
+        ...(plansData.PlanVoucher || []),
+        ...(plansData.TOPUP || [])
+      ];
+      selectedPlans = allPlans.filter(plan => plan.Type === activeCategory);
     }
 
     return selectedPlans;
@@ -367,12 +307,17 @@ const MobileRecharge = ({ onBack }) => {
       });
     }
 
+    // Apply active filter by Type
+    if (activeFilter) {
+      plans = plans.filter(plan => plan.Type === activeFilter);
+    }
+
     // Transform to UI format
     return plans.map((plan, index) => transformPlanToUIFormat(plan, index));
   };
 
-  // Get filtered plans for display
-  const displayDetailedPlans = rechargePlans ? getFilteredPlans() : detailedPlans;
+  // Get filtered plans for display (only show if API data is available, don't show default)
+  const displayDetailedPlans = rechargePlans ? getFilteredPlans() : [];
 
   const handleProceed = async () => {
     if (!mobileNumber || mobileNumber.length !== 10) {
@@ -399,24 +344,29 @@ const MobileRecharge = ({ onBack }) => {
 
         const planResponse = await dispatch(rechargefindPlan(planPayload));
 
-        // Store the plans data
-        if (planResponse?.mobileRechargePlan) {
-          const plansData = planResponse.mobileRechargePlan;
-          setRechargePlans(plansData);
+        // Check if plan API call was successful
+        if (planResponse?.status !== "SUCCESS" || !planResponse?.mobileRechargePlan) {
+          console.error("Failed to fetch recharge plans");
+          // Don't proceed to next step if plan API fails
+          return;
         }
+
+        // Store the plans data
+        const plansData = planResponse.mobileRechargePlan;
+        setRechargePlans(plansData);
 
         // Call rechargefindOffers with the same payload
         const offersResponse = await dispatch(rechargefindOffers(planPayload));
 
-        // Store the offers data
+        // Store the offers data (optional - don't block if offers fail)
         if (offersResponse?.mobileRechargeOffers) {
           const offersData = offersResponse.mobileRechargeOffers;
           setRechargeOffers(offersData);
         }
-      }
 
-      // Move to plan selection step
-      setStep("plans");
+        // Move to plan selection step only if plans were successfully fetched
+        setStep("plans");
+      }
     } catch (error) {
       console.error("Error finding operator or plans:", error);
       // You might want to show an error message to the user here
@@ -656,12 +606,12 @@ const MobileRecharge = ({ onBack }) => {
                 <div className="   ">
                   {/* Operator and Number */}
                   <div className="flex bg-[#FFFFFF] mb-[24px] p-4 rounded-xl items-center gap-4">
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                       {getOperatorLogo(selectedOperator.name) ? (
                         <img
                           src={getOperatorLogo(selectedOperator.name)}
                           alt={selectedOperator.name}
-                          className="w-full h-full rounded-full object-cover"
+                          className="w-12 h-12"
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
@@ -756,12 +706,12 @@ const MobileRecharge = ({ onBack }) => {
                   <div className="bg-white border border-gray-200 rounded-xl p-4">
                     <div className="flex items-center gap-4">
                       {/* Operator Logo */}
-                      <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                      <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                         {getOperatorLogo(selectedOperator.name) ? (
                           <img
                             src={getOperatorLogo(selectedOperator.name)}
                             alt={selectedOperator.name}
-                            className="w-full h-full rounded-full object-cover"
+                            className="w-12 h-12"
                           />
                         ) : (
                           <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
@@ -801,12 +751,12 @@ const MobileRecharge = ({ onBack }) => {
                           <div key={plan.id} className="contents">
                             <div className="flex-1 p-4 transition cursor-pointer rounded-lg">
                               <div className="flex items-start gap-2">
-                                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                                <div className="w-8 h-8 flex items-center justify-center flex-shrink-0">
                                   {getOperatorLogo(plan.operator) ? (
                                     <img
                                       src={getOperatorLogo(plan.operator)}
                                       alt={plan.operator}
-                                      className="w-full h-full rounded-full object-cover"
+                                      className="w-8 h-8"
                                     />
                                   ) : (
                                     <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
@@ -860,10 +810,14 @@ const MobileRecharge = ({ onBack }) => {
                           key={filter}
                           type="button"
                           onClick={() => {
+                            // Always populate search and make button inactive
                             setSearchQuery(filter);
                             setActiveFilter(null);
                           }}
-                          className="px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition bg-gray-100 text-[#1B1717] hover:bg-gray-200"
+                          className={`px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${activeFilter === filter
+                            ? "bg-[#039155] text-white"
+                            : "bg-gray-100 text-[#1B1717] hover:bg-gray-200"
+                            }`}
                         >
                           {filter}
                         </button>
@@ -872,30 +826,32 @@ const MobileRecharge = ({ onBack }) => {
                   )}
 
                   {/* Category Tabs */}
-                  <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200">
-                    {categoryTabs.map((category) => (
-                      <button
-                        key={category}
-                        type="button"
-                        onClick={() => {
-                          setActiveCategory(category);
-                          setActiveFilter(null); // Reset filter when category changes
-                        }}
-                        className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
-                          ? "text-[#039155]"
-                          : "text-gray-600 hover:text-[#1B1717]"
-                          }`}
-                      >
-                        {category}
-                        {activeCategory === category && (
-                          <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[3px] bg-[#039155]" />
-                        )}
-                      </button>
-                    ))}
-                  </div>
+                  {getCategoryTabs().length > 0 && (
+                    <div className="flex gap-4 overflow-x-auto pb-2 mt-[40px] mb-[40px] font-['Gilroy-SemiBold'] border-gray-200">
+                      {getCategoryTabs().map((category) => (
+                        <button
+                          key={category}
+                          type="button"
+                          onClick={() => {
+                            setActiveCategory(activeCategory === category ? null : category);
+                            setActiveFilter(null); // Reset filter when category changes
+                          }}
+                          className={`text-[14px] font-['Gilroy-Medium'] whitespace-nowrap pb-2 transition relative ${activeCategory === category
+                            ? "text-[#039155]"
+                            : "text-gray-600 hover:text-[#1B1717]"
+                            }`}
+                        >
+                          {category}
+                          {activeCategory === category && (
+                            <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[3px] bg-[#039155]" />
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  )}
 
-                  {/* Detailed Plan Cards */}
-                  <div className="space-y-4 gap-[18px]">
+                  {/* Detailed Plan Cards - Scrollable Container */}
+                  <div className="space-y-4 gap-[18px] max-h-[600px] overflow-y-auto pr-2">
                     {displayDetailedPlans.length > 0 ? (
                       displayDetailedPlans.map((plan) => (
                         <div
@@ -1027,12 +983,12 @@ const MobileRecharge = ({ onBack }) => {
                     className="w-full flex items-center gap-3 p-4  transition"
                   >
                     {/* Operator Logo */}
-                    <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0 overflow-hidden">
+                    <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                       {operator.logo ? (
                         <img
                           src={operator.logo}
                           alt={operator.operator}
-                          className="w-full h-full rounded-full object-cover"
+                          className="w-12 h-12"
                         />
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
