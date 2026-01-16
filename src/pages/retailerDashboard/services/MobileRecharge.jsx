@@ -1030,7 +1030,7 @@ const MobileRecharge = ({ onBack }) => {
                             <div className="text-[14px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
                               Calls : {plan.calls}
                             </div>
-                            <div className="text-[14px] font-['Gilroy-Medium'] underline text-[#1B1717] text-opacity-80 flex items-center justify-between">
+                            <div className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 flex items-center justify-between">
                               <span>Validity : {plan.validityExtra || plan.desc || "N/A"}</span>
                               <button
                                 type="button"
@@ -1039,7 +1039,7 @@ const MobileRecharge = ({ onBack }) => {
                                   setSelectedPlan(plan);
                                   setShowDetailsModal(true);
                                 }}
-                                className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] cursor-pointer hover:underline"
+                                className="text-[14px] font-['Gilroy-Medium'] underline text-[#1B1717] cursor-pointer hover:underline"
                               >
                                 Details
                               </button>
