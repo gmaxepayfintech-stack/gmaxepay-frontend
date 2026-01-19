@@ -329,7 +329,7 @@ const MobileRecharge = ({ onBack }) => {
   // Get operator-specific category mapping
   const getCategoryTypeMapping = () => {
     const operatorName = selectedOperator?.name?.toUpperCase() || "";
-    
+
     // Jio mapping
     if (operatorName.includes("JIO") || operatorName.includes("RELIANCE")) {
       return {
@@ -343,7 +343,7 @@ const MobileRecharge = ({ onBack }) => {
         "ISD": ["ISD"]
       };
     }
-    
+
     // Airtel mapping
     if (operatorName.includes("AIRTEL")) {
       return {
@@ -355,7 +355,7 @@ const MobileRecharge = ({ onBack }) => {
         "Talktime": ["Talktime"]
       };
     }
-    
+
     // VI/Vodafone mapping
     if (operatorName.includes("VI") || operatorName.includes("VODAFONE") || operatorName.includes("IDEA")) {
       return {
@@ -368,7 +368,7 @@ const MobileRecharge = ({ onBack }) => {
         "Voice": ["Voice"]
       };
     }
-    
+
     // BSNL mapping
     if (operatorName.includes("BSNL")) {
       return {
@@ -380,7 +380,7 @@ const MobileRecharge = ({ onBack }) => {
         "International Roaming": ["Other Vouchers"]
       };
     }
-    
+
     // Default mapping (fallback)
     return {
       "Internet": ["Internet"],
@@ -395,7 +395,7 @@ const MobileRecharge = ({ onBack }) => {
   // Get operator-specific allowed categories
   const getAllowedCategories = () => {
     const operatorName = selectedOperator?.name?.toUpperCase() || "";
-    
+
     // Jio categories
     if (operatorName.includes("JIO") || operatorName.includes("RELIANCE")) {
       return [
@@ -410,7 +410,7 @@ const MobileRecharge = ({ onBack }) => {
         "ISD"
       ];
     }
-    
+
     // Airtel categories
     if (operatorName.includes("AIRTEL")) {
       return [
@@ -423,7 +423,7 @@ const MobileRecharge = ({ onBack }) => {
         "Talktime"
       ];
     }
-    
+
     // VI/Vodafone categories
     if (operatorName.includes("VI") || operatorName.includes("VODAFONE") || operatorName.includes("IDEA")) {
       return [
@@ -437,7 +437,7 @@ const MobileRecharge = ({ onBack }) => {
         "Voice"
       ];
     }
-    
+
     // BSNL categories
     if (operatorName.includes("BSNL")) {
       return [
@@ -450,7 +450,7 @@ const MobileRecharge = ({ onBack }) => {
         "International Roaming"
       ];
     }
-    
+
     // Default categories
     return [
       "Recommended",
@@ -694,6 +694,7 @@ const MobileRecharge = ({ onBack }) => {
             />
           ) : (
             <div className="space-y-4">
+              {/* Show success screen when payment is successful and transaction details are available */}
               {paymentSuccess && transactionDetails ? (
                 <PaymentSuccessScreen
                   transactionDetails={transactionDetails}
@@ -1013,8 +1014,8 @@ const MobileRecharge = ({ onBack }) => {
                     const paymentResponse = await dispatch(rechargePay(paymentPayload));
 
                     // Updated to match new API response structure
-                    if (paymentResponse?.status === "SUCCESS" && paymentResponse?.data) {
-                      const responseData = paymentResponse.data;
+                    if (paymentResponse?.status === "SUCCESS" && paymentResponse?.mobileRechargePay) {
+                      const responseData = paymentResponse.mobileRechargePay;
                       const apiResponse = responseData.apiResponse || {};
 
                       // Format date time
@@ -1028,7 +1029,7 @@ const MobileRecharge = ({ onBack }) => {
                       });
 
                       // Store transaction details from API response
-                      setTransactionDetails({
+                      const transactionData = {
                         transactionId: apiResponse.txid?.toString() || responseData.orderid || 'N/A',
                         bConnectId: apiResponse.opid?.toString() || 'N/A',
                         dateTime: dateTime,
@@ -1037,8 +1038,10 @@ const MobileRecharge = ({ onBack }) => {
                         status: apiResponse.status || 'Success',
                         dr_amount: apiResponse.dr_amount || null,
                         number: apiResponse.number || mobileNumber
-                      });
+                      };
 
+                      // Set states to show success screen
+                      setTransactionDetails(transactionData);
                       setShowPaymentModal(false);
                       setPaymentSuccess(true);
                     } else {
@@ -1054,9 +1057,8 @@ const MobileRecharge = ({ onBack }) => {
                   }
                 }}
                 disabled={isLoadingPayment}
-                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
-                  isLoadingPayment ? "cursor-wait opacity-100" : ""
-                }`}
+                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${isLoadingPayment ? "cursor-wait opacity-100" : ""
+                  }`}
               >
                 {isLoadingPayment ? (
                   <>

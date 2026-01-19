@@ -11,6 +11,7 @@ import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharg
 import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
 import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
+import DTHRecharge from "../../pages/retailerDashboard/services/DTHRecharge";
 const RetailerDash = () => {
     return (
         <RetailerDashLayout>
@@ -22,6 +23,7 @@ const RetailerDash = () => {
                 <Route path="/onboarding-aeps" element={<OnBoardingAeps />} />
                 <Route path="/services/aeps1/onboarding" element={<OnBoardingAeps />} />
                 <Route path="/services/aeps2/onboarding" element={<OnBoardingAepsTwo />} />
+                <Route path="/services/dth-recharge" element={<DTHRecharge />} />
                 <Route path="/services/aeps2/select-service" element={<SelectserviceTwo />} />
                 <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
                 <Route path="/fund-management/fund-request" element={<FundRequest />} />
