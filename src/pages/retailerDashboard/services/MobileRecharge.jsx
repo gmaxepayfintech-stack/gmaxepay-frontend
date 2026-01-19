@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { X } from "lucide-react";
 import PropTypes from "prop-types";
@@ -94,6 +95,7 @@ RecentRechargeCard.propTypes = {
 
 const MobileRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [mobileNumber, setMobileNumber] = useState("");
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({ name: "Airtel", circle: "Karnataka" });
@@ -653,16 +655,20 @@ const MobileRecharge = ({ onBack }) => {
     <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        {onBack && (
-          <button
-            type="button"
-            aria-label="Back"
-            onClick={onBack}
-            className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
-          >
-            <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-          </button>
-        )}
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() => {
+            if (onBack) {
+              onBack();
+            } else {
+              navigate("/retailerDashboard/services");
+            }
+          }}
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
+        >
+          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+        </button>
         <div className="flex-1 mt-[-10px]">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
             {step === "plans" ? "Select Mobile Recharge" : "Mobile Recharge"}

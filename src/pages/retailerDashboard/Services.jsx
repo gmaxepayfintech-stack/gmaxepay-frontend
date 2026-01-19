@@ -5,14 +5,13 @@ import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import BBPSServices from "./services/BBPSServices";
-import MobileRecharge from "./services/MobileRecharge";
 import DTHRechagre from "./services/DTHRecharge";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
 
 const servicesData = [
-  { id: "mobile-dth", title: "Mobile & DTH Recharge", status: "available" },
+  { id: "mobile-dth", title: "Recharge", status: "available" },
   { id: "Aeps-1", title: "AEPS-1", status: "available" },
   { id: "Aeps-2", title: "AEPS-2", status: "available" },
   { id: "BBPS", title: "BBPS", status: "available" },
@@ -69,7 +68,6 @@ ServiceCard.propTypes = {
 const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showBBPSServices, setShowBBPSServices] = useState(false);
-  const [showMobileRecharge, setShowMobileRecharge] = useState(false);
   const [showDTHRecharge, setShowDTHRecharge] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -104,19 +102,14 @@ const Services = () => {
     navigate("/retailerDashboard/services/aeps2/onboarding");
   };
 
-  // Handle Mobile & DTH card click - show Mobile Recharge component
+  // Handle Recharge card click - navigate to recharge route
   const handleMobileRechargeClick = () => {
-    setShowMobileRecharge(true);
+    navigate("/retailerDashboard/services/recharge");
   };
 
   const handleDTHRechargeClick = () => {
     setShowDTHRecharge(true);
   };
-
-  // If Mobile Recharge should be shown, render that component
-  if (showMobileRecharge) {
-    return <MobileRecharge onBack={() => setShowMobileRecharge(false)} />;
-  }
 
   // If BBPS services should be shown, render that component
   if (showBBPSServices) {
