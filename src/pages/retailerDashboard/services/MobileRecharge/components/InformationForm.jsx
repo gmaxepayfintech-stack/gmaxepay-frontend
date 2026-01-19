@@ -43,7 +43,7 @@ const InformationForm = ({ mobileNumber, setMobileNumber, handleCancel, handlePr
             type="button"
             onClick={handleProceed}
             disabled={mobileNumber?.length !== 10 || isLoadingProceed}
-            className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center"
           >
             {isLoadingProceed ? <ButtonLoader /> : "Proceed"}
           </button>
