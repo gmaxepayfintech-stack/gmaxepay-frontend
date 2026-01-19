@@ -8,6 +8,9 @@ import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceT
 import WalletLoad from "../../pages/retailerDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/retailerDashboard/fundManagement/FundRequest";
 import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharge";
+import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
+import EarningReport from "../../pages/superAdminDashboard/EarningReport";
+import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
 const RetailerDash = () => {
     return (
         <RetailerDashLayout>
@@ -22,6 +25,9 @@ const RetailerDash = () => {
                 <Route path="/services/aeps2/select-service" element={<SelectserviceTwo />} />
                 <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
                 <Route path="/fund-management/fund-request" element={<FundRequest />} />
+                <Route path="/reports/business" element={<BusinessReport />} />
+                <Route path="/reports/earning" element={<EarningReport />} />
+                <Route path="/reports/user-performance" element={<UserPerformance />} />
             </Routes>
         </RetailerDashLayout>
     );
