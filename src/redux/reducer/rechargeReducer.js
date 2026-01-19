@@ -1,4 +1,4 @@
-import { FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS,  PAY_RECHARGE_SUCCESS } from "../actionType/rechargeActionType";
+import { FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS } from "../actionType/rechargeActionType";
 
 const initialState = {
     loading: false,
@@ -32,24 +32,24 @@ const rechargeReducer = (state = initialState, action) => {
                 success: action?.payload?.status,
                 message: action?.payload?.message,
             };
-            case FIND_MOBILE_RECHARGE_OFFERS_SUCCESS:
-                return{
-                    ...state,
-                    mobileRechargeOffers: action?.payload,
-                    loading: false,
-                    error: null,
-                    success: action?.payload?.status,
-                    message: action?.payload?.message,
-                };
-            case PAY_RECHARGE_SUCCESS:
-                return{
-                    ...state,
-                    loading:false,
-                    error:null,
-                    success: action?.payload?.status,
-                    message: action?.payload?.message,
-                    mobileRechargePay: action?.payload,
-                }
+        case FIND_MOBILE_RECHARGE_OFFERS_SUCCESS:
+            return {
+                ...state,
+                mobileRechargeOffers: action?.payload,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+        case PAY_RECHARGE_SUCCESS:
+            return {
+                ...state,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+                mobileRechargePay: action?.payload,
+            }
         default:
             return state;
     }
