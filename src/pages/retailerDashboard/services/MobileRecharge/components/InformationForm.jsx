@@ -41,11 +41,17 @@ const InformationForm = ({ mobileNumber, setMobileNumber, handleCancel, handlePr
           </button>
           <button
             type="button"
-            onClick={handleProceed}
-            disabled={mobileNumber?.length !== 10 || isLoadingProceed}
-            className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition disabled:opacity-80 disabled:cursor-not-allowed flex items-center justify-center"
+            onClick={isLoadingProceed ? undefined : handleProceed}
+            disabled={mobileNumber?.length !== 10 && !isLoadingProceed}
+            className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-lg font-['Gilroy-Medium'] transition flex items-center justify-center ${
+              mobileNumber?.length !== 10 && !isLoadingProceed
+                ? "opacity-50 cursor-not-allowed"
+                : isLoadingProceed
+                ? "cursor-wait opacity-100"
+                : ""
+            }`}
           >
-            {isLoadingProceed ? <ButtonLoader /> : "Proceed"}
+            {isLoadingProceed ? <ButtonLoader color="#FFFFFF" size={24} /> : "Proceed"}
           </button>
         </div>
       </div>
