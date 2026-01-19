@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { FIND_MOBILE_OPERATOR_FAILURE, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_FAILURE, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_FAILURE, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS } from "../actionType/rechargeActionType";
+import { FIND_MOBILE_OPERATOR_FAILURE, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_FAILURE, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_FAILURE, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_FAILURE, PAY_RECHARGE_SUCCESS } from "../actionType/rechargeActionType";
 
 const commonError = "Something went wrong!";
 
@@ -183,7 +183,7 @@ export const rechargePay = (payload) => async (dispatch) => {
       return { mobileRechargePay, status, message };
     } else {
       dispatch({
-        type: PAY_RECHARGE_SUCCESS,
+        type: PAY_RECHARGE_FAILURE,
         payload: {
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
@@ -199,7 +199,7 @@ export const rechargePay = (payload) => async (dispatch) => {
       ? error.response.data.message
       : error.message;
     dispatch({
-      type: PAY_RECHARGE_SUCCESS,
+      type: PAY_RECHARGE_FAILURE,
       payload: errorMessage,
     });
     throw error;
