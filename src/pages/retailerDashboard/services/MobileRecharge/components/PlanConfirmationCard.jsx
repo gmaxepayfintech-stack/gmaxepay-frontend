@@ -2,10 +2,10 @@ import PropTypes from "prop-types";
 import { getOperatorLogo } from "../utils";
 import { ButtonLoader } from "../../../../../widgets/layout/loader";
 
-const PlanConfirmationCard = ({ 
-  selectedOperator, 
-  mobileNumber, 
-  selectedPlanForRecharge, 
+const PlanConfirmationCard = ({
+  selectedOperator,
+  mobileNumber,
+  selectedPlanForRecharge,
   setSelectedPlanForRecharge,
   setShowPaymentModal,
   isLoadingPayment
@@ -104,9 +104,8 @@ const PlanConfirmationCard = ({
               }
             }}
             disabled={isLoadingPayment}
-            className={`flex-1 px-4 py-3 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
-              isLoadingPayment ? "cursor-wait opacity-100" : ""
-            }`}
+            className={`flex-1 px-4 py-3 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${isLoadingPayment ? "cursor-wait opacity-100" : ""
+              }`}
           >
             {isLoadingPayment ? (
               <>
