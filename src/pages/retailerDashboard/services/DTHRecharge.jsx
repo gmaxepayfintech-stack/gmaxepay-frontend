@@ -55,6 +55,15 @@ const getOperatorOpcode = (operatorName) => {
   return "";
 };
 
+// Get operator logo from selectDTHOperators
+const getOperatorLogo = (operatorName) => {
+  const operator = selectDTHOperators.find((op) =>
+    op.name.toLowerCase().includes(operatorName?.toLowerCase() || "") ||
+    operatorName?.toLowerCase().includes(op.name.toLowerCase() || "")
+  );
+  return operator?.logo || "";
+};
+
 const selectDTHOperators = [
   {
     id: 1, name: "Airtel DTH", logo: "/img/Airtel.svg"
@@ -116,19 +125,21 @@ const InlineSearchSelect = ({ options, value, onChange }) => {
 };
 
 const RecentRechargeCard = ({ recharge }) => {
+  const operatorLogo = getOperatorLogo(recharge.operator) || recharge.logo;
+  
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition cursor-pointer">
       <div className="flex items-start gap-3">
         {/* Operator Logo */}
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
-          {recharge.logo ? (
+        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
+          {operatorLogo ? (
             <img
-              src={recharge.logo}
+              src={operatorLogo}
               alt={recharge.operator}
-              className="w-10 h-10 rounded-full"
+              className="w-12 h-12 object-contain"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
               {recharge.operator.charAt(0)}
             </div>
           )}
@@ -163,15 +174,15 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
         }`}
     >
       <div className="flex  gap-4">
-        <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
+        <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
           {operator.logo ? (
             <img
               src={operator.logo}
               alt={operator.name}
-              className="w-10 h-10 rounded-full"
+              className="w-12 h-12 object-contain"
             />
           ) : (
-            <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
               {operator.name.charAt(0)}
             </div>
           )}
@@ -186,60 +197,6 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   );
 };
 
-// Sample plan data
-const sugggestPlans = [
-  {
-    id: 1,
-    price: "₹134",
-    validity: "1 Month",
-    channels: 244,
-    bouquet: "Kannada Super Value",
-    paidChannels: 89,
-    freeChannels: 32,
-    features: [
-      "Entertainment & News Channels",
-      "Access to 244 Premium Channels",
-      "Regional Kannada Content",
-    ],
-  },
-  {
-    id: 2,
-    price: "₹299",
-    validity: "3 Months",
-    channels: 268,
-    bouquet: "Kannada Premium",
-    paidChannels: 112,
-    freeChannels: 48,
-    features: [
-      "Sports, Movies & News",
-      "Access to 268 Premium Channels",
-      "Kannada & Hindi Content",
-    ],
-  },
-  {
-    id: 3,
-    price: "₹499",
-    validity: "6 Months",
-    channels: 310,
-    bouquet: "Family Entertainment Bundle",
-    paidChannels: 145,
-    freeChannels: 60,
-    features: [
-      "Kids, Movies & Lifestyle",
-      "Access to 310 Premium Channels",
-      "All Regional Languages",
-    ],
-  },
-];
-
-const filterButtons = [
-  "All Packs",
-  "1 Month",
-  "3 Months",
-  "6 Months",
-  "9 Months",
-  "12 Months",
-];
 
 const languageOptions = [
   { value: "Kannada", label: "Kannada" },
@@ -249,16 +206,6 @@ const languageOptions = [
   { value: "Telugu", label: "Telugu" },
   { value: "Malayalam", label: "Malayalam" },
 ];
-
-const languagePacks = [
-  "Kannada Telugu Starter",
-  "Kannada Super Value",
-  "Family Entertainment Bundle",
-  "Kannada Premium",
-  "Kannada Dhamaal HDS",
-  "Kannada Hindi Dhamaal",
-];
-
 const transactionDetails = {
   transactionId: "TXN" + Date.now(),
   bConnectId: "BC" + Math.floor(Math.random() * 100000000),
@@ -295,22 +242,6 @@ const DTHRecharge = ({ onBack }) => {
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
 
-  // const handleProceed = () => {
-  //   if (!inputValue) return;
-
-  //   // If user entered mobile number, validate length
-  //   if (inputType === "mobile" && inputValue.length !== 10) return;
-
-  //   setStep("confirm");
-  // };
-
-  // const handleCancel = () => {
-  //   if (step === "confirm") {
-  //     setStep("input");
-  //   } else {
-  //     setInputValue("");
-  //   }
-  // };
 
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
@@ -354,6 +285,21 @@ const DTHRecharge = ({ onBack }) => {
           // Calculate free channels (approximate)
           const freeChannels = channels - paidChannels;
 
+          // Create features array from available data
+          const features = [];
+          if (detail.PaidChannels) {
+            features.push(`${detail.PaidChannels}`);
+          }
+          if (hasHD && hdChannels > 0) {
+            features.push(`${hdChannels} HD Channels`);
+          }
+          if (freeChannels > 0) {
+            features.push(`${freeChannels} Free Channels`);
+          }
+          if (languageName) {
+            features.push(`${languageName} Content`);
+          }
+
           allPlans.push({
             id: planId++,
             price: `₹${pricing.Amount}`,
@@ -365,6 +311,7 @@ const DTHRecharge = ({ onBack }) => {
             hdChannels: hasHD ? hdChannels : 0,
             language: languageName,
             planName: detail.PlanName,
+            features: features.length > 0 ? features : ["Premium DTH Channels"],
             originalData: {
               ...detail,
               pricing: pricing,
@@ -631,14 +578,23 @@ const DTHRecharge = ({ onBack }) => {
               </li>
 
               {/* Remaining features */}
-              {selectedPlan.features.map((item, index) => (
-                <li key={index} className="flex gap-2">
+              {selectedPlan.features && selectedPlan.features.length > 0 ? (
+                selectedPlan.features.map((item, index) => (
+                  <li key={index} className="flex gap-2">
+                    <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
+                      •
+                    </span>
+                    <span>{item}</span>
+                  </li>
+                ))
+              ) : (
+                <li className="flex gap-2">
                   <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
                     •
                   </span>
-                  <span>{item}</span>
+                  <span>Premium DTH Channels</span>
                 </li>
-              ))}
+              )}
             </ul>
           </div>
         </div>
@@ -716,15 +672,15 @@ const DTHRecharge = ({ onBack }) => {
             {step === "input" && (
               <>
                 <div className="text-[18px] flex items-center space-x-[18px] font-['Gilroy-semibold'] text-[#1B1717] mb-4 ">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full flex  items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                     {selectedOperator.logo ? (
                       <img
                         src={selectedOperator.logo}
                         alt={selectedOperator.name}
-                        className="w-10 h-10 rounded-full"
+                        className="w-12 h-12 object-contain"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
                         {selectedOperator.name.charAt(0)}
                       </div>
                     )}
@@ -1068,15 +1024,15 @@ const DTHRecharge = ({ onBack }) => {
               {/* Operator Card */}
               <div className="bg-white rounded-3xl p-4 space-y-4 mb-4">
                 <div className="flex gap-4">
-                  <div className="w-12 h-12 rounded-full bg-purple-600 text-white flex items-center justify-center font-bold">
+                  <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
                     {selectedOperator.logo ? (
                       <img
                         src={selectedOperator.logo}
                         alt={selectedOperator.name}
-                        className="w-10 h-10 rounded-full"
+                        className="w-12 h-12 object-contain"
                       />
                     ) : (
-                      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
                         {selectedOperator.name.charAt(0)}
                       </div>
                     )}
@@ -1174,14 +1130,23 @@ const DTHRecharge = ({ onBack }) => {
                     </li>
 
                     {/* Other features */}
-                    {selectedPlan.features.map((item, index) => (
-                      <li key={index} className="flex gap-2">
+                    {selectedPlan.features && selectedPlan.features.length > 0 ? (
+                      selectedPlan.features.map((item, index) => (
+                        <li key={index} className="flex gap-2">
+                          <span className="text-[16px] relative top-[1px]">
+                            •
+                          </span>
+                          {item}
+                        </li>
+                      ))
+                    ) : (
+                      <li className="flex gap-2">
                         <span className="text-[16px] relative top-[1px]">
                           •
                         </span>
-                        {item}
+                        Premium DTH Channels
                       </li>
-                    ))}
+                    )}
                   </ul>
                 </div>
 
