@@ -30,55 +30,10 @@ const RetailerDashLayout = ({ children }) => {
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
-  // State for active (highlighted) main menu item
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
+  // State for active (highlighted) main menu item - will be set based on route
+  const [activeMenu, setActiveMenu] = useState("");
   // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-  // Fetch user profile on component mount
-  useEffect(() => {
-    dispatch(getUserProfile());
-  }, [dispatch]);
-
-  // Handle unauthorized token expiration - redirect to login
-  useEffect(() => {
-    if (unauthorized) {
-      const errorMessage = error || "Invalid token. Please login again.";
-      showNotification({
-        message: errorMessage,
-        type: "error",
-        duration: 3000,
-        isCritical: true, // Mark as critical so it shows on dashboard
-      });
-      // Redirect to login after a short delay to show notification
-      setTimeout(() => {
-        navigate("/auth/login", { replace: true });
-      }, 500);
-    }
-  }, [unauthorized, error, navigate, showNotification]);
-
-  useEffect(() => {
-    setIsSidebarOpen(false);
-  }, [location.pathname]);
-
-  const handleMenuClick = (name, dropdown, path) => {
-    if (dropdown) {
-      setOpenDropdown((prev) => (prev === name ? null : name));
-      // also set it as active parent
-      setActiveMenu(name);
-    } else {
-      // close any open dropdown
-      setOpenDropdown(null);
-      // mark this as active
-      setActiveMenu(name);
-      if (path) {
-        navigate(path);
-      }
-    }
-  };
-
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
-  const closeSidebar = () => setIsSidebarOpen(false);
 
   const menuItems = [
     {
@@ -159,6 +114,87 @@ const RetailerDashLayout = ({ children }) => {
       dropdown: false,
     },
   ];
+
+  // Fetch user profile on component mount
+  useEffect(() => {
+    dispatch(getUserProfile());
+  }, [dispatch]);
+
+  // Handle unauthorized token expiration - redirect to login
+  useEffect(() => {
+    if (unauthorized) {
+      const errorMessage = error || "Invalid token. Please login again.";
+      showNotification({
+        message: errorMessage,
+        type: "error",
+        duration: 3000,
+        isCritical: true, // Mark as critical so it shows on dashboard
+      });
+      // Redirect to login after a short delay to show notification
+      setTimeout(() => {
+        navigate("/auth/login", { replace: true });
+      }, 500);
+    }
+  }, [unauthorized, error, navigate, showNotification]);
+
+  useEffect(() => {
+    setIsSidebarOpen(false);
+  }, [location.pathname]);
+
+  // Set active menu based on current pathname
+  useEffect(() => {
+    const currentPath = location.pathname;
+    
+    // Check each menu item to see if current path matches
+    for (const item of menuItems) {
+      // Check if path matches exactly
+      if (item.path && currentPath === item.path) {
+        setActiveMenu(item.name);
+        return;
+      }
+      
+      // Check if path starts with the menu item path (for sub-routes like /retailerDashboard/services/recharge)
+      if (item.path && currentPath.startsWith(item.path + "/")) {
+        setActiveMenu(item.name);
+        return;
+      }
+      
+      // Check children paths for dropdown items
+      if (item.children) {
+        for (const child of item.children) {
+          if (currentPath === child.path || currentPath.startsWith(child.path + "/")) {
+            setActiveMenu(item.name);
+            setOpenDropdown(item.name);
+            return;
+          }
+        }
+      }
+    }
+    
+    // Default to Dashboard if no match found and we're on home
+    if (currentPath === "/retailerDashboard/home" || currentPath === "/retailerDashboard/") {
+      setActiveMenu("Dashboard");
+    }
+  }, [location.pathname]);
+
+  const handleMenuClick = (name, dropdown, path) => {
+    if (dropdown) {
+      setOpenDropdown((prev) => (prev === name ? null : name));
+      // also set it as active parent
+      setActiveMenu(name);
+    } else {
+      // close any open dropdown
+      setOpenDropdown(null);
+      // mark this as active
+      setActiveMenu(name);
+      if (path) {
+        navigate(path);
+      }
+    }
+  };
+
+  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
+  const closeSidebar = () => setIsSidebarOpen(false);
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
