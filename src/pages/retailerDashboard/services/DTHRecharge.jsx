@@ -2,7 +2,6 @@ import { useState } from "react";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
-import Select from "react-select";
 
 // Sample recent recharge data
 const recentDTHRecharges = [
@@ -47,6 +46,57 @@ const selectDTHOperators = [
   { id: 4, name: "Sun DTH", logo: "" },
   { id: 5, name: "Videocon", logo: "" },
 ];
+
+const InlineSearchSelect = ({ options, value, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
+
+  const selected = options.find((o) => o.value === value);
+
+  const filtered = options.filter((o) =>
+    o.label.toLowerCase().includes(query.toLowerCase()),
+  );
+
+  return (
+    <div className="relative">
+      {/* Input = Select */}
+      <input
+        value={open ? query : selected?.label || ""}
+        placeholder="Select"
+        onFocus={() => setOpen(true)}
+        onChange={(e) => setQuery(e.target.value)}
+        className="w-full border-[0.5px] border-[#1B1717]/80 rounded-lg px-3 py-3 text-xs font-['Gilroy-Medium'] text-[#1B1717]/80 outline-none"
+      />
+
+      {/* Dropdown */}
+      {open && (
+        <div className="absolute z-20 mt-1 w-full bg-white border border-[#1B1717]/20 rounded-lg shadow-lg max-h-40 overflow-auto">
+          {filtered.map((opt) => (
+            <div
+              key={opt.value}
+              onClick={() => {
+                onChange(opt.value);
+                setQuery("");
+                setOpen(false);
+              }}
+              className={`px-3 py-2 cursor-pointer text-xs ${
+                opt.value === value
+                  ? "bg-[#039155] text-white"
+                  : "hover:bg-gray-100"
+              }`}
+            >
+              {opt.label}
+            </div>
+          ))}
+
+          {filtered.length === 0 && (
+            <div className="px-3 py-2 text-xs text-gray-400">No results</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
 
 const RecentRechargeCard = ({ recharge }) => {
   return (
@@ -207,7 +257,7 @@ const DTHRecharge = ({ onBack }) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Packs");
   const [activeLanguagePack, setActiveLanguagePack] = useState(
-    "Kannada Telugu Starter"
+    "Kannada Telugu Starter",
   );
   const [language, setLanguage] = useState("");
   const [selectedPlan, setSelectedPlan] = useState(null);
@@ -247,7 +297,7 @@ const DTHRecharge = ({ onBack }) => {
     activeFilter === "All Packs"
       ? sugggestPlans
       : sugggestPlans.filter(
-          (plan) => plan.validity.toLowerCase() === activeFilter.toLowerCase()
+          (plan) => plan.validity.toLowerCase() === activeFilter.toLowerCase(),
         );
 
   return (
@@ -568,31 +618,10 @@ const DTHRecharge = ({ onBack }) => {
                     <span className=" ml-1 mt-2 leading-none">*</span>
                   </label>
 
-                  <Select
+                  <InlineSearchSelect
                     options={languageOptions}
-                    placeholder="Select"
-                    value={
-                      languageOptions.find((o) => o.value === language) || null
-                    }
-                    onChange={(opt) => setLanguage(opt.value)}
-                    isSearchable
-                    unstyled
-                    classNames={{
-                      control: () =>
-                        "w-full border-[0.5px] border-[#1B1717]/80 rounded-lg px-2 py-3 text-xs font-['Gilroy-Medium'] text-[#1B1717]/80 bg-white",
-                      menu: () =>
-                        "bg-white border border-[#1B1717]/20 rounded-lg mt-1 shadow-lg text-[#1B1717]/80 font-['Gilroy-Medium'] text-xs",
-                      option: ({ isFocused, isSelected }) =>
-                        `px-3 py-2 cursor-pointer ${
-                          isSelected
-                            ? "bg-[#039155] text-white"
-                            : isFocused
-                            ? "bg-gray-100"
-                            : ""
-                        }`,
-                      placeholder: () => "text-[#1B1717]/80",
-                      singleValue: () => "text-[#1B1717]",
-                    }}
+                    value={language}
+                    onChange={setLanguage}
                   />
                 </div>
 
