@@ -1,8 +1,12 @@
 import { useState } from "react";
+import { useDispatch } from "react-redux";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
+import { Formik, Form, Field } from "formik";
+import * as Yup from "yup";
 import { dthPay, dthPlanFetch, dthCustomerInfo } from "../../../redux/action/rechargeAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 // Sample recent recharge data
 const recentDTHRecharges = [
@@ -40,12 +44,25 @@ const recentDTHRecharges = [
   },
 ];
 
+// Operator to opcode mapping
+const getOperatorOpcode = (operatorName) => {
+  const name = operatorName?.toUpperCase() || "";
+  if (name.includes("AIRTEL")) return "ATV";
+  if (name.includes("SUN")) return "STV";
+  if (name.includes("DISH")) return "DTV";
+  if (name.includes("TATA")) return "TTV";
+  if (name.includes("VIDEOCON") || name.includes("D2H")) return "VTV";
+  return "";
+};
+
 const selectDTHOperators = [
-  { id: 1, name: "Airtel DTH", logo: "" },
-  { id: 2, name: "Dish TV", logo: "" },
-  { id: 3, name: "Tata Play", logo: "" },
-  { id: 4, name: "Sun DTH", logo: "" },
-  { id: 5, name: "Videocon", logo: "" },
+  {
+    id: 1, name: "Airtel DTH", logo: "/img/Airtel.svg"
+  },
+  { id: 2, name: "Dish TV", logo: "/img/DishTV.svg" },
+  { id: 3, name: "Tata Play", logo: "/img/TataPlay.svg" },
+  { id: 4, name: "Sun DTH", logo: "/img/Sundirect.svg" },
+  { id: 5, name: "Videocon", logo: "/img/D2H.svg" },
 ];
 
 const InlineSearchSelect = ({ options, value, onChange }) => {
@@ -80,11 +97,10 @@ const InlineSearchSelect = ({ options, value, onChange }) => {
                 setQuery("");
                 setOpen(false);
               }}
-              className={`px-3 py-2 cursor-pointer text-xs ${
-                opt.value === value
-                  ? "bg-[#039155] text-white"
-                  : "hover:bg-gray-100"
-              }`}
+              className={`px-3 py-2 cursor-pointer text-xs ${opt.value === value
+                ? "bg-[#039155] text-white"
+                : "hover:bg-gray-100"
+                }`}
             >
               {opt.label}
             </div>
@@ -143,9 +159,8 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   return (
     <button
       onClick={() => onSelect(operator)}
-      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${
-        !isLast ? "border-b border-[#1B1717]/30" : ""
-      }`}
+      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${!isLast ? "border-b border-[#1B1717]/30" : ""
+        }`}
     >
       <div className="flex  gap-4">
         <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center flex-shrink-0">
@@ -250,20 +265,35 @@ const transactionDetails = {
   dateTime: new Date().toLocaleString(),
 };
 
+// Validation schema
+const validationSchema = Yup.object().shape({
+  dthNumber: Yup.string()
+    .required("Subscriber ID or Mobile Number is required")
+    .matches(/^\d+$/, "Only digits are allowed")
+    .min(8, "Must be at least 8 digits")
+    .max(15, "Must be at most 15 digits"),
+});
+
 const DTHRecharge = ({ onBack }) => {
+  const dispatch = useDispatch();
   const [step, setStep] = useState("operator"); // operator → input → plans
   const [selectedOperator, setSelectedOperator] = useState(null);
+  const [opcode, setOpcode] = useState("");
   const [inputType, setInputType] = useState("subscriber"); // subscriber | mobile
   const [inputValue, setInputValue] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Packs");
-  const [activeLanguagePack, setActiveLanguagePack] = useState(
-    "Kannada Telugu Starter",
-  );
+  const [activeLanguagePack, setActiveLanguagePack] = useState("");
   const [language, setLanguage] = useState("");
+  const [availableLanguages, setAvailableLanguages] = useState([]);
   const [selectedPlan, setSelectedPlan] = useState(null);
   const [showDetails, setShowDetails] = useState(false);
   const [showPayment, setShowPayment] = useState(false);
+  const [isLoadingContinue, setIsLoadingContinue] = useState(false);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState(null);
+  const [dthPlans, setDthPlans] = useState(null);
+  const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
 
   // const handleProceed = () => {
   //   if (!inputValue) return;
@@ -294,12 +324,105 @@ const DTHRecharge = ({ onBack }) => {
   const isValidSubscriber = inputValue.length >= 8 && inputValue.length <= 15;
   const isMobileNumber = inputValue.length === 10;
 
-  const filteredSuggestPlans =
-    activeFilter === "All Packs"
-      ? sugggestPlans
-      : sugggestPlans.filter(
-          (plan) => plan.validity.toLowerCase() === activeFilter.toLowerCase(),
-        );
+  // Transform API response to UI format
+  const transformPlansFromAPI = (apiData) => {
+    if (!apiData?.data?.Combo || !Array.isArray(apiData.data.Combo)) {
+      return [];
+    }
+
+    const allPlans = [];
+    let planId = 1;
+
+    apiData.data.Combo.forEach((combo) => {
+      const languageName = combo.Language || "";
+      
+      combo.Details?.forEach((detail) => {
+        detail.PricingList?.forEach((pricing) => {
+          // Extract channel count
+          const channelsMatch = detail.Channels?.match(/(\d+)/);
+          const channels = channelsMatch ? parseInt(channelsMatch[1]) : 0;
+          
+          // Extract paid channels
+          const paidMatch = detail.PaidChannels?.match(/(\d+)/);
+          const paidChannels = paidMatch ? parseInt(paidMatch[1]) : 0;
+          
+          // Extract HD channels
+          const hdMatch = detail.HdChannels?.match(/(\d+)/);
+          const hdChannels = hdMatch ? parseInt(hdMatch[1]) : 0;
+          const hasHD = detail.HdChannels && !detail.HdChannels.includes("No HD");
+          
+          // Calculate free channels (approximate)
+          const freeChannels = channels - paidChannels;
+
+          allPlans.push({
+            id: planId++,
+            price: `₹${pricing.Amount}`,
+            validity: pricing.Month || "1 Month",
+            channels: channels,
+            bouquet: detail.PlanName || "",
+            paidChannels: paidChannels,
+            freeChannels: freeChannels > 0 ? freeChannels : 0,
+            hdChannels: hasHD ? hdChannels : 0,
+            language: languageName,
+            planName: detail.PlanName,
+            originalData: {
+              ...detail,
+              pricing: pricing,
+              language: languageName,
+            },
+          });
+        });
+      });
+    });
+
+    return allPlans;
+  };
+
+  // Filter plans based on active filter and search
+  const getFilteredPlans = () => {
+    if (!dthPlans || filteredSuggestPlans.length === 0) {
+      return [];
+    }
+
+    let filtered = [...filteredSuggestPlans];
+
+    // Filter by search query
+    if (searchQuery) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (plan) =>
+          plan.price.toLowerCase().includes(query) ||
+          plan.validity.toLowerCase().includes(query) ||
+          plan.bouquet.toLowerCase().includes(query) ||
+          plan.planName?.toLowerCase().includes(query)
+      );
+    }
+
+    // Filter by active filter
+    if (activeFilter !== "All Packs") {
+      filtered = filtered.filter((plan) => {
+        const planValidity = plan.validity.toLowerCase();
+        const filterValidity = activeFilter.toLowerCase();
+        return planValidity.includes(filterValidity);
+      });
+    }
+
+    // Filter by language if selected
+    if (language) {
+      filtered = filtered.filter((plan) => plan.language === language);
+    }
+
+    // Filter by active language pack if selected
+    if (activeLanguagePack && activeLanguagePack !== "Kannada Telugu Starter") {
+      filtered = filtered.filter((plan) =>
+        plan.bouquet.toLowerCase().includes(activeLanguagePack.toLowerCase())
+      );
+    }
+
+    return filtered;
+  };
+
+  const displayPlans = getFilteredPlans();
 
   return (
     <div className="w-full">
@@ -367,13 +490,59 @@ const DTHRecharge = ({ onBack }) => {
                 Cancel
               </button>
               <button
-                onClick={() => {
-                  setShowPayment(false);
-                  setStep("success");
+                onClick={async () => {
+                  setIsLoadingPayment(true);
+                  try {
+                    if (!selectedPlan || !opcode || !inputValue) {
+                      console.error("Missing required data for payment");
+                      return;
+                    }
+
+                    // Extract amount from price (remove ₹ and any spaces)
+                    const amount = selectedPlan.price.replace(/[₹\s]/g, "");
+
+                    const paymentPayload = {
+                      dth_number: inputValue,
+                      opcode: opcode,
+                      amount: amount,
+                    };
+
+                    const paymentResponse = await dispatch(
+                      dthPay(paymentPayload)
+                    );
+
+                    if (
+                      paymentResponse?.status === "SUCCESS" &&
+                      paymentResponse?.dthRecharge
+                    ) {
+                      setShowPayment(false);
+                      setStep("success");
+                    } else {
+                      console.error("Payment failed:", paymentResponse);
+                      // You might want to show an error message here
+                    }
+                  } catch (error) {
+                    console.error("Error processing payment:", error);
+                    // You might want to show an error message here
+                  } finally {
+                    setIsLoadingPayment(false);
+                  }
                 }}
-                className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoadingPayment}
+                className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
+                  isLoadingPayment
+                    ? "cursor-wait opacity-100"
+                    : ""
+                }`}
               >
-                Confirm Payment
+                {isLoadingPayment ? (
+                  <>
+                    <ButtonLoader color="#FFFFFF" size={20} />
+                    <span className="ml-2">Processing...</span>
+                  </>
+                ) : (
+                  "Confirm Payment"
+                )}
               </button>
             </div>
           </div>
@@ -522,7 +691,9 @@ const DTHRecharge = ({ onBack }) => {
                     key={op.id}
                     type="button"
                     onClick={() => {
+                      const operatorOpcode = getOperatorOpcode(op.name);
                       setSelectedOperator(op);
+                      setOpcode(operatorOpcode);
                       setStep("input");
                     }}
                     className="w-full text-left"
@@ -530,7 +701,7 @@ const DTHRecharge = ({ onBack }) => {
                     <OperatorCard
                       operator={op}
                       isLast={index === selectDTHOperators.length - 1}
-                      onSelect={() => {}}
+                      onSelect={() => { }}
                     />
                   </button>
                 ))}
@@ -539,9 +710,8 @@ const DTHRecharge = ({ onBack }) => {
           )}
 
           <div
-            className={`${
-              step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
-            } lg:flex-[1.6] w-full lg:w-auto self-start`}
+            className={`${step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
+              } lg:flex-[1.6] w-full lg:w-auto self-start`}
           >
             {step === "input" && (
               <>
@@ -562,49 +732,152 @@ const DTHRecharge = ({ onBack }) => {
                   <div className="">{selectedOperator.name}</div>
                 </div>
 
-                <div className="space-y-4">
-                  {/* Mobile Number Input */}
-                  <div>
-                    <label
-                      htmlFor="mobileNumber"
-                      className="block text-[14px] font-['Gilroy-Medium'] text-[#121216] mb-2"
-                    >
-                      Subscriver ID Or Mobile Number
-                    </label>
-                    <input
-                      type="text"
-                      value={inputValue}
-                      onChange={(e) => {
-                        const value = e.target.value.replace(/\D/g, ""); // only digits
-                        if (value.length <= 15) {
-                          // allow VC numbers also
-                          setInputValue(value);
-                        }
-                      }}
-                      placeholder="Enter Subscriber ID or Mobile Number"
-                      className="w-full px-4 py-4 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-[#1B1717]/80 font-['Gilroy-Medium'] text-xs"
-                    />
-                  </div>
+                <Formik
+                  initialValues={{ dthNumber: "" }}
+                  validationSchema={validationSchema}
+                  onSubmit={async (values, { setSubmitting }) => {
+                    setIsLoadingContinue(true);
+                    try {
+                      // Call dthCustomerInfo API
+                      const customerPayload = {
+                        dth_number: values.dthNumber,
+                        opcode: opcode,
+                      };
 
-                  {/* Buttons */}
-                  <div className="flex gap-3 pt-4">
-                    <button
-                      type="button"
-                      onClick={() => setStep("operator")}
-                      className="flex-1 h-[48px] border-[0.5px] border-[#1B1717]/80 rounded-xl bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] hover:bg-gray-50 transition text-lg"
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setStep("confirm")}
-                      disabled={!isValidSubscriber}
-                      className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition disabled:opacity-50 disabled:cursor-not-allowed"
-                    >
-                      Continue
-                    </button>
-                  </div>
-                </div>
+                      const customerResponse = await dispatch(
+                        dthCustomerInfo(customerPayload)
+                      );
+
+                      if (
+                        customerResponse?.status === "SUCCESS" &&
+                        customerResponse?.dthOperatorInfo
+                      ) {
+                        setCustomerInfo(customerResponse.dthOperatorInfo);
+                        setInputValue(values.dthNumber);
+
+                        // Call dthPlanFetch API with same payload
+                        const planResponse = await dispatch(
+                          dthPlanFetch(customerPayload)
+                        );
+
+                        if (
+                          planResponse?.status === "SUCCESS" &&
+                          planResponse?.dthRechargePlan
+                        ) {
+                          setDthPlans(planResponse.dthRechargePlan);
+                          const transformedPlans = transformPlansFromAPI(
+                            planResponse.dthRechargePlan
+                          );
+                          setFilteredSuggestPlans(transformedPlans);
+                          
+                          // Extract unique languages from API response
+                          if (planResponse.dthRechargePlan?.data?.Combo) {
+                            const languages = planResponse.dthRechargePlan.data.Combo.map(
+                              (combo) => combo.Language
+                            ).filter(Boolean);
+                            setAvailableLanguages(languages);
+                            if (languages.length > 0 && !language) {
+                              setLanguage(languages[0]);
+                            }
+                          }
+                          
+                          setStep("confirm");
+                        } else {
+                          console.error(
+                            "Failed to fetch plans:",
+                            planResponse
+                          );
+                          // Still proceed to confirm step even if plans fail
+                          setStep("confirm");
+                        }
+                      } else {
+                        console.error(
+                          "Failed to fetch customer info:",
+                          customerResponse
+                        );
+                        // You might want to show an error message here
+                      }
+                    } catch (error) {
+                      console.error("Error in form submission:", error);
+                      // You might want to show an error message here
+                    } finally {
+                      setIsLoadingContinue(false);
+                      setSubmitting(false);
+                    }
+                  }}
+                >
+                  {({ values, errors, touched, handleChange, handleBlur }) => (
+                    <Form className="space-y-4">
+                      {/* Subscriber ID or Mobile Number Input */}
+                      <div>
+                        <label
+                          htmlFor="dthNumber"
+                          className="block text-[14px] font-['Gilroy-Medium'] text-[#121216] mb-2"
+                        >
+                          Subscriber ID Or Mobile Number
+                        </label>
+                        <Field name="dthNumber">
+                          {({ field }) => (
+                            <input
+                              {...field}
+                              type="text"
+                              value={field.value}
+                              onChange={(e) => {
+                                const value = e.target.value.replace(/\D/g, ""); // only digits
+                                if (value.length <= 15) {
+                                  field.onChange({
+                                    target: { name: "dthNumber", value },
+                                  });
+                                }
+                              }}
+                              onBlur={handleBlur}
+                              placeholder="Enter Subscriber ID or Mobile Number"
+                              className={`w-full px-4 py-4 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-[#1B1717]/80 font-['Gilroy-Medium'] text-xs ${
+                                errors.dthNumber && touched.dthNumber
+                                  ? "border-red-500"
+                                  : ""
+                              }`}
+                            />
+                          )}
+                        </Field>
+                        {errors.dthNumber && touched.dthNumber && (
+                          <div className="text-red-500 text-xs mt-1">
+                            {errors.dthNumber}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Buttons */}
+                      <div className="flex gap-3 pt-4">
+                        <button
+                          type="button"
+                          onClick={() => setStep("operator")}
+                          className="flex-1 h-[48px] border-[0.5px] border-[#1B1717]/80 rounded-xl bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] hover:bg-gray-50 transition text-lg"
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="submit"
+                          disabled={isLoadingContinue}
+                          className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
+                            isLoadingContinue
+                              ? "cursor-wait opacity-100"
+                              : ""
+                          }`}
+                        >
+                          {isLoadingContinue ? (
+                            <>
+                              <ButtonLoader color="#FFFFFF" size={20} />
+                              <span className="ml-2">Processing...</span>
+                            </>
+                          ) : (
+                            "Continue"
+                          )}
+                        </button>
+                      </div>
+                    </Form>
+                  )}
+                </Formik>
               </>
             )}
           </div>
@@ -620,28 +893,44 @@ const DTHRecharge = ({ onBack }) => {
                   </label>
 
                   <InlineSearchSelect
-                    options={languageOptions}
+                    options={
+                      availableLanguages.length > 0
+                        ? availableLanguages.map((lang) => ({
+                            value: lang,
+                            label: lang,
+                          }))
+                        : languageOptions
+                    }
                     value={language}
                     onChange={setLanguage}
                   />
                 </div>
 
-                {/* Language Packs */}
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {languagePacks.map((pack) => (
-                    <button
-                      key={pack}
-                      onClick={() => setActiveLanguagePack(pack)}
-                      className={`px-3 py-1.5 rounded-lg text-sm truncate transition ${
-                        activeLanguagePack === pack
-                          ? "bg-[#039155] text-white font-['Gilroy-semibold']"
-                          : "text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 font-['Gilroy-medium']"
-                      }`}
-                    >
-                      {pack}
-                    </button>
-                  ))}
-                </div>
+                {/* Language Packs - Show unique plan names from API */}
+                {filteredSuggestPlans.length > 0 && (
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {[
+                      ...new Set(
+                        filteredSuggestPlans.map((plan) => plan.bouquet)
+                      ),
+                    ]
+                      .slice(0, 6)
+                      .map((pack) => (
+                        <button
+                          key={pack}
+                          type="button"
+                          onClick={() => setActiveLanguagePack(pack)}
+                          className={`px-3 py-1.5 rounded-lg text-sm truncate transition ${
+                            activeLanguagePack === pack
+                              ? "bg-[#039155] text-white font-['Gilroy-semibold']"
+                              : "text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 font-['Gilroy-medium']"
+                          }`}
+                        >
+                          {pack}
+                        </button>
+                      ))}
+                  </div>
+                )}
 
                 {/* Select Plan */}
                 <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] pt-3">
@@ -670,11 +959,10 @@ const DTHRecharge = ({ onBack }) => {
                         key={filter}
                         onClick={() => setActiveFilter(filter)}
                         className={`relative pb-0.5 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition
-                        ${
-                          isActive
+                        ${isActive
                             ? "text-[#039155]"
                             : "text-[#1B1717]/80 hover:text-[#039155]"
-                        }
+                          }
                       `}
                       >
                         {filter}
@@ -691,7 +979,8 @@ const DTHRecharge = ({ onBack }) => {
 
                 {/* Plans */}
                 <div className="space-y-4">
-                  {filteredSuggestPlans.map((plan) => (
+                  {displayPlans.length > 0 ? (
+                    displayPlans.map((plan) => (
                     <div
                       onClick={() => {
                         setSelectedPlan(plan);
@@ -763,7 +1052,12 @@ const DTHRecharge = ({ onBack }) => {
                         </button>
                       </div>
                     </div>
-                  ))}
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-[#1B1717]/80">
+                      No plans found. Please try different filters.
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
