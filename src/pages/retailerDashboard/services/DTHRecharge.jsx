@@ -197,60 +197,6 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   );
 };
 
-// Sample plan data
-const sugggestPlans = [
-  {
-    id: 1,
-    price: "₹134",
-    validity: "1 Month",
-    channels: 244,
-    bouquet: "Kannada Super Value",
-    paidChannels: 89,
-    freeChannels: 32,
-    features: [
-      "Entertainment & News Channels",
-      "Access to 244 Premium Channels",
-      "Regional Kannada Content",
-    ],
-  },
-  {
-    id: 2,
-    price: "₹299",
-    validity: "3 Months",
-    channels: 268,
-    bouquet: "Kannada Premium",
-    paidChannels: 112,
-    freeChannels: 48,
-    features: [
-      "Sports, Movies & News",
-      "Access to 268 Premium Channels",
-      "Kannada & Hindi Content",
-    ],
-  },
-  {
-    id: 3,
-    price: "₹499",
-    validity: "6 Months",
-    channels: 310,
-    bouquet: "Family Entertainment Bundle",
-    paidChannels: 145,
-    freeChannels: 60,
-    features: [
-      "Kids, Movies & Lifestyle",
-      "Access to 310 Premium Channels",
-      "All Regional Languages",
-    ],
-  },
-];
-
-const filterButtons = [
-  "All Packs",
-  "1 Month",
-  "3 Months",
-  "6 Months",
-  "9 Months",
-  "12 Months",
-];
 
 const languageOptions = [
   { value: "Kannada", label: "Kannada" },
@@ -260,16 +206,6 @@ const languageOptions = [
   { value: "Telugu", label: "Telugu" },
   { value: "Malayalam", label: "Malayalam" },
 ];
-
-const languagePacks = [
-  "Kannada Telugu Starter",
-  "Kannada Super Value",
-  "Family Entertainment Bundle",
-  "Kannada Premium",
-  "Kannada Dhamaal HDS",
-  "Kannada Hindi Dhamaal",
-];
-
 const transactionDetails = {
   transactionId: "TXN" + Date.now(),
   bConnectId: "BC" + Math.floor(Math.random() * 100000000),
@@ -306,22 +242,6 @@ const DTHRecharge = ({ onBack }) => {
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
 
-  // const handleProceed = () => {
-  //   if (!inputValue) return;
-
-  //   // If user entered mobile number, validate length
-  //   if (inputType === "mobile" && inputValue.length !== 10) return;
-
-  //   setStep("confirm");
-  // };
-
-  // const handleCancel = () => {
-  //   if (step === "confirm") {
-  //     setStep("input");
-  //   } else {
-  //     setInputValue("");
-  //   }
-  // };
 
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
