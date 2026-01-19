@@ -9,6 +9,7 @@ const PlanSearchAndFilters = ({
   activeCategory,
   setActiveCategory,
   getFilterButtons,
+  getFilterValue,
   getCategoryTabs,
   displayDetailedPlans,
   setSelectedPlanForRecharge,
@@ -37,7 +38,7 @@ const PlanSearchAndFilters = ({
               key={filter}
               type="button"
               onClick={() => {
-                // Populate search bar with filter text and make button inactive
+                // Populate search bar with display text (filter), but actual filtering uses transformed value
                 setSearchQuery(filter);
                 setActiveFilter(null);
               }}
@@ -166,6 +167,7 @@ PlanSearchAndFilters.propTypes = {
   activeCategory: PropTypes.string.isRequired,
   setActiveCategory: PropTypes.func.isRequired,
   getFilterButtons: PropTypes.func.isRequired,
+  getFilterValue: PropTypes.func.isRequired,
   getCategoryTabs: PropTypes.func.isRequired,
   displayDetailedPlans: PropTypes.array.isRequired,
   setSelectedPlanForRecharge: PropTypes.func.isRequired,
