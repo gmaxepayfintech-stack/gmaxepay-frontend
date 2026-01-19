@@ -217,14 +217,7 @@ const languageOptions = [
   { value: "Malayalam", label: "Malayalam" },
 ];
 
-const languagePacks = [
-  "Kannada Telugu Starter",
-  "Kannada Super Value",
-  "Family Entertainment Bundle",
-  "Kannada Premium",
-  "Kannada Dhamaal HDS",
-  "Kannada Hindi Dhamaal",
-];
+
 
 const transactionDetails = {
   transactionId: "TXN" + Date.now(),
@@ -323,17 +316,30 @@ const DTHRecharge = ({ onBack }) => {
 
           // Create features array from available data
           const features = [];
+          
+          // Add channels information
+          if (detail.Channels) {
+            features.push(`Total Channels: ${detail.Channels}`);
+          }
+          
+          // Add paid channels information
           if (detail.PaidChannels) {
-            features.push(`${detail.PaidChannels}`);
+            features.push(detail.PaidChannels);
           }
-          if (hasHD && hdChannels > 0) {
-            features.push(`${hdChannels} HD Channels`);
+          
+          // Add HD channels information (include "No HD Channels" too)
+          if (detail.HdChannels) {
+            features.push(detail.HdChannels);
           }
-          if (freeChannels > 0) {
-            features.push(`${freeChannels} Free Channels`);
-          }
+          
+          // Add language content
           if (languageName) {
-            features.push(`${languageName} Content`);
+            features.push(`${languageName} Language Pack`);
+          }
+          
+          // Add last update information
+          if (detail.last_update) {
+            features.push(`Last Updated: ${detail.last_update}`);
           }
 
           allPlans.push({
@@ -542,7 +548,7 @@ const DTHRecharge = ({ onBack }) => {
           />
 
           {/* Modal Card */}
-          <div className="relative bg-white rounded-3xl w-[618px] h-[310px] max-w-[95vw] max-h-[90vh] px-4 py-3 z-10">
+          <div className="relative bg-white rounded-3xl w-[618px] max-w-[95vw] max-h-[90vh] px-4 py-3 z-10 overflow-y-auto">
             {/* Close */}
             <button
               onClick={() => setShowDetails(false)}
@@ -614,23 +620,46 @@ const DTHRecharge = ({ onBack }) => {
               </li>
 
               {/* Remaining features */}
-              {selectedPlan.features && selectedPlan.features.length > 0 ? (
-                selectedPlan.features.map((item, index) => (
+              {(() => {
+                // Get features from plan or reconstruct from originalData
+                let featuresToShow = selectedPlan.features || [];
+                
+                // If no features, try to get from originalData
+                if (featuresToShow.length === 0 && selectedPlan.originalData) {
+                  const detail = selectedPlan.originalData;
+                  featuresToShow = [];
+                  
+                  if (detail.Channels) {
+                    featuresToShow.push(`Total Channels: ${detail.Channels}`);
+                  }
+                  if (detail.PaidChannels) {
+                    featuresToShow.push(detail.PaidChannels);
+                  }
+                  if (detail.HdChannels) {
+                    featuresToShow.push(detail.HdChannels);
+                  }
+                  if (selectedPlan.language) {
+                    featuresToShow.push(`${selectedPlan.language} Language Pack`);
+                  }
+                  if (detail.last_update) {
+                    featuresToShow.push(`Last Updated: ${detail.last_update}`);
+                  }
+                }
+                
+                // Fallback if still no features
+                if (featuresToShow.length === 0) {
+                  featuresToShow = ["Premium DTH Channels"];
+                }
+                
+                return featuresToShow.map((item, index) => (
                   <li key={index} className="flex gap-2">
                     <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
                       •
                     </span>
                     <span>{item}</span>
                   </li>
-                ))
-              ) : (
-                <li className="flex gap-2">
-                  <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
-                    •
-                  </span>
-                  <span>Premium DTH Channels</span>
-                </li>
-              )}
+                ));
+              })()}
             </ul>
           </div>
         </div>
@@ -768,9 +797,7 @@ const DTHRecharge = ({ onBack }) => {
                               (combo) => combo.Language
                             ).filter(Boolean);
                             setAvailableLanguages(languages);
-                            if (languages.length > 0 && !language) {
-                              setLanguage(languages[0]);
-                            }
+                            // Don't set initial language - let user select
                           }
                           
                           setStep("confirm");
@@ -884,18 +911,37 @@ const DTHRecharge = ({ onBack }) => {
                     <span className=" ml-1 mt-2 leading-none">*</span>
                   </label>
 
-                  <InlineSearchSelect
-                    options={
-                      availableLanguages.length > 0
-                        ? availableLanguages.map((lang) => ({
-                            value: lang,
-                            label: lang,
-                          }))
-                        : languageOptions
-                    }
-                    value={language}
-                    onChange={setLanguage}
-                  />
+                  {/* Language Search Input */}
+                  <div className="relative font-['Gilroy-Medium']">
+                    <Search className="absolute left-4 top-1/2 text-[#1B1717] text-opacity-50 -translate-y-1/2 w-5 h-5" />
+                    <input
+                      type="text"
+                      value={language}
+                      onChange={(e) => setLanguage(e.target.value)}
+                      placeholder="Select Language"
+                      className="w-full pl-12 pr-4 py-3 border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717]"
+                    />
+                  </div>
+
+                  {/* Language Buttons */}
+                  <div className="flex flex-wrap gap-[17px] mt-3">
+                    {(availableLanguages.length > 0 ? availableLanguages : languageOptions.map(opt => opt.value)).map((lang) => (
+                      <button
+                        key={lang}
+                        type="button"
+                        onClick={() => {
+                          setLanguage(lang);
+                        }}
+                        className={`px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
+                          language === lang
+                            ? "bg-[#039155] text-white"
+                            : "bg-gray-100 text-[#1B1717] hover:bg-gray-200"
+                        }`}
+                      >
+                        {lang}
+                      </button>
+                    ))}
+                  </div>
                 </div>
 
                 {/* Language Packs - Show unique plan names from API */}
