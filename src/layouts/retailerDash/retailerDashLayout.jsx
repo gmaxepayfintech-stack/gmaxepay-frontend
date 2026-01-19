@@ -39,38 +39,8 @@ const RetailerDashLayout = ({ children }) => {
     {
       name: "Dashboard",
       icon: MaskGroup,
-      path: "/superDashboard/home",
+      path: "/retailerDashboard/home",
       dropdown: false,
-    },
-    {
-      name: "Members",
-      icon: MaskGroup1,
-      dropdown: true,
-      path: "/superDashboard/members",
-      children: [
-        { name: "Users", path: "/superDashboard/members/user" },
-        { name: "Agents", path: "/superDashboard/members/list" },
-        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
-
-      ],
-    },
-    {
-      name: "API Operator",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        { name: "Operator List", path: "/superDashboard/api-operator/list" },
-        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
-      ],
-    },
-    {
-      name: "Resources",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
-        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
-      ],
     },
     {
       name: "Fund Manage",
@@ -93,20 +63,11 @@ const RetailerDashLayout = ({ children }) => {
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Business Report", path: "/superDashboard/reports/business" },
-        { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
-        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
+        { name: "Business Report", path: "/retailerDashboard/reports/business" },
+        { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
+        { name: "User Performance", path: "/retailerDashboard/reports/user-performance" },
       ],
     },
-
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
-      dropdown: false,
-    },
-
     {
       name: "Services",
       icon: MaskGroup5,
