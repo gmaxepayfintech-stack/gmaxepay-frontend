@@ -1,5 +1,5 @@
 import PropTypes from "prop-types";
-import { ButtonLoader } from "../../../../widgets/layout/loader";
+import { ButtonLoader } from "../../../../../widgets/layout/loader";
 
 const InformationForm = ({ mobileNumber, setMobileNumber, handleCancel, handleProceed, isLoadingProceed }) => {
   return (
