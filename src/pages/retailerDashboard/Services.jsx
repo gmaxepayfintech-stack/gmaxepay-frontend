@@ -6,6 +6,7 @@ import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import BBPSServices from "./services/BBPSServices";
 import MobileRecharge from "./services/MobileRecharge";
+import DTHRechagre from "./services/DTHRecharge";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -28,6 +29,7 @@ const servicesData = [
   { id: "aeps-cash-deposit", title: "AEPS Cash Deposit", status: "subscribed" },
   { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
   { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
+  { id: "dth-recharge", title: "DTH Recharge", status: "available" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
 const ServiceCard = ({ title, description, onClick }) => {
@@ -68,6 +70,7 @@ const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showBBPSServices, setShowBBPSServices] = useState(false);
   const [showMobileRecharge, setShowMobileRecharge] = useState(false);
+  const [showDTHRecharge, setShowDTHRecharge] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
@@ -81,7 +84,9 @@ const Services = () => {
   // Handle AEPS-1 card click - always navigate to services/aeps1/onboarding route
   // The OnBoardingAeps component will handle all status checks and component rendering
   const handleAepsClick = () => {
-    console.log("🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding");
+    console.log(
+      "🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding"
+    );
     // Always navigate to services/aeps1/onboarding - let that component handle everything
     navigate("/retailerDashboard/services/aeps1/onboarding");
   };
@@ -93,7 +98,9 @@ const Services = () => {
 
   // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
   const handleAepsTwoClick = () => {
-    console.log("🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding");
+    console.log(
+      "🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding"
+    );
     navigate("/retailerDashboard/services/aeps2/onboarding");
   };
 
@@ -102,6 +109,9 @@ const Services = () => {
     setShowMobileRecharge(true);
   };
 
+  const handleDTHRechargeClick = () => {
+    setShowDTHRecharge(true);
+  };
 
   // If Mobile Recharge should be shown, render that component
   if (showMobileRecharge) {
@@ -111,6 +121,11 @@ const Services = () => {
   // If BBPS services should be shown, render that component
   if (showBBPSServices) {
     return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
+  }
+
+  // If DTH Recharge should be shown, render that component
+  if (showDTHRecharge) {
+    return <DTHRechagre onBack={() => setShowDTHRecharge(false)} />;
   }
 
   return (
@@ -176,6 +191,8 @@ const Services = () => {
                 handleAepsTwoClick();
               } else if (s.id === "BBPS" || s.id === "bbps") {
                 handleBBPSClick();
+              } else if (s.id === "dth-recharge") {
+                handleDTHRechargeClick();
               }
             }}
           />

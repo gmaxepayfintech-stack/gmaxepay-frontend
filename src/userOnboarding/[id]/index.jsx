@@ -33,7 +33,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
   // Helper to get company ID
   const getCompanyId = () => {
-    return companyData?.companyId || companyData?._id || companyData?.id || null;
+    return (
+      companyData?.companyId || companyData?._id || companyData?.id || null
+    );
   };
 
   // Helper to get company domain
@@ -63,10 +65,18 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   const isInitialMount = useRef(true);
 
   // Redux state
-  const getPendingResponse = useSelector((state) => state?.retailerOnboarding?.getPendingResponse);
-  const getPendingError = useSelector((state) => state?.retailerOnboarding?.getPendingError);
-  const mobileOtpResponse = useSelector((state) => state?.retailerOnboarding?.OTPResponse);
-  const otpSubmitResponse = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse);
+  const getPendingResponse = useSelector(
+    (state) => state?.retailerOnboarding?.getPendingResponse,
+  );
+  const getPendingError = useSelector(
+    (state) => state?.retailerOnboarding?.getPendingError,
+  );
+  const mobileOtpResponse = useSelector(
+    (state) => state?.retailerOnboarding?.OTPResponse,
+  );
+  const otpSubmitResponse = useSelector(
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse,
+  );
   const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   // Form data
@@ -98,7 +108,11 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       const aadhaarConnected = localStorage.getItem("aadhaarConnected");
       const redirectToaddhar = sessionStorage.getItem("redirectToaddhar");
 
-      if (moveAadhaar === "true" || aadhaarConnected === "true" || redirectToaddhar === "true") {
+      if (
+        moveAadhaar === "true" ||
+        aadhaarConnected === "true" ||
+        redirectToaddhar === "true"
+      ) {
         setCurrentStep(3);
         setShowSteps(false);
         if (redirectToaddhar === "true") {
@@ -117,7 +131,11 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       const panConnected = localStorage.getItem("panConnected");
       const redirectToPan = sessionStorage.getItem("redirectToPan");
 
-      if (movePan === "true" || panConnected === "true" || redirectToPan === "true") {
+      if (
+        movePan === "true" ||
+        panConnected === "true" ||
+        redirectToPan === "true"
+      ) {
         setCurrentStep(4);
         setShowSteps(false);
         if (redirectToPan === "true") {
@@ -143,9 +161,18 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
         console.log("fetchPendingOnMount - companyData:", companyData);
         console.log("fetchPendingOnMount - companyId:", companyId);
         console.log("fetchPendingOnMount - companyDomain:", companyDomain);
-        console.log("fetchPendingOnMount - token:", token ? "present" : "missing");
+        console.log(
+          "fetchPendingOnMount - token:",
+          token ? "present" : "missing",
+        );
 
-        if (token && companyId && companyDomain && !isLoadingPending && !getPendingResponse) {
+        if (
+          token &&
+          companyId &&
+          companyDomain &&
+          !isLoadingPending &&
+          !getPendingResponse
+        ) {
           setIsLoadingPending(true);
           // Set a timeout to reset loading state if API takes too long (30 seconds)
           const timeoutId = setTimeout(() => {
@@ -163,7 +190,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             companyId: !!companyId,
             companyDomain: !!companyDomain,
             isLoadingPending,
-            hasResponse: !!getPendingResponse
+            hasResponse: !!getPendingResponse,
           });
         }
       } catch (e) {
@@ -194,11 +221,21 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           mobileOtpResponse?.OTPResponse?.data?.status === "verified" ||
           mobileOtpResponse?.status === "SUCCESS";
 
-        console.log("checkAndFetchPending - isMobileVerified:", isMobileVerified);
+        console.log(
+          "checkAndFetchPending - isMobileVerified:",
+          isMobileVerified,
+        );
         console.log("checkAndFetchPending - companyId:", companyId);
         console.log("checkAndFetchPending - companyDomain:", companyDomain);
 
-        if (token && companyId && companyDomain && isMobileVerified && !isLoadingPending && !getPendingResponse) {
+        if (
+          token &&
+          companyId &&
+          companyDomain &&
+          isMobileVerified &&
+          !isLoadingPending &&
+          !getPendingResponse
+        ) {
           setIsLoadingPending(true);
           // Set a timeout to reset loading state if API takes too long (30 seconds)
           const timeoutId = setTimeout(() => {
@@ -217,7 +254,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             companyDomain: !!companyDomain,
             isMobileVerified,
             isLoadingPending,
-            hasResponse: !!getPendingResponse
+            hasResponse: !!getPendingResponse,
           });
         }
       } catch (e) {
@@ -227,7 +264,15 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
     };
 
     checkAndFetchPending();
-  }, [mobileOtpResponse, otpSubmitResponse, dispatch, companyData, isLoadingPending, getPendingResponse, companyLoading]);
+  }, [
+    mobileOtpResponse,
+    otpSubmitResponse,
+    dispatch,
+    companyData,
+    isLoadingPending,
+    getPendingResponse,
+    companyLoading,
+  ]);
 
   // Handle getPending response
   useEffect(() => {
@@ -239,16 +284,26 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       const data = getPendingResponse.data;
       setFormData((prev) => ({
         ...prev,
-        otpVerified: data.steps?.find(s => s.key === "mobileVerification")?.done || prev.otpVerified,
-        emailOtpVerified: data.steps?.find(s => s.key === "emailVerification")?.done || prev.emailOtpVerified,
-        aadhaarDocFetched: data.steps?.find(s => s.key === "aadharVerification")?.done || prev.aadhaarDocFetched,
-        panDocFetched: data.steps?.find(s => s.key === "panVerification")?.done || prev.panDocFetched,
+        otpVerified:
+          data.steps?.find((s) => s.key === "mobileVerification")?.done ||
+          prev.otpVerified,
+        emailOtpVerified:
+          data.steps?.find((s) => s.key === "emailVerification")?.done ||
+          prev.emailOtpVerified,
+        aadhaarDocFetched:
+          data.steps?.find((s) => s.key === "aadharVerification")?.done ||
+          prev.aadhaarDocFetched,
+        panDocFetched:
+          data.steps?.find((s) => s.key === "panVerification")?.done ||
+          prev.panDocFetched,
         completed: data.allCompleted || prev.completed,
       }));
 
       // Show steps if mobile or email is verified
-      if (data.steps?.find(s => s.key === "mobileVerification")?.done ||
-        data.steps?.find(s => s.key === "emailVerification")?.done) {
+      if (
+        data.steps?.find((s) => s.key === "mobileVerification")?.done ||
+        data.steps?.find((s) => s.key === "emailVerification")?.done
+      ) {
         setShowSteps(true);
       }
     } else if (getPendingError) {
@@ -328,7 +383,8 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
     return true;
   };
 
-  const isCompleted = formData.completed || pendingStepsData?.allCompleted || false;
+  const isCompleted =
+    formData.completed || pendingStepsData?.allCompleted || false;
 
   const getStepIcon = (key, status = "pending") => {
     if (status === "completed") {
@@ -386,10 +442,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
             {/* Loading Message */}
             <div className="text-center">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-semibold text-gray-900 mb-1 sm:mb-2">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-[gilroy-semibold] text-gray-900 mb-1 sm:mb-2">
                 Loading
               </h3>
-              <p className="text-gray-600 text-xs sm:text-sm md:text-base px-2">
+              <p className="text-gray-600 text-xs font-[gilroy-medium] sm:text-sm md:text-base px-2">
                 Please wait while we fetch your KYC progress...
               </p>
             </div>
@@ -398,24 +454,27 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       )}
 
       <div
-        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${!showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
-          }`}
+        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${
+          !showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
+        }`}
       >
         <div
-          className={`w-full max-w-[1450px] ${!showSteps ? "h-full flex flex-col overflow-hidden" : ""
-            }`}
+          className={`w-full max-w-[1450px] ${
+            !showSteps ? "h-full flex flex-col overflow-hidden" : ""
+          }`}
         >
           {/* HEADER + STEP LIST */}
           <div
-            className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${!showSteps ? "hidden" : "mb-6"
-              }`}
+            className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${
+              !showSteps ? "hidden" : "mb-6"
+            }`}
           >
             {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
               <>
-                <h1 className="text-xl sm:text-2xl md:text-3xl font-semibold text-center text-[#1B1717] mb-2 md:mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-[gilroy-semibold] text-center text-black mb-2 md:mb-3">
                   Complete Your KYC
                 </h1>
-                <p className="text-xs sm:text-sm md:text-base text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
+                <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-black text-center mb-4 sm:mb-6 md:mb-8">
                   Secure your account by completing this quick verification.
                 </p>
 
@@ -443,36 +502,52 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                             setShowSteps(false);
                           }
                         }}
-                        className={`flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl border shadow-sm transition-all ${done
+                        className={`flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl  shadow-sm transition-all ${
+                          done
                             ? "cursor-default bg-green-50 border-green-300"
                             : accessible
                               ? "cursor-pointer hover:shadow-md"
                               : "cursor-not-allowed opacity-50 bg-gray-100 border-gray-200"
-                          } ${done
+                        } ${
+                          done
                             ? "bg-green-50 border-green-300"
                             : active && accessible
-                              ? "bg-white border-gray-300 ring-2 ring-offset-2"
+                              ? "bg-white border-gray-300 ring-1 ring-offset-2 ring-[#1B1717]/40"
                               : accessible
                                 ? "bg-white border-gray-200"
                                 : "bg-gray-100 border-gray-200"
-                          }`}
-                        style={active && !done && accessible ? { ringColor: primaryColor } : {}}
+                        }`}
+                        style={
+                          active && !done && accessible
+                            ? { ringcolor: primaryColor }
+                            : {}
+                        }
                       >
                         <img
                           src={getStepIcon(step.key, iconStatus)}
-                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 flex-shrink-0"
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-14 lg:h-14 flex-shrink-0"
                           alt=""
                         />
 
                         <div className="flex-1 min-w-0">
                           <div
-                            className={`font-medium text-sm sm:text-base md:text-xl truncate ${done ? "text-green-700 font-semibold" : "text-gray-800"
-                              }`}
+                            className={`font-[gilroy-semibold] text-sm sm:text-base md:text-xl truncate ${
+                              done
+                                ? "text-green-700 font-[gilroy-semibold]"
+                                : "text-[#1B1717]"
+                            }`}
                           >
                             {step.label}
                           </div>
-                          <div className={`text-xs sm:text-sm ${done ? "text-green-600" : "text-gray-500"
-                            }`}>
+                          <div
+                            className={`text-xs sm:text-sm font-[gilroy-medium] ${
+                              done
+                                ? "text-green-600" // ✅ Completed
+                                : active
+                                  ? "text-red-500/80" // 🔴 In progress
+                                  : "text-orange-500/80" // 🟠 Pending
+                            }`}
+                          >
                             {done
                               ? "Completed"
                               : active
@@ -482,16 +557,19 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                         </div>
 
                         {done ? (
-                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-semibold shadow-md flex-shrink-0">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-semibold shadow-md flex-shrink-0">
                             ✓
                           </div>
                         ) : (
-                          <div className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 border rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base flex-shrink-0 ${accessible && active
-                              ? `border-green-500 text-green-600 bg-green-50`
-                              : accessible
-                                ? "border-gray-300 text-gray-400"
-                                : "border-gray-200 text-gray-300"
-                            }`}>
+                          <div
+                            className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 border rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base flex-shrink-0 ${
+                              accessible && active
+                                ? `border-[#1B1717]/40 text-[#1B1717]/70 bg-white`
+                                : accessible
+                                  ? "border-gray-300 text-gray-400"
+                                  : "border-gray-200 text-gray-300"
+                            }`}
+                          >
                             {idx + 1}
                           </div>
                         )}
@@ -505,11 +583,23 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
             {isCompleted && (
               <div className="text-center py-8 sm:py-10 md:py-12">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
-                  <svg className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  <svg
+                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
                   </svg>
                 </div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-2">KYC Completed</h2>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-2">
+                  KYC Completed
+                </h2>
                 <p className="text-gray-600 mt-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg px-4">
                   Temporary password has been sent to your registered email.
                 </p>
@@ -523,7 +613,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                       // Navigate to login page
                       window.location.href = "/auth/login";
                     } catch (e) {
-                      console.error("Error clearing storage and navigating:", e);
+                      console.error(
+                        "Error clearing storage and navigating:",
+                        e,
+                      );
                       // Still navigate even if clearing storage fails
                       window.location.href = "/auth/login";
                     }
@@ -576,9 +669,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   />
                 )}
                 {currentStep === 2 && (
-                  <Step2 
-                    formData={formData} 
-                    setFormData={setFormData} 
+                  <Step2
+                    formData={formData}
+                    setFormData={setFormData}
                     onNext={handleStepNext}
                     onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
@@ -597,8 +690,8 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   />
                 )}
                 {currentStep === 3 && (
-                  <Step3 
-                    setFormData={setFormData} 
+                  <Step3
+                    setFormData={setFormData}
                     onNext={handleStepNext}
                     onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
@@ -617,9 +710,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   />
                 )}
                 {currentStep === 4 && (
-                  <Step4 
-                    formData={formData} 
-                    setFormData={setFormData} 
+                  <Step4
+                    formData={formData}
+                    setFormData={setFormData}
                     onNext={handleStepNext}
                     onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
@@ -635,9 +728,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   />
                 )}
                 {currentStep === 5 && (
-                  <Step5 
-                    formData={formData} 
-                    setFormData={setFormData} 
+                  <Step5
+                    formData={formData}
+                    setFormData={setFormData}
                     onNext={handleStepNext}
                     onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
@@ -656,9 +749,9 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   />
                 )}
                 {currentStep === 6 && (
-                  <Step6 
-                    formData={formData} 
-                    setFormData={setFormData} 
+                  <Step6
+                    formData={formData}
+                    setFormData={setFormData}
                     onNext={handleStepNext}
                     onShowSteps={() => setShowSteps(true)}
                     onBack={() => {
@@ -681,6 +774,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                     formData={formData}
                     setFormData={setFormData}
                     onShowSteps={() => setShowSteps(true)}
+                    onBack={() => setShowSteps(true)}
                     onComplete={() => {
                       setFormData((d) => ({ ...d, completed: true }));
                       setShowSteps(true);

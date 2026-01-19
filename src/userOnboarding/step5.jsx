@@ -1,14 +1,14 @@
-import { useRef, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
-import { HiOutlineArrowNarrowLeft } from 'react-icons/hi';
-import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { postShopDetails } from '../redux/action/retailerOnboardingAction';
-import { getLocationAndIP } from '../util/getLocationAndIP';
-import { useCompany } from '../context/CompanyContext';
-import { useNotification } from '../context/NotificationContext';
-import secureLocalStorage from 'react-secure-storage';
+import { useRef, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router-dom";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { useFormik } from "formik";
+import * as Yup from "yup";
+import { postShopDetails } from "../redux/action/retailerOnboardingAction";
+import { getLocationAndIP } from "../util/getLocationAndIP";
+import { useCompany } from "../context/CompanyContext";
+import { useNotification } from "../context/NotificationContext";
+import secureLocalStorage from "react-secure-storage";
 
 function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
@@ -17,14 +17,14 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  
+
   const {
     postShopDetailsLoading,
     postShopDetailsError,
     postShopDetailsSuccess,
     postShopDetailsMessage,
     postShopDetailsResponse,
-  } = useSelector(state => state.retailerOnboarding);
+  } = useSelector((state) => state.retailerOnboarding);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -34,15 +34,15 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   // Validation schema
   const validationSchema = Yup.object({
     shopName: Yup.string()
-      .min(2, 'Shop name must be at least 2 characters')
-      .max(100, 'Shop name must be less than 100 characters')
-      .required('Shop name is required'),
+      .min(2, "Shop name must be at least 2 characters")
+      .max(100, "Shop name must be less than 100 characters")
+      .required("Shop name is required"),
   });
 
   // Formik setup
   const formik = useFormik({
     initialValues: {
-      shopName: formData.shopName || '',
+      shopName: formData.shopName || "",
     },
     validationSchema,
     validateOnBlur: true,
@@ -56,14 +56,14 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const startCamera = async () => {
     try {
       if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(t => t.stop());
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
       }
 
       let stream;
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { ideal: 'environment' }, // Back camera for shop photos
+            facingMode: { ideal: "environment" }, // Back camera for shop photos
             width: { ideal: 1280 },
             height: { ideal: 720 },
           },
@@ -84,24 +84,28 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
         video.srcObject = stream;
 
         const handleCanPlay = () => {
-          video.play().catch(err => console.error('Error playing video:', err));
+          video
+            .play()
+            .catch((err) => console.error("Error playing video:", err));
         };
 
         if (video.readyState >= 2) {
-          video.play().catch(err => console.error('Error playing video:', err));
+          video
+            .play()
+            .catch((err) => console.error("Error playing video:", err));
         } else {
-          video.addEventListener('canplay', handleCanPlay, { once: true });
+          video.addEventListener("canplay", handleCanPlay, { once: true });
         }
       }
     } catch (error) {
-      alert('Unable to access camera. Please check permissions.');
+      alert("Unable to access camera. Please check permissions.");
     }
   };
 
   const stopCamera = () => {
     if (mediaStreamRef.current) {
       try {
-        mediaStreamRef.current.getTracks().forEach(t => {
+        mediaStreamRef.current.getTracks().forEach((t) => {
           t.stop();
           t.enabled = false;
         });
@@ -123,18 +127,18 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
     canvas.width = width;
     canvas.height = height;
 
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, width, height);
 
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
     stopCamera();
-    setFormData(d => ({ ...d, shopPhotoDataUrl: dataUrl }));
+    setFormData((d) => ({ ...d, shopPhotoDataUrl: dataUrl }));
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     formik.setFieldValue(name, value);
-    setFormData(d => ({ ...d, [name]: value }));
+    setFormData((d) => ({ ...d, [name]: value }));
   };
 
   // Get token from secureLocalStorage
@@ -161,12 +165,12 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
 
   const handleSubmit = async () => {
     // Validate shop name using Formik
-    await formik.validateField('shopName');
-    
+    await formik.validateField("shopName");
+
     if (formik.errors.shopName) {
       formik.setTouched({ shopName: true });
       showNotification({
-        type: 'error',
+        type: "error",
         message: formik.errors.shopName,
       });
       return;
@@ -174,19 +178,19 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
 
     // Use formik value for shop name
     const shopName = formik.values.shopName || formData.shopName;
-    
+
     if (!shopName) {
       showNotification({
-        type: 'error',
-        message: 'Please enter shop name.',
+        type: "error",
+        message: "Please enter shop name.",
       });
       return;
     }
-    
+
     if (!formData.shopPhotoDataUrl) {
       showNotification({
-        type: 'error',
-        message: 'Please capture shop photo.',
+        type: "error",
+        message: "Please capture shop photo.",
       });
       return;
     }
@@ -194,10 +198,10 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
     const token = getToken();
     if (!token) {
       showNotification({
-        type: 'error',
-        message: 'Onboarding token not found. Please try again.',
+        type: "error",
+        message: "Onboarding token not found. Please try again.",
       });
-      console.error('Token not found in secureLocalStorage');
+      console.error("Token not found in secureLocalStorage");
       return;
     }
 
@@ -205,15 +209,20 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
     console.log("postShopDetails - companyData:", companyData);
     console.log("postShopDetails - token:", token ? "present" : "missing");
     console.log("postShopDetails - Headers will include:", {
-      "x-company-id": companyData?.companyId || companyData?._id || companyData?.id || "not set",
-      "x-company-domain": companyData?.domain || companyData?.companyDomain || "not set",
-      "token": token ? "present" : "missing"
+      "x-company-id":
+        companyData?.companyId ||
+        companyData?._id ||
+        companyData?.id ||
+        "not set",
+      "x-company-domain":
+        companyData?.domain || companyData?.companyDomain || "not set",
+      token: token ? "present" : "missing",
     });
 
     try {
       // Get location and IP address
       const locationIPData = await getLocationAndIP();
-      
+
       const requestBody = {
         shopName: shopName,
         shopImage: formData.shopPhotoDataUrl,
@@ -224,7 +233,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
 
       dispatch(postShopDetails(requestBody, companyData, token));
     } catch (error) {
-      console.error('Error getting location and IP:', error);
+      console.error("Error getting location and IP:", error);
       // Still submit without location/IP if there's an error
       const requestBody = {
         shopName: shopName,
@@ -242,7 +251,8 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
       // Save steps to localStorage
       try {
         // The response structure: { shopDetailsResponse: { steps: [...], pending: [...] }, status, message }
-        const shopDetailsData = postShopDetailsResponse?.shopDetailsResponse || {};
+        const shopDetailsData =
+          postShopDetailsResponse?.shopDetailsResponse || {};
         const stepsData = {
           steps: shopDetailsData?.steps || [],
           pending: shopDetailsData?.pending || [],
@@ -259,7 +269,10 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
       // Show success notification
       showNotification({
         type: "success",
-        message: postShopDetailsMessage || postShopDetailsResponse?.message || "Shop details saved successfully",
+        message:
+          postShopDetailsMessage ||
+          postShopDetailsResponse?.message ||
+          "Shop details saved successfully",
       });
 
       // Show steps page instead of redirecting
@@ -269,15 +282,22 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
         }, 500);
       }
     }
-  }, [postShopDetailsSuccess, postShopDetailsResponse, postShopDetailsMessage, showNotification, onShowSteps]);
+  }, [
+    postShopDetailsSuccess,
+    postShopDetailsResponse,
+    postShopDetailsMessage,
+    showNotification,
+    onShowSteps,
+  ]);
 
   // Handle error notifications
   useEffect(() => {
     if (postShopDetailsError) {
-      const errorMessage = typeof postShopDetailsError === "string" 
-        ? postShopDetailsError 
-        : postShopDetailsError?.message || "Failed to submit shop details";
-      
+      const errorMessage =
+        typeof postShopDetailsError === "string"
+          ? postShopDetailsError
+          : postShopDetailsError?.message || "Failed to submit shop details";
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -294,18 +314,18 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
 
       const handleLoadedMetadata = () => {
         if (video.paused && isCameraActive) {
-          video.play().catch(err => console.error(err));
+          video.play().catch((err) => console.error(err));
         }
       };
 
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
 
       if (video.readyState >= 2) {
-        video.play().catch(err => console.error(err));
+        video.play().catch((err) => console.error(err));
       }
 
       return () => {
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
       };
     }
   }, [isCameraActive]);
@@ -313,100 +333,126 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   useEffect(() => stopCamera, []);
 
   return (
-    <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-2 sm:py-3 md:py-3 lg:py-3 xl:py-4 overflow-y-auto">
-      <div className="w-full max-w-[98%] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[500px] xl:max-w-[540px] 2xl:max-w-[580px] my-auto">
-        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-2.5 sm:p-3 md:p-3 lg:p-3 xl:p-3 space-y-1.5 sm:space-y-2 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
-
-          {/* Header with Back Button */}
-          <div className="text-center mx-auto relative">
+    <div className="w-full min-h-screen flex justify-center items-center bg-gray-50 p-2 sm:p-3 md:p-4 overflow-y-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] mx-auto">
+        <div className="bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 space-y-3">
+          {/* HEADER */}
+          <div className="relative text-center px-8 sm:px-10">
             {onBack && (
               <button
                 type="button"
                 onClick={onBack}
-                className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
+                className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 border border-gray-400 rounded-full flex items-center justify-center hover:bg-gray-50 transition"
                 aria-label="Back to Steps"
               >
-                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+                <HiOutlineArrowNarrowLeft className="text-lg text-[#1B1717]" />
               </button>
             )}
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800 mb-0.5 sm:mb-1 md:mb-1 lg:mb-1 xl:mb-1.5">
+
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
               Shop Details
             </h3>
-            <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-center text-[#1B1717] mb-1.5 sm:mb-2 md:mb-2 lg:mb-2 xl:mb-2.5">
+
+            <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[gilroy-medium] mt-1 max-w-[90%] mx-auto">
               Enter Shop Name And Capture Shop Photo To Complete Your KYC
             </p>
           </div>
 
-          {/* Shop Name Input */}
-          <div className="w-full mx-auto">
+          {/* SHOP NAME INPUT (REFERENCE MATCHED) */}
+          <div className="relative">
+            <img
+              src="/img/ShopIcon.png"
+              alt="Shop Name"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
+            />
+
+            <div
+              className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
+                formik.values.shopName ? "bg-[#1B1717]" : "bg-gray-300"
+              }`}
+            />
+
             <input
-              type="text"
               id="shopName"
+              type="text"
               name="shopName"
               value={formik.values.shopName}
               onChange={handleChange}
               onBlur={formik.handleBlur}
               placeholder="Enter Shop Name"
-              className={`!w-full !px-3 sm:!px-4 md:!px-4 lg:!px-4 xl:!px-5 !py-2 sm:!py-2 md:!py-2.5 lg:!py-2.5 xl:!py-3 !border-2 !rounded-lg sm:!rounded-xl !text-xs sm:!text-sm md:!text-sm lg:!text-sm xl:!text-base !focus:outline-none !focus:ring-2 !focus:ring-[#039155] !focus:border-transparent !h-9 sm:!h-10 md:!h-11 lg:!h-11 xl:!h-12 ${
+              className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
+              font-[gilroy-medium]
+              ${
                 formik.errors.shopName && formik.touched.shopName
-                  ? '!border-red-500'
-                  : '!border-gray-300'
-              }`}
+                  ? "border-red-500"
+                  : "border-[#1B1717]/80"
+              }
+              rounded-lg
+              pl-10 md:pl-12 lg:pl-14
+              pr-3
+              text-sm md:text-base
+              outline-none
+              focus:border-[#1B1717]/80
+              transition
+            `}
             />
-            {formik.errors.shopName && formik.touched.shopName && (
-              <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm mt-0.5 sm:mt-1">
-                {formik.errors.shopName}
-              </p>
-            )}
           </div>
 
-          {/* Frame */}
-          <div className="w-full h-[170px] sm:h-[190px] md:h-[210px] lg:h-[230px] xl:h-[220px] mx-auto">
-            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
+          {formik.errors.shopName && formik.touched.shopName && (
+            <p className="text-red-500 text-xs md:text-sm mt-1.5">
+              {formik.errors.shopName}
+            </p>
+          )}
 
+          {/* CAMERA FRAME */}
+          <div className="w-full h-[170px] sm:h-[180px] md:h-[190px] lg:h-[200px]">
+            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
               <video
                 ref={videoRef}
-                className={`w-full h-full object-cover rounded-lg ${isCameraActive ? 'block' : 'hidden'}`}
+                className={`w-full h-full object-cover rounded-lg ${
+                  isCameraActive ? "block" : "hidden"
+                }`}
                 playsInline
                 muted
                 autoPlay
               />
 
-              {/* Placeholder */}
               {!formData.shopPhotoDataUrl && !isCameraActive && (
                 <button
                   type="button"
-                  className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0 bg-transparent border-0"
+                  className="absolute inset-0 flex items-center justify-center"
                   onClick={startCamera}
-                  aria-label="Start camera"
                 >
-                  <img src="/img/Camera.png" className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 xl:w-10 xl:h-10 mb-1 sm:mb-1.5" alt="Camera" />
+                  <img
+                    src="/img/Camera.png"
+                    className="w-8 h-8 sm:w-10 sm:h-10"
+                    alt="Camera"
+                  />
                 </button>
               )}
 
-              {/* Captured */}
               {formData.shopPhotoDataUrl && !isCameraActive && (
                 <img
                   src={formData.shopPhotoDataUrl}
-                  className="w-full h-full object-cover rounded-lg absolute inset-0"
+                  className="absolute inset-0 w-full h-full object-cover rounded-lg"
                   alt="Shop"
                 />
               )}
 
               {(isCameraActive || formData.shopPhotoDataUrl) && (
-                <div className="absolute bottom-1.5 sm:bottom-2 md:bottom-2 lg:bottom-2.5 xl:bottom-3 left-1/2 -translate-x-1/2 flex gap-2 sm:gap-2 md:gap-2.5 lg:gap-2.5 xl:gap-3 z-10">
+                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 flex gap-2">
                   <button
                     type="button"
-                    onClick={e => {
+                    onClick={(e) => {
                       e.stopPropagation();
-                      setFormData(d => ({ ...d, shopPhotoDataUrl: '' }));
+                      setFormData((d) => ({ ...d, shopPhotoDataUrl: "" }));
                       startCamera();
                     }}
                     disabled={isCameraActive || !formData.shopPhotoDataUrl}
-                    className={`px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition shadow-lg active:scale-95 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
                       isCameraActive || !formData.shopPhotoDataUrl
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-[#039155] text-white hover:bg-green-700'
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#039155] text-white hover:bg-green-700"
                     }`}
                   >
                     Retake
@@ -416,10 +462,10 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                     type="button"
                     onClick={capturePhoto}
                     disabled={!isCameraActive || formData.shopPhotoDataUrl}
-                    className={`px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-1 sm:py-1.5 md:py-1.5 lg:py-2 xl:py-2 rounded-lg text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition shadow-lg active:scale-95 ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
                       !isCameraActive || formData.shopPhotoDataUrl
-                        ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                        : 'bg-[#039155] text-white hover:bg-green-700'
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed"
+                        : "bg-[#039155] text-white hover:bg-green-700"
                     }`}
                   >
                     Capture
@@ -427,51 +473,44 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                 </div>
               )}
             </div>
-
             <canvas ref={canvasRef} className="hidden" />
           </div>
 
-          {/* Guidelines */}
-          <div className="w-full mx-auto">
-            <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-2 sm:p-2.5 md:p-2.5 lg:p-3 xl:p-3">
-              <ul className="space-y-1.5 sm:space-y-1.5 md:space-y-2 lg:space-y-2 xl:space-y-2.5">
-                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
-                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
-                  <span className="text sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
-                    Capture A Clear Photo
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
-                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
-                  <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
-                    Good Lighting Required – Avoid Dark Or Blurry Images.
-                  </span>
-                </li>
-
-                <li className="flex items-start gap-1.5 sm:gap-2 md:gap-2 lg:gap-2.5 xl:gap-2.5">
-                  <div className="w-1.5 h-1.5 sm:w-1.5 sm:h-1.5 md:w-2 md:h-2 lg:w-2 lg:h-2 xl:w-2.5 xl:h-2.5 rounded-full bg-[#039155] mt-0.5 sm:mt-1 md:mt-1 lg:mt-1.5 xl:mt-1.5 flex-shrink-0" />
-                  <span className="text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm text-[#1B1717]">
-                    Ensure The Shop Photo Clearly Shows Your Shop Signage Or Storefront.
-                  </span>
-                </li>
-              </ul>
-            </div>
-
-            {/* Submit */}
-            <button
-              type="button"
-              onClick={handleSubmit}
-              disabled={postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl}
-              className={`w-full py-1.5 sm:py-2 md:py-2 lg:py-2 xl:py-2.5 rounded-lg sm:rounded-xl text-white text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-semibold h-8 sm:h-9 md:h-9 lg:h-10 xl:h-11 transition mt-2 sm:mt-2.5 md:mt-3 lg:mt-3 xl:mt-3.5 shadow-lg ${
-                postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl
-                  ? 'bg-[#039155] opacity-60 cursor-not-allowed'
-                  : 'bg-[#039155] hover:bg-green-700 active:scale-95'
-              }`}
-            >
-              {postShopDetailsLoading ? 'Submitting...' : 'Submit'}
-            </button>
+          {/* GUIDELINES */}
+          <div className="bg-green-50 border border-green-200 rounded-lg sm:rounded-xl p-3 space-y-2">
+            {[
+              "Capture A Clear Photo",
+              "Good Lighting Required – Avoid Dark Or Blurry Images.",
+              "Ensure The Shop Photo Clearly Shows Your Shop Signage Or Storefront.",
+            ].map((text, i) => (
+              <div key={i} className="flex items-start gap-2">
+                <span className="w-2 h-2 mt-1 rounded-full bg-[#039155]" />
+                <span className="text-xs sm:text-sm text-[#1B1717]">
+                  {text}
+                </span>
+              </div>
+            ))}
           </div>
+
+          {/* SUBMIT */}
+          <button
+            type="button"
+            onClick={handleSubmit}
+            disabled={
+              postShopDetailsLoading ||
+              !formData.shopName ||
+              !formData.shopPhotoDataUrl
+            }
+            className={`w-full h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+              postShopDetailsLoading ||
+              !formData.shopName ||
+              !formData.shopPhotoDataUrl
+                ? "bg-[#039155]/60 cursor-not-allowed"
+                : "bg-[#039155] hover:bg-green-700"
+            }`}
+          >
+            {postShopDetailsLoading ? "Submitting..." : "Submit"}
+          </button>
         </div>
       </div>
     </div>
