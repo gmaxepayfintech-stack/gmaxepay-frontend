@@ -198,6 +198,16 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
 };
 
 
+
+const filterButtons = [
+  "All Packs",
+  "1 Month",
+  "3 Months",
+  "6 Months",
+  "9 Months",
+  "12 Months",
+];
+
 const languageOptions = [
   { value: "Kannada", label: "Kannada" },
   { value: "Hindi", label: "Hindi" },
@@ -206,6 +216,16 @@ const languageOptions = [
   { value: "Telugu", label: "Telugu" },
   { value: "Malayalam", label: "Malayalam" },
 ];
+
+const languagePacks = [
+  "Kannada Telugu Starter",
+  "Kannada Super Value",
+  "Family Entertainment Bundle",
+  "Kannada Premium",
+  "Kannada Dhamaal HDS",
+  "Kannada Hindi Dhamaal",
+];
+
 const transactionDetails = {
   transactionId: "TXN" + Date.now(),
   bConnectId: "BC" + Math.floor(Math.random() * 100000000),
@@ -242,6 +262,22 @@ const DTHRecharge = ({ onBack }) => {
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
 
+  // const handleProceed = () => {
+  //   if (!inputValue) return;
+
+  //   // If user entered mobile number, validate length
+  //   if (inputType === "mobile" && inputValue.length !== 10) return;
+
+  //   setStep("confirm");
+  // };
+
+  // const handleCancel = () => {
+  //   if (step === "confirm") {
+  //     setStep("input");
+  //   } else {
+  //     setInputValue("");
+  //   }
+  // };
 
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
