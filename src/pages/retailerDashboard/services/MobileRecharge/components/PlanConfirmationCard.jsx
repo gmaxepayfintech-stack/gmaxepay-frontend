@@ -1,12 +1,14 @@
 import PropTypes from "prop-types";
 import { getOperatorLogo } from "../utils";
+import { ButtonLoader } from "../../../../../widgets/layout/loader";
 
 const PlanConfirmationCard = ({ 
   selectedOperator, 
   mobileNumber, 
   selectedPlanForRecharge, 
   setSelectedPlanForRecharge,
-  setShowPaymentModal 
+  setShowPaymentModal,
+  isLoadingPayment
 }) => {
   return (
     <div className="   ">
@@ -97,11 +99,21 @@ const PlanConfirmationCard = ({
           <button
             type="button"
             onClick={() => {
-              setShowPaymentModal(true);
+              if (!isLoadingPayment) {
+                setShowPaymentModal(true);
+              }
             }}
-            className="flex-1 px-4 py-3 bg-[#039155]  rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+            disabled={isLoadingPayment}
+            className={`flex-1 px-4 py-3 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
+              isLoadingPayment ? "cursor-wait opacity-100" : ""
+            }`}
           >
-            Proceed
+            {isLoadingPayment ? (
+              <>
+                <ButtonLoader color="#FFFFFF" size={20} />
+                <span className="ml-2">Processing</span>
+              </>
+            ) : "Proceed"}
           </button>
         </div>
       </div>
@@ -115,6 +127,7 @@ PlanConfirmationCard.propTypes = {
   selectedPlanForRecharge: PropTypes.object.isRequired,
   setSelectedPlanForRecharge: PropTypes.func.isRequired,
   setShowPaymentModal: PropTypes.func.isRequired,
+  isLoadingPayment: PropTypes.bool,
 };
 
 export default PlanConfirmationCard;

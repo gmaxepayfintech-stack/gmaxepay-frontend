@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { X } from "lucide-react";
 import PropTypes from "prop-types";
@@ -11,6 +12,7 @@ import PlanConfirmationCard from "./MobileRecharge/components/PlanConfirmationCa
 import OperatorInfoCard from "./MobileRecharge/components/OperatorInfoCard";
 import SuggestedPlans from "./MobileRecharge/components/SuggestedPlans";
 import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilters";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const recentRecharges = [
   {
@@ -93,6 +95,7 @@ RecentRechargeCard.propTypes = {
 
 const MobileRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [mobileNumber, setMobileNumber] = useState("");
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({ name: "Airtel", circle: "Karnataka" });
@@ -109,6 +112,7 @@ const MobileRecharge = ({ onBack }) => {
   const [rechargePlans, setRechargePlans] = useState(null);
   const [rechargeOffers, setRechargeOffers] = useState(null);
   const [isLoadingProceed, setIsLoadingProceed] = useState(false);
+  const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [operatorData, setOperatorData] = useState(null);
 
   // Get unique operators from recent recharges
@@ -322,22 +326,133 @@ const MobileRecharge = ({ onBack }) => {
     return allPlans;
   };
 
-  // Map API Type values to display category names
+  // Get operator-specific category mapping
   const getCategoryTypeMapping = () => {
+    const operatorName = selectedOperator?.name?.toUpperCase() || "";
+    
+    // Jio mapping
+    if (operatorName.includes("JIO") || operatorName.includes("RELIANCE")) {
+      return {
+        "Internet": ["Internet"],
+        "DATA": ["Data Packs"],
+        "Entertainment": ["Entertainment Plans"],
+        "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans"],
+        "Plan Vouchers": ["Plan Vouchers"],
+        "Talktime": ["Top-up", "TOPUP"],
+        "International Roaming": ["International Roaming"],
+        "ISD": ["ISD"]
+      };
+    }
+    
+    // Airtel mapping
+    if (operatorName.includes("AIRTEL")) {
+      return {
+        "Internet": ["Internet"],
+        "DATA": ["Internet", "DATA"], // Internet is used for DATA in Airtel
+        "Entertainment": ["Entertainment"],
+        "Truly Unlimited": ["Truly Unlimited"],
+        "Plan Vouchers": ["Plan Vouchers"],
+        "Talktime": ["Talktime"]
+      };
+    }
+    
+    // VI/Vodafone mapping
+    if (operatorName.includes("VI") || operatorName.includes("VODAFONE") || operatorName.includes("IDEA")) {
+      return {
+        "DATA": ["Data"],
+        "Entertainment": ["Entertainment"],
+        "Truly Unlimited": ["Unlimited"],
+        "Plan Vouchers": ["Plan Voucher"],
+        "Talktime": ["Talktime"],
+        "International Roaming": ["Roaming"],
+        "Voice": ["Voice"]
+      };
+    }
+    
+    // BSNL mapping
+    if (operatorName.includes("BSNL")) {
+      return {
+        "DATA": ["Data Vouchers"],
+        "Truly Unlimited": ["FULLTT"],
+        "Plan Vouchers": ["Voice Vouchers"],
+        "Talktime": ["General TopUp"],
+        "ISD": ["ISD Vouchers"],
+        "International Roaming": ["Other Vouchers"]
+      };
+    }
+    
+    // Default mapping (fallback)
     return {
       "Internet": ["Internet"],
-      "DATA": ["Data Packs", "DATA", "Data"], // Added "Data" for VI
+      "DATA": ["Data Packs", "DATA", "Data"],
       "Entertainment": ["Entertainment Plans", "Entertainment"],
-      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited", "Unlimited"], // Added "Unlimited" for VI
-      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher", "Plan Voucher"], // Added "Plan Voucher" for VI
+      "Truly Unlimited": ["FULLTT Plans", "True 5G Unlimited Plans", "Truly Unlimited", "Unlimited"],
+      "Plan Vouchers": ["Plan Vouchers", "PlanVoucher", "Plan Voucher"],
       "Talktime": ["Top-up", "TOPUP", "Talktime"]
     };
   };
 
-  // Get category tabs - only show specific allowed categories
-  const getCategoryTabs = () => {
-    // Allowed category tabs
-    const allowedCategories = [
+  // Get operator-specific allowed categories
+  const getAllowedCategories = () => {
+    const operatorName = selectedOperator?.name?.toUpperCase() || "";
+    
+    // Jio categories
+    if (operatorName.includes("JIO") || operatorName.includes("RELIANCE")) {
+      return [
+        "Recommended",
+        "Internet",
+        "DATA",
+        "Entertainment",
+        "Truly Unlimited",
+        "Plan Vouchers",
+        "Talktime",
+        "International Roaming",
+        "ISD"
+      ];
+    }
+    
+    // Airtel categories
+    if (operatorName.includes("AIRTEL")) {
+      return [
+        "Recommended",
+        "Internet",
+        "DATA",
+        "Entertainment",
+        "Truly Unlimited",
+        "Plan Vouchers",
+        "Talktime"
+      ];
+    }
+    
+    // VI/Vodafone categories
+    if (operatorName.includes("VI") || operatorName.includes("VODAFONE") || operatorName.includes("IDEA")) {
+      return [
+        "Recommended",
+        "DATA",
+        "Entertainment",
+        "Truly Unlimited",
+        "Plan Vouchers",
+        "Talktime",
+        "International Roaming",
+        "Voice"
+      ];
+    }
+    
+    // BSNL categories
+    if (operatorName.includes("BSNL")) {
+      return [
+        "Recommended",
+        "DATA",
+        "Truly Unlimited",
+        "Plan Vouchers",
+        "Talktime",
+        "ISD",
+        "International Roaming"
+      ];
+    }
+    
+    // Default categories
+    return [
       "Recommended",
       "Internet",
       "DATA",
@@ -346,7 +461,10 @@ const MobileRecharge = ({ onBack }) => {
       "Plan Vouchers",
       "Talktime"
     ];
+  };
 
+  // Get category tabs - only show specific allowed categories
+  const getCategoryTabs = () => {
     if (!rechargePlans?.data) {
       return ["Recommended"];
     }
@@ -357,6 +475,7 @@ const MobileRecharge = ({ onBack }) => {
     // Get unique plan types from API
     const uniqueTypes = [...new Set(allPlans.map(plan => plan.Type).filter(Boolean))];
     const typeMapping = getCategoryTypeMapping();
+    const allowedCategories = getAllowedCategories();
 
     // Filter to only include allowed categories that have matching plans in API
     const availableCategories = allowedCategories.filter(category => {
@@ -399,13 +518,40 @@ const MobileRecharge = ({ onBack }) => {
     return ["28 Days Validity", "1 GB Data", "2 GB Data", "Unlimited Data 5G"];
   };
 
+  // Map display text to filter value
+  const getFilterValue = (displayText) => {
+    const filterMap = {
+      "28 Days Validity": "28Days",
+      "1 GB Data": "1GB",
+      "2 GB Data": "2GB",
+      "Unlimited Data 5G": "Unlimited Data"
+    };
+    return filterMap[displayText] || displayText;
+  };
+
+  // Map category display name to value to send/use
+  const getCategoryValue = (categoryName) => {
+    const categoryMap = {
+      "Recommended": "", // or whatever value you want for Recommended
+      "Internet": "", // tell me what value to use
+      "DATA": "", // tell me what value to use
+      "Entertainment": "", // tell me what value to use
+      "Truly Unlimited": "", // tell me what value to use
+      "Plan Vouchers": "", // tell me what value to use
+      "Talktime": "" // tell me what value to use
+    };
+    return categoryMap[categoryName] || categoryName;
+  };
+
   // Apply filters and search
   const getFilteredPlans = () => {
     let plans = getPlansByCategory();
 
     // Apply search filter
     if (searchQuery) {
-      const query = searchQuery.toLowerCase();
+      // Get the filter value (transformed) for searching, but keep display text in input
+      const filterValue = getFilterValue(searchQuery);
+      const query = filterValue.toLowerCase();
       plans = plans.filter(plan => {
         const price = plan.rs?.toString() || "";
         const validity = plan.validity?.toLowerCase() || "";
@@ -430,14 +576,15 @@ const MobileRecharge = ({ onBack }) => {
   // Get filtered plans for display (only show if API data is available, don't show default)
   const displayDetailedPlans = rechargePlans ? getFilteredPlans() : [];
 
-  const handleProceed = async () => {
-    if (!mobileNumber || mobileNumber.length !== 10) {
+  const handleProceed = async (number = null) => {
+    const numberToUse = number || mobileNumber;
+    if (!numberToUse || numberToUse.length !== 10) {
       return;
     }
     setIsLoadingProceed(true);
     try {
       // Call the API to find operator with mobile number
-      const operatorResponse = await dispatch(rechargefindOperator({ mobileNumber }));
+      const operatorResponse = await dispatch(rechargefindOperator({ mobileNumber: numberToUse }));
 
       // Update selectedOperator with the response data
       if (operatorResponse?.mobileOperator) {
@@ -451,7 +598,7 @@ const MobileRecharge = ({ onBack }) => {
 
         // Call rechargefindPlan with the required payload
         const planPayload = {
-          mobileNumber: mobileNumber,
+          mobileNumber: numberToUse,
           opCode: operatorDataFromResponse.company_code || "A",
           circle: operatorDataFromResponse.circle_code || "06"
         };
@@ -508,16 +655,20 @@ const MobileRecharge = ({ onBack }) => {
     <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
-        {onBack && (
-          <button
-            type="button"
-            aria-label="Back"
-            onClick={onBack}
-            className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
-          >
-            <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-          </button>
-        )}
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() => {
+            if (onBack) {
+              onBack();
+            } else {
+              navigate("/retailerDashboard/services");
+            }
+          }}
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
+        >
+          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+        </button>
         <div className="flex-1 mt-[-10px]">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
             {step === "plans" ? "Select Mobile Recharge" : "Mobile Recharge"}
@@ -534,10 +685,11 @@ const MobileRecharge = ({ onBack }) => {
         <div className={`${step === "input" ? "bg-white rounded-xl border border-gray-200 p-6" : ""} lg:flex-[1.6] w-full lg:w-auto self-start`}>
           {step === "input" ? (
             <InformationForm
-              mobileNumber={mobileNumber}
-              setMobileNumber={setMobileNumber}
               handleCancel={handleCancel}
-              handleProceed={handleProceed}
+              handleProceed={(number) => {
+                setMobileNumber(number);
+                handleProceed(number);
+              }}
               isLoadingProceed={isLoadingProceed}
             />
           ) : (
@@ -555,6 +707,7 @@ const MobileRecharge = ({ onBack }) => {
                   selectedPlanForRecharge={selectedPlanForRecharge}
                   setSelectedPlanForRecharge={setSelectedPlanForRecharge}
                   setShowPaymentModal={setShowPaymentModal}
+                  isLoadingPayment={isLoadingPayment}
                 />
               ) : (
                 <>
@@ -581,6 +734,7 @@ const MobileRecharge = ({ onBack }) => {
                   activeCategory={activeCategory}
                   setActiveCategory={setActiveCategory}
                   getFilterButtons={getFilterButtons}
+                  getFilterValue={getFilterValue}
                   getCategoryTabs={getCategoryTabs}
                   displayDetailedPlans={displayDetailedPlans}
                   setSelectedPlanForRecharge={setSelectedPlanForRecharge}
@@ -845,6 +999,7 @@ const MobileRecharge = ({ onBack }) => {
               <button
                 type="button"
                 onClick={async () => {
+                  setIsLoadingPayment(true);
                   try {
                     // Prepare payment payload
                     const paymentPayload = {
@@ -857,9 +1012,10 @@ const MobileRecharge = ({ onBack }) => {
                     // Call rechargePay API
                     const paymentResponse = await dispatch(rechargePay(paymentPayload));
 
-                    if (paymentResponse?.mobileRechargePay) {
-                      const paymentData = paymentResponse.mobileRechargePay;
-                      const apiResponse = paymentData.apiResponse || {};
+                    // Updated to match new API response structure
+                    if (paymentResponse?.status === "SUCCESS" && paymentResponse?.data) {
+                      const responseData = paymentResponse.data;
+                      const apiResponse = responseData.apiResponse || {};
 
                       // Format date time
                       const dateTime = new Date().toLocaleString('en-US', {
@@ -873,13 +1029,14 @@ const MobileRecharge = ({ onBack }) => {
 
                       // Store transaction details from API response
                       setTransactionDetails({
-                        transactionId: apiResponse.txid?.toString() || paymentData.orderid || 'N/A',
+                        transactionId: apiResponse.txid?.toString() || responseData.orderid || 'N/A',
                         bConnectId: apiResponse.opid?.toString() || 'N/A',
                         dateTime: dateTime,
                         amount: apiResponse.amount || paymentPayload.amount,
-                        orderid: paymentData.orderid || 'N/A',
+                        orderid: responseData.orderid || 'N/A',
                         status: apiResponse.status || 'Success',
-                        dr_amount: apiResponse.dr_amount || null
+                        dr_amount: apiResponse.dr_amount || null,
+                        number: apiResponse.number || mobileNumber
                       });
 
                       setShowPaymentModal(false);
@@ -892,11 +1049,21 @@ const MobileRecharge = ({ onBack }) => {
                   } catch (error) {
                     console.error("Error processing payment:", error);
                     // You might want to show an error message to the user here
+                  } finally {
+                    setIsLoadingPayment(false);
                   }
                 }}
-                className="flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition"
+                disabled={isLoadingPayment}
+                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
+                  isLoadingPayment ? "cursor-wait opacity-100" : ""
+                }`}
               >
-                Confirm Payment
+                {isLoadingPayment ? (
+                  <>
+                    <ButtonLoader color="#FFFFFF" size={20} />
+                    <span className="ml-2">Processing...</span>
+                  </>
+                ) : "Confirm Payment"}
               </button>
             </div>
           </div>
