@@ -3,18 +3,30 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState, useRef } from "react";
 import { useCompany } from "../context/CompanyContext";
-import { mobileOtpResponse, otpSubmitResponse } from "../redux/action/retailerOnboardingAction";
+import {
+  mobileOtpResponse,
+  otpSubmitResponse,
+} from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 
-function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCode: propReferralCode }) {
+function Step1({
+  formData,
+  setFormData,
+  onNext,
+  onBack,
+  onShowSteps,
+  referralCode: propReferralCode,
+}) {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  const retailerOnboardingState = useSelector((state) => state?.retailerOnboarding);
+  const retailerOnboardingState = useSelector(
+    (state) => state?.retailerOnboarding
+  );
   const validationSchema = Yup.object({
     phone: Yup.string()
       .matches(/^[6-9]\d{9}$/, "Enter valid 10-digit mobile number")
@@ -69,8 +81,9 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
         // Mark that OTP has been submitted
         otpSubmittedRef.current = true;
         // Dispatch the otpSubmitResponse action
-        const result = await dispatch(otpSubmitResponse(requestBody, companyData, token));
-
+        const result = await dispatch(
+          otpSubmitResponse(requestBody, companyData, token)
+        );
       } catch (error) {
         console.error("Error submitting OTP:", error);
         // On error, proceed to next step
@@ -86,13 +99,23 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     },
   });
 
-  const otpSubmitStatus = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse?.status);
-  const OTPSubmitResponseData = useSelector((state) => state?.retailerOnboarding?.OTPSubmitResponse);
-  const FailureOTP = useSelector((state) => state?.error?.onBoarding?.onBoarding?.status);
-  const retailerOnboardingFailure = useSelector((state) => state?.retailerOnboarding?.status);
+  const otpSubmitStatus = useSelector(
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse?.status
+  );
+  const OTPSubmitResponseData = useSelector(
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse
+  );
+  const FailureOTP = useSelector(
+    (state) => state?.error?.onBoarding?.onBoarding?.status
+  );
+  const retailerOnboardingFailure = useSelector(
+    (state) => state?.retailerOnboarding?.status
+  );
   const errorPayload = useSelector((state) => state?.error?.error);
   const errorMessage = useSelector((state) => state?.error?.message);
-  const retailerOnboardingError = useSelector((state) => state?.retailerOnboarding?.error);
+  const retailerOnboardingError = useSelector(
+    (state) => state?.retailerOnboarding?.error
+  );
 
   // Use refs to track if we've already handled success/failure to prevent multiple calls
   const successHandled = useRef(false);
@@ -127,29 +150,51 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
 
   // Handle OTP submit success - stores data from /api/v1/user/onboarding/verifySmsOtp
   useEffect(() => {
-    if (otpSubmitStatus === "SUCCESS" && !successHandled.current && OTPSubmitResponseData) {
+    if (
+      otpSubmitStatus === "SUCCESS" &&
+      !successHandled.current &&
+      OTPSubmitResponseData
+    ) {
       successHandled.current = true;
-      
+
       // Get the data object from response
       // Response structure from action: { OTPResponse: { userToken: "...", steps: [...], pending: [...] }, Success, status, message }
       // So we need to access OTPResponse property, not data
-      const responseData = OTPSubmitResponseData?.OTPResponse || OTPSubmitResponseData?.data || OTPSubmitResponseData;
-      
+      const responseData =
+        OTPSubmitResponseData?.OTPResponse ||
+        OTPSubmitResponseData?.data ||
+        OTPSubmitResponseData;
+
       console.log("Response data from verifySmsOtp:", responseData);
       if (responseData) {
         // Store userToken as onboardingToken
         if (responseData.userToken) {
           try {
-            secureLocalStorage.setItem("onboardingToken", responseData.userToken);
-            console.log("Stored onboardingToken from verifySmsOtp successfully:", responseData.userToken);
+            secureLocalStorage.setItem(
+              "onboardingToken",
+              responseData.userToken
+            );
+            console.log(
+              "Stored onboardingToken from verifySmsOtp successfully:",
+              responseData.userToken
+            );
           } catch (e) {
-            console.error("Error storing onboardingToken from verifySmsOtp:", e);
+            console.error(
+              "Error storing onboardingToken from verifySmsOtp:",
+              e
+            );
           }
         } else {
-          console.warn("No userToken found in verifySmsOtp response:", responseData);
+          console.warn(
+            "No userToken found in verifySmsOtp response:",
+            responseData
+          );
         }
       } else {
-        console.warn("No response data found in OTPSubmitResponseData:", OTPSubmitResponseData);
+        console.warn(
+          "No response data found in OTPSubmitResponseData:",
+          OTPSubmitResponseData
+        );
       }
 
       // Mark step 1 as completed
@@ -162,7 +207,8 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
       // Show success notification
       showNotification({
         type: "success",
-        message: OTPSubmitResponseData?.message || "Mobile verification successful",
+        message:
+          OTPSubmitResponseData?.message || "Mobile verification successful",
       });
 
       // Show steps page instead of redirecting
@@ -176,11 +222,26 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     if (otpSubmitStatus !== "SUCCESS") {
       successHandled.current = false;
     }
-  }, [otpSubmitStatus, OTPSubmitResponseData, setFormData, showNotification, onShowSteps]);
+  }, [
+    otpSubmitStatus,
+    OTPSubmitResponseData,
+    setFormData,
+    showNotification,
+    onShowSteps,
+  ]);
   useEffect(() => {
-    const isFailure = FailureOTP === "FAILURE" || FailureOTP === "Invalid referral code" || errorMessage === "Invalid referral code" || errorMessage === "FAILURE";
+    const isFailure =
+      FailureOTP === "FAILURE" ||
+      FailureOTP === "Invalid referral code" ||
+      errorMessage === "Invalid referral code" ||
+      errorMessage === "FAILURE";
 
-    if (isFailure && !failureHandled.current && componentMounted.current && otpSubmittedRef.current) {
+    if (
+      isFailure &&
+      !failureHandled.current &&
+      componentMounted.current &&
+      otpSubmittedRef.current
+    ) {
       failureHandled.current = true;
 
       try {
@@ -196,13 +257,20 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     if (!isFailure) {
       failureHandled.current = false;
     }
-  }, [FailureOTP, errorPayload, errorMessage, retailerOnboardingFailure, retailerOnboardingError, otpSubmitStatus]);
+  }, [
+    FailureOTP,
+    errorPayload,
+    errorMessage,
+    retailerOnboardingFailure,
+    retailerOnboardingError,
+    otpSubmitStatus,
+  ]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     formik.setFieldValue(name, value);
     setFormData((d) => ({ ...d, [name]: value }));
-    
+
     // Clear OTP error when user starts typing (only for OTP field)
     if (name === "otp" && formik.errors.otp) {
       formik.setFieldError("otp", undefined);
@@ -222,7 +290,11 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     let referCode = null;
 
     // First priority: prop from parent component
-    if (propReferralCode && typeof propReferralCode === 'string' && propReferralCode.trim() !== "") {
+    if (
+      propReferralCode &&
+      typeof propReferralCode === "string" &&
+      propReferralCode.trim() !== ""
+    ) {
       referCode = propReferralCode.trim();
       console.log("Using referral code from prop:", referCode);
     } else {
@@ -231,7 +303,10 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
         const storedFromUrl = localStorage.getItem("referralCodeFromUrl");
         if (storedFromUrl) {
           referCode = storedFromUrl.trim();
-          console.log("Retrieved referCode from localStorage (URL):", referCode);
+          console.log(
+            "Retrieved referCode from localStorage (URL):",
+            referCode
+          );
         }
       } catch (e) {
         console.error("Error reading referral code from localStorage:", e);
@@ -264,7 +339,7 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     };
 
     // Always add referral code if it exists and is not empty
-    if (referCode && typeof referCode === 'string' && referCode.trim() !== "") {
+    if (referCode && typeof referCode === "string" && referCode.trim() !== "") {
       requestBody.referCode = referCode.trim().toUpperCase();
       console.log("Adding referCode to request:", requestBody.referCode);
     } else {
@@ -280,9 +355,15 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
     }
   };
 
-  const UserTokenToken = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse?.userToken);
-  const OTPResponseStatus = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.status);
-  const OTPResponseData = useSelector((state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse);
+  const UserTokenToken = useSelector(
+    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse?.userToken
+  );
+  const OTPResponseStatus = useSelector(
+    (state) => state?.retailerOnboarding?.OTPResponse?.status
+  );
+  const OTPResponseData = useSelector(
+    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse
+  );
 
   // Countdown timer state for resend OTP
   const [resendCountdown, setResendCountdown] = useState(0);
@@ -291,22 +372,27 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
   useEffect(() => {
     // Check if response is successful and has verified status
     // Response structure: { status: "SUCCESS", message: "...", data: { status: "verified", ... } }
-    const isVerified = OTPResponseStatus === "SUCCESS" && 
-                      (OTPResponseData?.status === "verified" || OTPResponseData?.data?.status === "verified");
-    
+    const isVerified =
+      OTPResponseStatus === "SUCCESS" &&
+      (OTPResponseData?.status === "verified" ||
+        OTPResponseData?.data?.status === "verified");
+
     // Only handle verified status once to prevent multiple navigations
     if (isVerified && !verifiedHandled.current) {
       verifiedHandled.current = true;
       // Get the data object - it might be directly in OTPResponseData or in OTPResponseData.data
       const verifiedData = OTPResponseData?.data || OTPResponseData;
-      
+
       if (!verifiedData) {
         console.warn("No verified data found in response");
         return;
       }
-      
+
       // Show success notification
-      const responseMessage = OTPResponseData?.message || OTPResponseData?.data?.message || "Mobile already verified";
+      const responseMessage =
+        OTPResponseData?.message ||
+        OTPResponseData?.data?.message ||
+        "Mobile already verified";
       showNotification({
         type: "success",
         message: responseMessage,
@@ -330,7 +416,9 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
         emailOtpVerified: verifiedData.emailVerify || false,
         aadhaarDocFetched: verifiedData.aadharVerify || false,
         panDocFetched: verifiedData.panVerify || false,
-        bankAccountNumber: verifiedData.bankVerify ? prev.bankAccountNumber : "",
+        bankAccountNumber: verifiedData.bankVerify
+          ? prev.bankAccountNumber
+          : "",
         ifscCode: verifiedData.bankVerify ? prev.ifscCode : "",
         completed: verifiedData.allCompleted || false,
         userRole: verifiedData.userRole || prev.userRole,
@@ -344,16 +432,25 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
       // Don't automatically show steps - let user stay on step form
       // User can manually proceed or the form will handle navigation after OTP submission
     }
-    
+
     // Reset when status changes away from verified
     if (!isVerified) {
       verifiedHandled.current = false;
     }
-  }, [OTPResponseStatus, OTPResponseData, setFormData, showNotification, onShowSteps]);
+  }, [
+    OTPResponseStatus,
+    OTPResponseData,
+    setFormData,
+    showNotification,
+    onShowSteps,
+  ]);
 
   // Start countdown when OTP is sent successfully
   useEffect(() => {
-    if (OTPResponseStatus === "SUCCESS" && OTPResponseData?.status !== "verified") {
+    if (
+      OTPResponseStatus === "SUCCESS" &&
+      OTPResponseData?.status !== "verified"
+    ) {
       setResendCountdown(180); // 3 minutes (180 seconds)
     }
   }, [OTPResponseStatus, OTPResponseData]);
@@ -387,32 +484,40 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
               <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
             </button>
           )}
-          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-semibold text-center text-gray-800">
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
             Mobile Verification
           </h3>
         </div>
 
-        <p className="text-gray-600 text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+        <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
           Enter your mobile number to receive OTP
         </p>
 
         {/* PHONE INPUT */}
-        <div className="mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
-          <label htmlFor="phone" className="block text-xs sm:text-xs md:text-sm lg:text-base xl:text-base font-medium text-gray-800 mb-1 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-2">
+        <div className="mb-3 md:mb-4">
+          <label
+            htmlFor="phone"
+            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+          >
             Mobile Number
           </label>
 
-          <div className="flex flex-col sm:flex-row gap-2 sm:gap-0">
+          {/* INPUT + VERIFY BUTTON (ALWAYS INLINE) */}
+          <div className="flex flex-row gap-0">
+            {/* INPUT */}
             <div className="relative flex-grow">
               <img
                 src="/img/PhoneCall2.png"
                 alt="Phone"
-                className="absolute left-2.5 sm:left-3 md:left-4 lg:left-5 xl:left-5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 opacity-60 z-10"
+                className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
               />
+
               <div
-                className={`absolute left-8 sm:left-9 md:left-10 lg:left-[50px] xl:left-[54px] top-1/2 -translate-y-1/2 h-3.5 sm:h-4 md:h-5 lg:h-7 xl:h-7 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-                  }`}
+                className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
+                  formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
               />
+
               <input
                 id="phone"
                 type="tel"
@@ -420,58 +525,99 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
                 value={formik.values.phone}
                 onChange={handleChange}
                 onKeyDown={(e) => {
-                  if (e.key === "Enter" && formik.values.phone && formik.values.phone.length === 10 && resendCountdown === 0) {
+                  if (
+                    e.key === "Enter" &&
+                    formik.values.phone &&
+                    formik.values.phone.length === 10 &&
+                    resendCountdown === 0
+                  ) {
                     e.preventDefault();
                     sendOtp();
                   }
                 }}
                 placeholder="Enter your number"
-                className={`w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 border-gray-300 sm:border-r-0 rounded-lg sm:rounded-l-lg sm:rounded-r-none ${formik.errors.phone ? "border-red-500" : "border-gray-300"
-                  } pl-9 sm:pl-10 md:pl-12 lg:pl-14 xl:pl-18 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 sm:focus:border-r-0 transition`}
+                className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0 font-[gilroy-medium]
+          ${formik.errors.phone ? "border-red-500" : "border-[#1B1717]/80"}
+          rounded-l-lg
+          pl-10 md:pl-12 lg:pl-14
+          pr-3
+          text-sm md:text-base
+          outline-none
+          focus:border-[#1B1717]/80
+          transition
+        `}
               />
             </div>
 
+            {/* VERIFY / RESEND BUTTON */}
             <button
               type="button"
               onClick={sendOtp}
               disabled={resendCountdown > 0}
-              className={`px-2.5 sm:px-3 md:px-3 lg:px-4 xl:px-5 rounded-lg sm:rounded-r-lg sm:rounded-l-none sm:border-l-0 border-gray-300 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm font-semibold transition h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 flex-shrink-0 whitespace-nowrap shadow-md ${OTPResponseStatus === "SUCCESS"
-                ? "w-full sm:w-[90px] md:w-[100px] lg:w-[110px] xl:w-[120px]"
-                : "w-full sm:w-[80px] md:w-[90px] lg:w-[100px] xl:w-[110px]"
-                } ${resendCountdown > 0
-                  ? "bg-gray-400 border-gray-400 text-white cursor-not-allowed"
-                  : "bg-[#039155] text-white border-gray-300 hover:bg-green-700 hover:border-gray-400"
-                }`}
+              className={`h-10 md:h-11 lg:h-14
+        px-3 md:px-4
+        border-[0.5px]
+        border-l-0
+        ${formik.errors.phone ? "border-red-500" : "border-[#039155]"}
+        rounded-r-lg
+        font-[gilroy-semibold]
+        text-xs md:text-sm
+        whitespace-nowrap
+        shadow-md
+        transition
+        flex-shrink-0
+        ${
+          OTPResponseStatus === "SUCCESS"
+            ? "w-[90px] md:w-[100px] lg:w-[110px]"
+            : "w-[80px] md:w-[90px] lg:w-[100px]"
+        }
+        ${
+          resendCountdown > 0
+            ? "bg-gray-400 text-white cursor-not-allowed"
+            : "bg-[#039155] text-white hover:bg-green-700"
+        }
+      `}
             >
               {OTPResponseStatus === "SUCCESS" && resendCountdown > 0
-                ? `Resend (${Math.floor(resendCountdown / 60)}:${String(resendCountdown % 60).padStart(2, '0')})`
+                ? `Resend (${Math.floor(resendCountdown / 60)}:${String(
+                    resendCountdown % 60
+                  ).padStart(2, "0")})`
                 : OTPResponseStatus === "SUCCESS"
-                  ? "Resend"
-                  : "Verify"}
+                ? "Resend"
+                : "Verify"}
             </button>
           </div>
 
           {formik.errors.phone && (
-            <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm mt-1 sm:mt-1 md:mt-1.5 lg:mt-2 xl:mt-2.5">{formik.errors.phone}</p>
+            <p className="text-red-500 text-xs md:text-sm mt-1.5">
+              {formik.errors.phone}
+            </p>
           )}
         </div>
 
         {/* OTP INPUT */}
-        <div className="mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
-          <label htmlFor="otp" className="block text-xs sm:text-xs md:text-sm lg:text-base xl:text-base font-medium text-gray-800 mb-1 sm:mb-1 md:mb-1.5 lg:mb-1.5 xl:mb-2">
+        <div className="mb-3 md:mb-4">
+          <label
+            htmlFor="otp"
+            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+          >
             Enter OTP
           </label>
 
+          {/* OTP INPUT */}
           <div className="relative">
             <img
               src="/img/DeviceMobileCamera.png"
               alt="OTP"
-              className="absolute left-2.5 sm:left-3 md:left-4 lg:left-5 xl:left-5 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4 sm:h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 xl:w-7 xl:h-7 opacity-60 z-10"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
             />
+
             <div
-              className={`absolute left-8 sm:left-9 md:left-10 lg:left-[50px] xl:left-[54px] top-1/2 -translate-y-1/2 h-3.5 sm:h-4 md:h-5 lg:h-7 xl:h-7 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+              className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
+                formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+              }`}
             />
+
             <input
               id="otp"
               type="text"
@@ -479,23 +625,39 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
               value={formik.values.otp}
               onChange={handleChange}
               onKeyDown={(e) => {
-                if (e.key === "Enter" && formik.values.otp && formik.values.otp.trim() !== "") {
+                if (
+                  e.key === "Enter" &&
+                  formik.values.otp &&
+                  formik.values.otp.trim() !== ""
+                ) {
                   e.preventDefault();
                   formik.handleSubmit();
                 }
               }}
-              onBlur={(e) => {
-                // Don't validate on blur, just handle the blur event
-                formik.handleBlur(e);
-              }}
+              onBlur={formik.handleBlur}
               placeholder="Enter Mobile OTP"
-              className={`w-full h-10 sm:h-10 md:h-11 lg:h-14 xl:h-14 border-2 ${formik.errors.otp && formik.touched.otp ? "border-red-500" : "border-gray-300"
-                } rounded-lg pl-9 sm:pl-10 md:pl-12 lg:pl-14 xl:pl-18 pr-2.5 sm:pr-3 md:pr-3 lg:pr-4 xl:pr-5 text-sm sm:text-sm md:text-sm lg:text-base xl:text-base outline-none focus:border-gray-400 transition`}
+              className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
+        font-[gilroy-medium]
+        ${
+          formik.errors.otp && formik.touched.otp
+            ? "border-red-500"
+            : "border-[#1B1717]/80"
+        }
+        rounded-lg
+        pl-10 md:pl-12 lg:pl-14
+        pr-3
+        text-sm md:text-base
+        outline-none
+        focus:border-[#1B1717]/80
+        transition
+      `}
             />
           </div>
 
           {formik.errors.otp && formik.touched.otp && (
-            <p className="text-red-500 text-xs sm:text-xs md:text-xs lg:text-sm xl:text-sm mt-1 sm:mt-1 md:mt-1.5 lg:mt-2 xl:mt-2.5">{formik.errors.otp}</p>
+            <p className="text-red-500 text-xs md:text-sm mt-1.5">
+              {formik.errors.otp}
+            </p>
           )}
         </div>
 
@@ -503,7 +665,22 @@ function Step1({ formData, setFormData, onNext, onBack, onShowSteps, referralCod
         <button
           type="button"
           onClick={formik.handleSubmit}
-          className="w-full bg-[#039155] text-white py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3 rounded-lg sm:rounded-xl font-semibold text-sm sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-green-700 transition shadow-lg mt-2.5 sm:mt-3 md:mt-3.5 lg:mt-3 xl:mt-4 h-10 sm:h-11 md:h-12 lg:h-14 xl:h-14"
+          className="
+    w-full
+    h-10 md:h-11 lg:h-14
+    bg-[#039155]
+    text-white
+    rounded-lg md:rounded-xl
+    font-[gilroy-semibold]
+    text-sm md:text-base
+    hover:bg-green-700
+    transition
+    shadow-lg
+    mt-3
+    flex
+    items-center
+    justify-center
+  "
         >
           Submit
         </button>

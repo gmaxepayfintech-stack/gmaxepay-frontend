@@ -17,7 +17,7 @@ const Welcome = () => {
   const [loading, setLoading] = useState(false);
   const [referralCompleted, setReferralCompleted] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
-  
+
   // Check if skip parameter is in URL
   const shouldSkip = searchParams.get("skip") === "true";
 
@@ -33,12 +33,11 @@ const Welcome = () => {
     (state) => state?.retailerOnboarding?.referalResponse
   );
 
-
   useEffect(() => {
     try {
       const storedReferral = localStorage.getItem("referralCodeCompleted");
       const step1Completed = localStorage.getItem("step1Completed") === "true";
-      
+
       // Check if onboarding is already complete (steps data exists)
       const onboardingSteps = secureLocalStorage.getItem("onboardingSteps");
       if (onboardingSteps) {
@@ -48,7 +47,9 @@ const Welcome = () => {
           if (stepsData?.allCompleted || stepsData?.kycStatus === "COMPLETED") {
             localStorage.removeItem("step1Completed");
             localStorage.removeItem("referralCodeFromUrl");
-            console.log("Cleared temporary onboarding storage - onboarding already complete");
+            console.log(
+              "Cleared temporary onboarding storage - onboarding already complete"
+            );
           }
         } catch (e) {
           console.error("Error parsing onboarding steps:", e);
@@ -58,7 +59,6 @@ const Welcome = () => {
       if (storedReferral) {
         const parsed = JSON.parse(storedReferral);
         if (parsed?.status === "SUCCESS") {
-
           if (step1Completed) {
             setReferralCompleted(true);
           } else {
@@ -76,7 +76,9 @@ const Welcome = () => {
   const primaryColor = companyData?.primaryColor || "#039155";
 
   // Get referral code status from Redux
-  const referralCodeStatus = useSelector((state) => state?.retailerOnboarding?.status);
+  const referralCodeStatus = useSelector(
+    (state) => state?.retailerOnboarding?.status
+  );
   const referralCodeError = useSelector(
     (state) => state?.retailerOnboarding?.retailerOnboarding?.error
   );
@@ -96,10 +98,11 @@ const Welcome = () => {
     if (responseRefer === "SUCCESS") {
       setReferralCompleted(true);
       // Get the referral code from the submission
-      const submittedCode = referralCode?.trim().toUpperCase() || 
-                           referralCodeResponse?.referCode ||
-                           getReferCode();
-      
+      const submittedCode =
+        referralCode?.trim().toUpperCase() ||
+        referralCodeResponse?.referCode ||
+        getReferCode();
+
       // Store referral code in localStorage
       if (submittedCode) {
         try {
@@ -166,8 +169,14 @@ const Welcome = () => {
       const storedReferral = localStorage.getItem("referralCodeCompleted");
       if (storedReferral) {
         const parsed = JSON.parse(storedReferral);
-        if (parsed?.retailerOnboarding?.token || parsed?.retailerOnboarding?.onboardingToken) {
-          return parsed.retailerOnboarding.token || parsed.retailerOnboarding.onboardingToken;
+        if (
+          parsed?.retailerOnboarding?.token ||
+          parsed?.retailerOnboarding?.onboardingToken
+        ) {
+          return (
+            parsed.retailerOnboarding.token ||
+            parsed.retailerOnboarding.onboardingToken
+          );
         }
       }
     } catch (e) {
@@ -216,7 +225,10 @@ const Welcome = () => {
     if (urlReferralCode) {
       // Store referral code in localStorage
       try {
-        localStorage.setItem("referralCodeFromUrl", urlReferralCode.toUpperCase());
+        localStorage.setItem(
+          "referralCodeFromUrl",
+          urlReferralCode.toUpperCase()
+        );
       } catch (e) {
         console.error("Error storing referral code:", e);
       }
@@ -226,28 +238,36 @@ const Welcome = () => {
 
   // If URL has referral code and user clicked auto-start, show onboarding
   if (urlReferralCode && showOnboarding) {
-    return <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />;
+    return (
+      <OnboardingRetailerById referralCode={urlReferralCode.toUpperCase()} />
+    );
   }
 
   // If user clicked "Skip For Now" (skip=true in URL), show onboarding directly (referCode can be null)
   if (shouldSkip) {
     return <OnboardingRetailerById referralCode={null} />;
   }
+  // css for refferal card
+  const pageWrapper =
+    "min-h-screen w-full bg-white flex items-center justify-center px-3 sm:px-4 md:px-6 lg:px-8 py-4";
+
+  const cardWrapper =
+    "w-full max-w-sm sm:max-w-md md:max-w-lg lg:max-w-xl xl:max-w-2xl bg-white rounded-xl md:rounded-2xl shadow-lg p-4 sm:p-5 md:p-6 space-y-4";
 
   // If referCode is not there or null, show referral welcome component
   if (!referCode || referCode === null) {
     // If URL has referral code, show two options
     if (urlReferralCode) {
       return (
-        <div className="w-full min-h-screen bg-white flex items-center justify-center px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-5 md:py-6 lg:py-8">
-          <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-6 space-y-3 sm:space-y-3.5 md:space-y-4 lg:space-y-4 xl:space-y-5">
+        <div className={pageWrapper}>
+          <div className={cardWrapper}>
             {/* Title */}
-            <h1 className="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2.5">
+            <h1 className="text-center font-bold text-lg sm:text-xl md:text-2xl text-gray-800 mb-2">
               Welcome
             </h1>
 
             {/* Subtitle */}
-            <p className="text-center text-xs sm:text-sm md:text-sm lg:text-base xl:text-base text-gray-600 mb-3 sm:mb-3.5 md:mb-4 lg:mb-4 xl:mb-4.5">
+            <p className="text-center text-xs sm:text-sm md:text-base text-gray-600 mb-4">
               Choose an option to continue
             </p>
 
@@ -255,7 +275,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleAutoStartWithReferral}
-              className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md hover:bg-green-700 h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12`}
+              className="w-full h-10 md:h-11 rounded-lg md:rounded-xl font-semibold text-sm md:text-base shadow-md transition hover:bg-green-700 truncate whitespace-nowrap overflow-hidden text-ellipsis"
               style={{
                 backgroundColor: primaryColor,
               }}
@@ -264,19 +284,19 @@ const Welcome = () => {
             </button>
 
             {/* Option 2: Manual entry */}
-            <div className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
+            <div className="space-y-3 md:space-y-4">
               <button
                 type="button"
                 onClick={handleNewToPlatform}
-                className="w-full text-center text-xs sm:text-xs md:text-sm lg:text-sm xl:text-sm text-gray-600 hover:text-gray-800 transition underline cursor-pointer"
+                className="w-full text-center text-xs md:text-sm text-gray-600 hover:text-gray-800 transition underline cursor-pointer"
               >
                 New To Our Platform ? Create Your Account
               </button>
-              <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
                 {/* Label */}
                 <label
                   htmlFor="referral-code-welcome"
-                  className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2"
+                  className="block text-xs md:text-sm font-medium text-gray-800 mb-2"
                 >
                   Enter Referral Code
                 </label>
@@ -286,12 +306,12 @@ const Welcome = () => {
                   <img
                     src="/img/Export.png"
                     alt="Export"
-                    className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5.5 xl:h-5.5 opacity-70"
+                    className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 opacity-70"
                     onError={(e) => {
                       e.target.style.display = "none";
                     }}
                   />
-                  <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
+                  <div className="absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px bg-gray-300" />
                   <input
                     id="referral-code-welcome"
                     type="text"
@@ -302,8 +322,9 @@ const Welcome = () => {
                     }}
                     placeholder="Enter 9 Digit Code"
                     maxLength={9}
-                    className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#039155] focus:border-opacity-100 transition ${error ? "border-red-500" : "border-gray-300"
-                      }`}
+                    className={`w-full h-10 md:h-11 border-2 rounded-lg md:rounded-xl pl-10 md:pl-12 pr-3 text-sm md:text-base outline-none transition ${
+                      error ? "border-red-500" : "border-gray-300"
+                    }`}
                     disabled={loading}
                   />
                 </div>
@@ -311,14 +332,18 @@ const Welcome = () => {
                 {/* Error Message */}
                 {error && (
                   <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-lg">
-                    <p className="text-red-700 text-xs sm:text-xs md:text-xs lg:text-sm">{error}</p>
+                    <p className="text-red-700 text-xs sm:text-xs md:text-xs lg:text-sm">
+                      {error}
+                    </p>
                   </div>
                 )}
 
                 {/* Success Message */}
                 {referralCodeMessage && referralCodeStatus === "SUCCESS" && (
                   <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-green-700 text-xs sm:text-xs md:text-xs lg:text-sm">{referralCodeMessage}</p>
+                    <p className="text-green-700 text-xs sm:text-xs md:text-xs lg:text-sm">
+                      {referralCodeMessage}
+                    </p>
                   </div>
                 )}
 
@@ -326,13 +351,16 @@ const Welcome = () => {
                 <button
                   type="submit"
                   disabled={loading || !referralCode.trim()}
-                  className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 ${loading || !referralCode.trim()
-                    ? "bg-gray-400 cursor-not-allowed opacity-70"
-                    : "hover:bg-green-700"
-                    }`}
+                  className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-semibold text-sm md:text-base shadow-md transition ${
+                    loading || !referralCode.trim()
+                      ? "bg-gray-400 cursor-not-allowed opacity-70"
+                      : "hover:bg-green-700"
+                  }`}
                   style={{
                     backgroundColor:
-                      loading || !referralCode.trim() ? undefined : primaryColor,
+                      loading || !referralCode.trim()
+                        ? undefined
+                        : primaryColor,
                   }}
                 >
                   {loading ? "Submitting..." : "Submit"}
@@ -344,7 +372,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleSkip}
-              className="w-full bg-white border-2 border-gray-300 text-gray-800 py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-gray-50 transition h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12"
+              className="w-full h-10 md:h-11 bg-white border-2 border-gray-300 text-gray-800 rounded-lg md:rounded-xl font-semibold text-sm md:text-base hover:bg-gray-50 transition"
             >
               Skip For Now
             </button>
@@ -362,7 +390,8 @@ const Welcome = () => {
     // Fresh success: show onboarding immediately
     // On refresh: only show onboarding if step1 is also completed
     const isFreshSuccess = responseRefer === "SUCCESS";
-    const shouldShowOnboarding = isFreshSuccess || (referralCompleted && step1Completed);
+    const shouldShowOnboarding =
+      isFreshSuccess || (referralCompleted && step1Completed);
 
     if (shouldShowOnboarding) {
       const onboardingToken = getOnboardingToken();
@@ -386,24 +415,24 @@ const Welcome = () => {
 
   // Otherwise show referral code form
   return (
-    <div className="w-full min-h-screen bg-white flex items-center justify-center px-2 sm:px-3 md:px-4 lg:px-6 xl:px-8 py-4 sm:py-5 md:py-6 lg:py-8">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[600px] xl:max-w-[650px] bg-white rounded-lg sm:rounded-xl md:rounded-2xl shadow-lg p-3 sm:p-4 md:p-5 lg:p-6 xl:p-6 space-y-3 sm:space-y-3.5 md:space-y-4 lg:space-y-4 xl:space-y-5">
+    <div className={pageWrapper}>
+      <div className={cardWrapper}>
         {/* Title */}
-        <h1 className="text-center text-lg sm:text-xl md:text-2xl lg:text-2xl xl:text-3xl font-bold text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2.5">
+        <h1 className="text-center text-[#1B1717] font-['Gilroy-SemiBold'] text-lg sm:text-xl md:text-2xl  mb-2">
           Referral Code
         </h1>
 
         {/* Subtitle */}
-        <p className="text-center text-xs sm:text-sm md:text-sm lg:text-base xl:text-base text-gray-600 mb-3 sm:mb-3.5 md:mb-4 lg:mb-4 xl:mb-4.5">
+        <p className="text-center text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-regular'] mb-4">
           Enter Your Referral Code To Unlock
         </p>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-2.5 sm:space-y-3 md:space-y-3 lg:space-y-3.5 xl:space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3 md:space-y-4">
           {/* Label */}
           <label
             htmlFor="referral-code"
-            className="block text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base font-medium text-gray-800 mb-1 sm:mb-1.5 md:mb-2 lg:mb-2 xl:mb-2"
+            className="block text-base md:text-lg text-[#1B1717] font-['Gilroy-SemiBold'] mb-2"
           >
             Referral Code
           </label>
@@ -413,12 +442,12 @@ const Welcome = () => {
             <img
               src="/img/Export.png"
               alt="Export"
-              className="absolute left-2.5 sm:left-3 md:left-3 lg:left-3.5 xl:left-4 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-4.5 sm:h-4.5 md:w-5 md:h-5 lg:w-5 lg:h-5 xl:w-5.5 xl:h-5.5 opacity-70"
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-3 h-3 md:w-4 md:h-4 text-[#1B1717]/70"
               onError={(e) => {
                 e.target.style.display = "none";
               }}
             />
-            <div className="absolute left-8 sm:left-9 md:left-10 lg:left-11 xl:left-12 top-1/2 -translate-y-1/2 h-4 sm:h-4.5 md:h-5 lg:h-5 xl:h-5.5 w-px bg-gray-300" />
+            <div className="absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px bg-[#1B1717]/70" />
             <input
               id="referral-code"
               type="text"
@@ -429,23 +458,29 @@ const Welcome = () => {
               }}
               placeholder="Enter 9 Digit Code"
               maxLength={9}
-              className={`w-full h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 border-2 rounded-lg sm:rounded-xl pl-8 sm:pl-10 md:pl-12 lg:pl-13 xl:pl-14 pr-2.5 sm:pr-3 md:pr-3 lg:pr-3.5 xl:pr-4 text-xs sm:text-sm md:text-sm lg:text-sm xl:text-base outline-none focus:border-[#1B1717] focus:border-opacity-80 transition ${error ? "border-red-500" : "border-gray-300"
-                }`}
+              className={` w-full h-10 md:h-12 border-[0.5px]  rounded-lg md:rounded-xl pl-10 md:pl-14   font-['Gilroy-medium'] text-[#1B1717]/70 text-sm md:text-base outline-none transition ${
+                error ? "border-red-500" : "border-[#1B1717]/80"
+              }`}
               disabled={loading}
             />
           </div>
 
           {/* Error Message */}
+
           {error && (
             <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-red-700 text-xs sm:text-xs md:text-xs lg:text-sm">{error}</p>
+              <p className="text-red-700 font-[Gilroy-medium] text-xs md:text-sm">
+                {error}
+              </p>
             </div>
           )}
 
           {/* Success Message */}
           {referralCodeMessage && referralCodeStatus === "SUCCESS" && (
             <div className="p-2 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 bg-green-50 border border-green-200 rounded-lg">
-              <p className="text-green-700 text-xs sm:text-xs md:text-xs lg:text-sm">{referralCodeMessage}</p>
+              <p className="text-green-700 text-xs md:text-sm">
+                {referralCodeMessage}
+              </p>
             </div>
           )}
 
@@ -453,10 +488,11 @@ const Welcome = () => {
           <button
             type="submit"
             disabled={loading || !referralCode.trim()}
-            className={`w-full text-white py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base transition shadow-md h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12 ${loading || !referralCode.trim()
-              ? "bg-gray-400 cursor-not-allowed opacity-70"
-              : "hover:bg-green-700"
-              }`}
+            className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md ${
+              loading || !referralCode.trim()
+                ? "bg-gray-400 cursor-not-allowed opacity-70"
+                : "hover:bg-[#039155] text-white "
+            }`}
             style={{
               backgroundColor:
                 loading || !referralCode.trim() ? undefined : primaryColor,
@@ -469,7 +505,7 @@ const Welcome = () => {
           <button
             type="button"
             onClick={handleSkip}
-            className="w-full bg-white border-2 border-gray-300 text-gray-800 py-2 sm:py-2.5 md:py-3 lg:py-3 xl:py-3.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-sm lg:text-base xl:text-base hover:bg-gray-50 transition h-9 sm:h-10 md:h-11 lg:h-11 xl:h-12"
+            className="w-full h-10 md:h-11 bg-white border-[0.5px] border-[#1B1717]/80 rounded-lg md:rounded-xl font-[Gilroy-medium] text-[#1B1717]/80 text-sm md:text-base hover:bg-gray-50 transition"
           >
             Skip For Now
           </button>
@@ -480,4 +516,3 @@ const Welcome = () => {
 };
 
 export default Welcome;
-
