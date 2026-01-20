@@ -310,7 +310,7 @@ const MasterDistLayout = ({ children }) => {
 
             <div className="flex items-center gap-2">
               <span className="hidden text-sm font-medium sm:inline">
-                {name || email || "Admin Panel"}
+                {name || email || "Master Distributer Panel"}
               </span>
               <img
                 src={defaultProfileImage}

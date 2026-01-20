@@ -316,7 +316,7 @@ const RetailerDashLayout = ({ children }) => {
 
             <div className="flex items-center gap-2">
               <span className="hidden text-sm font-medium sm:inline">
-                {name || email || "Admin Panel"}
+                {name || email || "Retailer Dashboard"}
               </span>
               <img
                 src={defaultProfileImage}
