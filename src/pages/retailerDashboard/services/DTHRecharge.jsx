@@ -424,10 +424,10 @@ const DTHRecharge = ({ onBack }) => {
       filtered = filtered.filter((plan) => plan.language === language);
     }
 
-    // Filter by active language pack if selected
-    if (activeLanguagePack && activeLanguagePack !== "Kannada Telugu Starter") {
+    // Filter by active language pack if selected (exact match by PlanName)
+    if (activeLanguagePack) {
       filtered = filtered.filter((plan) =>
-        plan.bouquet.toLowerCase().includes(activeLanguagePack.toLowerCase())
+        plan.bouquet === activeLanguagePack || plan.planName === activeLanguagePack
       );
     }
 
@@ -617,15 +617,17 @@ const DTHRecharge = ({ onBack }) => {
 
             {/* Details */}
             <ul className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80 space-y-2 px-2">
-              {/* Plan Name */}
-              <li className="flex items-center">
-                <span className="flex gap-2">
-                  <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
-                    •
+              {/* Plan Name - Show when plan is selected/searched (has active filters), hide when showing all plans */}
+              {(activeLanguagePack || searchQuery || (language && activeFilter !== "All Packs")) && (
+                <li className="flex items-center">
+                  <span className="flex gap-2">
+                    <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
+                      •
+                    </span>
+                    <p>Plan Name: {selectedPlan.planName || selectedPlan.bouquet}</p>
                   </span>
-                  <p>Plan Name: {selectedPlan.planName || selectedPlan.bouquet}</p>
-                </span>
-              </li>
+                </li>
+              )}
               
               {/* First special line */}
               <li className="flex items-center -py-1">
@@ -965,21 +967,30 @@ const DTHRecharge = ({ onBack }) => {
                   </div>
                 </div>
 
-                {/* Language Packs - Show unique plan names from API based on selected language */}
+                {/* Language Packs - Show top 5-6 PlanNames from API based on selected language */}
                 {(() => {
-                  // Get plans filtered by selected language
-                  const languageFilteredPlans = language 
-                    ? filteredSuggestPlans.filter((plan) => plan.language === language)
-                    : [];
+                  // Only show language packs when a language is selected
+                  if (!language) return null;
                   
-                  // Get unique bouquets from language-filtered plans
-                  const availablePacks = [
-                    ...new Set(languageFilteredPlans.map((plan) => plan.bouquet))
-                  ];
+                  // Get plans filtered by selected language
+                  const languageFilteredPlans = filteredSuggestPlans.filter((plan) => plan.language === language);
+                  
+                  // Get unique PlanNames (bouquet) from language-filtered plans
+                  const uniquePlanNames = [];
+                  const seenPlanNames = new Set();
+                  
+                  languageFilteredPlans.forEach((plan) => {
+                    const planName = plan.bouquet || plan.planName;
+                    if (planName && !seenPlanNames.has(planName)) {
+                      seenPlanNames.add(planName);
+                      uniquePlanNames.push(planName);
+                    }
+                  });
 
-                  return availablePacks.length > 0 ? (
+                  // Show top 5-6 PlanNames
+                  return uniquePlanNames.length > 0 ? (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {availablePacks.slice(0, 6).map((pack) => (
+                      {uniquePlanNames.slice(0, 6).map((pack) => (
                         <button
                           key={pack}
                           type="button"
@@ -1022,7 +1033,13 @@ const DTHRecharge = ({ onBack }) => {
                     return (
                       <button
                         key={filter}
-                        onClick={() => setActiveFilter(filter)}
+                        onClick={() => {
+                          setActiveFilter(filter);
+                          // Reset language pack when "All Packs" is selected
+                          if (filter === "All Packs") {
+                            setActiveLanguagePack("");
+                          }
+                        }}
                         className={`relative pb-0.5 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition
                         ${isActive
                             ? "text-[#039155]"
