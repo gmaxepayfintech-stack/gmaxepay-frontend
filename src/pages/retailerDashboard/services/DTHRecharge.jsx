@@ -57,10 +57,29 @@ const getOperatorOpcode = (operatorName) => {
 
 // Get operator logo from selectDTHOperators
 const getOperatorLogo = (operatorName) => {
-  const operator = selectDTHOperators.find((op) =>
-    op.name.toLowerCase().includes(operatorName?.toLowerCase() || "") ||
-    operatorName?.toLowerCase().includes(op.name.toLowerCase() || "")
-  );
+  if (!operatorName) return "";
+  
+  // Normalize operator names for better matching (remove common words)
+  const normalizeName = (name) => {
+    return name.toLowerCase()
+      .replace(/\s*dth\s*/gi, "")
+      .replace(/\s*direct\s*/gi, "")
+      .replace(/\s*play\s*/gi, "")
+      .trim();
+  };
+  
+  const normalizedInput = normalizeName(operatorName);
+  
+  const operator = selectDTHOperators.find((op) => {
+    const normalizedOpName = normalizeName(op.name);
+    // Check if normalized names match or if either contains the other
+    return normalizedOpName === normalizedInput ||
+           normalizedOpName.includes(normalizedInput) ||
+           normalizedInput.includes(normalizedOpName) ||
+           op.name.toLowerCase().includes(operatorName.toLowerCase()) ||
+           operatorName.toLowerCase().includes(op.name.toLowerCase());
+  });
+  
   return operator?.logo || "";
 };
 
