@@ -294,14 +294,17 @@ const DTHRecharge = ({ onBack }) => {
 
   // Transform API response to UI format
   const transformPlansFromAPI = (apiData) => {
-    if (!apiData?.data?.Combo || !Array.isArray(apiData.data.Combo)) {
+    // The API response structure is: data.data.Combo
+    const comboArray = apiData?.data?.data?.Combo || apiData?.data?.Combo;
+    
+    if (!comboArray || !Array.isArray(comboArray)) {
       return [];
     }
 
     const allPlans = [];
     let planId = 1;
 
-    apiData.data.Combo.forEach((combo) => {
+    comboArray.forEach((combo) => {
       const languageName = combo.Language || "";
       
       combo.Details?.forEach((detail) => {
@@ -350,10 +353,22 @@ const DTHRecharge = ({ onBack }) => {
             features.push(`Last Updated: ${detail.last_update}`);
           }
 
+          // Normalize validity format (API returns "1 Months", but we want "1 Month" for consistency)
+          const normalizeValidity = (monthStr) => {
+            if (!monthStr) return "1 Month";
+            // Convert "1 Months" to "1 Month", keep others as "X Months"
+            const normalized = monthStr.trim();
+            if (normalized.toLowerCase() === "1 months" || normalized.toLowerCase() === "1 month") {
+              return "1 Month";
+            }
+            // Keep other formats as is (e.g., "3 Months", "6 Months")
+            return normalized;
+          };
+
           allPlans.push({
             id: planId++,
             price: `₹${pricing.Amount}`,
-            validity: pricing.Month || "1 Month",
+            validity: normalizeValidity(pricing.Month) || "1 Month",
             channels: channels,
             bouquet: detail.PlanName || "",
             paidChannels: paidChannels,
@@ -811,8 +826,11 @@ const DTHRecharge = ({ onBack }) => {
                           setFilteredSuggestPlans(transformedPlans);
                           
                           // Extract unique languages from API response
-                          if (planResponse.dthRechargePlan?.data?.Combo) {
-                            const languages = planResponse.dthRechargePlan.data.Combo.map(
+                          // The API response structure is: data.data.Combo
+                          const comboArray = planResponse.dthRechargePlan?.data?.data?.Combo || 
+                                           planResponse.dthRechargePlan?.data?.Combo;
+                          if (comboArray && Array.isArray(comboArray)) {
+                            const languages = comboArray.map(
                               (combo) => combo.Language
                             ).filter(Boolean);
                             setAvailableLanguages(languages);
