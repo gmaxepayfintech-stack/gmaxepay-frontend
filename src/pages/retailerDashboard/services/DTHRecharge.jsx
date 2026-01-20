@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight } from "lucide-react";
@@ -99,46 +99,92 @@ const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) =
 
   const selected = options.find((o) => o.value === value);
 
-  const filtered = options.filter((o) =>
-    o.label.toLowerCase().includes(query.toLowerCase()),
-  );
+  // Reset query when value changes externally
+  useEffect(() => {
+    if (value && !open) {
+      setQuery("");
+    }
+  }, [value, open]);
+
+  const filtered = query
+    ? options.filter((o) =>
+        o.label.toLowerCase().includes(query.toLowerCase())
+      )
+    : options;
+
+  const handleSelect = (selectedValue) => {
+    onChange(selectedValue);
+    setQuery("");
+    setOpen(false);
+  };
+
+  const handleInputChange = (e) => {
+    const newQuery = e.target.value;
+    setQuery(newQuery);
+    if (!open) {
+      setOpen(true);
+    }
+  };
+
+  const handleInputFocus = () => {
+    setOpen(true);
+    // Clear query on focus to allow fresh search
+    setQuery("");
+  };
+
+  const handleInputBlur = (e) => {
+    // Delay closing to allow option click to fire first
+    setTimeout(() => {
+      // Check if focus moved to dropdown
+      const activeElement = document.activeElement;
+      if (!e.currentTarget.contains(activeElement)) {
+        setOpen(false);
+        setQuery(""); // Reset query when closing
+      }
+    }, 200);
+  };
+
+  // Display value: show query when typing/searching, selected label when not typing, or empty for placeholder
+  const displayValue = open && query ? query : (selected?.label || "");
 
   return (
     <div className="relative">
       {/* Input = Select */}
       <input
-        value={open ? query : selected?.label || ""}
+        value={displayValue}
         placeholder="Select Language"
-        onFocus={() => setOpen(true)}
-        onBlur={() => {
-          // Delay to allow option click to fire first
-          setTimeout(() => setOpen(false), 200);
-        }}
-        onChange={(e) => setQuery(e.target.value)}
+        onFocus={handleInputFocus}
+        onBlur={handleInputBlur}
+        onChange={handleInputChange}
         className={`w-full border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717] pl-12 pr-4 py-3 ${inputClassName}`}
       />
 
       {/* Dropdown */}
       {open && (
-        <div className="absolute z-20 mt-1 w-full bg-white border border-[#1B1717]/20 rounded-lg shadow-lg max-h-40 overflow-auto">
-          {filtered.map((opt) => (
-            <div
-              key={opt.value}
-              onClick={() => {
-                onChange(opt.value);
-                setQuery("");
-                setOpen(false);
-              }}
-              className={`px-3 py-2 cursor-pointer text-xs ${opt.value === value
-                ? "bg-[#039155] text-white"
-                : "hover:bg-gray-100"
+        <div 
+          className="absolute z-20 mt-1 w-full bg-white border border-[#1B1717]/20 rounded-lg shadow-lg max-h-40 overflow-auto"
+          onMouseDown={(e) => {
+            e.preventDefault(); // Prevent input blur when clicking dropdown
+          }}
+        >
+          {filtered.length > 0 ? (
+            filtered.map((opt) => (
+              <div
+                key={opt.value}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  handleSelect(opt.value);
+                }}
+                className={`px-3 py-2 cursor-pointer text-xs transition ${
+                  opt.value === value
+                    ? "bg-[#039155] text-white"
+                    : "hover:bg-gray-100"
                 }`}
-            >
-              {opt.label}
-            </div>
-          ))}
-
-          {filtered.length === 0 && (
+              >
+                {opt.label}
+              </div>
+            ))
+          ) : (
             <div className="px-3 py-2 text-xs text-gray-400">No results</div>
           )}
         </div>
@@ -419,9 +465,12 @@ const DTHRecharge = ({ onBack }) => {
       });
     }
 
-    // Filter by language if selected
+    // Filter by language if selected (case-insensitive)
     if (language) {
-      filtered = filtered.filter((plan) => plan.language === language);
+      filtered = filtered.filter((plan) => {
+        if (!plan.language) return false;
+        return plan.language.toLowerCase().trim() === language.toLowerCase().trim();
+      });
     }
 
     // Filter by active language pack if selected (exact match by PlanName)
@@ -970,17 +1019,35 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Language Packs - Show top 5-6 PlanNames from API based on selected language */}
                 {(() => {
                   // Only show language packs when a language is selected
-                  if (!language) return null;
+                  if (!language || !filteredSuggestPlans || filteredSuggestPlans.length === 0) {
+                    return null;
+                  }
                   
-                  // Get plans filtered by selected language
-                  const languageFilteredPlans = filteredSuggestPlans.filter((plan) => plan.language === language);
+                  // Get ALL plans filtered by selected language (case-insensitive comparison)
+                  // Use the full list, not the already filtered one
+                  const languageFilteredPlans = filteredSuggestPlans.filter((plan) => {
+                    if (!plan || !plan.language) return false;
+                    // Case-insensitive comparison with trimmed values
+                    const planLang = String(plan.language).toLowerCase().trim();
+                    const selectedLang = String(language).toLowerCase().trim();
+                    return planLang === selectedLang;
+                  });
+                  
+                  if (languageFilteredPlans.length === 0) {
+                    return (
+                      <div className="text-sm text-[#1B1717]/60 py-2">
+                        No plans found for {language}
+                      </div>
+                    );
+                  }
                   
                   // Get unique PlanNames (bouquet) from language-filtered plans
                   const uniquePlanNames = [];
                   const seenPlanNames = new Set();
                   
                   languageFilteredPlans.forEach((plan) => {
-                    const planName = plan.bouquet || plan.planName;
+                    // Use bouquet (which is PlanName from API) or planName as fallback
+                    const planName = (plan.bouquet || plan.planName || "").trim();
                     if (planName && !seenPlanNames.has(planName)) {
                       seenPlanNames.add(planName);
                       uniquePlanNames.push(planName);
@@ -988,7 +1055,15 @@ const DTHRecharge = ({ onBack }) => {
                   });
 
                   // Show top 5-6 PlanNames
-                  return uniquePlanNames.length > 0 ? (
+                  if (uniquePlanNames.length === 0) {
+                    return (
+                      <div className="text-sm text-[#1B1717]/60 py-2">
+                        No plan names found for {language}
+                      </div>
+                    );
+                  }
+
+                  return (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {uniquePlanNames.slice(0, 6).map((pack) => (
                         <button
@@ -1005,7 +1080,7 @@ const DTHRecharge = ({ onBack }) => {
                         </button>
                       ))}
                     </div>
-                  ) : null;
+                  );
                 })()}
 
                 {/* Select Plan */}
