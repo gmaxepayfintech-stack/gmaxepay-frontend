@@ -361,7 +361,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
 
               <div className="flex items-center gap-2">
                 <span className="hidden text-xl font-semibold text-[#1B1717] sm:inline">
-                  Admin Panel
+                  Company Panel
                 </span>
                 <img
                   src={profile?.profileImage || defaultProfileImage}
