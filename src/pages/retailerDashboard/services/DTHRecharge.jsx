@@ -74,7 +74,7 @@ const selectDTHOperators = [
   { id: 5, name: "Videocon", logo: "/img/D2H.svg" },
 ];
 
-const InlineSearchSelect = ({ options, value, onChange }) => {
+const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -89,10 +89,14 @@ const InlineSearchSelect = ({ options, value, onChange }) => {
       {/* Input = Select */}
       <input
         value={open ? query : selected?.label || ""}
-        placeholder="Select"
+        placeholder="Select Language"
         onFocus={() => setOpen(true)}
+        onBlur={() => {
+          // Delay to allow option click to fire first
+          setTimeout(() => setOpen(false), 200);
+        }}
         onChange={(e) => setQuery(e.target.value)}
-        className="w-full border-[0.5px] border-[#1B1717]/80 rounded-lg px-3 py-3 text-xs font-['Gilroy-Medium'] text-[#1B1717]/80 outline-none"
+        className={`w-full border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717] pl-12 pr-4 py-3 ${inputClassName}`}
       />
 
       {/* Dropdown */}
@@ -254,23 +258,8 @@ const DTHRecharge = ({ onBack }) => {
   const [customerInfo, setCustomerInfo] = useState(null);
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
+  const [paymentResponse, setPaymentResponse] = useState(null);
 
-  // const handleProceed = () => {
-  //   if (!inputValue) return;
-
-  //   // If user entered mobile number, validate length
-  //   if (inputType === "mobile" && inputValue.length !== 10) return;
-
-  //   setStep("confirm");
-  // };
-
-  // const handleCancel = () => {
-  //   if (step === "confirm") {
-  //     setStep("input");
-  //   } else {
-  //     setInputValue("");
-  //   }
-  // };
 
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
@@ -502,8 +491,9 @@ const DTHRecharge = ({ onBack }) => {
 
                     if (
                       paymentResponse?.status === "SUCCESS" &&
-                      paymentResponse?.dthRecharge
+                      paymentResponse?.data
                     ) {
+                      setPaymentResponse(paymentResponse);
                       setShowPayment(false);
                       setStep("success");
                     } else {
@@ -593,6 +583,16 @@ const DTHRecharge = ({ onBack }) => {
 
             {/* Details */}
             <ul className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80 space-y-2 px-2">
+              {/* Plan Name */}
+              <li className="flex items-center">
+                <span className="flex gap-2">
+                  <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
+                    •
+                  </span>
+                  <p>Plan Name: {selectedPlan.planName || selectedPlan.bouquet}</p>
+                </span>
+              </li>
+              
               {/* First special line */}
               <li className="flex items-center -py-1">
                 <span className="flex gap-2">
@@ -911,49 +911,38 @@ const DTHRecharge = ({ onBack }) => {
                     <span className=" ml-1 mt-2 leading-none">*</span>
                   </label>
 
-                  {/* Language Search Input */}
+                  {/* Language Dropdown */}
                   <div className="relative font-['Gilroy-Medium']">
-                    <Search className="absolute left-4 top-1/2 text-[#1B1717] text-opacity-50 -translate-y-1/2 w-5 h-5" />
-                    <input
-                      type="text"
+                    <Search className="absolute left-4 top-1/2 text-[#1B1717] text-opacity-50 -translate-y-1/2 w-5 h-5 z-10 pointer-events-none" />
+                    <InlineSearchSelect
+                      options={(availableLanguages.length > 0 
+                        ? availableLanguages.map(lang => ({ value: lang, label: lang }))
+                        : languageOptions
+                      )}
                       value={language}
-                      onChange={(e) => setLanguage(e.target.value)}
-                      placeholder="Select Language"
-                      className="w-full pl-12 pr-4 py-3 border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717]"
+                      onChange={(value) => {
+                        setLanguage(value);
+                        setActiveLanguagePack(""); // Reset language pack when language changes
+                      }}
                     />
-                  </div>
-
-                  {/* Language Buttons */}
-                  <div className="flex flex-wrap gap-[17px] mt-3">
-                    {(availableLanguages.length > 0 ? availableLanguages : languageOptions.map(opt => opt.value)).map((lang) => (
-                      <button
-                        key={lang}
-                        type="button"
-                        onClick={() => {
-                          setLanguage(lang);
-                        }}
-                        className={`px-4 py-2 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
-                          language === lang
-                            ? "bg-[#039155] text-white"
-                            : "bg-gray-100 text-[#1B1717] hover:bg-gray-200"
-                        }`}
-                      >
-                        {lang}
-                      </button>
-                    ))}
                   </div>
                 </div>
 
-                {/* Language Packs - Show unique plan names from API */}
-                {filteredSuggestPlans.length > 0 && (
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {[
-                      ...new Set(
-                        filteredSuggestPlans.map((plan) => plan.bouquet)
-                      ),
-                    ]
-                      .slice(0, 6)
-                      .map((pack) => (
+                {/* Language Packs - Show unique plan names from API based on selected language */}
+                {(() => {
+                  // Get plans filtered by selected language
+                  const languageFilteredPlans = language 
+                    ? filteredSuggestPlans.filter((plan) => plan.language === language)
+                    : [];
+                  
+                  // Get unique bouquets from language-filtered plans
+                  const availablePacks = [
+                    ...new Set(languageFilteredPlans.map((plan) => plan.bouquet))
+                  ];
+
+                  return availablePacks.length > 0 ? (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {availablePacks.slice(0, 6).map((pack) => (
                         <button
                           key={pack}
                           type="button"
@@ -967,8 +956,9 @@ const DTHRecharge = ({ onBack }) => {
                           {pack}
                         </button>
                       ))}
-                  </div>
-                )}
+                    </div>
+                  ) : null;
+                })()}
 
                 {/* Select Plan */}
                 <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] pt-3">
@@ -1292,7 +1282,9 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Amount */}
                 <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
                   <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    {selectedPlan.price}
+                    {paymentResponse?.data?.apiResponse?.amount 
+                      ? `₹${paymentResponse.data.apiResponse.amount}` 
+                      : selectedPlan?.price || "N/A"}
                   </div>
                 </div>
 
@@ -1303,18 +1295,18 @@ const DTHRecharge = ({ onBack }) => {
                       Transaction ID
                     </div>
                     <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-                      {transactionDetails.transactionId}
+                      {paymentResponse?.data?.apiResponse?.txid || "N/A"}
                     </div>
                   </div>
 
                   <div>
                     <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      {inputValue.length === 10
+                      {paymentResponse?.data?.apiResponse?.number?.length === 10
                         ? "Mobile Number"
                         : "Subscriber ID"}
                     </div>
                     <div className="font-['Gilroy-Medium'] text-sm">
-                      {inputValue}
+                      {paymentResponse?.data?.apiResponse?.number || inputValue}
                     </div>
                   </div>
 
@@ -1323,7 +1315,7 @@ const DTHRecharge = ({ onBack }) => {
                       Operator
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {selectedOperator.name}
+                      {selectedOperator?.name || "N/A"}
                     </div>
                   </div>
 
@@ -1332,7 +1324,7 @@ const DTHRecharge = ({ onBack }) => {
                       Validity
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {selectedPlan.validity}
+                      {selectedPlan?.validity || "N/A"}
                     </div>
                   </div>
 
@@ -1341,7 +1333,7 @@ const DTHRecharge = ({ onBack }) => {
                       Bouquet
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {selectedPlan.bouquet}
+                      {selectedPlan?.bouquet || "N/A"}
                     </div>
                   </div>
 
@@ -1350,33 +1342,27 @@ const DTHRecharge = ({ onBack }) => {
                       Channels
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {selectedPlan.channels}
+                      {selectedPlan?.channels || "N/A"}
                     </div>
                   </div>
 
                   <div>
                     <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      B-Connect ID
+                      Order ID
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {transactionDetails.bConnectId}
+                      {paymentResponse?.data?.orderid || "N/A"}
                     </div>
                   </div>
 
                   <div>
                     <div className="text-[#1B1717]/80 text-[11px]">Date</div>
                     <div className="font-['Gilroy-Medium']">
-                      {transactionDetails.dateTime}
+                      {new Date().toLocaleString()}
                     </div>
                   </div>
                 </div>
 
-                {/* Channel breakdown */}
-                {/* <div className="border-t border-[#1B1717]/20 pt-3 mb-12 text-sm text-[#1B1717]/80">
-                  Paid Channels: {selectedPlan.paidChannels}
-                  <span className="mx-2 text-xl leading-none">•</span>
-                  HD: {selectedPlan.hdChannels}
-                </div> */}
 
                 {/* Buttons */}
                 <div className="absolute left-5 right-5 bottom-2 flex gap-28">
