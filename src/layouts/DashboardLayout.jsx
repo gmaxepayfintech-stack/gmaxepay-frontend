@@ -25,7 +25,7 @@ const DashboardLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const { email, name, unauthorized, error } = useSelector(
-    (state) => state.userProfile
+    (state) => state.userProfile,
   );
 
   // State for open dropdowns
@@ -50,8 +50,10 @@ const DashboardLayout = ({ children }) => {
       children: [
         { name: "Users", path: "/superDashboard/members/user" },
         { name: "Agents", path: "/superDashboard/members/list" },
-        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
-
+        {
+          name: "Role Management",
+          path: "/superDashboard/members/rolemanagement",
+        },
       ],
     },
     {
@@ -68,8 +70,14 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
-        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
+        {
+          name: "Schema Master",
+          path: "/superDashboard/resources/schemamaster",
+        },
+        {
+          name: "Role Upgrade",
+          path: "/superDashboard/resources/roleupgraderequest",
+        },
       ],
     },
     {
@@ -91,8 +99,14 @@ const DashboardLayout = ({ children }) => {
       children: [
         { name: "Business Report", path: "/superDashboard/reports/business" },
         { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
-        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
+        {
+          name: "N/W Overview Report",
+          path: "/superDashboard/reports/nw-overview",
+        },
+        {
+          name: "User Performance",
+          path: "/superDashboard/reports/user-performance",
+        },
       ],
     },
 
@@ -102,7 +116,6 @@ const DashboardLayout = ({ children }) => {
       path: "/superDashboard/txn-history",
       dropdown: false,
     },
-  
   ];
 
   // Fetch user profile on component mount
@@ -130,23 +143,25 @@ const DashboardLayout = ({ children }) => {
   // Update active menu based on current pathname
   useEffect(() => {
     setIsSidebarOpen(false);
-    
+
     const currentPath = location.pathname;
-    const currentMenuItem = menuItems.find(item => {
+    const currentMenuItem = menuItems.find((item) => {
       if (item.path && currentPath === item.path) {
         return true;
       }
       if (item.children) {
-        return item.children.some(child => child.path === currentPath);
+        return item.children.some((child) => child.path === currentPath);
       }
       return false;
     });
-    
+
     if (currentMenuItem) {
       setActiveMenu(currentMenuItem.name);
       // If it's a dropdown and a child is active, open the dropdown
       if (currentMenuItem.dropdown && currentMenuItem.children) {
-        const activeChild = currentMenuItem.children.find(child => child.path === currentPath);
+        const activeChild = currentMenuItem.children.find(
+          (child) => child.path === currentPath,
+        );
         if (activeChild) {
           setOpenDropdown(currentMenuItem.name);
         } else {
@@ -193,8 +208,9 @@ const DashboardLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -221,17 +237,19 @@ const DashboardLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
-                    ? "bg-[#039155] text-white shadow-md"
-                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                    }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
+                      ? "bg-[#039155] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
-                        }`}
+                      className={`w-5 h-5 object-contain ${
+                        isActiveParent ? "filter brightness-0 invert" : ""
+                      }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -265,10 +283,11 @@ const DashboardLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -302,7 +321,7 @@ const DashboardLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-0 bg-white px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow-sm">
+        <header className="sticky top-0 bg-[#FAFAFA] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 ">
           <div className="flex items-center gap-3">
             <button
               className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
@@ -312,19 +331,21 @@ const DashboardLayout = ({ children }) => {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-[#1B1717]">
+              <h1 className="text-2xl font-[gilroy-semibold] text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+              <p className="text-base font-[gilroy-medium] text-[#1B1717]">
+                {name || email || "Admin"}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#1B1717]/40 transition hover:border-[#039155]/70">
+            <button className="relative flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/gmaxepay.png";
@@ -333,7 +354,7 @@ const DashboardLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm font-medium sm:inline">
+              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
                 {name || email || "Admin Panel"}
               </span>
               <img
@@ -349,7 +370,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Rounded bottom border line */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/70 opacity-80 rounded-full shadow-sm"></div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div>
         </header>
 
         {/* Page Content */}

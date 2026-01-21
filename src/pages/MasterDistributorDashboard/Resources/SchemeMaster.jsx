@@ -10,7 +10,7 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
-import EditMembership from "./EditMembership";
+import EditMembership from "../EditMembership";
 
 const SchemeMaster = () => {
   const [searchQuery, setSearchQuery] = useState("");

@@ -25,7 +25,7 @@ const MasterDistLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const { email, name, unauthorized, error } = useSelector(
-    (state) => state.userProfile
+    (state) => state.userProfile,
   );
 
   // State for open dropdowns
@@ -81,23 +81,27 @@ const MasterDistLayout = ({ children }) => {
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
 
+  const BASE_PATH = "/master-distributor";
+
   const menuItems = [
     {
       name: "Dashboard",
       icon: MaskGroup,
-      path: "/superDashboard/home",
+      path: `${BASE_PATH}/home`,
       dropdown: false,
     },
     {
       name: "Members",
       icon: MaskGroup1,
       dropdown: true,
-      path: "/superDashboard/members",
+      path: `${BASE_PATH}/members`,
       children: [
-        { name: "Users", path: "/superDashboard/members/user" },
-        { name: "Agents", path: "/superDashboard/members/list" },
-        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
-
+        { name: "Users", path: `${BASE_PATH}/members/user` },
+        { name: "Agents", path: `${BASE_PATH}/members/list` },
+        {
+          name: "Role Management",
+          path: `${BASE_PATH}/members/rolemanagement`,
+        },
       ],
     },
     {
@@ -105,8 +109,8 @@ const MasterDistLayout = ({ children }) => {
       icon: MaskGroup2,
       dropdown: true,
       children: [
-        { name: "Operator List", path: "/superDashboard/api-operator/list" },
-        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
+        { name: "Operator List", path: `${BASE_PATH}/api-operator/list` },
+        { name: "API Settings", path: `${BASE_PATH}/api-operator/settings` },
       ],
     },
     {
@@ -114,8 +118,14 @@ const MasterDistLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
-        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
+        {
+          name: "Schema Master",
+          path: `${BASE_PATH}/resources/schemamaster`,
+        },
+        {
+          name: "Role Upgrade",
+          path: `${BASE_PATH}/resources/roleupgraderequest`,
+        },
       ],
     },
     {
@@ -123,10 +133,17 @@ const MasterDistLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
         {
-          name: "Role Upgrade Request",
-          path: "/superDashboard/fund-manage/history",
+          name: "Wallet Load",
+          path: `${BASE_PATH}/fund-management/wallet-load`,
+        },
+        {
+          name: "Fund Request",
+          path: `${BASE_PATH}/fund-management/fund-request`,
+        },
+        {
+          name: "QR UPI Transcation",
+          path: `${BASE_PATH}/fund-management/qr-upi-transaction`,
         },
       ],
     },
@@ -135,20 +152,24 @@ const MasterDistLayout = ({ children }) => {
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Business Report", path: "/superDashboard/reports/business" },
-        { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
-        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
+        { name: "Business Report", path: `${BASE_PATH}/reports/business` },
+        { name: "Earning Report", path: `${BASE_PATH}/reports/earning` },
+        {
+          name: "N/W Overview Report",
+          path: `${BASE_PATH}/reports/nw-overview`,
+        },
+        {
+          name: "User Performance",
+          path: `${BASE_PATH}/reports/user-performance`,
+        },
       ],
     },
-
     {
       name: "Txn History",
       icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
+      path: `${BASE_PATH}/tax-history`,
       dropdown: false,
     },
-  
   ];
 
   return (
@@ -161,8 +182,9 @@ const MasterDistLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -189,17 +211,19 @@ const MasterDistLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
-                    ? "bg-[#039155] text-white shadow-md"
-                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                    }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
+                      ? "bg-[#039155] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
-                        }`}
+                      className={`w-5 h-5 object-contain ${
+                        isActiveParent ? "filter brightness-0 invert" : ""
+                      }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -241,10 +265,11 @@ const MasterDistLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -278,7 +303,7 @@ const MasterDistLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-0 bg-white px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow-sm">
+        <header className="sticky top-0 bg-[#FAFAFA] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 ">
           <div className="flex items-center gap-3">
             <button
               className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
@@ -288,19 +313,21 @@ const MasterDistLayout = ({ children }) => {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-[#1B1717]">
+              <h1 className="text-2xl font-[gilroy-semibold] text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+              <p className="text-base font-[gilroy-medium] text-[#1B1717]">
+                {name || email || "Admin"}
+              </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#1B1717]/40 transition hover:border-[#039155]/70">
+            <button className="relative flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/gmaxepay.png";
@@ -309,7 +336,7 @@ const MasterDistLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm font-medium sm:inline">
+              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
                 {name || email || "Admin Panel"}
               </span>
               <img
@@ -325,7 +352,7 @@ const MasterDistLayout = ({ children }) => {
           </div>
 
           {/* Rounded bottom border line */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/70 opacity-80 rounded-full shadow-sm"></div>
+          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div>
         </header>
 
         {/* Page Content */}
@@ -338,5 +365,3 @@ const MasterDistLayout = ({ children }) => {
 };
 
 export default MasterDistLayout;
-
-
