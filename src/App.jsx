@@ -44,6 +44,36 @@ function App() {
   const dispatch = useDispatch();
   const lastAepsStatusRef = useRef(null);
   const lastAepsErrorRef = useRef(null);
+  // Refs to track previous values and prevent notifications on initial mount
+  const prevLoginSuccessRef = useRef(null);
+  const prevErrorRef = useRef(null);
+  const prevSuccessRef = useRef(null);
+  const prevSpecialDomSuccessRef = useRef(null);
+  const prevAepsStatusCheckRef = useRef(null);
+  const prevOperatorSuccessRef = useRef(null);
+  const prevUserSuccessRef = useRef(null);
+  const prevSlabSuccessRef = useRef(null);
+  const prevFundOrderSuccessRef = useRef(null);
+  const prevApiSwitchSuccessRef = useRef(null);
+  const prevBankSuccessRef = useRef(null);
+  const prevMoneyTransferRef = useRef(null);
+  const prevRangeMasterSuccessRef = useRef(null);
+  const prevAdminShoppingSuccessRef = useRef(null);
+  const prevPrepaidRechargeSuccessRef = useRef(null);
+  const prevComplaintSuccessRef = useRef(null);
+  const prevCreditCardSuccessRef = useRef(null);
+  const prevLogoutMessageRef = useRef(null);
+  const prevOnBoardingMobileVerificationRef = useRef(null);
+  const prevWhiteLabelPanMessageSuccessRef = useRef(null);
+  const prevRoleUpgradeSuccessRef = useRef(null);
+  const prevRoleUpgradeErrorRef = useRef(null);
+  const prevOnboardingLinkRef = useRef(null);
+  const prevWhiteLabelPanMessageFailureRef = useRef(null);
+  const prevWhiteLabelFailureRef = useRef(null);
+  const prevSpecialDomFailureRef = useRef(null);
+  const prevPayoutSuccessRef = useRef(null);
+  const isFirstRenderRef = useRef(true);
+
   const error = useSelector((state) => state?.error?.error || null);
   const errorMessage = useSelector((state) => state?.error?.message || null);
   const success = useSelector((state) => state?.employee?.success || null);
@@ -93,7 +123,6 @@ function App() {
   const LoginSuccess = useSelector(
     (state) => state?.login?.loginResponse || null
   );
-
   const complaintSuccess = useSelector(
     (state) => state?.complain?.success || null
   );
@@ -132,279 +161,378 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (AdminShoppingSucess) {
-      showNotification({
-        type: "success",
-        message: success.message,
-      });
+    if (AdminShoppingSucess && AdminShoppingSucess !== prevAdminShoppingSuccessRef.current) {
+      // Only show notification if previous value was not null (i.e., value actually changed, not initial mount)
+      if (prevAdminShoppingSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: success.message,
+        });
+      }
+      prevAdminShoppingSuccessRef.current = AdminShoppingSucess;
     }
-  }, [AdminShoppingSucess]);
+  }, [AdminShoppingSucess, success, showNotification]);
 
   useEffect(() => {
-    if (AdminShoppingSucess) {
+    const currentMessage = LoginSuccess?.message;
+    const prevMessage = prevLoginSuccessRef.current?.message;
+    
+    // On first render, just store the value and mark as initialized
+    if (isFirstRenderRef.current) {
+      isFirstRenderRef.current = false;
+      if (LoginSuccess) {
+        prevLoginSuccessRef.current = LoginSuccess;
+      }
+      return;
+    }
+    
+    // After first render, show notification if message exists and has changed
+    if (currentMessage && currentMessage !== prevMessage) {
       showNotification({
         type: "success",
-        message: success.message,
+        message: currentMessage,
       });
+      prevLoginSuccessRef.current = LoginSuccess;
+    } else if (LoginSuccess) {
+      // Update ref even if message hasn't changed (object reference might have changed)
+      prevLoginSuccessRef.current = LoginSuccess;
     }
-  }, [AdminShoppingSucess]);
+  }, [LoginSuccess, showNotification]);
 
   useEffect(() => {
-    if (LoginSuccess) {
-      showNotification({
-        type: "success",
-        message: LoginSuccess?.message,
-      });
+    if (error && error !== prevErrorRef.current) {
+      // Only show notification if previous value was not null (i.e., value actually changed, not initial mount)
+      if (prevErrorRef.current !== null) {
+        showNotification({
+          type: "error",
+          message: error.message,
+        });
+      }
+      prevErrorRef.current = error;
     }
-  }, [LoginSuccess]);
+  }, [error, showNotification]);
 
   useEffect(() => {
-    if (error) {
-      showNotification({
-        type: "error",
-        message: error.message,
-      });
+    if (success && success !== prevSuccessRef.current) {
+      // Only show notification if previous value was not null (i.e., value actually changed, not initial mount)
+      if (prevSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: success.message,
+        });
+      }
+      prevSuccessRef.current = success;
     }
-  }, [error]);
-
-  useEffect(() => {
-    if (success) {
-      showNotification({
-        type: "success",
-        message: success.message,
-      });
-    }
-  }, [success]);
-
-
-  useEffect(() => {
-    if (specialDomSuccess) {
-      showNotification({
-        type: "success",
-        message: specialDomSuccess.message,
-      });
-    }
-  }, [specialDomSuccess]);
-
-  useEffect(() => {
-    if (aepsStatusCheck) {
-      showNotification({
-        type: "success",
-        message: aepsStatusCheck.message,
-      });
-    }
-  }, [aepsStatusCheck]);
+  }, [success, showNotification]);
 
 
   useEffect(() => {
-    if (operatorSuccess) {
-      showNotification({
-        type: "success",
-        message: operatorSuccess.message,
-      });
+    if (specialDomSuccess && specialDomSuccess !== prevSpecialDomSuccessRef.current) {
+      if (prevSpecialDomSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: specialDomSuccess.message,
+        });
+      }
+      prevSpecialDomSuccessRef.current = specialDomSuccess;
     }
-  }, [operatorSuccess]);
+  }, [specialDomSuccess, showNotification]);
 
   useEffect(() => {
-    if (onBoardingMobileVerification?.message) {
-      showNotification({
-        type: "success",
-        message: onBoardingMobileVerification.message,
-        isCritical: true,
-      });
+    if (aepsStatusCheck && aepsStatusCheck !== prevAepsStatusCheckRef.current) {
+      if (prevAepsStatusCheckRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: aepsStatusCheck.message,
+        });
+      }
+      prevAepsStatusCheckRef.current = aepsStatusCheck;
     }
-  }, [onBoardingMobileVerification]);
+  }, [aepsStatusCheck, showNotification]);
+
 
   useEffect(() => {
-    if (whiteLabelPanMessageSuccess?.message) {
-      showNotification({
-        type: "success",
-        message: whiteLabelPanMessageSuccess?.message,
-        isCritical: true,
-      });
+    if (operatorSuccess && operatorSuccess !== prevOperatorSuccessRef.current) {
+      if (prevOperatorSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: operatorSuccess.message,
+        });
+      }
+      prevOperatorSuccessRef.current = operatorSuccess;
     }
-  }, [whiteLabelPanMessageSuccess]);
+  }, [operatorSuccess, showNotification]);
 
   useEffect(() => {
-    if (roleUpgradeSuccess?.message) {
-      showNotification({
-        type: "success",
-        message: roleUpgradeSuccess?.message,
-        isCritical: true,
-      });
+    const message = onBoardingMobileVerification?.message;
+    if (message && message !== prevOnBoardingMobileVerificationRef.current?.message) {
+      if (prevOnBoardingMobileVerificationRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevOnBoardingMobileVerificationRef.current = onBoardingMobileVerification;
+    }
+  }, [onBoardingMobileVerification, showNotification]);
+
+  useEffect(() => {
+    const message = whiteLabelPanMessageSuccess?.message;
+    if (message && message !== prevWhiteLabelPanMessageSuccessRef.current?.message) {
+      if (prevWhiteLabelPanMessageSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevWhiteLabelPanMessageSuccessRef.current = whiteLabelPanMessageSuccess;
+    }
+  }, [whiteLabelPanMessageSuccess, showNotification]);
+
+  useEffect(() => {
+    const message = roleUpgradeSuccess?.message;
+    if (message && message !== prevRoleUpgradeSuccessRef.current?.message) {
+      if (prevRoleUpgradeSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevRoleUpgradeSuccessRef.current = roleUpgradeSuccess;
     }
   }, [roleUpgradeSuccess, showNotification]);
 
   useEffect(() => {
-    if (roleUpgradeError?.message) {
-      showNotification({
-        type: "error",
-        message: roleUpgradeError?.message,
-        isCritical: true,
-      });
+    const message = roleUpgradeError?.message;
+    if (message && message !== prevRoleUpgradeErrorRef.current?.message) {
+      if (prevRoleUpgradeErrorRef.current !== null) {
+        showNotification({
+          type: "error",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevRoleUpgradeErrorRef.current = roleUpgradeError;
     }
   }, [roleUpgradeError, showNotification]);
 
   useEffect(() => {
-    if (OnboardingLink?.message) {
-      showNotification({
-        type: "success",
-        message: OnboardingLink?.message,
-        isCritical: true,
-      });
+    const message = OnboardingLink?.message;
+    if (message && message !== prevOnboardingLinkRef.current?.message) {
+      if (prevOnboardingLinkRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevOnboardingLinkRef.current = OnboardingLink;
     }
-  }, [OnboardingLink]);
+  }, [OnboardingLink, showNotification]);
 
   useEffect(() => {
-    if (whiteLabelPanMessageFailure?.message) {
-      showNotification({
-        type: "error",
-        message: whiteLabelPanMessageFailure?.message,
-        isCritical: true,
-      });
+    const message = whiteLabelPanMessageFailure?.message;
+    if (message && message !== prevWhiteLabelPanMessageFailureRef.current?.message) {
+      if (prevWhiteLabelPanMessageFailureRef.current !== null) {
+        showNotification({
+          type: "error",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevWhiteLabelPanMessageFailureRef.current = whiteLabelPanMessageFailure;
     }
-  }, [whiteLabelPanMessageFailure]);
+  }, [whiteLabelPanMessageFailure, showNotification]);
 
   useEffect(() => {
     if (
-      specialDomfailure === "commAmt must be greater than zero" ||
+      specialDomfailure &&
+      specialDomfailure !== prevSpecialDomFailureRef.current &&
+      (specialDomfailure === "commAmt must be greater than zero" ||
       specialDomfailure === "Range must Not be empty" ||
       specialDomfailure === "Validation isIn on commType failed" ||
       specialDomfailure === "Validation isIn on amtType failed" ||
-      specialDomfailure === "Circle not found"
+      specialDomfailure === "Circle not found")
     ) {
-      showNotification({
-        type: "error",
-        message: specialDomfailure,
-      });
+      if (prevSpecialDomFailureRef.current !== null) {
+        showNotification({
+          type: "error",
+          message: specialDomfailure,
+        });
+      }
+      prevSpecialDomFailureRef.current = specialDomfailure;
     }
-  }, [specialDomfailure]);
+  }, [specialDomfailure, showNotification]);
 
   useEffect(() => {
-    if (WhiteLabelFailure?.message) {
-      showNotification({
-        type: "error",
-        message: WhiteLabelFailure?.message,
-        isCritical: true,
-      });
+    const message = WhiteLabelFailure?.message;
+    if (message && message !== prevWhiteLabelFailureRef.current?.message) {
+      if (prevWhiteLabelFailureRef.current !== null) {
+        showNotification({
+          type: "error",
+          message: message,
+          isCritical: true,
+        });
+      }
+      prevWhiteLabelFailureRef.current = WhiteLabelFailure;
     }
-  }, [WhiteLabelFailure]);
+  }, [WhiteLabelFailure, showNotification]);
 
   useEffect(() => {
-    if (userSuccess) {
-      showNotification({
-        type: "success",
-        message: userSuccess.message,
-      });
+    if (userSuccess && userSuccess !== prevUserSuccessRef.current) {
+      if (prevUserSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: userSuccess.message,
+        });
+      }
+      prevUserSuccessRef.current = userSuccess;
     }
-  }, [userSuccess]);
+  }, [userSuccess, showNotification]);
 
   useEffect(() => {
-    if (slabSuccess) {
-      showNotification({
-        type: "success",
-        message: slabSuccess.message,
-      });
+    if (slabSuccess && slabSuccess !== prevSlabSuccessRef.current) {
+      if (prevSlabSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: slabSuccess.message,
+        });
+      }
+      prevSlabSuccessRef.current = slabSuccess;
     }
-  }, [slabSuccess]);
+  }, [slabSuccess, showNotification]);
 
   useEffect(() => {
-    if (fundOrderSuccess) {
-      showNotification({
-        type: "success",
-        message: fundOrderSuccess.message,
-      });
+    if (fundOrderSuccess && fundOrderSuccess !== prevFundOrderSuccessRef.current) {
+      if (prevFundOrderSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: fundOrderSuccess.message,
+        });
+      }
+      prevFundOrderSuccessRef.current = fundOrderSuccess;
     }
-  }, [fundOrderSuccess]);
+  }, [fundOrderSuccess, showNotification]);
 
   useEffect(() => {
-    if (apiSwitchSuccess) {
-      showNotification({
-        type: "success",
-        message: apiSwitchSuccess.message,
-      });
+    if (apiSwitchSuccess && apiSwitchSuccess !== prevApiSwitchSuccessRef.current) {
+      if (prevApiSwitchSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: apiSwitchSuccess.message,
+        });
+      }
+      prevApiSwitchSuccessRef.current = apiSwitchSuccess;
     }
-  }, [apiSwitchSuccess]);
+  }, [apiSwitchSuccess, showNotification]);
 
   useEffect(() => {
-    if (bankSuccess) {
-      showNotification({
-        type: "success",
-        message: bankSuccess.message,
-      });
+    if (bankSuccess && bankSuccess !== prevBankSuccessRef.current) {
+      if (prevBankSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: bankSuccess.message,
+        });
+      }
+      prevBankSuccessRef.current = bankSuccess;
     }
-  }, [bankSuccess]);
+  }, [bankSuccess, showNotification]);
 
   useEffect(() => {
-    if (moneyTransfer) {
-      showNotification({
-        type: "success",
-        message: moneyTransfer.message,
-      });
+    if (moneyTransfer && moneyTransfer !== prevMoneyTransferRef.current) {
+      if (prevMoneyTransferRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: moneyTransfer.message,
+        });
+      }
+      prevMoneyTransferRef.current = moneyTransfer;
     }
-  }, [moneyTransfer]);
+  }, [moneyTransfer, showNotification]);
 
   useEffect(() => {
-    if (rangeMasterSuccess) {
-      showNotification({
-        type: "success",
-        message: rangeMasterSuccess.message,
-      });
+    if (rangeMasterSuccess && rangeMasterSuccess !== prevRangeMasterSuccessRef.current) {
+      if (prevRangeMasterSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: rangeMasterSuccess.message,
+        });
+      }
+      prevRangeMasterSuccessRef.current = rangeMasterSuccess;
     }
-  }, [rangeMasterSuccess]);
+  }, [rangeMasterSuccess, showNotification]);
 
   useEffect(() => {
     const payoutTransaction = payoutSuccess?.payoutTransaction;
-    if (payoutTransaction && payoutTransaction.status === "SUCCESS" && payoutTransaction.message) {
-      showNotification({
-        type: "success",
-        message: payoutTransaction?.message,
-        isCritical: true, // Required to show on dashboard routes
-      });
-    } else {
-      console.log('Condition not met:', {
-        hasTransaction: !!payoutTransaction,
-        status: payoutTransaction?.status,
-        message: payoutTransaction?.message
-      });
+    const prevPayoutTransaction = prevPayoutSuccessRef.current?.payoutTransaction;
+    if (
+      payoutTransaction && 
+      payoutTransaction.status === "SUCCESS" && 
+      payoutTransaction.message &&
+      (payoutTransaction.message !== prevPayoutTransaction?.message || 
+       payoutTransaction.status !== prevPayoutTransaction?.status)
+    ) {
+      if (prevPayoutSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: payoutTransaction?.message,
+          isCritical: true, // Required to show on dashboard routes
+        });
+      }
+      prevPayoutSuccessRef.current = payoutSuccess;
     }
   }, [payoutSuccess, showNotification]);
 
   useEffect(() => {
-    if (prepaidRechargeSucess) {
-      showNotification({
-        type: "success",
-        message: prepaidRechargeSucess?.success,
-      });
+    if (prepaidRechargeSucess && prepaidRechargeSucess !== prevPrepaidRechargeSuccessRef.current) {
+      if (prevPrepaidRechargeSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: prepaidRechargeSucess?.success,
+        });
+      }
+      prevPrepaidRechargeSuccessRef.current = prepaidRechargeSucess;
     }
-  }, [prepaidRechargeSucess]);
+  }, [prepaidRechargeSucess, showNotification]);
 
   useEffect(() => {
-    if (complaintSuccess) {
-      showNotification({
-        type: "success",
-        message: complaintSuccess?.message,
-      });
+    if (complaintSuccess && complaintSuccess !== prevComplaintSuccessRef.current) {
+      if (prevComplaintSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: complaintSuccess?.message,
+        });
+      }
+      prevComplaintSuccessRef.current = complaintSuccess;
     }
-  }, [complaintSuccess]);
+  }, [complaintSuccess, showNotification]);
 
   useEffect(() => {
-    if (creditCardSuccess) {
-      showNotification({
-        type: "success",
-        message: creditCardSuccess?.message,
-      });
+    if (creditCardSuccess && creditCardSuccess !== prevCreditCardSuccessRef.current) {
+      if (prevCreditCardSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: creditCardSuccess?.message,
+        });
+      }
+      prevCreditCardSuccessRef.current = creditCardSuccess;
     }
-  }, [creditCardSuccess]);
+  }, [creditCardSuccess, showNotification]);
 
   useEffect(() => {
-    if (logoutMessage) {
-      showNotification({
-        type: "success",
-        message: logoutMessage,
-      });
+    if (logoutMessage && logoutMessage !== prevLogoutMessageRef.current) {
+      if (prevLogoutMessageRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: logoutMessage,
+        });
+      }
+      prevLogoutMessageRef.current = logoutMessage;
     }
-  }, [logoutMessage]);
+  }, [logoutMessage, showNotification]);
   // Removed loader for faster loading
   // if (loading) {
   //   return <Loader />;
