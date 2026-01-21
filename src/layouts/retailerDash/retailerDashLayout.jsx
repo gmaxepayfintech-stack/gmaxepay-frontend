@@ -30,10 +30,51 @@ const RetailerDashLayout = ({ children }) => {
 
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
-  // State for active (highlighted) main menu item
-  const [activeMenu, setActiveMenu] = useState("Dashboard");
+  // State for active (highlighted) main menu item - will be set based on route
+  const [activeMenu, setActiveMenu] = useState("");
   // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+  const menuItems = [
+    {
+      name: "Dashboard",
+      icon: MaskGroup,
+      path: "/retailerDashboard/home",
+      dropdown: false,
+    },
+    {
+      name: "Fund Manage",
+      icon: MaskGroup4,
+      dropdown: true,
+      children: [
+        { name: "Wallet Load", path: "/retailerDashboard/fund-management/wallet-load" },
+        {
+          name: "Fund Request",
+          path: "/retailerDashboard/fund-management/fund-request",
+        },
+        {
+          name: "QR UPI Transaction",
+          path: "/retailerDashboard/fund-management/qr-upi-transaction",
+        },
+      ],
+    },
+    {
+      name: "Reports",
+      icon: MaskGroup5,
+      dropdown: true,
+      children: [
+        { name: "Business Report", path: "/retailerDashboard/reports/business" },
+        { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
+        { name: "User Performance", path: "/retailerDashboard/reports/user-performance" },
+      ],
+    },
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/retailerDashboard/services",
+      dropdown: false,
+    },
+  ];
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -61,6 +102,42 @@ const RetailerDashLayout = ({ children }) => {
     setIsSidebarOpen(false);
   }, [location.pathname]);
 
+  // Set active menu based on current pathname
+  useEffect(() => {
+    const currentPath = location.pathname;
+    
+    // Check each menu item to see if current path matches
+    for (const item of menuItems) {
+      // Check if path matches exactly
+      if (item.path && currentPath === item.path) {
+        setActiveMenu(item.name);
+        return;
+      }
+      
+      // Check if path starts with the menu item path (for sub-routes like /retailerDashboard/services/recharge)
+      if (item.path && currentPath.startsWith(item.path + "/")) {
+        setActiveMenu(item.name);
+        return;
+      }
+      
+      // Check children paths for dropdown items
+      if (item.children) {
+        for (const child of item.children) {
+          if (currentPath === child.path || currentPath.startsWith(child.path + "/")) {
+            setActiveMenu(item.name);
+            setOpenDropdown(item.name);
+            return;
+          }
+        }
+      }
+    }
+    
+    // Default to Dashboard if no match found and we're on home
+    if (currentPath === "/retailerDashboard/home" || currentPath === "/retailerDashboard/") {
+      setActiveMenu("Dashboard");
+    }
+  }, [location.pathname]);
+
   const handleMenuClick = (name, dropdown, path) => {
     if (dropdown) {
       setOpenDropdown((prev) => (prev === name ? null : name));
@@ -79,86 +156,6 @@ const RetailerDashLayout = ({ children }) => {
 
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
-
-  const menuItems = [
-    {
-      name: "Dashboard",
-      icon: MaskGroup,
-      path: "/superDashboard/home",
-      dropdown: false,
-    },
-    {
-      name: "Members",
-      icon: MaskGroup1,
-      dropdown: true,
-      path: "/superDashboard/members",
-      children: [
-        { name: "Users", path: "/superDashboard/members/user" },
-        { name: "Agents", path: "/superDashboard/members/list" },
-        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
-
-      ],
-    },
-    {
-      name: "API Operator",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        { name: "Operator List", path: "/superDashboard/api-operator/list" },
-        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
-      ],
-    },
-    {
-      name: "Resources",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
-        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
-      ],
-    },
-    {
-      name: "Fund Manage",
-      icon: MaskGroup4,
-      dropdown: true,
-      children: [
-        { name: "Wallet Load", path: "/retailerDashboard/fund-management/wallet-load" },
-        {
-          name: "Fund Request",
-          path: "/retailerDashboard/fund-management/fund-request",
-        },
-        {
-          name: "QR UPI Transaction",
-          path: "/retailerDashboard/fund-management/qr-upi-transaction",
-        },
-      ],
-    },
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        { name: "Business Report", path: "/superDashboard/reports/business" },
-        { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
-        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
-      ],
-    },
-
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
-      dropdown: false,
-    },
-
-    {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/retailerDashboard/services",
-      dropdown: false,
-    },
-  ];
 
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
@@ -319,7 +316,7 @@ const RetailerDashLayout = ({ children }) => {
 
             <div className="flex items-center gap-2">
               <span className="hidden text-sm font-medium sm:inline">
-                {name || email || "Admin Panel"}
+                {name || email || "Retailer Dashboard"}
               </span>
               <img
                 src={defaultProfileImage}

@@ -336,8 +336,8 @@ const MasterDistLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
-                {name || email || "Admin Panel"}
+              <span className="hidden text-sm font-medium sm:inline">
+                {name || email || "Master Distributer Panel"}
               </span>
               <img
                 src={defaultProfileImage}
