@@ -81,7 +81,7 @@ const MasterDistLayout = ({ children }) => {
   const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
 
-  const BASE_PATH = "/master-distributor";
+  const BASE_PATH = "/masterDistributerDashboard";
 
   const menuItems = [
     {

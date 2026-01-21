@@ -1,5 +1,6 @@
 import {
   DEACTIVATE_ONBOARDING_LINK_FAILURE,
+  FETCH_KYC_DETAILS_FAILURE,
   GET_CITY_BY_PINCODE_FAILURE,
   GET_IP_CHECK_FAILURE,
   GET_PANDATA_FETCH_FAILURE,
@@ -88,6 +89,7 @@ const errorReducer = (state = initialState, action) => {
     case AEPSTWO_MINI_STATEMENT_FAILURE:
     case FIND_MOBILE_OPERATOR_FAILURE:
     case FIND_MOBILE_RECHARGE_PLAN_FAILURE:
+    case FETCH_KYC_DETAILS_FAILURE:
     case AEPSTWO_BANKLIST_FAILURE:
       console.log("actionssssssssssssss", action?.payload);
 

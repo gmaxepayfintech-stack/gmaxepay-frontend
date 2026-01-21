@@ -16,6 +16,7 @@ const initialState = {
   error: null,
   loginResponse: null,
   Success: null,
+  message: null,
   verificationcode: null,
   verificationError: null,
   twoFactorAuth: null,
@@ -35,6 +36,7 @@ const loginReducer = (state = initialState, action) => {
         loginResponse: action.payload,
         Success: action.payload.status,
         error: null,
+        message: action?.payload?.message,
       };
 
     case LOGIN_FAILURE:
