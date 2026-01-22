@@ -1,4 +1,4 @@
-import { COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_APPROVE_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_SUCCESS, DISTRIBUTOR_FUND_REQUEST_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_SUCCESS } from "../actionType/fundActionType";
+import { ADMIN_APPROVE_SUCCESS, ADMIN_REQUEST_SUCCESS, COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_APPROVE_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_SUCCESS, DISTRIBUTOR_FUND_REQUEST_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_SUCCESS } from "../actionType/fundActionType";
 
 const initialState = {
     loading: false,
@@ -19,6 +19,8 @@ const initialState = {
     companyFundload: null,
     companyRequest: null,
     companyApprove: null,
+    adminRequest: null,
+    adminApprove: null,
 };
 
 const fundReducer = (state = initialState, action) => {
@@ -156,6 +158,25 @@ const fundReducer = (state = initialState, action) => {
                             success: action?.payload?.status,
                             message: action?.payload?.message,
                             companyApprove: action?.payload,
+                        }
+                    case ADMIN_REQUEST_SUCCESS:
+                        return{
+                            ...state,
+                            error: null,
+                            loading: false,
+                            success: action?.payload?.status,
+                            message: action?.payload?.message,
+                            adminRequest: action?.payload,
+                        }
+
+                    case ADMIN_APPROVE_SUCCESS:
+                        return{
+                            ...state,
+                            error: false,
+                            loading: false,
+                            success: action?.payload?.status,
+                            message: action?.payload?.message,
+                            adminApprove: action?.payload,
                         }
         default:
             return state;

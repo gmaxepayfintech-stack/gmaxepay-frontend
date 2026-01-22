@@ -85,10 +85,10 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        {
-          name: "Wallet Load",
-          path: `/superDashboard/fund-management/wallet-load`,
-        },
+        // {
+        //   name: "Wallet Load",
+        //   path: `/superDashboard/fund-management/wallet-load`,
+        // },
         {
           name: "Fund Request",
           path: `/superDashboard/fund-management/fund-request`,

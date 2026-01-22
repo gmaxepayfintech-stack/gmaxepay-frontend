@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import * as XLSX from "xlsx";
-import { companyApproveRequest, companyGetAllRequest } from "../../../redux/action/fundAction";
+import { adminApproveRequest, adminGetRequest } from '../../../redux/action/fundAction';
 
 const FundRequest = () => {
   const dispatch = useDispatch();
@@ -48,7 +48,7 @@ const FundRequest = () => {
         }
       };
 
-      const result = await dispatch(companyGetAllRequest(payload));
+      const result = await dispatch(adminGetRequest(payload));
       
       if (result?.status === "SUCCESS" && result?.companyRequest) {
         // companyRequest is the data array directly from the API response
@@ -109,7 +109,7 @@ const FundRequest = () => {
         approvalRemarks: approvalRemarks || ""
       };
 
-      const result = await dispatch(companyApproveRequest(payload));
+      const result = await dispatch(adminApproveRequest(payload));
       
       if (result?.status === "SUCCESS") {
         // Refresh the list
