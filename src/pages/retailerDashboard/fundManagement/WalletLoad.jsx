@@ -24,20 +24,20 @@ const WalletLoad = () => {
             try {
                 setLoading(true);
                 const result = await dispatch(retailerGetBanks({}));
-                if (result?.status === "SUCCESS" && result?.retailerFundBanks?.data) {
-                    setBanks(result.retailerFundBanks.data);
+                if (result?.status === "SUCCESS" && result?.retailerFundBanks) {
+                    setBanks(result.retailerFundBanks);
                     // Set the first bank as selected by default, or the primary bank if exists
-                    const primaryBank = result.retailerFundBanks.data.find(bank => bank.isPrimary);
+                    const primaryBank = result.retailerFundBanks.find(bank => bank.isPrimary);
                     if (primaryBank) {
                         setSelectedBank(primaryBank.bankId);
-                    } else if (result.retailerFundBanks.data.length > 0) {
-                        setSelectedBank(result.retailerFundBanks.data[0].bankId);
+                    } else if (result.retailerFundBanks.length > 0) {
+                        setSelectedBank(result.retailerFundBanks[0].bankId);
                     }
                 }
             } catch (error) {
                 showNotification({
                     type: "error",
-                    message: "Failed to fetch bank details",
+                    message: error?.message || "Failed to fetch bank details",
                 });
             } finally {
                 setLoading(false);
@@ -194,6 +194,7 @@ const WalletLoad = () => {
                                         className="w-full px-4 h-[43px] border border-[#1B1717] border-opacity-50 focus:outline-none rounded-lg"
                                     >
                                         <option value="">Select</option>
+                                        <option value="CASH">CASH</option>
                                         <option value="UPI">UPI</option>
                                         <option value="NEFT">NEFT</option>
                                         <option value="RTGS">RTGS</option>
