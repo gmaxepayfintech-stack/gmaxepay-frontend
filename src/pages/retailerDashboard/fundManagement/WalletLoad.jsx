@@ -6,6 +6,7 @@ import { useNotification } from '../../../context/NotificationContext';
 const WalletLoad = () => {
     const dispatch = useDispatch();
     const { showNotification } = useNotification();
+    const errorState = useSelector((state) => state?.error);
     const [amount, setAmount] = useState("");
     const [paymentMode, setPaymentMode] = useState("");
     const [payDate, setPayDate] = useState("");
@@ -126,16 +127,33 @@ const WalletLoad = () => {
                 setRemarks("");
                 setPaySlipFile(null);
                 setSelectedBank(null);
+                // Reset file input
+                if (fileInputRef.current) {
+                    fileInputRef.current.value = "";
+                }
             } else {
+                // Handle API failure response
+                const errorMsg = result?.message || 
+                               (typeof result === 'string' ? result : null) ||
+                               errorState?.message ||
+                               "Failed to submit fund request";
                 showNotification({
                     type: "error",
-                    message: result?.message || "Failed to submit fund request",
+                    message: errorMsg,
                 });
             }
         } catch (error) {
+            // Handle exception - extract message from error response or error object
+            const errorMsg = error?.response?.data?.message || 
+                           error?.response?.data?.error ||
+                           error?.message ||
+                           (typeof error === 'string' ? error : null) ||
+                           errorState?.message ||
+                           errorState?.error ||
+                           "Failed to submit fund request";
             showNotification({
                 type: "error",
-                message: error?.message || "Failed to submit fund request",
+                message: errorMsg,
             });
         } finally {
             setLoading(false);
