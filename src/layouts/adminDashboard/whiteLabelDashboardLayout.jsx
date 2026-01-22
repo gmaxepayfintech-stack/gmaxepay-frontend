@@ -141,10 +141,14 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/adminDashboard/fund-manage/add" },
+        { name: "Wallet Load", path: "/adminDashboard/fund-manage/wallet-load" },
         {
-          name: "Role Upgrade Request",
-          path: "/adminDashboard/fund-manage/history",
+          name: "Fund Request",
+          path: "/adminDashboard/fund-manage/fund-request",
+        },
+        {
+          name: "QR UPI Transcation",
+          path: "/adminDashboard/fund-manage/qr-upi-transaction",
         },
       ],
     },
