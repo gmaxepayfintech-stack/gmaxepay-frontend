@@ -13,7 +13,7 @@ import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
 import WalletLoad from "../../pages/superAdminDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/superAdminDashboard/fundManagement/FundRequest";
-import NWoverview from "../../pages/superAdminDashboard/fundManagement/NW-Overview";
+import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
 
 const SuperAdminDashboard = () => {
   return (

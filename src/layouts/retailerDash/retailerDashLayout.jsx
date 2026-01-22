@@ -25,7 +25,7 @@ const RetailerDashLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const { email, name, unauthorized, error } = useSelector(
-    (state) => state.userProfile
+    (state) => state.userProfile,
   );
 
   // State for open dropdowns
@@ -42,12 +42,65 @@ const RetailerDashLayout = ({ children }) => {
       path: "/retailerDashboard/home",
       dropdown: false,
     },
+    // {
+    //   name: "Members",
+    //   icon: MaskGroup1,
+    //   dropdown: true,
+    //   path: "/retailerDashboard/members",
+    //   children: [
+    //     { name: "Users", path: "/retailerDashboard/members/user" },
+    //     { name: "Agents", path: "/retailerDashboard/members/list" },
+    //     {
+    //       name: "Role Management",
+    //       path: "/retailerDashboard/members/rolemanagement",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "API Operator",
+    //   icon: MaskGroup2,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Operator List",
+    //       path: "/retailerDashboard/api-operator/list",
+    //     },
+    //     {
+    //       name: "API Settings",
+    //       path: "/retailerDashboard/api-operator/settings",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Resources",
+    //   icon: MaskGroup3,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Schema Master",
+    //       path: "/retailerDashboard/resources/schemamaster",
+    //     },
+    //     {
+    //       name: "Role Upgrade",
+    //       path: "/retailerDashboard/resources/roleupgraderequest",
+    //     },
+    //   ],
+    // },
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/retailerDashboard/services",
+      dropdown: false,
+    },
     {
       name: "Fund Manage",
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Wallet Load", path: "/retailerDashboard/fund-management/wallet-load" },
+        {
+          name: "Wallet Load",
+          path: "/retailerDashboard/fund-management/wallet-load",
+        },
         {
           name: "QR UPI Transaction",
           path: "/retailerDashboard/fund-management/qr-upi-transaction",
@@ -55,20 +108,41 @@ const RetailerDashLayout = ({ children }) => {
       ],
     },
     {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/retailerDashboard/tax-history",
+      dropdown: false,
+    },
+    {
       name: "Reports",
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Business Report", path: "/retailerDashboard/reports/business" },
+        {
+          name: "Business Report",
+          path: "/retailerDashboard/reports/business",
+        },
         { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
-        { name: "User Performance", path: "/retailerDashboard/reports/user-performance" },
+        {
+          name: "User Performance",
+          path: "/retailerDashboard/reports/user-performance",
+        },
       ],
     },
     {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/retailerDashboard/services",
-      dropdown: false,
+      name: "Help",
+      icon: MaskGroup2,
+      dropdown: true,
+      children: [
+        {
+          name: "Contact Support",
+          path: "/retailerDashboard/contact-support",
+        },
+        {
+          name: "Complaints",
+          path: "/retailerDashboard/complaints",
+        },
+      ],
     },
   ];
 
@@ -119,7 +193,10 @@ const RetailerDashLayout = ({ children }) => {
       // Check children paths for dropdown items
       if (item.children) {
         for (const child of item.children) {
-          if (currentPath === child.path || currentPath.startsWith(child.path + "/")) {
+          if (
+            currentPath === child.path ||
+            currentPath.startsWith(child.path + "/")
+          ) {
             setActiveMenu(item.name);
             setOpenDropdown(item.name);
             return;
@@ -129,7 +206,10 @@ const RetailerDashLayout = ({ children }) => {
     }
 
     // Default to Dashboard if no match found and we're on home
-    if (currentPath === "/retailerDashboard/home" || currentPath === "/retailerDashboard/") {
+    if (
+      currentPath === "/retailerDashboard/home" ||
+      currentPath === "/retailerDashboard/"
+    ) {
       setActiveMenu("Dashboard");
     }
   }, [location.pathname]);
@@ -163,8 +243,9 @@ const RetailerDashLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -191,17 +272,19 @@ const RetailerDashLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
-                    ? "bg-[#039155] text-white shadow-md"
-                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                    }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
+                      ? "bg-[#039155] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
-                        }`}
+                      className={`w-5 h-5 object-contain ${
+                        isActiveParent ? "filter brightness-0 invert" : ""
+                      }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -243,10 +326,11 @@ const RetailerDashLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -293,7 +377,9 @@ const RetailerDashLayout = ({ children }) => {
               <h1 className="text-lg font-semibold text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+              <p className="text-sm text-gray-500">
+                {name || email || "Admin"}
+              </p>
             </div>
           </div>
 
@@ -340,5 +426,3 @@ const RetailerDashLayout = ({ children }) => {
 };
 
 export default RetailerDashLayout;
-
-
