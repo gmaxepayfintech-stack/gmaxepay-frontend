@@ -130,7 +130,8 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
-  const walletLoadSuccess = useSelector((state) => state?.walletLoad?.success || null);
+  const walletLoadSuccess = useSelector((state) => state?.fund?.success || null);
+  const walletLoadMessage = useSelector((state) => state?.fund?.message || null);
 
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
@@ -525,16 +526,21 @@ function App() {
   }, [creditCardSuccess, showNotification]);
 
   useEffect(() => {
-    if (walletLoadSuccess && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
-      if (prevWalletLoadSuccessRef.current !== null) {
+    if (walletLoadSuccess === "SUCCESS" && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
+      if (prevWalletLoadSuccessRef.current !== null && walletLoadMessage) {
         showNotification({
           type: "success",
-          message: walletLoadSuccess?.message,
+          message: walletLoadMessage,
+          isCritical: true, // Required for dashboard routes
         });
       }
       prevWalletLoadSuccessRef.current = walletLoadSuccess;
     }
-  }, [walletLoadSuccess, showNotification]);
+    // Reset ref when success is cleared
+    if (walletLoadSuccess !== "SUCCESS" && prevWalletLoadSuccessRef.current) {
+      prevWalletLoadSuccessRef.current = null;
+    }
+  }, [walletLoadSuccess, walletLoadMessage, showNotification]);
 
   useEffect(() => {
     if (logoutMessage && logoutMessage !== prevLogoutMessageRef.current) {
