@@ -23,14 +23,14 @@ const WalletLoad = () => {
       try {
         setLoading(true);
         const result = await dispatch(masterdistributerGetBanks({}));
-        if (result?.status === "SUCCESS" && result?.mdBanklists?.data) {
-          setBanks(result.mdBanklists.data);
+        if (result?.status === "SUCCESS" && result?.mdBanklists) {
+          setBanks(result.mdBanklists);
           // Set the first bank as selected by default, or the primary bank if exists
-          const primaryBank = result.mdBanklists.data.find(bank => bank.isPrimary);
+          const primaryBank = result.mdBanklists.find(bank => bank.isPrimary);
           if (primaryBank) {
             setSelectedBank(primaryBank.bankId);
-          } else if (result.mdBanklists.data.length > 0) {
-            setSelectedBank(result.mdBanklists.data[0].bankId);
+          } else if (result.mdBanklists.length > 0) {
+            setSelectedBank(result.mdBanklists[0].bankId);
           }
         }
       } catch (error) {
@@ -71,7 +71,7 @@ const WalletLoad = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!selectedBank) {
       showNotification({
         type: "error",
@@ -90,28 +90,28 @@ const WalletLoad = () => {
 
     try {
       setLoading(true);
-      
+
       // Create FormData
       const formData = new FormData();
       formData.append('amount', amount);
       formData.append('paymentMode', paymentMode);
       formData.append('transactionDate', payDate);
       formData.append('bankId', selectedBank);
-      
+
       if (referenceNumber) {
         formData.append('referenceNo', referenceNumber);
       }
-      
+
       if (remarks) {
         formData.append('remarks', remarks);
       }
-      
+
       if (paySlipFile) {
         formData.append('paySlip', paySlipFile);
       }
 
       const result = await dispatch(masterdistributerFundLoad(formData));
-      
+
       if (result?.status === "SUCCESS") {
         showNotification({
           type: "success",
@@ -203,6 +203,7 @@ const WalletLoad = () => {
                     className="w-full px-4 h-[43px] border border-[#1B1717] border-opacity-50 focus:outline-none rounded-lg"
                   >
                     <option value="">Select</option>
+                    <option value="CASH">CASH</option>
                     <option value="UPI">UPI</option>
                     <option value="NEFT">NEFT</option>
                     <option value="RTGS">RTGS</option>
@@ -354,11 +355,10 @@ const WalletLoad = () => {
                     key={bank.bankId}
                     type="button"
                     onClick={() => setSelectedBank(bank.bankId)}
-                    className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${
-                      selectedBank === bank.bankId
+                    className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${selectedBank === bank.bankId
                         ? "border-[#039155] bg-green-50"
                         : "border-[#1B1717] border-opacity-80 bg-white"
-                    }`}
+                      }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Bank Logo */}
