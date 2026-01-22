@@ -526,20 +526,21 @@ function App() {
   }, [creditCardSuccess, showNotification]);
 
   useEffect(() => {
+    // Only show notification when success changes from non-SUCCESS to SUCCESS
+    // Similar pattern to other success handlers in this file
     if (walletLoadSuccess === "SUCCESS" && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
-      if (prevWalletLoadSuccessRef.current !== null && walletLoadMessage) {
+      // Only show if previous value was not null (i.e., value actually changed, not initial mount)
+      // This prevents showing notification on initial component mount
+      if (prevWalletLoadSuccessRef.current !== null) {
         showNotification({
           type: "success",
-          message: walletLoadMessage,
-          isCritical: true, // Required for dashboard routes
+          message: walletLoadMessage || "Fund request submitted successfully",
+          isCritical: true, 
         });
       }
-      prevWalletLoadSuccessRef.current = walletLoadSuccess;
     }
-    // Reset ref when success is cleared
-    if (walletLoadSuccess !== "SUCCESS" && prevWalletLoadSuccessRef.current) {
-      prevWalletLoadSuccessRef.current = null;
-    }
+    // Always update ref to track current state
+    prevWalletLoadSuccessRef.current = walletLoadSuccess;
   }, [walletLoadSuccess, walletLoadMessage, showNotification]);
 
   useEffect(() => {

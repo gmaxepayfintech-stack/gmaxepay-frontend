@@ -140,6 +140,7 @@ const WalletLoad = () => {
                 showNotification({
                     type: "success",
                     message: result.message || "Fund request submitted successfully",
+                    isCritical: true, // Required for dashboard routes
                 });
                 // Reset form
                 setAmount("");
