@@ -22,17 +22,12 @@ const DistributorDashboard = () => {
         <Route path="/services" element={<Services />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
         <Route path="/fund-manage/fund-request" element={<FundRequest />} />
-        {/* <Route path="/resources/schemamaster" element={<SchemeMaster />} />
-        <Route path="/resources/roleupgraderequest" element={<RoleUpgrade />} /> */}
+
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />
         <Route path="/reports/earning" element={<EarningReport />} />
         <Route path="/reports/nw-overview" element={<NWoverview />} />
         <Route path="/tax-history" element={<TaxHistory />} />
-        {/* <Route path="/members" element={<Members />} />
-        <Route path="/members/user" element={<CreateWhiteLabel />} />
-        <Route path="/members/list" element={<Members />} />
-        <Route path="/members/rolemanagement" element={<Rolemanagement />} /> */}
       </Routes>
     </DistributorLayout>
   );
