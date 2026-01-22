@@ -1,5 +1,4 @@
 import React, { useState, useRef } from "react";
-import { companyFundLoad, companyGetBanks } from "../../../redux/action/fundAction";
 
 const WalletLoad = () => {
   const [amount, setAmount] = useState("");
