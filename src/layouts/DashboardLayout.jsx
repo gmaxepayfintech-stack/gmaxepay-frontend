@@ -85,10 +85,17 @@ const DashboardLayout = ({ children }) => {
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
         {
-          name: "Role Upgrade Request",
-          path: "/superDashboard/fund-manage/history",
+          name: "Wallet Load",
+          path: `/superDashboard/fund-management/wallet-load`,
+        },
+        {
+          name: "Fund Request",
+          path: `/superDashboard/fund-management/fund-request`,
+        },
+        {
+          name: "QR UPI Transcation",
+          path: `/superDashboard/fund-management/qr-upi-transaction`,
         },
       ],
     },
