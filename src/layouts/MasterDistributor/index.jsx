@@ -12,6 +12,7 @@ import EarningReport from "../../pages/MasterDistributorDashboard/Reports/Earnin
 import TaxHistory from "../../pages/MasterDistributorDashboard/TaxHistory";
 import WalletLoad from "../../pages/MasterDistributorDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/MasterDistributorDashboard/fundManagement/FundRequest";
+import NWoverview from "../../pages/MasterDistributorDashboard/Reports/NW-Overview";
 
 const MasterDistributor = () => {
   return (
@@ -30,6 +31,7 @@ const MasterDistributor = () => {
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />
         <Route path="/reports/earning" element={<EarningReport />} />
+        <Route path="/reports/nw-overview" element={<NWoverview />} />
         <Route path="/tax-history" element={<TaxHistory />} />
       </Routes>
     </MasterDistLayout>
