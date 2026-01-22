@@ -48,6 +48,26 @@ const WalletLoad = () => {
         fetchBanks();
     }, [dispatch, showNotification]);
 
+    // Watch for fund load error state changes from Redux
+    const prevErrorRef = useRef(null);
+    useEffect(() => {
+        if (errorState?.message && errorState?.message !== prevErrorRef.current) {
+            // Only show if it's a fund-related error and it's new
+            if (prevErrorRef.current !== null) {
+                showNotification({
+                    type: "error",
+                    message: errorState.message,
+                    isCritical: true, // Required for dashboard routes
+                });
+            }
+            prevErrorRef.current = errorState.message;
+        }
+        // Reset ref when error is cleared
+        if (!errorState?.message && prevErrorRef.current) {
+            prevErrorRef.current = null;
+        }
+    }, [errorState?.message, showNotification]);
+
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
@@ -78,6 +98,7 @@ const WalletLoad = () => {
             showNotification({
                 type: "error",
                 message: "Please select a bank",
+                isCritical: true, // Required for dashboard routes
             });
             return;
         }
@@ -86,6 +107,7 @@ const WalletLoad = () => {
             showNotification({
                 type: "error",
                 message: "Please fill all required fields",
+                isCritical: true, // Required for dashboard routes
             });
             return;
         }
@@ -133,13 +155,17 @@ const WalletLoad = () => {
                 }
             } else {
                 // Handle API failure response
+                // The result should contain the message from the API
                 const errorMsg = result?.message || 
+                               result?.error ||
                                (typeof result === 'string' ? result : null) ||
                                errorState?.message ||
                                "Failed to submit fund request";
+                
                 showNotification({
                     type: "error",
                     message: errorMsg,
+                    isCritical: true, // Required for dashboard routes
                 });
             }
         } catch (error) {
@@ -154,6 +180,7 @@ const WalletLoad = () => {
             showNotification({
                 type: "error",
                 message: errorMsg,
+                isCritical: true, // Required for dashboard routes
             });
         } finally {
             setLoading(false);
