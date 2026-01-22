@@ -62,6 +62,7 @@ function App() {
   const prevPrepaidRechargeSuccessRef = useRef(null);
   const prevComplaintSuccessRef = useRef(null);
   const prevCreditCardSuccessRef = useRef(null);
+  const prevWalletLoadSuccessRef = useRef(null);
   const prevLogoutMessageRef = useRef(null);
   const prevOnBoardingMobileVerificationRef = useRef(null);
   const prevWhiteLabelPanMessageSuccessRef = useRef(null);
@@ -129,6 +130,7 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
+  const walletLoadSuccess = useSelector((state) => state?.walletLoad?.success || null);
 
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
@@ -521,6 +523,18 @@ function App() {
       prevCreditCardSuccessRef.current = creditCardSuccess;
     }
   }, [creditCardSuccess, showNotification]);
+
+  useEffect(() => {
+    if (walletLoadSuccess && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
+      if (prevWalletLoadSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: walletLoadSuccess?.message,
+        });
+      }
+      prevWalletLoadSuccessRef.current = walletLoadSuccess;
+    }
+  }, [walletLoadSuccess, showNotification]);
 
   useEffect(() => {
     if (logoutMessage && logoutMessage !== prevLogoutMessageRef.current) {

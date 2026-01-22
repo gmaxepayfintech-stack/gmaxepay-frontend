@@ -49,10 +49,6 @@ const RetailerDashLayout = ({ children }) => {
       children: [
         { name: "Wallet Load", path: "/retailerDashboard/fund-management/wallet-load" },
         {
-          name: "Fund Request",
-          path: "/retailerDashboard/fund-management/fund-request",
-        },
-        {
           name: "QR UPI Transaction",
           path: "/retailerDashboard/fund-management/qr-upi-transaction",
         },
@@ -105,7 +101,7 @@ const RetailerDashLayout = ({ children }) => {
   // Set active menu based on current pathname
   useEffect(() => {
     const currentPath = location.pathname;
-    
+
     // Check each menu item to see if current path matches
     for (const item of menuItems) {
       // Check if path matches exactly
@@ -113,13 +109,13 @@ const RetailerDashLayout = ({ children }) => {
         setActiveMenu(item.name);
         return;
       }
-      
+
       // Check if path starts with the menu item path (for sub-routes like /retailerDashboard/services/recharge)
       if (item.path && currentPath.startsWith(item.path + "/")) {
         setActiveMenu(item.name);
         return;
       }
-      
+
       // Check children paths for dropdown items
       if (item.children) {
         for (const child of item.children) {
@@ -131,7 +127,7 @@ const RetailerDashLayout = ({ children }) => {
         }
       }
     }
-    
+
     // Default to Dashboard if no match found and we're on home
     if (currentPath === "/retailerDashboard/home" || currentPath === "/retailerDashboard/") {
       setActiveMenu("Dashboard");
