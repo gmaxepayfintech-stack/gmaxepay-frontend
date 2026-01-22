@@ -6,7 +6,6 @@ import OnBoardingAeps from "../../pages/retailerDashboard/aeps/onBoardingAeps";
 import OnBoardingAepsTwo from "../../pages/retailerDashboard/aeps2/onBoardingAepsTwo";
 import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceTwo";
 import WalletLoad from "../../pages/retailerDashboard/fundManagement/WalletLoad";
-import FundRequest from "../../pages/retailerDashboard/fundManagement/FundRequest";
 import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharge";
 import DTHRecharge from "../../pages/retailerDashboard/services/DTHRecharge";
 import BusinessReport from "../../pages/retailerDashboard/Reports/BusinessReport";
@@ -15,6 +14,7 @@ import UserPerformance from "../../pages/retailerDashboard/Reports/UserPerforman
 import TaxHistory from "../../pages/retailerDashboard/TaxHistory";
 
 const RetailerDash = () => {
+<<<<<<< HEAD
   return (
     <RetailerDashLayout>
       <Routes>
@@ -49,6 +49,27 @@ const RetailerDash = () => {
       </Routes>
     </RetailerDashLayout>
   );
+=======
+    return (
+        <RetailerDashLayout>
+            <Routes>
+                <Route path="/" element={<RetailerDashboard />} />
+                <Route path="/home" element={<RetailerDashboard />} />
+                <Route path="/services" element={<Services />} />
+                <Route path="/services/recharge" element={<MobileRecharge />} />
+                <Route path="/onboarding-aeps" element={<OnBoardingAeps />} />
+                <Route path="/services/aeps1/onboarding" element={<OnBoardingAeps />} />
+                <Route path="/services/aeps2/onboarding" element={<OnBoardingAepsTwo />} />
+                <Route path="/services/dth-recharge" element={<DTHRecharge />} />
+                <Route path="/services/aeps2/select-service" element={<SelectserviceTwo />} />
+                <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
+                <Route path="/reports/business" element={<BusinessReport />} />
+                <Route path="/reports/earning" element={<EarningReport />} />
+                <Route path="/reports/user-performance" element={<UserPerformance />} />
+            </Routes>
+        </RetailerDashLayout>
+    );
+>>>>>>> 14a0c1dae23b54bc0a449fb63e2675aff4cf93eb
 };
 
 export default RetailerDash;

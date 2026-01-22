@@ -62,6 +62,7 @@ function App() {
   const prevPrepaidRechargeSuccessRef = useRef(null);
   const prevComplaintSuccessRef = useRef(null);
   const prevCreditCardSuccessRef = useRef(null);
+  const prevWalletLoadSuccessRef = useRef(null);
   const prevLogoutMessageRef = useRef(null);
   const prevOnBoardingMobileVerificationRef = useRef(null);
   const prevWhiteLabelPanMessageSuccessRef = useRef(null);
@@ -129,6 +130,8 @@ function App() {
   const creditCardSuccess = useSelector(
     (state) => state?.creditCard?.success || null
   );
+  const walletLoadSuccess = useSelector((state) => state?.fund?.success || null);
+  const walletLoadMessage = useSelector((state) => state?.fund?.message || null);
 
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
@@ -521,6 +524,24 @@ function App() {
       prevCreditCardSuccessRef.current = creditCardSuccess;
     }
   }, [creditCardSuccess, showNotification]);
+
+  useEffect(() => {
+    // Only show notification when success changes from non-SUCCESS to SUCCESS
+    // Similar pattern to other success handlers in this file
+    if (walletLoadSuccess === "SUCCESS" && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
+      // Only show if previous value was not null (i.e., value actually changed, not initial mount)
+      // This prevents showing notification on initial component mount
+      if (prevWalletLoadSuccessRef.current !== null) {
+        showNotification({
+          type: "success",
+          message: walletLoadMessage || "Fund request submitted successfully",
+          isCritical: true, 
+        });
+      }
+    }
+    // Always update ref to track current state
+    prevWalletLoadSuccessRef.current = walletLoadSuccess;
+  }, [walletLoadSuccess, walletLoadMessage, showNotification]);
 
   useEffect(() => {
     if (logoutMessage && logoutMessage !== prevLogoutMessageRef.current) {
