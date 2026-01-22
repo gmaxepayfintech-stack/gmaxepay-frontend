@@ -24,7 +24,7 @@ const DistributorLayout = ({ children }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const { email, name, unauthorized, error } = useSelector(
-    (state) => state.userProfile
+    (state) => state.userProfile,
   );
 
   // State for open dropdowns
@@ -84,70 +84,122 @@ const DistributorLayout = ({ children }) => {
     {
       name: "Dashboard",
       icon: MaskGroup,
-      path: "/superDashboard/home",
+      path: "/distributerDashboard/home",
       dropdown: false,
     },
+    // {
+    //   name: "Members",
+    //   icon: MaskGroup1,
+    //   dropdown: true,
+    //   path: "/distributerDashboard/members",
+    //   children: [
+    //     { name: "Users", path: "/distributerDashboard/members/user" },
+    //     { name: "Agents", path: "/distributerDashboard/members/list" },
+    //     {
+    //       name: "Role Management",
+    //       path: "/distributerDashboard/members/rolemanagement",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "API Operator",
+    //   icon: MaskGroup2,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Operator List",
+    //       path: "/distributerDashboard/api-operator/list",
+    //     },
+    //     {
+    //       name: "API Settings",
+    //       path: "/distributerDashboard/api-operator/settings",
+    //     },
+    //   ],
+    // },
+    // {
+    //   name: "Resources",
+    //   icon: MaskGroup3,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Schema Master",
+    //       path: "/distributerDashboard/resources/schemamaster",
+    //     },
+    //     {
+    //       name: "Role Upgrade",
+    //       path: "/distributerDashboard/resources/roleupgraderequest",
+    //     },
+    //   ],
+    // },
     {
-      name: "Members",
-      icon: MaskGroup1,
-      dropdown: true,
-      path: "/superDashboard/members",
-      children: [
-        { name: "Users", path: "/superDashboard/members/user" },
-        { name: "Agents", path: "/superDashboard/members/list" },
-        { name: "Role Management", path: "/superDashboard/members/rolemanagement" },
-
-      ],
-    },
-    {
-      name: "API Operator",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        { name: "Operator List", path: "/superDashboard/api-operator/list" },
-        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
-      ],
-    },
-    {
-      name: "Resources",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        { name: "Schema Master", path: "/superDashboard/resources/schemamaster" },
-        { name: "Role Upgrade", path: "/superDashboard/resources/roleupgraderequest" },
-      ],
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/services",
+      dropdown: false,
     },
     {
       name: "Fund Manage",
       icon: MaskGroup4,
       dropdown: true,
       children: [
-        { name: "Scheme Manager", path: "/superDashboard/fund-manage/add" },
         {
-          name: "Role Upgrade Request",
-          path: "/superDashboard/fund-manage/history",
+          name: "Wallet Load",
+          path: "/distributerDashboard/fund-manage/wallet-load",
+        },
+        {
+          name: "Fund Request",
+          path: "/distributerDashboard/fund-manage/fund-request",
+        },
+        {
+          name: "QR UPI Transaction",
+          path: "/distributerDashboard/fund-manage/qr-upi-transaction",
         },
       ],
+    },
+    {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/tax-history",
+      dropdown: false,
     },
     {
       name: "Reports",
       icon: MaskGroup5,
       dropdown: true,
       children: [
-        { name: "Business Report", path: "/superDashboard/reports/business" },
-        { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        { name: "N/W Overview Report", path: "/superDashboard/reports/nw-overview" },
-        { name: "User Performance", path: "/superDashboard/reports/user-performance" },
+        {
+          name: "Business Report",
+          path: "/distributerDashboard/reports/business",
+        },
+        {
+          name: "Earning Report",
+          path: "/distributerDashboard/reports/earning",
+        },
+        {
+          name: "N/W Overview Report",
+          path: "/distributerDashboard/reports/nw-overview",
+        },
+        {
+          name: "User Performance",
+          path: "/distributerDashboard/reports/user-performance",
+        },
       ],
     },
-
     {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/superDashboard/tax-history",
-      dropdown: false,
+      name: "Help",
+      icon: MaskGroup2,
+      dropdown: true,
+      children: [
+        {
+          name: "Contact Support",
+          path: "/distributerDashboard/contact-support",
+        },
+        {
+          name: "Complaints",
+          path: "/distributerDashboard/complaints",
+        },
+      ],
     },
-  
   ];
 
   return (
@@ -160,8 +212,9 @@ const DistributorLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -188,17 +241,19 @@ const DistributorLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
-                    ? "bg-[#039155] text-white shadow-md"
-                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                    }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
+                      ? "bg-[#039155] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
-                        }`}
+                      className={`w-5 h-5 object-contain ${
+                        isActiveParent ? "filter brightness-0 invert" : ""
+                      }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -240,10 +295,11 @@ const DistributorLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -290,7 +346,9 @@ const DistributorLayout = ({ children }) => {
               <h1 className="text-lg font-semibold text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">{name || email || "Admin"}</p>
+              <p className="text-sm text-gray-500">
+                {name || email || "Admin"}
+              </p>
             </div>
           </div>
 
@@ -337,7 +395,3 @@ const DistributorLayout = ({ children }) => {
 };
 
 export default DistributorLayout;
-
-
-
-

@@ -17,9 +17,32 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
-import { kycData as kycDataAction, kycStatusCheck, kycUnlock, kycRevert, rescendOnboarding, deActiveOnboarding } from "../../redux/action/whiteLabelAction";
+import {
+  kycData as kycDataAction,
+  kycStatusCheck,
+  kycUnlock,
+  kycRevert,
+  rescendOnboarding,
+  deActiveOnboarding,
+} from "../../redux/action/whiteLabelAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
-const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
+// Loader component for table body
+const TableBodyLoader = ({ colSpan }) => (
+  <tr>
+    <td colSpan={colSpan} className="relative h-[100px] ">
+      <div className="flex flex-col items-center ">
+        <ButtonLoader size={28} thickness={3} />
+      </div>
+    </td>
+  </tr>
+);
+
+const Distribution = ({
+  embedded = false,
+  tableData: propTableData = [],
+  isLoading = false,
+}) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -28,6 +51,7 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
   const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
+  const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
@@ -35,23 +59,29 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycRevert success state to refresh KYC data after revert
-  const kycRevertResponse = useSelector((state) => state?.whitelabel?.kycRevert);
+  const kycRevertResponse = useSelector(
+    (state) => state?.whitelabel?.kycRevert,
+  );
 
   // Use prop data from API - no dummy data
-  const allTableData = Array.isArray(propTableData) && propTableData.length > 0 ? propTableData : [];
-  
+  const allTableData =
+    Array.isArray(propTableData) && propTableData.length > 0
+      ? propTableData
+      : [];
+
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return response?.totalCount || response?.total || 0;
   });
-  
+
   // Use Redux total count if available, otherwise use current data length
-  const totalCount = totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
-  
+  const totalCount =
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
+
   // Calculate total pages based on total count (10 records per page)
   const totalPages = Math.ceil(totalCount / 10) || 1;
-  
+
   // Slice data to show only 10 records per page
   const startIndex = (currentPage - 1) * 10;
   const endIndex = startIndex + 10;
@@ -64,27 +94,36 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
       try {
         const deepCopy = structuredClone(kycRetrieved);
         setSelectedKycData(deepCopy);
+        setIsKycModalLoading(false);
       } catch (error) {
         // Fallback to shallow copy if deep copy fails
-        console.warn("Failed to deep clone KYC data, using shallow copy:", error);
+        console.warn(
+          "Failed to deep clone KYC data, using shallow copy:",
+          error,
+        );
         setSelectedKycData({ ...kycRetrieved });
+        setIsKycModalLoading(false);
       }
     }
   }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
 
   // Refresh KYC data when revert succeeds
   useEffect(() => {
-    if (kycRevertResponse?.status === "SUCCESS" && selectedUserId && showKycModal) {
+    if (
+      kycRevertResponse?.status === "SUCCESS" &&
+      selectedUserId &&
+      showKycModal
+    ) {
       // Clear current data to force re-render
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
         // Force update by incrementing refresh key
-        setKycDataRefreshKey(prev => prev + 1);
+        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
         dispatch(kycDataAction(selectedUserId));
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
@@ -116,10 +155,10 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
 
     // Prepare data for Excel export
     const excelData = allTableData.map((row) => ({
-      "ID": row.id || "N/A",
-      "Date": row.date || "N/A",
+      ID: row.id || "N/A",
+      Date: row.date || "N/A",
       "User ID": row.userId || row.userAgentCode || "N/A",
-      "Name": row.name || row.userName || "N/A",
+      Name: row.name || row.userName || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || row.mobile || row.mobileNumber || "N/A",
       "Email Id": row.emailId || row.email || "N/A",
@@ -131,8 +170,8 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
       "Main Wallet": row.mainWallet || "0",
       "AEPS Wallet": row.aepsWallet || "0",
       "Remaining Days": row.remainingDays || "N/A",
-      "Status": row.status || "Active",
-      "Approved": row.approved ? "Yes" : "No",
+      Status: row.status || "Active",
+      Approved: row.approved ? "Yes" : "No",
     }));
 
     // Create a new workbook and worksheet
@@ -141,370 +180,399 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
     XLSX.utils.book_append_sheet(workbook, worksheet, "Distributor Data");
 
     // Generate Excel file and download
-    const fileName = `Distributor_Export_${new Date().toISOString().split('T')[0]}.xlsx`;
+    const fileName = `Distributor_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
 
   return (
-    <div className={`text-[#1B1717] ${embedded ? '[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' : 'min-h-screen p-4 sm:p-6'}`}>
+    <div
+      className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}
+    >
       {embedded ? (
         <div className="[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Header Section */}
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-          <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
-            Distributor
-          </h2>
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+              Distributor
+            </h2>
 
-          <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
-            <div className="flex flex-col xs:flex-row gap-3">
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="From Date"
-                  className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
-                />
-                <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="From Date"
+                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                  />
+                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                </div>
+
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="To Date"
+                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                  />
+                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                </div>
               </div>
 
-              <div className="relative">
+              <div className="relative w-full sm:w-48">
                 <input
                   type="text"
-                  placeholder="To Date"
-                  className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
+                  placeholder="Search"
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
-                <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
-            </div>
 
-            <div className="relative w-full sm:w-48">
-              <input
-                type="text"
-                placeholder="Search"
-                className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
-              />
-              <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+              <button
+                onClick={handleExportToExcel}
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+              >
+                Export <FaUpload className="text-xs" />
+              </button>
             </div>
+          </div>
 
-            <button 
-              onClick={handleExportToExcel}
-              className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+          {/* Table */}
+          <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <table className="min-w-[720px] sm:min-w-full divide-y">
+              <thead className="bg-white">
+                <tr>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    ID
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    User ID
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Name
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    User Role
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Mobile No
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Email Id
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Parent Name
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Parent Role
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Company Name
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    KYC Status
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    KYC Steps
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Main Wallet
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS Wallet
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Remaining Days
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    KYC Details
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Action
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Lock Status
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Token Expire
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody className="bg-white divide-y font-normal divide-gray-100">
+                {isLoading ? (
+                  <TableBodyLoader colSpan={13} />
+                ) : !tableData || tableData.length === 0 ? (
+                  <tr>
+                    <td colSpan={21} className="py-12 text-center">
+                      <p className="text-gray-500 text-lg font-medium">
+                        No data available
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  tableData.map((row, index) => (
+                    <tr
+                      key={index}
+                      className={`text-sm ${
+                        index % 2 === 0 ? "bg-green-50" : "bg-white"
+                      }`}
+                    >
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.id || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.userId || row.userAgentCode || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.name || row.userName || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.userRole || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.mobileNo ||
+                          row.mobile ||
+                          row.mobileNumber ||
+                          "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.emailId || row.email || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.parentName || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.parentRole || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.companyName || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {(() => {
+                          const status = row.kycStatus?.toLowerCase();
+                          let className =
+                            "px-2 py-1 rounded text-xs font-medium ";
+                          if (status === "completed" || status === "full_kyc") {
+                            className += "bg-green-100 text-green-700";
+                          } else if (status === "pending") {
+                            className += "bg-yellow-100 text-yellow-700";
+                          } else {
+                            className += "bg-red-100 text-red-700";
+                          }
+                          return (
+                            <span className={className}>
+                              {row.kycStatus || "N/A"}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        {row.kycSteps || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        {row.mainWallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        {row.aepsWallet || "0"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        {row.remainingDays || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
+                            row.status?.toLowerCase() === "active"
+                              ? "bg-green-600"
+                              : "bg-red-600"
+                          }`}
+                        >
+                          {row.status || "Active"}
+                        </span>
+                      </td>
+                      {/* KYC Details */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              setIsKycModalLoading(true);
+                              dispatch(kycDataAction(userId));
+                              setActiveTab("overview");
+                              setZoomedImage(null);
+                              setShowKycModal(true);
+                            }
+                          }}
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
+                        >
+                          KYC Details
+                        </button>
+                      </td>
+                      {/* Action - Toggle Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isActive =
+                            row.status?.toLowerCase() === "active";
+
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  if (isActive) {
+                                    dispatch(
+                                      kycStatusCheck(userId, {
+                                        isActive: "false",
+                                      }),
+                                    );
+                                  } else {
+                                    dispatch(
+                                      kycStatusCheck(userId, {
+                                        isActive: "true",
+                                      }),
+                                    );
+                                  }
+                                }
+                              }}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
+                                isActive ? "bg-green-600" : "bg-gray-300"
+                              }`}
+                              role="switch"
+                              aria-checked={isActive}
+                            >
+                              <span
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  isActive ? "translate-x-6" : "translate-x-1"
+                                }`}
+                              />
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Lock Status - Colored Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          const isLocked =
+                            row?.originalItem?.lock === true ||
+                            row?.originalItem?.lock === "true";
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId && isLocked) {
+                                  dispatch(kycUnlock(userId));
+                                }
+                              }}
+                              disabled={!isLocked}
+                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                isLocked
+                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                              }`}
+                              title={
+                                isLocked
+                                  ? "Click to unlock"
+                                  : "Already unlocked"
+                              }
+                            >
+                              {isLocked ? "Locked" : "Unlocked"}
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(rescendOnboarding(userId));
+                                }
+                              }}
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                            >
+                              Re-send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Deactivation - Send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  dispatch(deActiveOnboarding(userId));
+                                }
+                              }}
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                            >
+                              Send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+
+          {/* Pagination */}
+          <div className="flex justify-center items-center mt-6 space-x-2">
+            <button
+              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+              disabled={currentPage === 1}
+              className={`p-2 border border-gray-300 rounded-lg transition ${
+                currentPage === 1
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
             >
-              Export <FaUpload className="text-xs" />
+              <IoIosArrowBack />
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
+                  page === currentPage
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                }`}
+              >
+                {page}
+              </button>
+            ))}
+            <button
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
+              disabled={currentPage === totalPages}
+              className={`p-2 border border-gray-300 rounded-lg transition ${
+                currentPage === totalPages
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-gray-500 hover:bg-gray-100"
+              }`}
+            >
+              <IoIosArrowForward />
             </button>
           </div>
-        </div>
-
-        {/* Table */}
-        <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-          <table className="min-w-[720px] sm:min-w-full divide-y">
-            <thead className="bg-white">
-              <tr>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  ID
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Date
-                </th>   
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  User ID
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Name
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  User Role
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Mobile No
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Email Id
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Parent Name
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Parent Role
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Company Name
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  KYC Status
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  KYC Steps
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Main Wallet
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  AEPS Wallet
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Remaining Days
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Status
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  KYC Details
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Action
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Lock Status
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Onboarding
-                </th>
-                <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                  Token Expire
-                </th>
-              </tr>
-            </thead>
-
-            <tbody className="bg-white divide-y font-normal divide-gray-100">
-              {!tableData || tableData.length === 0 ? (
-                <tr>
-                  <td colSpan={21} className="py-12 text-center">
-                    <p className="text-gray-500 text-lg font-medium">No data available</p>
-                  </td>
-                </tr>
-              ) : (
-                tableData.map((row, index) => (
-                <tr
-                  key={index}
-                  className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
-                    }`}
-                >
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.id || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.date || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.userId || row.userAgentCode || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.name || row.userName || "N/A"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.userRole || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.mobileNo || row.mobile || row.mobileNumber || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.emailId || row.email || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.parentName || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.parentRole || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {row.companyName || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {(() => {
-                        const status = row.kycStatus?.toLowerCase();
-                        let className = "px-2 py-1 rounded text-xs font-medium ";
-                        if (status === "completed" || status === "full_kyc") {
-                          className += "bg-green-100 text-green-700";
-                        } else if (status === "pending") {
-                          className += "bg-yellow-100 text-yellow-700";
-                        } else {
-                          className += "bg-red-100 text-red-700";
-                        }
-                        return (
-                          <span className={className}>
-                            {row.kycStatus || "N/A"}
-                          </span>
-                        );
-                      })()}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                      {row.kycSteps || "0"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                      {row.mainWallet || "0"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                      {row.aepsWallet || "0"}
-                    </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                      {row.remainingDays || "N/A"}
-                  </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      <span
-                        className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
-                          row.status?.toLowerCase() === "active"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                        }`}
-                      >
-                        {row.status || "Active"}
-                      </span>
-                  </td>
-                  {/* KYC Details */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                    <button
-                      onClick={() => {
-                        const userId = row.id || row.originalItem?.id;
-                        if (userId) {
-                          dispatch(kycDataAction(userId));
-                          setActiveTab("overview");
-                          setZoomedImage(null);
-                          setShowKycModal(true);
-                        }
-                      }}
-                      className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
-                    >
-                      KYC Details
-                    </button>
-                  </td>
-                  {/* Action - Toggle Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                    {(() => {
-                      const userId = row.id || row.originalItem?.id;
-                      const isActive = row.status?.toLowerCase() === "active";
-
-                      return (
-                        <button
-                          onClick={() => {
-                            if (userId) {
-                              if (isActive) {
-                                dispatch(kycStatusCheck(userId, { isActive: "false" }));
-                              } else {
-                                dispatch(kycStatusCheck(userId, { isActive: "true" }));
-                              }
-                            }
-                          }}
-                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                            isActive ? "bg-green-600" : "bg-gray-300"
-                          }`}
-                          role="switch"
-                          aria-checked={isActive}
-                        >
-                          <span
-                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                              isActive ? "translate-x-6" : "translate-x-1"
-                            }`}
-                          />
-                        </button>
-                      );
-                    })()}
-                  </td>
-                  {/* Lock Status - Colored Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                    {(() => {
-                      const userId = row.id || row.originalItem?.id;
-                      const isLocked = row?.originalItem?.lock === true || row?.originalItem?.lock === "true";
-                      return (
-                        <button
-                          onClick={() => {
-                            if (userId && isLocked) {
-                              dispatch(kycUnlock(userId));
-                            }
-                          }}
-                          disabled={!isLocked}
-                          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                            isLocked
-                              ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                              : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                          }`}
-                          title={isLocked ? "Click to unlock" : "Already unlocked"}
-                        >
-                          {isLocked ? "Locked" : "Unlocked"}
-                        </button>
-                      );
-                    })()}
-                  </td>
-                  {/* Onboarding - Re-send Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                    {(() => {
-                      const userId = row.id || row.originalItem?.id;
-                      return (
-                        <button
-                          onClick={() => {
-                            if (userId) {
-                              dispatch(rescendOnboarding(userId));
-                            }
-                          }}
-                          className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
-                        >
-                          Re-send
-                        </button>
-                      );
-                    })()}
-                  </td>
-                  {/* Deactivation - Send Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                    {(() => {
-                      const userId = row.id || row.originalItem?.id;
-                      return (
-                        <button
-                          onClick={() => {
-                            if (userId) {
-                              dispatch(deActiveOnboarding(userId));
-                            }
-                          }}
-                          className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
-                        >
-                          Send
-                        </button>
-                      );
-                    })()}
-                  </td>
-                </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex justify-center items-center mt-6 space-x-2">
-          <button
-            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-            disabled={currentPage === 1}
-            className={`p-2 border border-gray-300 rounded-lg transition ${
-              currentPage === 1
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-500 hover:bg-gray-100"
-            }`}
-          >
-            <IoIosArrowBack />
-          </button>
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
-                page === currentPage
-                ? "bg-green-600 text-white"
-                : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                }`}
-            >
-              {page}
-            </button>
-          ))}
-          <button
-            onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-            disabled={currentPage === totalPages}
-            className={`p-2 border border-gray-300 rounded-lg transition ${
-              currentPage === totalPages
-                ? "text-gray-400 cursor-not-allowed"
-                : "text-gray-500 hover:bg-gray-100"
-            }`}
-          >
-            <IoIosArrowForward />
-          </button>
-        </div>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
@@ -544,7 +612,7 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                 <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
 
-              <button 
+              <button
                 onClick={handleExportToExcel}
                 className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
@@ -622,7 +690,9 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                 {!tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-medium">No data available</p>
+                      <p className="text-gray-500 text-lg font-medium">
+                        No data available
+                      </p>
                     </td>
                   </tr>
                 ) : (
@@ -653,7 +723,10 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                       </td>
                       {/* Mobile */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.mobileNo || row.mobile || row.mobileNumber || "N/A"}
+                        {row.mobileNo ||
+                          row.mobile ||
+                          row.mobileNumber ||
+                          "N/A"}
                       </td>
                       {/* Email */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -675,7 +748,8 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
-                          let className = "px-2 py-1 rounded text-xs font-medium ";
+                          let className =
+                            "px-2 py-1 rounded text-xs font-medium ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -740,16 +814,25 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
-                          const isActive = row.status?.toLowerCase() === "active";
+                          const isActive =
+                            row.status?.toLowerCase() === "active";
 
                           return (
                             <button
                               onClick={() => {
                                 if (userId) {
                                   if (isActive) {
-                                    dispatch(kycStatusCheck(userId, { isActive: "false" }));
+                                    dispatch(
+                                      kycStatusCheck(userId, {
+                                        isActive: "false",
+                                      }),
+                                    );
                                   } else {
-                                    dispatch(kycStatusCheck(userId, { isActive: "true" }));
+                                    dispatch(
+                                      kycStatusCheck(userId, {
+                                        isActive: "true",
+                                      }),
+                                    );
                                   }
                                 }
                               }}
@@ -772,7 +855,9 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
-                          const isLocked = row?.originalItem?.lock === true || row?.originalItem?.lock === "true";
+                          const isLocked =
+                            row?.originalItem?.lock === true ||
+                            row?.originalItem?.lock === "true";
                           return (
                             <button
                               onClick={() => {
@@ -786,7 +871,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                                   ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                   : "bg-green-500 text-white cursor-not-allowed opacity-75"
                               }`}
-                              title={isLocked ? "Click to unlock" : "Already unlocked"}
+                              title={
+                                isLocked
+                                  ? "Click to unlock"
+                                  : "Already unlocked"
+                              }
                             >
                               {isLocked ? "Locked" : "Unlocked"}
                             </button>
@@ -819,15 +908,17 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                 onClick={() => setCurrentPage(page)}
                 className={`w-8 h-8 rounded-lg text-sm font-medium transition ${
                   page === currentPage
-                  ? "bg-green-600 text-white"
-                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                  }`}
+                    ? "bg-green-600 text-white"
+                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                }`}
               >
                 {page}
               </button>
             ))}
             <button
-              onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+              onClick={() =>
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
+              }
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${
                 currentPage === totalPages
@@ -855,9 +946,13 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                   <FaIdCard className="text-green-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800">KYC Details</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    KYC Details
+                  </h2>
                   {selectedKycData?.userDetails?.name && (
-                    <p className="text-sm text-gray-500">{selectedKycData.userDetails.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {selectedKycData.userDetails.name}
+                    </p>
                   )}
                 </div>
               </div>
@@ -944,7 +1039,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {selectedKycData ? (
+              {isKycModalLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                </div>
+              ) : selectedKycData ? (
                 <div className="space-y-6 animate-fadeIn">
                   {/* Overview Tab */}
                   {activeTab === "overview" && (
@@ -961,8 +1060,8 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               selectedKycData.kycStatus === "FULL_KYC"
                                 ? "bg-green-100 text-green-700"
                                 : selectedKycData.kycStatus === "NO_KYC"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
                             }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -972,10 +1071,14 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">Progress</span>
+                            <span className="text-sm font-medium text-gray-700">
+                              Progress
+                            </span>
                             <span className="text-sm font-semibold text-gray-800">
-                              {selectedKycData.completedSteps || selectedKycData.kycSteps || 0} /{" "}
-                              {selectedKycData.totalSteps || 7} Steps
+                              {selectedKycData.completedSteps ||
+                                selectedKycData.kycSteps ||
+                                0}{" "}
+                              / {selectedKycData.totalSteps || 7} Steps
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -983,7 +1086,9 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
                               style={{
                                 width: `${
-                                  ((selectedKycData.completedSteps || selectedKycData.kycSteps || 0) /
+                                  ((selectedKycData.completedSteps ||
+                                    selectedKycData.kycSteps ||
+                                    0) /
                                     (selectedKycData.totalSteps || 7)) *
                                   100
                                 }%`,
@@ -1002,25 +1107,33 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">User ID</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                User ID
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Mobile No</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Mobile No
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Email</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Email
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
@@ -1028,13 +1141,19 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </div>
                           {selectedKycData.userDetails.profileImage && (
                             <div className="mt-4">
-                              <span className="text-xs text-gray-500 mb-2 block">Profile Image</span>
+                              <span className="text-xs text-gray-500 mb-2 block">
+                                Profile Image
+                              </span>
                               <div className="relative group">
                                 <img
                                   src={selectedKycData.userDetails.profileImage}
                                   alt="Profile"
                                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
-                                  onClick={() => setZoomedImage(selectedKycData.userDetails.profileImage)}
+                                  onClick={() =>
+                                    setZoomedImage(
+                                      selectedKycData.userDetails.profileImage,
+                                    )
+                                  }
                                 />
                                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
                                   <FaExpand className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1061,7 +1180,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { aadhar: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        aadhar: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
@@ -1072,28 +1195,37 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">UID</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                UID
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">DOB</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                DOB
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Status
+                              </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
-                                  selectedKycData.aadhaarDoc.status === "Success"
+                                  selectedKycData.aadhaarDoc.status ===
+                                  "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
                                 }`}
@@ -1105,14 +1237,22 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {selectedKycData.userDetails?.aadharFrontImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Front</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Aadhaar Front
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.aadharFrontImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .aadharFrontImage
+                                    }
                                     alt="Aadhaar Front"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.aadharFrontImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .aadharFrontImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1123,14 +1263,22 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                             )}
                             {selectedKycData.userDetails?.aadharBackImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Back</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Aadhaar Back
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.aadharBackImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .aadharBackImage
+                                    }
                                     alt="Aadhaar Back"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.aadharBackImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .aadharBackImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1163,7 +1311,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { pan: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        pan: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
@@ -1174,25 +1326,33 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">PAN Number</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                PAN Number
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">PAN Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                PAN Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">DOB</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                DOB
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Status
+                              </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
                                   selectedKycData.panDoc.status === "Success"
@@ -1207,14 +1367,22 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {selectedKycData.userDetails?.panCardFrontImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">PAN Front</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  PAN Front
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.panCardFrontImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .panCardFrontImage
+                                    }
                                     alt="PAN Front"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.panCardFrontImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .panCardFrontImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1225,14 +1393,22 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                             )}
                             {selectedKycData.userDetails?.panCardBackImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">PAN Back</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  PAN Back
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.panCardBackImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .panCardBackImage
+                                    }
                                     alt="PAN Back"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.panCardBackImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .panCardBackImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1266,7 +1442,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { shopImage: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        shopImage: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
@@ -1277,35 +1457,49 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Shop Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Shop Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.outletDetails.shopName || "N/A"}
+                                {selectedKycData.outletDetails.shopName ||
+                                  "N/A"}
                               </span>
                             </div>
                             {selectedKycData.outletDetails.gstNo && (
                               <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 mb-1">GST No</span>
+                                <span className="text-xs text-gray-500 mb-1">
+                                  GST No
+                                </span>
                                 <span className="text-sm font-medium text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
                             )}
                             <div className="flex flex-col md:col-span-2">
-                              <span className="text-xs text-gray-500 mb-1">Shop Address</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Shop Address
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.outletDetails.shopAddress || "N/A"}
+                                {selectedKycData.outletDetails.shopAddress ||
+                                  "N/A"}
                               </span>
                             </div>
                             {selectedKycData.outletDetails.shopImage && (
                               <div className="md:col-span-2">
-                                <span className="text-xs text-gray-500 mb-2 block">Shop Image</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Shop Image
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.outletDetails.shopImage}
+                                    src={
+                                      selectedKycData.outletDetails.shopImage
+                                    }
                                     alt="Shop"
                                     className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.outletDetails.shopImage)
+                                      setZoomedImage(
+                                        selectedKycData.outletDetails.shopImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1334,7 +1528,11 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { bankVerification: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        bankVerification: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
@@ -1345,27 +1543,39 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Account Number</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Account Number
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.accountNumber || "N/A"}
+                                {selectedKycData.customerBankDetails
+                                  .accountNumber || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">IFSC</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                IFSC
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.ifsc || "N/A"}
+                                {selectedKycData.customerBankDetails.ifsc ||
+                                  "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Bank Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Bank Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.bankName || "N/A"}
+                                {selectedKycData.customerBankDetails.bankName ||
+                                  "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Beneficiary Name</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Beneficiary Name
+                              </span>
                               <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.beneficiaryName || "N/A"}
+                                {selectedKycData.customerBankDetails
+                                  .beneficiaryName || "N/A"}
                               </span>
                             </div>
                           </div>
@@ -1379,233 +1589,268 @@ const Distribution = ({ embedded = false, tableData: propTableData = [] }) => {
                   )}
 
                   {/* Verification Tab */}
-                  {activeTab === "verification" && selectedKycData.userDetails && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <FaCheckCircle className="text-green-600" />
-                        Verification Status
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {/* Mobile Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.mobileVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.mobileVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Mobile</span>
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  {activeTab === "verification" &&
+                    selectedKycData.userDetails && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <FaCheckCircle className="text-green-600" />
+                          Verification Status
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Mobile Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.mobileVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Email Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.emailVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.emailVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Email</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.mobileVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Mobile
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.mobileVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.mobileVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Email Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.emailVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.emailVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Aadhar Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.aadharVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.aadharVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Aadhar</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.emailVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Email
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.emailVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.emailVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Aadhar Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.aadharVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* PAN Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.panVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.panVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">PAN</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.aadharVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Aadhar
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.aadharVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.aadharVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* PAN Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.panVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.panVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Shop Details Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.shopDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.shopDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Shop Details</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.panVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                PAN
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.panVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.panVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Shop Details Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.shopDetailsVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Image Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.imageVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.imageVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Image</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.shopDetailsVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Shop Details
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.shopDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.shopDetailsVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Image Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.imageVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.imageVerify ? "Verified" : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Profile Image with Shop Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.profileImageWithShopVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.profileImageWithShopVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Profile with Shop</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.imageVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Image
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.imageVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.imageVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              selectedKycData.userDetails.profileImageWithShopVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+
+                          {/* Profile Image with Shop Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.profileImageWithShopVerify
-                              ? "Verified"
-                              : "Pending"}
-                          </span>
-                        </div>
-
-                        {/* Bank Details Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.bankDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.bankDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Bank Details</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails
+                                .profileImageWithShopVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Profile with Shop
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails
+                                  .profileImageWithShopVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Bank Details Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.bankDetailsVerify ? "Verified" : "Pending"}
-                          </span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.bankDetailsVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-medium text-gray-700">
+                                Bank Details
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.bankDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.bankDetailsVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  )}
+                    )}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
