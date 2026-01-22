@@ -31,7 +31,7 @@ const LeftSideSlider = ({ company, currentSlide, setCurrentSlide, currentIndex, 
               backgroundRepeat: "no-repeat",
             }}
           >
-            <div className="absolute inset-0 "></div>
+            <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
           </div>
         );
       })}
