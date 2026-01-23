@@ -11,6 +11,8 @@ import {
   authOtp,
   rescendOtp,
   resetPassword,
+  sendForgetPasswordOTP,
+  verifyForgetPassword,
 } from "../../redux/action/loginAction";
 import { loginSuccess } from "../../redux/action/authAction";
 import LeftSideSlider from "./pages/LeftSideSlider";
@@ -53,6 +55,8 @@ const LoginDesign1 = () => {
   const auth2FAInputRefs = useRef([]);
   const processedLoginRef = useRef(false);
   const processedVerificationRef = useRef(false);
+  const processedForgetPasswordRef = useRef(false);
+  const processedVerifyForgetPasswordRef = useRef(false);
 
   // Redux selectors
   const loginData = useSelector((state) => state?.login?.loginResponse);
@@ -80,6 +84,10 @@ const LoginDesign1 = () => {
   const twoFactorAuthError = useSelector((state) => state?.login?.twoFactorAuthError);
   const resetPasswordResponse = useSelector((state) => state?.login?.resetPasswordResponse);
   const resetPasswordError = useSelector((state) => state?.login?.resetPasswordError);
+  const forgetPasswordResponse = useSelector((state) => state?.login?.forgetPasswordResponse);
+  const forgetPasswordError = useSelector((state) => state?.login?.forgetPasswordError);
+  const verifyForgetPasswordResponse = useSelector((state) => state?.login?.verifyForgetPasswordResponse);
+  const verifyForgetPasswordError = useSelector((state) => state?.login?.verifyForgetPasswordError);
 
   // Image slider effect
   useEffect(() => {
@@ -204,6 +212,104 @@ const LoginDesign1 = () => {
       });
     }
   }, [resetPasswordError, showNotification]);
+
+  // Handle forget password response (sendForgetPasswordOTP)
+  useEffect(() => {
+    if (forgetPasswordResponse && !processedForgetPasswordRef.current) {
+      const status = forgetPasswordResponse?.status;
+      if (status === "SUCCESS") {
+        processedForgetPasswordRef.current = true;
+        // Store token if present
+        const token = forgetPasswordResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        // Navigate to VERIFICATION_CODE view
+        setCurrentView(VIEWS.VERIFICATION_CODE);
+        setOtp(Array(6).fill(""));
+        setVerificationTimer(180);
+        setTimeout(() => {
+          otpInputRefs.current[0]?.focus();
+        }, 100);
+      }
+    }
+  }, [forgetPasswordResponse]);
+
+  // Reset processed flag when starting new forgot password attempt
+  useEffect(() => {
+    if (currentView === VIEWS.FORGOT_PASSWORD) {
+      processedForgetPasswordRef.current = false;
+    }
+  }, [currentView]);
+
+  // Handle forget password errors
+  useEffect(() => {
+    if (forgetPasswordError && (currentView === VIEWS.FORGOT_PASSWORD || currentView === VIEWS.VERIFICATION_CODE)) {
+      const errorMessage = typeof forgetPasswordError === 'object' ? forgetPasswordError.message : forgetPasswordError;
+      const isTokenExpired = typeof forgetPasswordError === 'object' && forgetPasswordError.isTokenExpired;
+      
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+      
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [forgetPasswordError, currentView, showNotification]);
+
+  // Handle verify forget password response
+  useEffect(() => {
+    if (verifyForgetPasswordResponse && currentView === VIEWS.VERIFICATION_CODE && !processedVerifyForgetPasswordRef.current) {
+      const status = verifyForgetPasswordResponse?.status;
+      if (status === "SUCCESS") {
+        processedVerifyForgetPasswordRef.current = true;
+        // On successful OTP verification, navigate back to LoginView
+        setOtp(Array(6).fill(""));
+        setPhoneNumber("");
+        setCurrentView(VIEWS.LOGIN);
+      }
+    }
+  }, [verifyForgetPasswordResponse, currentView]);
+
+  // Reset verify forget password processed flag when starting new verification
+  useEffect(() => {
+    if (currentView === VIEWS.VERIFICATION_CODE) {
+      processedVerifyForgetPasswordRef.current = false;
+    }
+  }, [currentView]);
+
+  // Handle verify forget password errors
+  useEffect(() => {
+    if (verifyForgetPasswordError && currentView === VIEWS.VERIFICATION_CODE) {
+      const errorMessage = typeof verifyForgetPasswordError === 'object' ? verifyForgetPasswordError.message : verifyForgetPasswordError;
+      const isTokenExpired = typeof verifyForgetPasswordError === 'object' && verifyForgetPasswordError.isTokenExpired;
+      
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+      
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [verifyForgetPasswordError, currentView, showNotification]);
 
   // Handle login response
   useEffect(() => {
@@ -552,11 +658,9 @@ const LoginDesign1 = () => {
   const handleForgotPasswordSubmit = (values) => {
     setPhoneNumber(values.phoneNumber);
     setOtp(Array(6).fill(""));
-    setCurrentView(VIEWS.VERIFICATION_CODE);
-    setVerificationTimer(180);
-    setTimeout(() => {
-      otpInputRefs.current[0]?.focus();
-    }, 100);
+    const companyId = company?._id || company?.id || company?.companyId;
+    // Call sendForgetPasswordOTP API with phoneNumber
+    dispatch(sendForgetPasswordOTP({ phoneNumber: values.phoneNumber }, companyId));
   };
 
   // OTP input handlers
@@ -606,7 +710,14 @@ const LoginDesign1 = () => {
       return;
     }
     const companyId = company?._id || company?.id || company?.companyId;
-    dispatch(verificationStatus({ otp: finalOtp }, companyId));
+    
+    // If we're in VERIFICATION_CODE view (forgot password flow), use verifyForgetPassword
+    if (currentView === VIEWS.VERIFICATION_CODE) {
+      dispatch(verifyForgetPassword({ otp: finalOtp }, companyId));
+    } else {
+      // Otherwise, use regular verificationStatus (for login flow)
+      dispatch(verificationStatus({ otp: finalOtp }, companyId));
+    }
   };
 
   // Resend OTP
@@ -619,6 +730,16 @@ const LoginDesign1 = () => {
 
   // Resend Verification Code
   const handleResendVerification = () => {
+    if (!phoneNumber) {
+      showNotification({
+        type: "error",
+        message: "Phone number is missing. Please try again.",
+      });
+      return;
+    }
+    const companyId = company?._id || company?.id || company?.companyId;
+    // Call sendForgetPasswordOTP API again with the same phoneNumber
+    dispatch(sendForgetPasswordOTP({ phoneNumber: phoneNumber }, companyId));
     setVerificationTimer(180);
     setOtp(Array(6).fill(""));
   };

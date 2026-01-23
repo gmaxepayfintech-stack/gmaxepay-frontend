@@ -11,6 +11,10 @@ import {
   RESECEND_OTP_FAILURE,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  VERIFY_FORGET_PASSWORD_FAILURE,
+  VERIFY_FORGET_PASSWORD_SUCCESS,
+  FORGET_PASSWORD_SUCCESS,
+  FORGET_PASSWORD_FAILURE,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -626,6 +630,206 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
     } else {
       dispatch({
         type: RESET_PASSWORD_FAILURE,
+        payload: error?.response?.data?.message ?? error.message,
+      });
+    }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const sendForgetPasswordOTP = (credentials, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    // Get User-Agent from browser
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/send-otp-temp`,
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": userAgent,
+          "x-company-id": companyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === "SUCCESS") {
+      // After password reset, check if we get JWT token or continue with login token
+      const accessToken = data?.data?.accessToken || data?.accessToken;
+      const refreshToken = data?.data?.refreshToken || data?.refreshToken;
+      const token = data?.data?.token || data?.token;
+      
+      // If accessToken (JWT) is provided, store it and remove login token
+      // Otherwise, update login token for next steps
+      if (accessToken) {
+        secureLocalStorage.setItem("userToken", accessToken);
+        // Store refresh token if available
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
+        secureLocalStorage.removeItem("loginToken");
+      } else if (token) {
+        secureLocalStorage.setItem("loginToken", token);
+        // Store refresh token if available (even if we're using loginToken)
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
+      }
+
+      dispatch({
+        type: FORGET_PASSWORD_SUCCESS,
+        payload: data,
+        status,
+      });
+    } else {
+      // Check for token expiration
+      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        dispatch({
+          type: RESET_PASSWORD_FAILURE,
+          payload: {
+            message: data?.message || "Data token has expired! Please request a new one.",
+            isTokenExpired: true,
+          },
+        });
+      } else {
+        dispatch({
+          type: FORGET_PASSWORD_FAILURE,
+          payload: data?.message ?? commonError,
+        });
+      }
+    }
+  } catch (error) {
+    // Check for token expiration error
+    if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      dispatch({
+        type: RESET_PASSWORD_FAILURE,
+        payload: {
+          message: error?.response?.data?.message || "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: FORGET_PASSWORD_FAILURE,
+        payload: error?.response?.data?.message ?? error.message,
+      });
+    }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const verifyForgetPassword = (credentials, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  // Use loginToken (from step 1) for reset password, not JWT token
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    if (!authToken) {
+      dispatch({
+        type: VERIFY_FORGET_PASSWORD_FAILURE,
+        payload: "Authentication token is missing. Please try again.",
+      });
+      return;
+    }
+
+    // Get User-Agent from browser
+    const userAgent = typeof navigator !== "undefined" ? navigator.userAgent : "";
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/verify-otp-temp`,
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "User-Agent": userAgent,
+          token: `${authToken}`,
+          "x-company-id": companyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === "SUCCESS") {
+      // After password reset, check if we get JWT token or continue with login token
+      const accessToken = data?.data?.accessToken || data?.accessToken;
+      const refreshToken = data?.data?.refreshToken || data?.refreshToken;
+      const token = data?.data?.token || data?.token;
+      
+      // If accessToken (JWT) is provided, store it and remove login token
+      // Otherwise, update login token for next steps
+      if (accessToken) {
+        secureLocalStorage.setItem("userToken", accessToken);
+        // Store refresh token if available
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
+        secureLocalStorage.removeItem("loginToken");
+      } else if (token) {
+        secureLocalStorage.setItem("loginToken", token);
+        // Store refresh token if available (even if we're using loginToken)
+        if (refreshToken) {
+          secureLocalStorage.setItem("refreshToken", refreshToken);
+        }
+      }
+
+      dispatch({
+        type: VERIFY_FORGET_PASSWORD_SUCCESS,
+        payload: data,
+        status,
+      });
+    } else {
+      // Check for token expiration
+      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        dispatch({
+          type: RESET_PASSWORD_FAILURE,
+          payload: {
+            message: data?.message || "Data token has expired! Please request a new one.",
+            isTokenExpired: true,
+          },
+        });
+      } else {
+        dispatch({
+          type: VERIFY_FORGET_PASSWORD_FAILURE,
+          payload: data?.message ?? commonError,
+        });
+      }
+    }
+  } catch (error) {
+    // Check for token expiration error
+    if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      dispatch({
+        type: RESET_PASSWORD_FAILURE,
+        payload: {
+          message: error?.response?.data?.message || "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: VERIFY_FORGET_PASSWORD_FAILURE,
         payload: error?.response?.data?.message ?? error.message,
       });
     }
