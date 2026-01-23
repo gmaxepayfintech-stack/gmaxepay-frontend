@@ -340,7 +340,11 @@ const WalletLoad = () => {
                     </div>
                   )}
                 </div>
-
+                {paySlipFile && (
+                  <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mt-2">
+                    {paySlipFile.name}
+                  </p>
+                )}
                 {/* Error message */}
                 {fileError && (
                   <p className="text-red-500 text-sm mt-2">{fileError}</p>
