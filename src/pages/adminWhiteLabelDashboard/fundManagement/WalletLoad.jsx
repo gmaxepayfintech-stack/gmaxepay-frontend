@@ -232,7 +232,7 @@ const WalletLoad = () => {
                     <option value="NEFT">NEFT</option>
                     <option value="RTGS">RTGS</option>
                     <option value="IMPS">IMPS</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
                   </select>
                 </div>
 
@@ -265,6 +265,9 @@ const WalletLoad = () => {
                   <input
                     id="referenceNumber"
                     type="text"
+                    maxLength={25}
+                    minLength={10}
+                    pattern="[A-Za-z0-9]+"
                     value={referenceNumber}
                     onChange={(e) => setReferenceNumber(e.target.value)}
                     placeholder="Enter Reference Number"
