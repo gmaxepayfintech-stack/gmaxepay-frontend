@@ -141,7 +141,7 @@ const WalletLoad = () => {
                     <option value="NEFT">NEFT</option>
                     <option value="RTGS">RTGS</option>
                     <option value="IMPS">IMPS</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
                   </select>
                 </div>
 
@@ -174,6 +174,9 @@ const WalletLoad = () => {
                   <input
                     id="referenceNumber"
                     type="text"
+                    maxLength={25}
+                    minLength={10}
+                    pattern="[A-Za-z0-9]+"
                     value={referenceNumber}
                     onChange={(e) => setReferenceNumber(e.target.value)}
                     placeholder="Enter Reference Number"
@@ -273,11 +276,10 @@ const WalletLoad = () => {
                       setSelectedBank(bank.id);
                     }
                   }}
-                  className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${
-                    selectedBank === bank.id
-                      ? "border-[#039155] bg-green-50"
-                      : "border-[#1B1717] border-opacity-80 bg-white"
-                  }`}
+                  className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${selectedBank === bank.id
+                    ? "border-[#039155] bg-green-50"
+                    : "border-[#1B1717] border-opacity-80 bg-white"
+                    }`}
                 >
                   <div className="flex items-start gap-3">
                     {/* Bank Logo */}
