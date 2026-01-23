@@ -9,6 +9,9 @@ const WalletLoad = () => {
   const [selectedBank, setSelectedBank] = useState("kotak1");
   const [paySlipFile, setPaySlipFile] = useState(null);
   const fileInputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileError, setFileError] = useState("");
+
 
   const banks = [
     {
@@ -50,14 +53,29 @@ const WalletLoad = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5 MB");
-        return;
-      }
-      setPaySlipFile(file);
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file.size > maxSize) {
+      setFileError("File size must be below 5 MB");
+      setPaySlipFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setFileError("");
+    setPaySlipFile(file);
+
+    // Preview for images
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
     }
   };
+
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -194,41 +212,72 @@ const WalletLoad = () => {
                   onDrop={handleFileDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer  transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer transition-colors flex items-center justify-center"
                 >
                   <input
+                    id="paySlip"
                     ref={fileInputRef}
                     type="file"
                     accept=".svg,.png,.jpg,.jpeg,.pdf"
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      className="w-12 h-12 text-[#1B1717] text-opacity-50"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                      Click To Upload Or Drag And Drop
-                    </p>
-                    <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
-                      SVG,PNG,JPG Or PDF (Max 5 MB)
-                    </p>
-                  </div>
+
+                  {/* If file selected show preview */}
+                  {paySlipFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Pay Slip Preview"
+                          className="max-h-[120px] object-contain"
+                        />
+                      ) : (
+                        <p className="text-sm text-[#1B1717]">
+                          📄 {paySlipFile.name}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <svg
+                        className="w-12 h-12 text-[#1B1717] text-opacity-50"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        Click To Upload Or Drag And Drop
+                      </p>
+                      <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                        SVG, PNG, JPG Or PDF (Max 5 MB)
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {paySlipFile && (
                   <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mt-2">
                     {paySlipFile.name}
                   </p>
+                )}
+                {/* Error message */}
+                {fileError && (
+                  <p className="text-red-500 text-sm mt-2">{fileError}</p>
                 )}
               </div>
 
