@@ -9,6 +9,10 @@ import {
   RESECEND_OTP_FAILURE,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  VERIFY_FORGET_PASSWORD_SUCCESS,
+  VERIFY_FORGET_PASSWORD_FAILURE,
+  FORGET_PASSWORD_SUCCESS,
+  FORGET_PASSWORD_FAILURE,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -25,6 +29,10 @@ const initialState = {
   resetPasswordResponse: null,
   resetPasswordError: null,
   currentStep: 1,
+  forgetPasswordResponse: null,
+  forgetPasswordError: null,
+  verifyForgetPasswordResponse: null,
+  verifyForgetPasswordError: null,
 };
 
 const loginReducer = (state = initialState, action) => {
@@ -68,12 +76,12 @@ const loginReducer = (state = initialState, action) => {
         verificationError: verificationErrorPayload,
         verificationcode: verificationErrorPayload
           ? {
-              status: "FAILURE",
-              message:
-                typeof verificationErrorPayload === "object"
-                  ? verificationErrorPayload.message
-                  : verificationErrorPayload,
-            }
+            status: "FAILURE",
+            message:
+              typeof verificationErrorPayload === "object"
+                ? verificationErrorPayload.message
+                : verificationErrorPayload,
+          }
           : null,
         Success: null,
       };
@@ -134,6 +142,34 @@ const loginReducer = (state = initialState, action) => {
         resetPasswordResponse: null,
       };
 
+    case VERIFY_FORGET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        verifyForgetPasswordResponse: action.payload,
+        verifyForgetPasswordError: null,
+      };
+    case VERIFY_FORGET_PASSWORD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: typeof action.payload === "object" ? action.payload : action.payload,
+        Success: null,
+      };
+    case FORGET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        forgetPasswordResponse: action.payload,
+        forgetPasswordError: null,
+      };
+    case FORGET_PASSWORD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        forgetPasswordError: typeof action.payload === "object" ? action.payload : action.payload,
+        forgetPasswordResponse: null,
+      };
     default:
       return state;
   }
