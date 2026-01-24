@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import * as XLSX from "xlsx";
+import { RefreshCw } from 'lucide-react';
 import { ButtonLoader } from '../../../widgets/layout/loader.jsx';
 import { adminApproveRequest, adminGetRequest } from '../../../redux/action/fundAction';
 
@@ -18,12 +19,20 @@ const FundRequest = () => {
   const [showDetailsPanel, setShowDetailsPanel] = useState(false);
   const [approvalRemarks, setApprovalRemarks] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [isReloading, setIsReloading] = useState(false);
   const debounceTimerRef = useRef(null);
+  const isFetchingRef = useRef(false);
   const itemsPerPage = 10;
 
   // Fetch fund requests from API
   const fetchFundRequests = useCallback(async () => {
+    // Prevent duplicate calls
+    if (isFetchingRef.current) {
+      return;
+    }
+    
     try {
+      isFetchingRef.current = true;
       setLoading(true);
       
       // Build customSearch object for search term
@@ -68,16 +77,31 @@ const FundRequest = () => {
       console.error("Failed to fetch fund requests:", error);
     } finally {
       setLoading(false);
+      setIsReloading(false);
+      isFetchingRef.current = false;
     }
   }, [dispatch, searchTerm, fromDate, toDate, currentPage, itemsPerPage]);
+
+  // Reset isReloading when loading completes
+  useEffect(() => {
+    if (!loading && isReloading) {
+      setIsReloading(false);
+    }
+  }, [loading, isReloading]);
 
   // Fetch data on component mount and when filters change (excluding searchTerm which is debounced)
   useEffect(() => {
     fetchFundRequests();
-  }, [currentPage, fromDate, toDate, fetchFundRequests]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentPage, fromDate, toDate]);
 
   // Debounce search term
   useEffect(() => {
+    // Don't trigger if searchTerm is empty on initial mount
+    if (!searchTerm.trim()) {
+      return;
+    }
+    
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
@@ -200,15 +224,8 @@ const FundRequest = () => {
           <div className="block sm:hidden">
             {/* Search Bar */}
             <div className="relative w-full mb-4">
-              <input
-                type="text"
-                placeholder="Search By Reference,ID"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-[44px] pl-10 pr-4 border border-[#1B1717]/50 rounded-lg text-[14px]"
-              />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1B1717]/50"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -220,57 +237,86 @@ const FundRequest = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
+              <input
+                type="text"
+                placeholder="Search By Reference,ID"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              />
             </div>
             {/* Date filters */}
             <div className="flex gap-3 mb-4">
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] flex-1"
-              />
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] flex-1"
-              />
-            </div>
-            {/* Export button below */}
-            <button
-              onClick={handleExport}
-              className="w-full h-[44px] px-6 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center justify-center gap-2"
-            >
-              Export
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+              <div className="relative flex-1">
+                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                  From Date
+                </label>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => setFromDate(e.target.value)}
+                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
                 />
-              </svg>
-            </button>
+              </div>
+              <div className="relative flex-1">
+                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                  To Date
+                </label>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => setToDate(e.target.value)}
+                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                />
+              </div>
+            </div>
+            {/* Export and Reload buttons */}
+            <div className="flex gap-3">
+              <button
+                onClick={handleExport}
+                className="flex-1 flex items-center justify-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-medium hover:bg-green-700 transition shadow-md"
+              >
+                <span>Export</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              </button>
+              <button
+                onClick={() => {
+                  setFromDate("");
+                  setToDate("");
+                  setSearchTerm("");
+                  setIsReloading(true);
+                  fetchFundRequests();
+                }}
+                className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isReloading && loading}
+              >
+                <RefreshCw
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
+                    isReloading && loading ? "animate-spin" : ""
+                  }`}
+                />
+              </button>
+            </div>
           </div>
 
           {/* Medium and Large devices: Single row layout */}
-          <div className="hidden sm:flex items-center gap-4 w-full">
+          <div className="hidden sm:flex items-end gap-3 sm:gap-4">
             {/* Search – takes remaining width */}
             <div className="relative flex-1">
-              <input
-                type="text"
-                placeholder="Search By Reference,ID"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full h-[44px] pl-10 pr-4 border border-[#1B1717]/50 rounded-lg text-[14px]"
-              />
               <svg
-                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1B1717]/50"
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 z-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -282,44 +328,83 @@ const FundRequest = () => {
                   d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
                 />
               </svg>
+              <input
+                type="text"
+                placeholder="Search By Reference,ID"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              />
             </div>
 
             {/* Date filters */}
-            <div className="flex gap-3">
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                From Date
+              </label>
               <input
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] min-w-[140px]"
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
               />
+            </div>
+
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                To Date
+              </label>
               <input
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] min-w-[140px]"
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
               />
             </div>
 
             {/* Export */}
-            <button
-              onClick={handleExport}
-              className="h-[44px] px-6 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center justify-center gap-2 whitespace-nowrap"
-            >
-              Export
-              <svg
-                className="w-4 h-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
+            <div className="flex items-end">
+              <button
+                onClick={handleExport}
+                className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-medium hover:bg-green-700 transition shadow-md whitespace-nowrap"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                <span>Export</span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                  />
+                </svg>
+              </button>
+            </div>
+
+            {/* Reload Button */}
+            <div className="flex items-end">
+              <button
+                onClick={() => {
+                  setFromDate("");
+                  setToDate("");
+                  setSearchTerm("");
+                  setIsReloading(true);
+                  fetchFundRequests();
+                }}
+                className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isReloading && loading}
+              >
+                <RefreshCw
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
+                    isReloading && loading ? "animate-spin" : ""
+                  }`}
                 />
-              </svg>
-            </button>
+              </button>
+            </div>
           </div>
         </div>
 
@@ -352,20 +437,15 @@ const FundRequest = () => {
                 </tr>
               </thead>
 
-              <tbody className='text-[11px] sm:text-[12px]'>
-                {loading && fundRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
-                      Loading...
-                    </td>
-                  </tr>
-                ) : fundRequests.length === 0 ? (
-                  <tr>
-                    <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
-                      No fund requests found
-                    </td>
-                  </tr>
-                ) : (
+              {!loading && (
+                <tbody className='text-[11px] sm:text-[12px]'>
+                  {fundRequests.length === 0 ? (
+                    <tr>
+                      <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
+                        No fund requests found
+                      </td>
+                    </tr>
+                  ) : (
                   fundRequests.map((item, index) => {
                     const isApproved = item.status === "APPROVED";
                     const fundRequestId = item.id;
@@ -457,14 +537,24 @@ const FundRequest = () => {
                       </tr>
                     );
                   })
-                )}
-              </tbody>
+                  )}
+                </tbody>
+              )}
             </table>
           </div>
         </div>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center gap-2 mt-6">
+        {/* Loading / Pagination */}
+        {loading ? (
+          <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
+            <ButtonLoader color="#039155" size={24} thickness={3} />
+            <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+              Loading...
+            </p>
+          </div>
+        ) : (
+          totalPages > 0 && (
+            <div className="flex items-center justify-center gap-2 mt-6">
           <button
             onClick={() => handlePageChange(currentPage - 1)}
             disabled={currentPage === 1}
@@ -538,7 +628,9 @@ const FundRequest = () => {
               />
             </svg>
           </button>
-        </div>
+            </div>
+          )
+        )}
       </div>
 
       {/* Screen Freeze Overlay */}
@@ -748,6 +840,20 @@ const FundRequest = () => {
                         e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f3f4f6' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='sans-serif' font-size='16'%3EImage not available%3C/text%3E%3C/svg%3E";
                       }}
                     />
+                  </div>
+                </div>
+              )}
+
+              {/* Approval Remarks Display */}
+              {selectedRequest.approvalRemarks && (
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
+                    Approval Remarks
+                  </h3>
+                  <div className="p-3 bg-gray-50 rounded-lg">
+                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] whitespace-pre-wrap">
+                      {selectedRequest.approvalRemarks}
+                    </p>
                   </div>
                 </div>
               )}
