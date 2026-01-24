@@ -13,6 +13,10 @@ import {
   VERIFY_FORGET_PASSWORD_FAILURE,
   FORGET_PASSWORD_SUCCESS,
   FORGET_PASSWORD_FAILURE,
+  VERIFY_MPIN_SUCCESS,
+  VERIFY_MPIN_FAILURE,
+  SET_MPIN_SUCCESS,
+  SET_MPIN_FAILURE,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -33,6 +37,10 @@ const initialState = {
   forgetPasswordError: null,
   verifyForgetPasswordResponse: null,
   verifyForgetPasswordError: null,
+  verifyMPINResponse: null,
+  verifyMPINError: null,
+  setMPINResponse: null,
+  setMPINError: null,
 };
 
 const loginReducer = (state = initialState, action) => {
@@ -169,6 +177,36 @@ const loginReducer = (state = initialState, action) => {
         loading: false,
         forgetPasswordError: typeof action.payload === "object" ? action.payload : action.payload,
         forgetPasswordResponse: null,
+      };
+    case VERIFY_MPIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        verifyMPINResponse: action.payload,
+        verifyMPINError: null,
+        error: null,
+      };
+    case VERIFY_MPIN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        verifyMPINError: typeof action.payload === "object" ? action.payload : action.payload,
+        verifyMPINResponse: null,
+      };
+    case SET_MPIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        setMPINResponse: action.payload,
+        setMPINError: null,
+        error: null,
+      };
+    case SET_MPIN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        setMPINError: typeof action.payload === "object" ? action.payload : action.payload,
+        setMPINResponse: null,
       };
     default:
       return state;
