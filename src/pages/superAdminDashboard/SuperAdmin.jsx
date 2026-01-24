@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
-import { getAlsWallet } from "../../redux/action/walletAction";
+import { getAlsWallet, getWalletBalance } from "../../redux/action/walletAction";
 import {
   XAxis,
   YAxis,
@@ -30,12 +30,41 @@ const SuperAdmin = () => {
   const dispatch = useDispatch();
   const [selectedDay, setSelectedDay] = useState("Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
+  const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
+  const [isWalletLoading, setIsWalletLoading] = useState(true);
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Get wallet data from Redux
   const alsWalletResponse = useSelector((state) => state?.wallet?.alsWallet);
+  const walletBalanceResponse = useSelector((state) => state?.wallet?.walletBalance);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+
+  // Fetch wallet balance on component mount
+  useEffect(() => {
+    const fetchBalance = async () => {
+      setIsWalletLoading(true);
+      try {
+        await dispatch(getWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch wallet balance:", error);
+      } finally {
+        setIsWalletLoading(false);
+      }
+    };
+    fetchBalance();
+  }, [dispatch]);
+
+  // Update wallet data when balance is fetched
+  useEffect(() => {
+    if (walletBalanceResponse?.data) {
+      const { mainWallet, apesWallet } = walletBalanceResponse.data;
+      setWalletData({
+        mainWallet: mainWallet || null,
+        apesWallet: apesWallet || null,
+      });
+    }
+  }, [walletBalanceResponse]);
 
   // Update opening balance when wallet data is fetched
   useEffect(() => {
@@ -43,6 +72,13 @@ const SuperAdmin = () => {
       setAlsOpeningBalance(alsWalletResponse.data.data.openingBalance);
     }
   }, [alsWalletResponse]);
+
+  // Format number with Indian locale
+  const formatCurrency = (value) => {
+    if (!value) return "₹0.00";
+    const numValue = parseFloat(value);
+    return `₹${numValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   const data = [
     { name: "Rupaisa", value: 400 },
@@ -87,6 +123,79 @@ const SuperAdmin = () => {
       bg: "bg-[#FFF7EB]", // Light orange
     },
   ];
+
+  // Skeleton loader component
+  const SkeletonLoader = () => (
+    <div className="p-4 sm:p-6 min-h-screen text-[#1B1717] space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Chart Skeleton */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="flex flex-col gap-3 mb-4">
+            <div className="h-7 bg-gray-200 rounded w-40 animate-pulse"></div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                <div className="h-8 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-end">
+                {days.map((day) => (
+                  <div key={day} className="h-8 bg-gray-200 rounded-lg w-12 animate-pulse"></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="w-full h-48 sm:h-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Right: Wallet Cards Skeleton */}
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div key={i} className="bg-green-100 p-5 rounded-2xl shadow animate-pulse">
+              <div className="h-6 bg-gray-300 rounded w-32 mb-4"></div>
+              <div className="h-8 bg-gray-300 rounded w-40 mb-3"></div>
+              <div className="h-4 bg-gray-300 rounded w-20 mb-3"></div>
+              <div className="h-4 bg-gray-300 rounded w-48 mb-3"></div>
+              <div className="h-10 bg-gray-300 rounded w-full"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Overall Wallets Skeleton */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="h-7 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 animate-pulse">
+                <div className="h-5 bg-gray-300 rounded w-24 mb-2"></div>
+                <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
+                <div className="h-8 bg-gray-300 rounded w-full"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Action Buttons Skeleton */}
+        <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="h-7 bg-gray-200 rounded w-40 mb-5 animate-pulse"></div>
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex flex-col items-center space-y-4 animate-pulse">
+                <div className="bg-gray-300 w-16 h-16 rounded-full"></div>
+                <div className="h-4 bg-gray-300 rounded w-16"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Show skeleton loader while loading
+  if (isWalletLoading) {
+    return <SkeletonLoader />;
+  }
 
   return (
     <div className="p-4 sm:p-6  min-h-screen text-[#1B1717] space-y-6">
@@ -195,13 +304,15 @@ const SuperAdmin = () => {
               title: "Main Wallet",
               icon: Wallet,
               color: "text-green-600",
+              balance: walletData.mainWallet,
             },
             {
               title: "AEPS Wallet",
               icon: CreditCard,
               color: "text-green-600",
+              balance: walletData.apesWallet,
             },
-          ].map(({ title, icon: Icon, color }, i) => (
+          ].map(({ title, icon: Icon, color, balance }, i) => (
             <div
               key={i}
               className="bg-green-100 p-5 rounded-2xl shadow hover:shadow-lg transition"
@@ -210,7 +321,9 @@ const SuperAdmin = () => {
                 <Icon className={`w-5 h-5 ${color}`} />
                 {title}
               </h3>
-              <p className="text-2xl font-bold mt-2">₹4,21,40,238</p>
+              <p className="text-2xl font-bold mt-2">
+                {isWalletLoading ? "Loading..." : formatCurrency(balance)}
+              </p>
               <span className="text-green-600 text-sm font-medium flex items-center gap-1">
                 ▲ (4.61%)
               </span>

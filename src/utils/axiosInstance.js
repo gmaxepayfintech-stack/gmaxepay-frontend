@@ -3,6 +3,7 @@ import { API_ROUTE } from '../data/env';
 import secureLocalStorage from 'react-secure-storage';
 import { store } from '../redux/store';
 import { shouldRefreshToken, refreshAccessTokenSync } from './tokenRefreshManager';
+import { clearAllStorage, isTokenExpiredError } from './clearStorage';
 
 const api = axios.create({
   baseURL: API_ROUTE,
@@ -61,14 +62,8 @@ api.interceptors.request.use(
           
           if (!isLoggingOut) {
             isLoggingOut = true;
-            secureLocalStorage.removeItem("userToken");
-            secureLocalStorage.removeItem("refreshToken");
-            secureLocalStorage.removeItem("userData");
-            // Dispatch logout action if needed
-            if (store && store.dispatch) {
-              const { logout } = require('../redux/action/authAction');
-              store.dispatch(logout());
-            }
+            // Clear all storage when token refresh fails
+            clearAllStorage();
           }
           return Promise.reject(err);
         }
@@ -97,14 +92,8 @@ api.interceptors.response.use(
     if ((isRefreshCall || isLogoutCall) && !originalRequest._retry) {
       if (!isLoggingOut) {
         isLoggingOut = true;
-        secureLocalStorage.removeItem("userToken");
-        secureLocalStorage.removeItem("refreshToken");
-        secureLocalStorage.removeItem("userData");
-        
-        if (store && store.dispatch) {
-          const { logout } = require('../redux/action/authAction');
-          store.dispatch(logout());
-        }
+        // Clear all storage when refresh/logout fails
+        clearAllStorage();
       }
       return Promise.reject(error);
     }
@@ -139,17 +128,19 @@ api.interceptors.response.use(
 
         if (!isLoggingOut) {
           isLoggingOut = true;
-          secureLocalStorage.removeItem("userToken");
-          secureLocalStorage.removeItem("refreshToken");
-          secureLocalStorage.removeItem("userData");
-          
-          if (store && store.dispatch) {
-            const { logout } = require('../redux/action/authAction');
-            store.dispatch(logout());
-          }
+          // Clear all storage when token refresh fails
+          clearAllStorage();
         }
 
         return Promise.reject(err);
+      }
+    }
+
+    // Handle other 401/403 errors (token expired without refresh token)
+    if ((error.response?.status === 401 || error.response?.status === 403) && !isLoggingOut) {
+      if (isTokenExpiredError(error)) {
+        isLoggingOut = true;
+        clearAllStorage();
       }
     }
 

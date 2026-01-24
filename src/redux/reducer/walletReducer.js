@@ -1,10 +1,12 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
     error: null,
     alsWallet: null,
     alsWalletError: null,
+    walletBalance: null,
+    walletBalanceError: null,
     success: null,
     message: null,
 };
@@ -27,6 +29,28 @@ const walletReducer = (state = initialState, action) => {
                 ...state,
                 alsWallet: null,
                 alsWalletError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case WALLET_BALANCE_SUCCESS:
+            return {
+                ...state,
+                walletBalance: action?.payload,
+                walletBalanceError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case WALLET_BALANCE_FAILURE:
+            return {
+                ...state,
+                walletBalance: null,
+                walletBalanceError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,
