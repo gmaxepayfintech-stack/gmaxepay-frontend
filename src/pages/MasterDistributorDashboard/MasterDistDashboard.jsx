@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
     XAxis,
     YAxis,
@@ -8,12 +9,51 @@ import {
     Bar,
     Tooltip,
 } from "recharts";
+import { getUserWalletBalance } from "../../redux/action/walletAction";
 
 const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
 const Earning = "/img/Earning.png";
 
 const MasterDistDashboard = () => {
+    const dispatch = useDispatch();
+    const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
+    const [isWalletLoading, setIsWalletLoading] = useState(true);
+
+    const walletBalanceResponse = useSelector((state) => state?.wallet?.userWalletBalance);
+
+    // Fetch wallet balance on component mount
+    useEffect(() => {
+        const fetchBalance = async () => {
+            setIsWalletLoading(true);
+            try {
+                await dispatch(getUserWalletBalance());
+            } catch (error) {
+                console.error("Failed to fetch wallet balance:", error);
+            } finally {
+                setIsWalletLoading(false);
+            }
+        };
+        fetchBalance();
+    }, [dispatch]);
+
+    // Update wallet data when balance is fetched
+    useEffect(() => {
+        if (walletBalanceResponse?.data) {
+            const { mainWallet, apesWallet } = walletBalanceResponse.data;
+            setWalletData({
+                mainWallet: mainWallet || null,
+                apesWallet: apesWallet || null,
+            });
+        }
+    }, [walletBalanceResponse]);
+
+    // Format number with Indian locale
+    const formatCurrency = (value) => {
+        if (!value) return "₹0.00";
+        const numValue = parseFloat(value);
+        return `₹${numValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
     const [payoutOpen, setPayout] = useState(false);
     const [walletType, setWalletType] = useState("Move To Bank");
@@ -129,6 +169,11 @@ const MasterDistDashboard = () => {
             document.body.style.overflow = 'unset';
         };
     }, [payoutOpen]);
+
+    // Show skeleton loader while loading
+    if (isWalletLoading) {
+        return <div className="min-h-screen bg-white"></div>;
+    }
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
@@ -254,7 +299,7 @@ const MasterDistDashboard = () => {
                                 Main Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                                ₹4,21,40,238
+                                {formatCurrency(walletData.mainWallet)}
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
@@ -277,7 +322,7 @@ const MasterDistDashboard = () => {
                                 AEPS Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                                ₹4,21,40,238
+                                {formatCurrency(walletData.apesWallet)}
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">

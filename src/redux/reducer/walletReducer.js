@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -7,6 +7,10 @@ const initialState = {
     alsWalletError: null,
     walletBalance: null,
     walletBalanceError: null,
+    companyWalletBalance: null,
+    companyWalletBalanceError: null,
+    userWalletBalance: null,
+    userWalletBalanceError: null,
     success: null,
     message: null,
 };
@@ -51,6 +55,50 @@ const walletReducer = (state = initialState, action) => {
                 ...state,
                 walletBalance: null,
                 walletBalanceError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case COMPANY_WALLET_BALANCE_SUCCESS:
+            return {
+                ...state,
+                companyWalletBalance: action?.payload,
+                companyWalletBalanceError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case COMPANY_WALLET_BALANCE_FAILURE:
+            return {
+                ...state,
+                companyWalletBalance: null,
+                companyWalletBalanceError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case USER_WALLET_BALANCE_SUCCESS:
+            return {
+                ...state,
+                userWalletBalance: action?.payload,
+                userWalletBalanceError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case USER_WALLET_BALANCE_FAILURE:
+            return {
+                ...state,
+                userWalletBalance: null,
+                userWalletBalanceError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,

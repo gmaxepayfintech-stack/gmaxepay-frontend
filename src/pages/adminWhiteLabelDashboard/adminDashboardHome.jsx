@@ -9,7 +9,7 @@ import {
     Bar,
     Tooltip,
 } from "recharts";
-import { getWalletBalance } from "../../redux/action/walletAction";
+import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 
 const MasterDt = "/img/MasterDt.png";
 const Distributor = "/img/Distributor.png";
@@ -20,14 +20,14 @@ const AdminDashboardHome = () => {
     const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
     const [isWalletLoading, setIsWalletLoading] = useState(true);
 
-    const walletBalanceResponse = useSelector((state) => state?.wallet?.walletBalance);
+    const walletBalanceResponse = useSelector((state) => state?.wallet?.companyWalletBalance);
 
     // Fetch wallet balance on component mount
     useEffect(() => {
         const fetchBalance = async () => {
             setIsWalletLoading(true);
             try {
-                await dispatch(getWalletBalance());
+                await dispatch(getCompanyWalletBalance());
             } catch (error) {
                 console.error("Failed to fetch wallet balance:", error);
             } finally {
