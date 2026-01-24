@@ -5,7 +5,6 @@ import { clearAllStorage, isTokenExpiredError } from "../../utils/clearStorage";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
-import { clearAllStorage, isTokenExpiredError } from "../../utils/clearStorage";
 
 const commonError = "Something went wrong!";
 
