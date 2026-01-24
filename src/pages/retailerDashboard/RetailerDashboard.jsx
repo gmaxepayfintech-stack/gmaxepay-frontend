@@ -174,9 +174,96 @@ const RetailerDashboard = () => {
     }, [payoutOpen]);
 
 
+    // Skeleton loader component
+    const SkeletonLoader = () => (
+        <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
+            {/* Chart and Wallet Section Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                {/* Chart Skeleton */}
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+                        <div className="h-6 bg-gray-200 rounded w-40"></div>
+                        <div className="h-8 bg-gray-200 rounded w-20"></div>
+                    </div>
+                    <div className="mb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <div className="h-7 bg-gray-200 rounded w-32"></div>
+                            <div className="h-5 bg-gray-200 rounded w-24"></div>
+                        </div>
+                    </div>
+                    <div className="w-full h-80 sm:h-96 lg:h-[450px] bg-gray-200 rounded"></div>
+                </div>
+
+                {/* Wallet Cards Skeleton */}
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
+                    {[1, 2].map((i) => (
+                        <div key={i} className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col animate-pulse">
+                            <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
+                            <div className="h-8 bg-gray-300 rounded w-40 mb-2"></div>
+                            <div className="h-4 bg-gray-300 rounded w-16 mb-3"></div>
+                            <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+                            <div className="h-10 bg-gray-300 rounded w-full mt-4"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Quick Access Services Skeleton */}
+            <div className="p-3 sm:p-4 lg:p-6 animate-pulse">
+                <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+                        <div key={i} className="bg-white rounded-xl p-3 sm:p-4 flex items-start gap-4">
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gray-200 rounded-full shrink-0"></div>
+                            <div className="flex-1">
+                                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                                <div className="h-5 bg-gray-200 rounded w-24 mt-4"></div>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Transaction Table Skeleton */}
+            <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+                    <div className="h-6 bg-gray-200 rounded w-40"></div>
+                    <div className="flex items-center gap-2 sm:gap-3">
+                        <div className="h-8 bg-gray-200 rounded w-32"></div>
+                        <div className="h-8 bg-gray-200 rounded w-20"></div>
+                    </div>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="min-w-full">
+                        <thead>
+                            <tr className="border-b bg-gray-100 border-gray-200">
+                                {[1, 2, 3, 4, 5, 6].map((i) => (
+                                    <th key={i} className="py-3 px-4">
+                                        <div className="h-4 bg-gray-200 rounded w-20"></div>
+                                    </th>
+                                ))}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[1, 2, 3, 4, 5].map((row) => (
+                                <tr key={row} className="border-b border-gray-100">
+                                    {[1, 2, 3, 4, 5, 6].map((cell) => (
+                                        <td key={cell} className="py-3 px-4">
+                                            <div className="h-4 bg-gray-200 rounded w-16"></div>
+                                        </td>
+                                    ))}
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+
     // Show skeleton loader while loading
     if (isWalletLoading) {
-        return <div className="min-h-screen bg-white"></div>;
+        return <SkeletonLoader />;
     }
 
     return (
