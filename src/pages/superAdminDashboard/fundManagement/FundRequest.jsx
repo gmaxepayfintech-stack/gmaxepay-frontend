@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import * as XLSX from "xlsx";
+import { ButtonLoader } from '../../../widgets/layout/loader.jsx';
 import { adminApproveRequest, adminGetRequest } from '../../../redux/action/fundAction';
 
 const FundRequest = () => {
@@ -13,6 +14,10 @@ const FundRequest = () => {
   const [loading, setLoading] = useState(false);
   const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
+  const [selectedRequest, setSelectedRequest] = useState(null);
+  const [showDetailsPanel, setShowDetailsPanel] = useState(false);
+  const [approvalRemarks, setApprovalRemarks] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const debounceTimerRef = useRef(null);
   const itemsPerPage = 10;
 
@@ -31,10 +36,10 @@ const FundRequest = () => {
       // Build query object for date filters
       const query = {};
       if (fromDate) {
-        query.fromDate = fromDate;
+        query.startDate = fromDate;
       }
       if (toDate) {
-        query.toDate = toDate;
+        query.endDate = toDate;
       }
 
       // Build payload
@@ -92,16 +97,30 @@ const FundRequest = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
 
+  // Handle view details
+  const handleViewDetails = (request) => {
+    setSelectedRequest(request);
+    setShowDetailsPanel(true);
+    setApprovalRemarks("");
+  };
+
+  // Handle close details panel
+  const handleClosePanel = () => {
+    setShowDetailsPanel(false);
+    setSelectedRequest(null);
+    setApprovalRemarks("");
+  };
+
   // Handle approve fund request
-  const handleApprove = async (fundRequestId, approvalRemarks = "") => {
-    if (!fundRequestId) {
+  const handleApprove = async () => {
+    if (!selectedRequest?.id) {
       return;
     }
     
     try {
-      setLoading(true);
+      setSubmitting(true);
       const payload = {
-        fundRequestId: fundRequestId.toString(),
+        fundRequestId: selectedRequest.id.toString(),
         action: "APPROVED",
         approvalRemarks: approvalRemarks || ""
       };
@@ -109,14 +128,15 @@ const FundRequest = () => {
       const result = await dispatch(adminApproveRequest(payload));
       
       if (result?.status === "SUCCESS") {
-        // Refresh the list
+        // Close panel and refresh the list
+        handleClosePanel();
         fetchFundRequests();
       }
     } catch (error) {
       // Error is handled by Redux error reducer
       console.error("Failed to approve fund request:", error);
     } finally {
-      setLoading(false);
+      setSubmitting(false);
     }
   };
 
@@ -175,10 +195,73 @@ const FundRequest = () => {
         Fund Request
       </h1>
       <div className="w-full mx-auto">
-        <div className=" h-[45px] mb-[28px] w-full">
-          <div className="flex flex-col lg:flex-row items-center gap-4 w-full flex-nowrap">
+        <div className="mb-[28px] w-full">
+          {/* Small devices: Stacked layout */}
+          <div className="block sm:hidden">
+            {/* Search Bar */}
+            <div className="relative w-full mb-4">
+              <input
+                type="text"
+                placeholder="Search By Reference,ID"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full h-[44px] pl-10 pr-4 border border-[#1B1717]/50 rounded-lg text-[14px]"
+              />
+              <svg
+                className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#1B1717]/50"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                />
+              </svg>
+            </div>
+            {/* Date filters */}
+            <div className="flex gap-3 mb-4">
+              <input
+                type="date"
+                value={fromDate}
+                onChange={(e) => setFromDate(e.target.value)}
+                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] flex-1"
+              />
+              <input
+                type="date"
+                value={toDate}
+                onChange={(e) => setToDate(e.target.value)}
+                className="h-[44px] px-3 border border-[#1B1717]/50 rounded-lg text-[14px] flex-1"
+              />
+            </div>
+            {/* Export button below */}
+            <button
+              onClick={handleExport}
+              className="w-full h-[44px] px-6 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] flex items-center justify-center gap-2"
+            >
+              Export
+              <svg
+                className="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                />
+              </svg>
+            </button>
+          </div>
+
+          {/* Medium and Large devices: Single row layout */}
+          <div className="hidden sm:flex items-center gap-4 w-full">
             {/* Search – takes remaining width */}
-            <div className="relative w-full lg:flex-1">
+            <div className="relative flex-1">
               <input
                 type="text"
                 placeholder="Search By Reference,ID"
@@ -241,26 +324,27 @@ const FundRequest = () => {
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-3xl  shadow-sm overflow-hidden">
+        <div className="bg-white rounded-3xl shadow-sm overflow-hidden mt-4 sm:mt-[40px] md:mt-[40px] lg:mt-4">
           <div className="overflow-x-auto">
-            <table className=" rounded-3xl">
+            <table className="w-full min-w-[1000px] rounded-3xl">
               <thead>
                 <tr className="bg-[#FFFFFF] border-b border-gray-200">
                   {[
                     "SR No",
-                    "Created At",
                     "Request By",
                     "Deposit Bank Name",
                     "Deposit Bank Account",
                     "Ref Number",
                     "Txn Id",
                     "Amount",
-                    "Approved",
+                    "Payment Mode",
                     "Status",
+                    "Created At",
+                    "Action",
                   ].map((title) => (
                     <th
                       key={title}
-                      className="px-4 py-3 text-left text-[14px] font-['Gilroy-SemiBold'] text-[#1B1717] whitespace-nowrap"
+                      className="px-2 sm:px-3 md:px-4 py-3 text-left text-[12px] sm:text-[13px] md:text-[14px] font-['Gilroy-SemiBold'] text-[#1B1717] whitespace-nowrap"
                     >
                       {title}
                     </th>
@@ -268,16 +352,16 @@ const FundRequest = () => {
                 </tr>
               </thead>
 
-              <tbody className='whitespace-nowrap overflow-hidden text-[12px] text-ellipsis max-w-[140px]'>
+              <tbody className='text-[11px] sm:text-[12px]'>
                 {loading && fundRequests.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
+                    <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
                       Loading...
                     </td>
                   </tr>
                 ) : fundRequests.length === 0 ? (
                   <tr>
-                    <td colSpan={10} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
+                    <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
                       No fund requests found
                     </td>
                   </tr>
@@ -307,76 +391,43 @@ const FundRequest = () => {
                         className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50 font-['Gilroy-Regular']"
                           }`}
                       >
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
                           {(currentPage - 1) * itemsPerPage + index + 1}
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {formatDate(item.createdAt)}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          <span className="truncate block max-w-[120px] sm:max-w-[150px] md:max-w-none">
+                            {item.requester?.name || ""}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {item.requester?.name || ""}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                            {item.bank?.bankName || ""}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {item.bank?.bankName || ""}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                            {item.bank?.accountNumber || ""}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {item.bank?.accountNumber || ""}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          <span className="truncate block max-w-[80px] sm:max-w-[100px] md:max-w-none">
+                            {item.referenceNo || ""}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {item.referenceNo || ""}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                            {item.transactionId || ""}
+                          </span>
                         </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
-                          {item.transactionId || ""}
-                        </td>
-                        <td className="px-4 py-3 text-[12px] text-[#1B1717]">
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
                           {item.amount ? `₹${item.amount}` : ""}
                         </td>
-
-                        {/* Approved */}
-                        <td className="px-4 py-3">
-                          {isApproved ? (
-                            <div className="w-6 h-6 border border-gray-400 rounded flex items-center justify-center bg-green-50">
-                              <svg
-                                className="w-4 h-4 text-[#039155]"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={3}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </div>
-                          ) : (
-                            <button
-                              onClick={() => handleApprove(fundRequestId)}
-                              disabled={loading}
-                              className="w-6 h-6 border border-gray-400 rounded flex items-center justify-center hover:bg-green-50 hover:border-[#039155] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                              title="Click to approve"
-                            >
-                              <svg
-                                className="w-4 h-4 text-gray-400"
-                                fill="none"
-                                stroke="currentColor"
-                                viewBox="0 0 24 24"
-                              >
-                                <path
-                                  strokeLinecap="round"
-                                  strokeLinejoin="round"
-                                  strokeWidth={2}
-                                  d="M5 13l4 4L19 7"
-                                />
-                              </svg>
-                            </button>
-                          )}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          {item.paymentMode || "-"}
                         </td>
-
                         {/* Status */}
-                        <td className="px-4 py-3">
-                          <span className={`px-3 py-1 text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
+                        <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
+                          <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
                             item.status === "APPROVED" || isApproved
                               ? "bg-[#039155]"
                               : item.status === "REJECTED"
@@ -385,6 +436,23 @@ const FundRequest = () => {
                           }`}>
                             {item.status || "PENDING"}
                           </span>
+                        </td>
+                        {/* Action - View Button */}
+                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                          {formatDate(item.createdAt)}
+                        </td>
+                        <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
+                          <button
+                            onClick={() => handleViewDetails(item)}
+                            className="px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 bg-[#039155] text-white rounded-lg text-[10px] sm:text-[11px] md:text-[12px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors flex items-center justify-center gap-1.5 sm:gap-2"
+                          >
+                            <img 
+                              src="/img/Eye.svg" 
+                              alt="View" 
+                              className="w-3 h-3 sm:w-4 sm:h-4"
+                            />
+                            View
+                          </button>
                         </td>
                       </tr>
                     );
@@ -472,6 +540,259 @@ const FundRequest = () => {
           </button>
         </div>
       </div>
+
+      {/* Screen Freeze Overlay */}
+      {submitting && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 z-50"></div>
+      )}
+
+      {/* Right Side Details Panel */}
+      {showDetailsPanel && selectedRequest && (
+        <div className="fixed inset-0 z-40 flex">
+          {/* Backdrop */}
+          <div 
+            className="flex-1 bg-black bg-opacity-50"
+            onClick={handleClosePanel}
+          ></div>
+          
+          {/* Panel */}
+          <div className="w-full md:w-[500px] lg:w-[600px] bg-white shadow-xl overflow-y-auto">
+            <div className="sticky top-0 bg-white border-b border-gray-200">
+              <div className="relative px-6 py-6">
+                <button
+                  onClick={handleClosePanel}
+                  className="absolute right-6 top-6 p-2 hover:bg-gray-100 rounded-lg transition-colors z-10"
+                >
+                  <svg
+                    className="w-5 h-5 text-[#1B1717]"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+                <div className="text-center">
+                  <h2 className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-[10px]">
+                    Fund Request Details
+                  </h2>
+                  <div className="w-20 h-0.5 bg-[#039155] mx-auto"></div>
+                </div>
+              </div>
+            </div>
+
+            <div className="p-6 space-y-6">
+              {/* Request Details */}
+              <div>
+                <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
+                  Transaction Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left Column - Odd items (1, 3, 5) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Transaction ID</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.transactionId || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Amount</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.amount ? `₹${selectedRequest.amount}` : "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Status</p>
+                      <span className={`inline-block px-3 py-1 text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
+                        selectedRequest.status === "APPROVED"
+                          ? "bg-[#039155]"
+                          : selectedRequest.status === "REJECTED"
+                          ? "bg-red-500"
+                          : "bg-yellow-500"
+                      }`}>
+                        {selectedRequest.status || "PENDING"}
+                      </span>
+                    </div>
+                    {selectedRequest.remarks && (
+                      <div className="p-3">
+                        <p className="text-[12px] text-gray-500 mb-1">Remarks</p>
+                        <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                          {selectedRequest.remarks}
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                  
+                  {/* Right Column - Even items (2, 4, 6) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Reference Number</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.referenceNo || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Payment Mode</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.paymentMode || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Transaction Date</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.transactionDate 
+                          ? new Date(selectedRequest.transactionDate).toLocaleDateString('en-GB', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                            })
+                          : "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Requester Details */}
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
+                  Requester Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left Column - Odd items (1, 3) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Name</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.requester?.name || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Email</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.requester?.email || "-"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Right Column - Even items (2) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Mobile</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.requester?.mobileNo || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Bank Details */}
+              <div className="border-t border-gray-200 pt-4">
+                <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
+                  Bank Details
+                </h3>
+                <div className="grid grid-cols-2 gap-4">
+                  {/* Left Column - Odd items (1, 3) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Bank Name</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.bank?.bankName || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">IFSC</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.bank?.ifsc || "-"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  {/* Right Column - Even items (2, 4) */}
+                  <div className="space-y-3">
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Account Number</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.bank?.accountNumber || "-"}
+                      </p>
+                    </div>
+                    <div className="p-3">
+                      <p className="text-[12px] text-gray-500 mb-1">Beneficiary Name</p>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        {selectedRequest.bank?.beneficiaryName || "-"}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Payslip */}
+              {selectedRequest.paySlip && (
+                <div className="border-t border-gray-200 pt-4">
+                  <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
+                    Payslip
+                  </h3>
+                  <div className="border border-gray-200 rounded-lg p-2 bg-gray-50">
+                    <img
+                      src={selectedRequest.paySlip}
+                      alt="Payslip"
+                      className="w-full h-auto rounded-lg"
+                      onError={(e) => {
+                        e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='300'%3E%3Crect fill='%23f3f4f6' width='400' height='300'/%3E%3Ctext x='50%25' y='50%25' text-anchor='middle' dy='.3em' fill='%239ca3af' font-family='sans-serif' font-size='16'%3EImage not available%3C/text%3E%3C/svg%3E";
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Approval Remarks Input (only show if status is PENDING) */}
+              {selectedRequest.status === "PENDING" && (
+                <div className="border-t border-gray-200 pt-4">
+                  <label className="block mb-2">
+                    <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                      Approval Remarks <span className="text-gray-400 text-[12px]">(Optional)</span>
+                    </span>
+                  </label>
+                  <textarea
+                    value={approvalRemarks}
+                    onChange={(e) => setApprovalRemarks(e.target.value)}
+                    placeholder="Enter approval remarks (optional)"
+                    rows={3}
+                    className="w-full px-3 py-2 border border-[#1B1717]/50 rounded-lg text-[14px] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent resize-none"
+                  />
+                </div>
+              )}
+
+              {/* Approve Button (only show if status is PENDING) */}
+              {selectedRequest.status === "PENDING" && (
+                <div className="border-t border-gray-200 pt-4">
+                  <button
+                    onClick={handleApprove}
+                    disabled={submitting}
+                    className="w-full px-6 py-3 bg-[#039155] text-white rounded-lg text-[14px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {submitting ? (
+                      <>
+                        <ButtonLoader color="#ffffff" size={16} thickness={2} />
+                        Processing...
+                      </>
+                    ) : (
+                      "Approve Request"
+                    )}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
