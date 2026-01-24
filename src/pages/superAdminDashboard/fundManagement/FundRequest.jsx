@@ -50,19 +50,16 @@ const FundRequest = () => {
 
       const result = await dispatch(adminGetRequest(payload));
       
-      if (result?.status === "SUCCESS" && result?.companyRequest) {
-        // companyRequest is the data array directly from the API response
-        const dataArray = Array.isArray(result.companyRequest) 
-          ? result.companyRequest 
-          : result.companyRequest?.data || [];
+      if (result?.status === "SUCCESS" && result?.adminGetRequest) {
+        const dataArray = Array.isArray(result.adminGetRequest) 
+          ? result.adminGetRequest 
+          : result.adminGetRequest?.data || [];
         setFundRequests(dataArray);
-        // Calculate total pages based on data length if pagination info not provided
         const calculatedPages = Math.ceil(dataArray.length / itemsPerPage) || 1;
-        setTotalPages(result.companyRequest?.totalPages || calculatedPages);
-        setTotalRecords(result.companyRequest?.totalRecords || dataArray.length);
+        setTotalPages(result.adminGetRequest?.totalPages || calculatedPages);
+        setTotalRecords(result.adminGetRequest?.totalRecords || dataArray.length);
       }
     } catch (error) {
-      // Error is handled by Redux error reducer
       console.error("Failed to fetch fund requests:", error);
     } finally {
       setLoading(false);
