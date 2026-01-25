@@ -65,8 +65,9 @@ const PaymentSuccessScreen = ({
     doc.text("Invoice Number:", margin, yPos);
     doc.setTextColor(...darkGray);
     doc.setFont(undefined, "bold");
+    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || `INV-${Date.now()}`;
     doc.text(
-      transactionDetails.orderid || `INV-${Date.now()}`,
+      orderId,
       margin + 35,
       yPos,
     );
@@ -76,8 +77,9 @@ const PaymentSuccessScreen = ({
     doc.text("Date:", pageWidth - margin - 50, yPos);
     doc.setTextColor(...darkGray);
     doc.setFont(undefined, "bold");
+    const dateTime = transactionDetails.dateTime || new Date().toLocaleString();
     doc.text(
-      transactionDetails.dateTime || new Date().toLocaleString(),
+      dateTime,
       pageWidth - margin,
       yPos,
       { align: "right" },
@@ -104,12 +106,16 @@ const PaymentSuccessScreen = ({
     doc.setFont(undefined, "normal");
     doc.text("Total Amount Paid", margin + 10, yPos + 8);
 
-    // Amount value
+    // Amount value - using "Rs." instead of ₹ symbol for better PDF compatibility
     doc.setTextColor(...brandColor);
     doc.setFontSize(24);
     doc.setFont(undefined, "bold");
+    const amount = transactionDetails.amount || 
+                   transactionDetails.apiResponse?.amount || 
+                   transactionDetails.data?.apiResponse?.amount || 
+                   "0.00";
     doc.text(
-      `₹ ${transactionDetails.amount || "0.00"}`,
+      `Rs. ${amount}`,
       margin + 10,
       yPos + 22,
     );
@@ -127,31 +133,39 @@ const PaymentSuccessScreen = ({
 
     yPos += 15;
 
+    // Extract data from nested structure if needed
+    const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
+    const txId = transactionDetails.transactionId || apiResponse.txid?.toString() || transactionDetails.data?.apiResponse?.txid?.toString() || "N/A";
+    const bConnectId = transactionDetails.bConnectId || apiResponse.opid?.toString() || transactionDetails.data?.apiResponse?.opid?.toString() || "N/A";
+    const mobileNum = transactionDetails.number || apiResponse.number || transactionDetails.data?.apiResponse?.number || mobileNumber || "N/A";
+    const status = transactionDetails.status || apiResponse.status || transactionDetails.data?.apiResponse?.status || "Success";
+    const orderIdValue = transactionDetails.orderid || transactionDetails.data?.orderid || apiResponse.orderid || "N/A";
+
     // Details grid
     const details = [
       {
         label: "Transaction ID",
-        value: transactionDetails.transactionId || "N/A",
+        value: txId,
         col: 1,
       },
       {
         label: "B-Connect Transaction ID",
-        value: transactionDetails.bConnectId || "N/A",
+        value: bConnectId,
         col: 2,
       },
       {
         label: "Mobile Number",
-        value: transactionDetails.number || mobileNumber || "N/A",
+        value: mobileNum,
         col: 1,
       },
       {
         label: "Transaction Status",
-        value: transactionDetails.status || "Success",
+        value: status,
         col: 2,
       },
       {
         label: "Order ID",
-        value: transactionDetails.orderid || "N/A",
+        value: orderIdValue,
         col: 1,
       },
       {
@@ -196,8 +210,9 @@ const PaymentSuccessScreen = ({
     doc.setTextColor(...darkGray);
     doc.setFontSize(10);
     doc.setFont(undefined, "bold");
+    const transactionDateTime = transactionDetails.dateTime || new Date().toLocaleString();
     doc.text(
-      transactionDetails.dateTime || new Date().toLocaleString(),
+      transactionDateTime,
       margin + 50,
       yPos,
     );
@@ -242,7 +257,8 @@ const PaymentSuccessScreen = ({
 
   const handleDownload = () => {
     const doc = generatePDF();
-    const fileName = `Invoice_${transactionDetails.orderid || Date.now()}.pdf`;
+    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
+    const fileName = `Invoice_${orderId}.pdf`;
     doc.save(fileName);
   };
 
@@ -250,9 +266,10 @@ const PaymentSuccessScreen = ({
     try {
       const doc = generatePDF();
       const pdfBlob = doc.output("blob");
+      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
       const file = new File(
         [pdfBlob],
-        `Invoice_${transactionDetails.orderid || Date.now()}.pdf`,
+        `Invoice_${orderId}.pdf`,
         {
           type: "application/pdf",
         },
@@ -320,7 +337,7 @@ const PaymentSuccessScreen = ({
         {/* Amount */}
         <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
           <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            ₹ {transactionDetails.amount}
+            ₹ {transactionDetails.amount || transactionDetails.apiResponse?.amount || transactionDetails.data?.apiResponse?.amount || "0.00"}
           </div>
         </div>
 
@@ -331,7 +348,7 @@ const PaymentSuccessScreen = ({
               Transaction ID
             </div>
             <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-              {transactionDetails.transactionId || "N/A"}
+              {transactionDetails.transactionId || transactionDetails.apiResponse?.txid?.toString() || transactionDetails.data?.apiResponse?.txid?.toString() || "N/A"}
             </div>
           </div>
 
@@ -340,7 +357,7 @@ const PaymentSuccessScreen = ({
               Mobile Number
             </div>
             <div className="font-['Gilroy-Medium'] text-sm">
-              {transactionDetails.number || mobileNumber}
+              {transactionDetails.number || transactionDetails.apiResponse?.number || transactionDetails.data?.apiResponse?.number || mobileNumber || "N/A"}
             </div>
           </div>
 
@@ -349,7 +366,7 @@ const PaymentSuccessScreen = ({
               Transaction Status
             </div>
             <div className="font-['Gilroy-Medium'] text-[#039155]">
-              {transactionDetails.status || "Success"}
+              {transactionDetails.status || transactionDetails.apiResponse?.status || transactionDetails.data?.apiResponse?.status || "Success"}
             </div>
           </div>
 
@@ -367,7 +384,7 @@ const PaymentSuccessScreen = ({
               B-Connect Transaction ID
             </div>
             <div className="font-['Gilroy-Medium']">
-              {transactionDetails.bConnectId || "N/A"}
+              {transactionDetails.bConnectId || transactionDetails.apiResponse?.opid?.toString() || transactionDetails.data?.apiResponse?.opid?.toString() || "N/A"}
             </div>
           </div>
 
@@ -376,7 +393,7 @@ const PaymentSuccessScreen = ({
               Order ID
             </div>
             <div className="font-['Gilroy-Medium']">
-              {transactionDetails.orderid || "N/A"}
+              {transactionDetails.orderid || transactionDetails.data?.orderid || transactionDetails.apiResponse?.orderid || "N/A"}
             </div>
           </div>
 
