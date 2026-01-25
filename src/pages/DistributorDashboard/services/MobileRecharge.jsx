@@ -1066,7 +1066,7 @@ const MobileRecharge = ({ onBack }) => {
                     // Prepare payment payload
                     const paymentPayload = {
                       mobileNumber: mobileNumber,
-                      opcode: operatorData?.company_code || "A",
+                      opcode: operatorData?.operatorCode || "A",
                       amount: selectedPlanForRecharge.price
                         .replace("₹", "")
                         .trim(),
