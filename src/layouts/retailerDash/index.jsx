@@ -8,6 +8,7 @@ import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceT
 import WalletLoad from "../../pages/retailerDashboard/fundManagement/WalletLoad";
 import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharge";
 import DTHRecharge from "../../pages/retailerDashboard/services/DTHRecharge";
+import OnBoardingBBPS from "../../pages/retailerDashboard/bbps/onBoardingBBPS";
 import BusinessReport from "../../pages/retailerDashboard/Reports/BusinessReport";
 import EarningReport from "../../pages/retailerDashboard/Reports/EarningReport";
 import UserPerformance from "../../pages/retailerDashboard/Reports/UserPerformance";
@@ -28,6 +29,10 @@ const RetailerDash = () => {
           element={<OnBoardingAepsTwo />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
+        <Route
+          path="/services/bbps"
+          element={<OnBoardingBBPS />}
+        />
         <Route
           path="/services/aeps2/select-service"
           element={<SelectserviceTwo />}

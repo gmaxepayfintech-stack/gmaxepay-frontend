@@ -481,9 +481,9 @@ const BillerCard = ({ biller, onEditClick, onToggleActive, company, categoriesFo
                     />
                     <span className="font-['Gilroy-SemiBold] text-[16px] text-[#1B1717]">{biller.name}</span>
                 </div>
-                <span className={`text-xs text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${active ? "bg-[#008D1E]" : "bg-red-500"}`}>
+                <span className="text-xs bg-[#008D1E] text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
                     <span className="w-[8px] h-[8px] bg-white text-[#FFFFFF] rounded-full"></span>
-                    {active ? "Active" : "Inactive"}
+                    Active
                 </span>
             </div>
 

@@ -38,6 +38,9 @@ import {
   BBPS_UPDATE_BILLER_START,
   BBPS_UPDATE_BILLER_SUCCESS,
   BBPS_UPDATE_BILLER_FAILURE,
+  BBPS_USER_GET_ALL_CATEGORIES_START,
+  BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
+  BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
 } from '../actionType/bbpsActionType';
 
 const initialState = {
@@ -62,6 +65,10 @@ const initialState = {
   createPaymentInfoError: null,
   createBillerSuccess: false,
   createBillerError: null,
+  // User BBPS categories
+  userCategories: [],
+  userCategoriesLoading: false,
+  userCategoriesError: null,
 };
 
 const bbpsReducer = (state = initialState, action) => {
@@ -318,6 +325,29 @@ const bbpsReducer = (state = initialState, action) => {
         loading: false,
         updateBillerSuccess: false,
         updateBillerError: action.payload,
+      };
+
+    case BBPS_USER_GET_ALL_CATEGORIES_START:
+      return {
+        ...state,
+        userCategoriesLoading: true,
+        userCategoriesError: null,
+      };
+
+    case BBPS_USER_GET_ALL_CATEGORIES_SUCCESS:
+      return {
+        ...state,
+        userCategoriesLoading: false,
+        userCategoriesError: null,
+        userCategories: action.payload || [],
+      };
+
+    case BBPS_USER_GET_ALL_CATEGORIES_FAILURE:
+      return {
+        ...state,
+        userCategoriesLoading: false,
+        userCategoriesError: action.payload,
+        userCategories: [],
       };
 
     default:
