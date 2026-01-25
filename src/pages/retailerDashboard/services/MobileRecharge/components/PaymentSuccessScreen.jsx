@@ -61,6 +61,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     
     const operatorLogoPath = getOperatorLogo(operatorName);
     const companyLogoUrl = company?.logo || "";
+    const companyName = company?.name || company?.companyName || "";
 
     // Convert logo URLs to base64 or use direct URLs
     const companyLogoHtml = companyLogoUrl 
@@ -99,7 +100,6 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             margin: 0 auto;
             background: white;
             padding: 40px;
-            border: 1px solid #e5e5e5;
         }
         
         .header {
@@ -108,6 +108,14 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             align-items: center;
             padding: 20px 0 30px 0;
             margin-bottom: 20px;
+        }
+        
+        .company-name {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 600;
+            color: #000;
+            margin-bottom: 10px;
         }
         
         .company-logo {
@@ -251,6 +259,14 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             <div class="operator-logo" style="${operatorLogoStyle}">
                 ${operatorLogoHtml || ''}
             </div>
+        </div>
+        
+        ${companyName ? `<div class="company-name">${companyName}</div>` : ''}
+        
+        <!-- Invoice Title -->
+        <div class="invoice-title">
+            <h1>INVOICE</h1>
+            <p>Transaction Receipt</p>
         </div>
         
         <!-- Content -->
@@ -564,7 +580,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-8 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
