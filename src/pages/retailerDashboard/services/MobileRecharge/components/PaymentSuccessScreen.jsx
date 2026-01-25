@@ -62,6 +62,19 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     const operatorLogoPath = getOperatorLogo(operatorName);
     const companyLogoUrl = company?.logo || "";
 
+    // Convert logo URLs to base64 or use direct URLs
+    const companyLogoHtml = companyLogoUrl 
+      ? `<img src="${companyLogoUrl}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
+      : '';
+    
+    const operatorLogoHtml = operatorLogoPath
+      ? `<img src="${operatorLogoPath}" alt="${operatorName}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
+      : '';
+    
+    // Hide logo containers if no logo is available
+    const companyLogoStyle = companyLogoUrl ? '' : 'display: none;';
+    const operatorLogoStyle = operatorLogoPath ? '' : 'display: none;';
+
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -77,7 +90,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         body {
             font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            background: white;
             padding: 40px 20px;
         }
         
@@ -85,21 +98,22 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             max-width: 600px;
             margin: 0 auto;
             background: white;
-            padding: 30px;
+            padding: 40px;
+            border: 1px solid #e5e5e5;
         }
         
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0;
-            border-bottom: 1px solid #ddd;
-            margin-bottom: 20px;
+            padding: 20px 0 30px 0;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
         }
         
         .company-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -107,14 +121,16 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         }
         
         .company-logo img {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
         }
         
         .operator-logo {
-            width: 80px;
-            height: 80px;
+            width: 100px;
+            height: 100px;
             display: flex;
             align-items: center;
             justify-content: center;
@@ -122,26 +138,31 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         }
         
         .operator-logo img {
-            width: 100%;
-            height: 100%;
+            max-width: 100%;
+            max-height: 100%;
+            width: auto;
+            height: auto;
             object-fit: contain;
         }
         
         .invoice-title {
             text-align: center;
-            padding: 20px 0;
-            margin-bottom: 20px;
+            padding: 25px 0;
+            margin-bottom: 30px;
         }
         
         .invoice-title h1 {
-            font-size: 24px;
+            font-size: 28px;
             color: #000;
-            margin-bottom: 5px;
+            margin-bottom: 8px;
+            font-weight: 700;
+            letter-spacing: 1px;
         }
         
         .invoice-title p {
             color: #666;
             font-size: 14px;
+            font-weight: 400;
         }
         
         .content {
@@ -151,8 +172,9 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         .info-row {
             display: flex;
             justify-content: space-between;
-            padding: 12px 0;
-            border-bottom: 1px solid #eee;
+            align-items: center;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .info-row:last-child {
@@ -162,54 +184,73 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         .info-label {
             font-weight: 600;
             color: #333;
-            font-size: 14px;
+            font-size: 15px;
         }
         
         .info-value {
             color: #000;
-            font-size: 14px;
+            font-size: 15px;
             text-align: right;
+            font-weight: 500;
+        }
+        
+        .info-value strong {
+            font-weight: 700;
+            color: #000;
         }
         
         .amount-row {
-            margin-top: 10px;
-            padding-top: 15px;
-            border-top: 2px solid #333;
+            margin-top: 15px;
+            padding-top: 20px;
+            padding-bottom: 15px;
+            border-top: 2px solid #000;
+            border-bottom: 1px solid #f0f0f0;
         }
         
         .amount-value {
-            font-size: 28px;
-            font-weight: bold;
+            font-size: 32px;
+            font-weight: 700;
             color: #000;
+            letter-spacing: 0.5px;
         }
         
         .status-success {
             display: inline-block;
-            padding: 4px 12px;
+            padding: 6px 16px;
             background: #039155;
             color: white;
             font-weight: 600;
-            font-size: 12px;
-            border-radius: 4px;
+            font-size: 13px;
+            border-radius: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
         .footer {
-            padding: 20px 0;
+            padding: 30px 0 10px 0;
             text-align: center;
-            border-top: 1px solid #ddd;
-            margin-top: 30px;
+            border-top: 1px solid #e5e5e5;
+            margin-top: 40px;
             color: #666;
-            font-size: 12px;
+            font-size: 13px;
         }
         
         .footer p {
-            margin: 5px 0;
+            margin: 6px 0;
+        }
+        
+        .footer p:first-child {
+            font-weight: 600;
+            color: #333;
         }
         
         @media print {
             body {
                 background: white;
                 padding: 0;
+            }
+            .invoice-container {
+                border: none;
             }
         }
     </style>
@@ -218,11 +259,11 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     <div class="invoice-container">
         <!-- Header with Logos -->
         <div class="header">
-            <div class="company-logo">
-                ${companyLogoUrl ? `<img src="${companyLogoUrl}" alt="Company Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 12px;\\">YOUR LOGO</span>';" />` : '<span style="font-size: 12px;">YOUR LOGO</span>'}
+            <div class="company-logo" style="${companyLogoStyle}">
+                ${companyLogoHtml || ''}
             </div>
-            <div class="operator-logo">
-                ${operatorLogoPath ? `<img src="${operatorLogoPath}" alt="${operatorName}" onerror="this.style.display='none'; this.parentElement.innerHTML='<span style=\\"font-size: 12px;\\">${operatorName.toUpperCase()}</span>';" />` : `<span style="font-size: 12px;">${operatorName.toUpperCase()}</span>`}
+            <div class="operator-logo" style="${operatorLogoStyle}">
+                ${operatorLogoHtml || ''}
             </div>
         </div>
         
@@ -541,11 +582,11 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
-            className="w-24 border border-[#039155] rounded-lg py-1.5 text-xs text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+            className="w-28 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
           >
             Share
           </button>
@@ -553,7 +594,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           <button
             type="button"
             onClick={handleDownload}
-            className="w-24 bg-[#039155] text-white rounded-lg py-1.5 text-xs font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+            className="w-28 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
           >
             Download
           </button>
