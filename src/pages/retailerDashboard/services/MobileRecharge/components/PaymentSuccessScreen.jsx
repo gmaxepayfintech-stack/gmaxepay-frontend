@@ -112,10 +112,13 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         .company-name {
             text-align: center;
-            font-size: 18px;
-            font-weight: 600;
+            font-size: 24px;
+            font-weight: 700;
             color: #000;
-            margin-bottom: 10px;
+            margin-bottom: 20px;
+            padding: 15px 0;
+            border-bottom: 2px solid #000;
+            letter-spacing: 0.5px;
         }
         
         .company-logo {
@@ -154,46 +157,54 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         .invoice-title {
             text-align: center;
-            padding: 25px 0;
+            padding: 30px 0;
             margin-bottom: 30px;
         }
         
         .invoice-title h1 {
-            font-size: 28px;
+            font-size: 42px;
             color: #000;
-            margin-bottom: 8px;
-            font-weight: 700;
-            letter-spacing: 1px;
+            margin-bottom: 10px;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
         
         .invoice-title p {
-            color: #666;
-            font-size: 14px;
-            font-weight: 400;
+            color: #000;
+            font-size: 16px;
+            font-weight: 500;
         }
         
         .content {
-            padding: 20px 0;
+            padding: 0;
         }
         
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
+        .invoice-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #000;
+            margin: 20px 0;
+        }
+        
+        .invoice-table td {
+            padding: 15px 20px;
+            border: 1px solid #000;
+            font-size: 15px;
         }
         
         .info-label {
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: #000;
             font-size: 15px;
+            width: 40%;
         }
         
         .info-value {
             color: #000;
             font-size: 15px;
             text-align: right;
-            font-weight: 500;
+            font-weight: 600;
         }
         
         .info-value strong {
@@ -202,21 +213,23 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         }
         
         .amount-row {
-            margin-top: 15px;
-            padding-top: 20px;
-            padding-bottom: 15px;
+            background-color: #f5f5f5;
+        }
+        
+        .amount-row .info-label {
+            font-size: 18px;
         }
         
         .amount-value {
             font-size: 32px;
-            font-weight: 700;
+            font-weight: 900;
             color: #000;
             letter-spacing: 0.5px;
         }
         
         .status-success {
             color: #000;
-            font-weight: 600;
+            font-weight: 700;
             font-size: 15px;
             text-transform: uppercase;
         }
@@ -225,17 +238,18 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             padding: 30px 0 10px 0;
             text-align: center;
             margin-top: 40px;
-            color: #666;
+            color: #000;
             font-size: 13px;
         }
         
         .footer p {
             margin: 6px 0;
+            color: #000;
         }
         
         .footer p:first-child {
-            font-weight: 600;
-            color: #333;
+            font-weight: 700;
+            color: #000;
         }
         
         @media print {
@@ -271,34 +285,36 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         <!-- Content -->
         <div class="content">
-            <div class="info-row">
-                <div class="info-label">Order ID</div>
-                <div class="info-value"><strong>${orderId}</strong></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Transaction ID</div>
-                <div class="info-value"><strong>${txId}</strong></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Ref ID</div>
-                <div class="info-value">${refId}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Mobile Number</div>
-                <div class="info-value"><strong>${mobileNum}</strong></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Status</div>
-                <div class="info-value"><span class="status-success">${status}</span></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Date & Time</div>
-                <div class="info-value">${dateTime}</div>
-            </div>
-            <div class="info-row amount-row">
-                <div class="info-label">Amount</div>
-                <div class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</div>
-            </div>
+            <table class="invoice-table">
+                <tr>
+                    <td class="info-label">Order ID</td>
+                    <td class="info-value"><strong>${orderId}</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Transaction ID</td>
+                    <td class="info-value"><strong>${txId}</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Reference ID</td>
+                    <td class="info-value"><strong>${refId}</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Mobile Number</td>
+                    <td class="info-value"><strong>${mobileNum}</strong></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Status</td>
+                    <td class="info-value"><span class="status-success">${status}</span></td>
+                </tr>
+                <tr>
+                    <td class="info-label">Date & Time</td>
+                    <td class="info-value">${dateTime}</td>
+                </tr>
+                <tr class="amount-row">
+                    <td class="info-label">Amount</td>
+                    <td class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</td>
+                </tr>
+            </table>
         </div>
         
         <!-- Footer -->
