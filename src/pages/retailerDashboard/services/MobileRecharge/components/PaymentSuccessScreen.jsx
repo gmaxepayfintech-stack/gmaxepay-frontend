@@ -65,14 +65,16 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
 
     // Convert logo URLs to base64 or use direct URLs
     const companyLogoHtml = companyLogoUrl 
-      ? `<img src="${companyLogoUrl}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-         <span style="display: none; font-weight: bold; font-size: 14px; color: #333;">YOUR LOGO</span>`
-      : '<span style="font-weight: bold; font-size: 14px; color: #333;">YOUR LOGO</span>';
+      ? `<img src="${companyLogoUrl}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
+      : '';
     
     const operatorLogoHtml = operatorLogoPath
-      ? `<img src="${operatorLogoPath}" alt="${operatorName}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';" />
-         <span style="display: none; font-weight: bold; font-size: 14px; color: #333;">${operatorName}</span>`
-      : `<span style="font-weight: bold; font-size: 14px; color: #333;">${operatorName}</span>`;
+      ? `<img src="${operatorLogoPath}" alt="${operatorName}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
+      : '';
+    
+    // Hide logo containers if no logo is available
+    const companyLogoStyle = companyLogoUrl ? '' : 'display: none;';
+    const operatorLogoStyle = operatorLogoPath ? '' : 'display: none;';
 
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
@@ -89,37 +91,44 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         body {
             font-family: Arial, sans-serif;
-            background: #f5f5f5;
+            background: white;
             padding: 40px 20px;
         }
         
         .invoice-container {
-            max-width: 800px;
+            max-width: 600px;
             margin: 0 auto;
             background: white;
-            border: 2px dashed #333;
-            padding: 0;
+            padding: 40px;
         }
         
         .header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 30px 40px;
-            border-bottom: 2px dashed #333;
+            padding: 20px 0 10px 0;
+            margin-bottom: 0;
+        }
+        
+        .company-name {
+            text-align: center;
+            font-size: 24px;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 20px;
+            margin-top: -20px;
+            padding: 15px 0;
+            border-bottom: 2px solid #000;
+            letter-spacing: 0.5px;
         }
         
         .company-logo {
             width: 100px;
             height: 100px;
-            border: 2px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
         }
         
         .company-logo img {
@@ -133,14 +142,10 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         .operator-logo {
             width: 100px;
             height: 100px;
-            border: 2px solid #333;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
-            font-weight: bold;
-            font-size: 14px;
-            color: #333;
         }
         
         .operator-logo img {
@@ -153,92 +158,102 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         
         .invoice-title {
             text-align: center;
-            padding: 20px 40px;
-            border-bottom: 2px dashed #333;
+            padding: 30px 0;
+            margin-bottom: 30px;
         }
         
         .invoice-title h1 {
-            font-size: 28px;
+            font-size: 42px;
             color: #000;
-            margin-bottom: 5px;
-            font-weight: 700;
-        }
-        
-        .invoice-title p {
-            color: #666;
-            font-size: 14px;
+            margin-bottom: 0;
+            font-weight: 900;
+            letter-spacing: 3px;
+            text-transform: uppercase;
         }
         
         .content {
-            padding: 40px;
+            padding: 0;
         }
         
-        .info-table {
+        .invoice-table {
             width: 100%;
             border-collapse: collapse;
-            border: 2px solid #333;
+            border: 2px solid #000;
+            margin: 20px 0;
         }
         
-        .info-table tr {
-            border-bottom: 1px solid #333;
-        }
-        
-        .info-table tr:last-child {
-            border-bottom: none;
-        }
-        
-        .info-table td {
-            padding: 12px 20px;
+        .invoice-table td {
+            padding: 15px 20px;
+            border: 1px solid #000;
             font-size: 15px;
-            border-right: 1px solid #333;
         }
         
-        .info-table td:last-child {
-            border-right: none;
-        }
-        
-        .info-table td:first-child {
-            background: #f5f5f5;
-            font-weight: 600;
+        .info-label {
+            font-weight: 700;
             color: #000;
+            font-size: 15px;
             width: 40%;
         }
         
-        .info-table td:last-child {
-            color: #333;
-        }
-        
-        .status-success {
-            display: inline-block;
-            padding: 4px 12px;
-            background: #000;
-            color: white;
+        .info-value {
+            color: #000;
+            font-size: 15px;
+            text-align: right;
             font-weight: 600;
-            font-size: 14px;
         }
         
-        .amount-highlight {
-            font-size: 24px;
-            font-weight: bold;
+        .info-value strong {
+            font-weight: 700;
             color: #000;
         }
         
+        .amount-row {
+            background-color: #f5f5f5;
+        }
+        
+        .amount-row .info-label {
+            font-size: 18px;
+        }
+        
+        .amount-value {
+            font-size: 38px;
+            font-weight: 900;
+            color: #000;
+            letter-spacing: 0.5px;
+        }
+        
+        .status-success {
+            color: #000;
+            font-weight: 700;
+            font-size: 15px;
+            text-transform: uppercase;
+        }
+        
         .footer {
-            padding: 25px 40px;
+            padding: 30px 0 10px 0;
             text-align: center;
-            border-top: 2px dashed #333;
-            color: #666;
+            margin-top: 40px;
+            color: #000;
             font-size: 13px;
         }
         
         .footer p {
-            margin: 5px 0;
+            margin: 6px 0;
+            color: #000;
+        }
+        
+        .footer p:first-child {
+            font-weight: 700;
+            color: #000;
         }
         
         @media print {
             body {
                 background: white;
                 padding: 0;
+            }
+            .invoice-container {
+                border: none;
             }
         }
     </style>
@@ -247,50 +262,51 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     <div class="invoice-container">
         <!-- Header with Logos -->
         <div class="header">
-            <div class="company-logo">
-                ${companyLogoHtml || '<span style="font-weight: bold; font-size: 14px; color: #333;">YOUR LOGO</span>'}
+            <div class="company-logo" style="${companyLogoStyle}">
+                ${companyLogoHtml || ''}
             </div>
-            <div class="operator-logo">
-                ${operatorLogoHtml || `<span style="font-weight: bold; font-size: 14px; color: #333;">${operatorName}</span>`}
+            <div class="operator-logo" style="${operatorLogoStyle}">
+                ${operatorLogoHtml || ''}
             </div>
         </div>
+        
+        ${companyName ? `<div class="company-name">${companyName}</div>` : ''}
         
         <!-- Invoice Title -->
         <div class="invoice-title">
             <h1>INVOICE</h1>
-            ${companyName ? `<p>${companyName}</p>` : ''}
         </div>
         
         <!-- Content -->
         <div class="content">
-            <table class="info-table">
+            <table class="invoice-table">
                 <tr>
-                    <td>Order ID</td>
-                    <td><strong>${orderId}</strong></td>
+                    <td class="info-label">Order ID</td>
+                    <td class="info-value"><strong>${orderId}</strong></td>
                 </tr>
                 <tr>
-                    <td>Transaction ID</td>
-                    <td><strong>${txId}</strong></td>
+                    <td class="info-label">Transaction ID</td>
+                    <td class="info-value"><strong>${txId}</strong></td>
                 </tr>
                 <tr>
-                    <td>Reference ID</td>
-                    <td><strong>${refId}</strong></td>
+                    <td class="info-label">Reference ID</td>
+                    <td class="info-value"><strong>${refId}</strong></td>
                 </tr>
                 <tr>
-                    <td>Mobile Number</td>
-                    <td><strong>${mobileNum}</strong></td>
+                    <td class="info-label">Mobile Number</td>
+                    <td class="info-value"><strong>${mobileNum}</strong></td>
                 </tr>
                 <tr>
-                    <td>Status</td>
-                    <td><span class="status-success">${status}</span></td>
+                    <td class="info-label">Status</td>
+                    <td class="info-value"><span class="status-success">${status}</span></td>
                 </tr>
                 <tr>
-                    <td>Amount</td>
-                    <td><span class="amount-highlight">₹${parseFloat(amount).toFixed(2)}</span></td>
+                    <td class="info-label">Date & Time</td>
+                    <td class="info-value">${dateTime}</td>
                 </tr>
-                <tr>
-                    <td>Date & Time</td>
-                    <td>${dateTime}</td>
+                <tr class="amount-row">
+                    <td class="info-label">Amount</td>
+                    <td class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</td>
                 </tr>
             </table>
         </div>
@@ -317,8 +333,8 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
       iframe.style.position = 'absolute';
       iframe.style.left = '-9999px';
       iframe.style.top = '0';
-      iframe.style.width = '800px';
-      iframe.style.height = '1200px';
+      iframe.style.width = '600px';
+      iframe.style.height = '1000px';
       iframe.style.border = 'none';
       document.body.appendChild(iframe);
 
@@ -362,9 +378,9 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
               useCORS: true,
               allowTaint: false,
               logging: false,
-              backgroundColor: '#f5f5f5',
-              width: 800,
-              windowWidth: 800,
+              backgroundColor: '#ffffff',
+              width: 600,
+              windowWidth: 600,
             });
 
             // Remove temporary iframe
@@ -453,13 +469,11 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           files: [file],
         });
       } else {
-        // Fallback: download if share is not available
-        handleDownload();
+        console.warn("Share API is not available on this device");
       }
     } catch (error) {
       console.error("Error sharing:", error);
-      // Fallback to download
-      handleDownload();
+      // Only log error, don't fallback to download
     }
   };
 
@@ -574,7 +588,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-6 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-12 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
