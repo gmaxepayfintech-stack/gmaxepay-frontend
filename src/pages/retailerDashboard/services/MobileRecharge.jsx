@@ -700,6 +700,7 @@ const MobileRecharge = ({ onBack }) => {
                   transactionDetails={transactionDetails}
                   mobileNumber={mobileNumber}
                   selectedPlanForRecharge={selectedPlanForRecharge}
+                  selectedOperator={selectedOperator}
                 />
               ) : selectedPlanForRecharge ? (
                 <PlanConfirmationCard
