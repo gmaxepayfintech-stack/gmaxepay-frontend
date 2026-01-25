@@ -1,279 +1,110 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useCompany } from "../../context/CompanyContext";
 import OperatorCard from "./OperatorCard";
 import BillerSettings from "./BillerSettings";
 import PaymentSettings from "./PaymentSettings";
+import {
+  getAllBBPSCategories,
+  searchBBPSCategories,
+  createBBPSCategory,
+  updateBBPSCategory,
+} from "../../redux/action/bbpsAction";
 
-const operators = [
-  // Original 6 Cards
-  {
-    name: "Broadband Postpaid",
-    icon: "/img/Broadband.svg",
-    iconColor: "text-green-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: true, deleted: false },
-  },
-  {
-    name: "Cable TV",
-    icon: "/img/Cable.svg",
+// Icon mapping for categories
+const categoryIconMap = {
+  "Broadband Postpaid": "/img/Broadband.svg",
+  "Cable TV": "/img/Cable.svg",
+  "Clubs and Associations": "/img/Club.svg",
+  "Donation": "/img/Donation.svg",
+  "DTH": "/img/DTH.svg",
+  "Electricity": "/img/Electricity.svg",
+  "Credit Card": "/img/CreditCard.svg",
+  "Education Fees": "/img/Education.svg",
+  "Fastag": "/img/FastTag.svg",
+  "Housing Society": "/img/Housing.svg",
+  "Insurance": "/img/Insurance.svg",
+  "Life Insurance": "/img/LifeInsurance.svg",
+  "Gas": "/img/Gas.svg",
+  "Hospital and Pathology": "/img/Hospitality.svg",
+  "Hospital": "/img/Hospital.svg",
+  "Health Insurance": "/img/HealthInsurance.svg",
+  "Landline Postpaid": "/img/Landline.svg",
+  "Loan Repayment": "/img/Loan.svg",
+  "LPG Gas": "/img/Gas.svg",
+  "Mobile Postpaid": "/img/Postpaid.svg",
+  "Mobile Prepaid": "/img/Prepaid.svg",
+  "Rental": "/img/Rental.svg",
+  "Subscription": "/img/Subscription.svg",
+  "Water": "/img/Water.svg",
+  "Municipal Services": "/img/MunicipalService.svg",
+  "Municipal Taxes": "/img/MunicipalTax.svg",
+  "Recurring Deposit": "/img/RecurringDeposit.svg",
+  "NCMC": "/img/NCMC.svg",
+  "Prepaid Meter": "/img/PrepaidMeter.svg",
+  "E-Challan": "/img/E-Challen.svg",
+  "Agent Collection": "/img/AgentCollection.svg",
+  "EV Recharge": "/img/EVRecharge.svg",
+  "NPS": "/img/NPS.svg",
+};
+
+// Default icon if category not found
+const DEFAULT_ICON = "/img/Electricity.svg";
+
+// Helper function to map API response to operator format
+const mapCategoryToOperator = (category) => {
+  return {
+    _id: category.id || category._id,
+    name: category.name || "",
+    icon: categoryIconMap[category.name] || DEFAULT_ICON,
     iconColor: "text-blue-400",
     active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Clubs And Associations",
-    icon: "/img/Club.svg",
-    iconColor: "text-purple-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: false, deleted: false },
-  },
-  {
-    name: "Donation",
-    icon: "/img/Donation.svg",
-    iconColor: "text-orange-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: false, deleted: false },
-  },
-  {
-    name: "DTH",
-    icon: "/img/DTH.svg",
-    iconColor: "text-blue-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Electricity",
-    icon: "/img/Electricity.svg",
-    iconColor: "text-blue-400",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: false, deleted: false },
-  },
-  // First Image Services (12 cards)
-  {
-    name: "Credit Card",
-    icon: "/img/CreditCard.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: true, deleted: false },
-  },
-  {
-    name: "Education Fee",
-    icon: "/img/Education.svg",
-    iconColor: "text-orange-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: true, deleted: false },
-  },
-  {
-    name: "Fast Tag",
-    icon: "/img/FastTag.svg",
-    iconColor: "text-purple-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Housing Society",
-    icon: "/img/Housing.svg",
-    iconColor: "text-yellow-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Insurance",
-    icon: "/img/Insurance.svg",
-    iconColor: "text-blue-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Life Insurance",
-    icon: "/img/LifeInsurance.svg",
-    iconColor: "text-blue-400",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Gas",
-    icon: "/img/Gas.svg",
-    iconColor: "text-red-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Hospital & Pathology",
-    icon: "/img/Hospitality.svg",
-    iconColor: "text-blue-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Hospital",
-    icon: "/img/Hospital.svg",
-    iconColor: "text-blue-400",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Health Insurance",
-    icon: "/img/HealthInsurance.svg",
-    iconColor: "text-blue-400",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: false, active: true, deleted: false },
-  },
-  {
-    name: "Landline Post-Paid",
-    icon: "/img/Landline.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Loan Repayment",
-    icon: "/img/Loan.svg",
-    iconColor: "text-green-600",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  // Second Image Services (12 cards)
-  {
-    name: "LPG Gas",
-    icon: "/img/Gas.svg",
-    iconColor: "text-red-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Mobile Post-Paid",
-    icon: "/img/Postpaid.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Mobile Pre-Paid",
-    icon: "/img/Prepaid.svg",
-    iconColor: "text-green-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Rental",
-    icon: "/img/Rental.svg",
-    iconColor: "text-red-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Subscription",
-    icon: "/img/Subscription.svg",
-    iconColor: "text-purple-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Water",
-    icon: "/img/Electricity.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Municipal Services",
-    icon: "/img/MunicipalService.svg",
-    iconColor: "text-orange-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Municipal Taxes",
-    icon: "/img/MunicipalTax.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "Recurring Deposit",
-    icon: "/img/RecurringDeposit.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "NCMC",
-    icon: "/img/NCMC.svg",
-    iconColor: "text-orange-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "Prepaid Meter",
-    icon: "/img/PrepaidMeter.svg",
-    iconColor: "text-blue-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  {
-    name: "E-Challan",
-    icon: "/img/EChallan.svg",
-    iconColor: "text-red-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: true, deleted: false },
-  },
-  // Third Image Services (3 cards)
-  {
-    name: "Agent Collection",
-    icon: "/img/AgentCollection.svg",
-    iconColor: "text-pink-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: false, deleted: false },
-  },
-  {
-    name: "EV Recharge",
-    icon: "/img/EVRecharge.svg",
-    iconColor: "text-green-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 0 },
-    toggles: { ccfi: false, active: false, deleted: false },
-  },
-  {
-    name: "NPS",
-    icon: "/img/NPS.svg",
-    iconColor: "text-purple-500",
-    active: true,
-    fees: { convFee: 12, flatFee: 225, percentFee: 4, gstRate: 4 },
-    toggles: { ccfi: true, active: false, deleted: false },
-  },
-];
+    fees: {
+      convFee: category.custConvFee || 0,
+      flatFee: category.flatFee || 0,
+      percentFee: category.percentFee || 0,
+      gstRate: category.gstRate || 0,
+    },
+    toggles: {
+      ccfi: category.isCCF1Category || false,
+      active: category.isActive !== undefined ? category.isActive : true,
+      deleted: category.isDeleted || false,
+    },
+  };
+};
+
+// Skeleton Loader Component
+const OperatorCardSkeleton = () => {
+  return (
+    <div className="border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white animate-pulse">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-[35px] h-[35px] bg-gray-300 rounded"></div>
+          <div className="h-4 w-32 bg-gray-300 rounded"></div>
+        </div>
+        <div className="h-6 w-16 bg-gray-300 rounded-full"></div>
+      </div>
+      <div className="space-y-2 mb-4 border-b border-[#1B1717] border-opacity-20 pb-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex justify-between">
+            <div className="h-3 w-20 bg-gray-300 rounded"></div>
+            <div className="h-3 w-12 bg-gray-300 rounded"></div>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-[18px] mb-4">
+        {[1, 2, 3].map((i) => (
+          <div key={i} className="flex justify-between items-center">
+            <div className="h-3 w-16 bg-gray-300 rounded"></div>
+            <div className="w-[39px] h-[23px] bg-gray-300 rounded-full"></div>
+          </div>
+        ))}
+      </div>
+      <div className="h-10 w-full bg-gray-300 rounded-lg"></div>
+    </div>
+  );
+};
 
 const AddOperatorModal = ({
   isOpen,
@@ -282,6 +113,7 @@ const AddOperatorModal = ({
   onEdit,
   operator,
   mode = "add",
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState({
     category: "",
@@ -299,12 +131,12 @@ const AddOperatorModal = ({
     if (operator && mode === "edit") {
       setFormData({
         category: operator.name || "",
-        convFee: operator.fees?.convFee || "",
-        flatFee: operator.fees?.flatFee || "",
-        percentFee: operator.fees?.percentFee || "",
-        gstRate: operator.fees?.gstRate || "",
+        convFee: operator.fees?.convFee !== undefined && operator.fees?.convFee !== null ? operator.fees.convFee : "",
+        flatFee: operator.fees?.flatFee !== undefined && operator.fees?.flatFee !== null ? operator.fees.flatFee : "",
+        percentFee: operator.fees?.percentFee !== undefined && operator.fees?.percentFee !== null ? operator.fees.percentFee : "",
+        gstRate: operator.fees?.gstRate !== undefined && operator.fees?.gstRate !== null ? operator.fees.gstRate : "",
         ccfi: operator.toggles?.ccfi || false,
-        active: operator.toggles?.active || true,
+        active: operator.toggles?.active !== undefined ? operator.toggles.active : true,
         deleted: operator.toggles?.deleted || false,
       });
     } else {
@@ -321,24 +153,13 @@ const AddOperatorModal = ({
     }
   }, [operator, mode]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (mode === "edit" && onEdit) {
-      onEdit(formData);
-    } else {
-      onAdd(formData);
+      await onEdit(formData);
+    } else if (onAdd) {
+      await onAdd(formData);
     }
-    setFormData({
-      category: "",
-      convFee: "",
-      flatFee: "",
-      percentFee: "",
-      gstRate: "",
-      ccfi: false,
-      active: true,
-      deleted: false,
-    });
-    onClose();
   };
 
   const handleClose = () => {
@@ -481,21 +302,21 @@ const AddOperatorModal = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
               {/* ===== Row 1 : Labels ===== */}
               <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                OCF1
+                CCF1
               </span>
               <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                 Active
               </span>
 
               {/* ===== Row 1 : Cards ===== */}
-              {/* OCF1 Card */}
+              {/* CCF1 Card */}
               <div className="flex justify-between items-start border border-gray-300 rounded-xl px-2 py-3">
                 <div>
                   <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
-                    OCF1
+                    CCF1
                   </h3>
                   <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
-                    Enable OCFI For This Operator
+                    Enable CCF1 For This Operator
                   </p>
                 </div>
 
@@ -540,37 +361,6 @@ const AddOperatorModal = ({
                 </button>
               </div>
 
-              {/* ===== Row 2 : Label ===== */}
-              <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] md:col-span-2">
-                Deleted
-              </span>
-
-              {/* ===== Row 2 : Card ===== */}
-              {/* Deleted Card */}
-              <div className="flex justify-between items-start border border-gray-300 rounded-xl px-4 py-3">
-                <div>
-                  <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
-                    Deleted
-                  </h3>
-                  <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
-                    Mark As Deleted
-                  </p>
-                </div>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData({ ...formData, deleted: !formData.deleted })
-                  }
-                  className={`w-[42px] h-[24px] rounded-full relative transition-all
-                ${formData.deleted ? "bg-[#039155]" : "bg-gray-300"}`}
-                >
-                  <span
-                    className={`absolute top-[2px] w-5 h-5 bg-white rounded-full shadow transition-all
-                    ${formData.deleted ? "right-[2px]" : "left-[2px]"}`}
-                  />
-                </button>
-              </div>
             </div>
           </div>
 
@@ -585,9 +375,20 @@ const AddOperatorModal = ({
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 rounded-lg bg-[#039155] text-[18px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition"
+              disabled={isLoading}
+              className="flex-1 px-6 py-3 rounded-lg bg-[#039155] text-[18px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {mode === "edit" ? "Update Operator" : "Add Operator"}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {mode === "edit" ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                mode === "edit" ? "Update Operator" : "Add Operator"
+              )}
             </button>
           </div>
         </form>
@@ -597,67 +398,144 @@ const AddOperatorModal = ({
 };
 
 const BBPSSettings = () => {
+  const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { categories, loading, totalPages: apiTotalPages, currentPage: apiCurrentPage, createCategorySuccess } = useSelector(
+    (state) => state.bbps
+  );
+
   const [activeTab, setActiveTab] = useState("operators"); // 'operators', 'biller', 'payment'
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingOperator, setEditingOperator] = useState(null);
   const [modalMode, setModalMode] = useState("add");
+  const [lastOperation, setLastOperation] = useState(null); // Track if last operation was 'create' or 'update'
 
   const cardsPerPage = 6; // 6 cards per page
 
-  const filteredOperators = operators.filter((op) =>
-    op.name.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // Get company ID
+  const getCompanyId = () => {
+    return company?.companyId || company?._id || company?.id || null;
+  };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredOperators.length / cardsPerPage);
-  const startIndex = (currentPage - 1) * cardsPerPage;
-  const endIndex = startIndex + cardsPerPage;
-  const currentOperators = filteredOperators.slice(startIndex, endIndex);
+  // Debounced search query
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1); // Reset to page 1 when search changes
+      }
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch categories - handles initial load, search, and pagination
+  useEffect(() => {
+    const companyId = getCompanyId();
+    if (!companyId || activeTab !== "operators") return;
+
+    if (debouncedSearchQuery.trim()) {
+      dispatch(searchBBPSCategories(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+    } else {
+      dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+    }
+  }, [debouncedSearchQuery, currentPage, dispatch, company, activeTab]);
+
+  // Map categories to operator format
+  const mappedOperators = categories.map(mapCategoryToOperator);
 
   // Calculate which 3 page numbers to show
   const getVisiblePages = () => {
+    const totalPages = apiTotalPages || 1;
     if (totalPages <= 3) {
-      // If total pages is 3 or less, show all
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
 
     if (currentPage <= 2) {
-      // Show first 3 pages: 1, 2, 3
       return [1, 2, 3];
     } else if (currentPage >= totalPages - 1) {
-      // Show last 3 pages
       return [totalPages - 2, totalPages - 1, totalPages];
     } else {
-      // Show current page with one before and one after
       return [currentPage - 1, currentPage, currentPage + 1];
     }
   };
 
   const visiblePages = getVisiblePages();
 
-  // Reset to page 1 when search query changes
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
-
-  const handleAddOperator = (formData) => {
-    // Handle adding new operator here
-    console.log("New operator data:", formData);
-    // You can add the operator to the list or make an API call here
+  const handleAddOperator = async (formData) => {
+    const companyId = getCompanyId();
+    if (companyId) {
+      setLastOperation('create');
+      await dispatch(createBBPSCategory(companyId, formData));
+    }
   };
 
-  const handleEditOperator = (formData) => {
-    // Handle editing operator here
-    console.log("Updated operator data:", formData);
-    // You can update the operator in the list or make an API call here
+  const handleEditOperator = async (formData) => {
+    const companyId = getCompanyId();
+    const categoryId = editingOperator?._id || editingOperator?.id;
+    if (companyId && categoryId) {
+      setLastOperation('update');
+      await dispatch(updateBBPSCategory(companyId, categoryId, formData));
+    }
+  };
+
+  // Close modal and refresh list when operation succeeds
+  useEffect(() => {
+    if (createCategorySuccess && !loading && isModalOpen && lastOperation) {
+      const companyId = getCompanyId();
+      if (companyId) {
+        // If update operation, always call getAllBBPSCategories
+        if (lastOperation === 'update') {
+          dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+        } else {
+          // For create operation, respect search state
+          if (debouncedSearchQuery.trim()) {
+            dispatch(searchBBPSCategories(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+          } else {
+            dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+          }
+        }
+        setIsModalOpen(false);
+        setEditingOperator(null);
+        setModalMode("add");
+        setLastOperation(null);
+      }
+    }
+  }, [createCategorySuccess, loading, isModalOpen, lastOperation, debouncedSearchQuery, currentPage, dispatch, company]);
+
+  const handleToggleChange = async (operator, field, newValue) => {
+    const companyId = getCompanyId();
+    const categoryId = operator._id || operator.id;
+    
+    if (!companyId || !categoryId) return;
+
+    // Prepare update data with current operator values and the changed toggle
+    const updateData = {
+      category: operator.name,
+      convFee: operator.fees?.convFee || 0,
+      flatFee: operator.fees?.flatFee || 0,
+      percentFee: operator.fees?.percentFee || 0,
+      gstRate: operator.fees?.gstRate || 0,
+      ccfi: field === "ccfi" ? newValue : operator.toggles?.ccfi || false,
+      active: field === "active" ? newValue : operator.toggles?.active !== undefined ? operator.toggles.active : true,
+      deleted: field === "deleted" ? newValue : operator.toggles?.deleted || false,
+    };
+
+    await dispatch(updateBBPSCategory(companyId, categoryId, updateData));
+    
+    // Refresh the list after toggle update
+    dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
   };
 
   const handleEditClick = (operator) => {
     setEditingOperator(operator);
     setModalMode("edit");
     setIsModalOpen(true);
+    setLastOperation(null); // Reset last operation when opening modal
   };
 
   const handleCloseModal = () => {
@@ -670,6 +548,7 @@ const BBPSSettings = () => {
     setEditingOperator(null);
     setModalMode("add");
     setIsModalOpen(true);
+    setLastOperation(null); // Reset last operation when opening modal
   };
 
   return (
@@ -734,13 +613,25 @@ const BBPSSettings = () => {
 
           {/* Cards Grid */}
           <div className="grid grid-cols-1 sm:grid-cols-2 bg-[#FFFFFF] rounded-xl p-4 lg:grid-cols-3 gap-6">
-            {currentOperators.map((op) => (
-              <OperatorCard
-                key={op.name}
-                operator={op}
-                onEditClick={handleEditClick}
-              />
-            ))}
+            {loading && mappedOperators.length === 0 ? (
+              // Show skeleton loaders on initial load
+              Array.from({ length: cardsPerPage }).map((_, index) => (
+                <OperatorCardSkeleton key={`skeleton-${index}`} />
+              ))
+            ) : mappedOperators.length > 0 ? (
+              mappedOperators.map((op) => (
+                <OperatorCard
+                  key={op._id || op.name}
+                  operator={op}
+                  onEditClick={handleEditClick}
+                  onToggleChange={handleToggleChange}
+                />
+              ))
+            ) : (
+              <div className="col-span-full text-center py-8 text-gray-500">
+                No operators found
+              </div>
+            )}
           </div>
         </>
       )}
@@ -750,13 +641,13 @@ const BBPSSettings = () => {
       {activeTab === "payment" && <PaymentSettings />}
 
       {/* Pagination */}
-      {activeTab === "operators" && totalPages > 0 && (
+      {activeTab === "operators" && (apiTotalPages || 0) > 0 && (
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
             className={`px-3 py-2.5  border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === 1 || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -765,22 +656,23 @@ const BBPSSettings = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
+              disabled={loading}
               className={`px-4 py-1.5 rounded font-medium transition-colors ${
                 currentPage === page
                   ? "bg-[#039155] text-white"
                   : "border border-gray-300 hover:bg-gray-50"
-              }`}
+              } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {page}
             </button>
           ))}
           <button
             onClick={() =>
-              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              setCurrentPage((prev) => Math.min(apiTotalPages || 1, prev + 1))
             }
-            disabled={currentPage === totalPages}
+            disabled={currentPage === (apiTotalPages || 1) || loading}
             className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === (apiTotalPages || 1) || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <ChevronRight className="w-4 h-4" />
@@ -796,6 +688,7 @@ const BBPSSettings = () => {
         onEdit={handleEditOperator}
         operator={editingOperator}
         mode={modalMode}
+        isLoading={loading}
       />
     </div>
   );
