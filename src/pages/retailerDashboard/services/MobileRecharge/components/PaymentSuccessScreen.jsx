@@ -75,6 +75,9 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     const companyLogoStyle = companyLogoUrl ? '' : 'display: none;';
     const operatorLogoStyle = operatorLogoPath ? '' : 'display: none;';
 
+    const validity = selectedPlanForRecharge?.validity || 'N/A';
+    const displayAmount = parseFloat(amount).toFixed(2);
+
     const htmlContent = `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -165,65 +168,93 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             font-weight: 400;
         }
         
-        .content {
-            padding: 20px 0;
+        /* Payment Success Card Design */
+        .payment-success-card {
+            background: #d1fae5;
+            border-radius: 12px;
+            position: relative;
+            overflow: hidden;
+            padding: 48px 48px 80px 48px;
+            margin: 20px 0;
         }
         
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
-            border-bottom: 1px solid #f0f0f0;
+        .success-header {
+            text-align: center;
+            margin-bottom: 24px;
         }
         
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            color: #333;
-            font-size: 15px;
-        }
-        
-        .info-value {
-            color: #000;
-            font-size: 15px;
-            text-align: right;
-            font-weight: 500;
-        }
-        
-        .info-value strong {
-            font-weight: 700;
-            color: #000;
-        }
-        
-        .amount-row {
-            margin-top: 15px;
-            padding-top: 20px;
-            padding-bottom: 15px;
-            border-top: 2px solid #000;
-            border-bottom: 1px solid #f0f0f0;
-        }
-        
-        .amount-value {
-            font-size: 32px;
-            font-weight: 700;
-            color: #000;
-            letter-spacing: 0.5px;
-        }
-        
-        .status-success {
-            display: inline-block;
-            padding: 6px 16px;
+        .success-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
             background: #039155;
-            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 12px;
+        }
+        
+        .success-icon svg {
+            width: 32px;
+            height: 32px;
+            stroke: white;
+            stroke-width: 3;
+            fill: none;
+        }
+        
+        .success-title {
+            font-size: 20px;
             font-weight: 600;
-            font-size: 13px;
-            border-radius: 6px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
+            color: #1B1717;
+            margin-bottom: 4px;
+        }
+        
+        .success-subtitle {
+            font-size: 12px;
+            color: rgba(27, 23, 23, 0.8);
+        }
+        
+        .amount-box {
+            border: 2px dashed #1B1717;
+            border-radius: 8px;
+            padding: 12px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        .amount-text {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1B1717;
+        }
+        
+        .details-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .detail-label {
+            font-size: 12px;
+            color: #121216;
+            font-weight: 500;
+            margin-bottom: 4px;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: #1B1717;
+        }
+        
+        .detail-value.status {
+            color: #039155;
         }
         
         .footer {
@@ -273,35 +304,51 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             <p>Transaction Receipt</p>
         </div>
         
-        <!-- Content -->
-        <div class="content">
-            <div class="info-row">
-                <div class="info-label">Order ID</div>
-                <div class="info-value"><strong>${orderId}</strong></div>
+        <!-- Payment Success Card -->
+        <div class="payment-success-card">
+            <div class="success-header">
+                <div class="success-icon">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                </div>
+                <div class="success-title">Payment Successful</div>
+                <div class="success-subtitle">Your Payment Has Been Completed</div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Transaction ID</div>
-                <div class="info-value"><strong>${txId}</strong></div>
+            
+            <div class="amount-box">
+                <div class="amount-text">₹ ${displayAmount}</div>
             </div>
-            <div class="info-row">
-                <div class="info-label">Ref ID</div>
-                <div class="info-value">${refId}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Mobile Number</div>
-                <div class="info-value"><strong>${mobileNum}</strong></div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Status</div>
-                <div class="info-value"><span class="status-success">${status}</span></div>
-            </div>
-            <div class="info-row amount-row">
-                <div class="info-label">Amount</div>
-                <div class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</div>
-            </div>
-            <div class="info-row">
-                <div class="info-label">Date & Time</div>
-                <div class="info-value">${dateTime}</div>
+            
+            <div class="details-grid">
+                <div class="detail-item">
+                    <div class="detail-label">Transaction ID</div>
+                    <div class="detail-value">${txId}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Mobile Number</div>
+                    <div class="detail-value">${mobileNum}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Transaction Status</div>
+                    <div class="detail-value status">${status}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Validity</div>
+                    <div class="detail-value">${validity}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Ref ID</div>
+                    <div class="detail-value">${refId}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Order ID</div>
+                    <div class="detail-value">${orderId}</div>
+                </div>
+                <div class="detail-item">
+                    <div class="detail-label">Date</div>
+                    <div class="detail-value">${dateTime}</div>
+                </div>
             </div>
         </div>
         
@@ -368,13 +415,14 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
 
             // Convert HTML to canvas with high quality
             const canvas = await html2canvas(bodyElement, {
-              scale: 3, // Higher scale for better quality
+              scale: 4, // Higher scale for better quality
               useCORS: true,
               allowTaint: false,
               logging: false,
               backgroundColor: '#ffffff',
               width: 600,
               windowWidth: 600,
+              quality: 1.0,
             });
 
             // Remove temporary iframe
@@ -386,6 +434,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
               orientation: 'portrait',
               unit: 'mm',
               format: 'a4',
+              compress: true,
             });
 
             const pdfWidth = pdf.internal.pageSize.getWidth();
@@ -396,7 +445,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             const imgX = (pdfWidth - imgWidth * ratio) / 2;
             const imgY = 10;
 
-            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio, undefined, 'FAST');
+            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio, undefined, 'SLOW');
             
             resolve({ pdf, fileName: `Invoice_${orderId}.pdf` });
           } catch (error) {
