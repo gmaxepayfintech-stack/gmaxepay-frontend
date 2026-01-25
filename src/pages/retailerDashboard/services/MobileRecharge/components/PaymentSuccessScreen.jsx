@@ -580,7 +580,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-8 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
