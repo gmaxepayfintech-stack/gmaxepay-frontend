@@ -107,8 +107,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             justify-content: space-between;
             align-items: center;
             padding: 20px 0 30px 0;
-            border-bottom: 1px solid #e5e5e5;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
         .company-logo {
@@ -165,46 +164,6 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             font-weight: 400;
         }
         
-        .payment-success-section {
-            text-align: center;
-            padding: 30px 0;
-            margin-bottom: 30px;
-            background: #f0fdf4;
-            border-radius: 12px;
-        }
-        
-        .success-icon {
-            width: 70px;
-            height: 70px;
-            background: #039155;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 15px;
-        }
-        
-        .success-icon svg {
-            width: 40px;
-            height: 40px;
-            stroke: white;
-            stroke-width: 3;
-            fill: none;
-        }
-        
-        .payment-success-section h2 {
-            font-size: 24px;
-            color: #039155;
-            margin-bottom: 8px;
-            font-weight: 700;
-        }
-        
-        .payment-success-section p {
-            color: #666;
-            font-size: 15px;
-            font-weight: 400;
-        }
-        
         .content {
             padding: 20px 0;
         }
@@ -238,7 +197,6 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             margin-top: 15px;
             padding-top: 20px;
             padding-bottom: 15px;
-            border-top: 2px solid #000;
         }
         
         .amount-value {
@@ -249,22 +207,15 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         }
         
         .status-success {
-            display: inline-block;
-            padding: 8px 20px;
-            background: #039155;
-            color: white;
-            font-weight: 700;
-            font-size: 14px;
-            border-radius: 8px;
+            color: #000;
+            font-weight: 600;
+            font-size: 15px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            box-shadow: 0 2px 8px rgba(3, 145, 85, 0.3);
         }
         
         .footer {
             padding: 30px 0 10px 0;
             text-align: center;
-            border-top: 1px solid #e5e5e5;
             margin-top: 40px;
             color: #666;
             font-size: 13px;
@@ -302,23 +253,6 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             </div>
         </div>
         
-        <!-- Invoice Title -->
-        <div class="invoice-title">
-            <h1>INVOICE</h1>
-            <p>Transaction Receipt</p>
-        </div>
-        
-        <!-- Payment Success Section -->
-        <div class="payment-success-section">
-            <div class="success-icon">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-            </div>
-            <h2>Payment Successful</h2>
-            <p>Your transaction has been completed successfully</p>
-        </div>
-        
         <!-- Content -->
         <div class="content">
             <div class="info-row">
@@ -341,13 +275,13 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
                 <div class="info-label">Status</div>
                 <div class="info-value"><span class="status-success">${status}</span></div>
             </div>
-            <div class="info-row amount-row">
-                <div class="info-label">Amount</div>
-                <div class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</div>
-            </div>
             <div class="info-row">
                 <div class="info-label">Date & Time</div>
                 <div class="info-value">${dateTime}</div>
+            </div>
+            <div class="info-row amount-row">
+                <div class="info-label">Amount</div>
+                <div class="info-value amount-value">₹${parseFloat(amount).toFixed(2)}</div>
             </div>
         </div>
         
@@ -630,7 +564,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-8 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
