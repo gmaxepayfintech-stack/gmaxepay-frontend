@@ -41,6 +41,9 @@ import {
   BBPS_UPDATE_BILLER_START,
   BBPS_UPDATE_BILLER_SUCCESS,
   BBPS_UPDATE_BILLER_FAILURE,
+  BBPS_USER_GET_ALL_CATEGORIES_START,
+  BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
+  BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
 } from '../actionType/bbpsActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -838,5 +841,53 @@ export const updateBBPSBiller = (companyId, billerId, billerData) => async (disp
     });
   } finally {
     dispatch({ type: LOADING_END });
+  }
+};
+
+// Get all categories for user (user endpoint)
+export const getUserBBPSCategories = (page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: BBPS_USER_GET_ALL_CATEGORIES_START });
+
+  try {
+    const payload = {
+      query: {},
+      customSearch: {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/bbps/get-all-categories`,
+      payload
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
+        payload: data?.data || [],
+      });
+      return { status: 'SUCCESS', data: data?.data || [] };
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
+        payload: errorMessage,
+      });
+      return { status: 'FAILURE', message: errorMessage };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
+      payload: errorMessage,
+    });
+    return { status: 'FAILURE', message: errorMessage };
   }
 };
