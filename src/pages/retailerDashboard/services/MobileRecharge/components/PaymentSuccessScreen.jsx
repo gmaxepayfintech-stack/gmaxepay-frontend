@@ -39,434 +39,171 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     return `${day} ${month} ${year} at ${displayHours}:${minutes}:${seconds} ${ampm}`;
   };
 
-  const generateHTMLInvoice = () => {
-    // Extract data from nested structure
-    const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
-    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || "N/A";
-    const txId = transactionDetails.transactionId || apiResponse.txid?.toString() || "N/A";
-    const refId = transactionDetails.bConnectId || apiResponse.opid?.toString() || "N/A";
-    const mobileNum = transactionDetails.number || apiResponse.number || mobileNumber || "N/A";
-    const amount = transactionDetails.amount || apiResponse.amount || "0.00";
-    const status = transactionDetails.status || apiResponse.status || "Success";
-    const dateTime = getCurrentDateTime();
-
-    // Get operator name - check multiple sources
-    // Priority: selectedOperator.company (from operator API) > selectedPlanForRecharge.operator > selectedOperator.name
-    const operatorName = 
-      selectedOperator?.company || 
-      selectedPlanForRecharge?.operator || 
-      selectedOperator?.name || 
-      selectedOperator?.operatorName || 
-      "OPERATOR";
-    
-    const operatorLogoPath = getOperatorLogo(operatorName);
-    const companyLogoUrl = company?.logo || "";
-
-    // Convert logo URLs to base64 or use direct URLs
-    const companyLogoHtml = companyLogoUrl 
-      ? `<img src="${companyLogoUrl}" alt="Company Logo" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
-      : '';
-    
-    const operatorLogoHtml = operatorLogoPath
-      ? `<img src="${operatorLogoPath}" alt="${operatorName}" style="max-width: 100%; max-height: 100%; object-fit: contain; display: block;" onerror="this.style.display='none'; this.parentElement.style.display='none';" />`
-      : '';
-    
-    // Hide logo containers if no logo is available
-    const companyLogoStyle = companyLogoUrl ? '' : 'display: none;';
-    const operatorLogoStyle = operatorLogoPath ? '' : 'display: none;';
-
-    const validity = selectedPlanForRecharge?.validity || 'N/A';
-    const displayAmount = parseFloat(amount).toFixed(2);
-
-    const htmlContent = `<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Recharge Invoice</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+  // Helper function to load image and convert to base64
+  const loadImageAsBase64 = (url) => {
+    return new Promise((resolve, reject) => {
+      if (!url) {
+        resolve(null);
+        return;
+      }
+      const img = new Image();
+      img.crossOrigin = 'anonymous';
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        canvas.width = img.width;
+        canvas.height = img.height;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(img, 0, 0);
+        try {
+          const base64 = canvas.toDataURL('image/png');
+          resolve(base64);
+        } catch (error) {
+          resolve(null);
         }
-        
-        body {
-            font-family: Arial, sans-serif;
-            background: white;
-            padding: 40px 20px;
-        }
-        
-        .invoice-container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: white;
-            padding: 40px;
-            border: 1px solid #e5e5e5;
-        }
-        
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 0 30px 0;
-            border-bottom: 1px solid #e5e5e5;
-            margin-bottom: 30px;
-        }
-        
-        .company-logo {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .company-logo img {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-        
-        .operator-logo {
-            width: 100px;
-            height: 100px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-        
-        .operator-logo img {
-            max-width: 100%;
-            max-height: 100%;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-        }
-        
-        .invoice-title {
-            text-align: center;
-            padding: 25px 0;
-            margin-bottom: 30px;
-        }
-        
-        .invoice-title h1 {
-            font-size: 28px;
-            color: #000;
-            margin-bottom: 8px;
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
-        
-        .invoice-title p {
-            color: #666;
-            font-size: 14px;
-            font-weight: 400;
-        }
-        
-        /* Payment Success Card Design */
-        .payment-success-card {
-            background: #d1fae5;
-            border-radius: 12px;
-            position: relative;
-            overflow: hidden;
-            padding: 48px 48px 80px 48px;
-            margin: 20px 0;
-        }
-        
-        .success-header {
-            text-align: center;
-            margin-bottom: 24px;
-        }
-        
-        .success-icon {
-            width: 56px;
-            height: 56px;
-            border-radius: 50%;
-            background: #039155;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 12px;
-        }
-        
-        .success-icon svg {
-            width: 32px;
-            height: 32px;
-            stroke: white;
-            stroke-width: 3;
-            fill: none;
-        }
-        
-        .success-title {
-            font-size: 20px;
-            font-weight: 600;
-            color: #1B1717;
-            margin-bottom: 4px;
-        }
-        
-        .success-subtitle {
-            font-size: 12px;
-            color: rgba(27, 23, 23, 0.8);
-        }
-        
-        .amount-box {
-            border: 2px dashed #1B1717;
-            border-radius: 8px;
-            padding: 12px;
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        
-        .amount-text {
-            font-size: 24px;
-            font-weight: 600;
-            color: #1B1717;
-        }
-        
-        .details-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 16px;
-            margin-bottom: 20px;
-        }
-        
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .detail-label {
-            font-size: 12px;
-            color: #121216;
-            font-weight: 500;
-            margin-bottom: 4px;
-        }
-        
-        .detail-value {
-            font-size: 14px;
-            font-weight: 500;
-            color: #1B1717;
-        }
-        
-        .detail-value.status {
-            color: #039155;
-        }
-        
-        .footer {
-            padding: 30px 0 10px 0;
-            text-align: center;
-            border-top: 1px solid #e5e5e5;
-            margin-top: 40px;
-            color: #666;
-            font-size: 13px;
-        }
-        
-        .footer p {
-            margin: 6px 0;
-        }
-        
-        .footer p:first-child {
-            font-weight: 600;
-            color: #333;
-        }
-        
-        @media print {
-            body {
-                background: white;
-                padding: 0;
-            }
-            .invoice-container {
-                border: none;
-            }
-        }
-    </style>
-</head>
-<body>
-    <div class="invoice-container">
-        <!-- Header with Logos -->
-        <div class="header">
-            <div class="company-logo" style="${companyLogoStyle}">
-                ${companyLogoHtml || ''}
-            </div>
-            <div class="operator-logo" style="${operatorLogoStyle}">
-                ${operatorLogoHtml || ''}
-            </div>
-        </div>
-        
-        <!-- Invoice Title -->
-        <div class="invoice-title">
-            <h1>INVOICE</h1>
-            <p>Transaction Receipt</p>
-        </div>
-        
-        <!-- Payment Success Card -->
-        <div class="payment-success-card">
-            <div class="success-header">
-                <div class="success-icon">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                    </svg>
-                </div>
-                <div class="success-title">Payment Successful</div>
-                <div class="success-subtitle">Your Payment Has Been Completed</div>
-            </div>
-            
-            <div class="amount-box">
-                <div class="amount-text">₹ ${displayAmount}</div>
-            </div>
-            
-            <div class="details-grid">
-                <div class="detail-item">
-                    <div class="detail-label">Transaction ID</div>
-                    <div class="detail-value">${txId}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Mobile Number</div>
-                    <div class="detail-value">${mobileNum}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Transaction Status</div>
-                    <div class="detail-value status">${status}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Validity</div>
-                    <div class="detail-value">${validity}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Ref ID</div>
-                    <div class="detail-value">${refId}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Order ID</div>
-                    <div class="detail-value">${orderId}</div>
-                </div>
-                <div class="detail-item">
-                    <div class="detail-label">Date</div>
-                    <div class="detail-value">${dateTime}</div>
-                </div>
-            </div>
-        </div>
-        
-        <!-- Footer -->
-        <div class="footer">
-            <p><strong>Thank you for your transaction!</strong></p>
-            <p>This is a computer-generated invoice.</p>
-        </div>
-    </div>
-</body>
-</html>`;
-
-    return htmlContent;
+      };
+      img.onerror = () => resolve(null);
+      img.src = url;
+    });
   };
 
   const generatePDF = async () => {
     try {
-      const htmlContent = generateHTMLInvoice();
       const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
       
-      // Create a temporary iframe to properly render the HTML with all styles
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.left = '-9999px';
-      iframe.style.top = '0';
-      iframe.style.width = '600px';
-      iframe.style.height = '800px';
-      iframe.style.border = 'none';
-      document.body.appendChild(iframe);
+      // Get operator name and logos
+      const operatorName = 
+        selectedOperator?.company || 
+        selectedPlanForRecharge?.operator || 
+        selectedOperator?.name || 
+        selectedOperator?.operatorName || 
+        "OPERATOR";
+      
+      const operatorLogoPath = getOperatorLogo(operatorName);
+      const companyLogoUrl = company?.logo || "";
 
-      return new Promise((resolve, reject) => {
-        const handleLoad = async () => {
-          try {
-            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
-            iframeDoc.open();
-            iframeDoc.write(htmlContent);
-            iframeDoc.close();
+      // Capture the payment success card (the inner div with receiptRef)
+      if (!receiptRef.current) {
+        throw new Error('Payment success card not found');
+      }
 
-            // Wait for images to load
-            const images = iframeDoc.querySelectorAll('img');
-            const imagePromises = Array.from(images).map((img) => {
-              if (img.complete && img.naturalHeight !== 0) {
-                return Promise.resolve();
-              }
-              return new Promise((resolveImg) => {
-                const timeout = setTimeout(resolveImg, 3000);
-                img.onload = () => {
-                  clearTimeout(timeout);
-                  resolveImg();
-                };
-                img.onerror = () => {
-                  clearTimeout(timeout);
-                  resolveImg(); // Continue even if image fails
-                };
-              });
-            });
-            
-            await Promise.all(imagePromises);
-            
-            // Wait a bit more for rendering
-            await new Promise(resolve => setTimeout(resolve, 500));
+      // Hide buttons temporarily for PDF capture
+      const buttonsContainer = Array.from(receiptRef.current.querySelectorAll('div')).find(
+        div => div.classList.contains('absolute') && div.querySelector('button')
+      );
+      const originalDisplay = buttonsContainer?.style.display || '';
+      if (buttonsContainer) {
+        buttonsContainer.style.display = 'none';
+      }
 
-            const bodyElement = iframeDoc.body;
+      // Wait a bit for any animations or rendering to complete
+      await new Promise(resolve => setTimeout(resolve, 300));
 
-            // Convert HTML to canvas with high quality
-            const canvas = await html2canvas(bodyElement, {
-              scale: 4, // Higher scale for better quality
-              useCORS: true,
-              allowTaint: false,
-              logging: false,
-              backgroundColor: '#ffffff',
-              width: 600,
-              windowWidth: 600,
-              quality: 1.0,
-            });
-
-            // Remove temporary iframe
-            document.body.removeChild(iframe);
-
-            // Create PDF
-            const imgData = canvas.toDataURL('image/png', 1.0);
-            const pdf = new jsPDF({
-              orientation: 'portrait',
-              unit: 'mm',
-              format: 'a4',
-              compress: true,
-            });
-
-            const pdfWidth = pdf.internal.pageSize.getWidth();
-            const pdfHeight = pdf.internal.pageSize.getHeight();
-            const imgWidth = canvas.width;
-            const imgHeight = canvas.height;
-            const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight); // 10mm margin on each side
-            const imgX = (pdfWidth - imgWidth * ratio) / 2;
-            const imgY = 10;
-
-            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio, undefined, 'SLOW');
-            
-            resolve({ pdf, fileName: `Invoice_${orderId}.pdf` });
-          } catch (error) {
-            if (document.body.contains(iframe)) {
-              document.body.removeChild(iframe);
-            }
-            reject(error);
-          }
-        };
-
-        iframe.onload = handleLoad;
-        iframe.onerror = () => {
-          if (document.body.contains(iframe)) {
-            document.body.removeChild(iframe);
-          }
-          reject(new Error('Failed to load iframe'));
-        };
-
-        // Trigger load
-        iframe.src = 'about:blank';
+      // Capture the payment success card with maximum quality (100%)
+      const cardCanvas = await html2canvas(receiptRef.current, {
+        scale: 5, // Higher scale for maximum quality
+        useCORS: true,
+        allowTaint: false,
+        logging: false,
+        backgroundColor: '#d1fae5', // Green background
+        quality: 1.0, // Maximum quality (100%)
+        pixelRatio: window.devicePixelRatio || 2, // Use device pixel ratio for crisp rendering
       });
+
+      // Restore button visibility
+      if (buttonsContainer) {
+        buttonsContainer.style.display = originalDisplay;
+      }
+
+      // Load logos
+      const [companyLogoBase64, operatorLogoBase64] = await Promise.all([
+        loadImageAsBase64(companyLogoUrl),
+        loadImageAsBase64(operatorLogoPath),
+      ]);
+
+      // Create PDF with maximum compression enabled
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4',
+        compress: true, // Enable PDF compression
+        precision: 16, // High precision for better quality
+      });
+
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      let currentY = 15; // Start position
+
+      // Add header with logos
+      const logoSize = 25; // mm
+      const logoSpacing = 10; // mm
+      
+      if (companyLogoBase64) {
+        pdf.addImage(companyLogoBase64, 'PNG', 15, currentY, logoSize, logoSize, undefined, 'SLOW');
+      }
+      
+      if (operatorLogoBase64) {
+        pdf.addImage(operatorLogoBase64, 'PNG', pdfWidth - 15 - logoSize, currentY, logoSize, logoSize, undefined, 'SLOW');
+      }
+
+      currentY += logoSize + 15;
+
+      // Add horizontal line
+      pdf.setDrawColor(229, 229, 229);
+      pdf.setLineWidth(0.5);
+      pdf.line(15, currentY, pdfWidth - 15, currentY);
+      currentY += 10;
+
+      // Add Invoice Title
+      pdf.setFontSize(28);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(0, 0, 0);
+      pdf.text('INVOICE', pdfWidth / 2, currentY, { align: 'center' });
+      currentY += 8;
+
+      pdf.setFontSize(14);
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(102, 102, 102);
+      pdf.text('Transaction Receipt', pdfWidth / 2, currentY, { align: 'center' });
+      currentY += 20;
+
+      // Add the captured payment success card
+      // Convert to JPEG with high quality (0.98) for better compression while maintaining visual quality
+      const cardImgData = cardCanvas.toDataURL('image/jpeg', 0.98);
+      const cardWidth = pdfWidth - 30; // 15mm margin on each side
+      const cardAspectRatio = cardCanvas.height / cardCanvas.width;
+      const cardHeight = cardWidth * cardAspectRatio;
+
+      // Check if card fits on current page, if not add new page
+      if (currentY + cardHeight > pdfHeight - 20) {
+        pdf.addPage();
+        currentY = 15;
+      }
+
+      // Use JPEG format with compression for smaller file size
+      pdf.addImage(cardImgData, 'JPEG', 15, currentY, cardWidth, cardHeight, undefined, 'FAST');
+      currentY += cardHeight + 15;
+
+      // Add footer
+      if (currentY + 20 > pdfHeight - 20) {
+        pdf.addPage();
+        currentY = 15;
+      }
+
+      pdf.setDrawColor(229, 229, 229);
+      pdf.line(15, currentY, pdfWidth - 15, currentY);
+      currentY += 10;
+
+      pdf.setFontSize(13);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(51, 51, 51);
+      pdf.text('Thank you for your transaction!', pdfWidth / 2, currentY, { align: 'center' });
+      currentY += 6;
+
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(102, 102, 102);
+      pdf.text('This is a computer-generated invoice.', pdfWidth / 2, currentY, { align: 'center' });
+
+      return { pdf, fileName: `Invoice_${orderId}.pdf` };
     } catch (error) {
       console.error('Error generating PDF:', error);
       throw error;
@@ -479,19 +216,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
       pdf.save(fileName);
     } catch (error) {
       console.error('Error downloading PDF:', error);
-      // Fallback to HTML download
-      const htmlContent = generateHTMLInvoice();
-      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
-      const fileName = `Invoice_${orderId}.html`;
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
+      alert('Failed to generate PDF. Please try again.');
     }
   };
 
