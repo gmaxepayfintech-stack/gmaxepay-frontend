@@ -106,8 +106,8 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 20px 0 30px 0;
-            margin-bottom: 20px;
+            padding: 20px 0 10px 0;
+            margin-bottom: 0;
         }
         
         .company-name {
@@ -116,6 +116,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             font-weight: 700;
             color: #000;
             margin-bottom: 20px;
+            margin-top: -20px;
             padding: 15px 0;
             border-bottom: 2px solid #000;
             letter-spacing: 0.5px;
@@ -164,16 +165,10 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         .invoice-title h1 {
             font-size: 42px;
             color: #000;
-            margin-bottom: 10px;
+            margin-bottom: 0;
             font-weight: 900;
             letter-spacing: 3px;
             text-transform: uppercase;
-        }
-        
-        .invoice-title p {
-            color: #000;
-            font-size: 16px;
-            font-weight: 500;
         }
         
         .content {
@@ -280,7 +275,6 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         <!-- Invoice Title -->
         <div class="invoice-title">
             <h1>INVOICE</h1>
-            <p>Transaction Receipt</p>
         </div>
         
         <!-- Content -->
@@ -596,7 +590,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-8 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-6 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
