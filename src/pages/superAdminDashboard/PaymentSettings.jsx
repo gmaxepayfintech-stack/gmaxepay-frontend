@@ -1,117 +1,48 @@
 import React, { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useCompany } from "../../context/CompanyContext";
+import {
+  getAllBBPSPaymentInfo,
+  searchBBPSPaymentInfo,
+  createBBPSPaymentInfo,
+  updateBBPSPaymentInfo,
+} from "../../redux/action/bbpsAction";
 
-// Sample payment method data
-const paymentMethods = [
-  {
-    id: 1,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 2,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 3,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 4,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 5,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 6,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 7,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 8,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 9,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 10,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 11,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 12,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 13,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 14,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 15,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 16,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 17,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-  {
-    id: 18,
-    initChannel: 4,
-    paymentMethod: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-    paymentInformation: '{"PaymentMode":"Cash","QuickPay":"N","SplitPay":"N"}',
-  },
-];
+// Helper function to map API response to payment method format
+const mapPaymentInfoToComponent = (paymentInfo) => {
+  return {
+    id: paymentInfo.id || paymentInfo._id,
+    initChannel: paymentInfo.initiatingChannel || "",
+    paymentMethod: typeof paymentInfo.paymentMethod === 'object' 
+      ? JSON.stringify(paymentInfo.paymentMethod, null, 2)
+      : paymentInfo.paymentMethod || "",
+    paymentInformation: typeof paymentInfo.paymentInfo === 'object'
+      ? JSON.stringify(paymentInfo.paymentInfo, null, 2)
+      : paymentInfo.paymentInfo || "",
+  };
+};
+
+// Skeleton Loader Component
+const PaymentMethodCardSkeleton = () => {
+  return (
+    <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white animate-pulse">
+      <div className="flex justify-between items-center mb-4">
+        <div className="h-4 w-24 bg-gray-300 rounded"></div>
+        <div className="h-4 w-16 bg-gray-300 rounded"></div>
+      </div>
+      <div className="mb-4">
+        <div className="h-3 w-32 bg-gray-300 rounded mb-2"></div>
+        <div className="h-16 bg-gray-300 rounded"></div>
+      </div>
+      <div className="mb-4">
+        <div className="h-3 w-32 bg-gray-300 rounded mb-2"></div>
+        <div className="h-16 bg-gray-300 rounded"></div>
+      </div>
+      <div className="h-10 w-full bg-gray-300 rounded-lg"></div>
+    </div>
+  );
+};
 
 const AddPaymentMethodModal = ({
   isOpen,
@@ -120,11 +51,12 @@ const AddPaymentMethodModal = ({
   onEdit,
   paymentMethod,
   mode = "add",
+  isLoading = false,
 }) => {
   const [formData, setFormData] = useState({
     initChannel: "",
     paymentMethod: "",
-    paymentInformation: "",
+    paymentInfo: "",
   });
 
   // Update form data when paymentMethod prop changes (for edit mode)
@@ -133,37 +65,32 @@ const AddPaymentMethodModal = ({
       setFormData({
         initChannel: paymentMethod.initChannel?.toString() || "",
         paymentMethod: paymentMethod.paymentMethod || "",
-        paymentInformation: paymentMethod.paymentInformation || "",
+        paymentInfo: paymentMethod.paymentInformation || "",
       });
     } else {
       setFormData({
         initChannel: "",
         paymentMethod: "",
-        paymentInformation: "",
+        paymentInfo: "",
       });
     }
   }, [paymentMethod, mode]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (mode === "edit" && onEdit) {
-      onEdit(formData);
-    } else {
-      onAdd(formData);
+      await onEdit(formData);
+    } else if (onAdd) {
+      await onAdd(formData);
     }
-    setFormData({
-      initChannel: "",
-      paymentMethod: "",
-      paymentInformation: "",
-    });
-    onClose();
+    // Don't close modal here - let the useEffect handle it after success
   };
 
   const handleClose = () => {
     setFormData({
       initChannel: "",
       paymentMethod: "",
-      paymentInformation: "",
+      paymentInfo: "",
     });
     onClose();
   };
@@ -252,11 +179,11 @@ const AddPaymentMethodModal = ({
             <div className="space-y-4">
               <div>
                 <textarea
-                  value={formData.paymentInformation}
+                  value={formData.paymentInfo}
                   onChange={(e) =>
                     setFormData({
                       ...formData,
-                      paymentInformation: e.target.value,
+                      paymentInfo: e.target.value,
                     })
                   }
                   placeholder="Enter Payment Information"
@@ -278,9 +205,20 @@ const AddPaymentMethodModal = ({
             </button>
             <button
               type="submit"
-              className="flex-1 px-6 py-3 h-[48px] rounded-lg bg-[#039155] text-[16px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition"
+              disabled={isLoading}
+              className="flex-1 px-6 py-3 h-[48px] rounded-lg bg-[#039155] text-[16px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
-              {mode === "edit" ? "Update Payment Method" : "Add Payment Method"}
+              {isLoading ? (
+                <>
+                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  {mode === "edit" ? "Updating..." : "Adding..."}
+                </>
+              ) : (
+                mode === "edit" ? "Update Method" : "Add Method"
+              )}
             </button>
           </div>
         </form>
@@ -338,34 +276,57 @@ const PaymentMethodCard = ({ paymentMethod, onEditClick }) => {
 };
 
 const PaymentSettings = () => {
+  const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { paymentInfo, loading, paymentInfoTotalPages, paymentInfoCurrentPage, createPaymentInfoSuccess } = useSelector(
+    (state) => state.bbps
+  );
+
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingPaymentMethod, setEditingPaymentMethod] = useState(null);
   const [modalMode, setModalMode] = useState("add");
+  const [lastOperation, setLastOperation] = useState(null);
 
-  const cardsPerPage = 6; // 6 cards per page (2x3 grid)
+  const cardsPerPage = 6; // 6 cards per page
 
-  const filteredPaymentMethods = paymentMethods.filter(
-    (method) =>
-      method.paymentMethod.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      method.paymentInformation
-        .toLowerCase()
-        .includes(searchQuery.toLowerCase()) ||
-      method.initChannel.toString().includes(searchQuery),
-  );
+  // Get company ID
+  const getCompanyId = () => {
+    return company?.companyId || company?._id || company?.id || null;
+  };
 
-  // Calculate pagination
-  const totalPages = Math.ceil(filteredPaymentMethods.length / cardsPerPage);
-  const startIndex = (currentPage - 1) * cardsPerPage;
-  const endIndex = startIndex + cardsPerPage;
-  const currentPaymentMethods = filteredPaymentMethods.slice(
-    startIndex,
-    endIndex,
-  );
+  // Debounced search query
+  const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchQuery(searchQuery);
+      if (searchQuery.trim() !== "") {
+        setCurrentPage(1); // Reset to page 1 when search changes
+      }
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Fetch payment info - handles initial load, search, and pagination
+  useEffect(() => {
+    const companyId = getCompanyId();
+    if (!companyId) return;
+
+    if (debouncedSearchQuery.trim()) {
+      dispatch(searchBBPSPaymentInfo(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+    } else {
+      dispatch(getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
+    }
+  }, [debouncedSearchQuery, currentPage, dispatch, company]);
+
+  // Map payment info to component format
+  const mappedPaymentMethods = paymentInfo.map(mapPaymentInfoToComponent);
 
   // Calculate which 3 page numbers to show
   const getVisiblePages = () => {
+    const totalPages = paymentInfoTotalPages || 1;
     if (totalPages <= 3) {
       return Array.from({ length: totalPages }, (_, i) => i + 1);
     }
@@ -381,39 +342,76 @@ const PaymentSettings = () => {
 
   const visiblePages = getVisiblePages();
 
-  // Reset to page 1 when search query changes
+  // Close modal and refresh list when operation succeeds
   useEffect(() => {
-    setCurrentPage(1);
-  }, [searchQuery]);
+    if (createPaymentInfoSuccess && !loading && isModalOpen && lastOperation) {
+      const companyId = getCompanyId();
+      if (companyId) {
+        // Always call getAllBBPSPaymentInfo after update
+        if (lastOperation === 'update') {
+          dispatch(getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
+        } else {
+          // For create operation, respect search state
+          if (debouncedSearchQuery.trim()) {
+            dispatch(searchBBPSPaymentInfo(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+          } else {
+            dispatch(getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
+          }
+        }
+        setIsModalOpen(false);
+        setEditingPaymentMethod(null);
+        setModalMode("add");
+        setLastOperation(null);
+      }
+    }
+  }, [createPaymentInfoSuccess, loading, isModalOpen, lastOperation, debouncedSearchQuery, currentPage, dispatch, company]);
 
-  const handleAddPaymentMethod = (formData) => {
-    // Handle adding new payment method here
-    console.log("New payment method data:", formData);
-    // You can add the payment method to the list or make an API call here
+  const handleAddPaymentMethod = async (formData) => {
+    const companyId = getCompanyId();
+    if (companyId) {
+      setLastOperation('create');
+      await dispatch(createBBPSPaymentInfo(companyId, {
+        initChannel: formData.initChannel,
+        initiatingChannel: formData.initChannel,
+        paymentMethod: formData.paymentMethod,
+        paymentInfo: formData.paymentInfo,
+      }));
+    }
   };
 
-  const handleEditPaymentMethod = (formData) => {
-    // Handle editing payment method here
-    console.log("Updated payment method data:", formData);
-    // You can update the payment method in the list or make an API call here
+  const handleEditPaymentMethod = async (formData) => {
+    const companyId = getCompanyId();
+    const paymentInfoId = editingPaymentMethod?.id;
+    if (companyId && paymentInfoId) {
+      setLastOperation('update');
+      await dispatch(updateBBPSPaymentInfo(companyId, paymentInfoId, {
+        initChannel: formData.initChannel,
+        initiatingChannel: formData.initChannel,
+        paymentMethod: formData.paymentMethod,
+        paymentInfo: formData.paymentInfo,
+      }));
+    }
   };
 
   const handleEditClick = (paymentMethod) => {
     setEditingPaymentMethod(paymentMethod);
     setModalMode("edit");
     setIsModalOpen(true);
+    setLastOperation(null); // Reset last operation when opening modal
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
     setEditingPaymentMethod(null);
     setModalMode("add");
+    setLastOperation(null);
   };
 
   const handleAddClick = () => {
     setEditingPaymentMethod(null);
     setModalMode("add");
     setIsModalOpen(true);
+    setLastOperation(null); // Reset last operation when opening modal
   };
 
   return (
@@ -441,23 +439,34 @@ const PaymentSettings = () => {
 
       {/* Cards Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 bg-[#FFFFFF] rounded-xl p-4 lg:grid-cols-3 gap-6">
-        {currentPaymentMethods.map((method) => (
-          <PaymentMethodCard
-            key={method.id}
-            paymentMethod={method}
-            onEditClick={handleEditClick}
-          />
-        ))}
+        {loading && mappedPaymentMethods.length === 0 ? (
+          // Show skeleton loaders on initial load
+          Array.from({ length: cardsPerPage }).map((_, index) => (
+            <PaymentMethodCardSkeleton key={`skeleton-${index}`} />
+          ))
+        ) : mappedPaymentMethods.length > 0 ? (
+          mappedPaymentMethods.map((method) => (
+            <PaymentMethodCard
+              key={method.id}
+              paymentMethod={method}
+              onEditClick={handleEditClick}
+            />
+          ))
+        ) : (
+          <div className="col-span-full text-center py-8 text-gray-500">
+            No payment methods found
+          </div>
+        )}
       </div>
 
       {/* Pagination */}
-      {totalPages > 0 && (
+      {(paymentInfoTotalPages || 0) > 0 && (
         <div className="flex justify-center items-center gap-2 mt-8">
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1}
+            disabled={currentPage === 1 || loading}
             className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === 1 || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -466,22 +475,23 @@ const PaymentSettings = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
+              disabled={loading}
               className={`px-4 py-1.5 rounded font-medium transition-colors ${
                 currentPage === page
                   ? "bg-[#039155] text-white"
                   : "border border-gray-300 hover:bg-gray-50"
-              }`}
+              } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {page}
             </button>
           ))}
           <button
             onClick={() =>
-              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+              setCurrentPage((prev) => Math.min(paymentInfoTotalPages || 1, prev + 1))
             }
-            disabled={currentPage === totalPages}
+            disabled={currentPage === (paymentInfoTotalPages || 1) || loading}
             className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === (paymentInfoTotalPages || 1) || loading ? "opacity-50 cursor-not-allowed" : ""
             }`}
           >
             <ChevronRight className="w-4 h-4" />
@@ -497,6 +507,7 @@ const PaymentSettings = () => {
         onEdit={handleEditPaymentMethod}
         paymentMethod={editingPaymentMethod}
         mode={modalMode}
+        isLoading={loading}
       />
     </div>
   );

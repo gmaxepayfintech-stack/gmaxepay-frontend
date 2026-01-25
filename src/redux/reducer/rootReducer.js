@@ -15,6 +15,7 @@ import payoutReducer from './payoutReducer';
 import aepsTwoReducer from './aepsTwoReducer';
 import rechargeReducer from './rechargeReducer';
 import fundReducer from './fundReducer';
+import bbpsReducer from './bbpsReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -33,6 +34,7 @@ const rootReducer = combineReducers({
     aepsTwo: aepsTwoReducer,
     recharge: rechargeReducer,
     fund: fundReducer,
+    bbps: bbpsReducer,
 });
 
 export default rootReducer;

@@ -1,5 +1,103 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Search, Plus, ChevronLeft, ChevronRight, ChevronDown, X } from 'lucide-react';
+import { useCompany } from '../../context/CompanyContext';
+import {
+  getAllBBPSBillers,
+  searchBBPSBillers,
+  getCategoriesForDropdown,
+  getAllBBPSPaymentInfo,
+  createBBPSBiller,
+  updateBBPSBiller,
+} from '../../redux/action/bbpsAction';
+
+// Icon mapping for categories (same as BBPSSettings)
+const categoryIconMap = {
+  "Broadband Postpaid": "/img/Broadband.svg",
+  "Cable TV": "/img/Cable.svg",
+  "Clubs And Associations": "/img/Club.svg",
+  "Donation": "/img/Donation.svg",
+  "DTH": "/img/DTH.svg",
+  "Electricity": "/img/Electricity.svg",
+  "Credit Card": "/img/CreditCard.svg",
+  "Education Fee": "/img/Education.svg",
+  "Fast Tag": "/img/FastTag.svg",
+  "Housing Society": "/img/Housing.svg",
+  "Insurance": "/img/Insurance.svg",
+  "Life Insurance": "/img/LifeInsurance.svg",
+  "Gas": "/img/Gas.svg",
+  "Hospital & Pathology": "/img/Hospitality.svg",
+  "Hospital": "/img/Hospital.svg",
+  "Health Insurance": "/img/HealthInsurance.svg",
+  "Landline Post-Paid": "/img/Landline.svg",
+  "Loan Repayment": "/img/Loan.svg",
+  "LPG Gas": "/img/Gas.svg",
+  "Mobile Post-Paid": "/img/Postpaid.svg",
+  "Mobile Pre-Paid": "/img/Prepaid.svg",
+  "Rental": "/img/Rental.svg",
+  "Subscription": "/img/Subscription.svg",
+  "Water": "/img/Water.svg",
+  "Municipal Services": "/img/MunicipalService.svg",
+  "Municipal Taxes": "/img/MunicipalTax.svg",
+  "Recurring Deposit": "/img/RecurringDeposit.svg",
+  "NCMC": "/img/NCMC.svg",
+  "Prepaid Meter": "/img/PrepaidMeter.svg",
+  "E-Challan": "/img/E-Challen.svg",
+  "Agent Collection": "/img/AgentCollection.svg",
+  "EV Recharge": "/img/EVRecharge.svg",
+  "NPS": "/img/NPS.svg",
+};
+
+// Default icon
+const DEFAULT_ICON = "/img/Broadband.svg";
+
+// Helper function to map API response to biller format
+const mapBillerToComponent = (biller, categoryName) => {
+  return {
+    id: biller.id || biller._id,
+    name: biller.name || "",
+    icon: categoryIconMap[categoryName] || DEFAULT_ICON,
+    iconColor: "text-blue-500",
+    billerName: biller.name || "",
+    billerId: biller.billerId || "",
+    category: categoryName || "",
+    initChannel: biller.initChannel || "",
+    active: biller.isActive !== undefined ? biller.isActive : true,
+    deleted: biller.isDeleted || false,
+  };
+};
+
+// Skeleton Loader Component
+const BillerCardSkeleton = () => {
+  return (
+    <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white animate-pulse">
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <div className="w-[35px] h-[35px] bg-gray-300 rounded"></div>
+          <div className="h-4 w-32 bg-gray-300 rounded"></div>
+        </div>
+        <div className="h-6 w-16 bg-gray-300 rounded-full"></div>
+      </div>
+      <div className="space-y-2 mb-4 border-b border-[#1B1717] border-opacity-20 pb-4">
+        {[1, 2, 3, 4].map((i) => (
+          <div key={i} className="flex justify-between">
+            <div className="h-3 w-20 bg-gray-300 rounded"></div>
+            <div className="h-3 w-12 bg-gray-300 rounded"></div>
+          </div>
+        ))}
+      </div>
+      <div className="space-y-[18px] mb-4">
+        {[1, 2].map((i) => (
+          <div key={i} className="flex justify-between items-center">
+            <div className="h-3 w-16 bg-gray-300 rounded"></div>
+            <div className="w-[39px] h-[23px] bg-gray-300 rounded-full"></div>
+          </div>
+        ))}
+      </div>
+      <div className="h-10 w-full bg-gray-300 rounded-lg"></div>
+    </div>
+  );
+};
 
 // Icon component similar to OperatorCard
 const BillerIcon = ({ icon, className = "" }) => {
@@ -17,241 +115,27 @@ const BillerIcon = ({ icon, className = "" }) => {
     return <IconComponent className={className} />;
 };
 
-// Sample biller data
-const billers = [
-    {
-        id: 1,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 2,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 3,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 4,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 5,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 6,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 7,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 8,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 9,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 10,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 11,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 12,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 13,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 14,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 15,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 16,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 17,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    },
-    {
-        id: 18,
-        name: "Yes Bank Credit Card",
-        icon: "/img/CreditCard.svg",
-        iconColor: "text-blue-500",
-        billerName: 12,
-        billerId: 225,
-        category: 4,
-        initChannel: 4,
-        active: true,
-        deleted: false
-    }
-];
+// Helper function to get category name by ID
+const getCategoryNameById = (categoryId, categories) => {
+    const category = categories.find(cat => cat.id === categoryId);
+    return category?.name || "Broadband Postpaid";
+};
 
-const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }) => {
+const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add", categoriesForDropdown = [], initChannelOptions = [], isLoading = false }) => {
     const [formData, setFormData] = useState({
         billerName: "",
         billerId: "",
         category: "",
         initChannel: "",
         active: true,
+        deleted: false,
     });
     const [isCategoryDropdownOpen, setIsCategoryDropdownOpen] = useState(false);
     const [isInitChannelDropdownOpen, setIsInitChannelDropdownOpen] = useState(false);
     const categoryDropdownRef = useRef(null);
     const initChannelDropdownRef = useRef(null);
 
-    const categoryOptions = ["Credit Card", "Electricity", "Gas", "Water", "Mobile", "DTH", "Broadband"];
-    const initChannelOptions = ["AGT", "USSD", "APP", "WEB", "IVR"];
+    const categoryOptions = categoriesForDropdown.map(cat => cat.name);
 
     // Update form data when biller prop changes (for edit mode)
     useEffect(() => {
@@ -262,6 +146,7 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
                 category: typeof biller.category === "string" ? biller.category : (biller.category?.toString() || ""),
                 initChannel: typeof biller.initChannel === "string" ? biller.initChannel : (biller.initChannel?.toString() || ""),
                 active: biller.active !== undefined ? biller.active : true,
+                deleted: biller.deleted !== undefined ? biller.deleted : false,
             });
         } else {
             setFormData({
@@ -270,6 +155,7 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
                 category: "",
                 initChannel: "",
                 active: true,
+                deleted: false,
             });
         }
     }, [biller, mode]);
@@ -294,25 +180,18 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
         };
     }, [isCategoryDropdownOpen, isInitChannelDropdownOpen]);
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!formData.category || !formData.initChannel) {
             alert("Please select Category and Init Channel");
             return;
         }
         if (mode === "edit" && onEdit) {
-            onEdit(formData);
-        } else {
-            onAdd(formData);
+            await onEdit(formData);
+        } else if (onAdd) {
+            await onAdd(formData);
         }
-        setFormData({
-            billerName: "",
-            billerId: "",
-            category: "",
-            initChannel: "",
-            active: true,
-        });
-        onClose();
+        // Don't close modal here - let the useEffect handle it after success
     };
 
     const handleClose = () => {
@@ -322,6 +201,7 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
             category: "",
             initChannel: "",
             active: true,
+            deleted: false,
         });
         setIsCategoryDropdownOpen(false);
         setIsInitChannelDropdownOpen(false);
@@ -473,14 +353,15 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
                             Status Settings
                         </h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                            {/* ===== Row 1 : Label ===== */}
+                            {/* ===== Row 1 : Labels ===== */}
                             <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                                 Active
                             </span>
                             <span className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                                Deleted
                             </span>
 
-                            {/* ===== Row 1 : Card ===== */}
+                            {/* ===== Row 1 : Cards ===== */}
                             {/* Active Card */}
                             <div className="flex justify-between items-start border border-gray-300 rounded-xl px-2 py-3">
                                 <div>
@@ -506,6 +387,32 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
                                     />
                                 </button>
                             </div>
+
+                            {/* Deleted Card */}
+                            <div className="flex justify-between items-start border border-gray-300 rounded-xl px-2 py-3">
+                                <div>
+                                    <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
+                                        Deleted Status
+                                    </h3>
+                                    <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
+                                        Delete This Biller
+                                    </p>
+                                </div>
+
+                                <button
+                                    type="button"
+                                    onClick={() =>
+                                        setFormData({ ...formData, deleted: !formData.deleted })
+                                    }
+                                    className={`w-[42px] h-[24px] rounded-full relative transition-all
+                ${formData.deleted ? "bg-[#039155]" : "bg-gray-300"}`}
+                                >
+                                    <span
+                                        className={`absolute top-[2px] w-5 h-5 bg-white rounded-full shadow transition-all
+                    ${formData.deleted ? "right-[2px]" : "left-[2px]"}`}
+                                    />
+                                </button>
+                            </div>
                         </div>
                     </div>
 
@@ -520,9 +427,20 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
                         </button>
                         <button
                             type="submit"
-                            className="flex-1 px-6 py-3 rounded-lg bg-[#039155] text-[18px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition"
+                            disabled={isLoading}
+                            className="flex-1 px-6 py-3 rounded-lg bg-[#039155] text-[18px] text-white font-['Gilroy-Medium'] hover:bg-[#027a47] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                         >
-                            {mode === "edit" ? "Update Biller" : "Add Biller"}
+                            {isLoading ? (
+                                <>
+                                    <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                    </svg>
+                                    {mode === "edit" ? "Updating..." : "Adding..."}
+                                </>
+                            ) : (
+                                mode === "edit" ? "Update Biller" : "Add Biller"
+                            )}
                         </button>
                     </div>
                 </form>
@@ -531,9 +449,26 @@ const AddBillerModal = ({ isOpen, onClose, onAdd, onEdit, biller, mode = "add" }
     );
 };
 
-const BillerCard = ({ biller, onEditClick }) => {
+const BillerCard = ({ biller, onEditClick, onToggleActive, company, categoriesForDropdown }) => {
     const [active, setActive] = useState(biller.active);
     const [deleted, setDeleted] = useState(biller.deleted);
+
+    // Update local state when biller prop changes
+    useEffect(() => {
+        setActive(biller.active);
+        setDeleted(biller.deleted);
+    }, [biller]);
+
+    // Handle active toggle click
+    const handleActiveToggle = async () => {
+        const newActiveValue = !active;
+        setActive(newActiveValue); // Optimistically update UI
+        
+        // Call the update handler if provided
+        if (onToggleActive) {
+            await onToggleActive(biller, newActiveValue);
+        }
+    };
 
     return (
         <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
@@ -546,9 +481,9 @@ const BillerCard = ({ biller, onEditClick }) => {
                     />
                     <span className="font-['Gilroy-SemiBold] text-[16px] text-[#1B1717]">{biller.name}</span>
                 </div>
-                <span className="text-xs bg-[#008D1E] text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                <span className={`text-xs text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${active ? "bg-[#008D1E]" : "bg-red-500"}`}>
                     <span className="w-[8px] h-[8px] bg-white text-[#FFFFFF] rounded-full"></span>
-                    Active
+                    {active ? "Active" : "Inactive"}
                 </span>
             </div>
 
@@ -574,24 +509,20 @@ const BillerCard = ({ biller, onEditClick }) => {
 
             {/* Toggles */}
             <div className="space-y-[18px] mb-4">
-                {[
-                    { label: "Active", value: active, setter: setActive },
-                    { label: "Deleted", value: deleted, setter: setDeleted },
-                ].map((item) => (
-                    <div key={item.label} className="flex justify-between items-center">
-                        <span className="text-[12px] text-[#1B1717] font-['Gilroy-Regular'] text-opacity-80">{item.label}</span>
-                        <button
-                            onClick={() => item.setter(!item.value)}
-                            className={`w-[39px] h-[23px] rounded-full relative transition-all duration-200 ${item.value ? "bg-[#039155]" : "bg-gray-300"
+                <div className="flex justify-between items-center">
+                    <span className="text-[12px] text-[#1B1717] font-['Gilroy-Regular'] text-opacity-80">Active</span>
+                    <button
+                        onClick={handleActiveToggle}
+                        className={`w-[39px] h-[23px] rounded-full relative transition-all duration-200 ${active ? "bg-[#039155]" : "bg-gray-300"
+                            }`}
+                    >
+                        <span
+                            className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${active ? "right-0.5" : "left-0.5"
                                 }`}
-                        >
-                            <span
-                                className={`absolute top-0.5 w-5 h-5 bg-white rounded-full shadow-sm transition-all duration-200 ${item.value ? "right-0.5" : "left-0.5"
-                                    }`}
-                            />
-                        </button>
-                    </div>
-                ))}
+                        />
+                    </button>
+                </div>
+
             </div>
 
             {/* Action */}
@@ -606,30 +537,75 @@ const BillerCard = ({ biller, onEditClick }) => {
 };
 
 const BillerSettings = () => {
+    const dispatch = useDispatch();
+    const { company } = useCompany();
+    const { billers, loading, billersTotalPages, billersCurrentPage, categoriesForDropdown, paymentInfo, createBillerSuccess, updateBillerSuccess } = useSelector(
+        (state) => state.bbps
+    );
+
     const [searchQuery, setSearchQuery] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedCategory, setSelectedCategory] = useState("Credit Card");
+    const [selectedCategory, setSelectedCategory] = useState("All");
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBiller, setEditingBiller] = useState(null);
     const [modalMode, setModalMode] = useState("add");
+    const [initChannels, setInitChannels] = useState([]);
+    const [loadingChannels, setLoadingChannels] = useState(false);
+    const [lastOperation, setLastOperation] = useState(null); // Track if last operation was 'create' or 'update'
     const dropdownRef = useRef(null);
 
-    const cardsPerPage = 6; // 6 cards per page (2x3 grid)
+    const cardsPerPage = 6; // 6 cards per page
 
-    const filteredBillers = billers.filter((biller) =>
-        biller.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        biller.billerId.toString().includes(searchQuery)
-    );
+    // Get company ID
+    const getCompanyId = () => {
+        return company?.companyId || company?._id || company?.id || null;
+    };
 
-    // Calculate pagination
-    const totalPages = Math.ceil(filteredBillers.length / cardsPerPage);
-    const startIndex = (currentPage - 1) * cardsPerPage;
-    const endIndex = startIndex + cardsPerPage;
-    const currentBillers = filteredBillers.slice(startIndex, endIndex);
+    // Debounced search query
+    const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedSearchQuery(searchQuery);
+            if (searchQuery.trim() !== "") {
+                setCurrentPage(1);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
+
+    // Fetch categories for dropdown on mount
+    useEffect(() => {
+        const companyId = getCompanyId();
+        if (companyId && categoriesForDropdown.length === 0) {
+            dispatch(getCategoriesForDropdown(companyId));
+        }
+    }, [company, dispatch]);
+
+    // Fetch billers when category, search, or page changes
+    useEffect(() => {
+        const companyId = getCompanyId();
+        if (!companyId) return;
+
+        const categoryName = selectedCategory === "All" ? null : selectedCategory;
+
+        if (debouncedSearchQuery.trim()) {
+            dispatch(searchBBPSBillers(companyId, debouncedSearchQuery, categoryName, currentPage, cardsPerPage));
+        } else {
+            dispatch(getAllBBPSBillers(companyId, categoryName, currentPage, cardsPerPage));
+        }
+    }, [debouncedSearchQuery, currentPage, selectedCategory, dispatch, company]);
+
+    // Map billers to component format
+    const mappedBillers = billers.map((biller) => {
+        const categoryName = getCategoryNameById(biller.categoryId, categoriesForDropdown);
+        return mapBillerToComponent(biller, categoryName);
+    });
 
     // Calculate which 3 page numbers to show
     const getVisiblePages = () => {
+        const totalPages = billersTotalPages || 1;
         if (totalPages <= 3) {
             return Array.from({ length: totalPages }, (_, i) => i + 1);
         }
@@ -645,10 +621,11 @@ const BillerSettings = () => {
 
     const visiblePages = getVisiblePages();
 
-    // Reset to page 1 when search query changes
-    useEffect(() => {
+    // Handle category change
+    const handleCategoryChange = (category) => {
+        setSelectedCategory(category);
         setCurrentPage(1);
-    }, [searchQuery]);
+    };
 
     // Close dropdown when clicking outside
     useEffect(() => {
@@ -667,37 +644,154 @@ const BillerSettings = () => {
         };
     }, [isDropdownOpen]);
 
-    const handleAddBiller = (formData) => {
-        // Handle adding new biller here
-        console.log("New biller data:", formData);
-        // You can add the biller to the list or make an API call here
+    // Extract unique initiating channels from payment info
+    useEffect(() => {
+        if (paymentInfo && paymentInfo.length > 0) {
+            const uniqueChannels = [...new Set(paymentInfo.map(item => item.initiatingChannel).filter(Boolean))];
+            setInitChannels(uniqueChannels);
+        }
+    }, [paymentInfo]);
+
+    // Fetch payment info when "Add New Biller" is clicked
+    const handleAddClick = async () => {
+        const companyId = getCompanyId();
+        if (!companyId) return;
+
+        setLoadingChannels(true);
+        try {
+            // Fetch all payment info to get available channels
+            await dispatch(getAllBBPSPaymentInfo(companyId, 1, 100)); // Fetch all channels
+        } catch (error) {
+            console.error("Error fetching payment info:", error);
+        } finally {
+            setLoadingChannels(false);
+            // Open modal after channels are loaded (even if empty, allow user to proceed)
+            setEditingBiller(null);
+            setModalMode("add");
+            setIsModalOpen(true);
+            setLastOperation(null); // Reset last operation when opening modal
+        }
     };
 
-    const handleEditBiller = (formData) => {
-        // Handle editing biller here
-        console.log("Updated biller data:", formData);
-        // You can update the biller in the list or make an API call here
+    const handleAddBiller = async (formData) => {
+        const companyId = getCompanyId();
+        if (!companyId) return;
+
+        // Find category ID by name
+        const selectedCategory = categoriesForDropdown.find(cat => cat.name === formData.category);
+        const categoryId = selectedCategory?.id || selectedCategory?._id || null;
+
+        if (!categoryId) {
+            alert("Please select a valid category");
+            return;
+        }
+
+        const billerData = {
+            name: formData.billerName,
+            billerId: formData.billerId,
+            categoryId: categoryId,
+            initiatingChannel: formData.initChannel,
+        };
+
+        setLastOperation('create');
+        await dispatch(createBBPSBiller(companyId, billerData));
+    };
+
+    const handleEditBiller = async (formData) => {
+        const companyId = getCompanyId();
+        const billerId = editingBiller?.id;
+        if (!companyId || !billerId) return;
+
+        // Find category ID by name
+        const selectedCategory = categoriesForDropdown.find(cat => cat.name === formData.category);
+        const categoryId = selectedCategory?.id || selectedCategory?._id || null;
+
+        if (!categoryId) {
+            alert("Please select a valid category");
+            return;
+        }
+
+        const billerData = {
+            name: formData.billerName,
+            billerId: formData.billerId,
+            categoryId: categoryId,
+            isActive: formData.active !== undefined ? formData.active : true,
+            isDeleted: formData.deleted !== undefined ? formData.deleted : false,
+            initiatingChannel: formData.initChannel,
+        };
+
+        setLastOperation('update');
+        await dispatch(updateBBPSBiller(companyId, billerId, billerData));
     };
 
     const handleEditClick = (biller) => {
         setEditingBiller(biller);
         setModalMode("edit");
         setIsModalOpen(true);
+        setLastOperation(null); // Reset last operation when opening modal
+    };
+
+    const handleToggleActive = async (biller, newActiveValue) => {
+        const companyId = getCompanyId();
+        const billerId = biller.id;
+        if (!companyId || !billerId) return;
+
+        // Find category ID by name
+        const categoryName = biller.category;
+        const categoryObj = categoriesForDropdown.find(cat => cat.name === categoryName);
+        const categoryId = categoryObj?.id || categoryObj?._id || null;
+
+        if (!categoryId) {
+            console.error("Category not found for biller:", biller);
+            return;
+        }
+
+        const billerData = {
+            name: biller.billerName || biller.name,
+            billerId: biller.billerId,
+            categoryId: categoryId,
+            isActive: newActiveValue,
+            isDeleted: biller.deleted !== undefined ? biller.deleted : false,
+            initiatingChannel: biller.initChannel || biller.initChannel,
+        };
+
+        await dispatch(updateBBPSBiller(companyId, billerId, billerData));
+        
+        // Refresh billers list after update (respect current search and filter state)
+        const categoryNameForQuery = selectedCategory === "All" ? null : selectedCategory;
+        if (debouncedSearchQuery.trim()) {
+            dispatch(searchBBPSBillers(companyId, debouncedSearchQuery, categoryNameForQuery, currentPage, cardsPerPage));
+        } else {
+            dispatch(getAllBBPSBillers(companyId, categoryNameForQuery, currentPage, cardsPerPage));
+        }
     };
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
         setEditingBiller(null);
         setModalMode("add");
+        setLastOperation(null); // Reset last operation when closing modal
     };
 
-    const handleAddClick = () => {
-        setEditingBiller(null);
-        setModalMode("add");
-        setIsModalOpen(true);
-    };
+    // Refresh billers list after successful create or update
+    useEffect(() => {
+        if ((createBillerSuccess || updateBillerSuccess) && !loading && isModalOpen && lastOperation) {
+            const companyId = getCompanyId();
+            if (companyId) {
+                const categoryName = selectedCategory === "All" ? null : selectedCategory;
+                // Refresh the billers list after successful create or update
+                dispatch(getAllBBPSBillers(companyId, categoryName, currentPage, cardsPerPage));
+                // Close modal and reset state
+                setIsModalOpen(false);
+                setEditingBiller(null);
+                setModalMode("add");
+                setLastOperation(null); // Reset last operation after closing modal
+            }
+        }
+    }, [createBillerSuccess, updateBillerSuccess, loading, isModalOpen, lastOperation, dispatch, company, selectedCategory, currentPage, cardsPerPage]);
 
-    const categories = ["Credit Card", "Electricity", "Gas", "Water", "Mobile"];
+    // Prepare categories for dropdown (add "All" at the beginning)
+    const categories = ["All", ...categoriesForDropdown.map(cat => cat.name)];
 
     return (
         <div>
@@ -707,7 +801,7 @@ const BillerSettings = () => {
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
                         type="text"
-                        placeholder="Search By Billers Name Or ID"
+                        placeholder="Search By Billers Name"
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
                         className="border border-[#1B1717] border-opacity-50 border-[0.5px] px-10 py-2.5 rounded-lg w-full focus:outline-none text-sm"
@@ -727,10 +821,12 @@ const BillerSettings = () => {
                                 <div
                                     key={category}
                                     onClick={() => {
-                                        setSelectedCategory(category);
+                                        handleCategoryChange(category);
                                         setIsDropdownOpen(false);
                                     }}
-                                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm text-[#1B1717]"
+                                    className={`px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm ${
+                                        selectedCategory === category ? "bg-gray-100 font-medium" : "text-[#1B1717]"
+                                    }`}
                                 >
                                     {category}
                                 </div>
@@ -749,19 +845,38 @@ const BillerSettings = () => {
 
             {/* Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 bg-[#FFFFFF] rounded-xl p-4 lg:grid-cols-3 gap-6">
-                {currentBillers.map((biller) => (
-                    <BillerCard key={biller.id} biller={biller} onEditClick={handleEditClick} />
-                ))}
+                {loading && mappedBillers.length === 0 ? (
+                    // Show skeleton loaders on initial load
+                    Array.from({ length: cardsPerPage }).map((_, index) => (
+                        <BillerCardSkeleton key={`skeleton-${index}`} />
+                    ))
+                ) : mappedBillers.length > 0 ? (
+                    mappedBillers.map((biller) => (
+                        <BillerCard 
+                            key={biller.id} 
+                            biller={biller} 
+                            onEditClick={handleEditClick}
+                            onToggleActive={handleToggleActive}
+                            company={company}
+                            categoriesForDropdown={categoriesForDropdown}
+                        />
+                    ))
+                ) : (
+                    <div className="col-span-full text-center py-8 text-gray-500">
+                        No billers found
+                    </div>
+                )}
             </div>
 
             {/* Pagination */}
-            {totalPages > 0 && (
+            {(billersTotalPages || 0) > 0 && (
                 <div className="flex justify-center items-center gap-2 mt-8">
                     <button
                         onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-                        disabled={currentPage === 1}
-                        className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
+                        disabled={currentPage === 1 || loading}
+                        className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
+                            currentPage === 1 || loading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                     >
                         <ChevronLeft className="w-4 h-4" />
                     </button>
@@ -769,19 +884,22 @@ const BillerSettings = () => {
                         <button
                             key={page}
                             onClick={() => setCurrentPage(page)}
-                            className={`px-4 py-1.5 rounded font-medium transition-colors ${currentPage === page
-                                ? "bg-[#039155] text-white"
-                                : "border border-gray-300 hover:bg-gray-50"
-                                }`}
+                            disabled={loading}
+                            className={`px-4 py-1.5 rounded font-medium transition-colors ${
+                                currentPage === page
+                                    ? "bg-[#039155] text-white"
+                                    : "border border-gray-300 hover:bg-gray-50"
+                            } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
                         >
                             {page}
                         </button>
                     ))}
                     <button
-                        onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-                        disabled={currentPage === totalPages}
-                        className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
-                            }`}
+                        onClick={() => setCurrentPage(prev => Math.min(billersTotalPages || 1, prev + 1))}
+                        disabled={currentPage === (billersTotalPages || 1) || loading}
+                        className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
+                            currentPage === (billersTotalPages || 1) || loading ? "opacity-50 cursor-not-allowed" : ""
+                        }`}
                     >
                         <ChevronRight className="w-4 h-4" />
                     </button>
@@ -796,6 +914,9 @@ const BillerSettings = () => {
                 onEdit={handleEditBiller}
                 biller={editingBiller}
                 mode={modalMode}
+                categoriesForDropdown={categoriesForDropdown}
+                initChannelOptions={initChannels}
+                isLoading={loading}
             />
         </div>
     );
