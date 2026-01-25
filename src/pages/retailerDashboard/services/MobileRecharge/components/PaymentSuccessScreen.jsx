@@ -215,9 +215,13 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             font-size: 18px;
         }
         
+        .amount-row .info-value {
+            font-size: 18px;
+        }
+        
         .amount-value {
-            font-size: 38px;
-            font-weight: 900;
+            font-size: 18px;
+            font-weight: 700;
             color: #000;
             letter-spacing: 0.5px;
         }
@@ -588,7 +592,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-12 justify-center items-center">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-20 justify-center items-center">
           <button
             type="button"
             onClick={handleShare}
