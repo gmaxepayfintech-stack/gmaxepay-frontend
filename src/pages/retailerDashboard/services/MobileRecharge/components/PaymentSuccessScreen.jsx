@@ -1,6 +1,5 @@
 import { useRef } from "react";
 import PropTypes from "prop-types";
-import jsPDF from "jspdf";
 import { useCompany } from "../../../../../context/CompanyContext";
 import { getOperatorLogo } from "../utils";
 
@@ -38,13 +37,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     return `${day} ${month} ${year} at ${displayHours}:${minutes}:${seconds} ${ampm}`;
   };
 
-  const generatePDF = async () => {
-    const doc = new jsPDF();
-    const pageWidth = doc.internal.pageSize.getWidth();
-    const pageHeight = doc.internal.pageSize.getHeight();
-    const margin = 20;
-    let yPos = margin;
-
+  const generateHTMLInvoice = () => {
     // Extract data from nested structure
     const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
     const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || "N/A";
@@ -55,298 +48,269 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     const status = transactionDetails.status || apiResponse.status || "Success";
     const dateTime = getCurrentDateTime();
 
-    // Get operator name and logo
-    const operatorName = selectedOperator?.name || selectedOperator?.operatorName || selectedPlanForRecharge?.operator || "OPERATOR";
+    // Get operator name - check multiple sources
+    // Priority: selectedOperator.company (from operator API) > selectedPlanForRecharge.operator > selectedOperator.name
+    const operatorName = 
+      selectedOperator?.company || 
+      selectedPlanForRecharge?.operator || 
+      selectedOperator?.name || 
+      selectedOperator?.operatorName || 
+      "OPERATOR";
+    
     const operatorLogoPath = getOperatorLogo(operatorName);
+    const companyLogoUrl = company?.logo || "";
 
-    // Outer border (dashed)
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.setLineDash([5, 5], 0);
-    doc.rect(margin - 10, margin - 10, pageWidth - 2 * (margin - 10), pageHeight - 2 * (margin - 10), "D");
-    doc.setLineDash([], 0);
-
-    // Header with logos
-    const logoSize = 28;
-    const headerPadding = 15;
-    const headerY = margin;
-    
-    // Left side - Company logo
-    const companyLogoX = margin + headerPadding;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.rect(companyLogoX, headerY, logoSize, logoSize, "D");
-    
-    // Try to load and add company logo if available
-    let companyLogoLoaded = false;
-    if (company?.logo) {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = company.logo;
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error("Timeout loading company logo"));
-          }, 3000);
-          
-          img.onload = () => {
-            clearTimeout(timeout);
-            try {
-              const format = company.logo.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG';
-              doc.addImage(img, format, companyLogoX + 2, headerY + 2, logoSize - 4, logoSize - 4);
-              companyLogoLoaded = true;
-              resolve();
-            } catch (e) {
-              reject(e);
+    const htmlContent = `<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 2px dashed #333;
+            padding: 0;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 40px;
+            border-bottom: 2px dashed #333;
+        }
+        
+        .company-logo {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .operator-logo {
+            width: 100px;
+            height: 100px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .operator-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .invoice-title {
+            text-align: center;
+            padding: 20px 40px;
+            border-bottom: 2px dashed #333;
+        }
+        
+        .invoice-title h1 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+        
+        .invoice-title p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #333;
+        }
+        
+        .info-table tr {
+            border-bottom: 1px solid #333;
+        }
+        
+        .info-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        .info-table td {
+            padding: 12px 20px;
+            font-size: 15px;
+            border-right: 1px solid #333;
+        }
+        
+        .info-table td:last-child {
+            border-right: none;
+        }
+        
+        .info-table td:first-child {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #000;
+            width: 40%;
+        }
+        
+        .info-table td:last-child {
+            color: #333;
+        }
+        
+        .status-success {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #000;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .amount-highlight {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .footer {
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 2px dashed #333;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
             }
-          };
-          img.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error("Failed to load company logo"));
-          };
-        });
-      } catch (e) {
-        console.log("Could not load company logo:", e);
-      }
-    }
-    
-    if (!companyLogoLoaded) {
-      doc.setFontSize(7);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont(undefined, "bold");
-      doc.text("YOUR LOGO", companyLogoX + logoSize / 2, headerY + logoSize / 2, { align: "center" });
-    }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header with Logos -->
+        <div class="header">
+            <div class="company-logo">
+                ${companyLogoUrl ? `<img src="${companyLogoUrl}" alt="Company Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='YOUR LOGO';" />` : 'YOUR LOGO'}
+            </div>
+            <div class="operator-logo">
+                ${operatorLogoPath ? `<img src="${operatorLogoPath}" alt="${operatorName}" onerror="this.style.display='none'; this.parentElement.innerHTML='${operatorName.toUpperCase()}';" />` : operatorName.toUpperCase()}
+            </div>
+        </div>
+        
+        <!-- Invoice Title -->
+        <div class="invoice-title">
+            <h1>INVOICE</h1>
+            <p>Transaction Receipt</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Transaction Details -->
+            <table class="info-table">
+                <tr>
+                    <td>Order ID</td>
+                    <td><strong>${orderId}</strong></td>
+                </tr>
+                <tr>
+                    <td>Transaction ID</td>
+                    <td><strong>${txId}</strong></td>
+                </tr>
+                <tr>
+                    <td>Ref ID</td>
+                    <td>${refId}</td>
+                </tr>
+                <tr>
+                    <td>Mobile Number</td>
+                    <td><strong>${mobileNum}</strong></td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td><span class="status-success">${status}</span></td>
+                </tr>
+                <tr>
+                    <td>Amount</td>
+                    <td><span class="amount-highlight">₹${parseFloat(amount).toFixed(2)}</span></td>
+                </tr>
+                <tr>
+                    <td>Date & Time</td>
+                    <td>${dateTime}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Thank you for your transaction!</strong></p>
+            <p>This is a computer-generated invoice.</p>
+        </div>
+    </div>
+</body>
+</html>`;
 
-    // Right side - Operator logo/name
-    const operatorLogoX = pageWidth - margin - headerPadding - logoSize;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.rect(operatorLogoX, headerY, logoSize, logoSize, "D");
-    
-    // Try to load operator logo if available
-    let operatorLogoLoaded = false;
-    if (operatorLogoPath) {
-      try {
-        const img = new Image();
-        img.crossOrigin = "anonymous";
-        img.src = operatorLogoPath;
-        await new Promise((resolve, reject) => {
-          const timeout = setTimeout(() => {
-            reject(new Error("Timeout loading operator logo"));
-          }, 3000);
-          
-          img.onload = () => {
-            clearTimeout(timeout);
-            try {
-              const format = operatorLogoPath.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG';
-              doc.addImage(img, format, operatorLogoX + 2, headerY + 2, logoSize - 4, logoSize - 4);
-              operatorLogoLoaded = true;
-              resolve();
-            } catch (e) {
-              reject(e);
-            }
-          };
-          img.onerror = () => {
-            clearTimeout(timeout);
-            reject(new Error("Failed to load operator logo"));
-          };
-        });
-      } catch (e) {
-        console.log("Could not load operator logo:", e);
-      }
-    }
-    
-    if (!operatorLogoLoaded) {
-      doc.setFontSize(7);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont(undefined, "bold");
-      const displayOperatorName = operatorName.length > 10 ? operatorName.substring(0, 10) : operatorName;
-      doc.text(displayOperatorName.toUpperCase(), operatorLogoX + logoSize / 2, headerY + logoSize / 2, { align: "center" });
-    }
-
-    // Divider line after header
-    yPos = headerY + logoSize + 15;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.setLineDash([5, 5], 0);
-    doc.line(margin + headerPadding, yPos, pageWidth - margin - headerPadding, yPos);
-    doc.setLineDash([], 0);
-
-    // Invoice Title
-    yPos += 12;
-    doc.setFontSize(28);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, "bold");
-    doc.text("INVOICE", pageWidth / 2, yPos, { align: "center" });
-    
-    yPos += 8;
-    doc.setFontSize(10);
-    doc.setFont(undefined, "normal");
-    doc.setTextColor(102, 102, 102);
-    doc.text("Transaction Receipt", pageWidth / 2, yPos, { align: "center" });
-
-    // Divider line after title
-    yPos += 10;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.setLineDash([5, 5], 0);
-    doc.line(margin + headerPadding, yPos, pageWidth - margin - headerPadding, yPos);
-    doc.setLineDash([], 0);
-
-    // Content section
-    yPos += 15;
-    const contentPadding = headerPadding;
-    const rowHeight = 14;
-    const labelWidth = (pageWidth - 2 * margin - 2 * contentPadding) * 0.4;
-    const valueWidth = pageWidth - 2 * margin - 2 * contentPadding - labelWidth;
-    const tableX = margin + contentPadding;
-
-    // Draw table border
-    const tableHeight = rowHeight * 7;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.rect(tableX, yPos, labelWidth + valueWidth, tableHeight, "D");
-
-    // Helper function to draw table row
-    const drawRow = (label, value, isLast = false) => {
-      // Label cell (left) - grey background
-      doc.setFillColor(245, 245, 245);
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
-      
-      // Border between cells
-      doc.setDrawColor(0, 0, 0);
-      doc.setLineWidth(0.5);
-      doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
-      
-      doc.setFontSize(9);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(0, 0, 0);
-      doc.text(label, tableX + 10, yPos + 9);
-
-      // Value cell (right) - white background
-      doc.setFillColor(255, 255, 255);
-      doc.rect(tableX + labelWidth, yPos, valueWidth, rowHeight, "FD");
-      
-      doc.setFontSize(9);
-      doc.setFont(undefined, "bold");
-      doc.setTextColor(51, 51, 51);
-      doc.text(value, tableX + labelWidth + 10, yPos + 9);
-
-      // Horizontal border
-      if (!isLast) {
-        doc.setDrawColor(0, 0, 0);
-        doc.setLineWidth(0.5);
-        doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
-      }
-
-      yPos += rowHeight;
-    };
-
-    // Table rows
-    drawRow("Order ID", orderId);
-    drawRow("Transaction ID", txId);
-    drawRow("Ref ID", refId);
-    drawRow("Mobile Number", mobileNum);
-    
-    // Status row with badge
-    doc.setFillColor(245, 245, 245);
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
-    doc.setFontSize(9);
-    doc.setFont(undefined, "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("Status", tableX + 10, yPos + 9);
-
-    // Status badge (black background, white text)
-    const badgeWidth = 35;
-    const badgeHeight = rowHeight - 6;
-    doc.setFillColor(0, 0, 0);
-    doc.rect(tableX + labelWidth + 10, yPos + 3, badgeWidth, badgeHeight, "F");
-    doc.setFontSize(8);
-    doc.setFont(undefined, "bold");
-    doc.setTextColor(255, 255, 255);
-    doc.text(status, tableX + labelWidth + 10 + badgeWidth / 2, yPos + 9, { align: "center" });
-    
-    // Horizontal border
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
-    yPos += rowHeight;
-
-    // Amount row
-    const amountText = `₹${parseFloat(amount).toFixed(2)}`;
-    doc.setFillColor(245, 245, 245);
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
-    doc.setFontSize(9);
-    doc.setFont(undefined, "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("Amount", tableX + 10, yPos + 9);
-    
-    doc.setFillColor(255, 255, 255);
-    doc.rect(tableX + labelWidth, yPos, valueWidth, rowHeight, "FD");
-    doc.setFontSize(12);
-    doc.setFont(undefined, "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text(amountText, tableX + labelWidth + 10, yPos + 9);
-    
-    // Horizontal border
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
-    yPos += rowHeight;
-    
-    // Date & Time row
-    drawRow("Date & Time", dateTime, true);
-
-    // Footer section
-    const footerY = pageHeight - margin - 30;
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(1);
-    doc.setLineDash([5, 5], 0);
-    doc.line(margin + headerPadding, footerY, pageWidth - margin - headerPadding, footerY);
-    doc.setLineDash([], 0);
-
-    // Footer text
-    yPos = footerY + 10;
-    doc.setFontSize(9);
-    doc.setFont(undefined, "bold");
-    doc.setTextColor(0, 0, 0);
-    doc.text("Thank you for your transaction!", pageWidth / 2, yPos, { align: "center" });
-
-    yPos += 8;
-    doc.setFontSize(8);
-    doc.setFont(undefined, "normal");
-    doc.setTextColor(102, 102, 102);
-    doc.text("This is a computer-generated invoice.", pageWidth / 2, yPos, { align: "center" });
-
-    return doc;
+    return htmlContent;
   };
 
-  const handleDownload = async () => {
-    const doc = await generatePDF();
+  const handleDownload = () => {
+    const htmlContent = generateHTMLInvoice();
     const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
-    const fileName = `Invoice_${orderId}.pdf`;
-    doc.save(fileName);
+    const fileName = `Invoice_${orderId}.html`;
+    
+    // Create blob and download
+    const blob = new Blob([htmlContent], { type: 'text/html' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileName;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   const handleShare = async () => {
     try {
-      const doc = await generatePDF();
-      const pdfBlob = doc.output("blob");
+      const htmlContent = generateHTMLInvoice();
       const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
-      const file = new File([pdfBlob], `Invoice_${orderId}.pdf`, {
-        type: "application/pdf",
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const file = new File([blob], `Invoice_${orderId}.html`, {
+        type: "text/html",
       });
 
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
