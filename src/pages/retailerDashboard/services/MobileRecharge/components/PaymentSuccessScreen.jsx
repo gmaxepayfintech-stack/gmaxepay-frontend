@@ -2,6 +2,8 @@ import { useRef } from "react";
 import PropTypes from "prop-types";
 import { useCompany } from "../../../../../context/CompanyContext";
 import { getOperatorLogo } from "../utils";
+import jsPDF from "jspdf";
+import html2canvas from "html2canvas";
 
 const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanForRecharge, selectedOperator }) => {
   const receiptRef = useRef(null);
@@ -274,30 +276,141 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     return htmlContent;
   };
 
-  const handleDownload = () => {
-    const htmlContent = generateHTMLInvoice();
-    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
-    const fileName = `Invoice_${orderId}.html`;
-    
-    // Create blob and download
-    const blob = new Blob([htmlContent], { type: 'text/html' });
-    const url = URL.createObjectURL(blob);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = fileName;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+  const generatePDF = async () => {
+    try {
+      const htmlContent = generateHTMLInvoice();
+      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
+      
+      // Create a temporary iframe to properly render the HTML with all styles
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.top = '0';
+      iframe.style.width = '600px';
+      iframe.style.height = '800px';
+      iframe.style.border = 'none';
+      document.body.appendChild(iframe);
+
+      return new Promise((resolve, reject) => {
+        const handleLoad = async () => {
+          try {
+            const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(htmlContent);
+            iframeDoc.close();
+
+            // Wait for images to load
+            const images = iframeDoc.querySelectorAll('img');
+            const imagePromises = Array.from(images).map((img) => {
+              if (img.complete && img.naturalHeight !== 0) {
+                return Promise.resolve();
+              }
+              return new Promise((resolveImg) => {
+                const timeout = setTimeout(resolveImg, 3000);
+                img.onload = () => {
+                  clearTimeout(timeout);
+                  resolveImg();
+                };
+                img.onerror = () => {
+                  clearTimeout(timeout);
+                  resolveImg(); // Continue even if image fails
+                };
+              });
+            });
+            
+            await Promise.all(imagePromises);
+            
+            // Wait a bit more for rendering
+            await new Promise(resolve => setTimeout(resolve, 500));
+
+            const bodyElement = iframeDoc.body;
+
+            // Convert HTML to canvas with high quality
+            const canvas = await html2canvas(bodyElement, {
+              scale: 3, // Higher scale for better quality
+              useCORS: true,
+              allowTaint: false,
+              logging: false,
+              backgroundColor: '#ffffff',
+              width: 600,
+              windowWidth: 600,
+            });
+
+            // Remove temporary iframe
+            document.body.removeChild(iframe);
+
+            // Create PDF
+            const imgData = canvas.toDataURL('image/png', 1.0);
+            const pdf = new jsPDF({
+              orientation: 'portrait',
+              unit: 'mm',
+              format: 'a4',
+            });
+
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = pdf.internal.pageSize.getHeight();
+            const imgWidth = canvas.width;
+            const imgHeight = canvas.height;
+            const ratio = Math.min((pdfWidth - 20) / imgWidth, (pdfHeight - 20) / imgHeight); // 10mm margin on each side
+            const imgX = (pdfWidth - imgWidth * ratio) / 2;
+            const imgY = 10;
+
+            pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio, undefined, 'FAST');
+            
+            resolve({ pdf, fileName: `Invoice_${orderId}.pdf` });
+          } catch (error) {
+            if (document.body.contains(iframe)) {
+              document.body.removeChild(iframe);
+            }
+            reject(error);
+          }
+        };
+
+        iframe.onload = handleLoad;
+        iframe.onerror = () => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe);
+          }
+          reject(new Error('Failed to load iframe'));
+        };
+
+        // Trigger load
+        iframe.src = 'about:blank';
+      });
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      throw error;
+    }
+  };
+
+  const handleDownload = async () => {
+    try {
+      const { pdf, fileName } = await generatePDF();
+      pdf.save(fileName);
+    } catch (error) {
+      console.error('Error downloading PDF:', error);
+      // Fallback to HTML download
+      const htmlContent = generateHTMLInvoice();
+      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
+      const fileName = `Invoice_${orderId}.html`;
+      const blob = new Blob([htmlContent], { type: 'text/html' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleShare = async () => {
     try {
-      const htmlContent = generateHTMLInvoice();
-      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
-      const blob = new Blob([htmlContent], { type: 'text/html' });
-      const file = new File([blob], `Invoice_${orderId}.html`, {
-        type: "text/html",
+      const { pdf, fileName } = await generatePDF();
+      const pdfBlob = pdf.output('blob');
+      const file = new File([pdfBlob], fileName, {
+        type: "application/pdf",
       });
 
       if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
@@ -428,11 +541,11 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-5 right-5 bottom-2 flex gap-3">
+        <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-3">
           <button
             type="button"
             onClick={handleShare}
-            className="flex-1 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+            className="w-24 border border-[#039155] rounded-lg py-1.5 text-xs text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
           >
             Share
           </button>
@@ -440,7 +553,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           <button
             type="button"
             onClick={handleDownload}
-            className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+            className="w-24 bg-[#039155] text-white rounded-lg py-1.5 text-xs font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
           >
             Download
           </button>
