@@ -16,6 +16,8 @@ export const clearAllStorage = () => {
       'refreshToken',
       'userData',
       'loginToken',
+      'permissions',
+      'loginToken',
       'onboardingSteps',
       'onboardingToken',
       'companyId',
