@@ -652,7 +652,7 @@ const MobileRecharge = ({ onBack }) => {
         // Call rechargefindPlan with the required payload
         const planPayload = {
           mobileNumber: numberToUse,
-          opCode: operatorDataFromResponse.operatorCode|| "A",
+          opCode: operatorDataFromResponse?.operatorCode|| operatorDataFromResponse?.company_code,
           circle: operatorDataFromResponse.circle_code || "06",
         };
 
@@ -1066,7 +1066,7 @@ const MobileRecharge = ({ onBack }) => {
                     // Prepare payment payload
                     const paymentPayload = {
                       mobileNumber: mobileNumber,
-                      opcode: operatorData?.operatorCode || "A",
+                      opcode: operatorData?.operatorCode || operatorData?.company_code,
                       amount: selectedPlanForRecharge.price
                         .replace("₹", "")
                         .trim(),
