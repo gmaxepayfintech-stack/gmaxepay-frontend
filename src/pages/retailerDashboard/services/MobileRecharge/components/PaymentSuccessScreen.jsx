@@ -56,28 +56,29 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     const dateTime = getCurrentDateTime();
 
     // Get operator name and logo
-    const operatorName = selectedOperator?.name || selectedPlanForRecharge?.operator || "OPERATOR";
+    const operatorName = selectedOperator?.name || selectedOperator?.operatorName || selectedPlanForRecharge?.operator || "OPERATOR";
     const operatorLogoPath = getOperatorLogo(operatorName);
 
-    // Header with logos
-    const logoSize = 24;
-    const logoY = margin;
-    
-    // Left side - Operator logo placeholder
+    // Outer border (dashed)
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    doc.rect(margin, logoY, logoSize, logoSize, "D");
-    doc.setFontSize(8);
-    doc.setTextColor(0, 0, 0);
-    doc.setFont(undefined, "bold");
-    doc.text("OPERATOR", margin + logoSize / 2, logoY + logoSize / 2, { align: "center" });
+    doc.setLineWidth(1);
+    doc.setLineDash([5, 5], 0);
+    doc.rect(margin - 10, margin - 10, pageWidth - 2 * (margin - 10), pageHeight - 2 * (margin - 10), "D");
+    doc.setLineDash([], 0);
 
-    // Right side - Company logo placeholder
-    const companyLogoX = pageWidth - margin - logoSize;
-    doc.rect(companyLogoX, logoY, logoSize, logoSize, "D");
-    doc.text("YOUR LOGO", companyLogoX + logoSize / 2, logoY + logoSize / 2, { align: "center" });
-
+    // Header with logos
+    const logoSize = 28;
+    const headerPadding = 15;
+    const headerY = margin;
+    
+    // Left side - Company logo
+    const companyLogoX = margin + headerPadding;
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.rect(companyLogoX, headerY, logoSize, logoSize, "D");
+    
     // Try to load and add company logo if available
+    let companyLogoLoaded = false;
     if (company?.logo) {
       try {
         const img = new Image();
@@ -92,7 +93,8 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             clearTimeout(timeout);
             try {
               const format = company.logo.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG';
-              doc.addImage(img, format, companyLogoX + 2, logoY + 2, logoSize - 4, logoSize - 4);
+              doc.addImage(img, format, companyLogoX + 2, headerY + 2, logoSize - 4, logoSize - 4);
+              companyLogoLoaded = true;
               resolve();
             } catch (e) {
               reject(e);
@@ -105,11 +107,24 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         });
       } catch (e) {
         console.log("Could not load company logo:", e);
-        // Continue without logo
       }
     }
+    
+    if (!companyLogoLoaded) {
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont(undefined, "bold");
+      doc.text("YOUR LOGO", companyLogoX + logoSize / 2, headerY + logoSize / 2, { align: "center" });
+    }
 
+    // Right side - Operator logo/name
+    const operatorLogoX = pageWidth - margin - headerPadding - logoSize;
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.rect(operatorLogoX, headerY, logoSize, logoSize, "D");
+    
     // Try to load operator logo if available
+    let operatorLogoLoaded = false;
     if (operatorLogoPath) {
       try {
         const img = new Image();
@@ -124,7 +139,8 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
             clearTimeout(timeout);
             try {
               const format = operatorLogoPath.toLowerCase().endsWith('.svg') ? 'SVG' : 'PNG';
-              doc.addImage(img, format, margin + 2, logoY + 2, logoSize - 4, logoSize - 4);
+              doc.addImage(img, format, operatorLogoX + 2, headerY + 2, logoSize - 4, logoSize - 4);
+              operatorLogoLoaded = true;
               resolve();
             } catch (e) {
               reject(e);
@@ -137,21 +153,28 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         });
       } catch (e) {
         console.log("Could not load operator logo:", e);
-        // Continue without logo
       }
+    }
+    
+    if (!operatorLogoLoaded) {
+      doc.setFontSize(7);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont(undefined, "bold");
+      const displayOperatorName = operatorName.length > 10 ? operatorName.substring(0, 10) : operatorName;
+      doc.text(displayOperatorName.toUpperCase(), operatorLogoX + logoSize / 2, headerY + logoSize / 2, { align: "center" });
     }
 
     // Divider line after header
-    yPos = logoY + logoSize + 10;
+    yPos = headerY + logoSize + 15;
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(1);
     doc.setLineDash([5, 5], 0);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
+    doc.line(margin + headerPadding, yPos, pageWidth - margin - headerPadding, yPos);
     doc.setLineDash([], 0);
 
     // Invoice Title
-    yPos += 15;
-    doc.setFontSize(24);
+    yPos += 12;
+    doc.setFontSize(28);
     doc.setTextColor(0, 0, 0);
     doc.setFont(undefined, "bold");
     doc.text("INVOICE", pageWidth / 2, yPos, { align: "center" });
@@ -159,45 +182,64 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     yPos += 8;
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
-    doc.setTextColor(100, 100, 100);
+    doc.setTextColor(102, 102, 102);
     doc.text("Transaction Receipt", pageWidth / 2, yPos, { align: "center" });
 
     // Divider line after title
     yPos += 10;
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(1);
     doc.setLineDash([5, 5], 0);
-    doc.line(margin, yPos, pageWidth - margin, yPos);
+    doc.line(margin + headerPadding, yPos, pageWidth - margin - headerPadding, yPos);
     doc.setLineDash([], 0);
 
     // Content section
     yPos += 15;
-    const tableStartY = yPos;
-    const rowHeight = 12;
-    const labelWidth = pageWidth * 0.4;
-    const valueWidth = pageWidth - 2 * margin - labelWidth;
+    const contentPadding = headerPadding;
+    const rowHeight = 14;
+    const labelWidth = (pageWidth - 2 * margin - 2 * contentPadding) * 0.4;
+    const valueWidth = pageWidth - 2 * margin - 2 * contentPadding - labelWidth;
+    const tableX = margin + contentPadding;
+
+    // Draw table border
+    const tableHeight = rowHeight * 7;
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(1);
+    doc.rect(tableX, yPos, labelWidth + valueWidth, tableHeight, "D");
 
     // Helper function to draw table row
     const drawRow = (label, value, isLast = false) => {
-      // Label cell (left)
-      doc.setFillColor(240, 240, 240);
+      // Label cell (left) - grey background
+      doc.setFillColor(245, 245, 245);
       doc.setDrawColor(0, 0, 0);
       doc.setLineWidth(0.5);
-      doc.rect(margin, yPos, labelWidth, rowHeight, "FD");
+      doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
+      
+      // Border between cells
+      doc.setDrawColor(0, 0, 0);
+      doc.setLineWidth(0.5);
+      doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
       
       doc.setFontSize(9);
       doc.setFont(undefined, "bold");
       doc.setTextColor(0, 0, 0);
-      doc.text(label, margin + 5, yPos + 8);
+      doc.text(label, tableX + 10, yPos + 9);
 
-      // Value cell (right)
+      // Value cell (right) - white background
       doc.setFillColor(255, 255, 255);
-      doc.rect(margin + labelWidth, yPos, valueWidth, rowHeight, "FD");
+      doc.rect(tableX + labelWidth, yPos, valueWidth, rowHeight, "FD");
       
       doc.setFontSize(9);
       doc.setFont(undefined, "bold");
       doc.setTextColor(51, 51, 51);
-      doc.text(value, margin + labelWidth + 5, yPos + 8);
+      doc.text(value, tableX + labelWidth + 10, yPos + 9);
+
+      // Horizontal border
+      if (!isLast) {
+        doc.setDrawColor(0, 0, 0);
+        doc.setLineWidth(0.5);
+        doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
+      }
 
       yPos += rowHeight;
     };
@@ -209,36 +251,70 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     drawRow("Mobile Number", mobileNum);
     
     // Status row with badge
-    doc.setFillColor(240, 240, 240);
+    doc.setFillColor(245, 245, 245);
     doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.5);
-    doc.rect(margin, yPos, labelWidth, rowHeight, "FD");
+    doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
     doc.setFontSize(9);
     doc.setFont(undefined, "bold");
     doc.setTextColor(0, 0, 0);
-    doc.text("Status", margin + 5, yPos + 8);
+    doc.text("Status", tableX + 10, yPos + 9);
 
     // Status badge (black background, white text)
+    const badgeWidth = 35;
+    const badgeHeight = rowHeight - 6;
     doc.setFillColor(0, 0, 0);
-    doc.rect(margin + labelWidth + 5, yPos + 2, 30, rowHeight - 4, "F");
+    doc.rect(tableX + labelWidth + 10, yPos + 3, badgeWidth, badgeHeight, "F");
     doc.setFontSize(8);
     doc.setFont(undefined, "bold");
     doc.setTextColor(255, 255, 255);
-    doc.text(status, margin + labelWidth + 20, yPos + 8, { align: "center" });
+    doc.text(status, tableX + labelWidth + 10 + badgeWidth / 2, yPos + 9, { align: "center" });
+    
+    // Horizontal border
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
     yPos += rowHeight;
 
     // Amount row
-    drawRow("Amount", `₹${parseFloat(amount).toFixed(2)}`);
+    const amountText = `₹${parseFloat(amount).toFixed(2)}`;
+    doc.setFillColor(245, 245, 245);
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.rect(tableX, yPos, labelWidth, rowHeight, "FD");
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(tableX + labelWidth, yPos, tableX + labelWidth, yPos + rowHeight);
+    doc.setFontSize(9);
+    doc.setFont(undefined, "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text("Amount", tableX + 10, yPos + 9);
+    
+    doc.setFillColor(255, 255, 255);
+    doc.rect(tableX + labelWidth, yPos, valueWidth, rowHeight, "FD");
+    doc.setFontSize(12);
+    doc.setFont(undefined, "bold");
+    doc.setTextColor(0, 0, 0);
+    doc.text(amountText, tableX + labelWidth + 10, yPos + 9);
+    
+    // Horizontal border
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(tableX, yPos + rowHeight, tableX + labelWidth + valueWidth, yPos + rowHeight);
+    yPos += rowHeight;
     
     // Date & Time row
     drawRow("Date & Time", dateTime, true);
 
     // Footer section
-    const footerY = pageHeight - 40;
+    const footerY = pageHeight - margin - 30;
     doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
+    doc.setLineWidth(1);
     doc.setLineDash([5, 5], 0);
-    doc.line(margin, footerY, pageWidth - margin, footerY);
+    doc.line(margin + headerPadding, footerY, pageWidth - margin - headerPadding, footerY);
     doc.setLineDash([], 0);
 
     // Footer text
@@ -251,7 +327,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
     yPos += 8;
     doc.setFontSize(8);
     doc.setFont(undefined, "normal");
-    doc.setTextColor(100, 100, 100);
+    doc.setTextColor(102, 102, 102);
     doc.text("This is a computer-generated invoice.", pageWidth / 2, yPos, { align: "center" });
 
     return doc;
@@ -288,6 +364,265 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
       // Fallback to download
       handleDownload();
     }
+  };
+
+  const generateHTMLInvoice = () => {
+    // Extract data from nested structure
+    const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
+    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || "N/A";
+    const txId = transactionDetails.transactionId || apiResponse.txid?.toString() || "N/A";
+    const refId = transactionDetails.bConnectId || apiResponse.opid?.toString() || "N/A";
+    const mobileNum = transactionDetails.number || apiResponse.number || mobileNumber || "N/A";
+    const amount = transactionDetails.amount || apiResponse.amount || "0.00";
+    const status = transactionDetails.status || apiResponse.status || "Success";
+    const dateTime = getCurrentDateTime();
+
+    // Get operator name
+    const operatorName = selectedOperator?.name || selectedOperator?.operatorName || selectedPlanForRecharge?.operator || "OPERATOR";
+    const operatorLogoPath = getOperatorLogo(operatorName);
+    const companyLogoUrl = company?.logo || "";
+
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recharge Invoice</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+        }
+        
+        .invoice-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border: 2px dashed #333;
+            padding: 0;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 30px 40px;
+            border-bottom: 2px dashed #333;
+        }
+        
+        .company-logo {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .company-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .operator-logo {
+            width: 100px;
+            height: 100px;
+            border: 2px solid #333;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+            color: #333;
+            overflow: hidden;
+        }
+        
+        .operator-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .invoice-title {
+            text-align: center;
+            padding: 20px 40px;
+            border-bottom: 2px dashed #333;
+        }
+        
+        .invoice-title h1 {
+            font-size: 28px;
+            color: #000;
+            margin-bottom: 5px;
+        }
+        
+        .invoice-title p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 2px solid #333;
+        }
+        
+        .info-table tr {
+            border-bottom: 1px solid #333;
+        }
+        
+        .info-table tr:last-child {
+            border-bottom: none;
+        }
+        
+        .info-table td {
+            padding: 12px 20px;
+            font-size: 15px;
+            border-right: 1px solid #333;
+        }
+        
+        .info-table td:last-child {
+            border-right: none;
+        }
+        
+        .info-table td:first-child {
+            background: #f5f5f5;
+            font-weight: 600;
+            color: #000;
+            width: 40%;
+        }
+        
+        .info-table td:last-child {
+            color: #333;
+        }
+        
+        .status-success {
+            display: inline-block;
+            padding: 4px 12px;
+            background: #000;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .amount-highlight {
+            font-size: 24px;
+            font-weight: bold;
+            color: #000;
+        }
+        
+        .footer {
+            padding: 25px 40px;
+            text-align: center;
+            border-top: 2px dashed #333;
+            color: #666;
+            font-size: 13px;
+        }
+        
+        .footer p {
+            margin: 5px 0;
+        }
+        
+        @media print {
+            body {
+                background: white;
+                padding: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice-container">
+        <!-- Header with Logos -->
+        <div class="header">
+            <div class="company-logo">
+                ${companyLogoUrl ? `<img src="${companyLogoUrl}" alt="Company Logo" onerror="this.style.display='none'; this.parentElement.innerHTML='YOUR LOGO';" />` : 'YOUR LOGO'}
+            </div>
+            <div class="operator-logo">
+                ${operatorLogoPath ? `<img src="${operatorLogoPath}" alt="${operatorName}" onerror="this.style.display='none'; this.parentElement.innerHTML='${operatorName.toUpperCase()}';" />` : operatorName.toUpperCase()}
+            </div>
+        </div>
+        
+        <!-- Invoice Title -->
+        <div class="invoice-title">
+            <h1>INVOICE</h1>
+            <p>Transaction Receipt</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <!-- Transaction Details -->
+            <table class="info-table">
+                <tr>
+                    <td>Order ID</td>
+                    <td><strong>${orderId}</strong></td>
+                </tr>
+                <tr>
+                    <td>Transaction ID</td>
+                    <td><strong>${txId}</strong></td>
+                </tr>
+                <tr>
+                    <td>Ref ID</td>
+                    <td>${refId}</td>
+                </tr>
+                <tr>
+                    <td>Mobile Number</td>
+                    <td><strong>${mobileNum}</strong></td>
+                </tr>
+                <tr>
+                    <td>Status</td>
+                    <td><span class="status-success">${status}</span></td>
+                </tr>
+                <tr>
+                    <td>Amount</td>
+                    <td><span class="amount-highlight">₹${parseFloat(amount).toFixed(2)}</span></td>
+                </tr>
+                <tr>
+                    <td>Date & Time</td>
+                    <td>${dateTime}</td>
+                </tr>
+            </table>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Thank you for your transaction!</strong></p>
+            <p>This is a computer-generated invoice.</p>
+        </div>
+    </div>
+</body>
+</html>
+    `;
+
+    return htmlContent;
+  };
+
+  const handleViewInvoice = () => {
+    const htmlContent = generateHTMLInvoice();
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    // Auto print after a short delay
+    setTimeout(() => {
+      printWindow.print();
+    }, 250);
   };
 
   return (
@@ -400,7 +735,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
         </div>
 
         {/* Buttons */}
-        <div className="absolute left-5 right-5 bottom-2 flex gap-28">
+        <div className="absolute left-5 right-5 bottom-2 flex gap-3">
           <button
             type="button"
             onClick={handleShare}
@@ -411,10 +746,18 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
 
           <button
             type="button"
+            onClick={handleViewInvoice}
+            className="flex-1 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+          >
+            View Invoice
+          </button>
+
+          <button
+            type="button"
             onClick={handleDownload}
             className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
           >
-            Download Receipt
+            Download
           </button>
         </div>
       </div>
