@@ -1,11 +1,12 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
-import { ChevronDown, ChevronUp, Menu, X } from "lucide-react";
+import { ChevronDown, ChevronUp, Menu } from "lucide-react";
 import { useCompany } from "../../context/CompanyContext";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../../redux/action/userProfileAction";
 import { useNotification } from "../../context/NotificationContext";
+import { logOut } from "../../redux/action/loginAction";
 
 const MaskGroup = "/img/Maskgroup.png";
 const MaskGroup1 = "/img/Maskgroup1.png";
@@ -33,6 +34,9 @@ const DistributorLayout = ({ children }) => {
   const [activeMenu, setActiveMenu] = useState("Dashboard");
   // State for mobile sidebar
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  // State for profile dropdown
+  const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
+  const profileDropdownRef = useRef(null);
 
   // Fetch user profile on component mount
   useEffect(() => {
@@ -77,8 +81,52 @@ const DistributorLayout = ({ children }) => {
     }
   };
 
-  const toggleSidebar = () => setIsSidebarOpen((prev) => !prev);
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  // Handle profile dropdown toggle
+  const toggleProfileDropdown = () => {
+    setIsProfileDropdownOpen((prev) => !prev);
+  };
+
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      setIsProfileDropdownOpen(false);
+      const companyId =
+        company?.companyId || company?._id || company?.id || "";
+      // Call the logout API - it will clear storage and handle errors internally
+      const logoutPromise = dispatch(logOut({}, companyId));
+      if (logoutPromise && typeof logoutPromise.then === "function") {
+        await logoutPromise;
+      }
+      // Navigate to login after logout completes
+      navigate("/auth/login", { replace: true });
+    } catch (error) {
+      console.error("Logout error:", error);
+      // Even if logout fails, redirect to login (storage is cleared by logOut function)
+      navigate("/auth/login", { replace: true });
+    }
+  };
+
+  // Close profile dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileDropdownRef.current &&
+        !profileDropdownRef.current.contains(event.target)
+      ) {
+        setIsProfileDropdownOpen(false);
+      }
+    };
+
+    if (isProfileDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileDropdownOpen]);
 
   const menuItems = [
     {
@@ -365,19 +413,53 @@ const DistributorLayout = ({ children }) => {
               />
             </button>
 
-            <div className="flex items-center gap-2">
+            <div className="relative flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-sm font-medium sm:inline">
                 {name || email || "Distributor Panel"}
               </span>
-              <img
-                src={defaultProfileImage}
-                alt="Profile"
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover"
-                onError={(e) => {
-                  e.target.onerror = null;
-                  e.target.src = companyLogo;
-                }}
-              />
+              <button
+                onClick={toggleProfileDropdown}
+                className="focus:outline-none focus:ring-2 focus:ring-[#039155] focus:ring-offset-2 rounded-full"
+                aria-label="Profile menu"
+              >
+                <img
+                  src={defaultProfileImage}
+                  alt="Profile"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = companyLogo;
+                  }}
+                />
+              </button>
+
+              {/* Profile Dropdown Menu */}
+              <AnimatePresence>
+                {isProfileDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                  >
+                    <Link
+                      to="/distributerDashboard/profile"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
+                    >
+                      Profile
+                    </Link>
+                    <div className="border-t border-gray-200 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
 

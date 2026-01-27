@@ -19,6 +19,8 @@ import {
   VERIFY_MPIN_FAILURE,
   SET_MPIN_SUCCESS,
   SET_MPIN_FAILURE,
+  LOGOUT_SUCCESS,
+  LOGOUT_FAILURE,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -311,7 +313,7 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       });
       return;
     }
-    
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/auth/handle-2fa`,
       payload,
@@ -335,7 +337,7 @@ export const authOtp = (payload, companyId) => async (dispatch) => {
       const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
       const userData = data?.data?.user || data?.user;
-      
+
       if (accessToken) {
         // Store JWT token - this is the final authentication token (expires in 5 minutes)
         secureLocalStorage.setItem("userToken", accessToken);
@@ -575,7 +577,7 @@ export const resetPassword = (credentials, companyId) => async (dispatch) => {
       const accessToken = data?.data?.accessToken || data?.accessToken;
       const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
-      
+
       // If accessToken (JWT) is provided, store it and remove login token
       // Otherwise, update login token for next steps
       if (accessToken) {
@@ -669,7 +671,7 @@ export const sendForgetPasswordOTP = (credentials, companyId) => async (dispatch
       const accessToken = data?.data?.accessToken || data?.accessToken;
       const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
-      
+
       // If accessToken (JWT) is provided, store it and remove login token
       // Otherwise, update login token for next steps
       if (accessToken) {
@@ -775,7 +777,7 @@ export const verifyForgetPassword = (credentials, companyId) => async (dispatch)
       const accessToken = data?.data?.accessToken || data?.accessToken;
       const refreshToken = data?.data?.refreshToken || data?.refreshToken;
       const token = data?.data?.token || data?.token;
-      
+
       // If accessToken (JWT) is provided, store it and remove login token
       // Otherwise, update login token for next steps
       if (accessToken) {
@@ -987,6 +989,181 @@ export const setMPIN = (credentials, companyId) => async (dispatch) => {
       dispatch({
         type: SET_MPIN_FAILURE,
         payload: error?.response?.data?.message ?? error.message,
+      });
+    }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const logOut = (credentials, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  // Resolve auth token and company id for logout request
+  const authToken =
+    secureLocalStorage.getItem("userToken") ||
+    secureLocalStorage.getItem("loginToken");
+  const storedCompanyId = secureLocalStorage.getItem("companyId");
+  const finalCompanyId = companyId || storedCompanyId || "";
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/logout`,
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          // Backend expects JWT in Bearer format
+          Authorization: authToken ? `Bearer ${authToken}` : "",
+          "x-company-id": finalCompanyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+    const message = data?.message || "";
+    const normalizedMessage = message.toLowerCase();
+
+    if (status === "SUCCESS" || status === 200) {
+      // On successful logout, clear all tokens and user data
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      secureLocalStorage.removeItem("permissions");
+      secureLocalStorage.removeItem("onboardingSteps");
+      secureLocalStorage.removeItem("onboardingToken");
+      secureLocalStorage.removeItem("companyId");
+      secureLocalStorage.removeItem("selectedCompany");
+      // Also clear any auth-related items from regular localStorage
+      try {
+        localStorage.removeItem("auth");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (e) {
+        // Ignore localStorage errors
+      }
+
+      dispatch({
+        type: LOGOUT_SUCCESS,
+        payload: data,
+        status,
+      });
+    } else if (
+      status === "UNAUTHORIZED" ||
+      status === 401 ||
+      normalizedMessage.includes("token missing or invalid")
+    ) {
+      // Treat unauthorized / missing/invalid token as a successful logout from UI perspective
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      secureLocalStorage.removeItem("permissions");
+      secureLocalStorage.removeItem("onboardingSteps");
+      secureLocalStorage.removeItem("onboardingToken");
+      secureLocalStorage.removeItem("companyId");
+      secureLocalStorage.removeItem("selectedCompany");
+      try {
+        localStorage.removeItem("auth");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (e) {}
+
+      dispatch({
+        type: LOGOUT_SUCCESS,
+        payload: {
+          status: "SUCCESS",
+          message: message || "Logged out successfully!",
+          data: data?.data ?? null,
+          isTokenExpired: true,
+        },
+      });
+    } else if (
+      status === "BAD_REQUEST" &&
+      normalizedMessage.includes("token has expired")
+    ) {
+      // Token explicitly expired
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      dispatch({
+        type: LOGOUT_FAILURE,
+        payload: {
+          message:
+            data?.message ||
+            "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      const errorMessage =
+        data?.message ||
+        (status && status !== "SUCCESS" && status !== 200
+          ? `Error: ${status}`
+          : commonError);
+      dispatch({
+        type: LOGOUT_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorStatus = error?.response?.status;
+    const errorMessage =
+      error?.response?.data?.message || error?.message || "";
+    const normalizedErrorMessage = errorMessage.toLowerCase();
+
+    if (
+      errorStatus === 401 ||
+      errorStatus === 403 ||
+      normalizedErrorMessage.includes("token missing or invalid")
+    ) {
+      // Treat unauthorized / missing/invalid token during logout as success
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      secureLocalStorage.removeItem("permissions");
+      secureLocalStorage.removeItem("onboardingSteps");
+      secureLocalStorage.removeItem("onboardingToken");
+      secureLocalStorage.removeItem("companyId");
+      secureLocalStorage.removeItem("selectedCompany");
+      try {
+        localStorage.removeItem("auth");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (e) {}
+
+      dispatch({
+        type: LOGOUT_SUCCESS,
+        payload: {
+          status: "SUCCESS",
+          message: errorMessage || "Logged out successfully!",
+          data: null,
+          isTokenExpired: true,
+        },
+      });
+    } else if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      secureLocalStorage.removeItem("userData");
+      dispatch({
+        type: LOGOUT_FAILURE,
+        payload: {
+          message:
+            error?.response?.data?.message ||
+            "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: LOGOUT_FAILURE,
+        payload:
+          error?.response?.data?.message ?? error.message ?? commonError,
       });
     }
   } finally {
