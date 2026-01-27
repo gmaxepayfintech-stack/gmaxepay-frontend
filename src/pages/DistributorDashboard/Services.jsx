@@ -80,6 +80,11 @@ const Services = () => {
     // Always navigate to onboarding-aeps - let that component handle everything
     navigate("/retailerDashboard/onboarding-aeps");
   };
+  const handleBbpsClick = ()=>{
+    console.log("🖱️ BBPS card clicked, navigating to BBPS");
+
+    navigate("/distributorDashboard/services/bbps-services");
+  }
 
   return (
     <div className="w-full">
@@ -138,6 +143,9 @@ const Services = () => {
             onClick={() => {
               if (s.id === "Aeps") {
                 handleAepsClick();
+              }
+              if (s.id === "BBPS") {
+                handleBbpsClick();
               }
             }}
           />
