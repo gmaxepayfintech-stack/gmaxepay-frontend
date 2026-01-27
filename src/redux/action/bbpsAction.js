@@ -861,6 +861,7 @@ export const getUserBBPSCategories = (page = 1, paginate = 40) => async (dispatc
   dispatch({ type: BBPS_USER_GET_ALL_CATEGORIES_START });
 
   try {
+    const token = secureLocalStorage.getItem('userToken');
     const payload = {
       query: {},
       customSearch: {},
@@ -873,7 +874,13 @@ export const getUserBBPSCategories = (page = 1, paginate = 40) => async (dispatc
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/bbps/get-all-categories`,
-      payload
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -913,6 +920,7 @@ export const getUserBBPSBillersByCategory = (categoryName, searchQuery = '', pag
   dispatch({ type: BBPS_USER_GET_BILLERS_BY_CATEGORY_START });
 
   try {
+    const token = secureLocalStorage.getItem('userToken');
     const payload = {
       query: { operatorService: categoryName },
       customSearch: searchQuery ? { name: searchQuery } : {},
@@ -925,7 +933,13 @@ export const getUserBBPSBillersByCategory = (categoryName, searchQuery = '', pag
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/bbps/get-billerId-by-category`,
-      payload
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -966,13 +980,20 @@ export const getUserBBPSBillerInfo = (billerId) => async (dispatch) => {
   dispatch({ type: BBPS_USER_GET_BILLER_INFO_START });
 
   try {
+    const token = secureLocalStorage.getItem('userToken');
     const payload = {
       billerId: billerId,
     };
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/bbps/get-biller-info`,
-      payload
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -1008,9 +1029,16 @@ export const getUserBBPSFetchBill = (billData) => async (dispatch) => {
   dispatch({ type: BBPS_USER_FETCH_BILL_START });
 
   try {
+    const token = secureLocalStorage.getItem('userToken');
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/bbps/fetch-bill`,
-      billData
+      billData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     const data = response?.data;
@@ -1046,9 +1074,16 @@ export const getUserBBPSPayBill = (paymentData) => async (dispatch) => {
   dispatch({ type: BBPS_USER_PAY_BILL_START });
 
   try {
+    const token = secureLocalStorage.getItem('userToken');
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/bbps/pay-bill`,
-      paymentData
+      paymentData,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
 
     const data = response?.data;
