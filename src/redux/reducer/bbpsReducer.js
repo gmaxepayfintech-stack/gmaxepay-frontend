@@ -41,6 +41,18 @@ import {
   BBPS_USER_GET_ALL_CATEGORIES_START,
   BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
   BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_START,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_SUCCESS,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_FAILURE,
+  BBPS_USER_GET_BILLER_INFO_START,
+  BBPS_USER_GET_BILLER_INFO_SUCCESS,
+  BBPS_USER_GET_BILLER_INFO_FAILURE,
+  BBPS_USER_FETCH_BILL_START,
+  BBPS_USER_FETCH_BILL_SUCCESS,
+  BBPS_USER_FETCH_BILL_FAILURE,
+  BBPS_USER_PAY_BILL_START,
+  BBPS_USER_PAY_BILL_SUCCESS,
+  BBPS_USER_PAY_BILL_FAILURE,
 } from '../actionType/bbpsActionType';
 
 const initialState = {
@@ -69,6 +81,25 @@ const initialState = {
   userCategories: [],
   userCategoriesLoading: false,
   userCategoriesError: null,
+  // User BBPS billers
+  userBillers: [],
+  userBillersLoading: false,
+  userBillersError: null,
+  userBillersTotal: 0,
+  userBillersCurrentPage: 1,
+  userBillersTotalPages: 1,
+  // User BBPS biller info
+  userBillerInfo: null,
+  userBillerInfoLoading: false,
+  userBillerInfoError: null,
+  // User BBPS fetch bill
+  userFetchBill: null,
+  userFetchBillLoading: false,
+  userFetchBillError: null,
+  // User BBPS pay bill
+  userPayBill: null,
+  userPayBillLoading: false,
+  userPayBillError: null,
 };
 
 const bbpsReducer = (state = initialState, action) => {
@@ -348,6 +379,101 @@ const bbpsReducer = (state = initialState, action) => {
         userCategoriesLoading: false,
         userCategoriesError: action.payload,
         userCategories: [],
+      };
+
+    case BBPS_USER_GET_BILLERS_BY_CATEGORY_START:
+      return {
+        ...state,
+        userBillersLoading: true,
+        userBillersError: null,
+      };
+
+    case BBPS_USER_GET_BILLERS_BY_CATEGORY_SUCCESS:
+      return {
+        ...state,
+        userBillersLoading: false,
+        userBillersError: null,
+        userBillers: action.payload.data || [],
+        userBillersTotal: action.payload.total || 0,
+        userBillersCurrentPage: action.payload.currentPage || 1,
+        userBillersTotalPages: action.payload.totalPages || 1,
+      };
+
+    case BBPS_USER_GET_BILLERS_BY_CATEGORY_FAILURE:
+      return {
+        ...state,
+        userBillersLoading: false,
+        userBillersError: action.payload,
+        userBillers: [],
+      };
+
+    case BBPS_USER_GET_BILLER_INFO_START:
+      return {
+        ...state,
+        userBillerInfoLoading: true,
+        userBillerInfoError: null,
+      };
+
+    case BBPS_USER_GET_BILLER_INFO_SUCCESS:
+      return {
+        ...state,
+        userBillerInfoLoading: false,
+        userBillerInfoError: null,
+        userBillerInfo: action.payload,
+      };
+
+    case BBPS_USER_GET_BILLER_INFO_FAILURE:
+      return {
+        ...state,
+        userBillerInfoLoading: false,
+        userBillerInfoError: action.payload,
+        userBillerInfo: null,
+      };
+
+    case BBPS_USER_FETCH_BILL_START:
+      return {
+        ...state,
+        userFetchBillLoading: true,
+        userFetchBillError: null,
+      };
+
+    case BBPS_USER_FETCH_BILL_SUCCESS:
+      return {
+        ...state,
+        userFetchBillLoading: false,
+        userFetchBillError: null,
+        userFetchBill: action.payload,
+      };
+
+    case BBPS_USER_FETCH_BILL_FAILURE:
+      return {
+        ...state,
+        userFetchBillLoading: false,
+        userFetchBillError: action.payload,
+        userFetchBill: null,
+      };
+
+    case BBPS_USER_PAY_BILL_START:
+      return {
+        ...state,
+        userPayBillLoading: true,
+        userPayBillError: null,
+      };
+
+    case BBPS_USER_PAY_BILL_SUCCESS:
+      return {
+        ...state,
+        userPayBillLoading: false,
+        userPayBillError: null,
+        userPayBill: action.payload,
+      };
+
+    case BBPS_USER_PAY_BILL_FAILURE:
+      return {
+        ...state,
+        userPayBillLoading: false,
+        userPayBillError: action.payload,
+        userPayBill: null,
       };
 
     default:

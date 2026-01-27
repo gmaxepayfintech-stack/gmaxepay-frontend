@@ -44,6 +44,18 @@ import {
   BBPS_USER_GET_ALL_CATEGORIES_START,
   BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
   BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_START,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_SUCCESS,
+  BBPS_USER_GET_BILLERS_BY_CATEGORY_FAILURE,
+  BBPS_USER_GET_BILLER_INFO_START,
+  BBPS_USER_GET_BILLER_INFO_SUCCESS,
+  BBPS_USER_GET_BILLER_INFO_FAILURE,
+  BBPS_USER_FETCH_BILL_START,
+  BBPS_USER_FETCH_BILL_SUCCESS,
+  BBPS_USER_FETCH_BILL_FAILURE,
+  BBPS_USER_PAY_BILL_START,
+  BBPS_USER_PAY_BILL_SUCCESS,
+  BBPS_USER_PAY_BILL_FAILURE,
 } from '../actionType/bbpsActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -844,8 +856,8 @@ export const updateBBPSBiller = (companyId, billerId, billerData) => async (disp
   }
 };
 
-// Get all categories for user (user endpoint)
-export const getUserBBPSCategories = (page = 1, paginate = 6) => async (dispatch) => {
+// Get all categories for user (user endpoint) - sorted by name ascending
+export const getUserBBPSCategories = (page = 1, paginate = 40) => async (dispatch) => {
   dispatch({ type: BBPS_USER_GET_ALL_CATEGORIES_START });
 
   try {
@@ -855,7 +867,7 @@ export const getUserBBPSCategories = (page = 1, paginate = 6) => async (dispatch
       options: {
         page,
         paginate,
-        sort: { createdAt: -1 },
+        sort: { createdAt: 1 },
       },
     };
 
@@ -868,11 +880,15 @@ export const getUserBBPSCategories = (page = 1, paginate = 6) => async (dispatch
     const { status } = data ?? {};
 
     if (status === 'SUCCESS' || status === 200) {
+      // Sort by name ascending
+      const sortedData = (data?.data || []).sort((a, b) => 
+        (a.name || '').localeCompare(b.name || '')
+      );
       dispatch({
         type: BBPS_USER_GET_ALL_CATEGORIES_SUCCESS,
-        payload: data?.data || [],
+        payload: sortedData,
       });
-      return { status: 'SUCCESS', data: data?.data || [] };
+      return { status: 'SUCCESS', data: sortedData };
     } else {
       const errorMessage = data?.message || commonError;
       dispatch({
@@ -886,6 +902,177 @@ export const getUserBBPSCategories = (page = 1, paginate = 6) => async (dispatch
       error?.response?.data?.message || error?.message || commonError;
     dispatch({
       type: BBPS_USER_GET_ALL_CATEGORIES_FAILURE,
+      payload: errorMessage,
+    });
+    return { status: 'FAILURE', message: errorMessage };
+  }
+};
+
+// Get billers by category for user
+export const getUserBBPSBillersByCategory = (categoryName, searchQuery = '', page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: BBPS_USER_GET_BILLERS_BY_CATEGORY_START });
+
+  try {
+    const payload = {
+      query: { operatorService: categoryName },
+      customSearch: searchQuery ? { name: searchQuery } : {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/bbps/get-billerId-by-category`,
+      payload
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: BBPS_USER_GET_BILLERS_BY_CATEGORY_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+      return { status: 'SUCCESS', data: data?.data || [] };
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: BBPS_USER_GET_BILLERS_BY_CATEGORY_FAILURE,
+        payload: errorMessage,
+      });
+      return { status: 'FAILURE', message: errorMessage };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: BBPS_USER_GET_BILLERS_BY_CATEGORY_FAILURE,
+      payload: errorMessage,
+    });
+    return { status: 'FAILURE', message: errorMessage };
+  }
+};
+
+// Get biller info for user
+export const getUserBBPSBillerInfo = (billerId) => async (dispatch) => {
+  dispatch({ type: BBPS_USER_GET_BILLER_INFO_START });
+
+  try {
+    const payload = {
+      billerId: billerId,
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/bbps/get-biller-info`,
+      payload
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: BBPS_USER_GET_BILLER_INFO_SUCCESS,
+        payload: data?.data || {},
+      });
+      return { status: 'SUCCESS', data: data?.data || {} };
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: BBPS_USER_GET_BILLER_INFO_FAILURE,
+        payload: errorMessage,
+      });
+      return { status: 'FAILURE', message: errorMessage };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: BBPS_USER_GET_BILLER_INFO_FAILURE,
+      payload: errorMessage,
+    });
+    return { status: 'FAILURE', message: errorMessage };
+  }
+};
+
+// Fetch bill for user
+export const getUserBBPSFetchBill = (billData) => async (dispatch) => {
+  dispatch({ type: BBPS_USER_FETCH_BILL_START });
+
+  try {
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/bbps/fetch-bill`,
+      billData
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: BBPS_USER_FETCH_BILL_SUCCESS,
+        payload: data?.data || {},
+      });
+      return { status: 'SUCCESS', data: data?.data || {} };
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: BBPS_USER_FETCH_BILL_FAILURE,
+        payload: errorMessage,
+      });
+      return { status: 'FAILURE', message: errorMessage };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: BBPS_USER_FETCH_BILL_FAILURE,
+      payload: errorMessage,
+    });
+    return { status: 'FAILURE', message: errorMessage };
+  }
+};
+
+// Pay bill for user
+export const getUserBBPSPayBill = (paymentData) => async (dispatch) => {
+  dispatch({ type: BBPS_USER_PAY_BILL_START });
+
+  try {
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/bbps/pay-bill`,
+      paymentData
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: BBPS_USER_PAY_BILL_SUCCESS,
+        payload: data?.data || {},
+      });
+      return { status: 'SUCCESS', data: data?.data || {} };
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: BBPS_USER_PAY_BILL_FAILURE,
+        payload: errorMessage,
+      });
+      return { status: 'FAILURE', message: errorMessage };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: BBPS_USER_PAY_BILL_FAILURE,
       payload: errorMessage,
     });
     return { status: 'FAILURE', message: errorMessage };
