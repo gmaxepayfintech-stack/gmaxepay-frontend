@@ -1,6 +1,7 @@
 import { useRef } from "react";
 import PropTypes from "prop-types";
 import jsPDF from "jspdf";
+import { useCompany } from "../../../../context/CompanyContext";
 
 const PaymentSuccessScreen = ({
   transactionDetails,
@@ -8,84 +9,247 @@ const PaymentSuccessScreen = ({
   selectedPlanForRecharge,
 }) => {
   const receiptRef = useRef(null);
+  const { company } = useCompany();
 
   const generatePDF = () => {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.getWidth();
+    const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 20;
+    const headerHeight = 50;
     let yPos = margin;
 
-    // Title
-    doc.setFontSize(20);
-    doc.setTextColor(3, 145, 85); // #039155
-    doc.text("Payment Receipt", pageWidth / 2, yPos, { align: "center" });
-    yPos += 15;
+    // Brand color
+    const brandColor = [3, 145, 85]; // #039155
+    const lightGray = [240, 240, 240];
+    const darkGray = [51, 51, 51];
+    const textGray = [102, 102, 102];
 
-    // Success message
-    doc.setFontSize(12);
-    doc.setTextColor(0, 0, 0);
-    doc.text("Your Payment Has Been Completed", pageWidth / 2, yPos, {
-      align: "center",
-    });
-    yPos += 15;
+    // Header with brand color background
+    doc.setFillColor(...brandColor);
+    doc.rect(0, 0, pageWidth, headerHeight, "F");
 
-    // Amount box
-    doc.setDrawColor(0, 0, 0);
-    doc.setLineWidth(0.5);
-    const boxWidth = 60;
-    const boxHeight = 15;
-    const boxX = (pageWidth - boxWidth) / 2;
-    doc.rect(boxX, yPos - 10, boxWidth, boxHeight);
+    // Company name or logo area
+    doc.setTextColor(255, 255, 255);
     doc.setFontSize(18);
     doc.setFont(undefined, "bold");
-    doc.text(`₹ ${transactionDetails.amount}`, pageWidth / 2, yPos, {
+    const companyName = company?.companyName || "GMAXEPAY";
+    doc.text(companyName, margin, 20, { align: "left" });
+
+    // Invoice title
+    doc.setFontSize(16);
+    doc.setFont(undefined, "normal");
+    doc.text("Payment Invoice", pageWidth - margin, 20, { align: "right" });
+
+    // Success badge
+    yPos = headerHeight + 15;
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(...brandColor);
+    doc.setLineWidth(0.5);
+    const badgeWidth = 40;
+    const badgeHeight = 12;
+    const badgeX = pageWidth - margin - badgeWidth;
+    doc.rect(badgeX, yPos - 8, badgeWidth, badgeHeight, "FD");
+    doc.setTextColor(...brandColor);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "bold");
+    doc.text("✓ SUCCESS", badgeX + badgeWidth / 2, yPos - 2, {
       align: "center",
     });
-    yPos += 20;
 
-    // Transaction Details
+    // Invoice number and date section
+    yPos += 20;
+    doc.setFontSize(10);
+    doc.setTextColor(...textGray);
+    doc.setFont(undefined, "normal");
+    doc.text("Invoice Number:", margin, yPos);
+    doc.setTextColor(...darkGray);
+    doc.setFont(undefined, "bold");
+    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || `INV-${Date.now()}`;
+    doc.text(
+      orderId,
+      margin + 35,
+      yPos,
+    );
+
+    doc.setTextColor(...textGray);
+    doc.setFont(undefined, "normal");
+    doc.text("Date:", pageWidth - margin - 50, yPos);
+    doc.setTextColor(...darkGray);
+    doc.setFont(undefined, "bold");
+    const dateTime = transactionDetails.dateTime || new Date().toLocaleString();
+    doc.text(
+      dateTime,
+      pageWidth - margin,
+      yPos,
+      { align: "right" },
+    );
+
+    // Divider line
+    yPos += 8;
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+    doc.line(margin, yPos, pageWidth - margin, yPos);
+
+    // Amount highlight box
+    yPos += 15;
+    const amountBoxWidth = pageWidth - 2 * margin;
+    const amountBoxHeight = 30;
+    doc.setFillColor(...lightGray);
+    doc.setDrawColor(...brandColor);
+    doc.setLineWidth(1);
+    doc.rect(margin, yPos, amountBoxWidth, amountBoxHeight, "FD");
+
+    // Amount label
+    doc.setTextColor(...textGray);
     doc.setFontSize(10);
     doc.setFont(undefined, "normal");
+    doc.text("Total Amount Paid", margin + 10, yPos + 8);
+
+    // Amount value - using "Rs." instead of ₹ symbol for better PDF compatibility
+    doc.setTextColor(...brandColor);
+    doc.setFontSize(24);
+    doc.setFont(undefined, "bold");
+    const amount = transactionDetails.amount || 
+                   transactionDetails.apiResponse?.amount || 
+                   transactionDetails.data?.apiResponse?.amount || 
+                   "0.00";
+    doc.text(
+      `Rs. ${amount}`,
+      margin + 10,
+      yPos + 22,
+    );
+
+    // Transaction Details Section
+    yPos += amountBoxHeight + 20;
+
+    // Section header
+    doc.setFillColor(...brandColor);
+    doc.rect(margin, yPos - 5, pageWidth - 2 * margin, 8, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("Transaction Details", margin + 5, yPos);
+
+    yPos += 15;
+
+    // Extract data from nested structure if needed
+    const apiResponse = transactionDetails.apiResponse || transactionDetails.data?.apiResponse || {};
+    const txId = transactionDetails.transactionId || apiResponse.txid?.toString() || transactionDetails.data?.apiResponse?.txid?.toString() || "N/A";
+    const bConnectId = transactionDetails.bConnectId || apiResponse.opid?.toString() || transactionDetails.data?.apiResponse?.opid?.toString() || "N/A";
+    const mobileNum = transactionDetails.number || apiResponse.number || transactionDetails.data?.apiResponse?.number || mobileNumber || "N/A";
+    const status = transactionDetails.status || apiResponse.status || transactionDetails.data?.apiResponse?.status || "Success";
+    const orderIdValue = transactionDetails.orderid || transactionDetails.data?.orderid || apiResponse.orderid || "N/A";
+
+    // Details grid
     const details = [
       {
         label: "Transaction ID",
-        value: transactionDetails.transactionId || "N/A",
+        value: txId,
+        col: 1,
+      },
+      {
+        label: "B-Connect Transaction ID",
+        value: bConnectId,
+        col: 2,
       },
       {
         label: "Mobile Number",
-        value: transactionDetails.number || mobileNumber,
+        value: mobileNum,
+        col: 1,
       },
       {
         label: "Transaction Status",
-        value: transactionDetails.status || "Success",
+        value: status,
+        col: 2,
       },
-      { label: "Validity", value: selectedPlanForRecharge?.validity || "N/A" },
       {
-        label: "B-Connect Transaction ID",
-        value: transactionDetails.bConnectId || "N/A",
+        label: "Order ID",
+        value: orderIdValue,
+        col: 1,
       },
-      { label: "Order ID", value: transactionDetails.orderid || "N/A" },
-      { label: "Date", value: transactionDetails.dateTime || "N/A" },
+      {
+        label: "Validity",
+        value: selectedPlanForRecharge?.validity || "N/A",
+        col: 2,
+      },
     ];
 
+    const col1X = margin + 5;
+    const col2X = pageWidth / 2 + 5;
+    const rowHeight = 18;
+
     details.forEach((detail, index) => {
-      if (index % 2 === 0 && index > 0) {
-        yPos += 8;
-      }
-      const xPos = index % 2 === 0 ? margin : pageWidth / 2 + 5;
+      const currentY = yPos + Math.floor(index / 2) * rowHeight;
+      const xPos = detail.col === 1 ? col1X : col2X;
 
-      doc.setFontSize(8);
-      doc.setTextColor(100, 100, 100);
-      doc.text(detail.label + ":", xPos, yPos);
-
+      // Label
+      doc.setTextColor(...textGray);
       doc.setFontSize(9);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont(undefined, "bold");
-      doc.text(detail.value, xPos, yPos + 5);
+      doc.setFont(undefined, "normal");
+      doc.text(detail.label + ":", xPos, currentY);
 
-      if (index % 2 === 1) {
-        yPos += 12;
-      }
+      // Value
+      doc.setTextColor(...darkGray);
+      doc.setFontSize(10);
+      doc.setFont(undefined, "bold");
+      const valueColor =
+        detail.label === "Transaction Status" && detail.value === "Success"
+          ? brandColor
+          : darkGray;
+      doc.setTextColor(...valueColor);
+      doc.text(detail.value, xPos, currentY + 6);
+    });
+
+    // Date row (full width)
+    yPos += Math.ceil(details.length / 2) * rowHeight + 10;
+    doc.setTextColor(...textGray);
+    doc.setFontSize(9);
+    doc.setFont(undefined, "normal");
+    doc.text("Transaction Date & Time:", margin + 5, yPos);
+    doc.setTextColor(...darkGray);
+    doc.setFontSize(10);
+    doc.setFont(undefined, "bold");
+    const transactionDateTime = transactionDetails.dateTime || new Date().toLocaleString();
+    doc.text(
+      transactionDateTime,
+      margin + 50,
+      yPos,
+    );
+
+    // Footer section
+    const footerY = pageHeight - 40;
+    doc.setDrawColor(200, 200, 200);
+    doc.setLineWidth(0.3);
+    doc.line(margin, footerY, pageWidth - margin, footerY);
+
+    // Footer text
+    yPos = footerY + 10;
+    doc.setTextColor(...textGray);
+    doc.setFontSize(8);
+    doc.setFont(undefined, "normal");
+    doc.text(
+      "This is a computer-generated invoice. No signature is required.",
+      pageWidth / 2,
+      yPos,
+      { align: "center" },
+    );
+
+    yPos += 5;
+    doc.text(
+      `Generated on ${new Date().toLocaleString()}`,
+      pageWidth / 2,
+      yPos,
+      { align: "center" },
+    );
+
+    // Thank you message
+    yPos = footerY - 25;
+    doc.setTextColor(...brandColor);
+    doc.setFontSize(11);
+    doc.setFont(undefined, "bold");
+    doc.text("Thank you for your payment!", pageWidth / 2, yPos, {
+      align: "center",
     });
 
     return doc;
@@ -93,7 +257,8 @@ const PaymentSuccessScreen = ({
 
   const handleDownload = () => {
     const doc = generatePDF();
-    const fileName = `Recharge_Receipt_${transactionDetails.orderid || Date.now()}.pdf`;
+    const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
+    const fileName = `Invoice_${orderId}.pdf`;
     doc.save(fileName);
   };
 
@@ -101,9 +266,10 @@ const PaymentSuccessScreen = ({
     try {
       const doc = generatePDF();
       const pdfBlob = doc.output("blob");
+      const orderId = transactionDetails.orderid || transactionDetails.data?.orderid || Date.now();
       const file = new File(
         [pdfBlob],
-        `Recharge_Receipt_${transactionDetails.orderid || Date.now()}.pdf`,
+        `Invoice_${orderId}.pdf`,
         {
           type: "application/pdf",
         },
@@ -115,8 +281,8 @@ const PaymentSuccessScreen = ({
         navigator.canShare({ files: [file] })
       ) {
         await navigator.share({
-          title: "Recharge Receipt",
-          text: "Mobile Recharge Payment Receipt",
+          title: "Payment Invoice",
+          text: "Mobile Recharge Payment Invoice",
           files: [file],
         });
       } else {
@@ -171,7 +337,7 @@ const PaymentSuccessScreen = ({
         {/* Amount */}
         <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
           <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            ₹ {transactionDetails.amount}
+            ₹ {transactionDetails.amount || transactionDetails.apiResponse?.amount || transactionDetails.data?.apiResponse?.amount || "0.00"}
           </div>
         </div>
 
@@ -182,7 +348,7 @@ const PaymentSuccessScreen = ({
               Transaction ID
             </div>
             <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-              {transactionDetails.transactionId || "N/A"}
+              {transactionDetails.transactionId || transactionDetails.apiResponse?.txid?.toString() || transactionDetails.data?.apiResponse?.txid?.toString() || "N/A"}
             </div>
           </div>
 
@@ -191,7 +357,7 @@ const PaymentSuccessScreen = ({
               Mobile Number
             </div>
             <div className="font-['Gilroy-Medium'] text-sm">
-              {transactionDetails.number || mobileNumber}
+              {transactionDetails.number || transactionDetails.apiResponse?.number || transactionDetails.data?.apiResponse?.number || mobileNumber || "N/A"}
             </div>
           </div>
 
@@ -200,7 +366,7 @@ const PaymentSuccessScreen = ({
               Transaction Status
             </div>
             <div className="font-['Gilroy-Medium'] text-[#039155]">
-              {transactionDetails.status || "Success"}
+              {transactionDetails.status || transactionDetails.apiResponse?.status || transactionDetails.data?.apiResponse?.status || "Success"}
             </div>
           </div>
 
@@ -218,7 +384,7 @@ const PaymentSuccessScreen = ({
               B-Connect Transaction ID
             </div>
             <div className="font-['Gilroy-Medium']">
-              {transactionDetails.bConnectId || "N/A"}
+              {transactionDetails.bConnectId || transactionDetails.apiResponse?.opid?.toString() || transactionDetails.data?.apiResponse?.opid?.toString() || "N/A"}
             </div>
           </div>
 
@@ -227,7 +393,7 @@ const PaymentSuccessScreen = ({
               Order ID
             </div>
             <div className="font-['Gilroy-Medium']">
-              {transactionDetails.orderid || "N/A"}
+              {transactionDetails.orderid || transactionDetails.data?.orderid || transactionDetails.apiResponse?.orderid || "N/A"}
             </div>
           </div>
 

@@ -1,61 +1,78 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import { useNotification } from "../../../context/NotificationContext";
+import {
+  distributerFundLoad,
+  distributerGetBanks,
+} from "../../../redux/action/fundAction";
 
 const WalletLoad = () => {
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [amount, setAmount] = useState("");
   const [paymentMode, setPaymentMode] = useState("");
   const [payDate, setPayDate] = useState("");
   const [referenceNumber, setReferenceNumber] = useState("");
   const [remarks, setRemarks] = useState("");
-  const [selectedBank, setSelectedBank] = useState("kotak1");
+  const [selectedBank, setSelectedBank] = useState(null);
   const [paySlipFile, setPaySlipFile] = useState(null);
+  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileError, setFileError] = useState("");
 
-  const banks = [
-    {
-      id: "kotak1",
-      name: "Kotak Mahindra Bank",
-      logo: "/img/kotak-logo.png",
-      accountNumber: "0261124422233",
-      ifscCode: "KKBK002254",
-    },
-    {
-      id: "yes",
-      name: "Yes Bank",
-      logo: "/img/yes-bank-logo.png",
-      accountNumber: "0261124422233",
-      ifscCode: "KKBK002254",
-    },
-    {
-      id: "axis",
-      name: "Axis Bank",
-      logo: "/img/axis-bank-logo.png",
-      accountNumber: "0261124422233",
-      ifscCode: "KKBK002254",
-    },
-    {
-      id: "sbi",
-      name: "State Bank Of India",
-      logo: "/img/sbi-logo.png",
-      accountNumber: "0261124422233",
-      ifscCode: "KKBK002254",
-    },
-    {
-      id: "kotak2",
-      name: "Kotak Mahindra Bank",
-      logo: "/img/kotak-logo.png",
-      accountNumber: "0261124422233",
-      ifscCode: "KKBK002254",
-    },
-  ];
+  // Fetch banks on component mount
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        setLoading(true);
+        const result = await dispatch(distributerGetBanks({}));
+        if (result?.status === "SUCCESS" && result?.mdBanklists) {
+          setBanks(result.mdBanklists);
+          // Set the first bank as selected by default, or the primary bank if exists
+          const primaryBank = result.mdBanklists.find((bank) => bank.isPrimary);
+          if (primaryBank) {
+            setSelectedBank(primaryBank.bankId);
+          } else if (result.mdBanklists.length > 0) {
+            setSelectedBank(result.mdBanklists[0].bankId);
+          }
+        }
+      } catch (error) {
+        showNotification({
+          type: "error",
+          message: error?.message || "Failed to fetch bank details",
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanks();
+  }, [dispatch, showNotification]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5 MB");
-        return;
-      }
-      setPaySlipFile(file);
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file.size > maxSize) {
+      setFileError("File size must be below 5 MB");
+      setPaySlipFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setFileError("");
+    setPaySlipFile(file);
+
+    // Preview for images
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
     }
   };
 
@@ -71,18 +88,86 @@ const WalletLoad = () => {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    console.log("Wallet Load Submission:", {
-      amount,
-      paymentMode,
-      payDate,
-      referenceNumber,
-      remarks,
-      selectedBank,
-      paySlipFile,
-    });
-    // Add your submission logic here
+
+    if (!selectedBank) {
+      showNotification({
+        type: "error",
+        message: "Please select a bank",
+      });
+      return;
+    }
+
+    if (!amount || !paymentMode || !payDate) {
+      showNotification({
+        type: "error",
+        message: "Please fill all required fields",
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create FormData
+      const formData = new FormData();
+      formData.append("amount", amount);
+      formData.append("paymentMode", paymentMode);
+      formData.append("transactionDate", payDate);
+      formData.append("bankId", selectedBank);
+
+      if (referenceNumber) {
+        formData.append("referenceNo", referenceNumber);
+      }
+
+      if (remarks) {
+        formData.append("remarks", remarks);
+      }
+
+      if (paySlipFile) {
+        formData.append("paySlip", paySlipFile);
+      }
+
+      const result = await dispatch(distributerFundLoad(formData));
+
+      if (result?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: result.message || "Fund request submitted successfully",
+        });
+        // Reset form
+        setAmount("");
+        setPaymentMode("");
+        setPayDate("");
+        setReferenceNumber("");
+        setRemarks("");
+        setPaySlipFile(null);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        // Reset to primary bank or first bank
+        const primaryBank = banks.find((bank) => bank.isPrimary);
+        if (primaryBank) {
+          setSelectedBank(primaryBank.bankId);
+        } else if (banks.length > 0) {
+          setSelectedBank(banks[0].bankId);
+        }
+      } else {
+        showNotification({
+          type: "error",
+          message: result?.message || "Failed to submit fund request",
+        });
+      }
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: error?.message || "Failed to submit fund request",
+      });
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -137,11 +222,12 @@ const WalletLoad = () => {
                     className="w-full px-4 h-[43px] border border-[#1B1717] border-opacity-50 focus:outline-none rounded-lg"
                   >
                     <option value="">Select</option>
+                    <option value="CASH">CASH</option>
                     <option value="UPI">UPI</option>
                     <option value="NEFT">NEFT</option>
                     <option value="RTGS">RTGS</option>
                     <option value="IMPS">IMPS</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
                   </select>
                 </div>
 
@@ -173,6 +259,9 @@ const WalletLoad = () => {
                   </label>
                   <input
                     id="referenceNumber"
+                    maxLength={25}
+                    minLength={10}
+                    pattern="[A-Za-z0-9]+"
                     type="text"
                     value={referenceNumber}
                     onChange={(e) => setReferenceNumber(e.target.value)}
@@ -184,48 +273,82 @@ const WalletLoad = () => {
 
               {/* Pay Slip */}
               <div>
-                <label className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                <label
+                  htmlFor="paySlip"
+                  className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
                   Pay Slip
                 </label>
                 <div
                   onDrop={handleFileDrop}
                   onDragOver={(e) => e.preventDefault()}
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer  transition-colors"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer transition-colors flex items-center justify-center"
                 >
                   <input
+                    id="paySlip"
                     ref={fileInputRef}
                     type="file"
                     accept=".svg,.png,.jpg,.jpeg,.pdf"
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      className="w-12 h-12 text-[#1B1717] text-opacity-50"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                      Click To Upload Or Drag And Drop
-                    </p>
-                    <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
-                      SVG,PNG,JPG Or PDF (Max 5 MB)
-                    </p>
-                  </div>
+
+                  {/* If file selected show preview */}
+                  {paySlipFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Pay Slip Preview"
+                          className="max-h-[120px] object-contain"
+                        />
+                      ) : (
+                        <p className="text-sm text-[#1B1717]">
+                          📄 {paySlipFile.name}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <svg
+                        className="w-12 h-12 text-[#1B1717] text-opacity-50"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        Click To Upload Or Drag And Drop
+                      </p>
+                      <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                        SVG, PNG, JPG Or PDF (Max 5 MB)
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {paySlipFile && (
                   <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mt-2">
                     {paySlipFile.name}
                   </p>
+                )}
+                {/* Error message */}
+                {fileError && (
+                  <p className="text-red-500 text-sm mt-2">{fileError}</p>
                 )}
               </div>
 
@@ -261,76 +384,85 @@ const WalletLoad = () => {
             </div>
 
             <div className="space-y-[16px] flex-1 overflow-y-auto pr-2 mb-6">
-              {banks.map((bank) => (
-                <div
-                  key={bank.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedBank(bank.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedBank(bank.id);
-                    }
-                  }}
-                  className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${
-                    selectedBank === bank.id
-                      ? "border-[#039155] bg-green-50"
-                      : "border-[#1B1717] border-opacity-80 bg-white"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Bank Logo */}
-                    <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
-                      <img
-                        src={bank.logo}
-                        alt={bank.name}
-                        className="w-8 h-8 object-cover"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                        }}
-                      />
-                    </div>
-
-                    {/* Bank Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-[2px]">
-                        <p className="text-[13px] font-medium text-gray-900 leading-tight">
-                          Bank Name: {bank.name}
-                        </p>
-
-                        {selectedBank === bank.id && (
-                          <div className="w-[20px] h-[20px] rounded-full bg-[#039155] flex items-center justify-center shrink-0">
-                            <div className="w-[6px] h-[6px] rounded-full bg-white" />
-                          </div>
-                        )}
+              {loading && banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    Loading banks...
+                  </p>
+                </div>
+              ) : banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    No banks available
+                  </p>
+                </div>
+              ) : (
+                banks.map((bank) => (
+                  <button
+                    key={bank.bankId}
+                    type="button"
+                    onClick={() => setSelectedBank(bank.bankId)}
+                    className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${
+                      selectedBank === bank.bankId
+                        ? "border-[#039155] bg-green-50"
+                        : "border-[#1B1717] border-opacity-80 bg-white"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Bank Logo */}
+                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                        <img
+                          src={bank.bankImage}
+                          alt={bank.bankName}
+                          className="w-8 h-8 object-cover"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
                       </div>
 
-                      <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
-                        Account Number:{" "}
-                        <span className="text-[#1B1717]">
-                          {bank.accountNumber}
-                        </span>
-                      </p>
+                      {/* Bank Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-[2px]">
+                          <p className="text-[13px] font-medium text-gray-900 leading-tight">
+                            Bank Name: {bank.bankName}
+                          </p>
 
-                      <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
-                        IFSC Code:{" "}
-                        <span className="text-[#1B1717]">{bank.ifscCode}</span>
-                      </p>
+                          {selectedBank === bank.bankId && (
+                            <div className="w-[20px] h-[20px] rounded-full bg-[#039155] flex items-center justify-center shrink-0">
+                              <div className="w-[6px] h-[6px] rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                          Account Number:{" "}
+                          <span className="text-[#1B1717]">
+                            {bank.accountNumber}
+                          </span>
+                        </p>
+
+                        {bank.isPrimary && (
+                          <p className="text-[10px] font-['Gilroy-Medium'] text-[#039155] leading-tight mt-1">
+                            Primary Account
+                          </p>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              ))}
+                  </button>
+                ))
+              )}
             </div>
 
             {/* Submit Button */}
             <div className="mt-auto pt-4 ">
               <button
-                type="submit"
+                type="button"
                 onClick={handleSubmit}
-                className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm"
+                disabled={loading || !selectedBank}
+                className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {loading ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>

@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
     XAxis,
     YAxis,
@@ -8,6 +10,7 @@ import {
     Tooltip,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { getUserWalletBalance } from "../../redux/action/walletAction";
 
 const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
@@ -15,6 +18,44 @@ const Earning = "/img/Earning.png";
 
 const DistDashboard = () => {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
+    const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
+    const [isWalletLoading, setIsWalletLoading] = useState(true);
+
+    const walletBalanceResponse = useSelector((state) => state?.wallet?.userWalletBalance);
+
+    // Fetch wallet balance on component mount
+    useEffect(() => {
+        const fetchBalance = async () => {
+            setIsWalletLoading(true);
+            try {
+                await dispatch(getUserWalletBalance());
+            } catch (error) {
+                console.error("Failed to fetch wallet balance:", error);
+            } finally {
+                setIsWalletLoading(false);
+            }
+        };
+        fetchBalance();
+    }, [dispatch]);
+
+    // Update wallet data when balance is fetched
+    useEffect(() => {
+        if (walletBalanceResponse?.data) {
+            const { mainWallet, apesWallet } = walletBalanceResponse.data;
+            setWalletData({
+                mainWallet: mainWallet || null,
+                apesWallet: apesWallet || null,
+            });
+        }
+    }, [walletBalanceResponse]);
+
+    // Format number with Indian locale
+    const formatCurrency = (value) => {
+        if (!value) return "₹0.00";
+        const numValue = parseFloat(value);
+        return `₹${numValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
     // Chart data for Rcent Transaction - Monthly data (Jan-Dec)
     const chartData = [
@@ -77,6 +118,63 @@ const DistDashboard = () => {
             icon: Earning,
         },
     ];
+
+    // Skeleton loader component
+    const SkeletonLoader = () => (
+        <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
+            {/* Top KPI Cards Skeleton */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                {[1, 2, 3].map((i) => (
+                    <div key={i} className="bg-white rounded-xl shadow-md p-3 sm:p-4 lg:p-5 animate-pulse">
+                        <div className="flex items-center justify-between">
+                            <div className="flex-1">
+                                <div className="h-6 bg-gray-200 rounded w-32 mb-2"></div>
+                                <div className="h-8 bg-gray-200 rounded w-20 mb-2"></div>
+                                <div className="h-6 bg-gray-200 rounded w-36"></div>
+                            </div>
+                            <div className="w-14 h-14 bg-gray-200 rounded-full"></div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {/* Chart and Wallet Section Skeleton */}
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+                {/* Chart Skeleton */}
+                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+                        <div className="h-6 bg-gray-200 rounded w-40"></div>
+                        <div className="h-8 bg-gray-200 rounded w-20"></div>
+                    </div>
+                    <div className="mb-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                            <div className="h-7 bg-gray-200 rounded w-32"></div>
+                            <div className="h-5 bg-gray-200 rounded w-24"></div>
+                        </div>
+                    </div>
+                    <div className="w-full h-80 sm:h-96 lg:h-[450px] bg-gray-200 rounded"></div>
+                </div>
+
+                {/* Wallet Cards Skeleton */}
+                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
+                    {[1, 2].map((i) => (
+                        <div key={i} className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col animate-pulse">
+                            <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
+                            <div className="h-8 bg-gray-300 rounded w-40 mb-2"></div>
+                            <div className="h-4 bg-gray-300 rounded w-16 mb-3"></div>
+                            <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+                            <div className="h-10 bg-gray-300 rounded w-full mt-4"></div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+
+    // Show skeleton loader while loading
+    if (isWalletLoading) {
+        return <SkeletonLoader />;
+    }
 
     return (
         <div className="min-h-screen text-[#1B1717] space-y-4 sm:space-y-6">
@@ -202,7 +300,7 @@ const DistDashboard = () => {
                                 Main Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                             ₹4,21,40,238
+                             {formatCurrency(walletData.mainWallet)}
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
@@ -225,11 +323,11 @@ const DistDashboard = () => {
                                 AEPS Wallet
                             </h4>
                             <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                                ₹4,21,40,238
+                                {formatCurrency(walletData.apesWallet)}
                             </p>
                             <div className="flex items-center gap-2 mb-3">
                                 <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                ▲  0.45%
+                                    ▲  0.45%
                                 </span>
                             </div>
                             <p className="text-xs lg:text-sm text-gray-600 mb-3">

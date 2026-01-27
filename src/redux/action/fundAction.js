@@ -1,9 +1,10 @@
 import axios from "axios";
 import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
+import { clearAllStorage, isTokenExpiredError } from "../../utils/clearStorage";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { COMPANY_APPROVE_REQUEST_FAILURE, COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_FAILURE, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_FAILURE, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_FAILURE, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_FAILURE, DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_FAILURE, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_FAILURE, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_FAILURE, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_FAILURE, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_FAILURE, RETAILER_FUND_LOAD_SUCCESS } from "../actionType/fundActionType";
+import { ADMIN_APPROVE_FAILURE, ADMIN_APPROVE_SUCCESS, ADMIN_REQUEST_SUCCESS, COMPANY_APPROVE_REQUEST_FAILURE, COMPANY_APPROVE_REQUEST_SUCCESS, COMPANY_BANK_LIST_FAILURE, COMPANY_BANK_LIST_SUCCESS, COMPANY_FUND_LOAD_FAILURE, COMPANY_FUND_LOAD_SUCCESS, COMPANY_GET_ALL_REQUEST_FAILURE, COMPANY_GET_ALL_REQUEST_SUCCESS, DISTRIBUTOR_FUND_APPROVE_FAILURE, DISTRIBUTOR_FUND_APPROVE_SUCCESS, DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, DISTRIBUTOR_FUND_LOAD_FAILURE, DISTRIBUTOR_FUND_LOAD_SUCCESS, DISTRIBUTOR_FUND_REQUEST_FAILURE, DISTRIBUTOR_FUND_REQUEST_SUCCESS, MASTER_DISTRIBUTOR_FUND_APPROVE_FAILURE, MASTER_DISTRIBUTOR_FUND_APPROVE_SUCCESS, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_FAILURE, MASTER_DISTRIBUTOR_FUND_GET_ALL_BANKS_SUCCESS, MASTER_DISTRIBUTOR_FUND_LOAD_FAILURE, MASTER_DISTRIBUTOR_FUND_LOAD_SUCCESS, MASTER_DISTRIBUTOR_FUND_REQUEST_FAILURE, MASTER_DISTRIBUTOR_FUND_REQUEST_SUCCESS, RETAILER_FUND_GET_ALL_BANKS_FAILURE, RETAILER_FUND_GET_ALL_BANKS_SUCCESS, RETAILER_FUND_LOAD_FAILURE, RETAILER_FUND_LOAD_SUCCESS } from "../actionType/fundActionType";
 
 const commonError = "Something went wrong!";
 
@@ -683,6 +684,220 @@ export const companyApproveRequest = (payload) => async (dispatch) => {
       : error.message;
     dispatch({
       type: COMPANY_APPROVE_REQUEST_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const adminGetRequest = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/fund/fund-requests`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: adminGetRequest, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_REQUEST_SUCCESS,
+        payload: { adminGetRequest, status, message },
+      });
+      return { adminGetRequest, status, message };
+    } else {
+      dispatch({
+        type: ADMIN_REQUEST_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    // Check if token expired
+    if (isTokenExpiredError(error)) {
+      clearAllStorage();
+    }
+
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: ADMIN_REQUEST_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const adminApproveRequest = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/fund/approve-fund-request`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: adminApproveRequest, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_APPROVE_SUCCESS,
+        payload: { adminApproveRequest, status, message },
+      });
+      return { adminApproveRequest, status, message };
+    } else {
+      dispatch({
+        type: ADMIN_APPROVE_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    // Check if token expired
+    if (isTokenExpiredError(error)) {
+      clearAllStorage();
+    }
+
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: ADMIN_APPROVE_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const distributerApproveRequest = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/fund/approve-fund-request`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: dFundapprove, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: DISTRIBUTOR_FUND_APPROVE_SUCCESS,
+        payload: { dFundapprove, status, message },
+      });
+      return { dFundapprove, status, message };
+    } else {
+      dispatch({
+        type: DISTRIBUTOR_FUND_APPROVE_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: DISTRIBUTOR_FUND_APPROVE_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const distributorGetRequest = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/fund/fund-requests`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: dFundrequest, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: DISTRIBUTOR_FUND_REQUEST_SUCCESS,
+        payload: { dFundrequest, status, message },
+      });
+      return { dFundrequest, status, message };
+    } else {
+      dispatch({
+        type: DISTRIBUTOR_FUND_REQUEST_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: DISTRIBUTOR_FUND_REQUEST_FAILURE,
       payload: errorMessage,
     });
     throw error;

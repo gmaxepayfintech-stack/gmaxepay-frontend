@@ -1,8 +1,11 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
-import { getAlsWallet } from "../../redux/action/walletAction";
-import { motion } from "framer-motion";
+import {
+  getAlsWallet,
+  getWalletBalance,
+  getEkycHubBalance,
+} from "../../redux/action/walletAction";
 import {
   XAxis,
   YAxis,
@@ -33,27 +36,116 @@ const SuperAdmin = () => {
   const dispatch = useDispatch();
   const [selectedDay, setSelectedDay] = useState("Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
-  const [activeFilter, setActiveFilter] = useState("Today");
+  const [ekycHubBalance, setEkycHubBalance] = useState(null);
+  const [walletData, setWalletData] = useState({
+    mainWallet: null,
+    apesWallet: null,
+  });
+  const [isWalletLoading, setIsWalletLoading] = useState(true);
+  const [isAlsWalletLoading, setIsAlsWalletLoading] = useState(true);
+  const [isEkycHubLoading, setIsEkycHubLoading] = useState(true);
+  const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
+  const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const filters = ["Today", "Weekly", "Monthly", "Yearly"];
 
   // Get wallet data from Redux
   const alsWalletResponse = useSelector((state) => state?.wallet?.alsWallet);
+  const ekycHubBalanceResponse = useSelector(
+    (state) => state?.wallet?.ekycHubBalance,
+  );
+  const walletBalanceResponse = useSelector(
+    (state) => state?.wallet?.walletBalance,
+  );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
-  // Update opening balance when wallet data is fetched
+  // Fetch wallet balance on component mount
+  useEffect(() => {
+    const fetchBalance = async () => {
+      setIsWalletLoading(true);
+      try {
+        await dispatch(getWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch wallet balance:", error);
+      } finally {
+        setIsWalletLoading(false);
+      }
+    };
+    fetchBalance();
+  }, [dispatch]);
+
+  // Fetch ASL wallet on component mount
+  useEffect(() => {
+    const fetchAlsWallet = async () => {
+      setIsAlsWalletLoading(true);
+      try {
+        await dispatch(getAlsWallet());
+      } catch (error) {
+        console.error("Failed to fetch ASL wallet:", error);
+      } finally {
+        setIsAlsWalletLoading(false);
+      }
+    };
+    fetchAlsWallet();
+  }, [dispatch]);
+
+  // Fetch Ekyc Hub wallet on component mount
+  useEffect(() => {
+    const fetchEkycHubBalance = async () => {
+      setIsEkycHubLoading(true);
+      try {
+        await dispatch(getEkycHubBalance());
+      } catch (error) {
+        console.error("Failed to fetch Ekyc Hub balance:", error);
+      } finally {
+        setIsEkycHubLoading(false);
+      }
+    };
+    fetchEkycHubBalance();
+  }, [dispatch]);
+
+  // Update wallet data when balance is fetched
+  useEffect(() => {
+    if (walletBalanceResponse?.data) {
+      const { mainWallet, apesWallet } = walletBalanceResponse.data;
+      setWalletData({
+        mainWallet: mainWallet || null,
+        apesWallet: apesWallet || null,
+      });
+    }
+  }, [walletBalanceResponse]);
+
+  // Update opening balance when ASL wallet data is fetched
   useEffect(() => {
     if (alsWalletResponse?.data?.data?.openingBalance) {
       setAlsOpeningBalance(alsWalletResponse.data.data.openingBalance);
+    } else {
+      setAlsOpeningBalance("0.00");
     }
   }, [alsWalletResponse]);
+
+  // Update Ekyc Hub balance when data is fetched
+  useEffect(() => {
+    if (ekycHubBalanceResponse?.data?.balance) {
+      setEkycHubBalance(ekycHubBalanceResponse.data.balance);
+    } else {
+      setEkycHubBalance("0.00");
+    }
+  }, [ekycHubBalanceResponse]);
+
+  // Format number with Indian locale
+  const formatCurrency = (value) => {
+    if (!value) return "₹0.00";
+    const numValue = parseFloat(value);
+    return `₹${numValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
 
   const data = [
     { name: "Rupaisa", value: 400 },
     { name: "", value: 900 },
     { name: "", value: 650 },
-    { name: "Asl", value: 1300 },
+    { name: "Asl Wallet", value: 1300 },
     { name: "", value: 1600 },
     { name: "Inspay", value: 1250 },
     { name: "", value: 1900 },
@@ -92,6 +184,91 @@ const SuperAdmin = () => {
       bg: "bg-[#FFF2DF]", // Light orange
     },
   ];
+
+  // Skeleton loader component
+  const SkeletonLoader = () => (
+    <div className="p-4 sm:p-6 min-h-screen text-[#1B1717] space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left: Chart Skeleton */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="flex flex-col gap-3 mb-4">
+            <div className="h-7 bg-gray-200 rounded w-40 animate-pulse"></div>
+            <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-3 sm:gap-4">
+                <div className="h-8 bg-gray-200 rounded w-32 animate-pulse"></div>
+                <div className="h-5 bg-gray-200 rounded w-24 animate-pulse"></div>
+              </div>
+              <div className="flex flex-wrap gap-2 justify-end">
+                {days.map((day) => (
+                  <div
+                    key={day}
+                    className="h-8 bg-gray-200 rounded-lg w-12 animate-pulse"
+                  ></div>
+                ))}
+              </div>
+            </div>
+          </div>
+          <div className="w-full h-48 sm:h-64 bg-gray-200 rounded animate-pulse"></div>
+        </div>
+
+        {/* Right: Wallet Cards Skeleton */}
+        <div className="space-y-4">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="bg-green-100 p-5 rounded-2xl shadow animate-pulse"
+            >
+              <div className="h-6 bg-gray-300 rounded w-32 mb-4"></div>
+              <div className="h-8 bg-gray-300 rounded w-40 mb-3"></div>
+              <div className="h-4 bg-gray-300 rounded w-20 mb-3"></div>
+              <div className="h-4 bg-gray-300 rounded w-48 mb-3"></div>
+              <div className="h-10 bg-gray-300 rounded w-full"></div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Overall Wallets Skeleton */}
+        <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="h-7 bg-gray-200 rounded w-40 mb-4 animate-pulse"></div>
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
+            {[...Array(6)].map((_, i) => (
+              <div
+                key={i}
+                className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 animate-pulse"
+              >
+                <div className="h-5 bg-gray-300 rounded w-24 mb-2"></div>
+                <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
+                <div className="h-8 bg-gray-300 rounded w-full"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quick Action Buttons Skeleton */}
+        <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
+          <div className="h-7 bg-gray-200 rounded w-40 mb-5 animate-pulse"></div>
+          <div className="grid grid-cols-3 sm:grid-cols-3 gap-6">
+            {[...Array(5)].map((_, i) => (
+              <div
+                key={i}
+                className="flex flex-col items-center space-y-4 animate-pulse"
+              >
+                <div className="bg-gray-300 w-16 h-16 rounded-full"></div>
+                <div className="h-4 bg-gray-300 rounded w-16"></div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+
+  // Show skeleton loader while loading wallet balance, ASL wallet, or Ekyc Hub wallet
+  if (isWalletLoading || isAlsWalletLoading || isEkycHubLoading) {
+    return <SkeletonLoader />;
+  }
 
   return (
     <div className="py-4  min-h-screen text-[#1B1717] space-y-6">
@@ -209,14 +386,16 @@ const SuperAdmin = () => {
             {
               title: "Main Wallet",
               icon: Wallet,
-              color: "text-[#039155]/80",
+              color: "text-green-600",
+              balance: walletData.mainWallet,
             },
             {
               title: "AEPS Wallet",
               icon: CreditCard,
-              color: "text-[#039155]/80",
+              color: "text-green-600",
+              balance: walletData.apesWallet,
             },
-          ].map(({ title, icon: Icon, color }, i) => (
+          ].map(({ title, icon: Icon, color, balance }, i) => (
             <div
               key={i}
               className="bg-[#4FF2AD]/20 p-5 rounded-3xl shadow hover:shadow-lg transition"
@@ -225,10 +404,10 @@ const SuperAdmin = () => {
                 <Icon className={`w-5 h-5 ${color}`} />
                 {title}
               </h3>
-              <p className="text-2xl font-[gilroy-semibold] text-[#1B1717] mt-2">
-                ₹4,21,40,238
+              <p className="text-2xl font-bold mt-2">
+                {isWalletLoading ? "Loading..." : formatCurrency(balance)}
               </p>
-              <span className="text-[#039155] text-sm font-[gilroy-semibold] flex items-center gap-1">
+              <span className="text-green-600 text-sm font-medium flex items-center gap-1">
                 ▲ (4.61%)
               </span>
               <p className="text-xs sm:text-sm text-[#1B1717]/80 mb-3 font-[gilroy-medium] mt-2">
@@ -255,41 +434,81 @@ const SuperAdmin = () => {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {[...Array(6)].map((_, i) => {
               const isAslWallet = i === 0;
+              const isEkycHubWallet = i === 1;
               const walletName = isAslWallet
-                ? "ASL"
-                : `Rupaisa Pay Wallet ${i + 1}`;
-              const displayBalance =
-                isAslWallet && alsOpeningBalance
+                ? "ASL Wallet"
+                : isEkycHubWallet
+                  ? "EKYC-HUB Wallet"
+                  : `Rupaisa Pay Wallet ${i}`;
+              const displayBalance = isAslWallet
+                ? alsOpeningBalance
                   ? `₹${parseFloat(alsOpeningBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : "₹0.00"
+                : isEkycHubWallet
+                  ? ekycHubBalance
+                    ? `₹${parseFloat(ekycHubBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                    : "₹0.00"
                   : "$4,21,40,238";
 
               return (
                 <div
                   key={i}
-                  className="bg-[#FAFAFA]  rounded-xl p-3 sm:p-4 flex flex-col justify-between shadow hover:shadow-md transition cursor-pointer"
-                  onClick={() => {
-                    if (isAslWallet) {
-                      dispatch(getAlsWallet());
-                    }
-                  }}
+                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col justify-between hover:shadow-md transition"
                 >
                   <p className="font-[gilroy-medium] text-[#1B1717] text-base mb-1">
                     {walletName}
                   </p>
-                  <p className="text-[#1B1717] font-[gilroy-semibold] text-lg sm:text-base">
-                    {isLoading && isAslWallet ? "Loading..." : displayBalance}
+                  <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
+                    {(isAslWalletRefreshing && isAslWallet) ||
+                    (isEkycHubRefreshing && isEkycHubWallet)
+                      ? "Loading..."
+                      : displayBalance}
                   </p>
                   <button
-                    className="mt-3 text-xs sm:text-sm w-full font-[gilroy-semibold] bg-[#039155] hover:bg-green-700 text-white px-3 py-2 rounded-xl transition-colors"
+                    className="mt-3 text-xs sm:text-sm w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isAslWallet) {
-                        dispatch(getAlsWallet());
+                        setIsAslWalletRefreshing(true);
+                        dispatch(getAlsWallet())
+                          .then(() => {
+                            // The useEffect will update alsOpeningBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Failed to refresh ASL wallet:",
+                              error,
+                            );
+                          })
+                          .finally(() => {
+                            setIsAslWalletRefreshing(false);
+                          });
+                      } else if (isEkycHubWallet) {
+                        setIsEkycHubRefreshing(true);
+                        dispatch(getEkycHubBalance())
+                          .then(() => {
+                            // The useEffect will update ekycHubBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Failed to refresh Ekyc Hub wallet:",
+                              error,
+                            );
+                          })
+                          .finally(() => {
+                            setIsEkycHubRefreshing(false);
+                          });
                       }
                     }}
-                    disabled={isLoading && isAslWallet}
+                    disabled={
+                      (isAslWalletRefreshing && isAslWallet) ||
+                      (isEkycHubRefreshing && isEkycHubWallet)
+                    }
                   >
-                    {isLoading && isAslWallet ? "Loading..." : "Refresh"}
+                    {(isAslWalletRefreshing && isAslWallet) ||
+                    (isEkycHubRefreshing && isEkycHubWallet)
+                      ? "Loading..."
+                      : "Refresh"}
                   </button>
                 </div>
               );

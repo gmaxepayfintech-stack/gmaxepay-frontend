@@ -16,6 +16,9 @@ const WalletLoad = () => {
   const [banks, setBanks] = useState([]);
   const [loading, setLoading] = useState(false);
   const fileInputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileError, setFileError] = useState("");
+
 
   // Fetch banks on component mount
   useEffect(() => {
@@ -48,14 +51,29 @@ const WalletLoad = () => {
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        alert("File size must be less than 5 MB");
-        return;
-      }
-      setPaySlipFile(file);
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file.size > maxSize) {
+      setFileError("File size must be below 5 MB");
+      setPaySlipFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setFileError("");
+    setPaySlipFile(file);
+
+    // Preview for images
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
     }
   };
+
 
   const handleFileDrop = (e) => {
     e.preventDefault();
@@ -208,7 +226,7 @@ const WalletLoad = () => {
                     <option value="NEFT">NEFT</option>
                     <option value="RTGS">RTGS</option>
                     <option value="IMPS">IMPS</option>
-                    <option value="Bank Transfer">Bank Transfer</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
                   </select>
                 </div>
 
@@ -242,6 +260,9 @@ const WalletLoad = () => {
                     id="referenceNumber"
                     type="text"
                     value={referenceNumber}
+                    maxLength={25}
+                    minLength={10}
+                    pattern="[A-Za-z0-9]+"
                     onChange={(e) => setReferenceNumber(e.target.value)}
                     placeholder="Enter Reference Number"
                     className="w-full px-4 h-[43px] focus:outline-none border border-[#1B1717] border-opacity-50 rounded-lg"
@@ -266,7 +287,7 @@ const WalletLoad = () => {
                   }}
                   role="button"
                   tabIndex={0}
-                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer  transition-colors"
+                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer transition-colors flex items-center justify-center"
                 >
                   <input
                     id="paySlip"
@@ -276,32 +297,54 @@ const WalletLoad = () => {
                     onChange={handleFileChange}
                     className="hidden"
                   />
-                  <div className="flex flex-col items-center gap-2">
-                    <svg
-                      className="w-12 h-12 text-[#1B1717] text-opacity-50"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
-                      />
-                    </svg>
-                    <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                      Click To Upload Or Drag And Drop
-                    </p>
-                    <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
-                      SVG,PNG,JPG Or PDF (Max 5 MB)
-                    </p>
-                  </div>
+
+                  {/* If file selected show preview */}
+                  {paySlipFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Pay Slip Preview"
+                          className="max-h-[120px] object-contain"
+                        />
+                      ) : (
+                        <p className="text-sm text-[#1B1717]">
+                          📄 {paySlipFile.name}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <svg
+                        className="w-12 h-12 text-[#1B1717] text-opacity-50"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        Click To Upload Or Drag And Drop
+                      </p>
+                      <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                        SVG, PNG, JPG Or PDF (Max 5 MB)
+                      </p>
+                    </div>
+                  )}
                 </div>
                 {paySlipFile && (
                   <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mt-2">
                     {paySlipFile.name}
                   </p>
+                )}
+                {/* Error message */}
+                {fileError && (
+                  <p className="text-red-500 text-sm mt-2">{fileError}</p>
                 )}
               </div>
 
@@ -356,13 +399,13 @@ const WalletLoad = () => {
                     type="button"
                     onClick={() => setSelectedBank(bank.bankId)}
                     className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${selectedBank === bank.bankId
-                        ? "border-[#039155] bg-green-50"
-                        : "border-[#1B1717] border-opacity-80 bg-white"
+                      ? "border-[#039155] bg-green-50"
+                      : "border-[#1B1717] border-opacity-80 bg-white"
                       }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Bank Logo */}
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                      <div className="w-10 h-10 flex items-center justify-center shrink-0">
                         <img
                           src={bank.bankImage}
                           alt={bank.bankName}
@@ -372,6 +415,7 @@ const WalletLoad = () => {
                           }}
                         />
                       </div>
+
 
                       {/* Bank Details */}
                       <div className="flex-1 min-w-0">

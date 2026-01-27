@@ -9,6 +9,14 @@ import {
   RESECEND_OTP_FAILURE,
   RESET_PASSWORD_SUCCESS,
   RESET_PASSWORD_FAILURE,
+  VERIFY_FORGET_PASSWORD_SUCCESS,
+  VERIFY_FORGET_PASSWORD_FAILURE,
+  FORGET_PASSWORD_SUCCESS,
+  FORGET_PASSWORD_FAILURE,
+  VERIFY_MPIN_SUCCESS,
+  VERIFY_MPIN_FAILURE,
+  SET_MPIN_SUCCESS,
+  SET_MPIN_FAILURE,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -25,6 +33,14 @@ const initialState = {
   resetPasswordResponse: null,
   resetPasswordError: null,
   currentStep: 1,
+  forgetPasswordResponse: null,
+  forgetPasswordError: null,
+  verifyForgetPasswordResponse: null,
+  verifyForgetPasswordError: null,
+  verifyMPINResponse: null,
+  verifyMPINError: null,
+  setMPINResponse: null,
+  setMPINError: null,
 };
 
 const loginReducer = (state = initialState, action) => {
@@ -68,12 +84,12 @@ const loginReducer = (state = initialState, action) => {
         verificationError: verificationErrorPayload,
         verificationcode: verificationErrorPayload
           ? {
-              status: "FAILURE",
-              message:
-                typeof verificationErrorPayload === "object"
-                  ? verificationErrorPayload.message
-                  : verificationErrorPayload,
-            }
+            status: "FAILURE",
+            message:
+              typeof verificationErrorPayload === "object"
+                ? verificationErrorPayload.message
+                : verificationErrorPayload,
+          }
           : null,
         Success: null,
       };
@@ -134,6 +150,64 @@ const loginReducer = (state = initialState, action) => {
         resetPasswordResponse: null,
       };
 
+    case VERIFY_FORGET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        verifyForgetPasswordResponse: action.payload,
+        verifyForgetPasswordError: null,
+      };
+    case VERIFY_FORGET_PASSWORD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: typeof action.payload === "object" ? action.payload : action.payload,
+        Success: null,
+      };
+    case FORGET_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        forgetPasswordResponse: action.payload,
+        forgetPasswordError: null,
+      };
+    case FORGET_PASSWORD_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        forgetPasswordError: typeof action.payload === "object" ? action.payload : action.payload,
+        forgetPasswordResponse: null,
+      };
+    case VERIFY_MPIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        verifyMPINResponse: action.payload,
+        verifyMPINError: null,
+        error: null,
+      };
+    case VERIFY_MPIN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        verifyMPINError: typeof action.payload === "object" ? action.payload : action.payload,
+        verifyMPINResponse: null,
+      };
+    case SET_MPIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        setMPINResponse: action.payload,
+        setMPINError: null,
+        error: null,
+      };
+    case SET_MPIN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        setMPINError: typeof action.payload === "object" ? action.payload : action.payload,
+        setMPINResponse: null,
+      };
     default:
       return state;
   }

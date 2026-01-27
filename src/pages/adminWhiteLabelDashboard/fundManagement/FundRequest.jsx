@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import * as XLSX from "xlsx";
 import { RefreshCw } from 'lucide-react';
 import { ButtonLoader } from '../../../widgets/layout/loader.jsx';
-import { masterdistributerApproveFundRequest, masterdistributerGetFundRequest } from '../../../redux/action/fundAction';
+import { companyApproveRequest, companyGetAllRequest } from '../../../redux/action/fundAction';
 
 const FundRequest = () => {
   const dispatch = useDispatch();
@@ -62,16 +62,16 @@ const FundRequest = () => {
         }
       };
 
-      const result = await dispatch(masterdistributerGetFundRequest(payload));
+      const result = await dispatch(companyGetAllRequest(payload));
       
-      if (result?.status === "SUCCESS" && result?.mdFundrequest) {
-        const dataArray = Array.isArray(result.mdFundrequest) 
-          ? result.mdFundrequest 
-          : result.mdFundrequest?.data || [];
+      if (result?.status === "SUCCESS" && result?.companyRequest) {
+        const dataArray = Array.isArray(result.companyRequest) 
+          ? result.companyRequest 
+          : result.companyRequest?.data || [];
         setFundRequests(dataArray);
         const calculatedPages = Math.ceil(dataArray.length / itemsPerPage) || 1;
-        setTotalPages(result.mdFundrequest?.totalPages || calculatedPages);
-        setTotalRecords(result.mdFundrequest?.totalRecords || dataArray.length);
+        setTotalPages(result.companyRequest?.totalPages || calculatedPages);
+        setTotalRecords(result.companyRequest?.totalRecords || dataArray.length);
       }
     } catch (error) {
       console.error("Failed to fetch fund requests:", error);
@@ -149,7 +149,7 @@ const FundRequest = () => {
         approvalRemarks: approvalRemarks || ""
       };
 
-      const result = await dispatch(masterdistributerApproveFundRequest(payload));
+      const result = await dispatch(companyApproveRequest(payload));
       
       if (result?.status === "SUCCESS") {
         // Close panel and refresh the list

@@ -11,7 +11,7 @@ import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
 import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
 import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
-import WalletLoad from "../../pages/superAdminDashboard/fundManagement/WalletLoad";
+// import WalletLoad from "../../pages/superAdminDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/superAdminDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
 
@@ -31,7 +31,7 @@ const SuperAdminDashboard = () => {
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />
         <Route path="/reports/earning" element={<EarningReport />} />
-        <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
+        {/* <Route path="/fund-management/wallet-load" element={<WalletLoad />} /> */}
         <Route path="/fund-management/fund-request" element={<FundRequest />} />
         <Route path="/reports/nw-overview" element={<NWoverview />} />
 
