@@ -490,7 +490,7 @@ const CreateCompanyUser = () => {
                   onClick={handleCloseModal}
                   className="w-10 h-10 rounded-xl bg-[#039155] text-white flex items-center justify-center hover:bg-[#027a45] transition"
                 >
-                  <span className="border-[#FFFFFF] border-2 rounded-full px-2 py-0 leading-none">×</span>
+                  <span className="border-[#FFFFFF] border-2 rounded-3xl px-2 py-1 leading-none">×</span>
                 </button>
               </div>
 
