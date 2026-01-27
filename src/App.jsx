@@ -685,9 +685,9 @@ function App() {
         <Route
           path="/retailerDashboard/*"
           element={
-            // <ProtectedRoute role="retailer">
-            <RetailerDashboard />
-            // </ProtectedRoute>
+            <ProtectedRoute role="retailer">
+              <RetailerDashboard />
+            </ProtectedRoute>
           }
         />
         <Route

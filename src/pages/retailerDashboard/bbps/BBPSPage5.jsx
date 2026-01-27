@@ -111,7 +111,7 @@ const BBPSPage5 = ({ onBack, formData, setFormData }) => {
             </p>
 
             <div className="flex items-center gap-2 text-[20px] font-['Gilroy-Medium'] text-[#1B1717]">
-              <span className="w-1 p-1 h-1 bg-[#FFFFFF] border border-[#039155] border-[5px] rounded-full"></span>
+              <span className="w-1 p-1 h-1 bg-[#FFFFFF]   border-[#039155] border-[5px] rounded-full"></span>
               Main Wallet
             </div>
 

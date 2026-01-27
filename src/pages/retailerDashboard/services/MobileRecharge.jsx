@@ -843,7 +843,7 @@ const MobileRecharge = ({ onBack }) => {
                 onClick={() => setShowOperatorModal(false)}
                 className="absolute right-2 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
               >
-                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border border-[2.5px] border-[#FFFFFF] p-1" />
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full  border-[2.5px] border-[#FFFFFF] p-1" />
               </button>
             </div>
 
@@ -926,7 +926,7 @@ const MobileRecharge = ({ onBack }) => {
                 onClick={() => setShowDetailsModal(false)}
                 className="absolute right-2 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
               >
-                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border border-[2.5px] border-[#FFFFFF] p-1" />
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full   border-[2.5px] border-[#FFFFFF] p-1" />
               </button>
             </div>
 
