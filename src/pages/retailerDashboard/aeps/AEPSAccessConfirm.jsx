@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import Selectservice from "./Selectservice";
 import { aepsStatusCheck } from "../../../redux/action/aepsAction";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const AEPSAccessConfirm = () => {
   const navigate = useNavigate();
@@ -13,7 +13,7 @@ const AEPSAccessConfirm = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -22,7 +22,7 @@ const AEPSAccessConfirm = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -30,8 +30,8 @@ const AEPSAccessConfirm = () => {
             AEPS Access Confirmed
           </div>
           <div className="mt-[10px] text-[16px]  text-[#000000] font-['Gilroy-Regular']">
-            Connect Your RD Service Device To Proceed With Aadhaar Authentication.
-            Ensure Your Fingers Are Clean And Dry
+            Connect Your RD Service Device To Proceed With Aadhaar
+            Authentication. Ensure Your Fingers Are Clean And Dry
           </div>
         </div>
       </div>
@@ -78,7 +78,13 @@ const AEPSAccessConfirm = () => {
               aria-hidden="true"
             >
               {/* Inner circle (do not change) */}
-              <circle cx="46" cy="46" r="16.5" stroke="#FFFFFF" strokeWidth="3" />
+              <circle
+                cx="46"
+                cy="46"
+                r="16.5"
+                stroke="#FFFFFF"
+                strokeWidth="3"
+              />
 
               {/* Check mark */}
               <path
@@ -90,7 +96,6 @@ const AEPSAccessConfirm = () => {
               />
             </svg>
           </div>
-
 
           {/* Status pill */}
           <div className="mt-6 inline-flex items-center gap-2 bg-[#E5FFF4] rounded-full px-4 py-2">
@@ -104,8 +109,8 @@ const AEPSAccessConfirm = () => {
             Your Are All Set !
           </div>
           <div className="mt-2 text-[12px] sm:text-[13px] text-gray-500 font-['Gilroy-Regular'] leading-relaxed">
-            Your AEPS Agent Account Has Been Successfully Verified. Access Is Now
-            Enabled For Secure Aadhaar-Based Transactions
+            Your AEPS Agent Account Has Been Successfully Verified. Access Is
+            Now Enabled For Secure Aadhaar-Based Transactions
           </div>
 
           <button

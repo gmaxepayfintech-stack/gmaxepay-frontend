@@ -15,22 +15,22 @@ const EyeIcon = "/img/Eye.svg";
 const Selectservice = () => {
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aeps?.bankList);
-  
+
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
   const [selectedBank, setSelectedBank] = useState(null); // Store full bank object
   const [selectedAmount, setSelectedAmount] = useState("1000");
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [mobileNumber, setMobileNumber] = useState("");
-  
+
   // Bank search states
   const [bankSearchQuery, setBankSearchQuery] = useState("");
   const [showBankDropdown, setShowBankDropdown] = useState(false);
   const bankDropdownRef = useRef(null);
-  
+
   // Recent banks state - tracks recently selected banks
   const [recentBanksList, setRecentBanksList] = useState([]);
-  
+
   // RD Service states
   const [rdBaseUrl, setRdBaseUrl] = useState("");
   const [pidData, setPidData] = useState("");
@@ -54,7 +54,7 @@ const Selectservice = () => {
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
-  
+
   const comingSoon = biometricMethod === "iris";
 
   const tabs = [
@@ -65,9 +65,7 @@ const Selectservice = () => {
 
   // Validation schema (pidData validation removed as it will be captured on withdrawal)
   const validationSchema = Yup.object({
-    selectedBank: Yup.object()
-      .nullable()
-      .required("Please select a bank"),
+    selectedBank: Yup.object().nullable().required("Please select a bank"),
     selectedAmount: Yup.string()
       .required("Amount is required")
       .test("is-valid-amount", "Amount must be greater than 0", (value) => {
@@ -101,11 +99,11 @@ const Selectservice = () => {
   // Get banks from API response
   // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
   const banks = bankList?.bankList || [];
-  
+
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
-        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase())
+        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
       )
     : banks;
 
@@ -116,7 +114,7 @@ const Selectservice = () => {
     setShowBankDropdown(false);
     formik.setFieldValue("selectedBank", bank);
     formik.setFieldTouched("selectedBank", true);
-    
+
     // Update recent banks list - add selected bank to the front
     setRecentBanksList((prev) => {
       // Remove the bank if it already exists in the list
@@ -130,7 +128,9 @@ const Selectservice = () => {
   const recentBanks = (() => {
     if (selectedBank) {
       // If a bank is selected, show it first
-      const otherRecent = recentBanksList.filter((b) => b.id !== selectedBank.id);
+      const otherRecent = recentBanksList.filter(
+        (b) => b.id !== selectedBank.id,
+      );
       const result = [selectedBank, ...otherRecent].slice(0, 4);
       return result;
     } else if (recentBanksList.length > 0) {
@@ -239,7 +239,7 @@ const Selectservice = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -247,7 +247,9 @@ const Selectservice = () => {
       // Check device name/model info (mi attribute)
       const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
       // Check manufacturer code (mc attribute) if available
-      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      const manufacturerCode = (
+        deviceInfo.getAttribute("mc") || ""
+      ).toLowerCase();
       // Check device provider ID (dpId attribute) if available
       const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
 
@@ -293,13 +295,15 @@ const Selectservice = () => {
     setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+    setDeviceMessage(
+      "Capturing fingerprint... Place your thumb on the scanner",
+    );
 
     // Start smooth progress animation that fills to 100% during capture
     const totalDuration = 10000; // 10 seconds (matches timeout)
     const updateInterval = 100; // Update every 100ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
-    
+    const incrementPerUpdate = 100 / (totalDuration / updateInterval); // ~1% per update
+
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
       currentProgress += incrementPerUpdate;
@@ -314,15 +318,20 @@ const Selectservice = () => {
     let DString = "";
     if (deviceInfoXml) {
       try {
-        const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+        const xmlDoc = new DOMParser().parseFromString(
+          deviceInfoXml,
+          "text/xml",
+        );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
           // Get the DeviceInfo element as string
-          if (typeof XMLSerializer !== 'undefined') {
+          if (typeof XMLSerializer !== "undefined") {
             DString = new XMLSerializer().serializeToString(deviceInfo);
           } else {
             // Fallback: extract DeviceInfo using regex
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -332,7 +341,9 @@ const Selectservice = () => {
         console.error("Error extracting DeviceInfo:", err);
         // Fallback: try to extract DeviceInfo using regex
         try {
-          const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+          const deviceInfoMatch = deviceInfoXml.match(
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+          );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
           }
@@ -341,18 +352,21 @@ const Selectservice = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build proper XML structure
-    const pidOptions = '<?xml version="1.0"?> \
+    const pidOptions =
+      '<?xml version="1.0"?> \
       <PidOptions ver="1.0"> \
         <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
               pidVer="2.0" timeout="10000" posh="UNKNOWN" \
               wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
               env="P" /> \
-        ' + DString + ' \
+        ' +
+      DString +
+      ' \
         <CustOpts> \
           <Param name="mantrakey" value="" /> \
         </CustOpts> \
@@ -419,10 +433,10 @@ const Selectservice = () => {
       options: {
         page: 1,
         paginate: 100,
-        sort: { id: 1 }
-      }
+        sort: { id: 1 },
+      },
     };
-    
+
     dispatch(aepsBankList(payload))
       .then((response) => {
         console.log("Bank list response:", response);
@@ -445,12 +459,14 @@ const Selectservice = () => {
         "Device Name:",
         "Device detected and READY",
         "Device Connected",
-        "Device Not Connected"
+        "Device Not Connected",
       ];
-      
+
       // Check if this is a persistent message
-      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
-      
+      const isPersistent = persistentMessages.some((msg) =>
+        deviceMessage.includes(msg),
+      );
+
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
         const timer = setTimeout(() => {
@@ -464,7 +480,10 @@ const Selectservice = () => {
   // Close bank dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (bankDropdownRef.current && !bankDropdownRef.current.contains(event.target)) {
+      if (
+        bankDropdownRef.current &&
+        !bankDropdownRef.current.contains(event.target)
+      ) {
         setShowBankDropdown(false);
       }
     };
@@ -492,12 +511,16 @@ const Selectservice = () => {
     formik.setFieldValue("mobileNumber", mobileNumber);
   }, [mobileNumber]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
   // Handle withdrawal - validates, captures fingerprint, gets location/IP, then calls API
   const handleWithdrawal = async (values) => {
     console.log("🚀 handleWithdrawal called with values:", values);
-    const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
-    
+    const {
+      selectedBank: bank,
+      selectedAmount: amount,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
+
     // Validate required fields
     if (!bank || !bank.bankIIN) {
       console.error("❌ Bank or bankIIN is missing");
@@ -509,7 +532,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!amount || parseFloat(amount.replaceAll(",", "")) <= 0) {
       console.error("❌ Invalid amount");
       setModal({
@@ -520,7 +543,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!aadhar || aadhar.length !== 12) {
       console.error("❌ Invalid Aadhaar number");
       setModal({
@@ -531,7 +554,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!mobile || mobile.length !== 10) {
       console.error("❌ Invalid mobile number");
       setModal({
@@ -573,7 +596,7 @@ const Selectservice = () => {
       // Start progress animation
       const totalDuration = 10000; // 10 seconds
       const updateInterval = 100; // Update every 100ms
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -586,17 +609,20 @@ const Selectservice = () => {
 
       // Extract DString from deviceInfoXml (DeviceInfo XML content)
       const DString = deviceInfoXml || "";
-      
+
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
-      
-      const pidOptions = '<?xml version="1.0"?> \
+
+      const pidOptions =
+        '<?xml version="1.0"?> \
                   <PidOptions ver="1.0"> \
                     <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
                           pidVer="2.0" timeout="10000" posh="UNKNOWN" \
                           wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
                           env="P" /> \
-                    ' + DString + ' \
+                    ' +
+        DString +
+        ' \
                     <CustOpts> \
                       <Param name="mantrakey" value="" /> \
                     </CustOpts> \
@@ -621,7 +647,7 @@ const Selectservice = () => {
         setDeviceMessage("Fingerprint captured successfully");
         const capturedPidData = captureText;
         setIsScanning(false);
-        
+
         // Get location and IP using getLocationAndIP utility
         setDeviceMessage("Getting location and IP address...");
         let locationAndIP;
@@ -629,8 +655,14 @@ const Selectservice = () => {
           locationAndIP = await getLocationAndIP();
           console.log("📍 Location and IP retrieved:", locationAndIP);
         } catch (locationError) {
-          console.warn("⚠️ Failed to get location/IP, using empty values:", locationError);
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          console.warn(
+            "⚠️ Failed to get location/IP, using empty values:",
+            locationError,
+          );
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -654,12 +686,13 @@ const Selectservice = () => {
           longitude: longitude,
           ipAddress: ipAddress,
           aadharNumber: aadhar,
-          consumerNumber: mobile
+          consumerNumber: mobile,
         };
 
         console.log("📤 Sending withdrawal request with payload:", {
           ...payload,
-          biometricData: payload.biometricData?.substring(0, 100) + "... (truncated)"
+          biometricData:
+            payload.biometricData?.substring(0, 100) + "... (truncated)",
         });
 
         // Call withdrawal API
@@ -667,11 +700,14 @@ const Selectservice = () => {
         try {
           const response = await dispatch(aepsWithdrawl(payload));
           console.log("📥 Withdrawal API response:", response);
-          
+
           if (response?.status === "SUCCESS") {
             console.log("✅ Withdrawal successful!");
-            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
-            
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.withdrawal,
+            );
+
             // Show success modal with transaction details
             // The action returns { withdrawal, status, message } where withdrawal is the data object
             setModal({
@@ -681,7 +717,7 @@ const Selectservice = () => {
               type: "success",
               transactionData: response?.withdrawal || response?.data || null,
             });
-            
+
             // Reset form
             formik.resetForm();
             setSelectedBank(null);
@@ -694,8 +730,11 @@ const Selectservice = () => {
             setDeviceMessage("Withdrawal completed successfully");
           } else {
             console.log("❌ Withdrawal failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.withdrawal);
-            
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.withdrawal,
+            );
+
             // Show failure modal with error details
             setModal({
               isOpen: true,
@@ -707,7 +746,10 @@ const Selectservice = () => {
             setDeviceMessage("Withdrawal failed");
           }
         } catch (apiError) {
-          console.error("❌ Withdrawal API error caught in component:", apiError);
+          console.error(
+            "❌ Withdrawal API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -715,7 +757,7 @@ const Selectservice = () => {
             status: apiError?.response?.status,
             statusText: apiError?.response?.statusText,
           });
-          
+
           // Check if error response was returned from action
           if (apiError?.status === "FAILURE" || apiError?.message) {
             // Show modal with error details
@@ -732,7 +774,10 @@ const Selectservice = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process withdrawal. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process withdrawal. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -770,7 +815,11 @@ const Selectservice = () => {
 
   // Handle Enquiry (Check Balance) - txnType: "CB"
   const handleEnquiry = async (values) => {
-    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    const {
+      selectedBank: bank,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
 
     // Validate required fields
     if (!bank || !bank.bankIIN) {
@@ -782,7 +831,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!aadhar || aadhar.length !== 12) {
       setModal({
         isOpen: true,
@@ -792,7 +841,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!mobile || mobile.length !== 10) {
       setModal({
         isOpen: true,
@@ -832,7 +881,7 @@ const Selectservice = () => {
 
       const totalDuration = 10000;
       const updateInterval = 100;
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -845,17 +894,20 @@ const Selectservice = () => {
 
       // Extract DString from deviceInfoXml (DeviceInfo XML content)
       const DString = deviceInfoXml || "";
-      
+
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
-      
-      const pidOptions = '<?xml version="1.0"?> \
+
+      const pidOptions =
+        '<?xml version="1.0"?> \
                   <PidOptions ver="1.0"> \
                     <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
                           pidVer="2.0" timeout="10000" posh="UNKNOWN" \
                           wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
                           env="P" /> \
-                    ' + DString + ' \
+                    ' +
+        DString +
+        ' \
                     <CustOpts> \
                       <Param name="mantrakey" value="" /> \
                     </CustOpts> \
@@ -879,14 +931,17 @@ const Selectservice = () => {
         setDeviceMessage("Fingerprint captured successfully");
         const capturedPidData = captureText;
         setIsScanning(false);
-        
+
         // Get location and IP
         setDeviceMessage("Getting location and IP address...");
         let locationAndIP;
         try {
           locationAndIP = await getLocationAndIP();
         } catch (locationError) {
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -909,17 +964,20 @@ const Selectservice = () => {
           longitude: longitude,
           ipAddress: ipAddress,
           aadharNumber: aadhar,
-          consumerNumber: mobile
+          consumerNumber: mobile,
         };
 
         // Call API
         setDeviceMessage("Processing balance enquiry...");
         try {
           const response = await dispatch(aepsWithdrawl(payload));
-          
+
           if (response?.status === "SUCCESS") {
             console.log("✅ Balance enquiry successful!");
-            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.withdrawal,
+            );
             setModal({
               isOpen: true,
               title: "Balance Enquiry Successful",
@@ -930,8 +988,11 @@ const Selectservice = () => {
             setDeviceMessage("Balance enquiry completed successfully");
           } else {
             console.log("❌ Balance enquiry failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.withdrawal);
-            
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.withdrawal,
+            );
+
             // Show failure modal with error details
             setModal({
               isOpen: true,
@@ -943,7 +1004,10 @@ const Selectservice = () => {
             setDeviceMessage("Balance enquiry failed");
           }
         } catch (apiError) {
-          console.error("❌ Balance enquiry API error caught in component:", apiError);
+          console.error(
+            "❌ Balance enquiry API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -951,7 +1015,7 @@ const Selectservice = () => {
             status: apiError?.response?.status,
             statusText: apiError?.response?.statusText,
           });
-          
+
           // Check if error response was returned from action
           if (apiError?.status === "FAILURE" || apiError?.message) {
             // Show modal with error details
@@ -968,7 +1032,10 @@ const Selectservice = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process balance enquiry. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process balance enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -1004,7 +1071,11 @@ const Selectservice = () => {
 
   // Handle Statement (Check Statement) - txnType: "CS"
   const handleStatement = async (values) => {
-    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    const {
+      selectedBank: bank,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
 
     // Validate required fields
     if (!bank || !bank.bankIIN) {
@@ -1016,7 +1087,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!aadhar || aadhar.length !== 12) {
       setModal({
         isOpen: true,
@@ -1026,7 +1097,7 @@ const Selectservice = () => {
       });
       return;
     }
-    
+
     if (!mobile || mobile.length !== 10) {
       setModal({
         isOpen: true,
@@ -1066,7 +1137,7 @@ const Selectservice = () => {
 
       const totalDuration = 10000;
       const updateInterval = 100;
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -1079,17 +1150,20 @@ const Selectservice = () => {
 
       // Extract DString from deviceInfoXml (DeviceInfo XML content)
       const DString = deviceInfoXml || "";
-      
+
       // Detect device type
       const deviceType = detectDeviceType(deviceInfoXml);
-      
-      const pidOptions = '<?xml version="1.0"?> \
+
+      const pidOptions =
+        '<?xml version="1.0"?> \
                   <PidOptions ver="1.0"> \
                     <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
                           pidVer="2.0" timeout="10000" posh="UNKNOWN" \
                           wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
                           env="P" /> \
-                    ' + DString + ' \
+                    ' +
+        DString +
+        ' \
                     <CustOpts> \
                       <Param name="mantrakey" value="" /> \
                     </CustOpts> \
@@ -1113,14 +1187,17 @@ const Selectservice = () => {
         setDeviceMessage("Fingerprint captured successfully");
         const capturedPidData = captureText;
         setIsScanning(false);
-        
+
         // Get location and IP
         setDeviceMessage("Getting location and IP address...");
         let locationAndIP;
         try {
           locationAndIP = await getLocationAndIP();
         } catch (locationError) {
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -1143,17 +1220,20 @@ const Selectservice = () => {
           longitude: longitude,
           ipAddress: ipAddress,
           aadharNumber: aadhar,
-          consumerNumber: mobile
+          consumerNumber: mobile,
         };
 
         // Call API
         setDeviceMessage("Processing statement enquiry...");
         try {
           const response = await dispatch(aepsWithdrawl(payload));
-          
+
           if (response?.status === "SUCCESS") {
             console.log("✅ Statement enquiry successful!");
-            console.log("📊 Transaction data:", response?.data || response?.withdrawal);
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.withdrawal,
+            );
             setModal({
               isOpen: true,
               title: "Statement Enquiry Successful",
@@ -1164,8 +1244,11 @@ const Selectservice = () => {
             setDeviceMessage("Statement enquiry completed successfully");
           } else {
             console.log("❌ Statement enquiry failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.withdrawal);
-            
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.withdrawal,
+            );
+
             // Show failure modal with error details
             setModal({
               isOpen: true,
@@ -1177,7 +1260,10 @@ const Selectservice = () => {
             setDeviceMessage("Statement enquiry failed");
           }
         } catch (apiError) {
-          console.error("❌ Statement enquiry API error caught in component:", apiError);
+          console.error(
+            "❌ Statement enquiry API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -1185,7 +1271,7 @@ const Selectservice = () => {
             status: apiError?.response?.status,
             statusText: apiError?.response?.statusText,
           });
-          
+
           // Check if error response was returned from action
           if (apiError?.status === "FAILURE" || apiError?.message) {
             // Show modal with error details
@@ -1202,7 +1288,10 @@ const Selectservice = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process statement enquiry. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process statement enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -1237,7 +1326,14 @@ const Selectservice = () => {
   };
 
   // Modal component
-  const Modal = ({ isOpen, onClose, title, message, type, transactionData }) => {
+  const Modal = ({
+    isOpen,
+    onClose,
+    title,
+    message,
+    type,
+    transactionData,
+  }) => {
     if (!isOpen) return null;
 
     const getColors = () => {
@@ -1286,136 +1382,234 @@ const Selectservice = () => {
       switch (type) {
         case "success":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
         case "error":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
         case "warning":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           );
         default:
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
       }
     };
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
+        <div
+          className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}
+        >
           <div className="flex items-start gap-4">
             <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
               {getIcon()}
             </div>
             <div className="flex-1">
-              <h3 className={`${colors.title} text-lg font-['Gilroy-SemiBold'] mb-2`}>
+              <h3
+                className={`${colors.title} text-lg font-['Gilroy-SemiBold'] mb-2`}
+              >
                 {title}
               </h3>
-              <p className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}>
+              <p
+                className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}
+              >
                 {message}
               </p>
-              
+
               {/* Transaction/Response Details */}
               {transactionData && (
-                <div className={`rounded-lg p-4 mb-4 border ${
-                  type === "success" 
-                    ? "bg-white border-gray-200" 
-                    : "bg-red-50 border-red-200"
-                }`}>
+                <div
+                  className={`rounded-lg p-4 mb-4 border ${
+                    type === "success"
+                      ? "bg-white border-gray-200"
+                      : "bg-red-50 border-red-200"
+                  }`}
+                >
                   <div className="space-y-3">
                     {/* Success Transaction Details */}
                     {type === "success" && (
                       <>
                         {transactionData.transactionId && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionId}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Transaction ID:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.transactionId}
+                            </span>
                           </div>
                         )}
                         {transactionData.referenceId && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Reference ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.referenceId}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Reference ID:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.referenceId}
+                            </span>
                           </div>
                         )}
                         {transactionData.amount !== undefined && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Amount:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.amount}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Amount:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              ₹ {transactionData.amount}
+                            </span>
                           </div>
                         )}
                         {transactionData.remainingBalance !== undefined && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Remaining Balance:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.remainingBalance}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Remaining Balance:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">
+                              ₹ {transactionData.remainingBalance}
+                            </span>
                           </div>
                         )}
                         {transactionData.bankName && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.bankName}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Bank:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.bankName}
+                            </span>
                           </div>
                         )}
                         {transactionData.transactionDate && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Date:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionDate}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Date:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.transactionDate}
+                            </span>
                           </div>
                         )}
                         {transactionData.transactionTime && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Time:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.transactionTime}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Time:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.transactionTime}
+                            </span>
                           </div>
                         )}
                       </>
                     )}
-                    
+
                     {/* Error/Failure Details */}
                     {type === "error" && (
                       <>
                         {transactionData.paymentStatus && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Payment Status:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.paymentStatus}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Payment Status:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.paymentStatus}
+                            </span>
                           </div>
                         )}
                         {transactionData.transactionStatus && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Transaction Status:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.transactionStatus}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Transaction Status:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.transactionStatus}
+                            </span>
                           </div>
                         )}
                         {transactionData.merchantTransactionId && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Merchant Transaction ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.merchantTransactionId}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Merchant Transaction ID:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.merchantTransactionId}
+                            </span>
                           </div>
                         )}
                         {transactionData.gatewayResponse && (
                           <div className="mt-3 pt-3 border-t border-red-200">
-                            <div className="text-xs font-['Gilroy-Medium'] text-red-600 mb-2">Gateway Response:</div>
+                            <div className="text-xs font-['Gilroy-Medium'] text-red-600 mb-2">
+                              Gateway Response:
+                            </div>
                             {transactionData.gatewayResponse.status && (
                               <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Status:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.status}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                                  Status:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                                  {transactionData.gatewayResponse.status}
+                                </span>
                               </div>
                             )}
                             {transactionData.gatewayResponse.message && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Message:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.message}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                                  Message:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                                  {transactionData.gatewayResponse.message}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -1425,7 +1619,7 @@ const Selectservice = () => {
                   </div>
                 </div>
               )}
-              
+
               <button
                 onClick={onClose}
                 className={`${colors.button} text-white px-6 py-2 rounded-lg text-sm font-['Gilroy-Medium'] transition`}
@@ -1438,8 +1632,18 @@ const Selectservice = () => {
               className={`${colors.icon} hover:opacity-70 transition p-1`}
               aria-label="Close"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -1453,7 +1657,9 @@ const Selectservice = () => {
       {/* Modal */}
       <Modal
         isOpen={modal.isOpen}
-        onClose={() => setModal({ ...modal, isOpen: false, transactionData: null })}
+        onClose={() =>
+          setModal({ ...modal, isOpen: false, transactionData: null })
+        }
         title={modal.title}
         message={modal.message}
         type={modal.type}
@@ -1545,9 +1751,13 @@ const Selectservice = () => {
 
           {/* Connected Device Indicator */}
           <div className="mb-6">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
-              deviceConnected ? "bg-[#039155] text-white" : "bg-[#DC2626] text-white"
-            }`}>
+            <div
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
+                deviceConnected
+                  ? "bg-[#039155] text-white"
+                  : "bg-[#DC2626] text-white"
+              }`}
+            >
               {deviceMessage ? (
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] font-['Gilroy-Medium']">
@@ -1566,7 +1776,9 @@ const Selectservice = () => {
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full bg-white`} />
                   <span className="text-[12px] font-['Gilroy-Medium']">
-                    {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                    {deviceConnected
+                      ? "Device Connected"
+                      : "Device Not Connected"}
                   </span>
                   <button
                     type="button"
@@ -1582,13 +1794,19 @@ const Selectservice = () => {
           </div>
 
           {/* Scanner Interface - Conditional based on biometric method */}
-          <div className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${
-            comingSoon ? "bg-gray-50" : "bg-white"
-          }`}>
+          <div
+            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
+          >
             {/* Background content - blurred when comingSoon */}
-            <div className={`flex flex-col items-center gap-4 ${
-              comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""
-            }`}>
+            <div
+              className={`flex flex-col items-center gap-4 ${
+                comingSoon
+                  ? "opacity-80 pointer-events-none select-none blur-sm"
+                  : ""
+              }`}
+            >
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
                 {/* Outer circle background */}
                 <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
@@ -1624,12 +1842,12 @@ const Selectservice = () => {
                   aria-label={deviceConnected ? "Device Info" : "Ready"}
                 >
                   {isDeviceChecking
-                    ? "Checking..." 
+                    ? "Checking..."
                     : isGettingDeviceInfo
-                    ? "Fetching..."
-                    : deviceConnected
-                    ? "Device Info"
-                    : "Ready"}
+                      ? "Fetching..."
+                      : deviceConnected
+                        ? "Device Info"
+                        : "Ready"}
                 </button>
               </div>
 
@@ -1697,7 +1915,8 @@ const Selectservice = () => {
                     Iris Scan Coming Soon
                   </div>
                   <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                    This authentication mode will be available in a future update.
+                    This authentication mode will be available in a future
+                    update.
                   </div>
                 </div>
               </div>
@@ -1711,15 +1930,15 @@ const Selectservice = () => {
             {activeTab === "cashWithdrawal"
               ? "Cash Withdrawal"
               : activeTab === "enquiry"
-              ? "Enquiry"
-              : "Enquiry"}
+                ? "Enquiry"
+                : "Enquiry"}
           </div>
           <div className="text-[14px] text-[#1B1717] font-['Gilroy-Regular'] mb-6">
             {activeTab === "cashWithdrawal"
               ? "Perform Cash Withdrawal Securely Using Aadhaar Authentication And Bank Selection"
               : activeTab === "enquiry"
-              ? "Check Customer Bank Account Balance Securely Using Aadhaar Authentication"
-              : "Check Customer Bank Account Balance Securely Using Aadhaar Authentication"}
+                ? "Check Customer Bank Account Balance Securely Using Aadhaar Authentication"
+                : "Check Customer Bank Account Balance Securely Using Aadhaar Authentication"}
           </div>
 
           {/* Recent Used Bank */}
@@ -1751,17 +1970,21 @@ const Selectservice = () => {
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = "none";
-                              const fallback = e.target.parentElement.querySelector(".bank-fallback");
+                              const fallback =
+                                e.target.parentElement.querySelector(
+                                  ".bank-fallback",
+                                );
                               if (fallback) fallback.style.display = "flex";
                             }}
                           />
                         ) : null}
-                        <div 
-                          className="bank-fallback w-full h-full bg-gray-100 rounded-lg flex items-center justify-center" 
+                        <div
+                          className="bank-fallback w-full h-full bg-gray-100 rounded-lg flex items-center justify-center"
                           style={{ display: bank.bankLogo ? "none" : "flex" }}
                         >
                           <span className="text-[8px] font-['Gilroy-Medium'] text-gray-600 text-center px-1">
-                            {bank.bankName?.substring(0, 3).toUpperCase() || "BANK"}
+                            {bank.bankName?.substring(0, 3).toUpperCase() ||
+                              "BANK"}
                           </span>
                         </div>
                       </div>
@@ -1790,7 +2013,9 @@ const Selectservice = () => {
                   }
                 }}
                 onFocus={() => setShowBankDropdown(true)}
-                placeholder={selectedBank ? selectedBank.bankName : "Search bank..."}
+                placeholder={
+                  selectedBank ? selectedBank.bankName : "Search bank..."
+                }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -1811,7 +2036,7 @@ const Selectservice = () => {
                   />
                 </svg>
               </div>
-              
+
               {/* Bank Dropdown List */}
               {showBankDropdown && filteredBanks.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
@@ -1834,17 +2059,21 @@ const Selectservice = () => {
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = "none";
-                              const fallback = e.target.parentElement.querySelector(".dropdown-bank-fallback");
+                              const fallback =
+                                e.target.parentElement.querySelector(
+                                  ".dropdown-bank-fallback",
+                                );
                               if (fallback) fallback.style.display = "flex";
                             }}
                           />
                         ) : null}
-                        <div 
-                          className="dropdown-bank-fallback w-full h-full bg-gray-100 rounded flex items-center justify-center" 
+                        <div
+                          className="dropdown-bank-fallback w-full h-full bg-gray-100 rounded flex items-center justify-center"
                           style={{ display: bank.bankLogo ? "none" : "flex" }}
                         >
                           <span className="text-[10px] font-['Gilroy-Medium'] text-gray-600">
-                            {bank.bankName?.substring(0, 2).toUpperCase() || "BK"}
+                            {bank.bankName?.substring(0, 2).toUpperCase() ||
+                              "BK"}
                           </span>
                         </div>
                       </div>
@@ -1855,15 +2084,17 @@ const Selectservice = () => {
                   ))}
                 </div>
               )}
-              
+
               {/* No results message */}
-              {showBankDropdown && bankSearchQuery && filteredBanks.length === 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
-                  <p className="text-[14px] font-['Gilroy-Regular'] text-gray-500 text-center">
-                    No banks found
-                  </p>
-                </div>
-              )}
+              {showBankDropdown &&
+                bankSearchQuery &&
+                filteredBanks.length === 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                    <p className="text-[14px] font-['Gilroy-Regular'] text-gray-500 text-center">
+                      No banks found
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -1890,7 +2121,9 @@ const Selectservice = () => {
                 }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
-                <p className="mt-1 text-[12px] text-red-500">{formik.errors.aadhaarNumber}</p>
+                <p className="mt-1 text-[12px] text-red-500">
+                  {formik.errors.aadhaarNumber}
+                </p>
               )}
             </div>
             <div>
@@ -1914,7 +2147,9 @@ const Selectservice = () => {
                 }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
-                <p className="mt-1 text-[12px] text-red-500">{formik.errors.mobileNumber}</p>
+                <p className="mt-1 text-[12px] text-red-500">
+                  {formik.errors.mobileNumber}
+                </p>
               )}
             </div>
           </div>
@@ -1931,10 +2166,14 @@ const Selectservice = () => {
                 </span>
                 <input
                   type="text"
-                  value={selectedAmount ? selectedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
+                  value={
+                    selectedAmount
+                      ? selectedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      : ""
+                  }
                   onChange={(e) => {
                     // Extract only numbers from the input
-                    const numericValue = e.target.value.replace(/[^\d]/g, '');
+                    const numericValue = e.target.value.replace(/[^\d]/g, "");
                     setSelectedAmount(numericValue);
                   }}
                   placeholder="Enter amount"
@@ -2011,11 +2250,15 @@ const Selectservice = () => {
                 formik.setFieldTouched("selectedAmount", true);
                 formik.setFieldTouched("aadhaarNumber", true);
                 formik.setFieldTouched("mobileNumber", true);
-                
+
                 // Check if form is valid (except pidData which will be captured if needed)
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.selectedAmount || errors.aadhaarNumber || errors.mobileNumber;
-                
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.selectedAmount ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
+
                 if (hasErrors) {
                   // Show validation errors
                   formik.setFieldTouched("selectedBank", true);
@@ -2048,10 +2291,13 @@ const Selectservice = () => {
                 formik.setFieldTouched("selectedBank", true);
                 formik.setFieldTouched("aadhaarNumber", true);
                 formik.setFieldTouched("mobileNumber", true);
-                
+
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
-                
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
+
                 if (hasErrors) {
                   formik.setFieldTouched("selectedBank", true);
                   formik.setFieldTouched("aadhaarNumber", true);
@@ -2080,10 +2326,13 @@ const Selectservice = () => {
                 formik.setFieldTouched("selectedBank", true);
                 formik.setFieldTouched("aadhaarNumber", true);
                 formik.setFieldTouched("mobileNumber", true);
-                
+
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
-                
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
+
                 if (hasErrors) {
                   formik.setFieldTouched("selectedBank", true);
                   formik.setFieldTouched("aadhaarNumber", true);
@@ -2113,12 +2362,14 @@ const Selectservice = () => {
             className="w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {formik.isSubmitting || isScanning
-              ? isScanning ? "Capturing..." : "Processing..."
+              ? isScanning
+                ? "Capturing..."
+                : "Processing..."
               : activeTab === "cashWithdrawal"
-              ? "Withdrawal"
-              : activeTab === "enquiry"
-              ? "Check Balance"
-              : "Check Statement"}
+                ? "Withdrawal"
+                : activeTab === "enquiry"
+                  ? "Check Balance"
+                  : "Check Statement"}
           </button>
         </div>
       </div>

@@ -1,11 +1,11 @@
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 
 const AEPSAccessConfirmTwo = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -14,7 +14,7 @@ const AEPSAccessConfirmTwo = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -22,8 +22,8 @@ const AEPSAccessConfirmTwo = () => {
             AEPS Access Confirmed
           </div>
           <div className="mt-[10px] text-[16px]  text-[#000000] font-['Gilroy-Regular']">
-            Connect Your RD Service Device To Proceed With Aadhaar Authentication.
-            Ensure Your Fingers Are Clean And Dry
+            Connect Your RD Service Device To Proceed With Aadhaar
+            Authentication. Ensure Your Fingers Are Clean And Dry
           </div>
         </div>
       </div>
@@ -70,7 +70,13 @@ const AEPSAccessConfirmTwo = () => {
               aria-hidden="true"
             >
               {/* Inner circle (do not change) */}
-              <circle cx="46" cy="46" r="16.5" stroke="#FFFFFF" strokeWidth="3" />
+              <circle
+                cx="46"
+                cy="46"
+                r="16.5"
+                stroke="#FFFFFF"
+                strokeWidth="3"
+              />
 
               {/* Check mark */}
               <path
@@ -82,7 +88,6 @@ const AEPSAccessConfirmTwo = () => {
               />
             </svg>
           </div>
-
 
           {/* Status pill */}
           <div className="mt-6 inline-flex items-center gap-2 bg-[#E5FFF4] rounded-full px-4 py-2">
@@ -96,13 +101,15 @@ const AEPSAccessConfirmTwo = () => {
             Your Are All Set !
           </div>
           <div className="mt-2 text-[12px] sm:text-[13px] text-gray-500 font-['Gilroy-Regular'] leading-relaxed">
-            Your AEPS Agent Account Has Been Successfully Verified. Access Is Now
-            Enabled For Secure Aadhaar-Based Transactions
+            Your AEPS Agent Account Has Been Successfully Verified. Access Is
+            Now Enabled For Secure Aadhaar-Based Transactions
           </div>
 
           <button
             type="button"
-            onClick={() => navigate("/retailerDashboard/services/aeps2/select-service")}
+            onClick={() =>
+              navigate("/retailerDashboard/services/aeps2/select-service")
+            }
             className="mt-8 flex items-center justify-between bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] mx-auto"
           >
             <span>Perform Your Transaction</span>

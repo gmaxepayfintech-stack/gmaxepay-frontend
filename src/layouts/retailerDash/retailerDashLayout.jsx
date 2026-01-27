@@ -42,50 +42,7 @@ const RetailerDashLayout = ({ children }) => {
       path: "/retailerDashboard/home",
       dropdown: false,
     },
-    // {
-    //   name: "Members",
-    //   icon: MaskGroup1,
-    //   dropdown: true,
-    //   path: "/retailerDashboard/members",
-    //   children: [
-    //     { name: "Users", path: "/retailerDashboard/members/user" },
-    //     { name: "Agents", path: "/retailerDashboard/members/list" },
-    //     {
-    //       name: "Role Management",
-    //       path: "/retailerDashboard/members/rolemanagement",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "API Operator",
-    //   icon: MaskGroup2,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Operator List",
-    //       path: "/retailerDashboard/api-operator/list",
-    //     },
-    //     {
-    //       name: "API Settings",
-    //       path: "/retailerDashboard/api-operator/settings",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Resources",
-    //   icon: MaskGroup3,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Schema Master",
-    //       path: "/retailerDashboard/resources/schemamaster",
-    //     },
-    //     {
-    //       name: "Role Upgrade",
-    //       path: "/retailerDashboard/resources/roleupgraderequest",
-    //     },
-    //   ],
-    // },
+
     {
       name: "Services",
       icon: MaskGroup5,
@@ -364,7 +321,7 @@ const RetailerDashLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 bg-[#FAFAFA] w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-4 mx-11 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
+        <header className="sticky top-4 mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
           <div className="flex items-center gap-3">
             <button
               className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
@@ -374,21 +331,21 @@ const RetailerDashLayout = ({ children }) => {
               <Menu className="w-5 h-5" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-[#1B1717]">
+              <h1 className="text-2xl font-[gilroy-semibold] text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-base font-[gilroy-medium] text-[#1B1717]">
                 {name || email || "Admin"}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#1B1717]/40 transition hover:border-[#039155]/70">
+            <button className="relative flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/gmaxepay.png";
@@ -397,8 +354,8 @@ const RetailerDashLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2">
-              <span className="hidden text-sm font-medium sm:inline">
-                {name || email || "Retailer Dashboard"}
+              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
+                {name || email || "Admin Panel"}
               </span>
               <img
                 src={defaultProfileImage}
@@ -413,7 +370,7 @@ const RetailerDashLayout = ({ children }) => {
           </div>
 
           {/* Rounded bottom border line */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/70 opacity-80 rounded-full shadow-sm"></div>
+          {/* <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div> */}
         </header>
 
         {/* Page Content */}

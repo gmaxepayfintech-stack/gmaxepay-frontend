@@ -219,7 +219,7 @@ const SuperAdmin = () => {
 
   // Skeleton loader component
   const SkeletonLoader = () => (
-    <div className="p-4 sm:p-6 min-h-screen text-[#1B1717] space-y-6">
+    <div className="py-4 px-1 min-h-screen text-[#1B1717] space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left: Chart Skeleton */}
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
@@ -308,7 +308,7 @@ const SuperAdmin = () => {
   }
 
   return (
-    <div className="py-4  min-h-screen text-[#1B1717] space-y-6">
+    <div className="py-4 px-1  min-h-screen text-[#1B1717] space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           {/* Header Section */}
@@ -510,7 +510,7 @@ const SuperAdmin = () => {
                       : displayBalance}
                   </p>
                   <button
-                    className="mt-3 text-xs sm:text-sm w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="mt-3 text-xs sm:text-sm w-full bg-[#039155] hover:bg-green-700 text-white px-3 py-2 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isAslWallet) {

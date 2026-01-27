@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Mobile from "../../../../public/img/Mobile.svg";
@@ -9,8 +8,13 @@ import IdentityVerificationTwo from "./identityVerificationTwo";
 import BiometricVerificationTwo from "./BiometricVerificationTwo";
 import FAVerificationTwo from "./FAVerificationTwo";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
-import { aepsTwoStatusCheck, aepsTwoOtp, aepsOnboarding } from "../../../redux/action/aepsTwoAction";
+import {
+  aepsTwoStatusCheck,
+  aepsTwoOtp,
+  aepsOnboarding,
+} from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 const AepsAcceptanceTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -35,28 +39,33 @@ const AepsAcceptanceTwo = () => {
       if (onboardResp?.status === "SUCCESS") {
         // Check status to determine next step
         const statusResponse = await dispatch(aepsTwoStatusCheck());
-        console.log("aepsTwoStatusCheck response after onboarding:", statusResponse);
-        
+        console.log(
+          "aepsTwoStatusCheck response after onboarding:",
+          statusResponse,
+        );
+
         if (statusResponse?.status === "SUCCESS") {
           const statusData = statusResponse?.aepsStatus;
-          
+
           if (statusData) {
-            const { ekycOtp, ekycBiometric, daily2FAAuthentication } = statusData;
-            
+            const { ekycOtp, ekycBiometric, daily2FAAuthentication } =
+              statusData;
+
             // If ekycOtp is pending, send OTP first
             if (
               ekycOtp?.status?.toLowerCase() === "pending" ||
-              (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+              (typeof ekycOtp?.isCompleted === "boolean" &&
+                ekycOtp.isCompleted === false)
             ) {
               // Send OTP for AEPS-2
               const otpResp = await dispatch(aepsTwoOtp());
               console.log("aepsTwoOtp response:", otpResp);
-              
+
               if (otpResp?.status === "SUCCESS") {
                 // Navigate to identity verification
                 setShowIdentityVerification(true);
               }
-            } 
+            }
             // If ekycOtp is completed, check next step
             else if (
               ekycOtp?.status?.toLowerCase() === "completed" &&
@@ -65,10 +74,13 @@ const AepsAcceptanceTwo = () => {
               // Check if biometric is next
               if (
                 ekycBiometric?.status?.toLowerCase() === "pending" ||
-                (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+                (typeof ekycBiometric?.isCompleted === "boolean" &&
+                  ekycBiometric.isCompleted === false)
               ) {
                 // Navigate to biometric verification
-                console.log("ekycOtp completed, navigating to biometric verification");
+                console.log(
+                  "ekycOtp completed, navigating to biometric verification",
+                );
                 setShowBiometricVerification(true);
               }
               // Check if 2FA is next
@@ -76,10 +88,13 @@ const AepsAcceptanceTwo = () => {
                 ekycBiometric?.status?.toLowerCase() === "completed" &&
                 ekycBiometric?.isCompleted === true &&
                 (daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-                (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false))
+                  (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
+                    daily2FAAuthentication.isCompleted === false))
               ) {
                 // Navigate to 2FA verification
-                console.log("ekycBiometric completed, navigating to 2FA verification");
+                console.log(
+                  "ekycBiometric completed, navigating to 2FA verification",
+                );
                 setShowFAVerification(true);
               }
               // Check if all completed
@@ -119,7 +134,7 @@ const AepsAcceptanceTwo = () => {
         body: "Two-Factor Authentication (Biometric) Is Strictly Required Once Every 24 Hours To Maintain Active Agent Status.",
       },
     ],
-    []
+    [],
   );
 
   // Conditional rendering based on current step
@@ -142,7 +157,7 @@ const AepsAcceptanceTwo = () => {
   // Default: show AepsAcceptance
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -151,7 +166,7 @@ const AepsAcceptanceTwo = () => {
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer hover:bg-gray-50 transition"
           aria-label="Go back"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">

@@ -1,9 +1,12 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsStatusCheck, aepsSubmitBiomatric } from "../../../redux/action/aepsAction";
+import {
+  aepsStatusCheck,
+  aepsSubmitBiomatric,
+} from "../../../redux/action/aepsAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
 import FAVerification from "./FAVerification";
 import Selectservice from "./Selectservice";
@@ -32,14 +35,11 @@ const BankKyc = () => {
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
-  const aepsStatus = useSelector(
-    (state) => state.aeps?.aepsStatus
-  );
+  const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
 
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
-
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -138,7 +138,7 @@ const BankKyc = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -146,7 +146,9 @@ const BankKyc = () => {
       // Check device name/model info (mi attribute)
       const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
       // Check manufacturer code (mc attribute) if available
-      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      const manufacturerCode = (
+        deviceInfo.getAttribute("mc") || ""
+      ).toLowerCase();
       // Check device provider ID (dpId attribute) if available
       const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
 
@@ -192,12 +194,14 @@ const BankKyc = () => {
     setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+    setDeviceMessage(
+      "Capturing fingerprint... Place your thumb on the scanner",
+    );
 
     // Start smooth progress animation that fills to 100% during capture
     const totalDuration = 10000; // 10 seconds (matches timeout)
     const updateInterval = 100; // Update every 100ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+    const incrementPerUpdate = 100 / (totalDuration / updateInterval); // ~1% per update
 
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
@@ -213,15 +217,20 @@ const BankKyc = () => {
     let DString = "";
     if (deviceInfoXml) {
       try {
-        const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+        const xmlDoc = new DOMParser().parseFromString(
+          deviceInfoXml,
+          "text/xml",
+        );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
           // Get the DeviceInfo element as string
-          if (typeof XMLSerializer !== 'undefined') {
+          if (typeof XMLSerializer !== "undefined") {
             DString = new XMLSerializer().serializeToString(deviceInfo);
           } else {
             // Fallback: extract DeviceInfo using regex or innerHTML
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -231,7 +240,9 @@ const BankKyc = () => {
         console.error("Error extracting DeviceInfo:", err);
         // Fallback: try to extract DeviceInfo using regex
         try {
-          const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+          const deviceInfoMatch = deviceInfoXml.match(
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+          );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
           }
@@ -240,19 +251,22 @@ const BankKyc = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build CustOpts based on device type
     // Build proper XML structure
-    const pidOptions = '<?xml version="1.0"?> \
+    const pidOptions =
+      '<?xml version="1.0"?> \
       <PidOptions ver="1.0"> \
         <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
               pidVer="2.0" timeout="10000" posh="UNKNOWN" \
               wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
               env="P" /> \
-        ' + DString + ' \
+        ' +
+      DString +
+      ' \
         <CustOpts> \
           <Param name="mantrakey" value="" /> \
         </CustOpts> \
@@ -308,10 +322,7 @@ const BankKyc = () => {
       return null;
     }
 
-    const {
-      bankKycBiometric,
-      aeps2FaAuthentication
-    } = statusData;
+    const { bankKycBiometric, aeps2FaAuthentication } = statusData;
 
     // Check bankKycBiometric status
     const isBankKycBiometricCompleted =
@@ -341,9 +352,15 @@ const BankKyc = () => {
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
-    console.log("🔍 useEffect triggered - pidData:", pidData ? `exists (${pidData.length} chars)` : "empty");
+    console.log(
+      "🔍 useEffect triggered - pidData:",
+      pidData ? `exists (${pidData.length} chars)` : "empty",
+    );
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
-    console.log("🔍 lastPidDataRef.current length:", lastPidDataRef.current.length);
+    console.log(
+      "🔍 lastPidDataRef.current length:",
+      lastPidDataRef.current.length,
+    );
 
     if (!pidData) {
       console.log("⚠️ pidData is empty, resetting ref");
@@ -374,38 +391,43 @@ const BankKyc = () => {
           biometricData: pidData,
           captureType: "FINGER",
           latitude: latitude,
-          longitude: longitude
+          longitude: longitude,
         };
 
         console.log("📤 Dispatching aepsSubmitBiomatric with data:", {
           biometricDataLength: requestData.biometricData.length,
           captureType: requestData.captureType,
           latitude: requestData.latitude,
-          longitude: requestData.longitude
+          longitude: requestData.longitude,
         });
 
         return dispatch(aepsSubmitBiomatric(requestData));
       })
       .then((response) => {
         console.log("✅ Bank KYC biometric verification response:", response);
-        
+
         // Always call aepsStatusCheck after biometric verification dispatch
-        console.log("🔄 Calling aepsStatusCheck after bank KYC biometric verification...");
-        
+        console.log(
+          "🔄 Calling aepsStatusCheck after bank KYC biometric verification...",
+        );
+
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check response:", statusResponse);
 
             // Extract status data from response
             // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
-            const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
+            const aepsStatusData =
+              statusResponse?.aepsStatus || statusResponse?.data;
 
             if (aepsStatusData) {
               // Get next step based on status
               const nextStep = getNextStep(aepsStatusData);
 
               if (nextStep === "faVerification") {
-                console.log("✅ Bank KYC biometric completed, moving to 2FA verification");
+                console.log(
+                  "✅ Bank KYC biometric completed, moving to 2FA verification",
+                );
                 setDeviceMessage("Bank KYC biometric verification successful");
                 setShow2FA(true);
               } else if (nextStep === "selectService") {
@@ -415,9 +437,14 @@ const BankKyc = () => {
               } else {
                 console.log("📋 Staying on bank KYC biometric verification");
                 if (response?.status === "SUCCESS") {
-                  setDeviceMessage("Bank KYC biometric verification successful");
+                  setDeviceMessage(
+                    "Bank KYC biometric verification successful",
+                  );
                 } else {
-                  setDeviceMessage(response?.message || "Bank KYC biometric verification completed");
+                  setDeviceMessage(
+                    response?.message ||
+                      "Bank KYC biometric verification completed",
+                  );
                 }
               }
             } else {
@@ -425,7 +452,9 @@ const BankKyc = () => {
               if (response?.status === "SUCCESS") {
                 setDeviceMessage("Bank KYC biometric verification successful");
               } else {
-                setDeviceMessage(response?.message || "Bank KYC biometric verification failed");
+                setDeviceMessage(
+                  response?.message || "Bank KYC biometric verification failed",
+                );
                 pidDataProcessedRef.current = false;
               }
             }
@@ -436,37 +465,55 @@ const BankKyc = () => {
             if (response?.status === "SUCCESS") {
               setDeviceMessage("Bank KYC biometric verification successful");
             } else {
-              setDeviceMessage(response?.message || "Bank KYC biometric verification failed");
+              setDeviceMessage(
+                response?.message || "Bank KYC biometric verification failed",
+              );
               pidDataProcessedRef.current = false;
             }
           });
       })
       .catch((error) => {
-        console.error("❌ Error getting location or Bank KYC biometric verification error:", error);
-        setDeviceMessage("Bank KYC biometric verification failed. Please try again.");
+        console.error(
+          "❌ Error getting location or Bank KYC biometric verification error:",
+          error,
+        );
+        setDeviceMessage(
+          "Bank KYC biometric verification failed. Please try again.",
+        );
         pidDataProcessedRef.current = false;
-        
+
         // Still try to check status even on error
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check after error:", statusResponse);
           })
           .catch((statusError) => {
-            console.error("❌ AEPS Status check error after bank KYC biometric failure:", statusError);
+            console.error(
+              "❌ AEPS Status check error after bank KYC biometric failure:",
+              statusError,
+            );
           });
       })
       .catch((error) => {
-        console.error("❌ Error getting location or Bank KYC biometric verification error:", error);
-        setDeviceMessage("Bank KYC biometric verification failed. Please try again.");
+        console.error(
+          "❌ Error getting location or Bank KYC biometric verification error:",
+          error,
+        );
+        setDeviceMessage(
+          "Bank KYC biometric verification failed. Please try again.",
+        );
         pidDataProcessedRef.current = false;
-        
+
         // Still try to check status even on error
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check after error:", statusResponse);
           })
           .catch((statusError) => {
-            console.error("❌ AEPS Status check error after bank KYC biometric failure:", statusError);
+            console.error(
+              "❌ AEPS Status check error after bank KYC biometric failure:",
+              statusError,
+            );
           });
       });
   }, [pidData, dispatch]);
@@ -475,11 +522,13 @@ const BankKyc = () => {
       CALL aepsStatusCheck ON COMPONENT MOUNT
   --------------------------------------------*/
   useEffect(() => {
-    dispatch(aepsStatusCheck()).then((response) => {
-      console.log("aepsStatusCheck response in BankKyc:", response);
-    }).catch((error) => {
-      console.error("aepsStatusCheck error in BiometricVerification:", error);
-    });
+    dispatch(aepsStatusCheck())
+      .then((response) => {
+        console.log("aepsStatusCheck response in BankKyc:", response);
+      })
+      .catch((error) => {
+        console.error("aepsStatusCheck error in BiometricVerification:", error);
+      });
   }, [dispatch]);
 
   /* -------------------------------------------
@@ -498,7 +547,9 @@ const BankKyc = () => {
         const nextStep = getNextStep(aepsStatusData);
 
         if (nextStep === "faVerification" && !show2FA && !showSelectService) {
-          console.log("✅ Bank KYC biometric completed (from Redux), moving to 2FA verification");
+          console.log(
+            "✅ Bank KYC biometric completed (from Redux), moving to 2FA verification",
+          );
           setShow2FA(true);
         } else if (nextStep === "selectService" && !showSelectService) {
           console.log("✅ 2FA completed (from Redux), moving to SelectService");
@@ -516,11 +567,13 @@ const BankKyc = () => {
         "Device Name:",
         "Device detected and READY",
         "Device Connected",
-        "Device Not Connected"
+        "Device Not Connected",
       ];
 
       // Check if this is a persistent message
-      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
+      const isPersistent = persistentMessages.some((msg) =>
+        deviceMessage.includes(msg),
+      );
 
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
@@ -537,7 +590,7 @@ const BankKyc = () => {
       { key: "fingerprint", label: "Fingerprint" },
       { key: "iris", label: "Iris Scan" },
     ],
-    []
+    [],
   );
 
   if (showSelectService) {
@@ -549,7 +602,7 @@ const BankKyc = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-2">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -558,7 +611,7 @@ const BankKyc = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -584,7 +637,8 @@ const BankKyc = () => {
               {modeTabs.map((t) => {
                 const active = mode === t.key;
                 const isIris = t.key === "iris";
-                let tabClassName = "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
+                let tabClassName =
+                  "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
                 if (active) tabClassName = "bg-[#039155] text-[#FFFFFF]";
                 return (
                   <button
@@ -604,8 +658,11 @@ const BankKyc = () => {
           </div>
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
-            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}>
+            <div
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
+                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}
+            >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="text-[12px] font-['Gilroy-Medium'] flex-1">
@@ -623,10 +680,15 @@ const BankKyc = () => {
               ) : (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
-                      }`} />
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        deviceConnected ? "bg-white" : "bg-white"
+                      }`}
+                    />
                     <span className="text-[12px] font-['Gilroy-Medium']">
-                      {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                      {deviceConnected
+                        ? "Device Connected"
+                        : "Device Not Connected"}
                     </span>
                   </div>
                   <button
@@ -645,11 +707,20 @@ const BankKyc = () => {
 
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
-          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
-            }`}>
+          <div
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
+          >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
-              <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
+              <div
+                className={
+                  comingSoon
+                    ? "opacity-80 pointer-events-none select-none blur-sm"
+                    : ""
+                }
+              >
                 <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
                   {/* Outer circle background */}
                   <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
@@ -693,7 +764,9 @@ const BankKyc = () => {
                 </div>
 
                 <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                  {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
+                  {mode === "iris"
+                    ? "Look Into The Scanner"
+                    : "Place Finger On Scanner"}
                 </div>
                 <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
                   {mode === "iris"
@@ -711,7 +784,7 @@ const BankKyc = () => {
                     }
                     captureAvdm();
                   }}
-                  disabled={isScanning || comingSoon || (mode === "iris")}
+                  disabled={isScanning || comingSoon || mode === "iris"}
                   className="mt-[28px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[260px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="inline-flex items-center justify-center w-6 h-6 ">
@@ -722,7 +795,11 @@ const BankKyc = () => {
                       aria-hidden="true"
                     />
                   </span>{" "}
-                  {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
+                  {isScanning
+                    ? "Scanning..."
+                    : mode === "iris"
+                      ? "Start Iris Scan"
+                      : "Start Capture"}
                 </button>
               </div>
 
@@ -736,7 +813,8 @@ const BankKyc = () => {
                       Iris Scan Coming Soon
                     </div>
                     <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                      This authentication mode will be available in a future update.
+                      This authentication mode will be available in a future
+                      update.
                     </div>
                   </div>
                 </div>
@@ -750,4 +828,3 @@ const BankKyc = () => {
 };
 
 export default BankKyc;
-

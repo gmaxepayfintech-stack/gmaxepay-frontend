@@ -36,7 +36,7 @@ const ServiceCard = ({ title, description, onClick }) => {
     <button
       type="button"
       onClick={onClick}
-      className="bg-[#FFFFFF] rounded-xl shadow-sm border border-gray-100 px-6 py-4 min-h-[182px] relative text-left hover:shadow-md transition"
+      className="bg-[#FFFFFF] rounded-2xl shadow-sm px-6 py-4 min-h-[182px] relative text-left hover:shadow-md transition"
     >
       <div className="flex gap-3">
         <div className="w-[60px] h-[60px] rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
@@ -47,10 +47,10 @@ const ServiceCard = ({ title, description, onClick }) => {
           />
         </div>
         <div className="min-w-0 flex flex-col justify-center">
-          <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] capitalize">
+          <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] capitalize">
             {title}
           </div>
-          <div className="mt-[12px] text-[12.5px] text-[#000000] font-['Gilroy-Regular'] leading-relaxed line-clamp-4 capitalize">
+          <div className="mt-[10px] text-xs text-[#1B1717] font-['Gilroy-Regular'] leading-relaxed line-clamp-4 capitalize">
             {description}
           </div>
         </div>
@@ -83,7 +83,7 @@ const Services = () => {
   // The OnBoardingAeps component will handle all status checks and component rendering
   const handleAepsClick = () => {
     console.log(
-      "🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding"
+      "🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding",
     );
     // Always navigate to services/aeps1/onboarding - let that component handle everything
     navigate("/retailerDashboard/services/aeps1/onboarding");
@@ -97,7 +97,7 @@ const Services = () => {
   // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
   const handleAepsTwoClick = () => {
     console.log(
-      "🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding"
+      "🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding",
     );
     navigate("/retailerDashboard/services/aeps2/onboarding");
   };
@@ -122,26 +122,26 @@ const Services = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-3">
       {/* Header */}
       <div className="mb-[44px]">
-        <div className="text-[24px] font-['Gilroy-Medium'	] text-[#1B1717]">
+        <div className="text-2xl font-['Gilroy-Medium'	] text-[#1B1717]">
           Make Your Wallet Grow
         </div>
-        <div className="mt-[12px] text-[16px]  text-[#000000] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
+        <div className="mt-[12px] text-[16px]  text-[#1B1717] font-['Gilroy-Regular'] leading-relaxed w-[1083px]">
           Do You Know? By Upgrading Your Membership To A Premium Scheme, You Can
           Earn Attractive Commissions On Various Services. To Know More About
           Your Current Scheme And Upgrade
         </div>
 
         {/* Tabs */}
-        <div className="mt-[28px] inline-flex items-center gap-4 bg-[#FFFFFF] rounded-3xl border border-[#1B1717] border-opacity-50 p-2">
+        <div className="mt-[28px] inline-flex items-center gap-4 bg-[#FFFFFF] rounded-2xl border border-[#1B1717] border-opacity-50 p-2">
           <button
             type="button"
             onClick={() => setActiveTab("Available")}
-            className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${
+            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Available"
-                ? "bg-[#039155] text-white shadow-sm"
+                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
           >
@@ -150,9 +150,9 @@ const Services = () => {
           <button
             type="button"
             onClick={() => setActiveTab("Subscribed")}
-            className={`px-6 py-3 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${
+            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Subscribed"
-                ? "bg-[#039155] text-white shadow-sm"
+                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
                 : "text-[#1B1717] hover:bg-gray-50"
             }`}
           >
@@ -162,8 +162,8 @@ const Services = () => {
       </div>
 
       {/* Title */}
-      <div className="mb-[20px]">
-        <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+      <div className="mb-6">
+        <div className="text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
           Services
         </div>
       </div>

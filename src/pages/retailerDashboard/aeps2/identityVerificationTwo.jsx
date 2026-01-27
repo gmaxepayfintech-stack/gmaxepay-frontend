@@ -1,12 +1,16 @@
 import { useMemo, useRef, useState, useEffect } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
 import BiometricVerificationTwo from "./BiometricVerificationTwo";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
-import { aepsTwoStatusCheck, aepsTwoSubmitOTP, aepsTwoRescendOTP } from "../../../redux/action/aepsTwoAction";
+import {
+  aepsTwoStatusCheck,
+  aepsTwoSubmitOTP,
+  aepsTwoRescendOTP,
+} from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 const OTP_LENGTH = 6;
 
 const IdentityVerificationTwo = ({ onBack }) => {
@@ -26,13 +30,13 @@ const IdentityVerificationTwo = ({ onBack }) => {
       .then((response) => {
         console.log(
           "getUserProfile response in IdentityVerificationTwo:",
-          response
+          response,
         );
       })
       .catch((error) => {
         console.error(
           "getUserProfile error in IdentityVerificationTwo:",
-          error
+          error,
         );
       });
   }, [dispatch]);
@@ -126,13 +130,16 @@ const IdentityVerificationTwo = ({ onBack }) => {
       if (response?.status === "SUCCESS") {
         // Check status once to verify and then navigate
         const statusResponse = await dispatch(aepsTwoStatusCheck());
-        console.log("aepsTwoStatusCheck response after OTP submit:", statusResponse);
-        
+        console.log(
+          "aepsTwoStatusCheck response after OTP submit:",
+          statusResponse,
+        );
+
         // Verify status and navigate to next step
         const statusData = statusResponse?.aepsStatus;
         if (statusData) {
           const { ekycOtp, ekycBiometric } = statusData;
-          
+
           // If ekycOtp is completed, move to biometric verification
           if (
             ekycOtp?.status?.toLowerCase() === "completed" &&
@@ -141,9 +148,12 @@ const IdentityVerificationTwo = ({ onBack }) => {
             // Check if biometric is next
             if (
               ekycBiometric?.status?.toLowerCase() === "pending" ||
-              (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+              (typeof ekycBiometric?.isCompleted === "boolean" &&
+                ekycBiometric.isCompleted === false)
             ) {
-              console.log("ekycOtp completed, moving to biometric verification");
+              console.log(
+                "ekycOtp completed, moving to biometric verification",
+              );
               setShowBiometric(true);
             }
           }
@@ -188,7 +198,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -199,7 +209,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
           }
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -253,7 +263,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
                     }`}
                   />
                 );
-              })()
+              })(),
             )}
           </div>
 
@@ -282,7 +292,9 @@ const IdentityVerificationTwo = ({ onBack }) => {
             disabled={isLoading}
             className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
           >
-            {isLoading && <ButtonLoader color="#FFFFFF" size={20} thickness={3} />}
+            {isLoading && (
+              <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+            )}
             {isLoading ? "Processing..." : "Submit"}
           </button>
         </div>

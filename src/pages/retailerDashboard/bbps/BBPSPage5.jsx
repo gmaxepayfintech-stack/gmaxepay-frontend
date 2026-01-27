@@ -1,8 +1,8 @@
 import { useState } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Download } from "lucide-react";
 import PropTypes from "prop-types";
 import { useNavigate } from "react-router-dom";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage5 = ({ onBack, formData, setFormData }) => {
   const navigate = useNavigate();
@@ -22,7 +22,7 @@ const BBPSPage5 = ({ onBack, formData, setFormData }) => {
     formData.category?.name || formData.category || "Selected Category";
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -31,7 +31,7 @@ const BBPSPage5 = ({ onBack, formData, setFormData }) => {
           onClick={onBack}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
         <div className="flex-1">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
@@ -85,7 +85,9 @@ const BBPSPage5 = ({ onBack, formData, setFormData }) => {
               </div>
 
               <div>
-                <p className="font-['Gilroy-Medium'] text-[#1B1717]">Due Date</p>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Due Date
+                </p>
                 <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
                   2026-01-18
                 </p>

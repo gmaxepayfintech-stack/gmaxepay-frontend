@@ -5,7 +5,11 @@ import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
 import * as Yup from "yup";
-import { dthPay, dthPlanFetch, dthCustomerInfo } from "../../../redux/action/rechargeAction";
+import {
+  dthPay,
+  dthPlanFetch,
+  dthCustomerInfo,
+} from "../../../redux/action/rechargeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
 // Sample recent recharge data
@@ -58,34 +62,39 @@ const getOperatorOpcode = (operatorName) => {
 // Get operator logo from selectDTHOperators
 const getOperatorLogo = (operatorName) => {
   if (!operatorName) return "";
-  
+
   // Normalize operator names for better matching (remove common words)
   const normalizeName = (name) => {
-    return name.toLowerCase()
+    return name
+      .toLowerCase()
       .replace(/\s*dth\s*/gi, "")
       .replace(/\s*direct\s*/gi, "")
       .replace(/\s*play\s*/gi, "")
       .trim();
   };
-  
+
   const normalizedInput = normalizeName(operatorName);
-  
+
   const operator = selectDTHOperators.find((op) => {
     const normalizedOpName = normalizeName(op.name);
     // Check if normalized names match or if either contains the other
-    return normalizedOpName === normalizedInput ||
-           normalizedOpName.includes(normalizedInput) ||
-           normalizedInput.includes(normalizedOpName) ||
-           op.name.toLowerCase().includes(operatorName.toLowerCase()) ||
-           operatorName.toLowerCase().includes(op.name.toLowerCase());
+    return (
+      normalizedOpName === normalizedInput ||
+      normalizedOpName.includes(normalizedInput) ||
+      normalizedInput.includes(normalizedOpName) ||
+      op.name.toLowerCase().includes(operatorName.toLowerCase()) ||
+      operatorName.toLowerCase().includes(op.name.toLowerCase())
+    );
   });
-  
+
   return operator?.logo || "";
 };
 
 const selectDTHOperators = [
   {
-    id: 1, name: "Airtel DTH", logo: "/img/Airtel.svg"
+    id: 1,
+    name: "Airtel DTH",
+    logo: "/img/Airtel.svg",
   },
   { id: 2, name: "Dish TV", logo: "/img/DishTV.svg" },
   { id: 3, name: "Tata Play", logo: "/img/TataPlay.svg" },
@@ -93,7 +102,12 @@ const selectDTHOperators = [
   { id: 5, name: "Videocon", logo: "/img/D2H.svg" },
 ];
 
-const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) => {
+const InlineSearchSelect = ({
+  options,
+  value,
+  onChange,
+  inputClassName = "",
+}) => {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -107,9 +121,7 @@ const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) =
   }, [value, open]);
 
   const filtered = query
-    ? options.filter((o) =>
-        o.label.toLowerCase().includes(query.toLowerCase())
-      )
+    ? options.filter((o) => o.label.toLowerCase().includes(query.toLowerCase()))
     : options;
 
   const handleSelect = (selectedValue) => {
@@ -145,7 +157,7 @@ const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) =
   };
 
   // Display value: show query when typing/searching, selected label when not typing, or empty for placeholder
-  const displayValue = open && query ? query : (selected?.label || "");
+  const displayValue = open && query ? query : selected?.label || "";
 
   return (
     <div className="relative">
@@ -156,12 +168,12 @@ const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) =
         onFocus={handleInputFocus}
         onBlur={handleInputBlur}
         onChange={handleInputChange}
-        className={`w-full border text-[#1B1717] text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717] pl-12 pr-4 py-3 ${inputClassName}`}
+        className={`w-full  text-opacity-80 border-[0.5px] rounded-xl focus:outline-none text-[#1B1717] pl-12 pr-4 py-3 ${inputClassName}`}
       />
 
       {/* Dropdown */}
       {open && (
-        <div 
+        <div
           className="absolute z-20 mt-1 w-full bg-white border border-[#1B1717]/20 rounded-lg shadow-lg max-h-40 overflow-auto"
           onMouseDown={(e) => {
             e.preventDefault(); // Prevent input blur when clicking dropdown
@@ -195,7 +207,7 @@ const InlineSearchSelect = ({ options, value, onChange, inputClassName = "" }) =
 
 const RecentRechargeCard = ({ recharge }) => {
   const operatorLogo = getOperatorLogo(recharge.operator) || recharge.logo;
-  
+
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition cursor-pointer">
       <div className="flex items-start gap-3">
@@ -239,8 +251,9 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   return (
     <button
       onClick={() => onSelect(operator)}
-      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${!isLast ? "border-b border-[#1B1717]/30" : ""
-        }`}
+      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${
+        !isLast ? "border-b border-[#1B1717]/30" : ""
+      }`}
     >
       <div className="flex  gap-4">
         <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -266,8 +279,6 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   );
 };
 
-
-
 const filterButtons = [
   "All Packs",
   "1 Month",
@@ -285,8 +296,6 @@ const languageOptions = [
   { value: "Telugu", label: "Telugu" },
   { value: "Malayalam", label: "Malayalam" },
 ];
-
-
 
 const transactionDetails = {
   transactionId: "TXN" + Date.now(),
@@ -325,7 +334,6 @@ const DTHRecharge = ({ onBack }) => {
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
   const [paymentResponse, setPaymentResponse] = useState(null);
 
-
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
     setSelectedOperator({
@@ -342,7 +350,7 @@ const DTHRecharge = ({ onBack }) => {
   const transformPlansFromAPI = (apiData) => {
     // The API response structure is: data.data.Combo
     const comboArray = apiData?.data?.data?.Combo || apiData?.data?.Combo;
-    
+
     if (!comboArray || !Array.isArray(comboArray)) {
       return [];
     }
@@ -352,48 +360,49 @@ const DTHRecharge = ({ onBack }) => {
 
     comboArray.forEach((combo) => {
       const languageName = combo.Language || "";
-      
+
       combo.Details?.forEach((detail) => {
         detail.PricingList?.forEach((pricing) => {
           // Extract channel count
           const channelsMatch = detail.Channels?.match(/(\d+)/);
           const channels = channelsMatch ? parseInt(channelsMatch[1]) : 0;
-          
+
           // Extract paid channels
           const paidMatch = detail.PaidChannels?.match(/(\d+)/);
           const paidChannels = paidMatch ? parseInt(paidMatch[1]) : 0;
-          
+
           // Extract HD channels
           const hdMatch = detail.HdChannels?.match(/(\d+)/);
           const hdChannels = hdMatch ? parseInt(hdMatch[1]) : 0;
-          const hasHD = detail.HdChannels && !detail.HdChannels.includes("No HD");
-          
+          const hasHD =
+            detail.HdChannels && !detail.HdChannels.includes("No HD");
+
           // Calculate free channels (approximate)
           const freeChannels = channels - paidChannels;
 
           // Create features array from available data
           const features = [];
-          
+
           // Add channels information
           if (detail.Channels) {
             features.push(`Total Channels: ${detail.Channels}`);
           }
-          
+
           // Add paid channels information
           if (detail.PaidChannels) {
             features.push(detail.PaidChannels);
           }
-          
+
           // Add HD channels information (include "No HD Channels" too)
           if (detail.HdChannels) {
             features.push(detail.HdChannels);
           }
-          
+
           // Add language content
           if (languageName) {
             features.push(`${languageName} Language Pack`);
           }
-          
+
           // Add last update information
           if (detail.last_update) {
             features.push(`Last Updated: ${detail.last_update}`);
@@ -404,7 +413,10 @@ const DTHRecharge = ({ onBack }) => {
             if (!monthStr) return "1 Month";
             // Convert "1 Months" to "1 Month", keep others as "X Months"
             const normalized = monthStr.trim();
-            if (normalized.toLowerCase() === "1 months" || normalized.toLowerCase() === "1 month") {
+            if (
+              normalized.toLowerCase() === "1 months" ||
+              normalized.toLowerCase() === "1 month"
+            ) {
               return "1 Month";
             }
             // Keep other formats as is (e.g., "3 Months", "6 Months")
@@ -452,7 +464,7 @@ const DTHRecharge = ({ onBack }) => {
           plan.price.toLowerCase().includes(query) ||
           plan.validity.toLowerCase().includes(query) ||
           plan.bouquet.toLowerCase().includes(query) ||
-          plan.planName?.toLowerCase().includes(query)
+          plan.planName?.toLowerCase().includes(query),
       );
     }
 
@@ -469,14 +481,18 @@ const DTHRecharge = ({ onBack }) => {
     if (language) {
       filtered = filtered.filter((plan) => {
         if (!plan.language) return false;
-        return plan.language.toLowerCase().trim() === language.toLowerCase().trim();
+        return (
+          plan.language.toLowerCase().trim() === language.toLowerCase().trim()
+        );
       });
     }
 
     // Filter by active language pack if selected (exact match by PlanName)
     if (activeLanguagePack) {
-      filtered = filtered.filter((plan) =>
-        plan.bouquet === activeLanguagePack || plan.planName === activeLanguagePack
+      filtered = filtered.filter(
+        (plan) =>
+          plan.bouquet === activeLanguagePack ||
+          plan.planName === activeLanguagePack,
       );
     }
 
@@ -569,7 +585,7 @@ const DTHRecharge = ({ onBack }) => {
                     };
 
                     const paymentResponse = await dispatch(
-                      dthPay(paymentPayload)
+                      dthPay(paymentPayload),
                     );
 
                     if (
@@ -592,9 +608,7 @@ const DTHRecharge = ({ onBack }) => {
                 }}
                 disabled={isLoadingPayment}
                 className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
-                  isLoadingPayment
-                    ? "cursor-wait opacity-100"
-                    : ""
+                  isLoadingPayment ? "cursor-wait opacity-100" : ""
                 }`}
               >
                 {isLoadingPayment ? (
@@ -667,17 +681,21 @@ const DTHRecharge = ({ onBack }) => {
             {/* Details */}
             <ul className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80 space-y-2 px-2">
               {/* Plan Name - Show when plan is selected/searched (has active filters), hide when showing all plans */}
-              {(activeLanguagePack || searchQuery || (language && activeFilter !== "All Packs")) && (
+              {(activeLanguagePack ||
+                searchQuery ||
+                (language && activeFilter !== "All Packs")) && (
                 <li className="flex items-center">
                   <span className="flex gap-2">
                     <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
                       •
                     </span>
-                    <p>Plan Name: {selectedPlan.planName || selectedPlan.bouquet}</p>
+                    <p>
+                      Plan Name: {selectedPlan.planName || selectedPlan.bouquet}
+                    </p>
                   </span>
                 </li>
               )}
-              
+
               {/* First special line */}
               <li className="flex items-center -py-1">
                 <span className="flex gap-2">
@@ -708,12 +726,12 @@ const DTHRecharge = ({ onBack }) => {
               {(() => {
                 // Get features from plan or reconstruct from originalData
                 let featuresToShow = selectedPlan.features || [];
-                
+
                 // If no features, try to get from originalData
                 if (featuresToShow.length === 0 && selectedPlan.originalData) {
                   const detail = selectedPlan.originalData;
                   featuresToShow = [];
-                  
+
                   if (detail.Channels) {
                     featuresToShow.push(`Total Channels: ${detail.Channels}`);
                   }
@@ -724,18 +742,20 @@ const DTHRecharge = ({ onBack }) => {
                     featuresToShow.push(detail.HdChannels);
                   }
                   if (selectedPlan.language) {
-                    featuresToShow.push(`${selectedPlan.language} Language Pack`);
+                    featuresToShow.push(
+                      `${selectedPlan.language} Language Pack`,
+                    );
                   }
                   if (detail.last_update) {
                     featuresToShow.push(`Last Updated: ${detail.last_update}`);
                   }
                 }
-                
+
                 // Fallback if still no features
                 if (featuresToShow.length === 0) {
                   featuresToShow = ["Premium DTH Channels"];
                 }
-                
+
                 return featuresToShow.map((item, index) => (
                   <li key={index} className="flex gap-2">
                     <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
@@ -807,7 +827,7 @@ const DTHRecharge = ({ onBack }) => {
                     <OperatorCard
                       operator={op}
                       isLast={index === selectDTHOperators.length - 1}
-                      onSelect={() => { }}
+                      onSelect={() => {}}
                     />
                   </button>
                 ))}
@@ -816,8 +836,9 @@ const DTHRecharge = ({ onBack }) => {
           )}
 
           <div
-            className={`${step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
-              } lg:flex-[1.6] w-full lg:w-auto self-start`}
+            className={`${
+              step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
+            } lg:flex-[1.6] w-full lg:w-auto self-start`}
           >
             {step === "input" && (
               <>
@@ -851,7 +872,7 @@ const DTHRecharge = ({ onBack }) => {
                       };
 
                       const customerResponse = await dispatch(
-                        dthCustomerInfo(customerPayload)
+                        dthCustomerInfo(customerPayload),
                       );
 
                       if (
@@ -863,7 +884,7 @@ const DTHRecharge = ({ onBack }) => {
 
                         // Call dthPlanFetch API with same payload
                         const planResponse = await dispatch(
-                          dthPlanFetch(customerPayload)
+                          dthPlanFetch(customerPayload),
                         );
 
                         if (
@@ -872,35 +893,33 @@ const DTHRecharge = ({ onBack }) => {
                         ) {
                           setDthPlans(planResponse.dthRechargePlan);
                           const transformedPlans = transformPlansFromAPI(
-                            planResponse.dthRechargePlan
+                            planResponse.dthRechargePlan,
                           );
                           setFilteredSuggestPlans(transformedPlans);
-                          
+
                           // Extract unique languages from API response
                           // The API response structure is: data.data.Combo
-                          const comboArray = planResponse.dthRechargePlan?.data?.data?.Combo || 
-                                           planResponse.dthRechargePlan?.data?.Combo;
+                          const comboArray =
+                            planResponse.dthRechargePlan?.data?.data?.Combo ||
+                            planResponse.dthRechargePlan?.data?.Combo;
                           if (comboArray && Array.isArray(comboArray)) {
-                            const languages = comboArray.map(
-                              (combo) => combo.Language
-                            ).filter(Boolean);
+                            const languages = comboArray
+                              .map((combo) => combo.Language)
+                              .filter(Boolean);
                             setAvailableLanguages(languages);
                             // Don't set initial language - let user select
                           }
-                          
+
                           setStep("confirm");
                         } else {
-                          console.error(
-                            "Failed to fetch plans:",
-                            planResponse
-                          );
+                          console.error("Failed to fetch plans:", planResponse);
                           // Still proceed to confirm step even if plans fail
                           setStep("confirm");
                         }
                       } else {
                         console.error(
                           "Failed to fetch customer info:",
-                          customerResponse
+                          customerResponse,
                         );
                         // You might want to show an error message here
                       }
@@ -967,9 +986,7 @@ const DTHRecharge = ({ onBack }) => {
                           type="submit"
                           disabled={isLoadingContinue}
                           className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
-                            isLoadingContinue
-                              ? "cursor-wait opacity-100"
-                              : ""
+                            isLoadingContinue ? "cursor-wait opacity-100" : ""
                           }`}
                         >
                           {isLoadingContinue ? (
@@ -1003,10 +1020,14 @@ const DTHRecharge = ({ onBack }) => {
                   <div className="relative font-['Gilroy-Medium']">
                     <Search className="absolute left-4 top-1/2 text-[#1B1717] text-opacity-50 -translate-y-1/2 w-5 h-5 z-10 pointer-events-none" />
                     <InlineSearchSelect
-                      options={(availableLanguages.length > 0 
-                        ? availableLanguages.map(lang => ({ value: lang, label: lang }))
-                        : languageOptions
-                      )}
+                      options={
+                        availableLanguages.length > 0
+                          ? availableLanguages.map((lang) => ({
+                              value: lang,
+                              label: lang,
+                            }))
+                          : languageOptions
+                      }
                       value={language}
                       onChange={(value) => {
                         setLanguage(value);
@@ -1019,20 +1040,30 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Language Packs - Show top 5-6 PlanNames from API based on selected language */}
                 {(() => {
                   // Only show language packs when a language is selected
-                  if (!language || !filteredSuggestPlans || filteredSuggestPlans.length === 0) {
+                  if (
+                    !language ||
+                    !filteredSuggestPlans ||
+                    filteredSuggestPlans.length === 0
+                  ) {
                     return null;
                   }
-                  
+
                   // Get ALL plans filtered by selected language (case-insensitive comparison)
                   // Use the full list, not the already filtered one
-                  const languageFilteredPlans = filteredSuggestPlans.filter((plan) => {
-                    if (!plan || !plan.language) return false;
-                    // Case-insensitive comparison with trimmed values
-                    const planLang = String(plan.language).toLowerCase().trim();
-                    const selectedLang = String(language).toLowerCase().trim();
-                    return planLang === selectedLang;
-                  });
-                  
+                  const languageFilteredPlans = filteredSuggestPlans.filter(
+                    (plan) => {
+                      if (!plan || !plan.language) return false;
+                      // Case-insensitive comparison with trimmed values
+                      const planLang = String(plan.language)
+                        .toLowerCase()
+                        .trim();
+                      const selectedLang = String(language)
+                        .toLowerCase()
+                        .trim();
+                      return planLang === selectedLang;
+                    },
+                  );
+
                   if (languageFilteredPlans.length === 0) {
                     return (
                       <div className="text-sm text-[#1B1717]/60 py-2">
@@ -1040,14 +1071,18 @@ const DTHRecharge = ({ onBack }) => {
                       </div>
                     );
                   }
-                  
+
                   // Get unique PlanNames (bouquet) from language-filtered plans
                   const uniquePlanNames = [];
                   const seenPlanNames = new Set();
-                  
+
                   languageFilteredPlans.forEach((plan) => {
                     // Use bouquet (which is PlanName from API) or planName as fallback
-                    const planName = (plan.bouquet || plan.planName || "").trim();
+                    const planName = (
+                      plan.bouquet ||
+                      plan.planName ||
+                      ""
+                    ).trim();
                     if (planName && !seenPlanNames.has(planName)) {
                       seenPlanNames.add(planName);
                       uniquePlanNames.push(planName);
@@ -1116,10 +1151,11 @@ const DTHRecharge = ({ onBack }) => {
                           }
                         }}
                         className={`relative pb-0.5 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition
-                        ${isActive
+                        ${
+                          isActive
                             ? "text-[#039155]"
                             : "text-[#1B1717]/80 hover:text-[#039155]"
-                          }
+                        }
                       `}
                       >
                         {filter}
@@ -1138,77 +1174,79 @@ const DTHRecharge = ({ onBack }) => {
                 <div className="space-y-4">
                   {displayPlans.length > 0 ? (
                     displayPlans.map((plan) => (
-                    <div
-                      onClick={() => {
-                        setSelectedPlan(plan);
-                        setStep("review");
-                      }}
-                      key={plan.id}
-                      className="bg-white border-[0.5px] border-[#1B1717]/80 rounded-3xl px-4 py-3 hover:shadow-sm transition cursor-pointer"
-                    >
-                      {/* Top Row */}
-                      <div className="flex items-center justify-between">
-                        <div className="flex gap-4">
-                          <div className="text-lg font-['Gilroy-SemiBold'] text-black">
-                            {plan.price}
-                          </div>
-
-                          <div className="flex items-center gap-6 text-[12px] text-[#1B1717]/70 font-['Gilroy-Medium']">
-                            <div className="text-center border-l-[0.5px] border-[#1B1717]/80  ">
-                              <div className="ml-4 text-[#1B1717]/80 ">
-                                Validity
-                              </div>
-                              <div className="text-black text-xs font-['Gilroy-medium'] ml-4">
-                                {plan.validity}
-                              </div>
+                      <div
+                        onClick={() => {
+                          setSelectedPlan(plan);
+                          setStep("review");
+                        }}
+                        key={plan.id}
+                        className="bg-white border-[0.5px] border-[#1B1717]/80 rounded-3xl px-4 py-3 hover:shadow-sm transition cursor-pointer"
+                      >
+                        {/* Top Row */}
+                        <div className="flex items-center justify-between">
+                          <div className="flex gap-4">
+                            <div className="text-lg font-['Gilroy-SemiBold'] text-black">
+                              {plan.price}
                             </div>
 
-                            <div className="text-center">
-                              <div className="text-[#1B1717]/80 ">Channels</div>
-                              <div className="text-black text-xs font-['Gilroy-medium']">
-                                {plan.channels}
+                            <div className="flex items-center gap-6 text-[12px] text-[#1B1717]/70 font-['Gilroy-Medium']">
+                              <div className="text-center border-l-[0.5px] border-[#1B1717]/80  ">
+                                <div className="ml-4 text-[#1B1717]/80 ">
+                                  Validity
+                                </div>
+                                <div className="text-black text-xs font-['Gilroy-medium'] ml-4">
+                                  {plan.validity}
+                                </div>
+                              </div>
+
+                              <div className="text-center">
+                                <div className="text-[#1B1717]/80 ">
+                                  Channels
+                                </div>
+                                <div className="text-black text-xs font-['Gilroy-medium']">
+                                  {plan.channels}
+                                </div>
                               </div>
                             </div>
                           </div>
+
+                          <ChevronRight className="w-4 h-4 text-[#1B1717]/80" />
                         </div>
 
-                        <ChevronRight className="w-4 h-4 text-[#1B1717]/80" />
-                      </div>
+                        {/* Divider */}
+                        <div className="border-t-[0.5px] border-[#1B1717]/80 my-3" />
 
-                      {/* Divider */}
-                      <div className="border-t-[0.5px] border-[#1B1717]/80 my-3" />
+                        {/* Bottom Row */}
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80">
+                              {activeLanguagePack}
+                            </div>
+                            <div className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80 flex items-center gap-1">
+                              <span>Paid Channels: {plan.paidChannels}</span>
 
-                      {/* Bottom Row */}
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80">
-                            {activeLanguagePack}
+                              <span className="text-2xl leading-none text-[#1B1717]/80 relative top-[2px]">
+                                •
+                              </span>
+
+                              <span className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80">
+                                HD , {plan.freeChannels} Channels
+                              </span>
+                            </div>
                           </div>
-                          <div className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80 flex items-center gap-1">
-                            <span>Paid Channels: {plan.paidChannels}</span>
 
-                            <span className="text-2xl leading-none text-[#1B1717]/80 relative top-[2px]">
-                              •
-                            </span>
-
-                            <span className="text-sm font-['Gilroy-regular'] text-[#1B1717]/80">
-                              HD , {plan.freeChannels} Channels
-                            </span>
-                          </div>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation(); // prevents triggering plan click
+                              setSelectedPlan(plan);
+                              setShowDetails(true);
+                            }}
+                            className="text-sm font-['Gilroy-Medium'] text-black"
+                          >
+                            Details
+                          </button>
                         </div>
-
-                        <button
-                          onClick={(e) => {
-                            e.stopPropagation(); // prevents triggering plan click
-                            setSelectedPlan(plan);
-                            setShowDetails(true);
-                          }}
-                          className="text-sm font-['Gilroy-Medium'] text-black"
-                        >
-                          Details
-                        </button>
                       </div>
-                    </div>
                     ))
                   ) : (
                     <div className="text-center py-8 text-[#1B1717]/80">
@@ -1331,7 +1369,8 @@ const DTHRecharge = ({ onBack }) => {
                     </li>
 
                     {/* Other features */}
-                    {selectedPlan.features && selectedPlan.features.length > 0 ? (
+                    {selectedPlan.features &&
+                    selectedPlan.features.length > 0 ? (
                       selectedPlan.features.map((item, index) => (
                         <li key={index} className="flex gap-2">
                           <span className="text-[16px] relative top-[1px]">
@@ -1411,8 +1450,8 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Amount */}
                 <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
                   <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    {paymentResponse?.data?.apiResponse?.amount 
-                      ? `₹${paymentResponse.data.apiResponse.amount}` 
+                    {paymentResponse?.data?.apiResponse?.amount
+                      ? `₹${paymentResponse.data.apiResponse.amount}`
                       : selectedPlan?.price || "N/A"}
                   </div>
                 </div>
@@ -1491,7 +1530,6 @@ const DTHRecharge = ({ onBack }) => {
                     </div>
                   </div>
                 </div>
-
 
                 {/* Buttons */}
                 <div className="absolute left-5 right-5 bottom-2 flex gap-28">

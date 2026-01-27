@@ -22,10 +22,10 @@ const OnBoardingAepsTwo = () => {
         setIsLoading(true);
         const response = await dispatch(aepsTwoStatusCheck());
         console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
-        
+
         // Get status data from response or Redux state
         const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
-        
+
         if (statusData) {
           const {
             aepsOnboarding,
@@ -44,7 +44,8 @@ const OnBoardingAepsTwo = () => {
           // Step 1: If aepsOnboarding is pending or not completed, show initial onboarding screen
           if (
             aepsOnboarding?.status?.toLowerCase() === "pending" ||
-            (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+            (typeof aepsOnboarding?.isCompleted === "boolean" &&
+              aepsOnboarding.isCompleted === false)
           ) {
             setCurrentStep(null); // Show initial onboarding screen
             return;
@@ -54,7 +55,8 @@ const OnBoardingAepsTwo = () => {
           if (
             ekycOtp?.status?.toLowerCase() === "pending" ||
             ekycOtp?.status?.toLowerCase() !== "completed" ||
-            (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+            (typeof ekycOtp?.isCompleted === "boolean" &&
+              ekycOtp.isCompleted === false)
           ) {
             setCurrentStep("identityVerification");
             return;
@@ -64,7 +66,8 @@ const OnBoardingAepsTwo = () => {
           if (
             ekycBiometric?.status?.toLowerCase() === "pending" ||
             ekycBiometric?.status?.toLowerCase() !== "completed" ||
-            (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+            (typeof ekycBiometric?.isCompleted === "boolean" &&
+              ekycBiometric.isCompleted === false)
           ) {
             setCurrentStep("biometricVerification");
             return;
@@ -74,7 +77,8 @@ const OnBoardingAepsTwo = () => {
           if (
             daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
             daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
-            (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+            (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
+              daily2FAAuthentication.isCompleted === false)
           ) {
             setCurrentStep("faVerification");
             return;
@@ -100,17 +104,14 @@ const OnBoardingAepsTwo = () => {
   useEffect(() => {
     if (aepsStatus?.aepsStatus && !isLoading) {
       const statusData = aepsStatus.aepsStatus;
-      const {
-        aepsOnboarding,
-        ekycOtp,
-        ekycBiometric,
-        daily2FAAuthentication,
-      } = statusData;
+      const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } =
+        statusData;
 
       // Step 1: If aepsOnboarding is pending or not completed
       if (
         aepsOnboarding?.status?.toLowerCase() === "pending" ||
-        (typeof aepsOnboarding?.isCompleted === "boolean" && aepsOnboarding.isCompleted === false)
+        (typeof aepsOnboarding?.isCompleted === "boolean" &&
+          aepsOnboarding.isCompleted === false)
       ) {
         setCurrentStep(null);
         return;
@@ -120,7 +121,8 @@ const OnBoardingAepsTwo = () => {
       if (
         ekycOtp?.status?.toLowerCase() === "pending" ||
         ekycOtp?.status?.toLowerCase() !== "completed" ||
-        (typeof ekycOtp?.isCompleted === "boolean" && ekycOtp.isCompleted === false)
+        (typeof ekycOtp?.isCompleted === "boolean" &&
+          ekycOtp.isCompleted === false)
       ) {
         setCurrentStep("identityVerification");
         return;
@@ -130,7 +132,8 @@ const OnBoardingAepsTwo = () => {
       if (
         ekycBiometric?.status?.toLowerCase() === "pending" ||
         ekycBiometric?.status?.toLowerCase() !== "completed" ||
-        (typeof ekycBiometric?.isCompleted === "boolean" && ekycBiometric.isCompleted === false)
+        (typeof ekycBiometric?.isCompleted === "boolean" &&
+          ekycBiometric.isCompleted === false)
       ) {
         setCurrentStep("biometricVerification");
         return;
@@ -140,7 +143,8 @@ const OnBoardingAepsTwo = () => {
       if (
         daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
         daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
-        (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+        (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
+          daily2FAAuthentication.isCompleted === false)
       ) {
         setCurrentStep("faVerification");
         return;
@@ -184,7 +188,7 @@ const OnBoardingAepsTwo = () => {
     return <AepsAcceptanceTwo />;
   }
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Page header */}
       <div className="mb-6">
         <div className="text-[24px] sm:text-[22px] font-['Gilroy-Medium'] text-[#1B1717]">

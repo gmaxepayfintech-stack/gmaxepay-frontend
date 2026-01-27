@@ -363,7 +363,7 @@ const ProfileDetails = ({ onBack }) => {
                   <select
                     value={selectedScheme}
                     onChange={(e) => setSelectedScheme(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
                   >
                     <option value="">Select</option>
                     <option value="basic">Basic</option>
