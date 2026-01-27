@@ -28,14 +28,14 @@ const WalletLoad = () => {
       try {
         setLoading(true);
         const result = await dispatch(distributerGetBanks({}));
-        if (result?.status === "SUCCESS" && result?.mdBanklists) {
-          setBanks(result.mdBanklists);
+        if (result?.status === "SUCCESS" && result?.dBanklists) {
+          setBanks(result.dBanklists);
           // Set the first bank as selected by default, or the primary bank if exists
-          const primaryBank = result.mdBanklists.find((bank) => bank.isPrimary);
+          const primaryBank = result.dBanklists.find((bank) => bank.isPrimary);
           if (primaryBank) {
             setSelectedBank(primaryBank.bankId);
-          } else if (result.mdBanklists.length > 0) {
-            setSelectedBank(result.mdBanklists[0].bankId);
+          } else if (result.dBanklists.length > 0) {
+            setSelectedBank(result.dBanklists[0].bankId);
           }
         }
       } catch (error) {
