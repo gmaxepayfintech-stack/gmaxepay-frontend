@@ -1,10 +1,14 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsOnboardingBiometricVerification, aepsStatusCheck, aepsBankOtp } from "../../../redux/action/aepsAction";
+import {
+  aepsOnboardingBiometricVerification,
+  aepsStatusCheck,
+  aepsBankOtp,
+} from "../../../redux/action/aepsAction";
 import BankOtp from "./BankOtp";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -29,14 +33,11 @@ const BiometricVerification = () => {
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
-  const aepsStatus = useSelector(
-    (state) => state.aeps?.aepsStatus
-  );
+  const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
 
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
   const lastPidDataRef = useRef("");
-
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -135,7 +136,7 @@ const BiometricVerification = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -143,7 +144,9 @@ const BiometricVerification = () => {
       // Check device name/model info (mi attribute)
       const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
       // Check manufacturer code (mc attribute) if available
-      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      const manufacturerCode = (
+        deviceInfo.getAttribute("mc") || ""
+      ).toLowerCase();
       // Check device provider ID (dpId attribute) if available
       const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
 
@@ -189,12 +192,14 @@ const BiometricVerification = () => {
     setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+    setDeviceMessage(
+      "Capturing fingerprint... Place your thumb on the scanner",
+    );
 
     // Start smooth progress animation that fills to 100% during capture
     const totalDuration = 10000; // 10 seconds (matches timeout)
     const updateInterval = 100; // Update every 100ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+    const incrementPerUpdate = 100 / (totalDuration / updateInterval); // ~1% per update
 
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
@@ -210,15 +215,20 @@ const BiometricVerification = () => {
     let DString = "";
     if (deviceInfoXml) {
       try {
-        const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+        const xmlDoc = new DOMParser().parseFromString(
+          deviceInfoXml,
+          "text/xml",
+        );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
           // Get the DeviceInfo element as string
-          if (typeof XMLSerializer !== 'undefined') {
+          if (typeof XMLSerializer !== "undefined") {
             DString = new XMLSerializer().serializeToString(deviceInfo);
           } else {
             // Fallback: extract DeviceInfo using regex or innerHTML
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -228,7 +238,9 @@ const BiometricVerification = () => {
         console.error("Error extracting DeviceInfo:", err);
         // Fallback: try to extract DeviceInfo using regex
         try {
-          const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+          const deviceInfoMatch = deviceInfoXml.match(
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+          );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
           }
@@ -237,19 +249,22 @@ const BiometricVerification = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build CustOpts based on device type
     // Build proper XML structure
-    const pidOptions = '<?xml version="1.0"?> \
+    const pidOptions =
+      '<?xml version="1.0"?> \
       <PidOptions ver="1.0"> \
         <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
               pidVer="2.0" timeout="10000" posh="UNKNOWN" \
               wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" \
               env="P" /> \
-        ' + DString + ' \
+        ' +
+      DString +
+      ' \
         <CustOpts> \
           <Param name="mantrakey" value="" /> \
         </CustOpts> \
@@ -305,9 +320,7 @@ const BiometricVerification = () => {
       return null;
     }
 
-    const {
-      ekycBiometric
-    } = statusData;
+    const { ekycBiometric } = statusData;
 
     // Check ekycBiometric status
     const isEkycBiometricCompleted =
@@ -327,9 +340,15 @@ const BiometricVerification = () => {
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
-    console.log("🔍 useEffect triggered - pidData:", pidData ? `exists (${pidData.length} chars)` : "empty");
+    console.log(
+      "🔍 useEffect triggered - pidData:",
+      pidData ? `exists (${pidData.length} chars)` : "empty",
+    );
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
-    console.log("🔍 lastPidDataRef.current length:", lastPidDataRef.current.length);
+    console.log(
+      "🔍 lastPidDataRef.current length:",
+      lastPidDataRef.current.length,
+    );
 
     if (!pidData) {
       console.log("⚠️ pidData is empty, resetting ref");
@@ -350,46 +369,59 @@ const BiometricVerification = () => {
 
     const requestData = {
       biometricData: pidData,
-      captureType: "FINGER"
+      captureType: "FINGER",
     };
 
-    console.log("📤 Dispatching aepsOnboardingBiometricVerification with data:", {
-      biometricDataLength: requestData.biometricData.length,
-      captureType: requestData.captureType
-    });
+    console.log(
+      "📤 Dispatching aepsOnboardingBiometricVerification with data:",
+      {
+        biometricDataLength: requestData.biometricData.length,
+        captureType: requestData.captureType,
+      },
+    );
 
     dispatch(aepsOnboardingBiometricVerification(requestData))
       .then((response) => {
         console.log("✅ Biometric verification response:", response);
-        
+
         // Always call aepsStatusCheck after biometric verification dispatch
-        console.log("🔄 Calling aepsStatusCheck after biometric verification...");
-        
+        console.log(
+          "🔄 Calling aepsStatusCheck after biometric verification...",
+        );
+
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check response:", statusResponse);
 
             // Extract status data from response
             // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
-            const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
+            const aepsStatusData =
+              statusResponse?.aepsStatus || statusResponse?.data;
 
             if (aepsStatusData) {
               // Get next step based on status
               const nextStep = getNextStep(aepsStatusData);
 
               if (nextStep === "bankOtp" && response?.status === "SUCCESS") {
-                console.log("✅ Biometric completed, calling aepsBankOtp and moving to BankOtp");
+                console.log(
+                  "✅ Biometric completed, calling aepsBankOtp and moving to BankOtp",
+                );
                 setDeviceMessage("Biometric verification successful");
-                
+
                 // Call aepsBankOtp API
                 dispatch(aepsBankOtp())
                   .then((bankOtpResponse) => {
-                    console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                    console.log(
+                      "✅ Bank OTP sent successfully:",
+                      bankOtpResponse,
+                    );
                     setShowBankOtp(true);
                   })
                   .catch((bankOtpError) => {
                     console.error("❌ Bank OTP error:", bankOtpError);
-                    setDeviceMessage("Failed to send bank OTP. Please try again.");
+                    setDeviceMessage(
+                      "Failed to send bank OTP. Please try again.",
+                    );
                     pidDataProcessedRef.current = false;
                   });
               } else {
@@ -397,7 +429,9 @@ const BiometricVerification = () => {
                 if (response?.status === "SUCCESS") {
                   setDeviceMessage("Biometric verification successful");
                 } else {
-                  setDeviceMessage(response?.message || "Biometric verification completed");
+                  setDeviceMessage(
+                    response?.message || "Biometric verification completed",
+                  );
                 }
               }
             } else {
@@ -407,14 +441,19 @@ const BiometricVerification = () => {
                 // Still try to call aepsBankOtp
                 dispatch(aepsBankOtp())
                   .then((bankOtpResponse) => {
-                    console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                    console.log(
+                      "✅ Bank OTP sent successfully:",
+                      bankOtpResponse,
+                    );
                     setShowBankOtp(true);
                   })
                   .catch((bankOtpError) => {
                     console.error("❌ Bank OTP error:", bankOtpError);
                   });
               } else {
-                setDeviceMessage(response?.message || "Biometric verification failed");
+                setDeviceMessage(
+                  response?.message || "Biometric verification failed",
+                );
                 pidDataProcessedRef.current = false;
               }
             }
@@ -427,14 +466,19 @@ const BiometricVerification = () => {
               // Try to call aepsBankOtp
               dispatch(aepsBankOtp())
                 .then((bankOtpResponse) => {
-                  console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+                  console.log(
+                    "✅ Bank OTP sent successfully:",
+                    bankOtpResponse,
+                  );
                   setShowBankOtp(true);
                 })
                 .catch((bankOtpError) => {
                   console.error("❌ Bank OTP error:", bankOtpError);
                 });
             } else {
-              setDeviceMessage(response?.message || "Biometric verification failed");
+              setDeviceMessage(
+                response?.message || "Biometric verification failed",
+              );
               pidDataProcessedRef.current = false;
             }
           });
@@ -443,14 +487,17 @@ const BiometricVerification = () => {
         console.error("❌ Biometric verification error:", error);
         setDeviceMessage("Biometric verification failed. Please try again.");
         pidDataProcessedRef.current = false;
-        
+
         // Still try to check status even on error
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
             console.log("✅ AEPS Status check after error:", statusResponse);
           })
           .catch((statusError) => {
-            console.error("❌ AEPS Status check error after biometric failure:", statusError);
+            console.error(
+              "❌ AEPS Status check error after biometric failure:",
+              statusError,
+            );
           });
       });
   }, [pidData, dispatch]);
@@ -459,11 +506,16 @@ const BiometricVerification = () => {
       CALL aepsStatusCheck ON COMPONENT MOUNT
   --------------------------------------------*/
   useEffect(() => {
-    dispatch(aepsStatusCheck()).then((response) => {
-      console.log("aepsStatusCheck response in BiometricVerification:", response);
-    }).catch((error) => {
-      console.error("aepsStatusCheck error in BiometricVerification:", error);
-    });
+    dispatch(aepsStatusCheck())
+      .then((response) => {
+        console.log(
+          "aepsStatusCheck response in BiometricVerification:",
+          response,
+        );
+      })
+      .catch((error) => {
+        console.error("aepsStatusCheck error in BiometricVerification:", error);
+      });
   }, [dispatch]);
 
   /* -------------------------------------------
@@ -504,11 +556,13 @@ const BiometricVerification = () => {
         "Device Name:",
         "Device detected and READY",
         "Device Connected",
-        "Device Not Connected"
+        "Device Not Connected",
       ];
 
       // Check if this is a persistent message
-      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
+      const isPersistent = persistentMessages.some((msg) =>
+        deviceMessage.includes(msg),
+      );
 
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
@@ -525,7 +579,7 @@ const BiometricVerification = () => {
       { key: "fingerprint", label: "Fingerprint" },
       { key: "iris", label: "Iris Scan" },
     ],
-    []
+    [],
   );
 
   if (showBankOtp) {
@@ -533,7 +587,7 @@ const BiometricVerification = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -542,7 +596,7 @@ const BiometricVerification = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -568,7 +622,8 @@ const BiometricVerification = () => {
               {modeTabs.map((t) => {
                 const active = mode === t.key;
                 const isIris = t.key === "iris";
-                let tabClassName = "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
+                let tabClassName =
+                  "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
                 if (active) tabClassName = "bg-[#039155] text-[#FFFFFF]";
                 return (
                   <button
@@ -588,8 +643,11 @@ const BiometricVerification = () => {
           </div>
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
-            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}>
+            <div
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
+                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}
+            >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="text-[12px] font-['Gilroy-Medium'] flex-1">
@@ -607,10 +665,15 @@ const BiometricVerification = () => {
               ) : (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
-                      }`} />
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        deviceConnected ? "bg-white" : "bg-white"
+                      }`}
+                    />
                     <span className="text-[12px] font-['Gilroy-Medium']">
-                      {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                      {deviceConnected
+                        ? "Device Connected"
+                        : "Device Not Connected"}
                     </span>
                   </div>
                   <button
@@ -629,11 +692,20 @@ const BiometricVerification = () => {
 
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
-          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
-            }`}>
+          <div
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
+          >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
-              <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
+              <div
+                className={
+                  comingSoon
+                    ? "opacity-80 pointer-events-none select-none blur-sm"
+                    : ""
+                }
+              >
                 <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
                   {/* Outer circle background */}
                   <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
@@ -677,7 +749,9 @@ const BiometricVerification = () => {
                 </div>
 
                 <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                  {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
+                  {mode === "iris"
+                    ? "Look Into The Scanner"
+                    : "Place Finger On Scanner"}
                 </div>
                 <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
                   {mode === "iris"
@@ -695,7 +769,7 @@ const BiometricVerification = () => {
                     }
                     captureAvdm();
                   }}
-                  disabled={isScanning || comingSoon || (mode === "iris")}
+                  disabled={isScanning || comingSoon || mode === "iris"}
                   className="mt-[28px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[260px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <span className="inline-flex items-center justify-center w-6 h-6 ">
@@ -706,7 +780,11 @@ const BiometricVerification = () => {
                       aria-hidden="true"
                     />
                   </span>{" "}
-                  {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
+                  {isScanning
+                    ? "Scanning..."
+                    : mode === "iris"
+                      ? "Start Iris Scan"
+                      : "Start Capture"}
                 </button>
               </div>
 
@@ -720,7 +798,8 @@ const BiometricVerification = () => {
                       Iris Scan Coming Soon
                     </div>
                     <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                      This authentication mode will be available in a future update.
+                      This authentication mode will be available in a future
+                      update.
                     </div>
                   </div>
                 </div>

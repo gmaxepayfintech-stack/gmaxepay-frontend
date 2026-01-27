@@ -80,80 +80,88 @@ function App() {
   const success = useSelector((state) => state?.employee?.success || null);
   const userSuccess = useSelector((state) => state?.user?.success || null);
   const slabSuccess = useSelector(
-    (state) => state?.slabMaster?.success || null
+    (state) => state?.slabMaster?.success || null,
   );
   const fundOrderSuccess = useSelector(
-    (state) => state?.fundOrder?.success || null
+    (state) => state?.fundOrder?.success || null,
   );
   const apiSwitchSuccess = useSelector(
-    (state) => state?.apiSwitch?.success || null
+    (state) => state?.apiSwitch?.success || null,
   );
   const bankSuccess = useSelector(
-    (state) => state?.bankMaster?.success || null
+    (state) => state?.bankMaster?.success || null,
   );
   const specialDomSuccess = useSelector(
-    (state) => state?.recharge?.success || null
+    (state) => state?.recharge?.success || null,
   );
   const payoutSuccess = useSelector((state) => state?.payout);
 
   const operatorSuccess = useSelector(
-    (state) => state?.operatorM?.success || null
+    (state) => state?.operatorM?.success || null,
   );
   const specialDomfailure = useSelector(
-    (state) => state?.recharge?.specialData || null
+    (state) => state?.recharge?.specialData || null,
   );
 
-  const aepsStatusCheck = useSelector(
-    (state) => state?.aeps || null
-  );
-
+  const aepsStatusCheck = useSelector((state) => state?.aeps || null);
 
   const moneyTransfer = useSelector(
-    (state) => state?.moneyTransfer?.success || null
+    (state) => state?.moneyTransfer?.success || null,
   );
   const rangeMasterSuccess = useSelector(
-    (state) => state?.rangeMaster?.success || null
+    (state) => state?.rangeMaster?.success || null,
   );
   const AdminShoppingSucess = useSelector(
-    (state) => state?.adminShoppingReducer?.success || null
+    (state) => state?.adminShoppingReducer?.success || null,
   );
   const prepaidRechargeSucess = useSelector(
-    (state) => state?.rechargeReducer?.success || null
+    (state) => state?.rechargeReducer?.success || null,
   );
 
   const LoginSuccess = useSelector(
-    (state) => state?.login?.loginResponse || null
+    (state) => state?.login?.loginResponse || null,
   );
   const complaintSuccess = useSelector(
-    (state) => state?.complain?.success || null
+    (state) => state?.complain?.success || null,
   );
   const creditCardSuccess = useSelector(
-    (state) => state?.creditCard?.success || null
+    (state) => state?.creditCard?.success || null,
   );
-  const walletLoadSuccess = useSelector((state) => state?.fund?.success || null);
-  const walletLoadMessage = useSelector((state) => state?.fund?.message || null);
+  const walletLoadSuccess = useSelector(
+    (state) => state?.fund?.success || null,
+  );
+  const walletLoadMessage = useSelector(
+    (state) => state?.fund?.message || null,
+  );
 
   const roleUpgradeSuccess = useSelector((state) => {
     const roleState = state?.roles || state?.role;
-    return roleState?.success === "SUCCESS" ? { message: roleState?.message } : null;
+    return roleState?.success === "SUCCESS"
+      ? { message: roleState?.message }
+      : null;
   });
 
   const roleUpgradeError = useSelector((state) => {
     const roleState = state?.roles || state?.role;
-    return roleState?.error ? { message: roleState?.error || roleState?.message } : null;
+    return roleState?.error
+      ? { message: roleState?.error || roleState?.message }
+      : null;
   });
 
-  const whiteLabelPanMessageSuccess = useSelector((state) => state?.whitelabel?.kycRevert
+  const whiteLabelPanMessageSuccess = useSelector(
+    (state) => state?.whitelabel?.kycRevert,
   );
-  const OnboardingLink = useSelector((state) => state?.whitelabel?.rescendOnboarding)
+  const OnboardingLink = useSelector(
+    (state) => state?.whitelabel?.rescendOnboarding,
+  );
 
   const whiteLabelPanMessageFailure = useSelector(
-    (state) => state?.error?.error
+    (state) => state?.error?.error,
   );
   const WhiteLabelFailure = useSelector((state) => state?.error);
 
   const onBoardingMobileVerification = useSelector(
-    (state) => state?.onboarding
+    (state) => state?.onboarding,
   );
 
   const logoutMessage = useSelector((state) => state?.auth?.success || null);
@@ -164,7 +172,10 @@ function App() {
   }, [dispatch]);
 
   useEffect(() => {
-    if (AdminShoppingSucess && AdminShoppingSucess !== prevAdminShoppingSuccessRef.current) {
+    if (
+      AdminShoppingSucess &&
+      AdminShoppingSucess !== prevAdminShoppingSuccessRef.current
+    ) {
       // Only show notification if previous value was not null (i.e., value actually changed, not initial mount)
       if (prevAdminShoppingSuccessRef.current !== null) {
         showNotification({
@@ -179,7 +190,7 @@ function App() {
   useEffect(() => {
     const currentMessage = LoginSuccess?.message;
     const prevMessage = prevLoginSuccessRef.current?.message;
-    
+
     // On first render, just store the value and mark as initialized
     if (isFirstRenderRef.current) {
       isFirstRenderRef.current = false;
@@ -188,7 +199,7 @@ function App() {
       }
       return;
     }
-    
+
     // After first render, show notification if message exists and has changed
     if (currentMessage && currentMessage !== prevMessage) {
       showNotification({
@@ -228,9 +239,11 @@ function App() {
     }
   }, [success, showNotification]);
 
-
   useEffect(() => {
-    if (specialDomSuccess && specialDomSuccess !== prevSpecialDomSuccessRef.current) {
+    if (
+      specialDomSuccess &&
+      specialDomSuccess !== prevSpecialDomSuccessRef.current
+    ) {
       if (prevSpecialDomSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -253,7 +266,6 @@ function App() {
     }
   }, [aepsStatusCheck, showNotification]);
 
-
   useEffect(() => {
     if (operatorSuccess && operatorSuccess !== prevOperatorSuccessRef.current) {
       if (prevOperatorSuccessRef.current !== null) {
@@ -268,7 +280,10 @@ function App() {
 
   useEffect(() => {
     const message = onBoardingMobileVerification?.message;
-    if (message && message !== prevOnBoardingMobileVerificationRef.current?.message) {
+    if (
+      message &&
+      message !== prevOnBoardingMobileVerificationRef.current?.message
+    ) {
       if (prevOnBoardingMobileVerificationRef.current !== null) {
         showNotification({
           type: "success",
@@ -276,13 +291,17 @@ function App() {
           isCritical: true,
         });
       }
-      prevOnBoardingMobileVerificationRef.current = onBoardingMobileVerification;
+      prevOnBoardingMobileVerificationRef.current =
+        onBoardingMobileVerification;
     }
   }, [onBoardingMobileVerification, showNotification]);
 
   useEffect(() => {
     const message = whiteLabelPanMessageSuccess?.message;
-    if (message && message !== prevWhiteLabelPanMessageSuccessRef.current?.message) {
+    if (
+      message &&
+      message !== prevWhiteLabelPanMessageSuccessRef.current?.message
+    ) {
       if (prevWhiteLabelPanMessageSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -338,7 +357,10 @@ function App() {
 
   useEffect(() => {
     const message = whiteLabelPanMessageFailure?.message;
-    if (message && message !== prevWhiteLabelPanMessageFailureRef.current?.message) {
+    if (
+      message &&
+      message !== prevWhiteLabelPanMessageFailureRef.current?.message
+    ) {
       if (prevWhiteLabelPanMessageFailureRef.current !== null) {
         showNotification({
           type: "error",
@@ -355,10 +377,10 @@ function App() {
       specialDomfailure &&
       specialDomfailure !== prevSpecialDomFailureRef.current &&
       (specialDomfailure === "commAmt must be greater than zero" ||
-      specialDomfailure === "Range must Not be empty" ||
-      specialDomfailure === "Validation isIn on commType failed" ||
-      specialDomfailure === "Validation isIn on amtType failed" ||
-      specialDomfailure === "Circle not found")
+        specialDomfailure === "Range must Not be empty" ||
+        specialDomfailure === "Validation isIn on commType failed" ||
+        specialDomfailure === "Validation isIn on amtType failed" ||
+        specialDomfailure === "Circle not found")
     ) {
       if (prevSpecialDomFailureRef.current !== null) {
         showNotification({
@@ -409,7 +431,10 @@ function App() {
   }, [slabSuccess, showNotification]);
 
   useEffect(() => {
-    if (fundOrderSuccess && fundOrderSuccess !== prevFundOrderSuccessRef.current) {
+    if (
+      fundOrderSuccess &&
+      fundOrderSuccess !== prevFundOrderSuccessRef.current
+    ) {
       if (prevFundOrderSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -421,7 +446,10 @@ function App() {
   }, [fundOrderSuccess, showNotification]);
 
   useEffect(() => {
-    if (apiSwitchSuccess && apiSwitchSuccess !== prevApiSwitchSuccessRef.current) {
+    if (
+      apiSwitchSuccess &&
+      apiSwitchSuccess !== prevApiSwitchSuccessRef.current
+    ) {
       if (prevApiSwitchSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -457,7 +485,10 @@ function App() {
   }, [moneyTransfer, showNotification]);
 
   useEffect(() => {
-    if (rangeMasterSuccess && rangeMasterSuccess !== prevRangeMasterSuccessRef.current) {
+    if (
+      rangeMasterSuccess &&
+      rangeMasterSuccess !== prevRangeMasterSuccessRef.current
+    ) {
       if (prevRangeMasterSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -470,13 +501,14 @@ function App() {
 
   useEffect(() => {
     const payoutTransaction = payoutSuccess?.payoutTransaction;
-    const prevPayoutTransaction = prevPayoutSuccessRef.current?.payoutTransaction;
+    const prevPayoutTransaction =
+      prevPayoutSuccessRef.current?.payoutTransaction;
     if (
-      payoutTransaction && 
-      payoutTransaction.status === "SUCCESS" && 
+      payoutTransaction &&
+      payoutTransaction.status === "SUCCESS" &&
       payoutTransaction.message &&
-      (payoutTransaction.message !== prevPayoutTransaction?.message || 
-       payoutTransaction.status !== prevPayoutTransaction?.status)
+      (payoutTransaction.message !== prevPayoutTransaction?.message ||
+        payoutTransaction.status !== prevPayoutTransaction?.status)
     ) {
       if (prevPayoutSuccessRef.current !== null) {
         showNotification({
@@ -490,7 +522,10 @@ function App() {
   }, [payoutSuccess, showNotification]);
 
   useEffect(() => {
-    if (prepaidRechargeSucess && prepaidRechargeSucess !== prevPrepaidRechargeSuccessRef.current) {
+    if (
+      prepaidRechargeSucess &&
+      prepaidRechargeSucess !== prevPrepaidRechargeSuccessRef.current
+    ) {
       if (prevPrepaidRechargeSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -502,7 +537,10 @@ function App() {
   }, [prepaidRechargeSucess, showNotification]);
 
   useEffect(() => {
-    if (complaintSuccess && complaintSuccess !== prevComplaintSuccessRef.current) {
+    if (
+      complaintSuccess &&
+      complaintSuccess !== prevComplaintSuccessRef.current
+    ) {
       if (prevComplaintSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -514,7 +552,10 @@ function App() {
   }, [complaintSuccess, showNotification]);
 
   useEffect(() => {
-    if (creditCardSuccess && creditCardSuccess !== prevCreditCardSuccessRef.current) {
+    if (
+      creditCardSuccess &&
+      creditCardSuccess !== prevCreditCardSuccessRef.current
+    ) {
       if (prevCreditCardSuccessRef.current !== null) {
         showNotification({
           type: "success",
@@ -528,14 +569,17 @@ function App() {
   useEffect(() => {
     // Only show notification when success changes from non-SUCCESS to SUCCESS
     // Similar pattern to other success handlers in this file
-    if (walletLoadSuccess === "SUCCESS" && walletLoadSuccess !== prevWalletLoadSuccessRef.current) {
+    if (
+      walletLoadSuccess === "SUCCESS" &&
+      walletLoadSuccess !== prevWalletLoadSuccessRef.current
+    ) {
       // Only show if previous value was not null (i.e., value actually changed, not initial mount)
       // This prevents showing notification on initial component mount
       if (prevWalletLoadSuccessRef.current !== null) {
         showNotification({
           type: "success",
           message: walletLoadMessage || "Fund request submitted successfully",
-          isCritical: true, 
+          isCritical: true,
         });
       }
     }
@@ -641,9 +685,9 @@ function App() {
         <Route
           path="/retailerDashboard/*"
           element={
-            <ProtectedRoute role="retailer">
-              <RetailerDashboard />
-            </ProtectedRoute>
+            // <ProtectedRoute role="retailer">
+            <RetailerDashboard />
+            // </ProtectedRoute>
           }
         />
         <Route

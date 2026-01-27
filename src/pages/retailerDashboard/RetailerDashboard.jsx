@@ -1,773 +1,924 @@
 import { useState, useEffect, useRef } from "react";
 import {
-    XAxis,
-    YAxis,
-    ResponsiveContainer,
-    CartesianGrid,
-    BarChart,
-    Bar,
-    Tooltip,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  CartesianGrid,
+  BarChart,
+  Bar,
+  Tooltip,
 } from "recharts";
 import { useDispatch, useSelector } from "react-redux";
-import { payoutBankList, payoutTransaction } from "../../redux/action/payoutAction";
+import {
+  payoutBankList,
+  payoutTransaction,
+} from "../../redux/action/payoutAction";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { getUserWalletBalance } from "../../redux/action/walletAction";
 
 const RetailerDashboard = () => {
-    const dispatch = useDispatch();
-    const [payoutOpen, setPayout] = useState(false);
-    const [walletType, setWalletType] = useState("bank");
-    const [requestType, setRequestType] = useState("");
-    const [amount, setAmount] = useState("1000");
-    const [selectedBank, setSelectedBank] = useState(null);
-    const [banks, setBanks] = useState([]);
-    const scrollYRef = useRef(0);
-    const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
-    const [isWalletLoading, setIsWalletLoading] = useState(true);
+  const dispatch = useDispatch();
+  const [payoutOpen, setPayout] = useState(false);
+  const [walletType, setWalletType] = useState("bank");
+  const [requestType, setRequestType] = useState("");
+  const [amount, setAmount] = useState("1000");
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [banks, setBanks] = useState([]);
+  const scrollYRef = useRef(0);
+  const [walletData, setWalletData] = useState({
+    mainWallet: null,
+    apesWallet: null,
+  });
+  const [isWalletLoading, setIsWalletLoading] = useState(true);
 
-    // Get bank list from Redux
-    const payoutBankListData = useSelector((state) => state?.payout?.payoutBankList);
-    const walletBalanceResponse = useSelector((state) => state?.wallet?.userWalletBalance);
+  // Get bank list from Redux
+  const payoutBankListData = useSelector(
+    (state) => state?.payout?.payoutBankList,
+  );
+  const walletBalanceResponse = useSelector(
+    (state) => state?.wallet?.userWalletBalance,
+  );
 
-    // Fetch wallet balance on component mount
-    useEffect(() => {
-        const fetchBalance = async () => {
-            setIsWalletLoading(true);
-            try {
-                await dispatch(getUserWalletBalance());
-            } catch (error) {
-                console.error("Failed to fetch wallet balance:", error);
-            } finally {
-                setIsWalletLoading(false);
-            }
-        };
-        fetchBalance();
-    }, [dispatch]);
-
-    // Update wallet data when balance is fetched
-    useEffect(() => {
-        if (walletBalanceResponse?.data) {
-            const { mainWallet, apesWallet } = walletBalanceResponse.data;
-            setWalletData({
-                mainWallet: mainWallet || null,
-                apesWallet: apesWallet || null,
-            });
-        }
-    }, [walletBalanceResponse]);
-
-    // Format number with Indian locale
-    const formatCurrency = (value) => {
-        if (!value) return "₹0.00";
-        const numValue = parseFloat(value);
-        return `₹${numValue.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  // Fetch wallet balance on component mount
+  useEffect(() => {
+    const fetchBalance = async () => {
+      setIsWalletLoading(true);
+      try {
+        await dispatch(getUserWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch wallet balance:", error);
+      } finally {
+        setIsWalletLoading(false);
+      }
     };
-    // Chart data for Recent Transaction - Monthly data (Jan-Dec)
-    const chartData = [
-        { name: "Jan", value: 2000 },
-        { name: "Feb", value: 4000 },
-        { name: "Mar", value: 7000 },
-        { name: "Apr", value: 5000 },
-        { name: "May", value: 1000 },
-        { name: "Jun", value: 4000 },
-        { name: "Jul", value: 8000 },
-        { name: "Aug", value: 7000 },
-        { name: "Sep", value: 2000 },
-        { name: "Oct", value: 1000 },
-        { name: "Nov", value: 7000 },
-        { name: "Dec", value: 6000 },
-    ];
+    fetchBalance();
+  }, [dispatch]);
 
-    // Transaction table data - Updated to match image
-    const transactionData = [
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-        { service: "Recharge", volume: "3208", count: "13", success: "08", failed: "02", pending: "06" },
-    ];
-
-    // Quick Access Services data
-    const quickServices = [
-        { name: "Mobile & DTH Recharge", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "DMT-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "Micro ATM", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "CMS-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "BBPS", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "DMT-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "CMS-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "Indo-Nepal DMT", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-        { name: "Mobile & DTH Recharge", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    ];
-
-    const handlePayout = () => {
-        setPayout(true);
+  // Update wallet data when balance is fetched
+  useEffect(() => {
+    if (walletBalanceResponse?.data) {
+      const { mainWallet, apesWallet } = walletBalanceResponse.data;
+      setWalletData({
+        mainWallet: mainWallet || null,
+        apesWallet: apesWallet || null,
+      });
     }
+  }, [walletBalanceResponse]);
 
-    // Fetch bank list when modal opens
-    useEffect(() => {
-        if (payoutOpen) {
-            const fetchBanks = async () => {
-                const response = await dispatch(payoutBankList({}));
-                if (response?.status === "SUCCESS" && response?.data?.banks) {
-                    // Transform API data to match component format
-                    const transformedBanks = response.data.banks.map((bank, index) => ({
-                        id: bank.id?.toString() || index.toString(),
-                        name: bank.bankName || "",
-                        logo: "/img/kotak-logo.png", // Default logo, can be updated based on bank name
-                        accountNumber: bank.accountNumber || "",
-                        ifscCode: bank.ifsc || ""
-                    }));
-                    setBanks(transformedBanks);
-                    // Set first bank as selected if available
-                    if (transformedBanks.length > 0 && !selectedBank) {
-                        setSelectedBank(transformedBanks[0].id);
-                    }
-                }
-            };
-            fetchBanks();
+  // Format number with Indian locale
+  const formatCurrency = (value) => {
+    if (!value) return "₹0.00";
+    const numValue = parseFloat(value);
+    return `₹${numValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  };
+  // Chart data for Recent Transaction - Monthly data (Jan-Dec)
+  const chartData = [
+    { name: "Jan", value: 2000 },
+    { name: "Feb", value: 4000 },
+    { name: "Mar", value: 7000 },
+    { name: "Apr", value: 5000 },
+    { name: "May", value: 1000 },
+    { name: "Jun", value: 4000 },
+    { name: "Jul", value: 8000 },
+    { name: "Aug", value: 7000 },
+    { name: "Sep", value: 2000 },
+    { name: "Oct", value: 1000 },
+    { name: "Nov", value: 7000 },
+    { name: "Dec", value: 6000 },
+  ];
+
+  // Transaction table data - Updated to match image
+  const transactionData = [
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+    {
+      service: "Recharge",
+      volume: "3208",
+      count: "13",
+      success: "08",
+      failed: "02",
+      pending: "06",
+    },
+  ];
+
+  // Quick Access Services data
+  const quickServices = [
+    {
+      name: "Mobile & DTH Recharge",
+      icon: "/img/MobileIcon.svg",
+      amount: "₹ 20542",
+    },
+    { name: "DMT-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "Micro ATM", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "CMS-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "BBPS", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "DMT-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "CMS-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "Indo-Nepal DMT", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    {
+      name: "Mobile & DTH Recharge",
+      icon: "/img/MobileIcon.svg",
+      amount: "₹ 20542",
+    },
+  ];
+
+  const handlePayout = () => {
+    setPayout(true);
+  };
+
+  // Fetch bank list when modal opens
+  useEffect(() => {
+    if (payoutOpen) {
+      const fetchBanks = async () => {
+        const response = await dispatch(payoutBankList({}));
+        if (response?.status === "SUCCESS" && response?.data?.banks) {
+          // Transform API data to match component format
+          const transformedBanks = response.data.banks.map((bank, index) => ({
+            id: bank.id?.toString() || index.toString(),
+            name: bank.bankName || "",
+            logo: "/img/kotak-logo.png", // Default logo, can be updated based on bank name
+            accountNumber: bank.accountNumber || "",
+            ifscCode: bank.ifsc || "",
+          }));
+          setBanks(transformedBanks);
+          // Set first bank as selected if available
+          if (transformedBanks.length > 0 && !selectedBank) {
+            setSelectedBank(transformedBanks[0].id);
+          }
         }
-    }, [payoutOpen, dispatch]);
+      };
+      fetchBanks();
+    }
+  }, [payoutOpen, dispatch]);
 
-    // Also use Redux data if available
-    useEffect(() => {
-        if (payoutBankListData?.data?.banks && payoutBankListData.data.banks.length > 0) {
-            const transformedBanks = payoutBankListData.data.banks.map((bank, index) => ({
-                id: bank.id?.toString() || index.toString(),
-                name: bank.bankName || "",
-                logo: "/img/kotak-logo.png",
-                accountNumber: bank.accountNumber || "",
-                ifscCode: bank.ifsc || ""
-            }));
-            setBanks(transformedBanks);
-            if (transformedBanks.length > 0 && !selectedBank) {
-                setSelectedBank(transformedBanks[0].id);
-            }
-        }
-    }, [payoutBankListData]);
+  // Also use Redux data if available
+  useEffect(() => {
+    if (
+      payoutBankListData?.data?.banks &&
+      payoutBankListData.data.banks.length > 0
+    ) {
+      const transformedBanks = payoutBankListData.data.banks.map(
+        (bank, index) => ({
+          id: bank.id?.toString() || index.toString(),
+          name: bank.bankName || "",
+          logo: "/img/kotak-logo.png",
+          accountNumber: bank.accountNumber || "",
+          ifscCode: bank.ifsc || "",
+        }),
+      );
+      setBanks(transformedBanks);
+      if (transformedBanks.length > 0 && !selectedBank) {
+        setSelectedBank(transformedBanks[0].id);
+      }
+    }
+  }, [payoutBankListData]);
 
-    useEffect(() => {
-        if (payoutOpen) {
-            // Save current scroll position
-            scrollYRef.current = window.scrollY;
-            document.body.style.position = 'fixed';
-            document.body.style.top = `-${scrollYRef.current}px`;
-            document.body.style.width = '100%';
-            document.body.style.overflow = 'hidden';
-        } else {
-            // Restore scroll position
-            const scrollY = scrollYRef.current;
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-            document.body.style.overflow = 'unset';
-            window.scrollTo(0, scrollY);
-        }
-        return () => {
-            // Cleanup: reset styles only
-            document.body.style.position = '';
-            document.body.style.top = '';
-            document.body.style.width = '';
-            document.body.style.overflow = 'unset';
-        };
-    }, [payoutOpen]);
+  useEffect(() => {
+    if (payoutOpen) {
+      // Save current scroll position
+      scrollYRef.current = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollYRef.current}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+    } else {
+      // Restore scroll position
+      const scrollY = scrollYRef.current;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "unset";
+      window.scrollTo(0, scrollY);
+    }
+    return () => {
+      // Cleanup: reset styles only
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "unset";
+    };
+  }, [payoutOpen]);
 
-
-    // Skeleton loader component
-    const SkeletonLoader = () => (
-        <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
-            {/* Chart and Wallet Section Skeleton */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-                {/* Chart Skeleton */}
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-                        <div className="h-6 bg-gray-200 rounded w-40"></div>
-                        <div className="h-8 bg-gray-200 rounded w-20"></div>
-                    </div>
-                    <div className="mb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <div className="h-7 bg-gray-200 rounded w-32"></div>
-                            <div className="h-5 bg-gray-200 rounded w-24"></div>
-                        </div>
-                    </div>
-                    <div className="w-full h-80 sm:h-96 lg:h-[450px] bg-gray-200 rounded"></div>
-                </div>
-
-                {/* Wallet Cards Skeleton */}
-                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
-                    {[1, 2].map((i) => (
-                        <div key={i} className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col animate-pulse">
-                            <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
-                            <div className="h-8 bg-gray-300 rounded w-40 mb-2"></div>
-                            <div className="h-4 bg-gray-300 rounded w-16 mb-3"></div>
-                            <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
-                            <div className="h-10 bg-gray-300 rounded w-full mt-4"></div>
-                        </div>
-                    ))}
-                </div>
+  // Skeleton loader component
+  const SkeletonLoader = () => (
+    <div className="min-h-screen text-[#1B1717] py-4 px-1">
+      {/* Chart and Wallet Section Skeleton */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        {/* Chart Skeleton */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+            <div className="h-6 bg-gray-200 rounded w-40"></div>
+            <div className="h-8 bg-gray-200 rounded w-20"></div>
+          </div>
+          <div className="mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+              <div className="h-7 bg-gray-200 rounded w-32"></div>
+              <div className="h-5 bg-gray-200 rounded w-24"></div>
             </div>
-
-            {/* Quick Access Services Skeleton */}
-            <div className="p-3 sm:p-4 lg:p-6 animate-pulse">
-                <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
-                        <div key={i} className="bg-white rounded-xl p-3 sm:p-4 flex items-start gap-4">
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gray-200 rounded-full shrink-0"></div>
-                            <div className="flex-1">
-                                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
-                                <div className="h-5 bg-gray-200 rounded w-24 mt-4"></div>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            </div>
-
-            {/* Transaction Table Skeleton */}
-            <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-                    <div className="h-6 bg-gray-200 rounded w-40"></div>
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <div className="h-8 bg-gray-200 rounded w-32"></div>
-                        <div className="h-8 bg-gray-200 rounded w-20"></div>
-                    </div>
-                </div>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full">
-                        <thead>
-                            <tr className="border-b bg-gray-100 border-gray-200">
-                                {[1, 2, 3, 4, 5, 6].map((i) => (
-                                    <th key={i} className="py-3 px-4">
-                                        <div className="h-4 bg-gray-200 rounded w-20"></div>
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {[1, 2, 3, 4, 5].map((row) => (
-                                <tr key={row} className="border-b border-gray-100">
-                                    {[1, 2, 3, 4, 5, 6].map((cell) => (
-                                        <td key={cell} className="py-3 px-4">
-                                            <div className="h-4 bg-gray-200 rounded w-16"></div>
-                                        </td>
-                                    ))}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+          </div>
+          <div className="w-full h-80 sm:h-96 lg:h-[450px] bg-gray-200 rounded"></div>
         </div>
-    );
 
-    // Show skeleton loader while loading
-    if (isWalletLoading) {
-        return <SkeletonLoader />;
-    }
+        {/* Wallet Cards Skeleton */}
+        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
+          {[1, 2].map((i) => (
+            <div
+              key={i}
+              className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col animate-pulse"
+            >
+              <div className="h-6 bg-gray-300 rounded w-32 mb-3"></div>
+              <div className="h-8 bg-gray-300 rounded w-40 mb-2"></div>
+              <div className="h-4 bg-gray-300 rounded w-16 mb-3"></div>
+              <div className="h-4 bg-gray-300 rounded w-40 mb-3"></div>
+              <div className="h-10 bg-gray-300 rounded w-full mt-4"></div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-    return (
-        <div className="min-h-screen text-[#1B1717] space-y-0 sm:space-y-0">
-            {/* Header Section */}
+      {/* Quick Access Services Skeleton */}
+      <div className="p-3 sm:p-4 lg:p-6 animate-pulse">
+        <div className="h-6 bg-gray-200 rounded w-48 mb-4"></div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((i) => (
+            <div
+              key={i}
+              className="bg-white rounded-xl p-3 sm:p-4 flex items-start gap-4"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 bg-gray-200 rounded-full shrink-0"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="h-5 bg-gray-200 rounded w-24 mt-4"></div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
 
-            {/* Chart and Wallet Section */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
-                {/* Recent Transaction Chart - Left */}
-                <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6">
-                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-                        <h3 className="text-lg sm:text-xl lg:text-[24px] font-medium text-[#1B1717]">
-                            Recent Transaction
-                        </h3>
-                        <button className="px-3 py-1.5 text-xs sm:text-sm font-medium bg-gray-100 hover:bg-gray-200 rounded-lg transition w-full sm:w-auto">
-                            Today
-                        </button>
-                    </div>
+      {/* Transaction Table Skeleton */}
+      <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 animate-pulse">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+          <div className="h-6 bg-gray-200 rounded w-40"></div>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="h-8 bg-gray-200 rounded w-32"></div>
+            <div className="h-8 bg-gray-200 rounded w-20"></div>
+          </div>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="min-w-full">
+            <thead>
+              <tr className="border-b bg-gray-100 border-gray-200">
+                {[1, 2, 3, 4, 5, 6].map((i) => (
+                  <th key={i} className="py-3 px-4">
+                    <div className="h-4 bg-gray-200 rounded w-20"></div>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {[1, 2, 3, 4, 5].map((row) => (
+                <tr key={row} className="border-b border-gray-100">
+                  {[1, 2, 3, 4, 5, 6].map((cell) => (
+                    <td key={cell} className="py-3 px-4">
+                      <div className="h-4 bg-gray-200 rounded w-16"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
 
-                    <div className="mb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-                            <p className="text-lg sm:text-xl lg:text-2xl font-bold text-[#1B1717]">
-                                $4,21,40,238
-                            </p>
-                            <span className="text-green-600 text-xs sm:text-sm font-medium flex items-center gap-1">
-                                ▲
-                                +0.24% Today
-                            </span>
-                        </div>
-                    </div>
+  // Show skeleton loader while loading
+  if (isWalletLoading) {
+    return <SkeletonLoader />;
+  }
 
-                    <div className="w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
-                        <div className="h-80 sm:h-96 lg:h-[450px] min-w-[600px] sm:min-w-0">
-                            <ResponsiveContainer width="100%" height="100%" minHeight={320}>
-                                <BarChart
-                                    data={chartData}
-                                    barCategoryGap="15%"
-                                    margin={{ top: 5, right: 10, left: 5, bottom: 50 }}
-                                >
-                                    <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
-                                    <XAxis
-                                        dataKey="name"
-                                        tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 500 }}
-                                        textAnchor="middle"
-                                        height={60}
-                                        interval={0}
-                                        tickMargin={8}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <YAxis
-                                        domain={[0, 7000]}
-                                        tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 500 }}
-                                        ticks={[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000]}
-                                        width={40}
-                                        axisLine={false}
-                                        tickLine={false}
-                                    />
-                                    <Tooltip
-                                        cursor={false}
-                                        contentStyle={{
-                                            backgroundColor: "#fff",
-                                            border: "1px solid #e5e7eb",
-                                            borderRadius: "8px",
-                                            fontSize: "14px",
-                                            fontWeight: 500,
-                                        }}
-                                        wrapperStyle={{
-                                            outline: "none",
-                                        }}
-                                    />
-                                    <Bar
-                                        dataKey="value"
-                                        fill="#039155"
-                                        radius={[8, 8, 0, 0]}
-                                        barSize={43}
-                                    />
-                                </BarChart>
-                            </ResponsiveContainer>
-                        </div>
-                    </div>
-                </div>
+  return (
+    <div className="min-h-screen text-[#1B1717] py-4 px-1">
+      {/* Header Section */}
 
-                {/* Wallet Cards - Right */}
-                <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
-                    {/* Main Wallet */}
-                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col">
-                        <div>
-                            <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
-                                Main Wallet
-                            </h4>
-                            <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                                {formatCurrency(walletData.mainWallet)}
-                            </p>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                    ▲  0.45%
-                                </span>
-                            </div>
-                            <p className="text-[14px] lg:text-sm text-gray-600 mb-3">
-                                Today's Commission:<strong className="text-[#1B1717]"> ₹200</strong>
-                            </p>
-                        </div>
-                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4">
-                            Account Transfer
-                        </button>
-                    </div>
+      {/* Chart and Wallet Section */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 sm:gap-4 lg:gap-6">
+        {/* ===== Left: Recent Transaction Chart ===== */}
+        <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 h-full flex flex-col">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+            <h3 className="text-lg sm:text-xl lg:text-[24px] font-[gilroy-medium] text-[#1B1717]">
+              Recent Transaction
+            </h3>
+            <button className="px-3 py-1.5 text-[10px] sm:text-xs font-[gilroy-medium] rounded-2xl text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 transition w-full sm:w-auto">
+              Today
+            </button>
+          </div>
 
-                    {/* AEPS Wallet */}
-                    <div className="bg-green-50 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col">
-                        <div>
-                            <h4 className="text-[24px] font-medium text-[#1B1717] mb-3">
-                                AEPS Wallet
-                            </h4>
-                            <p className="text-xl lg:text-2xl font-bold text-[#1B1717] mb-2">
-                                {formatCurrency(walletData.apesWallet)}
-                            </p>
-                            <div className="flex items-center gap-2 mb-3">
-                                <span className="text-green-600 text-xs lg:text-sm font-medium flex items-center gap-1">
-                                    ▲  0.45%
-                                </span>
-                            </div>
-                            <p className="text-xs lg:text-sm text-gray-600 mb-3">
-                                Today's Earning: <strong className="text-[#1B1717]"> ₹200</strong>
-                            </p>
-                        </div>
-                        <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-lg font-medium text-sm lg:text-base transition shadow-sm mt-4"
-                            onClick={() => handlePayout()}
-                        >
-                            Wallet Transfer
-                        </button>
-                    </div>
-                </div>
+          {/* Amount */}
+          <div className="mb-4">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+              <p className="text-lg sm:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                $4,21,40,238
+              </p>
+              <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
+                ▲ +0.24% Today
+              </span>
+            </div>
+          </div>
+
+          {/* ===== Chart (KEY FIX HERE) ===== */}
+          <div className="flex-1 w-full overflow-x-auto -mx-4 sm:mx-0 px-4 sm:px-0">
+            <div className="h-full min-h-[320px] min-w-[600px] sm:min-w-0">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart
+                  data={chartData}
+                  barCategoryGap="15%"
+                  margin={{ top: 5, right: 10, left: 5, bottom: 0 }}
+                >
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="#e5e7eb"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="name"
+                    tick={{
+                      fontSize: 12,
+                      fill: "#1B1717",
+                      fontWeight: 400,
+                      fontFamily: "gilroy-medium",
+                    }}
+                    height={60}
+                    interval={0}
+                    tickMargin={8}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <YAxis
+                    domain={[0, 8000]}
+                    tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 400 }}
+                    ticks={[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000]}
+                    width={40}
+                    axisLine={false}
+                    tickLine={false}
+                  />
+                  <Tooltip
+                    cursor={false}
+                    contentStyle={{
+                      backgroundColor: "#fff",
+                      border: "1px solid #e5e7eb",
+                      borderRadius: "8px",
+                      fontSize: "14px",
+                      fontWeight: 500,
+                    }}
+                    wrapperStyle={{ outline: "none" }}
+                  />
+                  <Bar
+                    dataKey="value"
+                    fill="#039155"
+                    radius={[8, 8, 0, 0]}
+                    barSize={43}
+                  />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        </div>
+
+        {/* ===== Right: Wallet Cards ===== */}
+        <div className="flex flex-col gap-3 sm:gap-4 lg:gap-5 h-full">
+          {/* Main Wallet */}
+          <div className="bg-[#4FF2AD]/20 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717] mb-3">
+                Main Wallet
+              </h4>
+              <p className="text-2xl lg:text-[28px] font-[gilroy-semibold] text-[#1B1717] mb-2">
+                {formatCurrency(walletData.mainWallet)}
+              </p>
+              <span className="text-[#039155] text-[10px] lg:text-xs font-[gilroy-semibold] flex items-center gap-1 mb-3">
+                ▲ 0.45%
+              </span>
+              <p className="text-[14px] lg:text-sm text-[#1B1717]/80 font-[gilroy-medium]">
+                Today's Commission
+                <strong className="text-[#1B1717] font-[gilroy-semibold]">
+                  {" "}
+                  ₹200
+                </strong>
+              </p>
             </div>
 
-            {/* Quick Access Services */}
-            <div className=" p-3 sm:p-4 lg:p-6">
-                <h3 className="text-lg sm:text-xl lg:text-[24px] font-medium text-[#1B1717] mb-4">
-                    Quick Access Services
-                </h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
-                    {quickServices.map((service, index) => (
-                        <div
-                            key={index}
-                            className="bg-[#FFFFFF] rounded-xl p-3 sm:p-4 flex items-start gap-[28px] transition cursor-pointer"
-                        >
-                            <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-blue-100 flex items-center justify-center shrink-0 relative">
-                                <img
-                                    src={service.icon}
-                                    alt={service.name}
-                                    className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 object-contain"
-                                    onError={(e) => {
-                                        e.target.style.display = "none";
-                                    }}
-                                />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-[16px] font-['Gilroy-Medium'	] text-[#000000] mb-1 line-clamp-2">
-                                    {service.name}
-                                </p>
-                                <p className="text-[18px] font-['Gilroy-SemiBold'] text-[#000000] mt-[19px]">
-                                    {service.amount}
-                                </p>
-                            </div>
-                        </div>
-                    ))}
-                </div>
+            <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm">
+              Account Transfer
+            </button>
+          </div>
+
+          {/* AEPS Wallet */}
+          <div className="bg-[#4FF2AD]/20 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col justify-between">
+            <div>
+              <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717] mb-3">
+                AEPS Wallet
+              </h4>
+              <p className="text-2xl lg:text-[28px] font-[gilroy-semibold] text-[#1B1717] mb-2">
+                {formatCurrency(walletData.apesWallet)}
+              </p>
+              <span className="text-[#039155] text-[10px] lg:text-xs font-[gilroy-semibold] flex items-center gap-1 mb-3">
+                ▲ 0.45%
+              </span>
+              <p className="text-xs lg:text-sm text-[#1B1717]/80 font-[gilroy-medium]">
+                Today's Earning
+                <strong className="text-[#1B1717] font-[gilroy-semibold]">
+                  {" "}
+                  ₹200
+                </strong>
+              </p>
             </div>
 
-            {/* Recent Transaction Table */}
-            <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-                    <h3 className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
-                        Recent Transaction
-                    </h3>
-                    <div className="flex items-center gap-2 sm:gap-3">
-                        <select className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-xs border border-gray-300 rounded-3xl text-opacity-80">
-                            <option className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Select Services</option>
-                        </select>
-                        <button className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-[12px] font-['Gilroy-Medium'] hover:bg-gray-200 rounded-3xl border border-gray-300 text-opacity-80 transition whitespace-nowrap">
-                            Today
-                        </button>
-                    </div>
-                </div>
+            <button
+              className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm"
+              onClick={() => handlePayout()}
+            >
+              Wallet Transfer
+            </button>
+          </div>
+        </div>
+      </div>
 
-                <div className="overflow-x-auto -mx-3 sm:mx-0">
-                    <div className="inline-block min-w-full align-middle">
-                        <table className="min-w-full">
-                            <thead>
-                                <tr className="border-b bg-gray-100 border-gray-200">
-                                    <th className="text-left py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Service
-                                    </th>
-                                    <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Volume
-                                    </th>
-                                    <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Count
-                                    </th>
-                                    <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Success
-                                    </th>
-                                    <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Failed
-                                    </th>
-                                    <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                                        Pending
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {transactionData.map((row, index) => (
-                                    <tr
-                                        key={index}
-                                        className="border-b border-gray-100 bg-white hover:bg-gray-50"
-                                    >
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
-                                            {row.service}
-                                        </td>
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-[#1B1717] whitespace-nowrap text-center">
-                                            {row.volume}
-                                        </td>
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-[#1B1717] whitespace-nowrap text-center">
-                                            {row.count}
-                                        </td>
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-green-600 font-medium whitespace-nowrap text-center">
-                                            {row.success}
-                                        </td>
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-orange-600 font-medium whitespace-nowrap text-center">
-                                            {row.failed}
-                                        </td>
-                                        <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-xs sm:text-sm text-red-600 font-medium whitespace-nowrap text-center">
-                                            {row.pending}
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
+      {/* Quick Access Services */}
+      <div className=" py-4 px-2">
+        <h3 className="text-lg sm:text-xl lg:text-[24px] font-[gilroy-medium] text-[#1B1717] mb-4">
+          Quick Access Services
+        </h3>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-4">
+          {quickServices.map((service, index) => (
+            <div
+              key={index}
+              className="bg-[#FFFFFF] rounded-2xl p-3 sm:p-4 flex items-start gap-[28px] transition cursor-pointer"
+            >
+              <div className="w-12 h-12 sm:w-14 sm:h-14 lg:w-16 lg:h-16 rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0 relative">
+                <img
+                  src={service.icon}
+                  alt={service.name}
+                  className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 object-contain"
+                  onError={(e) => {
+                    e.target.style.display = "none";
+                  }}
+                />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-[16px] font-['Gilroy-Medium'	] text-[#1B1717] mb-1 line-clamp-2">
+                  {service.name}
+                </p>
+                <p className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717] mt-3">
+                  {service.amount}
+                </p>
+              </div>
             </div>
-            {payoutOpen && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
-                    <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
-                        <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
-                            Transferring Amount
-                        </h2>
-                        <button
-                            onClick={() => setPayout(false)}
-                            className="absolute top-4 right-4 w-10 h-10
+          ))}
+        </div>
+      </div>
+
+      {/* Recent Transaction Table */}
+      <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-0 mb-4">
+          <h3 className="text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+            Recent Transaction
+          </h3>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <select className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-xs border border-[#1B1717]/80 rounded-2xl  text-opacity-80">
+              <option className="text-xs font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                Select Services
+              </option>
+            </select>
+            <button className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-xs font-['Gilroy-Medium'] hover:bg-gray-200 rounded-2xl border border-[#1B1717]/80 text-[#1B1717]/80 transition whitespace-nowrap">
+              Today
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto -mx-3 sm:mx-0">
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full">
+              <thead>
+                <tr className="border-b bg-[#FAFAFA] border-gray-200 ">
+                  <th className="text-left py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap rounded-tl-xl">
+                    Service
+                  </th>
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Volume
+                  </th>
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Count
+                  </th>
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Success
+                  </th>
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Failed
+                  </th>
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap rounded-tr-xl">
+                    Pending
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {transactionData.map((row, index) => (
+                  <tr
+                    key={index}
+                    className="border-b border-gray-100 bg-white hover:bg-gray-50"
+                  >
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] font-[gilroy-semibold] whitespace-nowrap">
+                      {row.service}
+                    </td>
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular]">
+                      {row.volume}
+                    </td>
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular ">
+                      {row.count}
+                    </td>
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#039155] font-[gilroy-semibold] whitespace-nowrap text-center">
+                      {row.success}
+                    </td>
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#D66000] font-[gilroy-semibold] whitespace-nowrap text-center">
+                      {row.failed}
+                    </td>
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#E32424] font-[gilroy-semibold] whitespace-nowrap text-center">
+                      {row.pending}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      {payoutOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9CC]">
+          <div className="bg-white rounded-xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
+            <h2 className="text-[24px] font-['Gilroy-Medium'] mb-[21px] text-[#1B1717]">
+              Transferring Amount
+            </h2>
+            <button
+              onClick={() => setPayout(false)}
+              className="absolute top-4 right-4 w-10 h-10
              flex items-center justify-center
              rounded-xl bg-[#039155]
              hover:opacity-90 transition"
-                        >
-                            <span
-                                className="w-6 h-6 flex items-center justify-center
+            >
+              <span
+                className="w-6 h-6 flex items-center justify-center
                rounded-full border-2 border-white
                text-white text-sm font-bold"
-                            >
-                                ✕
-                            </span>
-                        </button>
+              >
+                ✕
+              </span>
+            </button>
 
+            {/* Input Fields */}
+            <div className="space-y-4 mb-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+                {/* Wallet Type */}
+                <div>
+                  <label
+                    htmlFor="walletType"
+                    className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-4 "
+                  >
+                    Wallet Type
+                  </label>
+                  <select
+                    id="walletType"
+                    value={walletType}
+                    onChange={(e) => {
+                      setWalletType(e.target.value);
+                      // Reset requestType when switching to wallet mode
+                      if (e.target.value === "wallet") {
+                        setRequestType("");
+                      }
+                    }}
+                    className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
+                  >
+                    <option
+                      value="bank"
+                      className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                    >
+                      Aeps Wallet To Bank
+                    </option>
+                    <option
+                      value="wallet"
+                      className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                    >
+                      AEPS wallet To Main Wallet
+                    </option>
+                  </select>
+                </div>
 
+                {/* Request Type */}
+                <div>
+                  <label
+                    htmlFor="requestType"
+                    className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2 "
+                  >
+                    Mode Type
+                  </label>
+                  <select
+                    id="requestType"
+                    value={requestType}
+                    onChange={(e) => setRequestType(e.target.value)}
+                    disabled={walletType === "wallet"}
+                    className={`w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
+                  >
+                    <option
+                      value=""
+                      className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                    >
+                      Select
+                    </option>
+                    <option value="IMPS">IMPS</option>
+                    <option
+                      value="NEFT"
+                      className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                    >
+                      NEFT
+                    </option>
+                  </select>
+                </div>
+              </div>
 
-                        {/* Input Fields */}
-                        <div className="space-y-4 mb-6">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
-
-                                {/* Wallet Type */}
-                                <div>
-                                    <label
-                                        htmlFor="walletType"
-                                        className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-4 "
-                                    >
-                                        Wallet Type
-                                    </label>
-                                    <select
-                                        id="walletType"
-                                        value={walletType}
-                                        onChange={(e) => {
-                                            setWalletType(e.target.value);
-                                            // Reset requestType when switching to wallet mode
-                                            if (e.target.value === "wallet") {
-                                                setRequestType("");
-                                            }
-                                        }}
-                                        className="w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg "
-                                    >
-                                        <option value="bank" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Aeps Wallet To Bank</option>
-                                        <option value="wallet" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">AEPS wallet To Main Wallet</option>
-                                    </select>
-                                </div>
-
-                                {/* Request Type */}
-                                <div>
-                                    <label
-                                        htmlFor="requestType"
-                                        className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2 "
-                                    >
-                                        Mode Type
-                                    </label>
-                                    <select
-                                        id="requestType"
-                                        value={requestType}
-                                        onChange={(e) => setRequestType(e.target.value)}
-                                        disabled={walletType === "wallet"}
-                                        className={`w-full px-4  h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
-                                    >
-                                        <option value="" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">Select</option>
-                                        <option value="IMPS">IMPS</option>
-                                        <option value="NEFT" className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80">NEFT</option>
-                                    </select>
-                                </div>
-
-                            </div>
-
-
-                            {/* Amount To Withdrawal */}
-                            <div className="">
-                                <label htmlFor="amount" className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
-                                    Amount To Withdrawal
-                                </label>
-                                <div className="relative text-[24px]">
-                                    <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1B1717] text-opacity-80">₹</span>
-                                    <input
-                                        id="amount"
-                                        type="text"
-                                        value={amount}
-                                        onChange={(e) => setAmount(e.target.value)}
-                                        placeholder="Enter amount"
-                                        className="
+              {/* Amount To Withdrawal */}
+              <div className="">
+                <label
+                  htmlFor="amount"
+                  className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
+                  Amount To Withdrawal
+                </label>
+                <div className="relative text-[24px]">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1B1717] text-opacity-80">
+                    ₹
+                  </span>
+                  <input
+                    id="amount"
+                    type="text"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter amount"
+                    className="
     w-full pl-10 pr-4 py-2.5 h-[78px] font-['Gilroy-SemiBold'] text-[#1B1717] text-opacity-80
     border border-dashed border-[#1B1717] border-opacity-80
     rounded-lg focus:outline-none 
   "
-                                    />
+                  />
+                </div>
+              </div>
+            </div>
 
-                                </div>
-                            </div>
+            {/* Settlements Banks Added */}
+            <div className="mb-6">
+              <h3 className="text-[14px] text-[#1B1717] font-['Gilroy-Medium'] mb-2">
+                Settlements Banks Added
+              </h3>
+              <div className="space-y-3 max-h-56 overflow-y-auto">
+                {banks.length === 0 ? (
+                  <p className="text-[14px] text-gray-500 text-center py-4">
+                    No banks available
+                  </p>
+                ) : (
+                  banks.map((bank) => (
+                    <div
+                      key={bank.id}
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => setSelectedBank(bank.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedBank(bank.id);
+                        }
+                      }}
+                      className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${
+                        selectedBank === bank.id
+                          ? "border-[#039155] bg-green-50"
+                          : "border-[#1B1717] border-opacity-80"
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        {/* Bank Logo */}
+                        <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                          <img
+                            src={bank.logo}
+                            alt={bank.name}
+                            className="w-10 h-10 object-cover"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                              const fallback = e.target.nextElementSibling;
+                              if (fallback) fallback.style.display = "block";
+                            }}
+                          />
+                          <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
+                            {bank.name
+                              ? bank.name.substring(0, 2).toUpperCase()
+                              : "BK"}
+                          </span>
                         </div>
 
-                        {/* Settlements Banks Added */}
-                        <div className="mb-6">
-                            <h3 className="text-[14px] text-[#1B1717] font-['Gilroy-Medium'] mb-2">
-                                Settlements Banks Added
-                            </h3>
-                            <div className="space-y-3 max-h-56 overflow-y-auto">
-                                {banks.length === 0 ? (
-                                    <p className="text-[14px] text-gray-500 text-center py-4">No banks available</p>
-                                ) : (
-                                    banks.map((bank) => (
-                                        <div
-                                            key={bank.id}
-                                            role="button"
-                                            tabIndex={0}
-                                            onClick={() => setSelectedBank(bank.id)}
-                                            onKeyDown={(e) => {
-                                                if (e.key === "Enter" || e.key === " ") {
-                                                    e.preventDefault();
-                                                    setSelectedBank(bank.id);
-                                                }
-                                            }}
-                                            className={`p-4 border-[0.5px] rounded-3xl cursor-pointer transition-all ${selectedBank === bank.id
-                                                ? "border-[#039155] bg-green-50"
-                                                : "border-[#1B1717] border-opacity-80"
-                                                }`}
-                                        >
-                                            <div className="flex items-start gap-4">
-                                                {/* Bank Logo */}
-                                                <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
-                                                    <img
-                                                        src={bank.logo}
-                                                        alt={bank.name}
-                                                        className="w-10 h-10 object-cover"
-                                                        onError={(e) => {
-                                                            e.target.style.display = "none";
-                                                            const fallback = e.target.nextElementSibling;
-                                                            if (fallback) fallback.style.display = "block";
-                                                        }}
-                                                    />
-                                                    <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
-                                                        {bank.name ? bank.name.substring(0, 2).toUpperCase() : "BK"}
-                                                    </span>
-                                                </div>
-
-                                                {/* Bank Details */}
-                                                <div className="flex-1 min-w-0">
-                                                    <div className="flex items-center justify-between mb-1">
-                                                        <p className="text-sm font-medium text-gray-900">
-                                                            Bank Name: {bank.name}
-                                                        </p>
-                                                        {/* FIX: remove margin that increases card height and center the indicator */}
-                                                        {selectedBank === bank.id && (
-                                                            <div className="w-[24px] h-[24px] rounded-full bg-[#039155]
-                  flex items-center justify-center self-center">
-                                                                <div className="w-[8px] h-[8px] rounded-full bg-white" />
-                                                            </div>
-                                                        )}
-
-                                                    </div>
-                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
-                                                        Account Number: <span className="text-[#1B1717]">{bank.accountNumber}</span>
-                                                    </p>
-                                                    <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
-                                                        IFSC Code: <span className="text-[#1B1717]">{bank.ifscCode}</span>
-                                                    </p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    ))
-                                )}
-                            </div>
+                        {/* Bank Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-1">
+                            <p className="text-sm font-medium text-gray-900">
+                              Bank Name: {bank.name}
+                            </p>
+                            {/* FIX: remove margin that increases card height and center the indicator */}
+                            {selectedBank === bank.id && (
+                              <div
+                                className="w-[24px] h-[24px] rounded-full bg-[#039155]
+                  flex items-center justify-center self-center"
+                              >
+                                <div className="w-[8px] h-[8px] rounded-full bg-white" />
+                              </div>
+                            )}
+                          </div>
+                          <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 mb-1">
+                            Account Number:{" "}
+                            <span className="text-[#1B1717]">
+                              {bank.accountNumber}
+                            </span>
+                          </p>
+                          <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600">
+                            IFSC Code:{" "}
+                            <span className="text-[#1B1717]">
+                              {bank.ifscCode}
+                            </span>
+                          </p>
                         </div>
+                      </div>
+                    </div>
+                  ))
+                )}
+              </div>
+            </div>
 
-                        {/* Action Buttons */}
-                        <div className="flex w-full gap-3 pt-4 border-gray-200">
-                            <button
-                                className="w-1/2 px-6 py-4 text-[18px] rounded-lg border border-gray-300 bg-[#FFFFFF]
+            {/* Action Buttons */}
+            <div className="flex w-full gap-3 pt-4 border-gray-200">
+              <button
+                className="w-1/2 px-6 py-4 text-[18px] rounded-lg border border-gray-300 bg-[#FFFFFF]
                text-[#1B1717] font-['Gilroy-Medium']
                hover:bg-gray-50 transition"
-                                onClick={() => setPayout(false)}
-                            >
-                                Cancel
-                            </button>
+                onClick={() => setPayout(false)}
+              >
+                Cancel
+              </button>
 
-                            <button
-                                className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
+              <button
+                className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
                font-['Gilroy-SemiBold']
                hover:bg-[#027a47] transition"
-                                onClick={async () => {
-                                    try {
-                                        let payload = {};
+                onClick={async () => {
+                  try {
+                    let payload = {};
 
-                                        if (walletType === "wallet") {
-                                            // Get location data
-                                            const locationInfo = await getLocationAndIP();
-                                            console.log("Wallet - Location Info:", locationInfo);
-                                            const latitude = locationInfo?.location?.latitude != null ? locationInfo.location.latitude.toString() : "";
-                                            const longitude = locationInfo?.location?.longitude != null ? locationInfo.location.longitude.toString() : "";
-                                            console.log("Wallet - Latitude:", latitude, "Longitude:", longitude);
+                    if (walletType === "wallet") {
+                      // Get location data
+                      const locationInfo = await getLocationAndIP();
+                      console.log("Wallet - Location Info:", locationInfo);
+                      const latitude =
+                        locationInfo?.location?.latitude != null
+                          ? locationInfo.location.latitude.toString()
+                          : "";
+                      const longitude =
+                        locationInfo?.location?.longitude != null
+                          ? locationInfo.location.longitude.toString()
+                          : "";
+                      console.log(
+                        "Wallet - Latitude:",
+                        latitude,
+                        "Longitude:",
+                        longitude,
+                      );
 
-                                            payload = {
-                                                amount: amount.toString(),
-                                                mode: "wallet",
-                                                latitude: latitude,
-                                                longitude: longitude
-                                            };
-                                        } else if (walletType === "bank") {
-                                            const locationInfo = await getLocationAndIP();
-                                            console.log("Bank - Location Info:", locationInfo);
-                                            const latitude = locationInfo?.location?.latitude != null ? locationInfo.location.latitude.toString() : "";
-                                            const longitude = locationInfo?.location?.longitude != null ? locationInfo.location.longitude.toString() : "";
-                                            console.log("Bank - Latitude:", latitude, "Longitude:", longitude);
-                                            payload = {
-                                                amount: amount.toString(),
-                                                mode: "bank",
-                                                bankId: selectedBank,
-                                                latitude: latitude,
-                                                longitude: longitude
-                                            };
-                                            if (requestType) {
-                                                payload.paymentMode = requestType;
-                                            }
-                                        }
+                      payload = {
+                        amount: amount.toString(),
+                        mode: "wallet",
+                        latitude: latitude,
+                        longitude: longitude,
+                      };
+                    } else if (walletType === "bank") {
+                      const locationInfo = await getLocationAndIP();
+                      console.log("Bank - Location Info:", locationInfo);
+                      const latitude =
+                        locationInfo?.location?.latitude != null
+                          ? locationInfo.location.latitude.toString()
+                          : "";
+                      const longitude =
+                        locationInfo?.location?.longitude != null
+                          ? locationInfo.location.longitude.toString()
+                          : "";
+                      console.log(
+                        "Bank - Latitude:",
+                        latitude,
+                        "Longitude:",
+                        longitude,
+                      );
+                      payload = {
+                        amount: amount.toString(),
+                        mode: "bank",
+                        bankId: selectedBank,
+                        latitude: latitude,
+                        longitude: longitude,
+                      };
+                      if (requestType) {
+                        payload.paymentMode = requestType;
+                      }
+                    }
 
-                                        // Validate payload before sending
-                                        if (!payload || Object.keys(payload).length === 0) {
-                                            console.error("Payload is empty! WalletType:", walletType);
-                                            alert("Please select a valid wallet type and fill in the required fields.");
-                                            return;
-                                        }
+                    // Validate payload before sending
+                    if (!payload || Object.keys(payload).length === 0) {
+                      console.error(
+                        "Payload is empty! WalletType:",
+                        walletType,
+                      );
+                      alert(
+                        "Please select a valid wallet type and fill in the required fields.",
+                      );
+                      return;
+                    }
 
-                                        console.log("Processing transfer with payload:", payload);
+                    console.log("Processing transfer with payload:", payload);
 
-                                        const response = await dispatch(payoutTransaction(payload));
+                    const response = await dispatch(payoutTransaction(payload));
 
-                                        if (response?.status === "SUCCESS") {
-                                            console.log("Transfer successful:", response);
-                                            setPayout(false);
-                                            // Reset form
-                                            setWalletType("bank");
-                                            setRequestType("");
-                                            setAmount("1000");
-                                            setSelectedBank(null);
-                                        } else {
-                                            console.error("Transfer failed:", response?.message);
-                                            // You might want to show an error message to the user here
-                                        }
-                                    } catch (error) {
-                                        console.error("Error processing transfer:", error);
-                                        // You might want to show an error message to the user here
-                                    }
-                                }}
-                            >
-                                Processed Transfer
-                            </button>
-                        </div>
-
-                    </div>
-                </div>
-            )}
+                    if (response?.status === "SUCCESS") {
+                      console.log("Transfer successful:", response);
+                      setPayout(false);
+                      // Reset form
+                      setWalletType("bank");
+                      setRequestType("");
+                      setAmount("1000");
+                      setSelectedBank(null);
+                    } else {
+                      console.error("Transfer failed:", response?.message);
+                      // You might want to show an error message to the user here
+                    }
+                  } catch (error) {
+                    console.error("Error processing transfer:", error);
+                    // You might want to show an error message to the user here
+                  }
+                }}
+              >
+                Processed Transfer
+              </button>
+            </div>
+          </div>
         </div>
-    );
+      )}
+    </div>
+  );
 };
 
 export default RetailerDashboard;

@@ -5,11 +5,15 @@ import * as Yup from "yup";
 import StartCapture from "../../../../public/img/StartCapture.svg";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
-import { aepsCashWithdrawl, aepsTwoBalanceEnquiry, aepsTwoMiniStatement, aepsTwoBankList } from "../../../redux/action/aepsTwoAction";
+import {
+  aepsCashWithdrawl,
+  aepsTwoBalanceEnquiry,
+  aepsTwoMiniStatement,
+  aepsTwoBankList,
+} from "../../../redux/action/aepsTwoAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
-
 
 const SelectserviceTwo = () => {
   const dispatch = useDispatch();
@@ -64,9 +68,7 @@ const SelectserviceTwo = () => {
 
   // Validation schema (pidData validation removed as it will be captured on withdrawal)
   const validationSchema = Yup.object({
-    selectedBank: Yup.object()
-      .nullable()
-      .required("Please select a bank"),
+    selectedBank: Yup.object().nullable().required("Please select a bank"),
     selectedAmount: Yup.string()
       .required("Amount is required")
       .test("is-valid-amount", "Amount must be greater than 0", (value) => {
@@ -102,8 +104,8 @@ const SelectserviceTwo = () => {
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
-      bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase())
-    )
+        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
+      )
     : banks;
 
   // Function to handle bank selection and update recent banks
@@ -127,7 +129,9 @@ const SelectserviceTwo = () => {
   const recentBanks = (() => {
     if (selectedBank) {
       // If a bank is selected, show it first
-      const otherRecent = recentBanksList.filter((b) => b.bankIIN !== selectedBank.bankIIN);
+      const otherRecent = recentBanksList.filter(
+        (b) => b.bankIIN !== selectedBank.bankIIN,
+      );
       const result = [selectedBank, ...otherRecent].slice(0, 4);
       return result;
     } else if (recentBanksList.length > 0) {
@@ -244,7 +248,9 @@ const SelectserviceTwo = () => {
       // Check device name/model info (mi attribute)
       const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
       // Check manufacturer code (mc attribute) if available
-      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      const manufacturerCode = (
+        deviceInfo.getAttribute("mc") || ""
+      ).toLowerCase();
       // Check device provider ID (dpId attribute) if available
       const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
 
@@ -290,12 +296,14 @@ const SelectserviceTwo = () => {
     setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+    setDeviceMessage(
+      "Capturing fingerprint... Place your thumb on the scanner",
+    );
 
     // Start smooth progress animation that fills to 100% during capture
     const totalDuration = 10000; // 10 seconds (matches timeout)
     const updateInterval = 100; // Update every 100ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~1% per update
+    const incrementPerUpdate = 100 / (totalDuration / updateInterval); // ~1% per update
 
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
@@ -311,15 +319,20 @@ const SelectserviceTwo = () => {
     let DString = "";
     if (deviceInfoXml) {
       try {
-        const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+        const xmlDoc = new DOMParser().parseFromString(
+          deviceInfoXml,
+          "text/xml",
+        );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
           // Get the DeviceInfo element as string
-          if (typeof XMLSerializer !== 'undefined') {
+          if (typeof XMLSerializer !== "undefined") {
             DString = new XMLSerializer().serializeToString(deviceInfo);
           } else {
             // Fallback: extract DeviceInfo using regex
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -329,7 +342,9 @@ const SelectserviceTwo = () => {
         console.error("Error extracting DeviceInfo:", err);
         // Fallback: try to extract DeviceInfo using regex
         try {
-          const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+          const deviceInfoMatch = deviceInfoXml.match(
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+          );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
           }
@@ -346,13 +361,13 @@ const SelectserviceTwo = () => {
     let custOpts = "";
     if (deviceType === "mantra") {
       // Mantra devices require mantrakey parameter
-      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
     } else if (deviceType === "startek") {
       // Startek devices typically don't need CustOpts
       custOpts = ""; // Startek devices usually don't need CustOpts
     } else {
       // For unknown devices, default to Mantra format (backward compatibility)
-      custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+      custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
     }
 
     // Ensure DString is available
@@ -447,11 +462,13 @@ const SelectserviceTwo = () => {
         "Device Name:",
         "Device detected and READY",
         "Device Connected",
-        "Device Not Connected"
+        "Device Not Connected",
       ];
 
       // Check if this is a persistent message
-      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
+      const isPersistent = persistentMessages.some((msg) =>
+        deviceMessage.includes(msg),
+      );
 
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
@@ -466,7 +483,10 @@ const SelectserviceTwo = () => {
   // Close bank dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (bankDropdownRef.current && !bankDropdownRef.current.contains(event.target)) {
+      if (
+        bankDropdownRef.current &&
+        !bankDropdownRef.current.contains(event.target)
+      ) {
         setShowBankDropdown(false);
       }
     };
@@ -494,11 +514,15 @@ const SelectserviceTwo = () => {
     formik.setFieldValue("mobileNumber", mobileNumber);
   }, [mobileNumber]); // eslint-disable-line react-hooks/exhaustive-deps
 
-
   // Handle withdrawal - validates, captures fingerprint, gets location/IP, then calls API
   const handleWithdrawal = async (values) => {
     console.log("🚀 handleWithdrawal called with values:", values);
-    const { selectedBank: bank, selectedAmount: amount, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    const {
+      selectedBank: bank,
+      selectedAmount: amount,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
 
     // Validate required fields
     if (!bank || !bank.bankIIN) {
@@ -575,7 +599,7 @@ const SelectserviceTwo = () => {
       // Start progress animation
       const totalDuration = 10000; // 10 seconds
       const updateInterval = 100; // Update every 100ms
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -590,15 +614,20 @@ const SelectserviceTwo = () => {
       let DString = "";
       if (deviceInfoXml) {
         try {
-          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const xmlDoc = new DOMParser().parseFromString(
+            deviceInfoXml,
+            "text/xml",
+          );
           const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
           if (deviceInfo) {
             // Get the DeviceInfo element as string
-            if (typeof XMLSerializer !== 'undefined') {
+            if (typeof XMLSerializer !== "undefined") {
               DString = new XMLSerializer().serializeToString(deviceInfo);
             } else {
               // Fallback: extract DeviceInfo using regex
-              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              const deviceInfoMatch = deviceInfoXml.match(
+                /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+              );
               if (deviceInfoMatch) {
                 DString = deviceInfoMatch[0];
               }
@@ -608,7 +637,9 @@ const SelectserviceTwo = () => {
           console.error("Error extracting DeviceInfo:", err);
           // Fallback: try to extract DeviceInfo using regex
           try {
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -625,18 +656,20 @@ const SelectserviceTwo = () => {
       let custOpts = "";
       if (deviceType === "mantra") {
         // Mantra devices require mantrakey parameter
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       } else if (deviceType === "startek") {
         // Startek devices typically don't need CustOpts
         custOpts = ""; // Startek devices usually don't need CustOpts
       } else {
         // For unknown devices, default to Mantra format (backward compatibility)
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       }
 
       // Ensure DString is available
       if (!DString) {
-        setDeviceMessage("Device info not available. Please check device first.");
+        setDeviceMessage(
+          "Device info not available. Please check device first.",
+        );
         setIsScanning(false);
         clearInterval(progressInterval);
         setModal({
@@ -682,8 +715,14 @@ const SelectserviceTwo = () => {
           locationAndIP = await getLocationAndIP();
           console.log("📍 Location and IP retrieved:", locationAndIP);
         } catch (locationError) {
-          console.warn("⚠️ Failed to get location/IP, using empty values:", locationError);
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          console.warn(
+            "⚠️ Failed to get location/IP, using empty values:",
+            locationError,
+          );
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -712,7 +751,7 @@ const SelectserviceTwo = () => {
 
         console.log("📤 Sending withdrawal request with payload:", {
           ...payload,
-          txtPidData: payload.txtPidData?.substring(0, 100) + "... (truncated)"
+          txtPidData: payload.txtPidData?.substring(0, 100) + "... (truncated)",
         });
 
         // Call withdrawal API
@@ -723,7 +762,10 @@ const SelectserviceTwo = () => {
 
           if (response?.status === "SUCCESS") {
             console.log("✅ Withdrawal successful!");
-            console.log("📊 Transaction data:", response?.data || response?.cashWithdrawl);
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.cashWithdrawl,
+            );
 
             // Show success modal with transaction details
             // The action returns { cashWithdrawl, status, message } where cashWithdrawl is the data object
@@ -732,7 +774,8 @@ const SelectserviceTwo = () => {
               title: "Transaction Successful",
               message: response?.message || "Withdrawal successful!",
               type: "success",
-              transactionData: response?.data || response?.cashWithdrawl || null,
+              transactionData:
+                response?.data || response?.cashWithdrawl || null,
             });
 
             // Reset form
@@ -747,7 +790,10 @@ const SelectserviceTwo = () => {
             setDeviceMessage("Withdrawal completed successfully");
           } else {
             console.log("❌ Withdrawal failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.cashWithdrawl);
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.cashWithdrawl,
+            );
 
             // Show failure modal with error details
             setModal({
@@ -755,12 +801,16 @@ const SelectserviceTwo = () => {
               title: "Transaction Failed",
               message: response?.message || "Withdrawal failed",
               type: "error",
-              transactionData: response?.data || response?.cashWithdrawl || null,
+              transactionData:
+                response?.data || response?.cashWithdrawl || null,
             });
             setDeviceMessage("Withdrawal failed");
           }
         } catch (apiError) {
-          console.error("❌ Withdrawal API error caught in component:", apiError);
+          console.error(
+            "❌ Withdrawal API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -777,7 +827,8 @@ const SelectserviceTwo = () => {
               title: "Transaction Failed",
               message: apiError?.message || "Withdrawal failed",
               type: "error",
-              transactionData: apiError?.cashWithdrawl || apiError?.data || null,
+              transactionData:
+                apiError?.cashWithdrawl || apiError?.data || null,
             });
           } else {
             // Network or other errors
@@ -785,7 +836,10 @@ const SelectserviceTwo = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process withdrawal. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process withdrawal. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -823,7 +877,11 @@ const SelectserviceTwo = () => {
 
   // Handle Enquiry (Check Balance) - txnType: "CB"
   const handleEnquiry = async (values) => {
-    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    const {
+      selectedBank: bank,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
 
     // Validate required fields
     if (!bank || !bank.bankIIN) {
@@ -885,7 +943,7 @@ const SelectserviceTwo = () => {
 
       const totalDuration = 10000;
       const updateInterval = 100;
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -900,15 +958,20 @@ const SelectserviceTwo = () => {
       let DString = "";
       if (deviceInfoXml) {
         try {
-          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const xmlDoc = new DOMParser().parseFromString(
+            deviceInfoXml,
+            "text/xml",
+          );
           const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
           if (deviceInfo) {
             // Get the DeviceInfo element as string
-            if (typeof XMLSerializer !== 'undefined') {
+            if (typeof XMLSerializer !== "undefined") {
               DString = new XMLSerializer().serializeToString(deviceInfo);
             } else {
               // Fallback: extract DeviceInfo using regex
-              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              const deviceInfoMatch = deviceInfoXml.match(
+                /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+              );
               if (deviceInfoMatch) {
                 DString = deviceInfoMatch[0];
               }
@@ -918,7 +981,9 @@ const SelectserviceTwo = () => {
           console.error("Error extracting DeviceInfo:", err);
           // Fallback: try to extract DeviceInfo using regex
           try {
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -935,18 +1000,20 @@ const SelectserviceTwo = () => {
       let custOpts = "";
       if (deviceType === "mantra") {
         // Mantra devices require mantrakey parameter
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       } else if (deviceType === "startek") {
         // Startek devices typically don't need CustOpts
         custOpts = ""; // Startek devices usually don't need CustOpts
       } else {
         // For unknown devices, default to Mantra format (backward compatibility)
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       }
 
       // Ensure DString is available
       if (!DString) {
-        setDeviceMessage("Device info not available. Please check device first.");
+        setDeviceMessage(
+          "Device info not available. Please check device first.",
+        );
         setIsScanning(false);
         clearInterval(progressInterval);
         setModal({
@@ -990,7 +1057,10 @@ const SelectserviceTwo = () => {
         try {
           locationAndIP = await getLocationAndIP();
         } catch (locationError) {
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -1023,18 +1093,25 @@ const SelectserviceTwo = () => {
 
           if (response?.status === "SUCCESS") {
             console.log("✅ Balance enquiry successful!");
-            console.log("📊 Transaction data:", response?.data || response?.balanceEnquiry);
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.balanceEnquiry,
+            );
             setModal({
               isOpen: true,
               title: "Balance Enquiry Successful",
               message: response?.message || "Balance enquiry successful!",
               type: "success",
-              transactionData: response?.data || response?.balanceEnquiry || null,
+              transactionData:
+                response?.data || response?.balanceEnquiry || null,
             });
             setDeviceMessage("Balance enquiry completed successfully");
           } else {
             console.log("❌ Balance enquiry failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.balanceEnquiry);
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.balanceEnquiry,
+            );
 
             // Show failure modal with error details
             setModal({
@@ -1042,12 +1119,16 @@ const SelectserviceTwo = () => {
               title: "Balance Enquiry Failed",
               message: response?.message || "Balance enquiry failed",
               type: "error",
-              transactionData: response?.data || response?.balanceEnquiry || null,
+              transactionData:
+                response?.data || response?.balanceEnquiry || null,
             });
             setDeviceMessage("Balance enquiry failed");
           }
         } catch (apiError) {
-          console.error("❌ Balance enquiry API error caught in component:", apiError);
+          console.error(
+            "❌ Balance enquiry API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -1064,7 +1145,8 @@ const SelectserviceTwo = () => {
               title: "Balance Enquiry Failed",
               message: apiError?.message || "Balance enquiry failed",
               type: "error",
-              transactionData: apiError?.balanceEnquiry || apiError?.data || null,
+              transactionData:
+                apiError?.balanceEnquiry || apiError?.data || null,
             });
           } else {
             // Network or other errors
@@ -1072,7 +1154,10 @@ const SelectserviceTwo = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process balance enquiry. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process balance enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -1108,7 +1193,11 @@ const SelectserviceTwo = () => {
 
   // Handle Statement (Check Statement) - txnType: "CS"
   const handleStatement = async (values) => {
-    const { selectedBank: bank, aadhaarNumber: aadhar, mobileNumber: mobile } = values;
+    const {
+      selectedBank: bank,
+      aadhaarNumber: aadhar,
+      mobileNumber: mobile,
+    } = values;
 
     // Validate required fields
     if (!bank || !bank.bankIIN) {
@@ -1170,7 +1259,7 @@ const SelectserviceTwo = () => {
 
       const totalDuration = 10000;
       const updateInterval = 100;
-      const incrementPerUpdate = (100 / (totalDuration / updateInterval));
+      const incrementPerUpdate = 100 / (totalDuration / updateInterval);
       let currentProgress = 0;
       const progressInterval = setInterval(() => {
         currentProgress += incrementPerUpdate;
@@ -1185,15 +1274,20 @@ const SelectserviceTwo = () => {
       let DString = "";
       if (deviceInfoXml) {
         try {
-          const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+          const xmlDoc = new DOMParser().parseFromString(
+            deviceInfoXml,
+            "text/xml",
+          );
           const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
           if (deviceInfo) {
             // Get the DeviceInfo element as string
-            if (typeof XMLSerializer !== 'undefined') {
+            if (typeof XMLSerializer !== "undefined") {
               DString = new XMLSerializer().serializeToString(deviceInfo);
             } else {
               // Fallback: extract DeviceInfo using regex
-              const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+              const deviceInfoMatch = deviceInfoXml.match(
+                /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+              );
               if (deviceInfoMatch) {
                 DString = deviceInfoMatch[0];
               }
@@ -1203,7 +1297,9 @@ const SelectserviceTwo = () => {
           console.error("Error extracting DeviceInfo:", err);
           // Fallback: try to extract DeviceInfo using regex
           try {
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -1220,18 +1316,20 @@ const SelectserviceTwo = () => {
       let custOpts = "";
       if (deviceType === "mantra") {
         // Mantra devices require mantrakey parameter
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       } else if (deviceType === "startek") {
         // Startek devices typically don't need CustOpts
         custOpts = ""; // Startek devices usually don't need CustOpts
       } else {
         // For unknown devices, default to Mantra format (backward compatibility)
-        custOpts = "<CustOpts><Param name=\"mantrakey\" value=\"\" /></CustOpts>";
+        custOpts = '<CustOpts><Param name="mantrakey" value="" /></CustOpts>';
       }
 
       // Ensure DString is available
       if (!DString) {
-        setDeviceMessage("Device info not available. Please check device first.");
+        setDeviceMessage(
+          "Device info not available. Please check device first.",
+        );
         setIsScanning(false);
         clearInterval(progressInterval);
         setModal({
@@ -1275,7 +1373,10 @@ const SelectserviceTwo = () => {
         try {
           locationAndIP = await getLocationAndIP();
         } catch (locationError) {
-          locationAndIP = { location: { latitude: "", longitude: "" }, ipAddress: "" };
+          locationAndIP = {
+            location: { latitude: "", longitude: "" },
+            ipAddress: "",
+          };
         }
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
@@ -1308,18 +1409,25 @@ const SelectserviceTwo = () => {
 
           if (response?.status === "SUCCESS") {
             console.log("✅ Statement enquiry successful!");
-            console.log("📊 Transaction data:", response?.data || response?.miniStatement);
+            console.log(
+              "📊 Transaction data:",
+              response?.data || response?.miniStatement,
+            );
             setModal({
               isOpen: true,
               title: "Statement Enquiry Successful",
               message: response?.message || "Statement enquiry successful!",
               type: "success",
-              transactionData: response?.data || response?.miniStatement || null,
+              transactionData:
+                response?.data || response?.miniStatement || null,
             });
             setDeviceMessage("Statement enquiry completed successfully");
           } else {
             console.log("❌ Statement enquiry failed:", response?.message);
-            console.log("📊 Failure data:", response?.data || response?.miniStatement);
+            console.log(
+              "📊 Failure data:",
+              response?.data || response?.miniStatement,
+            );
 
             // Show failure modal with error details
             setModal({
@@ -1327,12 +1435,16 @@ const SelectserviceTwo = () => {
               title: "Statement Enquiry Failed",
               message: response?.message || "Statement enquiry failed",
               type: "error",
-              transactionData: response?.data || response?.miniStatement || null,
+              transactionData:
+                response?.data || response?.miniStatement || null,
             });
             setDeviceMessage("Statement enquiry failed");
           }
         } catch (apiError) {
-          console.error("❌ Statement enquiry API error caught in component:", apiError);
+          console.error(
+            "❌ Statement enquiry API error caught in component:",
+            apiError,
+          );
           console.error("❌ Error details:", {
             message: apiError?.message,
             response: apiError?.response,
@@ -1349,7 +1461,8 @@ const SelectserviceTwo = () => {
               title: "Statement Enquiry Failed",
               message: apiError?.message || "Statement enquiry failed",
               type: "error",
-              transactionData: apiError?.miniStatement || apiError?.data || null,
+              transactionData:
+                apiError?.miniStatement || apiError?.data || null,
             });
           } else {
             // Network or other errors
@@ -1357,7 +1470,10 @@ const SelectserviceTwo = () => {
             setModal({
               isOpen: true,
               title: "API Error",
-              message: errorResponseData?.message || apiError?.message || "Failed to process statement enquiry. Please check the console for details.",
+              message:
+                errorResponseData?.message ||
+                apiError?.message ||
+                "Failed to process statement enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
             });
@@ -1392,7 +1508,14 @@ const SelectserviceTwo = () => {
   };
 
   // Modal component
-  const Modal = ({ isOpen, onClose, title, message, type, transactionData }) => {
+  const Modal = ({
+    isOpen,
+    onClose,
+    title,
+    message,
+    type,
+    transactionData,
+  }) => {
     if (!isOpen) return null;
 
     const getColors = () => {
@@ -1441,52 +1564,101 @@ const SelectserviceTwo = () => {
       switch (type) {
         case "success":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
         case "error":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
         case "warning":
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
             </svg>
           );
         default:
           return (
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              />
             </svg>
           );
       }
     };
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
-        <div className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}>
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
+        <div
+          className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}
+        >
           <div className="flex items-start gap-4">
             <div className={`${colors.icon} flex-shrink-0 mt-0.5`}>
               {getIcon()}
             </div>
             <div className="flex-1">
-              <h3 className={`${colors.title} text-lg font-['Gilroy-SemiBold'] mb-2`}>
+              <h3
+                className={`${colors.title} text-lg font-['Gilroy-SemiBold'] mb-2`}
+              >
                 {title}
               </h3>
-              <p className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}>
+              <p
+                className={`${colors.text} text-sm font-['Gilroy-Regular'] mb-4`}
+              >
                 {message}
               </p>
 
               {/* Transaction/Response Details */}
               {transactionData && (
-                <div className={`rounded-lg p-4 mb-4 border ${type === "success"
-                  ? "bg-white border-gray-200"
-                  : "bg-red-50 border-red-200"
-                  }`}>
+                <div
+                  className={`rounded-lg p-4 mb-4 border ${
+                    type === "success"
+                      ? "bg-white border-gray-200"
+                      : "bg-red-50 border-red-200"
+                  }`}
+                >
                   <div className="space-y-3">
                     {/* Success Transaction Details */}
                     {type === "success" && (
@@ -1496,123 +1668,211 @@ const SelectserviceTwo = () => {
                           <>
                             {transactionData.result.fpTransactionId && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">FP Transaction ID:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.fpTransactionId}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  FP Transaction ID:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.fpTransactionId}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.merchantTransactionId && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Merchant Transaction ID:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.merchantTransactionId}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Merchant Transaction ID:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.merchantTransactionId}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.bankRRN && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Bank RRN:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.bankRRN}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Bank RRN:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.bankRRN}
+                                </span>
                               </div>
                             )}
-                            {transactionData.result.transactionAmount !== undefined && (
+                            {transactionData.result.transactionAmount !==
+                              undefined && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Amount:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">₹ {transactionData.result.transactionAmount}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Transaction Amount:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  ₹ {transactionData.result.transactionAmount}
+                                </span>
                               </div>
                             )}
-                            {transactionData.result.balanceAmount !== undefined && (
+                            {transactionData.result.balanceAmount !==
+                              undefined && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Balance Amount:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.result.balanceAmount}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Balance Amount:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">
+                                  ₹ {transactionData.result.balanceAmount}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.requestTransactionTime && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Time:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.requestTransactionTime}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Transaction Time:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {
+                                    transactionData.result
+                                      .requestTransactionTime
+                                  }
+                                </span>
                               </div>
                             )}
                             {transactionData.result.transactionType && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Transaction Type:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.transactionType}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Transaction Type:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.transactionType}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.transactionStatus && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Status:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">{transactionData.result.transactionStatus}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Status:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">
+                                  {transactionData.result.transactionStatus}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.device && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Device:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.device}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Device:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.device}
+                                </span>
                               </div>
                             )}
                             {transactionData.result.terminalId && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Terminal ID:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.result.terminalId}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                  Terminal ID:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                                  {transactionData.result.terminalId}
+                                </span>
                               </div>
                             )}
                           </>
                         )}
 
                         {/* Mini Statement - ministatement array */}
-                        {transactionData?.ministatement && Array.isArray(transactionData.ministatement) && transactionData.ministatement.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-gray-900 mb-3">Mini Statement:</div>
-                            <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                              {/* Table Header */}
-                              <div className="grid grid-cols-4 gap-2 bg-gray-100 px-3 py-2 border-b border-gray-200">
-                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Date</div>
-                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Type</div>
-                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Amount</div>
-                                <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">Narration</div>
+                        {transactionData?.ministatement &&
+                          Array.isArray(transactionData.ministatement) &&
+                          transactionData.ministatement.length > 0 && (
+                            <div className="mt-4 pt-4 border-t border-gray-200">
+                              <div className="text-xs font-['Gilroy-SemiBold'] text-gray-900 mb-3">
+                                Mini Statement:
                               </div>
-                              {/* Table Body */}
-                              <div className="max-h-60 overflow-y-auto">
-                                {transactionData.ministatement.map((stmt, index) => (
-                                  <div key={index} className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start">
-                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900">{stmt.date}</div>
-                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
-                                      {stmt.txnType}
-                                    </div>
-                                    <div className={`text-xs font-['Gilroy-SemiBold'] text-left ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}>
-                                      ₹ {stmt.amount}
-                                    </div>
-                                    <div className="text-xs font-['Gilroy-Medium'] text-gray-900 break-words whitespace-normal">
-                                      {stmt.narration}
-                                    </div>
+                              <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                                {/* Table Header */}
+                                <div className="grid grid-cols-4 gap-2 bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                  <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
+                                    Date
                                   </div>
-                                ))}
+                                  <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
+                                    Type
+                                  </div>
+                                  <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
+                                    Amount
+                                  </div>
+                                  <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
+                                    Narration
+                                  </div>
+                                </div>
+                                {/* Table Body */}
+                                <div className="max-h-60 overflow-y-auto">
+                                  {transactionData.ministatement.map(
+                                    (stmt, index) => (
+                                      <div
+                                        key={index}
+                                        className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start"
+                                      >
+                                        <div className="text-xs font-['Gilroy-Medium'] text-gray-900">
+                                          {stmt.date}
+                                        </div>
+                                        <div
+                                          className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
+                                        >
+                                          {stmt.txnType}
+                                        </div>
+                                        <div
+                                          className={`text-xs font-['Gilroy-SemiBold'] text-left ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
+                                        >
+                                          ₹ {stmt.amount}
+                                        </div>
+                                        <div className="text-xs font-['Gilroy-Medium'] text-gray-900 break-words whitespace-normal">
+                                          {stmt.narration}
+                                        </div>
+                                      </div>
+                                    ),
+                                  )}
+                                </div>
                               </div>
                             </div>
-                          </div>
-                        )}
+                          )}
 
                         {/* Common fields from data object */}
-                        {transactionData.balanceAmount !== undefined && !transactionData.result && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Balance Amount:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">₹ {transactionData.balanceAmount}</span>
-                          </div>
-                        )}
+                        {transactionData.balanceAmount !== undefined &&
+                          !transactionData.result && (
+                            <div className="flex justify-between items-center">
+                              <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                                Balance Amount:
+                              </span>
+                              <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">
+                                ₹ {transactionData.balanceAmount}
+                              </span>
+                            </div>
+                          )}
                         {transactionData.partnerTxnid && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Partner Transaction ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.partnerTxnid}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Partner Transaction ID:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.partnerTxnid}
+                            </span>
                           </div>
                         )}
                         {transactionData.utr && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">UTR:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">{transactionData.utr}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              UTR:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
+                              {transactionData.utr}
+                            </span>
                           </div>
                         )}
                         {transactionData.url && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">Receipt URL:</span>
-                            <a href={transactionData.url} target="_blank" rel="noopener noreferrer" className="text-xs font-['Gilroy-SemiBold'] text-blue-600 hover:underline">
+                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
+                              Receipt URL:
+                            </span>
+                            <a
+                              href={transactionData.url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs font-['Gilroy-SemiBold'] text-blue-600 hover:underline"
+                            >
                               View Receipt
                             </a>
                           </div>
@@ -1625,35 +1885,57 @@ const SelectserviceTwo = () => {
                       <>
                         {transactionData.paymentStatus && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Payment Status:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.paymentStatus}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Payment Status:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.paymentStatus}
+                            </span>
                           </div>
                         )}
                         {transactionData.transactionStatus && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Transaction Status:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.transactionStatus}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Transaction Status:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.transactionStatus}
+                            </span>
                           </div>
                         )}
                         {transactionData.merchantTransactionId && (
                           <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">Merchant Transaction ID:</span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.merchantTransactionId}</span>
+                            <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                              Merchant Transaction ID:
+                            </span>
+                            <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                              {transactionData.merchantTransactionId}
+                            </span>
                           </div>
                         )}
                         {transactionData.gatewayResponse && (
                           <div className="mt-3 pt-3 border-t border-red-200">
-                            <div className="text-xs font-['Gilroy-Medium'] text-red-600 mb-2">Gateway Response:</div>
+                            <div className="text-xs font-['Gilroy-Medium'] text-red-600 mb-2">
+                              Gateway Response:
+                            </div>
                             {transactionData.gatewayResponse.status && (
                               <div className="flex justify-between items-center mb-1">
-                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Status:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.status}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                                  Status:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                                  {transactionData.gatewayResponse.status}
+                                </span>
                               </div>
                             )}
                             {transactionData.gatewayResponse.message && (
                               <div className="flex justify-between items-center">
-                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">Message:</span>
-                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">{transactionData.gatewayResponse.message}</span>
+                                <span className="text-xs font-['Gilroy-Medium'] text-red-600">
+                                  Message:
+                                </span>
+                                <span className="text-xs font-['Gilroy-SemiBold'] text-red-900">
+                                  {transactionData.gatewayResponse.message}
+                                </span>
                               </div>
                             )}
                           </div>
@@ -1676,8 +1958,18 @@ const SelectserviceTwo = () => {
               className={`${colors.icon} hover:opacity-70 transition p-1`}
               aria-label="Close"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              <svg
+                className="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M6 18L18 6M6 6l12 12"
+                />
               </svg>
             </button>
           </div>
@@ -1691,7 +1983,9 @@ const SelectserviceTwo = () => {
       {/* Modal */}
       <Modal
         isOpen={modal.isOpen}
-        onClose={() => setModal({ ...modal, isOpen: false, transactionData: null })}
+        onClose={() =>
+          setModal({ ...modal, isOpen: false, transactionData: null })
+        }
         title={modal.title}
         message={modal.message}
         type={modal.type}
@@ -1714,10 +2008,11 @@ const SelectserviceTwo = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${isActive
-                  ? "bg-[#039155] text-[#FFFFFF]"
-                  : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
-                  }`}
+                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${
+                  isActive
+                    ? "bg-[#039155] text-[#FFFFFF]"
+                    : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
+                }`}
               >
                 {tab.label}
               </button>
@@ -1743,10 +2038,11 @@ const SelectserviceTwo = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("thumb")}
-              className={`p-8 rounded-xl border-2 transition ${biometricMethod === "thumb"
-                ? "bg-[#E5FFF4] border-[#039155]"
-                : "bg-white border-gray-200"
-                }`}
+              className={`p-8 rounded-xl border-2 transition ${
+                biometricMethod === "thumb"
+                  ? "bg-[#E5FFF4] border-[#039155]"
+                  : "bg-white border-gray-200"
+              }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img
@@ -1764,10 +2060,11 @@ const SelectserviceTwo = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("iris")}
-              className={`p-4 rounded-xl border-2 transition ${biometricMethod === "iris"
-                ? "bg-[#E5FFF4] border-[#039155]"
-                : "bg-white border-gray-200"
-                }`}
+              className={`p-4 rounded-xl border-2 transition ${
+                biometricMethod === "iris"
+                  ? "bg-[#E5FFF4] border-[#039155]"
+                  : "bg-white border-gray-200"
+              }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img src={IrisIcon} alt="Iris Scan" className="w-10 h-10" />
@@ -1780,8 +2077,13 @@ const SelectserviceTwo = () => {
 
           {/* Connected Device Indicator */}
           <div className="mb-6">
-            <div className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${deviceConnected ? "bg-[#039155] text-white" : "bg-[#DC2626] text-white"
-              }`}>
+            <div
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
+                deviceConnected
+                  ? "bg-[#039155] text-white"
+                  : "bg-[#DC2626] text-white"
+              }`}
+            >
               {deviceMessage ? (
                 <div className="flex items-center gap-2">
                   <span className="text-[12px] font-['Gilroy-Medium']">
@@ -1800,7 +2102,9 @@ const SelectserviceTwo = () => {
                 <div className="flex items-center gap-2">
                   <span className={`w-2 h-2 rounded-full bg-white`} />
                   <span className="text-[12px] font-['Gilroy-Medium']">
-                    {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                    {deviceConnected
+                      ? "Device Connected"
+                      : "Device Not Connected"}
                   </span>
                   <button
                     type="button"
@@ -1816,11 +2120,19 @@ const SelectserviceTwo = () => {
           </div>
 
           {/* Scanner Interface - Conditional based on biometric method */}
-          <div className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${comingSoon ? "bg-gray-50" : "bg-white"
-            }`}>
+          <div
+            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
+          >
             {/* Background content - blurred when comingSoon */}
-            <div className={`flex flex-col items-center gap-4 ${comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""
-              }`}>
+            <div
+              className={`flex flex-col items-center gap-4 ${
+                comingSoon
+                  ? "opacity-80 pointer-events-none select-none blur-sm"
+                  : ""
+              }`}
+            >
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
                 {/* Outer circle background */}
                 <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
@@ -1838,8 +2150,9 @@ const SelectserviceTwo = () => {
                 <img
                   src={biometricMethod === "iris" ? IrisIcon : FingerPrintIcon}
                   alt={biometricMethod === "iris" ? "Iris" : "Fingerprint"}
-                  className={`relative w-16 h-16 z-20 ${biometricMethod === "iris" ? "" : "opacity-60"
-                    }`}
+                  className={`relative w-16 h-16 z-20 ${
+                    biometricMethod === "iris" ? "" : "opacity-60"
+                  }`}
                 />
                 <button
                   type="button"
@@ -1928,7 +2241,8 @@ const SelectserviceTwo = () => {
                     Iris Scan Coming Soon
                   </div>
                   <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                    This authentication mode will be available in a future update.
+                    This authentication mode will be available in a future
+                    update.
                   </div>
                 </div>
               </div>
@@ -1967,10 +2281,11 @@ const SelectserviceTwo = () => {
                     onClick={() => {
                       handleBankSelection(bank);
                     }}
-                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.bankIIN === bank.bankIIN
-                      ? "bg-[#E5FFF4] border-[#039155]"
-                      : "bg-white border-gray-200"
-                      }`}
+                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
+                      selectedBank?.bankIIN === bank.bankIIN
+                        ? "bg-[#E5FFF4] border-[#039155]"
+                        : "bg-white border-gray-200"
+                    }`}
                   >
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-full h-full bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
@@ -1981,7 +2296,10 @@ const SelectserviceTwo = () => {
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = "none";
-                              const fallback = e.target.parentElement.querySelector(".bank-fallback");
+                              const fallback =
+                                e.target.parentElement.querySelector(
+                                  ".bank-fallback",
+                                );
                               if (fallback) fallback.style.display = "flex";
                             }}
                           />
@@ -1991,7 +2309,8 @@ const SelectserviceTwo = () => {
                           style={{ display: bank.bankLogo ? "none" : "flex" }}
                         >
                           <span className="text-[8px] font-['Gilroy-Medium'] text-gray-600 text-center px-1">
-                            {bank.bankName?.substring(0, 3).toUpperCase() || "BANK"}
+                            {bank.bankName?.substring(0, 3).toUpperCase() ||
+                              "BANK"}
                           </span>
                         </div>
                       </div>
@@ -2020,7 +2339,9 @@ const SelectserviceTwo = () => {
                   }
                 }}
                 onFocus={() => setShowBankDropdown(true)}
-                placeholder={selectedBank ? selectedBank.bankName : "Search bank..."}
+                placeholder={
+                  selectedBank ? selectedBank.bankName : "Search bank..."
+                }
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] bg-white focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent"
               />
               <div className="absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none">
@@ -2052,8 +2373,11 @@ const SelectserviceTwo = () => {
                       onClick={() => {
                         handleBankSelection(bank);
                       }}
-                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.bankIIN === bank.bankIIN ? "bg-[#E5FFF4]" : ""
-                        }`}
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
+                        selectedBank?.bankIIN === bank.bankIIN
+                          ? "bg-[#E5FFF4]"
+                          : ""
+                      }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
                         {bank.bankLogo ? (
@@ -2063,7 +2387,10 @@ const SelectserviceTwo = () => {
                             className="w-full h-full object-contain"
                             onError={(e) => {
                               e.target.style.display = "none";
-                              const fallback = e.target.parentElement.querySelector(".dropdown-bank-fallback");
+                              const fallback =
+                                e.target.parentElement.querySelector(
+                                  ".dropdown-bank-fallback",
+                                );
                               if (fallback) fallback.style.display = "flex";
                             }}
                           />
@@ -2073,7 +2400,8 @@ const SelectserviceTwo = () => {
                           style={{ display: bank.bankLogo ? "none" : "flex" }}
                         >
                           <span className="text-[10px] font-['Gilroy-Medium'] text-gray-600">
-                            {bank.bankName?.substring(0, 2).toUpperCase() || "BK"}
+                            {bank.bankName?.substring(0, 2).toUpperCase() ||
+                              "BK"}
                           </span>
                         </div>
                       </div>
@@ -2086,13 +2414,15 @@ const SelectserviceTwo = () => {
               )}
 
               {/* No results message */}
-              {showBankDropdown && bankSearchQuery && filteredBanks.length === 0 && (
-                <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
-                  <p className="text-[14px] font-['Gilroy-Regular'] text-gray-500 text-center">
-                    No banks found
-                  </p>
-                </div>
-              )}
+              {showBankDropdown &&
+                bankSearchQuery &&
+                filteredBanks.length === 0 && (
+                  <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg p-4">
+                    <p className="text-[14px] font-['Gilroy-Regular'] text-gray-500 text-center">
+                      No banks found
+                    </p>
+                  </div>
+                )}
             </div>
           </div>
 
@@ -2112,13 +2442,16 @@ const SelectserviceTwo = () => {
                   formik.setFieldValue("aadhaarNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
-                  ? "border-red-500"
-                  : "border-gray-300"
-                  }`}
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                  formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
-                <p className="mt-1 text-[12px] text-red-500">{formik.errors.aadhaarNumber}</p>
+                <p className="mt-1 text-[12px] text-red-500">
+                  {formik.errors.aadhaarNumber}
+                </p>
               )}
             </div>
             <div>
@@ -2135,13 +2468,16 @@ const SelectserviceTwo = () => {
                   formik.setFieldValue("mobileNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("mobileNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.mobileNumber && formik.errors.mobileNumber
-                  ? "border-red-500"
-                  : "border-gray-300"
-                  }`}
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
+                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                    ? "border-red-500"
+                    : "border-gray-300"
+                }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
-                <p className="mt-1 text-[12px] text-red-500">{formik.errors.mobileNumber}</p>
+                <p className="mt-1 text-[12px] text-red-500">
+                  {formik.errors.mobileNumber}
+                </p>
               )}
             </div>
           </div>
@@ -2158,10 +2494,14 @@ const SelectserviceTwo = () => {
                 </span>
                 <input
                   type="text"
-                  value={selectedAmount ? selectedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''}
+                  value={
+                    selectedAmount
+                      ? selectedAmount.replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                      : ""
+                  }
                   onChange={(e) => {
                     // Extract only numbers from the input
-                    const numericValue = e.target.value.replace(/[^\d]/g, '');
+                    const numericValue = e.target.value.replace(/[^\d]/g, "");
                     setSelectedAmount(numericValue);
                   }}
                   placeholder="Enter amount"
@@ -2172,50 +2512,55 @@ const SelectserviceTwo = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("500")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "500"
-                    ? "bg-[#039155] text-white border-[#039155]"
-                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                    }`}
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
+                    selectedAmount === "500"
+                      ? "bg-[#039155] text-white border-[#039155]"
+                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   ₹ 500
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("1000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "1000"
-                    ? "bg-[#039155] text-white border-[#039155]"
-                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                    }`}
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
+                    selectedAmount === "1000"
+                      ? "bg-[#039155] text-white border-[#039155]"
+                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   ₹ 1,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("2000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "2000"
-                    ? "bg-[#039155] text-white border-[#039155]"
-                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                    }`}
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
+                    selectedAmount === "2000"
+                      ? "bg-[#039155] text-white border-[#039155]"
+                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   ₹ 2,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("5000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "5000"
-                    ? "bg-[#039155] text-white border-[#039155]"
-                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                    }`}
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
+                    selectedAmount === "5000"
+                      ? "bg-[#039155] text-white border-[#039155]"
+                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   ₹ 5,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("10000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "10000"
-                    ? "bg-[#039155] text-white border-[#039155]"
-                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                    }`}
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
+                    selectedAmount === "10000"
+                      ? "bg-[#039155] text-white border-[#039155]"
+                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                  }`}
                 >
                   ₹ 10,000
                 </button>
@@ -2236,7 +2581,11 @@ const SelectserviceTwo = () => {
 
                 // Check if form is valid (except pidData which will be captured if needed)
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.selectedAmount || errors.aadhaarNumber || errors.mobileNumber;
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.selectedAmount ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
 
                 if (hasErrors) {
                   // Show validation errors
@@ -2272,7 +2621,10 @@ const SelectserviceTwo = () => {
                 formik.setFieldTouched("mobileNumber", true);
 
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
 
                 if (hasErrors) {
                   formik.setFieldTouched("selectedBank", true);
@@ -2304,7 +2656,10 @@ const SelectserviceTwo = () => {
                 formik.setFieldTouched("mobileNumber", true);
 
                 const errors = await formik.validateForm();
-                const hasErrors = errors.selectedBank || errors.aadhaarNumber || errors.mobileNumber;
+                const hasErrors =
+                  errors.selectedBank ||
+                  errors.aadhaarNumber ||
+                  errors.mobileNumber;
 
                 if (hasErrors) {
                   formik.setFieldTouched("selectedBank", true);
@@ -2335,7 +2690,9 @@ const SelectserviceTwo = () => {
             className="w-full bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {formik.isSubmitting || isScanning
-              ? isScanning ? "Capturing..." : "Processing..."
+              ? isScanning
+                ? "Capturing..."
+                : "Processing..."
               : activeTab === "cashWithdrawal"
                 ? "Withdrawal"
                 : activeTab === "enquiry"
@@ -2349,5 +2706,3 @@ const SelectserviceTwo = () => {
 };
 
 export default SelectserviceTwo;
-
-

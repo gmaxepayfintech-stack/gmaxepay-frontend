@@ -1,11 +1,14 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
 import FAVerificationTwo from "./FAVerificationTwo";
 import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
-import { aepsTwoStatusCheck, aepsTwoBiometricSubmit } from "../../../redux/action/aepsTwoAction";
+import {
+  aepsTwoStatusCheck,
+  aepsTwoBiometricSubmit,
+} from "../../../redux/action/aepsTwoAction";
+import { HiArrowLeft } from "react-icons/hi2";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -190,7 +193,7 @@ const BiometricVerificationTwo = () => {
 
     setIsScanning(true);
     setDeviceMessage(
-      "Capturing fingerprint... Place your thumb on the scanner"
+      "Capturing fingerprint... Place your thumb on the scanner",
     );
 
     // Start smooth progress animation that fills to 100% during capture
@@ -214,7 +217,7 @@ const BiometricVerificationTwo = () => {
       try {
         const xmlDoc = new DOMParser().parseFromString(
           deviceInfoXml,
-          "text/xml"
+          "text/xml",
         );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
@@ -224,7 +227,7 @@ const BiometricVerificationTwo = () => {
           } else {
             // Fallback: extract DeviceInfo using regex or innerHTML
             const deviceInfoMatch = deviceInfoXml.match(
-              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
             );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
@@ -236,7 +239,7 @@ const BiometricVerificationTwo = () => {
         // Fallback: try to extract DeviceInfo using regex
         try {
           const deviceInfoMatch = deviceInfoXml.match(
-            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
           );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
@@ -318,12 +321,12 @@ const BiometricVerificationTwo = () => {
   useEffect(() => {
     console.log(
       "🔍 useEffect triggered - pidData:",
-      pidData ? `exists (${pidData.length} chars)` : "empty"
+      pidData ? `exists (${pidData.length} chars)` : "empty",
     );
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
     console.log(
       "🔍 lastPidDataRef.current length:",
-      lastPidDataRef.current.length
+      lastPidDataRef.current.length,
     );
 
     if (!pidData) {
@@ -348,7 +351,10 @@ const BiometricVerificationTwo = () => {
     try {
       // Convert the XML string to base64
       base64PidData = btoa(unescape(encodeURIComponent(pidData)));
-      console.log("✅ PidData converted to base64, length:", base64PidData.length);
+      console.log(
+        "✅ PidData converted to base64, length:",
+        base64PidData.length,
+      );
     } catch (encodeError) {
       console.error("❌ Error encoding pidData to base64:", encodeError);
       setDeviceMessage("Error encoding biometric data. Please try again.");
@@ -360,13 +366,10 @@ const BiometricVerificationTwo = () => {
       txtPidData: base64PidData,
     };
 
-    console.log(
-      "📤 Dispatching aepsTwoBiometricSubmit with data:",
-      {
-        txtPidDataLength: requestData.txtPidData.length,
-        isBase64: true,
-      }
-    );
+    console.log("📤 Dispatching aepsTwoBiometricSubmit with data:", {
+      txtPidDataLength: requestData.txtPidData.length,
+      isBase64: true,
+    });
 
     dispatch(aepsTwoBiometricSubmit(requestData))
       .then((response) => {
@@ -378,7 +381,7 @@ const BiometricVerificationTwo = () => {
 
           // Check status ONCE after successful biometric verification
           console.log(
-            "🔄 Calling aepsTwoStatusCheck after successful biometric verification..."
+            "🔄 Calling aepsTwoStatusCheck after successful biometric verification...",
           );
 
           dispatch(aepsTwoStatusCheck())
@@ -389,7 +392,8 @@ const BiometricVerificationTwo = () => {
               const aepsStatusData = statusResponse?.aepsStatus;
 
               if (aepsStatusData) {
-                const { ekycBiometric, daily2FAAuthentication } = aepsStatusData;
+                const { ekycBiometric, daily2FAAuthentication } =
+                  aepsStatusData;
 
                 // Check if biometric is completed and what's next
                 if (
@@ -398,21 +402,24 @@ const BiometricVerificationTwo = () => {
                 ) {
                   // Check if 2FA is next
                   if (
-                    daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-                    (typeof daily2FAAuthentication?.isCompleted === "boolean" && daily2FAAuthentication.isCompleted === false)
+                    daily2FAAuthentication?.status?.toLowerCase() ===
+                      "pending" ||
+                    (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
+                      daily2FAAuthentication.isCompleted === false)
                   ) {
                     console.log(
-                      "✅ Biometric completed, moving to 2FA verification"
+                      "✅ Biometric completed, moving to 2FA verification",
                     );
                     setShow2FA(true);
                   }
                   // Check if all completed
                   else if (
-                    daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
+                    daily2FAAuthentication?.status?.toLowerCase() ===
+                      "completed" &&
                     daily2FAAuthentication?.isCompleted === true
                   ) {
                     console.log(
-                      "✅ All AEPS status completed, showing confirm page"
+                      "✅ All AEPS status completed, showing confirm page",
                     );
                     setShowConfirm(true);
                   }
@@ -424,7 +431,7 @@ const BiometricVerificationTwo = () => {
             });
         } else {
           setDeviceMessage(
-            response?.message || "Biometric verification failed"
+            response?.message || "Biometric verification failed",
           );
           pidDataProcessedRef.current = false;
         }
@@ -435,8 +442,6 @@ const BiometricVerificationTwo = () => {
         pidDataProcessedRef.current = false;
       });
   }, [pidData, dispatch]);
-
-
 
   // Clear temporary device messages after 3 seconds, but keep important ones
   useEffect(() => {
@@ -451,7 +456,7 @@ const BiometricVerificationTwo = () => {
 
       // Check if this is a persistent message
       const isPersistent = persistentMessages.some((msg) =>
-        deviceMessage.includes(msg)
+        deviceMessage.includes(msg),
       );
 
       // Only clear non-persistent messages after 3 seconds
@@ -469,7 +474,7 @@ const BiometricVerificationTwo = () => {
       { key: "fingerprint", label: "Fingerprint" },
       { key: "iris", label: "Iris Scan" },
     ],
-    []
+    [],
   );
 
   // Show AEPSAccessConfirm if all status is completed
@@ -482,7 +487,7 @@ const BiometricVerificationTwo = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -491,7 +496,7 @@ const BiometricVerificationTwo = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -539,8 +544,9 @@ const BiometricVerificationTwo = () => {
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
             <div
-              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-                } text-white`}
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
+                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}
             >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
@@ -560,8 +566,9 @@ const BiometricVerificationTwo = () => {
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
-                        }`}
+                      className={`w-2 h-2 rounded-full ${
+                        deviceConnected ? "bg-white" : "bg-white"
+                      }`}
                     />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected
@@ -586,8 +593,9 @@ const BiometricVerificationTwo = () => {
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
           <div
-            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
-              }`}
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
           >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
@@ -606,9 +614,11 @@ const BiometricVerificationTwo = () => {
                     <div
                       className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
                       style={{
-                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360
-                          }deg, transparent ${(scanProgress / 100) * 360
-                          }deg, transparent 360deg)`,
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${
+                          (scanProgress / 100) * 360
+                        }deg, transparent ${
+                          (scanProgress / 100) * 360
+                        }deg, transparent 360deg)`,
                       }}
                     />
                   )}

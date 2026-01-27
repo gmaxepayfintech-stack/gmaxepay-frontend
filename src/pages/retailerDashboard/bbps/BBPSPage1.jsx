@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { ChevronDown } from "lucide-react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { getUserBBPSCategories } from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   const dispatch = useDispatch();
-  const { userCategories, userCategoriesLoading, userCategoriesError } = useSelector(
-    (state) => state.bbps
-  );
+  const { userCategories, userCategoriesLoading, userCategoriesError } =
+    useSelector((state) => state.bbps);
   const [selectedCategory, setSelectedCategory] = useState(
-    formData.category || null
+    formData.category || null,
   );
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +52,7 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -62,7 +61,7 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
           onClick={onBack}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
         <div className="flex-1">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
@@ -90,7 +89,9 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
             {userCategoriesLoading ? (
               <div className="w-full px-4 py-3 border border-gray-300 rounded-lg flex items-center justify-center">
                 <ButtonLoader color="#039155" size={20} thickness={3} />
-                <span className="ml-2 text-gray-500">Loading categories...</span>
+                <span className="ml-2 text-gray-500">
+                  Loading categories...
+                </span>
               </div>
             ) : userCategoriesError ? (
               <div className="w-full px-4 py-3 border border-red-300 rounded-lg text-red-500 text-center">

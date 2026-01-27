@@ -1,10 +1,13 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsStatusCheck, aepsOnboardingFAVerification } from "../../../redux/action/aepsAction";
+import {
+  aepsStatusCheck,
+  aepsOnboardingFAVerification,
+} from "../../../redux/action/aepsAction";
 import Selectservice from "./Selectservice";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -29,9 +32,7 @@ const FAVerification = () => {
   const [scanProgress, setScanProgress] = useState(0); // For fill animation
 
   // Redux states
-  const aepsStatus = useSelector(
-    (state) => state.aeps?.aepsStatus
-  );
+  const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
 
   // Ref to track if API has been called for current pidData
   const pidDataProcessedRef = useRef(false);
@@ -49,12 +50,12 @@ const FAVerification = () => {
     // Check aeps2FaAuthentication status
     const aeps2FaAuthentication = statusData?.aeps2FaAuthentication;
 
-    const is2FACompleted = 
-      aeps2FaAuthentication?.status?.toLowerCase() === "success" && 
+    const is2FACompleted =
+      aeps2FaAuthentication?.status?.toLowerCase() === "success" &&
       aeps2FaAuthentication?.isCompleted === true;
 
     console.log("🔍 2FA Status check:", {
-      aeps2FaAuthentication: is2FACompleted
+      aeps2FaAuthentication: is2FACompleted,
     });
 
     return is2FACompleted;
@@ -157,7 +158,7 @@ const FAVerification = () => {
     try {
       const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
       const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
-      
+
       if (!deviceInfo) {
         return "unknown";
       }
@@ -165,7 +166,9 @@ const FAVerification = () => {
       // Check device name/model info (mi attribute)
       const deviceName = (deviceInfo.getAttribute("mi") || "").toLowerCase();
       // Check manufacturer code (mc attribute) if available
-      const manufacturerCode = (deviceInfo.getAttribute("mc") || "").toLowerCase();
+      const manufacturerCode = (
+        deviceInfo.getAttribute("mc") || ""
+      ).toLowerCase();
       // Check device provider ID (dpId attribute) if available
       const dpId = (deviceInfo.getAttribute("dpId") || "").toLowerCase();
 
@@ -211,14 +214,16 @@ const FAVerification = () => {
     setScanProgress(0); // Reset progress
 
     setIsScanning(true);
-    setDeviceMessage("Capturing fingerprint... Place your thumb on the scanner");
+    setDeviceMessage(
+      "Capturing fingerprint... Place your thumb on the scanner",
+    );
 
     // Start smooth progress animation that fills during capture
     // Fill over ~8 seconds to match typical capture time
     const totalDuration = 8000; // 8 seconds
     const updateInterval = 50; // Update every 50ms
-    const incrementPerUpdate = (100 / (totalDuration / updateInterval)); // ~0.625% per update
-    
+    const incrementPerUpdate = 100 / (totalDuration / updateInterval); // ~0.625% per update
+
     let currentProgress = 0;
     const progressInterval = setInterval(() => {
       currentProgress += incrementPerUpdate;
@@ -233,15 +238,20 @@ const FAVerification = () => {
     let DString = "";
     if (deviceInfoXml) {
       try {
-        const xmlDoc = new DOMParser().parseFromString(deviceInfoXml, "text/xml");
+        const xmlDoc = new DOMParser().parseFromString(
+          deviceInfoXml,
+          "text/xml",
+        );
         const deviceInfo = xmlDoc.getElementsByTagName("DeviceInfo")[0];
         if (deviceInfo) {
           // Get the DeviceInfo element as string
-          if (typeof XMLSerializer !== 'undefined') {
+          if (typeof XMLSerializer !== "undefined") {
             DString = new XMLSerializer().serializeToString(deviceInfo);
           } else {
             // Fallback: extract DeviceInfo using regex or innerHTML
-            const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+            const deviceInfoMatch = deviceInfoXml.match(
+              /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+            );
             if (deviceInfoMatch) {
               DString = deviceInfoMatch[0];
             }
@@ -251,7 +261,9 @@ const FAVerification = () => {
         console.error("Error extracting DeviceInfo:", err);
         // Fallback: try to extract DeviceInfo using regex
         try {
-          const deviceInfoMatch = deviceInfoXml.match(/<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/);
+          const deviceInfoMatch = deviceInfoXml.match(
+            /<DeviceInfo[^>]*>[\s\S]*?<\/DeviceInfo>/,
+          );
           if (deviceInfoMatch) {
             DString = deviceInfoMatch[0];
           }
@@ -260,18 +272,21 @@ const FAVerification = () => {
         }
       }
     }
-    
+
     // Detect device type
     const deviceType = detectDeviceType(deviceInfoXml);
-    
+
     // Build CustOpts based on device type
     // Build proper XML structure
-    const pidOptions = '<?xml version="1.0"?> \
+    const pidOptions =
+      '<?xml version="1.0"?> \
       <PidOptions ver="1.0"> \
         <Opts fCount="1" fType="2" iCount="0" pCount="0" format="0" \
               pidVer="2.0" timeout="10000" posh="UNKNOWN" \
               env="P" /> \
-        ' + DString + ' \
+        ' +
+      DString +
+      ' \
         <CustOpts> \
           <Param name="mantrakey" value="" /> \
         </CustOpts> \
@@ -324,10 +339,16 @@ const FAVerification = () => {
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
-    console.log("🔍 useEffect triggered - pidData:", pidData ? `exists (${pidData.length} chars)` : "empty");
+    console.log(
+      "🔍 useEffect triggered - pidData:",
+      pidData ? `exists (${pidData.length} chars)` : "empty",
+    );
     console.log("🔍 pidDataProcessedRef.current:", pidDataProcessedRef.current);
-    console.log("🔍 lastPidDataRef.current length:", lastPidDataRef.current.length);
-    
+    console.log(
+      "🔍 lastPidDataRef.current length:",
+      lastPidDataRef.current.length,
+    );
+
     if (!pidData) {
       console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
@@ -347,12 +368,12 @@ const FAVerification = () => {
 
     const requestData = {
       biometricData: pidData,
-      captureType: "FINGER"
+      captureType: "FINGER",
     };
 
     console.log("📤 Dispatching aepsOnboardingFAVerification with data:", {
       biometricDataLength: requestData.biometricData.length,
-      captureType: requestData.captureType
+      captureType: requestData.captureType,
     });
 
     dispatch(aepsOnboardingFAVerification(requestData))
@@ -364,12 +385,13 @@ const FAVerification = () => {
           dispatch(aepsStatusCheck())
             .then((statusResponse) => {
               console.log("✅ AEPS Status check response:", statusResponse);
-              
+
               // Check if 2FA is completed
               // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
-              const aepsStatusData = statusResponse?.aepsStatus || statusResponse?.data;
+              const aepsStatusData =
+                statusResponse?.aepsStatus || statusResponse?.data;
               const is2FACompleted = checkIf2FACompleted(aepsStatusData);
-              
+
               if (is2FACompleted) {
                 console.log("✅ 2FA completed, navigating to SelectService");
                 setShowSelectService(true);
@@ -396,11 +418,13 @@ const FAVerification = () => {
 
   // Call aepsStatusCheck on component mount
   useEffect(() => {
-    dispatch(aepsStatusCheck()).then((response) => {
-      console.log("aepsStatusCheck response in FAVerification:", response);
-    }).catch((error) => {
-      console.error("aepsStatusCheck error in FAVerification:", error);
-    });
+    dispatch(aepsStatusCheck())
+      .then((response) => {
+        console.log("aepsStatusCheck response in FAVerification:", response);
+      })
+      .catch((error) => {
+        console.error("aepsStatusCheck error in FAVerification:", error);
+      });
     // Also check device on mount
     discoverAvdm();
   }, [dispatch]);
@@ -411,12 +435,12 @@ const FAVerification = () => {
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
       console.log("AEPS Status updated:", aepsStatus);
-      
+
       // Check if 2FA is completed from Redux state
       // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
       const aepsStatusData = aepsStatus?.aepsStatus || aepsStatus?.data;
       const is2FACompleted = checkIf2FACompleted(aepsStatusData);
-      
+
       if (is2FACompleted && !showSelectService) {
         console.log("✅ 2FA completed from Redux, navigating to SelectService");
         setShowSelectService(true);
@@ -432,12 +456,14 @@ const FAVerification = () => {
         "Device Name:",
         "Device detected and READY",
         "Device Connected",
-        "Device Not Connected"
+        "Device Not Connected",
       ];
-      
+
       // Check if this is a persistent message
-      const isPersistent = persistentMessages.some(msg => deviceMessage.includes(msg));
-      
+      const isPersistent = persistentMessages.some((msg) =>
+        deviceMessage.includes(msg),
+      );
+
       // Only clear non-persistent messages after 3 seconds
       if (!isPersistent) {
         const timer = setTimeout(() => {
@@ -453,7 +479,7 @@ const FAVerification = () => {
       { key: "fingerprint", label: "Fingerprint" },
       { key: "iris", label: "Iris Scan" },
     ],
-    []
+    [],
   );
 
   if (showSelectService) {
@@ -461,7 +487,7 @@ const FAVerification = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -470,7 +496,7 @@ const FAVerification = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">
@@ -478,7 +504,8 @@ const FAVerification = () => {
             2FA Verification
           </div>
           <div className="mt-[10px] text-[16px] text-[#000000] font-['Gilroy-Regular']">
-            Mandatory Daily Authentication Requires A Registered Biometric Device
+            Mandatory Daily Authentication Requires A Registered Biometric
+            Device
           </div>
         </div>
       </div>
@@ -495,7 +522,8 @@ const FAVerification = () => {
               {modeTabs.map((t) => {
                 const active = mode === t.key;
                 const isIris = t.key === "iris";
-                let tabClassName = "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
+                let tabClassName =
+                  "text-[#1B1717] text-opacity-80 hover:bg-gray-50";
                 if (active) tabClassName = "bg-[#039155] text-[#FFFFFF]";
                 return (
                   <button
@@ -515,9 +543,11 @@ const FAVerification = () => {
           </div>
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
-            <div className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-              deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-            } text-white`}>
+            <div
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
+                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+              } text-white`}
+            >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="text-[12px] font-['Gilroy-Medium'] flex-1">
@@ -535,11 +565,15 @@ const FAVerification = () => {
               ) : (
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
-                    <span className={`w-2 h-2 rounded-full ${
-                      deviceConnected ? "bg-white" : "bg-white"
-                    }`} />
+                    <span
+                      className={`w-2 h-2 rounded-full ${
+                        deviceConnected ? "bg-white" : "bg-white"
+                      }`}
+                    />
                     <span className="text-[12px] font-['Gilroy-Medium']">
-                      {deviceConnected ? "Device Connected" : "Device Not Connected"}
+                      {deviceConnected
+                        ? "Device Connected"
+                        : "Device Not Connected"}
                     </span>
                   </div>
                   <button
@@ -558,104 +592,119 @@ const FAVerification = () => {
 
         {/* Capture area */}
         <div className="mt-[20px] pt-4 border-t border-gray-200">
-          <div className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-            comingSoon ? "bg-gray-50" : "bg-white"
-          }`}>
-          <div className="max-w-2xl mx-auto text-center relative">
-            {/* Keep same UI visible; dim/disable when comingSoon */}
-            <div className={comingSoon ? "opacity-80 pointer-events-none select-none blur-sm" : ""}>
-              <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
-                {/* Outer circle background */}
-                <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
-                {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
-                {isScanning && (
-                  <div
-                    className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
-                    style={{
-                      background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
-                    }}
+          <div
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
+              comingSoon ? "bg-gray-50" : "bg-white"
+            }`}
+          >
+            <div className="max-w-2xl mx-auto text-center relative">
+              {/* Keep same UI visible; dim/disable when comingSoon */}
+              <div
+                className={
+                  comingSoon
+                    ? "opacity-80 pointer-events-none select-none blur-sm"
+                    : ""
+                }
+              >
+                <div className="relative mx-auto w-[170px] h-[170px] flex items-center justify-center">
+                  {/* Outer circle background */}
+                  <div className="absolute inset-0 rounded-full bg-[#E5FFF4]" />
+                  {/* Fill animation circle - fills clockwise from top (12 o'clock) */}
+                  {isScanning && (
+                    <div
+                      className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
+                      style={{
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360}deg, transparent ${(scanProgress / 100) * 360}deg, transparent 360deg)`,
+                      }}
+                    />
+                  )}
+                  {/* Inner white circle */}
+                  <div className="absolute inset-[18px] rounded-full bg-white z-10" />
+                  <img
+                    src={mode === "iris" ? IrisIcon : FingerPrintIcon}
+                    alt={mode === "iris" ? "Iris" : "Fingerprint"}
+                    className="relative w-10 h-10 z-20"
                   />
-                )}
-                {/* Inner white circle */}
-                <div className="absolute inset-[18px] rounded-full bg-white z-10" />
-                <img
-                  src={mode === "iris" ? IrisIcon : FingerPrintIcon}
-                  alt={mode === "iris" ? "Iris" : "Fingerprint"}
-                  className="relative w-10 h-10 z-20"
-                />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (deviceConnected) {
+                        getDeviceInfo();
+                      } else {
+                        discoverAvdm();
+                      }
+                    }}
+                    disabled={isDeviceChecking || isGettingDeviceInfo}
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
+                    aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  >
+                    {isDeviceChecking
+                      ? "Checking..."
+                      : isGettingDeviceInfo
+                        ? "Fetching..."
+                        : deviceConnected
+                          ? "Device Info"
+                          : "Ready"}
+                  </button>
+                </div>
+
+                <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                  {mode === "iris"
+                    ? "Look Into The Scanner"
+                    : "Place Finger On Scanner"}
+                </div>
+                <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
+                  {mode === "iris"
+                    ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
+                    : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
+                </div>
+
                 <button
                   type="button"
                   onClick={() => {
-                    if (deviceConnected) {
-                      getDeviceInfo();
-                    } else {
+                    if (mode === "iris" || comingSoon) return;
+                    if (!deviceConnected) {
                       discoverAvdm();
+                      return;
                     }
+                    captureAvdm();
                   }}
-                  disabled={isDeviceChecking || isGettingDeviceInfo}
-                  className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
-                  aria-label={deviceConnected ? "Device Info" : "Ready"}
+                  disabled={isScanning || comingSoon || mode === "iris"}
+                  className="mt-[24px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isDeviceChecking
-                    ? "Checking..."
-                    : isGettingDeviceInfo
-                    ? "Fetching..."
-                    : deviceConnected
-                    ? "Device Info"
-                    : "Ready"}
+                  <span className="inline-flex items-center justify-center w-6 h-6 ">
+                    <img
+                      src={mode === "iris" ? EyeIcon : StartCapture}
+                      alt=""
+                      className="w-full h-full"
+                      aria-hidden="true"
+                    />
+                  </span>{" "}
+                  {isScanning
+                    ? "Scanning..."
+                    : mode === "iris"
+                      ? "Start Iris Scan"
+                      : "Start Capture"}
                 </button>
               </div>
 
-              <div className="mt-[32px] text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                {mode === "iris" ? "Look Into The Scanner" : "Place Finger On Scanner"}
-              </div>
-              <div className="mt-[16px] text-[14px] text-[#1B1717] font-['Gilroy-Medium'] leading-relaxed">
-                {mode === "iris"
-                  ? "Position Your Eyes Within The Scanner's View. Keep Them Wide Open And Hold Steady Until Capture"
-                  : "Please Place Your Finger Flat On The Device Sensor And Hold It Steady Until The Capture Is Complete."}
-              </div>
-
-              <button
-                type="button"
-                onClick={() => {
-                  if (mode === "iris" || comingSoon) return;
-                  if (!deviceConnected) {
-                    discoverAvdm();
-                    return;
-                  }
-                  captureAvdm();
-                }}
-                disabled={isScanning || comingSoon || (mode === "iris")}
-                className="mt-[24px] inline-flex items-center justify-center gap-3 bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-10 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                <span className="inline-flex items-center justify-center w-6 h-6 ">
-                  <img
-                    src={mode === "iris" ? EyeIcon : StartCapture}
-                    alt=""
-                    className="w-full h-full"
-                    aria-hidden="true"
-                  />
-                </span>{" "}
-                {isScanning ? "Scanning..." : mode === "iris" ? "Start Iris Scan" : "Start Capture"}
-              </button>
-            </div>
-
-            {comingSoon && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                {/* Disabled background overlay */}
-                <div className="absolute inset-0" />
-                {/* Coming Soon container */}
-                <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
-                  <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    Iris Scan Coming Soon
-                  </div>
-                  <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
-                    This authentication mode will be available in a future update.
+              {comingSoon && (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  {/* Disabled background overlay */}
+                  <div className="absolute inset-0" />
+                  {/* Coming Soon container */}
+                  <div className="relative bg-white/95 border border-gray-200 rounded-xl px-6 py-5 shadow-sm max-w-[420px] w-full z-10">
+                    <div className="text-[18px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      Iris Scan Coming Soon
+                    </div>
+                    <div className="mt-2 text-[14px] text-[#1B1717] font-['Gilroy-Regular']">
+                      This authentication mode will be available in a future
+                      update.
+                    </div>
                   </div>
                 </div>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -664,4 +713,3 @@ const FAVerification = () => {
 };
 
 export default FAVerification;
-

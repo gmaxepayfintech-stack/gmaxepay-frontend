@@ -158,12 +158,12 @@ const TaxHistory = () => {
                 {/* Text */}
                 <span
                   className={`relative z-10 text-xs sm:text-sm md:text-base
-              font-[gilroy-semibold] whitespace-nowrap
-              ${
-                activeTab === tab
-                  ? "text-white"
-                  : "text-[#1B1717] hover:text-[#039155]"
-              }`}
+                font-[gilroy-semibold] whitespace-nowrap
+                ${
+                  activeTab === tab
+                    ? "text-white"
+                    : "text-[#1B1717] hover:text-[#039155]"
+                }`}
                 >
                   {tab}
                 </span>
@@ -181,11 +181,11 @@ const TaxHistory = () => {
               className="bg-white border border-[#1B1717]/80 rounded-3xl shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
             >
               {/* Green Header Bar */}
-              <div className="bg-[#039155] px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between rounded-t">
-                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-[35px] md:h-[35px] rounded-full bg-white flex items-center justify-center flex-shrink-0">
-                  <Fingerprint className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[18px] md:h-[18px] text-[#039155]" />
+              <div className="border-b-[0.5px] border-[#1B1717]/30 px-3 py-2.5 sm:px-4 sm:py-3 flex items-center justify-between rounded-t">
+                <div className="w-7 h-7 sm:w-8 sm:h-8 md:w-[35px] md:h-[35px] rounded-full bg-[#039155] border border-[#039155]/50 flex items-center justify-center flex-shrink-0">
+                  <Fingerprint className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-[20px] md:h-[20px] text-white" />
                 </div>
-                <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white border border-white border-opacity-20 px-1.5 py-0.5 sm:px-2 sm:py-1">
+                <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white border border-[#039155]/50 px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-[8px] md:h-[8px] rounded-full bg-[#039155]" />
                   <span className="text-[#039155] text-[9px] sm:text-[11px] font-[gilroy-semibold] whitespace-nowrap">
                     Active
