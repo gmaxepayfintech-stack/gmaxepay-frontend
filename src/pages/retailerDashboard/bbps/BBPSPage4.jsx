@@ -1,14 +1,22 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage4 = ({ onNext, onBack, formData, setFormData }) => {
   const [billNumber, setBillNumber] = useState(
-    formData.billNumber || "10213654",
+    formData.billDetails?.billDetails?.billNumber || formData.billNumber || "",
   );
-  const [amount, setAmount] = useState(formData.amount || "");
+  const [amount, setAmount] = useState(formData.billDetails?.billDetails?.billAmount || formData.amount || "");
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update bill number and amount when billDetails change
+  useEffect(() => {
+    if (formData.billDetails?.billDetails) {
+      setBillNumber(formData.billDetails.billDetails.billNumber || "");
+      setAmount(formData.billDetails.billDetails.billAmount || "");
+    }
+  }, [formData.billDetails]);
 
   const handleProceed = () => {
     if (!amount || parseFloat(amount) <= 0) return;
@@ -74,20 +82,21 @@ const BBPSPage4 = ({ onNext, onBack, formData, setFormData }) => {
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[20px] font-['Gilroy-Medium'] text-[#1B1717]">
                 ₹
               </span>
-              <input
-                type="number"
-                placeholder="Enter Amount"
-                value={amount}
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "" || (!isNaN(val) && parseFloat(val) >= 0)) {
-                    setAmount(val);
-                  }
-                }}
-                min="0"
-                step="0.01"
-                className="w-full pl-9 px-4 py-4 border border-dashed border-[#1B1717] border-opacity-30 rounded-lg text-[20px] font-['Gilroy-Medium'] focus:outline-none focus:border-[#039155] transition"
-              />
+                    <input
+                      type="number"
+                      placeholder="Enter Amount"
+                      value={amount}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "" || (!isNaN(val) && parseFloat(val) >= 0)) {
+                          setAmount(val);
+                        }
+                      }}
+                      disabled={formData.billerInfo?.billerPaymentExactness === "Exact"}
+                      min="0"
+                      step="0.01"
+                      className="w-full pl-9 px-4 py-4 border border-dashed border-[#1B1717] border-opacity-30 rounded-lg text-[20px] font-['Gilroy-Medium'] focus:outline-none focus:border-[#039155] transition disabled:bg-gray-50 disabled:cursor-not-allowed"
+                    />
             </div>
           </div>
 

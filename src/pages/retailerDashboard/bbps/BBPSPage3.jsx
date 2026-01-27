@@ -1,29 +1,67 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserBBPSBillerInfo, getUserBBPSFetchBill } from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
+  const dispatch = useDispatch();
+  const { userBillerInfo, userBillerInfoLoading } = useSelector((state) => state.bbps);
+  const { userFetchBill, userFetchBillLoading } = useSelector((state) => state.bbps);
+  
   const [mobileNumber, setMobileNumber] = useState(formData.mobileNumber || "");
-  const [customerId, setCustomerId] = useState(formData.customerId || "");
+  const [inputParams, setInputParams] = useState(formData.inputParams || {});
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleProceed = () => {
-    if (!mobileNumber.trim() || !customerId.trim()) return;
-    if (mobileNumber.length !== 10) return;
+  // Fetch biller info when component mounts if biller is selected
+  useEffect(() => {
+    if (formData.biller?.billerId && !userBillerInfo?.biller?.[0]) {
+      dispatch(getUserBBPSBillerInfo(formData.biller.billerId));
+    }
+  }, [dispatch, formData.biller?.billerId]);
+
+  const handleFetchBill = async () => {
+    if (!mobileNumber || mobileNumber.length !== 10 || !formData.biller?.billerId) return;
+    
     setIsLoading(true);
-    setFormData((prev) => ({
-      ...prev,
-      mobileNumber: mobileNumber.trim(),
-      customerId: customerId.trim(),
+    
+    // Build input params from userBillerInfo
+    const inputParamsList = userBillerInfo?.biller?.[0]?.billerInputParams?.[0]?.paramsList || [];
+    const inputArray = inputParamsList.map((param) => ({
+      paramName: param.paramName,
+      paramValue: inputParams[param.paramName] || "",
     }));
-    setTimeout(() => {
+
+    const fetchBillPayload = {
+      operatorService: formData.category?.name || "",
+      customerInfo: { customerMobile: mobileNumber },
+      billerId: formData.biller.billerId,
+      billerAdhoc: userBillerInfo?.biller?.[0]?.billerAdhoc || "false",
+      inputParams: {
+        input: inputArray,
+      },
+    };
+
+    const result = await dispatch(getUserBBPSFetchBill(fetchBillPayload));
+    if (result?.status === 'SUCCESS') {
+      setFormData((prev) => ({
+        ...prev,
+        mobileNumber: mobileNumber.trim(),
+        inputParams: inputParams,
+        billDetails: result.data,
+        amount: result.data?.billDetails?.billAmount || "",
+      }));
       setIsLoading(false);
       onNext({
         mobileNumber: mobileNumber.trim(),
-        customerId: customerId.trim(),
+        inputParams: inputParams,
+        billDetails: result.data,
+        amount: result.data?.billDetails?.billAmount || "",
       });
-    }, 300);
+    } else {
+      setIsLoading(false);
+    }
   };
 
   const selectedCategoryName =
@@ -61,7 +99,7 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
                 {selectedCategoryName}
               </div>
               <div className="text-[14px] text-gray-500 mt-1">
-                {formData.billerName || "Biller Name"}
+                {formData.biller?.name || formData.billerName || "Biller Name"}
               </div>
             </div>
             <span className="text-[12px] bg-[#039155] text-white px-3 py-1 rounded-full font-['Gilroy-Medium']">
@@ -100,25 +138,53 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
             </div>
           </div>
 
-          {/* Service Information */}
-          <div>
-            <p className="text-[16px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
-              Service Information
-            </p>
-
-            <div>
-              <label className="block text-[14px] font-['Gilroy-Medium'] mb-2">
-                Customer ID *
-              </label>
-              <input
-                type="text"
-                value={customerId}
-                onChange={(e) => setCustomerId(e.target.value)}
-                placeholder="Enter Customer ID"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#039155] transition"
-              />
+          {/* Service Information - Dynamic Input Fields */}
+          {userBillerInfoLoading ? (
+            <div className="flex items-center justify-center py-4">
+              <ButtonLoader color="#039155" size={20} thickness={3} />
+              <span className="ml-2 text-gray-500">Loading biller info...</span>
             </div>
-          </div>
+          ) : (
+            userBillerInfo?.biller?.[0]?.billerInputParams?.[0]?.paramsList && (
+              <div>
+                <p className="text-[16px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
+                  Service Information
+                </p>
+                <div className="space-y-4">
+                  {userBillerInfo.biller[0].billerInputParams[0].paramsList.map((param) => (
+                    <div key={param.paramName}>
+                      <label className="block text-[14px] font-['Gilroy-Medium'] mb-2">
+                        {param.paramName} {param.isOptional === "false" ? "*" : ""}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={`Enter ${param.paramName}`}
+                        value={inputParams[param.paramName] || ""}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          // Apply data type validation
+                          if (param.dataType === "NUMERIC") {
+                            if (/^\d*$/.test(val)) {
+                              setInputParams({ ...inputParams, [param.paramName]: val });
+                            }
+                          } else if (param.dataType === "ALPHANUMERIC") {
+                            if (/^[A-Za-z0-9]*$/.test(val)) {
+                              setInputParams({ ...inputParams, [param.paramName]: val });
+                            }
+                          } else {
+                            setInputParams({ ...inputParams, [param.paramName]: val });
+                          }
+                        }}
+                        maxLength={param.maxLength || undefined}
+                        minLength={param.minLength || undefined}
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#039155] transition"
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          )}
 
           {/* Buttons */}
           <div className="flex gap-4 pt-4">
@@ -129,19 +195,20 @@ const BBPSPage3 = ({ onNext, onBack, formData, setFormData }) => {
               Cancel
             </button>
             <button
-              onClick={handleProceed}
+              onClick={handleFetchBill}
               disabled={
                 !mobileNumber.trim() ||
-                !customerId.trim() ||
                 mobileNumber.length !== 10 ||
-                isLoading
+                isLoading ||
+                userFetchBillLoading ||
+                !formData.biller?.billerId
               }
               className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2 transition"
             >
-              {isLoading ? (
+              {(isLoading || userFetchBillLoading) ? (
                 <>
                   <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
-                  <span>Processing...</span>
+                  <span>Fetching...</span>
                 </>
               ) : (
                 "Fetch"

@@ -91,6 +91,8 @@ const Services = () => {
 
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
+    console.log("🖱️ BBPS card clicked, navigating to BBPS");
+    navigate("/retailerDashboard/services/bbps-services");
     setShowBBPSServices(true);
   };
 

@@ -17,7 +17,6 @@ const servicesData = [
   { id: "micro-atm", title: "Micro ATM", status: "available" },
   { id: "cms-1", title: "CMS-1", status: "available" },
   { id: "cms-2", title: "CMS-2", status: "available" },
-  { id: "bbps", title: "BBPS", status: "available" },
   { id: "unified-dmt", title: "Unified DMT", status: "available" },
   { id: "dmt", title: "DMT", status: "available" },
   { id: "dmt-11", title: "DMT-1", status: "available" },
@@ -80,6 +79,10 @@ const Services = () => {
     // Always navigate to onboarding-aeps - let that component handle everything
     navigate("/retailerDashboard/onboarding-aeps");
   };
+  const handleBbpsClick = () => {
+    console.log("🖱️ BBPS card clicked, navigating to BBPS");
+    navigate("/distributerDashboard/services/bbps-services");
+  };
 
   return (
     <div className="w-full">
@@ -138,6 +141,8 @@ const Services = () => {
             onClick={() => {
               if (s.id === "Aeps") {
                 handleAepsClick();
+              } else if (s.id === "BBPS") {
+                handleBbpsClick();
               }
             }}
           />

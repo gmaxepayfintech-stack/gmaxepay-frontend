@@ -20,7 +20,7 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   // Fetch categories from Redux
   useEffect(() => {
     if (userCategories.length === 0 && !userCategoriesLoading) {
-      dispatch(getUserBBPSCategories(1, 6));
+      dispatch(getUserBBPSCategories(1, 40));
     }
   }, [dispatch, userCategories.length, userCategoriesLoading]);
 

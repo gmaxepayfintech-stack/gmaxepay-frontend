@@ -13,6 +13,7 @@ import BusinessReport from "../../pages/retailerDashboard/Reports/BusinessReport
 import EarningReport from "../../pages/retailerDashboard/Reports/EarningReport";
 import UserPerformance from "../../pages/retailerDashboard/Reports/UserPerformance";
 import TaxHistory from "../../pages/retailerDashboard/TaxHistory";
+import BBPSServices from "../../pages/retailerDashboard/services/BBPSServices";
 
 const RetailerDash = () => {
   return (
@@ -29,10 +30,12 @@ const RetailerDash = () => {
           element={<OnBoardingAepsTwo />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
-        <Route
+        {/* <Route
           path="/services/bbps"
           element={<OnBoardingBBPS />}
-        />
+        /> */}
+        <Route path="/services/bbps-services" element={<BBPSServices />} />
+
         <Route
           path="/services/aeps2/select-service"
           element={<SelectserviceTwo />}

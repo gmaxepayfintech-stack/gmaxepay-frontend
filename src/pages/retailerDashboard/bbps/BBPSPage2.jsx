@@ -1,24 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserBBPSBillersByCategory, getUserBBPSBillerInfo } from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
-  const [billerName, setBillerName] = useState(formData.billerName || "");
+  const dispatch = useDispatch();
+  const { userBillers, userBillersLoading } = useSelector((state) => state.bbps);
+  
+  const [selectedBiller, setSelectedBiller] = useState(formData.biller || null);
+  const [billerSearchQuery, setBillerSearchQuery] = useState("");
+  const [isBillerDropdownOpen, setIsBillerDropdownOpen] = useState(false);
+  const billerDropdownRef = useRef(null);
   const [isLoading, setIsLoading] = useState(false);
-
-  const handleProceed = () => {
-    if (!billerName.trim()) return;
-    setIsLoading(true);
-    setFormData((prev) => ({ ...prev, billerName: billerName.trim() }));
-    setTimeout(() => {
-      setIsLoading(false);
-      onNext({ billerName: billerName.trim() });
-    }, 300);
-  };
 
   const selectedCategoryName =
     formData.category?.name || formData.category || "Selected Category";
+
+  // Fetch billers when category is selected
+  useEffect(() => {
+    if (formData.category?.name) {
+      dispatch(getUserBBPSBillersByCategory(formData.category.name, billerSearchQuery, 1, 6));
+    }
+  }, [dispatch, formData.category, billerSearchQuery]);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (billerDropdownRef.current && !billerDropdownRef.current.contains(event.target)) {
+        setIsBillerDropdownOpen(false);
+      }
+    };
+
+    if (isBillerDropdownOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isBillerDropdownOpen]);
+
+  const handleBillerSelect = async (biller) => {
+    setSelectedBiller(biller);
+    setIsBillerDropdownOpen(false);
+    // Fetch biller info
+    if (biller.billerId) {
+      await dispatch(getUserBBPSBillerInfo(biller.billerId));
+    }
+  };
+
+  const handleProceed = () => {
+    if (!selectedBiller) return;
+    setIsLoading(true);
+    setFormData((prev) => ({ ...prev, biller: selectedBiller, billerName: selectedBiller.name }));
+    setTimeout(() => {
+      setIsLoading(false);
+      onNext({ biller: selectedBiller, billerName: selectedBiller.name });
+    }, 300);
+  };
 
   return (
     <div className="w-full py-4 px-1">
@@ -65,19 +106,52 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
             <label className="block text-[14px] font-['Gilroy-Medium'] mb-2">
               Biller Name *
             </label>
-            <input
-              type="text"
-              value={billerName}
-              onChange={(e) => {
-                const val = e.target.value;
-                // Keep only alphabets, numbers, spaces, and common special characters
-                if (/^[A-Za-z0-9\s\-&.,()]*$/.test(val)) {
-                  setBillerName(val);
-                }
-              }}
-              placeholder="Enter Biller Name"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#039155] transition"
-            />
+            <div className="relative" ref={billerDropdownRef}>
+              <input
+                type="text"
+                value={billerSearchQuery}
+                onChange={(e) => {
+                  setBillerSearchQuery(e.target.value);
+                  setIsBillerDropdownOpen(true);
+                }}
+                onFocus={() => setIsBillerDropdownOpen(true)}
+                placeholder="Search or select biller"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:border-[#039155] transition"
+              />
+              {isBillerDropdownOpen && userBillers.length > 0 && (
+                <div className="absolute w-full bg-white border border-gray-200 rounded-lg mt-1 shadow-lg z-10 max-h-60 overflow-y-auto">
+                  {userBillersLoading ? (
+                    <div className="px-4 py-2 text-center">
+                      <ButtonLoader color="#039155" size={16} thickness={2} />
+                    </div>
+                  ) : (
+                    userBillers
+                      .filter((biller) =>
+                        biller.name?.toLowerCase().includes(billerSearchQuery.toLowerCase())
+                      )
+                      .map((biller) => (
+                        <div
+                          key={biller.id}
+                          onClick={() => handleBillerSelect(biller)}
+                          className="px-4 py-2 hover:bg-gray-100 cursor-pointer text-[14px] font-['Gilroy-Medium'] text-[#1B1717]"
+                        >
+                          {biller.name} ({biller.billerId})
+                        </div>
+                      ))
+                  )}
+                </div>
+              )}
+            </div>
+            {selectedBiller && (
+              <p className="text-xs text-gray-500 mt-1">
+                Selected: {selectedBiller.name}
+              </p>
+            )}
+            {!formData.category && (
+              <p className="text-xs text-red-500 mt-1">
+                Please select a category first
+              </p>
+            )}
           </div>
 
           {/* Buttons */}
@@ -90,7 +164,7 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
             </button>
             <button
               onClick={handleProceed}
-              disabled={!billerName.trim() || isLoading}
+              disabled={!selectedBiller || isLoading || !formData.category}
               className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2 transition"
             >
               {isLoading ? (
