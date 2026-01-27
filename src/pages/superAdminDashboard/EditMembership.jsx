@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { Check, Plus } from "lucide-react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const EditMembership = ({ scheme, onBack }) => {
   const [schemeName, setSchemeName] = useState(scheme?.name || "");
@@ -77,7 +77,7 @@ const EditMembership = ({ scheme, onBack }) => {
   };
 
   return (
-    <div className="min-h-screen p-2 sm:p-3 md:p-4 text-[#1B1717]">
+    <div className="min-h-screen py-4 px-2 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
@@ -86,18 +86,18 @@ const EditMembership = ({ scheme, onBack }) => {
             className="flex items-center text-[#1B1717] hover:text-[#039155] transition"
           >
             <div className="rounded-full p-2 bg-[#FFFFFF] border-[0.5px] border-[#1B1717]/80 transition">
-              <HiOutlineArrowNarrowLeft className="text-xl sm:text-2xl text-[#1B1717] opacity-80" />
+              <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717] opacity-80" />
             </div>
           </button>
-
-          <h1 className="text-[20px] sm:text-2xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-            Edit Membership Scheme
-          </h1>
+          <div className="flex flex-col">
+            <h1 className="text-[20px] sm:text-2xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+              Edit Membership Scheme
+            </h1>
+            <span className="block mt-2 sm:mt-0  text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+              Configure Your Membership Settings And Commissions
+            </span>
+          </div>
         </div>
-
-        <span className="block mt-2 sm:mt-0 sm:ml-14 text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
-          Configure Your Membership Settings And Commissions
-        </span>
       </div>
 
       {/* Scheme Settings Section */}

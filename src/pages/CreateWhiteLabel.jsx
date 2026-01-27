@@ -34,6 +34,7 @@ import {
   deActiveOnboarding,
 } from "../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../widgets/layout/loader";
+import { motion } from "framer-motion";
 
 const generateTableData = (type, count = 12) => {
   let userRole = "WL";
@@ -658,64 +659,55 @@ const CreateWhiteLabel = () => {
     return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
   }
   return (
-    <div className="text-[#1B1717] w-full h-full overflow-hidden">
-      <div className="w-full h-full overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+    <div className="text-[#1B1717] w-full h-full  py-3  px-2 ">
+      <div className="w-full h-full ">
         {/* Header Navigation */}
-        <div className="w-full p-0 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow-sm px-4 py-3 sm:px-6 sm:py-4 flex justify-center w-full">
-            <nav className="flex flex-wrap items-center justify-center gap-x-6 sm:gap-x-11 lg:gap-x-[184px] gap-y-3 text-gray-600 font-medium text-xs sm:text-sm lg:text-base">
-              <button
-                onClick={() => {
-                  setActiveNav("Whitelabel");
-                  setShowOnboardingList(false);
-                }}
-                className={`px-3 sm:px-4 py-1.5 rounded-xl font-medium text-sm sm:text-base lg:text-lg ${
-                  activeNav === "Whitelabel"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
+        <div className="w-full mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl shadow-sm py-3 overflow-x-auto">
+            <nav className="relative flex ">
+              {[
+                "Whitelabel",
+                "Master Distributor",
+                "Distributor",
+                "Retailers",
+              ].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    setActiveNav(item);
+                    setShowOnboardingList(false);
+                  }}
+                  className="relative flex-auto flex justify-evenly"
+                >
+                  <span className="relative px-2 py-1.5 sm:px-3 sm:py-2 rounded-[16px]">
+                    {/* Moving pill */}
+                    {activeNav === item && (
+                      <motion.span
+                        layoutId="active-nav-pill"
+                        className="absolute inset-0 rounded-[16px] bg-[#039155]"
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 35,
+                        }}
+                      />
+                    )}
+
+                    {/* Text */}
+                    <span
+                      className={`relative z-10 text-sm sm:text-base lg:text-lg
+                font-[gilroy-medium] whitespace-nowrap
+                ${
+                  activeNav === item
+                    ? "text-white"
+                    : "text-[#1B1717] hover:text-[#039155]"
                 }`}
-              >
-                Whitelabel
-              </button>
-              <button
-                onClick={() => {
-                  setActiveNav("Master Distributor");
-                  setShowOnboardingList(false);
-                }}
-                className={`px-3 sm:px-4 py-1.5 rounded-xl font-medium text-sm sm:text-base lg:text-lg ${
-                  activeNav === "Master Distributor"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
-                }`}
-              >
-                Master Distributor
-              </button>
-              <button
-                onClick={() => {
-                  setActiveNav("Distributor");
-                  setShowOnboardingList(false);
-                }}
-                className={`px-3 sm:px-4 py-1.5 rounded-xl font-medium text-sm sm:text-base lg:text-lg ${
-                  activeNav === "Distributor"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
-                }`}
-              >
-                Distributor
-              </button>
-              <button
-                onClick={() => {
-                  setActiveNav("Retailers");
-                  setShowOnboardingList(false);
-                }}
-                className={`px-3 sm:px-4 py-1.5 rounded-xl font-medium text-sm sm:text-base lg:text-lg ${
-                  activeNav === "Retailers"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
-                }`}
-              >
-                Retailers
-              </button>
+                    >
+                      {item}
+                    </span>
+                  </span>
+                </button>
+              ))}
             </nav>
           </div>
         </div>
@@ -798,7 +790,7 @@ const CreateWhiteLabel = () => {
           return (
             <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-                <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+                <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-gray-800">
                   {(() => {
                     if (activeNav === "Whitelabel")
                       return "Whitelabel All Lists";

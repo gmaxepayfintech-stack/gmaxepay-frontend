@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 import { FaCloudUploadAlt } from "react-icons/fa";
 import { useFormik } from "formik";
 import * as Yup from "yup";
@@ -29,51 +29,51 @@ const WhiteLabel = ({ onBack }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   const cityDataRetrived = useSelector(
-    (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.postOffices
+    (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.postOffices,
   );
   const pincodeStatus = useSelector(
-    (state) => state?.whitelabel?.citybyPincode?.status
+    (state) => state?.whitelabel?.citybyPincode?.status,
   );
   const presentState = useSelector(
-    (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.state
+    (state) => state?.whitelabel?.citybyPincode?.citybyPincode?.state,
   );
   const verificationToken = useSelector(
-    (state) => state?.whitelabel?.ipResponse?.ipResponse?.verificationToken
+    (state) => state?.whitelabel?.ipResponse?.ipResponse?.verificationToken,
   );
   const createSuccess = useSelector(
-    (state) => state?.whitelabel?.createResponse?.status
+    (state) => state?.whitelabel?.createResponse?.status,
   );
   const createMessage = useSelector(
-    (state) => state?.whitelabel?.createResponse?.message
+    (state) => state?.whitelabel?.createResponse?.message,
   );
 
   // IP Check states
   const ipCheckStatusState = useSelector(
-    (state) => state?.whitelabel?.ipResponse?.status
+    (state) => state?.whitelabel?.ipResponse?.status,
   );
   const ipCheckMessage = useSelector(
-    (state) => state?.whitelabel?.ipResponse?.message
+    (state) => state?.whitelabel?.ipResponse?.message,
   );
-  const ipCheckError = useSelector(
-    (state) => state?.error?.error
-  );
+  const ipCheckError = useSelector((state) => state?.error?.error);
 
   // PAN Fetch states
   const panDataStatus = useSelector(
-    (state) => state?.whitelabel?.panData?.status
+    (state) => state?.whitelabel?.panData?.status,
   );
   const panDataMessage = useSelector(
-    (state) => state?.whitelabel?.panData?.message
+    (state) => state?.whitelabel?.panData?.message,
   );
-  const panDataError = useSelector(
-    (state) => state?.error?.message
-  );
+  const panDataError = useSelector((state) => state?.error?.message);
 
   // Create error state
   const createError = useSelector((state) => state?.error?.error);
 
   // Track last shown notifications to avoid duplicates
-  const lastNotificationRef = useRef({ ipCheck: null, panFetch: null, create: null });
+  const lastNotificationRef = useRef({
+    ipCheck: null,
+    panFetch: null,
+    create: null,
+  });
 
   // Show notifications for IP Check
   useEffect(() => {
@@ -87,7 +87,11 @@ const WhiteLabel = ({ onBack }) => {
   }, [ipCheckStatusState, ipCheckMessage, success]);
 
   useEffect(() => {
-    if (ipCheckError && typeof ipCheckError === "string" && ipCheckStatusState !== "SUCCESS") {
+    if (
+      ipCheckError &&
+      typeof ipCheckError === "string" &&
+      ipCheckStatusState !== "SUCCESS"
+    ) {
       const notificationKey = `ip-error-${ipCheckError}`;
       if (lastNotificationRef.current.ipCheck !== notificationKey) {
         error(ipCheckError);
@@ -109,7 +113,10 @@ const WhiteLabel = ({ onBack }) => {
 
   useEffect(() => {
     if (panDataStatus === "Failure" && panDataError) {
-      const errorMsg = typeof panDataError === "string" ? panDataError : "Failed to fetch PAN data";
+      const errorMsg =
+        typeof panDataError === "string"
+          ? panDataError
+          : "Failed to fetch PAN data";
       const notificationKey = `pan-error-${errorMsg}`;
       if (lastNotificationRef.current.panFetch !== notificationKey) {
         error(errorMsg);
@@ -132,7 +139,11 @@ const WhiteLabel = ({ onBack }) => {
 
   // Show error message when form submission fails
   useEffect(() => {
-    if (createError && typeof createError === "string" && createSuccess !== "SUCCESS") {
+    if (
+      createError &&
+      typeof createError === "string" &&
+      createSuccess !== "SUCCESS"
+    ) {
       const notificationKey = `create-error-${createError}`;
       if (lastNotificationRef.current.create !== notificationKey) {
         error(createError);
@@ -161,14 +172,14 @@ const WhiteLabel = ({ onBack }) => {
     gstin: Yup.string()
       .matches(
         /^[0-9]{2}[A-Z]{5}[0-9]{4}[A-Z]{1}[1-9A-Z]{1}Z[0-9A-Z]{1}$/,
-        "Enter a valid 15-character GSTIN"
+        "Enter a valid 15-character GSTIN",
       )
       .nullable(),
     companyName: Yup.string().required("Company name is required"),
     companyDomain: Yup.string()
       .matches(
         /^(?!:\/\/)([a-zA-Z0-9-_]+\.)+[a-zA-Z]{2,11}?$/,
-        "Enter a valid domain (e.g. example.com)"
+        "Enter a valid domain (e.g. example.com)",
       )
       .required("Company domain is required"),
     remarks: Yup.string(),
@@ -181,7 +192,7 @@ const WhiteLabel = ({ onBack }) => {
         return (
           value &&
           ["image/jpeg", "image/png", "image/jpg", "image/webp"].includes(
-            value.type
+            value.type,
           )
         );
       }),
@@ -189,7 +200,7 @@ const WhiteLabel = ({ onBack }) => {
     defaultPermission: Yup.boolean(),
     clientConsent: Yup.boolean().oneOf(
       [true],
-      "You must confirm client consent"
+      "You must confirm client consent",
     ),
   });
   const formik = useFormik({
@@ -295,13 +306,13 @@ const WhiteLabel = ({ onBack }) => {
   }, [pincodeStatus]);
 
   const cityStatus = useSelector(
-    (state) => state?.whitelabel?.pincodeByCity?.status
+    (state) => state?.whitelabel?.pincodeByCity?.status,
   );
   const fetchedPincodeList = useSelector(
     (state) =>
       state?.whitelabel?.pincodeByCity?.pincodeByCity?.map(
-        (item) => item?.Pincode
-      ) || []
+        (item) => item?.Pincode,
+      ) || [],
   );
 
   useEffect(() => {
@@ -378,7 +389,7 @@ const WhiteLabel = ({ onBack }) => {
   };
 
   const panname = useSelector(
-    (state) => state?.whitelabel?.panData?.panData?.registered_name
+    (state) => state?.whitelabel?.panData?.panData?.registered_name,
   );
 
   // 🔹 Auto-set PAN name into formik once fetched
@@ -389,7 +400,7 @@ const WhiteLabel = ({ onBack }) => {
   }, [panname]);
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6">
+    <div className="min-h-screen bg-gray-50 py-4 px-2">
       {isLoading && <Loader />}
       <form onSubmit={formik.handleSubmit}>
         <div className="mb-6">
@@ -398,14 +409,18 @@ const WhiteLabel = ({ onBack }) => {
               onClick={onBack}
               className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer"
             >
-              <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+              <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
             </div>
-            <h1 className="text-2xl sm:text-3xl font-medium">Create Whitelabel</h1>
+            <div className="flex flex-col">
+              <h1 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717]">
+                Create Whitelabel
+              </h1>
+              <p className="text-[#1B1717] font-[gilroy-regular] text-sm sm:text-base lg:text-lg">
+                Set Up Your Whitelabel Configuration With Business Details And
+                Profile Settings
+              </p>
+            </div>
           </div>
-          <p className="text-[#1B1717] text-base sm:text-lg lg:text-[20px] ml-0 sm:ml-14">
-            Set Up Your Whitelabel Configuration With Business Details And
-            Profile Settings
-          </p>
         </div>
 
         <div className="flex flex-col lg:flex-row justify-center gap-6">
@@ -473,7 +488,7 @@ const WhiteLabel = ({ onBack }) => {
                     type="text"
                     name="pan"
                     placeholder="Enter Pan Number"
-                    className="p-3 border border-gray-300 rounded-l-lg w-full text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 border-r-0"
+                    className="p-3 border border-gray-300 rounded-l-lg w-full text-sm placeholder-gray-500 border-r-0"
                     value={formik.values.pan}
                     onChange={formik.handleChange}
                     onBlur={formik.handleBlur}
@@ -526,8 +541,9 @@ const WhiteLabel = ({ onBack }) => {
                 <label className={labelStyle}>Profile Photo</label>
                 <label
                   htmlFor="profilePhoto"
-                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${isImageUploading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
+                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${
+                    isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                  }`}
                 >
                   {isImageUploading ? (
                     <>
@@ -536,7 +552,8 @@ const WhiteLabel = ({ onBack }) => {
                     </>
                   ) : (
                     <>
-                      Choose File <FaCloudUploadAlt className="ml-2 text-base" />
+                      Choose File{" "}
+                      <FaCloudUploadAlt className="ml-2 text-base" />
                     </>
                   )}
                 </label>
@@ -559,9 +576,19 @@ const WhiteLabel = ({ onBack }) => {
                   }}
                 />
                 {formik.values.profilePhoto && !isImageUploading && (
-                  <p className="mt-2 text-sm text-green-600 flex items-center">
-                    <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <p className="mt-2 text-sm text-[#039155] flex items-center">
+                    <svg
+                      className="w-4 h-4 mr-1"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M5 13l4 4L19 7"
+                      />
                     </svg>
                     {formik.values.profilePhoto.name || "File selected"}
                   </p>
@@ -589,15 +616,14 @@ const WhiteLabel = ({ onBack }) => {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
               {/* City */}
 
-
               <div>
                 <label className={labelStyle}>
                   Postal Code<span className="text-red-500 ml-1">*</span>
                 </label>
 
                 {cityStatus === "SUCCESS" &&
-                  pincodeOptions.length > 0 &&
-                  !isPincodeFetched ? (
+                pincodeOptions.length > 0 &&
+                !isPincodeFetched ? (
                   // Case: Fetched by city → show pincode dropdown
                   <select
                     name="postalCode"
@@ -691,8 +717,8 @@ const WhiteLabel = ({ onBack }) => {
                 </label>
 
                 {pincodeStatus === "SUCCESS" &&
-                  cityOptions.length > 0 &&
-                  !isCityFetched ? (
+                cityOptions.length > 0 &&
+                !isCityFetched ? (
                   <select
                     name="city"
                     className={inputStyle}
@@ -806,7 +832,7 @@ const WhiteLabel = ({ onBack }) => {
                   id="defaultPermission"
                   name="defaultPermission"
                   type="checkbox"
-                  className="w-5 h-5 text-green-600 bg-gray-100 border-gray-300 rounded focus:ring-green-500 mt-1 mr-2"
+                  className="w-5 h-5 text-[#039155] bg-gray-100 border-gray-300 rounded mt-1 mr-2"
                   checked={formik.values.defaultPermission}
                   onChange={formik.handleChange}
                 />
@@ -866,7 +892,7 @@ const WhiteLabel = ({ onBack }) => {
             {/* Submit button */}
             <button
               type="submit"
-              className="mt-6 bg-gradient-to-r from-green-600 to-green-500 text-white px-6 py-3 rounded-lg font-bold text-lg w-full shadow-md hover:from-green-700 hover:to-green-600 transition-all duration-300"
+              className="mt-6 bg-[#039155] text-white px-6 py-3 rounded-lg font-bold text-lg w-full shadow-md hover:from-green-600 transition-all duration-300"
             >
               Create Profile
             </button>

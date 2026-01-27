@@ -11,42 +11,43 @@ import {
   createBBPSCategory,
   updateBBPSCategory,
 } from "../../redux/action/bbpsAction";
+import { motion } from "framer-motion";
 
 // Icon mapping for categories
 const categoryIconMap = {
   "Broadband Postpaid": "/img/Broadband.svg",
   "Cable TV": "/img/Cable.svg",
   "Clubs and Associations": "/img/Club.svg",
-  "Donation": "/img/Donation.svg",
-  "DTH": "/img/DTH.svg",
-  "Electricity": "/img/Electricity.svg",
+  Donation: "/img/Donation.svg",
+  DTH: "/img/DTH.svg",
+  Electricity: "/img/Electricity.svg",
   "Credit Card": "/img/CreditCard.svg",
   "Education Fees": "/img/Education.svg",
-  "Fastag": "/img/FastTag.svg",
+  Fastag: "/img/FastTag.svg",
   "Housing Society": "/img/Housing.svg",
-  "Insurance": "/img/Insurance.svg",
+  Insurance: "/img/Insurance.svg",
   "Life Insurance": "/img/LifeInsurance.svg",
-  "Gas": "/img/Gas.svg",
+  Gas: "/img/Gas.svg",
   "Hospital and Pathology": "/img/Hospitality.svg",
-  "Hospital": "/img/Hospital.svg",
+  Hospital: "/img/Hospital.svg",
   "Health Insurance": "/img/HealthInsurance.svg",
   "Landline Postpaid": "/img/Landline.svg",
   "Loan Repayment": "/img/Loan.svg",
   "LPG Gas": "/img/Gas.svg",
   "Mobile Postpaid": "/img/Postpaid.svg",
   "Mobile Prepaid": "/img/Prepaid.svg",
-  "Rental": "/img/Rental.svg",
-  "Subscription": "/img/Subscription.svg",
-  "Water": "/img/Water.svg",
+  Rental: "/img/Rental.svg",
+  Subscription: "/img/Subscription.svg",
+  Water: "/img/Water.svg",
   "Municipal Services": "/img/MunicipalService.svg",
   "Municipal Taxes": "/img/MunicipalTax.svg",
   "Recurring Deposit": "/img/RecurringDeposit.svg",
-  "NCMC": "/img/NCMC.svg",
+  NCMC: "/img/NCMC.svg",
   "Prepaid Meter": "/img/PrepaidMeter.svg",
   "E-Challan": "/img/E-Challen.svg",
   "Agent Collection": "/img/AgentCollection.svg",
   "EV Recharge": "/img/EVRecharge.svg",
-  "NPS": "/img/NPS.svg",
+  NPS: "/img/NPS.svg",
 };
 
 // Default icon if category not found
@@ -131,12 +132,31 @@ const AddOperatorModal = ({
     if (operator && mode === "edit") {
       setFormData({
         category: operator.name || "",
-        convFee: operator.fees?.convFee !== undefined && operator.fees?.convFee !== null ? operator.fees.convFee : "",
-        flatFee: operator.fees?.flatFee !== undefined && operator.fees?.flatFee !== null ? operator.fees.flatFee : "",
-        percentFee: operator.fees?.percentFee !== undefined && operator.fees?.percentFee !== null ? operator.fees.percentFee : "",
-        gstRate: operator.fees?.gstRate !== undefined && operator.fees?.gstRate !== null ? operator.fees.gstRate : "",
+        convFee:
+          operator.fees?.convFee !== undefined &&
+          operator.fees?.convFee !== null
+            ? operator.fees.convFee
+            : "",
+        flatFee:
+          operator.fees?.flatFee !== undefined &&
+          operator.fees?.flatFee !== null
+            ? operator.fees.flatFee
+            : "",
+        percentFee:
+          operator.fees?.percentFee !== undefined &&
+          operator.fees?.percentFee !== null
+            ? operator.fees.percentFee
+            : "",
+        gstRate:
+          operator.fees?.gstRate !== undefined &&
+          operator.fees?.gstRate !== null
+            ? operator.fees.gstRate
+            : "",
         ccfi: operator.toggles?.ccfi || false,
-        active: operator.toggles?.active !== undefined ? operator.toggles.active : true,
+        active:
+          operator.toggles?.active !== undefined
+            ? operator.toggles.active
+            : true,
         deleted: operator.toggles?.deleted || false,
       });
     } else {
@@ -179,7 +199,7 @@ const AddOperatorModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-[#D9D9D9]/80">
       <div className="bg-white rounded-xl w-[498px]  max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
         {/* Header */}
         <div className="relative flex items-start mb-6 w-full">
@@ -360,7 +380,6 @@ const AddOperatorModal = ({
                   />
                 </button>
               </div>
-
             </div>
           </div>
 
@@ -380,14 +399,32 @@ const AddOperatorModal = ({
             >
               {isLoading ? (
                 <>
-                  <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  <svg
+                    className="animate-spin h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
                   </svg>
                   {mode === "edit" ? "Updating..." : "Adding..."}
                 </>
+              ) : mode === "edit" ? (
+                "Update Operator"
               ) : (
-                mode === "edit" ? "Update Operator" : "Add Operator"
+                "Add Operator"
               )}
             </button>
           </div>
@@ -400,9 +437,13 @@ const AddOperatorModal = ({
 const BBPSSettings = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
-  const { categories, loading, totalPages: apiTotalPages, currentPage: apiCurrentPage, createCategorySuccess } = useSelector(
-    (state) => state.bbps
-  );
+  const {
+    categories,
+    loading,
+    totalPages: apiTotalPages,
+    currentPage: apiCurrentPage,
+    createCategorySuccess,
+  } = useSelector((state) => state.bbps);
 
   const [activeTab, setActiveTab] = useState("operators"); // 'operators', 'biller', 'payment'
   const [searchQuery, setSearchQuery] = useState("");
@@ -439,7 +480,14 @@ const BBPSSettings = () => {
     if (!companyId || activeTab !== "operators") return;
 
     if (debouncedSearchQuery.trim()) {
-      dispatch(searchBBPSCategories(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+      dispatch(
+        searchBBPSCategories(
+          companyId,
+          debouncedSearchQuery,
+          currentPage,
+          cardsPerPage,
+        ),
+      );
     } else {
       dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
     }
@@ -469,7 +517,7 @@ const BBPSSettings = () => {
   const handleAddOperator = async (formData) => {
     const companyId = getCompanyId();
     if (companyId) {
-      setLastOperation('create');
+      setLastOperation("create");
       await dispatch(createBBPSCategory(companyId, formData));
     }
   };
@@ -478,7 +526,7 @@ const BBPSSettings = () => {
     const companyId = getCompanyId();
     const categoryId = editingOperator?._id || editingOperator?.id;
     if (companyId && categoryId) {
-      setLastOperation('update');
+      setLastOperation("update");
       await dispatch(updateBBPSCategory(companyId, categoryId, formData));
     }
   };
@@ -489,14 +537,23 @@ const BBPSSettings = () => {
       const companyId = getCompanyId();
       if (companyId) {
         // If update operation, always call getAllBBPSCategories
-        if (lastOperation === 'update') {
+        if (lastOperation === "update") {
           dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
         } else {
           // For create operation, respect search state
           if (debouncedSearchQuery.trim()) {
-            dispatch(searchBBPSCategories(companyId, debouncedSearchQuery, currentPage, cardsPerPage));
+            dispatch(
+              searchBBPSCategories(
+                companyId,
+                debouncedSearchQuery,
+                currentPage,
+                cardsPerPage,
+              ),
+            );
           } else {
-            dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
+            dispatch(
+              getAllBBPSCategories(companyId, currentPage, cardsPerPage),
+            );
           }
         }
         setIsModalOpen(false);
@@ -505,12 +562,21 @@ const BBPSSettings = () => {
         setLastOperation(null);
       }
     }
-  }, [createCategorySuccess, loading, isModalOpen, lastOperation, debouncedSearchQuery, currentPage, dispatch, company]);
+  }, [
+    createCategorySuccess,
+    loading,
+    isModalOpen,
+    lastOperation,
+    debouncedSearchQuery,
+    currentPage,
+    dispatch,
+    company,
+  ]);
 
   const handleToggleChange = async (operator, field, newValue) => {
     const companyId = getCompanyId();
     const categoryId = operator._id || operator.id;
-    
+
     if (!companyId || !categoryId) return;
 
     // Prepare update data with current operator values and the changed toggle
@@ -521,12 +587,18 @@ const BBPSSettings = () => {
       percentFee: operator.fees?.percentFee || 0,
       gstRate: operator.fees?.gstRate || 0,
       ccfi: field === "ccfi" ? newValue : operator.toggles?.ccfi || false,
-      active: field === "active" ? newValue : operator.toggles?.active !== undefined ? operator.toggles.active : true,
-      deleted: field === "deleted" ? newValue : operator.toggles?.deleted || false,
+      active:
+        field === "active"
+          ? newValue
+          : operator.toggles?.active !== undefined
+            ? operator.toggles.active
+            : true,
+      deleted:
+        field === "deleted" ? newValue : operator.toggles?.deleted || false,
     };
 
     await dispatch(updateBBPSCategory(companyId, categoryId, updateData));
-    
+
     // Refresh the list after toggle update
     dispatch(getAllBBPSCategories(companyId, currentPage, cardsPerPage));
   };
@@ -552,39 +624,50 @@ const BBPSSettings = () => {
   };
 
   return (
-    <div className="p-1 bg-gray-50 min-h-screen">
+    <div className="py-4 bg-gray-50 min-h-screen">
       {/* Tabs */}
-      <div className="inline-flex gap-[143px] bg-[#FFFFFF] rounded-3xl p-4 mb-[24px]">
-        <button
-          onClick={() => setActiveTab("operators")}
-          className={`px-5 py-2.5 h-[40px] rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "operators"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Operator Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("biller")}
-          className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "biller"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Biller Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("payment")}
-          className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "payment"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Payment Setting
-        </button>
+
+      <div className="bg-[#FFFFFF] rounded-3xl p-4 mb-[24px] w-2/3 ">
+        <div className="relative inline-flex gap-[143px]">
+          {[
+            { key: "operators", label: "Operator Settings" },
+            { key: "biller", label: "Biller Settings" },
+            { key: "payment", label: "Payment Setting" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className="relative flex justify-center"
+            >
+              {/* Size-defining wrapper (same pattern as before) */}
+              <span className="relative px-5 py-2.5 h-[40px] rounded-full flex items-center">
+                {/* Moving background */}
+                {activeTab === key && (
+                  <motion.span
+                    layoutId="active-settings-pill"
+                    className="absolute inset-0 rounded-full bg-[#039155] shadow-sm"
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 35,
+                    }}
+                  />
+                )}
+
+                {/* Text */}
+                <span
+                  className={`relative z-10 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition-colors ${
+                    activeTab === key
+                      ? "text-white"
+                      : "text-gray-700 hover:text-[#039155]"
+                  }`}
+                >
+                  {label}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Conditional Content Rendering */}
@@ -647,7 +730,9 @@ const BBPSSettings = () => {
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || loading}
             className={`px-3 py-2.5  border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === 1 || loading ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === 1 || loading
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
           >
             <ChevronLeft className="w-4 h-4" />
@@ -672,7 +757,9 @@ const BBPSSettings = () => {
             }
             disabled={currentPage === (apiTotalPages || 1) || loading}
             className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === (apiTotalPages || 1) || loading ? "opacity-50 cursor-not-allowed" : ""
+              currentPage === (apiTotalPages || 1) || loading
+                ? "opacity-50 cursor-not-allowed"
+                : ""
             }`}
           >
             <ChevronRight className="w-4 h-4" />
