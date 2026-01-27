@@ -12,6 +12,7 @@ import NWoverview from "../../pages/DistributorDashboard/Reports/NW-Overview";
 import TaxHistory from "../../pages/DistributorDashboard/TaxHistory";
 import Services from "../../pages/DistributorDashboard/Services";
 import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
+import PanService from "../../pages/DistributorDashboard/services/PanService";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -21,6 +22,7 @@ const DistributorDashboard = () => {
         <Route path="/aeps" element={<OnBoardingAeps />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
+        <Route path="/services/pan-service" element={<PanService />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
         <Route path="/fund-manage/fund-request" element={<FundRequest />} />
         <Route path="/reports/business" element={<BusinessReport />} />

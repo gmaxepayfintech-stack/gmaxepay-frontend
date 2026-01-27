@@ -1,9 +1,7 @@
 import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useDispatch } from "react-redux";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
-import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import BBPSServices from "./services/BBPSServices";
 import DTHRechagre from "./services/DTHRecharge";
 
@@ -18,6 +16,7 @@ const servicesData = [
   { id: "dmt-1", title: "DMT-1", status: "available" },
   { id: "dmt-2", title: "DMT-2", status: "available" },
   { id: "micro-atm", title: "Micro ATM", status: "available" },
+  { id: "pan", title: "PAN", status: "available" },
   { id: "cms-1", title: "CMS-1", status: "available" },
   { id: "cms-2", title: "CMS-2", status: "available" },
   { id: "bbps", title: "BBPS", status: "available" },
@@ -70,7 +69,6 @@ const Services = () => {
   const [showBBPSServices, setShowBBPSServices] = useState(false);
   const [showDTHRecharge, setShowDTHRecharge] = useState(false);
   const navigate = useNavigate();
-  const dispatch = useDispatch();
 
   // Note: Status check only happens when AEPS card is clicked, not mount
 
@@ -111,6 +109,12 @@ const Services = () => {
 
   const handleDTHRechargeClick = () => {
     setShowDTHRecharge(true);
+  };
+
+  // Handle PAN card click - navigate to pan-service route
+  const handlePANClick = () => {
+    console.log("🖱️ PAN card clicked, navigating to pan-service");
+    navigate("/retailerDashboard/services/pan-service");
   };
 
   // If BBPS services should be shown, render that component
@@ -188,6 +192,8 @@ const Services = () => {
                 handleBBPSClick();
               } else if (s.id === "dth-recharge") {
                 handleDTHRechargeClick();
+              } else if (s.id === "pan") {
+                handlePANClick();
               }
             }}
           />
