@@ -55,12 +55,29 @@ export const getUserProfile = () => async (dispatch) => {
       const errorMessage =
         data?.message || "Invalid token. Please login again.";
 
-      // Clear any auth tokens on unauthorized
-      secureLocalStorage.removeItem("userToken");
-      secureLocalStorage.removeItem("loginToken");
+      // Clear all auth tokens and cached auth data on unauthorized
+      try {
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("refreshToken");
+        secureLocalStorage.removeItem("userData");
+        secureLocalStorage.removeItem("permissions");
+        secureLocalStorage.removeItem("onboardingSteps");
+        secureLocalStorage.removeItem("onboardingToken");
+        secureLocalStorage.removeItem("companyId");
+        secureLocalStorage.removeItem("selectedCompany");
+        // Also clear any auth-related items from regular localStorage
+        localStorage.removeItem("auth");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (e) {
+        // ignore storage errors
+      }
 
+      // Clear auth state in Redux
       dispatch(logout());
 
+      // Mark profile as unauthorized so UI can redirect once
       dispatch({
         type: GET_PROFILE_UNAUTHORIZED,
         payload: errorMessage,
@@ -80,14 +97,28 @@ export const getUserProfile = () => async (dispatch) => {
       const errorMessage =
         error?.response?.data?.message || "Invalid token. Please login again.";
 
-      // Clear tokens from storage
-      secureLocalStorage.removeItem("userToken");
-      secureLocalStorage.removeItem("loginToken");
+      // Clear all tokens and cached auth data from storage
+      try {
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("refreshToken");
+        secureLocalStorage.removeItem("userData");
+        secureLocalStorage.removeItem("permissions");
+        secureLocalStorage.removeItem("onboardingSteps");
+        secureLocalStorage.removeItem("onboardingToken");
+        secureLocalStorage.removeItem("companyId");
+        secureLocalStorage.removeItem("selectedCompany");
+        localStorage.removeItem("auth");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+      } catch (e) {
+        // ignore storage errors
+      }
 
       // Dispatch logout to clear auth state
       dispatch(logout());
 
-      // Dispatch unauthorized action
+      // Dispatch unauthorized action so UI can redirect once
       dispatch({
         type: GET_PROFILE_UNAUTHORIZED,
         payload: errorMessage,

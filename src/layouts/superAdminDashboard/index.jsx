@@ -11,7 +11,6 @@ import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
 import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
 import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
-// import WalletLoad from "../../pages/superAdminDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/superAdminDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
 
@@ -21,7 +20,6 @@ const SuperAdminDashboard = () => {
       <Routes>
         <Route path="/" element={<SuperAdmin />} />
         <Route path="/home" element={<SuperAdmin />} />
-        <Route path="/members" element={<Members />} />
         <Route path="/members/user" element={<CreateWhiteLabel />} />
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />

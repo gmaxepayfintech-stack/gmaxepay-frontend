@@ -17,6 +17,8 @@ import {
   VERIFY_MPIN_FAILURE,
   SET_MPIN_SUCCESS,
   SET_MPIN_FAILURE,
+  LOGOUT_SUCCESS,
+  LOGOUT_FAILURE,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -41,6 +43,8 @@ const initialState = {
   verifyMPINError: null,
   setMPINResponse: null,
   setMPINError: null,
+  logoutError: null,
+  logoutResponse: null,
 };
 
 const loginReducer = (state = initialState, action) => {
@@ -207,6 +211,21 @@ const loginReducer = (state = initialState, action) => {
         loading: false,
         setMPINError: typeof action.payload === "object" ? action.payload : action.payload,
         setMPINResponse: null,
+      };
+    case LOGOUT_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        logoutResponse: action.payload,
+        logoutError: null,
+        error: null,
+      };
+    case LOGOUT_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        logoutError: typeof action.payload === "object" ? action.payload : action.payload,
+        logoutResponse: null,
       };
     default:
       return state;
