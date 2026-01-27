@@ -76,7 +76,7 @@ const UserPerformance = ({ embedded = false }) => {
 
   return (
     <div
-      className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : ""}`}
+      className={`py-4 px-1 text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : ""}`}
     >
       {/* Filter Section */}
       <div className="bg-white rounded-[24px] mb-6 sm:mb-8 shadow-sm w-full h-[164px] relative">

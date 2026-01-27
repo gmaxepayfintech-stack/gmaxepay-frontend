@@ -13,6 +13,7 @@ import pancardfront from "../../../public/img/pancard-front.png";
 import pancardback from "../../../public/img/pancard-back.png";
 import bgimage from "../../../public/img/image.png";
 import { motion } from "framer-motion";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const ProfileDetails = ({ onBack }) => {
   const [activeTab, setActiveTab] = useState("bankDetails");
@@ -494,7 +495,12 @@ const ProfileDetails = ({ onBack }) => {
                 Bank Details
               </h3>
 
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-[#1B1717] hover:bg-gray-50">
+              <button
+                onClick={() => {
+                  setActiveTab("addnewbank");
+                }}
+                className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-[#1B1717] hover:bg-gray-50"
+              >
                 <Plus className="w-4 h-4" />
                 Add New Account
               </button>
@@ -555,6 +561,77 @@ const ProfileDetails = ({ onBack }) => {
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+        )}
+
+        {activeTab === "addnewbank" && (
+          <div className="bg-white rounded-3xl  p-4 sm:p-6 shadow-sm">
+            {/* Header */}
+            <div className="flex items-center gap-3 mb-6">
+              <button
+                onClick={() => {
+                  setActiveTab("bankDetails");
+                }}
+                className="flex items-center justify-center rounded-full p-2 border border-[#1B1717]/80 hover:border-[#039155] transition"
+              >
+                <HiArrowLeft className="text-xl text-[#1B1717]" />
+              </button>
+
+              <h3 className="text-lg sm:text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
+                Enter Your Bank Details
+              </h3>
+            </div>
+
+            {/* Form Fields */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              {/* Bank Name */}
+              <div>
+                <label className="block text-sm font-[gilroy-medium] text-[#121216] mb-[9px]">
+                  Select Your Bank <span className="text-red-500">*</span>
+                </label>
+                <select className="w-full px-4 py-2.5 border-[0.5px] border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717]/80 font-[gilroy-medium] focus:outline-none">
+                  <option>Select</option>
+                </select>
+              </div>
+
+              {/* Account Number */}
+              <div>
+                <label className="block text-sm font-[gilroy-medium] text-[#121216] mb-2">
+                  Account Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter Account Number"
+                  className="w-full px-4 py-2.5 border-[0.5px] border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717]/80 focus:outline-none"
+                />
+              </div>
+
+              {/* IFSC Code */}
+              <div>
+                <label className="block text-sm font-[gilroy-medium] text-[#121216] mb-2">
+                  IFSC Code <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  placeholder="Enter IFSC Code"
+                  className="w-full px-4 py-2.5 border border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717]/80 font-[gilroy-medium] focus:outline-none"
+                />
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex justify-center gap-4">
+              <button className="px-8 py-2.5 rounded-lg border border-[#1B1717]/80 text-[#1B1717]/80 text-sm font-[gilroy-medium] hover:bg-gray-50 transition">
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {}}
+                className="px-10 py-2.5 rounded-lg bg-[#039155] text-white text-sm font-[gilroy-semibold]] hover:bg-[#027a47] transition"
+              >
+                Save
+              </button>
             </div>
           </div>
         )}
