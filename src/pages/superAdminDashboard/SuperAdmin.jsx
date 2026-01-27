@@ -14,6 +14,7 @@ import {
   AreaChart,
   Area,
 } from "recharts";
+import { motion } from "framer-motion";
 const MasterDt = "/img/MasterDt.png";
 const Distributor = "/img/Distributor.png";
 const Ratailer = "/img/Retailer.png";
@@ -30,8 +31,6 @@ const Subcharges = "/img/Subcharges.png";
 const OtherCharges = "/img/OtherCharges.png";
 const TotalRevenue = "/img/TotalRevenue.png";
 
-const filters = ["Today", "Weekly", "Monthly", "Yearly"];
-
 const SuperAdmin = () => {
   const dispatch = useDispatch();
   const [selectedDay, setSelectedDay] = useState("Sun");
@@ -46,6 +45,7 @@ const SuperAdmin = () => {
   const [isEkycHubLoading, setIsEkycHubLoading] = useState(true);
   const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
   const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
+  const [activeFilter, setActiveFilter] = useState("Today");
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const filters = ["Today", "Weekly", "Monthly", "Yearly"];

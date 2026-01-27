@@ -77,7 +77,7 @@ const mapBillerToComponent = (biller, categoryName) => {
 // Skeleton Loader Component
 const BillerCardSkeleton = () => {
   return (
-    <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white animate-pulse">
+    <div className=" border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white animate-pulse">
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
           <div className="w-[35px] h-[35px] bg-gray-300 rounded"></div>
@@ -258,7 +258,7 @@ const AddBillerModal = ({
             onClick={handleClose}
             className="absolute right-0 top-0 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
           >
-            <X className="w-6 h-6 text-[#FFFFFF] rounded-full border border-[2.5px] border-[#FFFFFF] p-0.5" />
+            <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
           </button>
         </div>
 
@@ -539,7 +539,7 @@ const BillerCard = ({
   };
 
   return (
-    <div className="border border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
+    <div className=" border-[#1B1717] border-opacity-30 border-[0.5px] rounded-xl p-4 bg-white hover:shadow-md transition-shadow">
       {/* Header */}
       <div className="flex justify-between items-center mb-4">
         <div className="flex items-center gap-2">
@@ -955,13 +955,13 @@ const BillerSettings = () => {
             placeholder="Search By Billers Name"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border border-[#1B1717] border-opacity-50 border-[0.5px] px-10 py-2.5 rounded-lg w-full focus:outline-none text-sm"
+            className=" border-[#1B1717] border-opacity-50 border-[0.5px] px-10 py-2.5 rounded-lg w-full focus:outline-none text-sm"
           />
         </div>
         <div className="relative" ref={dropdownRef}>
           <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-            className="flex items-center gap-2 px-4 py-2.5 border border-[#1B1717] border-opacity-50 border-[0.5px] rounded-lg bg-white text-sm font-['Gilroy-Medium'] text-[#1B1717] min-w-[150px] justify-between"
+            className="flex items-center gap-2 px-4 py-2.5 border-[#1B1717] border-opacity-50 border-[0.5px] rounded-lg bg-white text-sm font-['Gilroy-Medium'] text-[#1B1717] min-w-[150px] justify-between"
           >
             <span>{selectedCategory}</span>
             <ChevronDown
@@ -1029,7 +1029,7 @@ const BillerSettings = () => {
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || loading}
-            className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
+            className={`px-3 py-2.5 border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
               currentPage === 1 || loading
                 ? "opacity-50 cursor-not-allowed"
                 : ""
@@ -1058,7 +1058,7 @@ const BillerSettings = () => {
               )
             }
             disabled={currentPage === (billersTotalPages || 1) || loading}
-            className={`px-3 py-2.5 border border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
+            className={`px-3 py-2.5 border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
               currentPage === (billersTotalPages || 1) || loading
                 ? "opacity-50 cursor-not-allowed"
                 : ""

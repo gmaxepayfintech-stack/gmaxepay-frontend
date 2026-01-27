@@ -11,6 +11,7 @@ import {
   createBBPSCategory,
   updateBBPSCategory,
 } from "../../redux/action/bbpsAction";
+import { motion } from "framer-motion";
 
 // Icon mapping for categories
 const categoryIconMap = {
