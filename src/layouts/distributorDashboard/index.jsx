@@ -11,8 +11,7 @@ import EarningReport from "../../pages/DistributorDashboard/Reports/EarningRepor
 import NWoverview from "../../pages/DistributorDashboard/Reports/NW-Overview";
 import TaxHistory from "../../pages/DistributorDashboard/TaxHistory";
 import Services from "../../pages/DistributorDashboard/Services";
-import OnBoardingBBPS from "../../pages/DistributorDashboard/services/bbps/onBoardingBBPS";
-
+import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -21,10 +20,9 @@ const DistributorDashboard = () => {
         <Route path="/home" element={<DistDashboard />} />
         <Route path="/aeps" element={<OnBoardingAeps />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/services/bbps" element={<OnBoardingBBPS />} />
+        <Route path="/services/bbps-services" element={<BBPSServices />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
         <Route path="/fund-manage/fund-request" element={<FundRequest />} />
-
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />
         <Route path="/reports/earning" element={<EarningReport />} />
