@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -13,6 +13,8 @@ const initialState = {
     userWalletBalanceError: null,
     ekycHubBalance: null,
     ekycHubBalanceError: null,
+    inspayWalletBalance: null,
+    inspayWalletBalanceError: null,
     success: null,
     message: null,
 };
@@ -123,6 +125,28 @@ const walletReducer = (state = initialState, action) => {
                 ...state,
                 ekycHubBalance: null,
                 ekycHubBalanceError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case INSPAY_WALLET_BALANCE_SUCCESS:
+            return {
+                ...state,
+                inspayWalletBalance: action?.payload,
+                inspayWalletBalanceError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case INSPAY_WALLET_BALANCE_FAILURE:
+            return {
+                ...state,
+                inspayWalletBalance: null,
+                inspayWalletBalanceError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,

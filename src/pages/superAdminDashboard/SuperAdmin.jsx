@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
-import { getAlsWallet, getWalletBalance, getEkycHubBalance } from "../../redux/action/walletAction";
+import { getAlsWallet, getWalletBalance, getEkycHubBalance, getInspayWalletBalance } from "../../redux/action/walletAction";
 import {
   XAxis,
   YAxis,
@@ -31,18 +31,22 @@ const SuperAdmin = () => {
   const [selectedDay, setSelectedDay] = useState("Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
   const [ekycHubBalance, setEkycHubBalance] = useState(null);
+  const [inspayWalletBalance, setInspayWalletBalance] = useState(null);
   const [walletData, setWalletData] = useState({ mainWallet: null, apesWallet: null });
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [isAlsWalletLoading, setIsAlsWalletLoading] = useState(true);
   const [isEkycHubLoading, setIsEkycHubLoading] = useState(true);
+  const [isInspayWalletLoading, setIsInspayWalletLoading] = useState(true);
   const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
   const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
+  const [isInspayWalletRefreshing, setIsInspayWalletRefreshing] = useState(false);
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 
   // Get wallet data from Redux
   const alsWalletResponse = useSelector((state) => state?.wallet?.alsWallet);
   const ekycHubBalanceResponse = useSelector((state) => state?.wallet?.ekycHubBalance);
+  const inspayWalletBalanceResponse = useSelector((state) => state?.wallet?.inspayWalletBalance);
   const walletBalanceResponse = useSelector((state) => state?.wallet?.walletBalance);
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -91,6 +95,21 @@ const SuperAdmin = () => {
     fetchEkycHubBalance();
   }, [dispatch]);
 
+  // Fetch Inspay wallet on component mount
+  useEffect(() => {
+    const fetchInspayWalletBalance = async () => {
+      setIsInspayWalletLoading(true);
+      try {
+        await dispatch(getInspayWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch Inspay wallet balance:", error);
+      } finally {
+        setIsInspayWalletLoading(false);
+      }
+    };
+    fetchInspayWalletBalance();
+  }, [dispatch]);
+
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
@@ -119,6 +138,15 @@ const SuperAdmin = () => {
       setEkycHubBalance("0.00");
     }
   }, [ekycHubBalanceResponse]);
+
+  // Update Inspay wallet balance when data is fetched
+  useEffect(() => {
+    if (inspayWalletBalanceResponse?.data?.balance) {
+      setInspayWalletBalance(inspayWalletBalanceResponse.data.balance);
+    } else {
+      setInspayWalletBalance("0.00");
+    }
+  }, [inspayWalletBalanceResponse]);
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
@@ -239,8 +267,8 @@ const SuperAdmin = () => {
     </div>
   );
 
-  // Show skeleton loader while loading wallet balance, ASL wallet, or Ekyc Hub wallet
-  if (isWalletLoading || isAlsWalletLoading || isEkycHubLoading) {
+  // Show skeleton loader while loading wallet balance, ASL wallet, Ekyc Hub wallet, or Inspay wallet
+  if (isWalletLoading || isAlsWalletLoading || isEkycHubLoading || isInspayWalletLoading) {
     return <SkeletonLoader />;
   }
 
@@ -396,10 +424,13 @@ const SuperAdmin = () => {
             {[...Array(6)].map((_, i) => {
               const isAslWallet = i === 0;
               const isEkycHubWallet = i === 1;
+              const isInspayWallet = i === 2;
               const walletName = isAslWallet 
                 ? "ASL Wallet" 
                 : isEkycHubWallet 
                 ? "EKYC-HUB Wallet" 
+                : isInspayWallet
+                ? "Inspay Wallet"
                 : `Rupaisa Pay Wallet ${i}`;
               const displayBalance = isAslWallet
                 ? alsOpeningBalance 
@@ -408,6 +439,10 @@ const SuperAdmin = () => {
                 : isEkycHubWallet
                 ? ekycHubBalance 
                   ? `₹${parseFloat(ekycHubBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : "₹0.00"
+                : isInspayWallet
+                ? inspayWalletBalance 
+                  ? `₹${parseFloat(inspayWalletBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                   : "₹0.00"
                 : "$4,21,40,238";
 
@@ -420,7 +455,7 @@ const SuperAdmin = () => {
                     {walletName}
                   </p>
                   <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
-                    {(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet) 
+                    {(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet) || (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..." 
                       : displayBalance}
                   </p>
@@ -452,11 +487,23 @@ const SuperAdmin = () => {
                           .finally(() => {
                             setIsEkycHubRefreshing(false);
                           });
+                      } else if (isInspayWallet) {
+                        setIsInspayWalletRefreshing(true);
+                        dispatch(getInspayWalletBalance())
+                          .then(() => {
+                            // The useEffect will update inspayWalletBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error("Failed to refresh Inspay wallet:", error);
+                          })
+                          .finally(() => {
+                            setIsInspayWalletRefreshing(false);
+                          });
                       }
                     }}
-                    disabled={(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet)}
+                    disabled={(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet) || (isInspayWalletRefreshing && isInspayWallet)}
                   >
-                    {(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet) 
+                    {(isAslWalletRefreshing && isAslWallet) || (isEkycHubRefreshing && isEkycHubWallet) || (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..." 
                       : "Refresh"}
                   </button>
