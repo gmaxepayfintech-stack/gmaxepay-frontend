@@ -65,7 +65,7 @@ const onboardMembers = [
 ];
 
 const Members = () => (
-  <div className="p-6 min-h-screen bg-[#FAFAFA] text-[#1B1717]">
+  <div className="px-3 py-4 min-h-screen bg-[#FAFAFA] text-[#1B1717]">
     <h2 className="text-2xl font-md mb-6">Members</h2>
 
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">

@@ -438,7 +438,7 @@ const Retailers = ({
 
               <tbody className="bg-white divide-y font-normal divide-gray-100">
                 {isLoading ? (
-                  <TableBodyLoader colSpan={23} />
+                  <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">

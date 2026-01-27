@@ -263,11 +263,11 @@ const SchemeMaster = () => {
   }
 
   return (
-    <div className="min-h-screen p-1 sm:p-2 md:p-3 text-[#1B1717]">
+    <div className="min-h-screen py-4 px-2 text-[#1B1717]">
       <div className="mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div className="flex-1">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-[gilroy-medium] text-[#1B1717] mb-1 sm:mb-2">
+            <h1 className="text-lg sm:text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-1 sm:mb-2">
               Membership Schemes
             </h1>
             <p className="text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">

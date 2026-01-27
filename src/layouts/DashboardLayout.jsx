@@ -326,9 +326,9 @@ const DashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
+      <div className="flex flex-col flex-1 bg-[#FAFAFA] w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-0 bg-[#FAFAFA] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 ">
+        <header className="sticky top-4 mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
           <div className="flex items-center gap-3">
             <button
               className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
@@ -377,7 +377,7 @@ const DashboardLayout = ({ children }) => {
           </div>
 
           {/* Rounded bottom border line */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div>
+          {/* <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div> */}
         </header>
 
         {/* Page Content */}

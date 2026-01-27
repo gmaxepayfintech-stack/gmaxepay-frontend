@@ -3,6 +3,7 @@ import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
 import OperatorCard from "./OperatorCard";
 import BillerSettings from "./BillerSettings";
 import PaymentSettings from "./PaymentSettings";
+import { motion } from "framer-motion";
 
 const operators = [
   // Original 6 Cards
@@ -358,7 +359,7 @@ const AddOperatorModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex  items-center justify-center bg-[#D9D9D9]/80">
       <div className="bg-white rounded-xl w-[498px]  max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
         {/* Header */}
         <div className="relative flex items-start mb-6 w-full">
@@ -673,39 +674,50 @@ const BBPSSettings = () => {
   };
 
   return (
-    <div className="p-1 bg-gray-50 min-h-screen">
+    <div className="py-4 bg-gray-50 min-h-screen">
       {/* Tabs */}
-      <div className="inline-flex gap-[143px] bg-[#FFFFFF] rounded-3xl p-4 mb-[24px]">
-        <button
-          onClick={() => setActiveTab("operators")}
-          className={`px-5 py-2.5 h-[40px] rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "operators"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Operator Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("biller")}
-          className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "biller"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Biller Settings
-        </button>
-        <button
-          onClick={() => setActiveTab("payment")}
-          className={`px-5 py-2.5 rounded-full text-sm font-['Gilroy-Medium'] transition-colors ${
-            activeTab === "payment"
-              ? "bg-[#039155] text-white shadow-sm"
-              : "bg-white text-gray-700 hover:bg-gray-50"
-          }`}
-        >
-          Payment Setting
-        </button>
+
+      <div className="bg-[#FFFFFF] rounded-3xl p-4 mb-[24px] w-2/3 ">
+        <div className="relative inline-flex gap-[143px]">
+          {[
+            { key: "operators", label: "Operator Settings" },
+            { key: "biller", label: "Biller Settings" },
+            { key: "payment", label: "Payment Setting" },
+          ].map(({ key, label }) => (
+            <button
+              key={key}
+              onClick={() => setActiveTab(key)}
+              className="relative flex justify-center"
+            >
+              {/* Size-defining wrapper (same pattern as before) */}
+              <span className="relative px-5 py-2.5 h-[40px] rounded-full flex items-center">
+                {/* Moving background */}
+                {activeTab === key && (
+                  <motion.span
+                    layoutId="active-settings-pill"
+                    className="absolute inset-0 rounded-full bg-[#039155] shadow-sm"
+                    transition={{
+                      type: "spring",
+                      stiffness: 500,
+                      damping: 35,
+                    }}
+                  />
+                )}
+
+                {/* Text */}
+                <span
+                  className={`relative z-10 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition-colors ${
+                    activeTab === key
+                      ? "text-white"
+                      : "text-gray-700 hover:text-[#039155]"
+                  }`}
+                >
+                  {label}
+                </span>
+              </span>
+            </button>
+          ))}
+        </div>
       </div>
 
       {/* Conditional Content Rendering */}

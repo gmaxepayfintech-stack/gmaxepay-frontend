@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Wallet, Users, CreditCard, Tag } from "lucide-react";
 import { getAlsWallet } from "../../redux/action/walletAction";
+import { motion } from "framer-motion";
 import {
   XAxis,
   YAxis,
@@ -26,12 +27,16 @@ const Subcharges = "/img/Subcharges.png";
 const OtherCharges = "/img/OtherCharges.png";
 const TotalRevenue = "/img/TotalRevenue.png";
 
+const filters = ["Today", "Weekly", "Monthly", "Yearly"];
+
 const SuperAdmin = () => {
   const dispatch = useDispatch();
   const [selectedDay, setSelectedDay] = useState("Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
+  const [activeFilter, setActiveFilter] = useState("Today");
 
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const filters = ["Today", "Weekly", "Monthly", "Yearly"];
 
   // Get wallet data from Redux
   const alsWalletResponse = useSelector((state) => state?.wallet?.alsWallet);
@@ -63,46 +68,46 @@ const SuperAdmin = () => {
       value: "$4,21,40,238",
       change: "▲ 4.61%",
       icon: Revenue,
-      bg: "bg-[#FFEFE7]", // Light peach
+      bg: "bg-[#FFF2EC]", // Light peach
     },
     {
       label: "Commission",
       value: "$42,04,100",
       change: "▼ 4.61%",
       icon: Comission,
-      bg: "bg-[#ECF2FF]", // Light blue
+      bg: "bg-[#EBF5FF]", // Light blue
     },
     {
       label: "Successful Transactions",
       value: "9",
       change: "▲ 4.61%",
       icon: Transactions,
-      bg: "bg-[#E6FAEE]", // Light green
+      bg: "bg-[#E3FAE9]", // Light green
     },
     {
       label: "Total Charges",
       value: "$4,21,40,238",
       change: "▲ 4.61%",
       icon: TotalCharges,
-      bg: "bg-[#FFF7EB]", // Light orange
+      bg: "bg-[#FFF2DF]", // Light orange
     },
   ];
 
   return (
-    <div className="p-4 sm:p-6  min-h-screen text-[#1B1717] space-y-6">
+    <div className="py-4  min-h-screen text-[#1B1717] space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
           {/* Header Section */}
           <div className="flex flex-col gap-3 mb-4">
-            <h2 className="text-2xl font-medium text-[#1B1717]">
+            <h2 className="text-2xl font-[gilroy-medium] text-[#1B1717]">
               Today Earning
             </h2>
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
-                <p className="text-xl sm:text-2xl font-bold text-[#1B1717]">
+                <p className="text-xl sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
                   ₹4,21,40,238
                 </p>
-                <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+                <span className="text-[#039155] text-xs font-[gilroy-semibold] flex items-center gap-1">
                   ▲ $40,238 (4.61%)
                 </span>
               </div>
@@ -113,10 +118,10 @@ const SuperAdmin = () => {
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
-                    className={`px-3 py-1 border rounded-lg text-xs sm:text-sm font-medium transition-all ${
+                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${
                       selectedDay === day
-                        ? "bg-green-600 text-white border-green-600"
-                        : "border-gray-300 text-[#1B1717] hover:border-green-400 hover:text-green-700"
+                        ? "bg-[#039155] text-white "
+                        : "border-[#1B1717]/50 text-[#1B1717] border hover:border-[#039155] hover:text-[#039155]"
                     }`}
                   >
                     {day}
@@ -129,58 +134,68 @@ const SuperAdmin = () => {
           {/* Chart Section */}
           <div className="w-full h-48 sm:h-64">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={data} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+              <AreaChart
+                data={data.map((d) => ({ ...d, valueBg: d.value + 100 }))}
+                margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+              >
                 <defs>
-                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="1">
+                  <linearGradient id="colorValue" x1="0" y1="0" x2="0" y2="2">
                     <stop offset="0%" stopColor="#a7f3d0" stopOpacity={0.8} />
-                    <stop offset="50%" stopColor="#6ee7b7" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="#d1fae5" stopOpacity={0.2} />
+                    <stop offset="50%" stopColor="#6ee7b7" stopOpacity={0.6} />
+                    <stop offset="100%" stopColor="#d1fae5" stopOpacity={0.4} />
                   </linearGradient>
                 </defs>
+
                 <CartesianGrid
                   strokeDasharray="3 3"
                   stroke="#e5e7eb"
                   horizontal
                   vertical={false}
                 />
+
                 <XAxis
                   dataKey="name"
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#1B1717", fontSize: 12 }}
                   dy={10}
                 />
+
                 <YAxis
                   axisLine={false}
                   tickLine={false}
-                  tick={{ fill: "#6b7280", fontSize: 12 }}
+                  tick={{ fill: "#1B1717", fontSize: 12 }}
                   domain={[0, 2000]}
                   ticks={[100, 500, 1000, 1500, 2000]}
                 />
+
+                {/* BG area slightly higher */}
                 <Area
                   type="linear"
-                  dataKey="value"
+                  dataKey="valueBg"
                   stroke="none"
                   fill="#03915533"
-                  fillOpacity={1}
+                  fillOpacity={1.5}
                 />
+
+                {/* Main stroke */}
                 <Area
                   type="linear"
                   dataKey="value"
                   stroke="#10b981"
-                  strokeWidth={3}
+                  strokeWidth={1}
                   fill="url(#colorValue)"
                   dot={{
                     fill: "#fff",
                     stroke: "#10b981",
-                    strokeWidth: 3,
-                    r: 6,
+                    strokeWidth: 2,
+                    r: 5,
                   }}
                   activeDot={{
                     fill: "#10b981",
                     stroke: "#fff",
-                    strokeWidth: 3,
-                    r: 7,
+                    strokeWidth: 2,
+                    r: 5,
                   }}
                 />
               </AreaChart>
@@ -194,31 +209,36 @@ const SuperAdmin = () => {
             {
               title: "Main Wallet",
               icon: Wallet,
-              color: "text-green-600",
+              color: "text-[#039155]/80",
             },
             {
               title: "AEPS Wallet",
               icon: CreditCard,
-              color: "text-green-600",
+              color: "text-[#039155]/80",
             },
           ].map(({ title, icon: Icon, color }, i) => (
             <div
               key={i}
-              className="bg-green-100 p-5 rounded-2xl shadow hover:shadow-lg transition"
+              className="bg-[#4FF2AD]/20 p-5 rounded-3xl shadow hover:shadow-lg transition"
             >
-              <h3 className="text-lg sm:text-xl font-medium flex items-center gap-2">
+              <h3 className="text-lg sm:text-xl font-[gilroy-medium] text-[#1B1717] flex items-center gap-2">
                 <Icon className={`w-5 h-5 ${color}`} />
                 {title}
               </h3>
-              <p className="text-2xl font-bold mt-2">₹4,21,40,238</p>
-              <span className="text-green-600 text-sm font-medium flex items-center gap-1">
+              <p className="text-2xl font-[gilroy-semibold] text-[#1B1717] mt-2">
+                ₹4,21,40,238
+              </p>
+              <span className="text-[#039155] text-sm font-[gilroy-semibold] flex items-center gap-1">
                 ▲ (4.61%)
               </span>
-              <p className="text-xs sm:text-sm text-[#1B1717] mb-3">
-                Your revenue is <span className="font-bold ">$200</span> for
-                this week
+              <p className="text-xs sm:text-sm text-[#1B1717]/80 mb-3 font-[gilroy-medium] mt-2">
+                Your revenue is{" "}
+                <span className="font-[gilroy-semibold] text-[#1B1717] ">
+                  $200
+                </span>{" "}
+                for this week
               </p>
-              <button className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg w-full text-sm">
+              <button className="bg-[#039155] hover:bg-green-700 text-white px-4 py-3 rounded-xl font-[gilroy-semibold] w-full text-sm">
                 Payment History
               </button>
             </div>
@@ -227,37 +247,40 @@ const SuperAdmin = () => {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 bg-white rounded-2xl shadow p-4 sm:p-6">
-          <h3 className="font-semiboldtext-[#1B1717] text-2xl mb-4">
+        <div className="lg:col-span-2 bg-white rounded-3xl shadow p-4 sm:p-6">
+          <h3 className="font-[gilroy-semibold] text-[#1B1717] text-2xl mb-4">
             Overall Wallets
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
             {[...Array(6)].map((_, i) => {
               const isAslWallet = i === 0;
-              const walletName = isAslWallet ? "ASL" : `Rupaisa Pay Wallet ${i + 1}`;
-              const displayBalance = isAslWallet && alsOpeningBalance 
-                ? `₹${parseFloat(alsOpeningBalance).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
-                : "$4,21,40,238";
+              const walletName = isAslWallet
+                ? "ASL"
+                : `Rupaisa Pay Wallet ${i + 1}`;
+              const displayBalance =
+                isAslWallet && alsOpeningBalance
+                  ? `₹${parseFloat(alsOpeningBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                  : "$4,21,40,238";
 
               return (
                 <div
                   key={i}
-                  className="bg-gray-50 border border-gray-200 rounded-xl p-3 sm:p-4 flex flex-col justify-between hover:shadow-md transition cursor-pointer"
+                  className="bg-[#FAFAFA]  rounded-xl p-3 sm:p-4 flex flex-col justify-between shadow hover:shadow-md transition cursor-pointer"
                   onClick={() => {
                     if (isAslWallet) {
                       dispatch(getAlsWallet());
                     }
                   }}
                 >
-                  <p className="font-md text-[#1B1717] text-xl mb-1">
+                  <p className="font-[gilroy-medium] text-[#1B1717] text-base mb-1">
                     {walletName}
                   </p>
-                  <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
+                  <p className="text-[#1B1717] font-[gilroy-semibold] text-lg sm:text-base">
                     {isLoading && isAslWallet ? "Loading..." : displayBalance}
                   </p>
-                  <button 
-                    className="mt-3 text-xs sm:text-sm w-full bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded-lg transition-colors"
+                  <button
+                    className="mt-3 text-xs sm:text-sm w-full font-[gilroy-semibold] bg-[#039155] hover:bg-green-700 text-white px-3 py-2 rounded-xl transition-colors"
                     onClick={(e) => {
                       e.stopPropagation();
                       if (isAslWallet) {
@@ -275,8 +298,8 @@ const SuperAdmin = () => {
         </div>
 
         {/* ===== Right: Quick Action Buttons ===== */}
-        <div className="bg-white rounded-2xl shadow p-4 sm:p-6">
-          <h3 className="font-md text-[#1B1717] text-2xl mb-5">
+        <div className="bg-white rounded-3xl shadow p-4 sm:p-6">
+          <h3 className="font-[gilroy-medium] text-[#1B1717] text-2xl mb-5">
             Quick Action Buttons
           </h3>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-6 text-center">
@@ -288,18 +311,18 @@ const SuperAdmin = () => {
               { type: "img", src: Ratailer, label: "Retailer" },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center space-y-4">
-                <div className="bg-[#00824B] w-16 h-16 sm:w-16 sm:h-16 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200">
+                <div className="bg-[#039155] w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200">
                   {item.type === "icon" ? (
-                    <item.icon className="text-white w-8 h-8" />
+                    <item.icon className="text-white w-6 h-6" />
                   ) : (
                     <img
                       src={item.src}
                       alt={item.label}
-                      className="w-9 h-9 object-contain"
+                      className="w-96 h-6 object-contain"
                     />
                   )}
                 </div>
-                <span className="text-md font-medium text-[#1B1717]">
+                <span className="text-sm font-[gilroy-semibold] text-[#1B1717]">
                   {item.label}
                 </span>
               </div>
@@ -309,30 +332,56 @@ const SuperAdmin = () => {
       </div>
 
       {/* ===== Today's Summary & Details Matrix ===== */}
-      <div className="bg-white p-4 gap-2 sm:p-6 rounded-2xl shadow">
+      <div className="bg-white p-4 gap-2 sm:p-6 rounded-3xl shadow">
         {/* Header Section */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-6 gap-4">
           <div className="">
-            <h3 className="font-medium text-xl text-[#1B1717]">
+            <h3 className="font-[gilroy-medium] text-2xl text-[#1B1717]">
               Todays Summary
             </h3>
-            <p className="text-md text-[#1B1717] opacity-80 mt-3">
+            <p className="text-sm text-[#1B1717]/80 font-[gilroy-medium] mt-3">
               Track Your Financial Metrics and Performance
             </p>
           </div>
-          <div className="flex items-center justify-between gap-4 mt-2 md:mt-0 bg-white border border-[#1B1717] border-opacity-80 rounded-s-xl rounded-e-xl px-2 py-2">
-            {["Today", "Weekly", "Monthly", "Yearly"].map((label) => (
-              <button
-                key={label}
-                className={`w-[90px] py-2 rounded-md text-sm font-medium transition-all ${
-                  label === "Today"
-                    ? "bg-[#00A651] text-white"
-                    : "text-[#1B1717] hover:bg-gray-100"
-                }`}
-              >
-                {label}
-              </button>
-            ))}
+
+          <div className="bg-white border border-[#1B1717]/80 rounded-2xl p-2 inline-flex">
+            <div className="relative flex gap-2">
+              {filters.map((label) => (
+                <button
+                  key={label}
+                  type="button"
+                  onClick={() => setActiveFilter(label)}
+                  className="relative flex justify-center"
+                >
+                  {/* Size-defining wrapper */}
+                  <span className="relative w-[90px] py-2 rounded-md text-center">
+                    {/* Moving pill */}
+                    {activeFilter === label && (
+                      <motion.span
+                        layoutId="active-filter-pill"
+                        className="absolute inset-0 rounded-md bg-[#039155]"
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 35,
+                        }}
+                      />
+                    )}
+
+                    {/* Text */}
+                    <span
+                      className={`relative z-10 text-xs font-[gilroy-medium] transition-colors ${
+                        activeFilter === label
+                          ? "text-white font-[gilroy-semibold]"
+                          : "text-[#1B1717] hover:text-[#039155]"
+                      }`}
+                    >
+                      {label}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
           </div>
         </div>
 
@@ -341,28 +390,30 @@ const SuperAdmin = () => {
           {summaryItems.map((item, i) => (
             <div
               key={i}
-              className={`p-4 rounded-xl border hover:shadow transition flex flex-col items-start ${item.bg}`}
+              className={`p-4 rounded-2xl hover:shadow-md shadow transition flex flex-col items-start ${item.bg}`}
             >
-              <img
-                src={item.icon}
-                alt={item.label}
-                className="w-12 h-12 mb-2 "
-              />
-              <div className="flex justify-between items-center w-full mb-2">
-                <p className="text-[#1B1717] text-md font-medium">
-                  {item.label}
-                </p>
+              <div className="flex justify-between items-center w-full">
+                <img
+                  src={item.icon}
+                  alt={item.label}
+                  className="w-10 h-10 mb-2 "
+                />
                 <span
-                  className={`text-xs font-semibold ${
+                  className={`text-xs font-[gilroy-semibold] mb-6 ${
                     item.change.startsWith("▲")
-                      ? "text-green-600"
-                      : "text-red-500"
+                      ? "text-[#039155]"
+                      : "text-[#F60509]"
                   }`}
                 >
                   {item.change}
                 </span>
               </div>
-              <p className="text-sm sm:text-xl font-bold text-gray-900">
+              <div className="flex justify-between items-center w-full mb-2">
+                <p className="text-[#1B1717] text-sm font-[gilroy-medium]">
+                  {item.label}
+                </p>
+              </div>
+              <p className="text-sm sm:text-lg font-[gilroy-semibold] text-[#1B1717]">
                 {item.value}
               </p>
             </div>
@@ -370,7 +421,9 @@ const SuperAdmin = () => {
         </div>
 
         {/* Details Matrix */}
-        <h3 className="font-medium text-xl text-[#1B1717]">Details Matrix</h3>
+        <h3 className="font-[gilroy-medium] text-2xl text-[#1B1717]">
+          Details Matrix
+        </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 mt-5 gap-4 sm:gap-4">
           {[
             { label: "Opening Balance", value: "5", icon: OpeningBalance },
@@ -396,10 +449,10 @@ const SuperAdmin = () => {
           ].map((item, i) => (
             <div
               key={i}
-              className="flex items-center justify-between border border-[#1B1717] border-opacity-30 rounded-xl p-3 sm:p-4 bg-white hover:bg-gray-50 transition"
+              className="flex items-center justify-between border-[0.5px] border-[#039155]/80 rounded-2xl p-3 sm:p-4 bg-white hover:bg-gray-50 transition"
             >
               <div className="flex items-center gap-3">
-                <span className="p-2 rounded-lg  flex items-center justify-center">
+                <span className="p-2 rounded-md  flex items-center justify-center">
                   <img
                     src={item.icon}
                     alt={item.label}
@@ -407,10 +460,10 @@ const SuperAdmin = () => {
                   />
                 </span>
                 <div>
-                  <p className="text-xs sm:text-sm text-[#1B1717]">
+                  <p className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
                     {item.label}
                   </p>
-                  <p className="font-semibold text-[#1B1717] mt-1 text-sm sm:text-base">
+                  <p className="font-[gilroy-semibold] text-[#1B1717] mt-1 text-sm sm:text-base">
                     {item.value}
                   </p>
                 </div>

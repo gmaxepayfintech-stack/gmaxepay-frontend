@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { companyFundLoad, companyGetBanks } from "../../../redux/action/fundAction";
+import {
+  companyFundLoad,
+  companyGetBanks,
+} from "../../../redux/action/fundAction";
 import { useNotification } from "../../../context/NotificationContext";
 
 const WalletLoad = () => {
@@ -26,11 +29,16 @@ const WalletLoad = () => {
         if (result?.status === "SUCCESS" && result?.companyBankLists) {
           setBanks(result.companyBankLists);
           // Set the first bank as selected by default, or the primary bank if exists
-          const primaryBank = result.companyBankLists.find(bank => bank.isPrimary);
+          const primaryBank = result.companyBankLists.find(
+            (bank) => bank.isPrimary,
+          );
           if (primaryBank) {
             setSelectedBank(primaryBank.bankId || primaryBank.id);
           } else if (result.companyBankLists.length > 0) {
-            setSelectedBank(result.companyBankLists[0].bankId || result.companyBankLists[0].id);
+            setSelectedBank(
+              result.companyBankLists[0].bankId ||
+                result.companyBankLists[0].id,
+            );
           }
         }
       } catch (error) {
@@ -96,21 +104,21 @@ const WalletLoad = () => {
 
       // Create FormData for file upload
       const formData = new FormData();
-      formData.append('amount', amount);
-      formData.append('paymentMode', paymentMode);
-      formData.append('transactionDate', payDate);
-      formData.append('bankId', selectedBank);
+      formData.append("amount", amount);
+      formData.append("paymentMode", paymentMode);
+      formData.append("transactionDate", payDate);
+      formData.append("bankId", selectedBank);
 
       if (referenceNumber) {
-        formData.append('referenceNo', referenceNumber);
+        formData.append("referenceNo", referenceNumber);
       }
 
       if (remarks) {
-        formData.append('remarks', remarks);
+        formData.append("remarks", remarks);
       }
 
       if (paySlipFile) {
-        formData.append('paySlip', paySlipFile);
+        formData.append("paySlip", paySlipFile);
       }
 
       const result = await dispatch(companyFundLoad(formData));
@@ -133,7 +141,7 @@ const WalletLoad = () => {
           fileInputRef.current.value = "";
         }
         // Reset to primary bank or first bank
-        const primaryBank = banks.find(bank => bank.isPrimary);
+        const primaryBank = banks.find((bank) => bank.isPrimary);
         if (primaryBank) {
           setSelectedBank(primaryBank.bankId || primaryBank.id);
         } else if (banks.length > 0) {
@@ -149,7 +157,10 @@ const WalletLoad = () => {
     } catch (error) {
       showNotification({
         type: "error",
-        message: error?.response?.data?.message || error?.message || "Failed to submit fund request",
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to submit fund request",
         isCritical: true,
       });
     } finally {
@@ -158,7 +169,7 @@ const WalletLoad = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 py-4">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8">
           {/* Left Container: Wallet Load */}
@@ -257,7 +268,10 @@ const WalletLoad = () => {
 
               {/* Pay Slip */}
               <div>
-                <label htmlFor="paySlip" className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                <label
+                  htmlFor="paySlip"
+                  className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
                   Pay Slip
                 </label>
                 <div

@@ -116,7 +116,7 @@ const WalletLoad = () => {
                     required
                     min="0"
                     inputMode="numeric"
-                    className="w-full px-4 h-[43px] border border-[#1B1717] border-[0.5px] focus:outline-none border-opacity-50 rounded-lg"
+                    className="w-full px-4 h-[43px]  border-[#1B1717] border-[0.5px] focus:outline-none border-opacity-50 rounded-lg"
                   />
                 </div>
 
@@ -184,7 +184,7 @@ const WalletLoad = () => {
 
               {/* Pay Slip */}
               <div>
-                <label className="block text-[14px] mb-[8px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                <label className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
                   Pay Slip
                 </label>
                 <div
@@ -233,7 +233,7 @@ const WalletLoad = () => {
               <div>
                 <label
                   htmlFor="remarks"
-                  className="block mb-[8px] text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                  className="block  text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
                 >
                   Remarks
                 </label>

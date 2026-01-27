@@ -171,7 +171,7 @@ const AddPaymentMethodModal = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9]/80">
       <div className="bg-white rounded-xl w-[498px] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
         {/* Header */}
         <div className="relative flex items-start mb-6 w-full">

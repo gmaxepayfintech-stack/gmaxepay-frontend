@@ -32,7 +32,7 @@ const RoleUpgrade = () => {
   });
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
+    <div className="min-h-screen bg-[#FAFAFA] py-4 px-2 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-6">
         <h1 className="text-lg sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3 sm:mb-4">
@@ -49,7 +49,7 @@ const RoleUpgrade = () => {
               placeholder="Search By Name, Mobile Number,"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-4 py-3 sm:py-4 border border-[#1B1717]/50 font-[gilroy-medium] text-[#1B1717]/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+              className="w-full pl-9 sm:pl-10 pr-4 py-3 sm:py-4 border border-[#1B1717]/50 font-[gilroy-medium] text-[#1B1717]/60 rounded-lg focus:outline-none "
             />
           </div>
         </div>
