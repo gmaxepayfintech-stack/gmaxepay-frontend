@@ -1,78 +1,551 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Check, Plus } from "lucide-react";
+import { Check, Plus, ChevronDown, ChevronUp } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useDispatch, useSelector } from "react-redux";
+import { useCompany } from "../../context/CompanyContext";
+import { useNotification } from "../../context/NotificationContext";
+import { getSlabCommissionList, updateSlabCommission } from "../../redux/action/slabAction";
 
-const EditMembership = ({ scheme, onBack }) => {
+const EditMembership = ({ scheme = null, onBack }) => {
+  const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { success, error: showError } = useNotification();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+
   const [schemeName, setSchemeName] = useState(scheme?.name || "");
   const [schemeMode, setSchemeMode] = useState("Global");
   const [schemeType, setSchemeType] = useState("Free");
 
-  // Sample commission data - matching image exactly
-  const [commissions, setCommissions] = useState([
-    {
-      id: 1,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 2,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 3,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 4,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 5,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 6,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-    {
-      id: 7,
-      operator: "BSNL",
-      operatorType: "Percent",
-      myDeal: "3.74",
-      entMargin: "0.74",
-      whitelabel: "3",
-    },
-  ]);
+  // Redux state for commissions
+  const { commData } = useSelector((state) => state?.slab || {});
+
+  // Local editable commissions state and loading
+  const [commissions, setCommissions] = useState([]);
+  const [savingRows, setSavingRows] = useState({});
+  const [commLoading, setCommLoading] = useState(false);
+  // Section-level expand/collapse by operatorType (AEPS, Mobile+DTH, BBPS)
+  const [expandedSections, setExpandedSections] = useState({
+    aeps: false,
+    mobileDth: false,
+    bbps: false,
+  });
+
+  // Fetch commission list when component mounts or scheme changes
+  useEffect(() => {
+    const fetchComm = async () => {
+      const companyId = getCompanyId();
+      const slabId = scheme?.id || scheme?.slabId;
+      if (companyId && slabId) {
+        setCommLoading(true);
+        try {
+          await dispatch(getSlabCommissionList(companyId, slabId, 1, 1));
+        } finally {
+          setCommLoading(false);
+        }
+      }
+    };
+    fetchComm();
+  }, [dispatch, companyData, scheme]);
+
+  // Map API commission data to local editable structure
+  useEffect(() => {
+    if (commData && Array.isArray(commData)) {
+      const mapped = commData.map((item, index) => {
+        const firstInstrument = item.instruments?.[0];
+        const roles = firstInstrument?.roles || [];
+        const wlRole = roles.find((r) => r.roleName === "WU") || roles[0] || {};
+        const adRole = roles.find((r) => r.roleName === "AD") || roles[1] || {};
+
+        return {
+          id: `${item.operatorId}-${index}`,
+          operator: item.operatorName || "",
+          operatorType: item.operatorType || "",
+          myDeal: item.marginCommAmt != null ? String(item.marginCommAmt) : "",
+          myDealCommType: item.marginCommType || "",
+          myDealType: item.marginAmtType || "",
+          entMargin: adRole.commAmt != null ? String(adRole.commAmt) : "",
+          entCommType: adRole.commType || "",
+          entMarginType: adRole.amtType || "",
+          whitelabel: wlRole.commAmt != null ? String(wlRole.commAmt) : "",
+          whitelabelCommType: wlRole.commType || "",
+          whitelabelType: wlRole.amtType || "",
+          entRoleId: adRole.id,
+          wlRoleId: wlRole.id,
+          originalEntMargin: adRole.commAmt != null ? String(adRole.commAmt) : "",
+          originalEntCommType: adRole.commType || "",
+          originalEntMarginType: adRole.amtType || "",
+          originalWhitelabel: wlRole.commAmt != null ? String(wlRole.commAmt) : "",
+          originalWhitelabelCommType: wlRole.commType || "",
+          originalWhitelabelType: wlRole.amtType || "",
+        };
+      });
+      setCommissions(mapped);
+    }
+  }, [commData]);
 
   const handleCommissionChange = (id, field, value) => {
     setCommissions(
       commissions.map((comm) =>
         comm.id === id ? { ...comm, [field]: value } : comm,
       ),
+    );
+  };
+
+  const toggleSectionExpand = (key) => {
+    setExpandedSections((prev) => {
+      const isCurrentlyOpen = prev[key];
+      // Accordion behavior: only one section open at a time
+      return {
+        aeps: false,
+        mobileDth: false,
+        bbps: false,
+        [key]: !isCurrentlyOpen,
+      };
+    });
+  };
+
+  const getCompanyId = () => {
+    return companyData?.companyId || companyData?._id || companyData?.id || null;
+  };
+
+  const handleSaveCommissionRow = async (commission) => {
+    try {
+      const companyId = getCompanyId();
+      const slabId = scheme?.id || scheme?.slabId;
+
+      if (!companyId || !slabId) {
+        showError("Company or slab information missing");
+        return;
+      }
+
+      const isEntChanged =
+        commission.entMargin !== commission.originalEntMargin ||
+        (commission.entCommType || "").toLowerCase() !==
+          (commission.originalEntCommType || "").toLowerCase() ||
+        (commission.entMarginType || "").toLowerCase() !==
+          (commission.originalEntMarginType || "").toLowerCase();
+
+      const isWlChanged =
+        commission.whitelabel !== commission.originalWhitelabel ||
+        (commission.whitelabelCommType || "").toLowerCase() !==
+          (commission.originalWhitelabelCommType || "").toLowerCase() ||
+        (commission.whitelabelType || "").toLowerCase() !==
+          (commission.originalWhitelabelType || "").toLowerCase();
+
+      if (!isEntChanged && !isWlChanged) {
+        return;
+      }
+
+      setSavingRows((prev) => ({ ...prev, [commission.id]: true }));
+
+      const requests = [];
+
+      if (isEntChanged && commission.entRoleId) {
+        requests.push(
+          dispatch(
+            updateSlabCommission(companyId, commission.entRoleId, {
+              commAmt: Number(commission.entMargin) || 0,
+              commType: commission.entCommType,
+              amtType: commission.entMarginType,
+            }),
+          ),
+        );
+      }
+
+      if (isWlChanged && commission.wlRoleId) {
+        requests.push(
+          dispatch(
+            updateSlabCommission(companyId, commission.wlRoleId, {
+              commAmt: Number(commission.whitelabel) || 0,
+              commType: commission.whitelabelCommType,
+              amtType: commission.whitelabelType,
+            }),
+          ),
+        );
+      }
+
+      const results = await Promise.all(requests);
+      const allOk = results.every((r) => r?.success);
+
+      if (allOk) {
+        const okResult = results.find((r) => r?.success);
+        const statusText = okResult?.status || "SUCCESS";
+        const messageText =
+          okResult?.message || "Slab commission updated successfully";
+        const apiMessage = `${statusText} - ${messageText}`;
+        success(apiMessage);
+        // refresh list to sync originals
+        await dispatch(getSlabCommissionList(companyId, slabId, 1, 1));
+      } else {
+        const firstError =
+          results.find((r) => !r?.success)?.message ||
+          "Failed to update slab commission";
+        showError(firstError);
+      }
+    } catch (err) {
+      showError(
+        err?.message || "An error occurred while updating slab commission",
+      );
+    } finally {
+      setSavingRows((prev) => ({ ...prev, [commission.id]: false }));
+    }
+  };
+
+  // Group commissions by operatorType
+  const aepsCommissions = commissions.filter(
+    (c) => c.operatorType === "AEPS",
+  );
+  const mobileDthCommissions = commissions
+    .filter((c) => c.operatorType === "RECHARGE" || c.operatorType === "DTH")
+    .sort((a, b) => {
+      // RECHARGE operators first, then DTH
+      const order = { RECHARGE: 0, DTH: 1 };
+      const aOrder = order[a.operatorType] ?? 99;
+      const bOrder = order[b.operatorType] ?? 99;
+      if (aOrder !== bOrder) return aOrder - bOrder;
+      // Within same type, sort by operator name
+      return (a.operatorName || "").localeCompare(b.operatorName || "");
+    });
+  const otherCommissions = commissions.filter(
+    (c) =>
+      c.operatorType !== "AEPS" &&
+      c.operatorType !== "RECHARGE" &&
+      c.operatorType !== "DTH",
+  );
+
+  const renderCommissionSection = (title, items, sectionKey) => {
+    // If nothing to show and not loading, skip section
+    if (!commLoading && items.length === 0) return null;
+
+    const isSectionExpanded = expandedSections[sectionKey];
+
+    return (
+      <div className="mb-4 sm:mb-6">
+          {/* Section Header with toggle (arrow on right) */}
+          <div
+            className="flex items-center justify-between mb-4 bg-[#FFFFFF] rounded-lg p-4 sm:p-6 cursor-pointer"
+            onClick={() => toggleSectionExpand(sectionKey)}
+          >
+            <div>
+              <h2 className="text-base sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+                {title}
+              </h2>
+              <p className="text-sm sm:text-base font-['Gilroy-Regular'] text-[#1B1717]">
+                Commissions
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                toggleSectionExpand(sectionKey);
+              }}
+              className="w-9 h-9 flex items-center justify-center rounded-full border border-[#DADADA] text-[#121216]"
+            >
+              {isSectionExpanded ? (
+                <ChevronUp className="w-5 h-5" />
+              ) : (
+                <ChevronDown className="w-5 h-5" />
+              )}
+            </button>
+          </div>
+
+          {/* Commissions Table (only visible when expanded) */}
+          {isSectionExpanded && (
+            <div className="mb-4 sm:mb-6">
+              <div className="bg-[#FFFFFF] rounded-lg mb-3">
+                <div className="overflow-x-auto">
+                  <div className="min-w-[800px] grid grid-cols-6 gap-4 px-4 py-3">
+                    {[
+                      "Operator",
+                      "Operator Type",
+                      "My Deal",
+                      "ENT Margin",
+                      "Whitelabel",
+                      "Actions",
+                    ].map((h, i) => (
+                      <div
+                        key={i}
+                        className="text-[14px] font-[gilroy-medium] text-[#121216] text-center"
+                      >
+                        {h}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div className="bg-white rounded-xl overflow-x-auto">
+                <div className="min-w-[800px]">
+                  {commLoading && items.length === 0 ? (
+                    Array.from({ length: 6 }).map((_, index) => (
+                      <div key={index}>
+                        <div className="grid grid-cols-6 gap-4 px-4 py-3 animate-pulse">
+                          <span className="h-3 bg-gray-200 rounded w-20" />
+                          <span className="h-5 bg-gray-200 rounded w-16" />
+                          <span className="h-3 bg-gray-200 rounded w-12" />
+                          <span className="h-8 bg-gray-200 rounded w-full" />
+                          <span className="h-8 bg-gray-200 rounded w-full" />
+                          <div className="flex items-center justify-center">
+                            <span className="h-7 w-7 bg-gray-200 rounded-full" />
+                          </div>
+                        </div>
+                        {index < 5 && (
+                          <div className="h-[1px] bg-[#EAEAEA] mx-4"></div>
+                        )}
+                      </div>
+                    ))
+                  ) : items.length === 0 ? (
+                    <div className="px-4 py-6 text-center text-sm text-[#121216]/60">
+                      No commission records found.
+                    </div>
+                  ) : (
+                    items.map((commission, index) => {
+                      const isEntChanged =
+                        commission.entMargin !== commission.originalEntMargin ||
+                        (commission.entCommType || "").toLowerCase() !==
+                          (commission.originalEntCommType || "").toLowerCase() ||
+                        (commission.entMarginType || "").toLowerCase() !==
+                          (commission.originalEntMarginType || "").toLowerCase();
+
+                      const isWlChanged =
+                        commission.whitelabel !==
+                          commission.originalWhitelabel ||
+                        (commission.whitelabelCommType || "").toLowerCase() !==
+                          (
+                            commission.originalWhitelabelCommType || ""
+                          ).toLowerCase() ||
+                        (commission.whitelabelType || "").toLowerCase() !==
+                          (commission.originalWhitelabelType || "").toLowerCase();
+
+                      const isDirty = isEntChanged || isWlChanged;
+                      const isSaving = !!savingRows[commission.id];
+
+                      return (
+                        <div key={commission.id || index}>
+                          <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
+                            <div className="flex items-center justify-center text-xs text-[#121216]">
+                              {commission.operator}
+                            </div>
+
+                            <div className="flex items-center justify-center">
+                              <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
+                                {commission.operatorType}
+                              </span>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-1 text-xs">
+                              <div className="flex items-center gap-1.5">
+                                <span>{commission.myDeal}</span>
+                                {commission.myDealCommType && (
+                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#039155]">
+                                    {commission.myDealCommType}
+                                  </span>
+                                )}
+                                {commission.myDealType && (
+                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
+                                    {commission.myDealType}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-1 text-xs">
+                              <div className="flex items-center justify-center gap-2">
+                                <input
+                                  type="text"
+                                  value={commission.entMargin || ""}
+                                  onChange={(e) =>
+                                    handleCommissionChange(
+                                      commission.id,
+                                      "entMargin",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-28 px-3 py-1.5 border rounded-md text-xs"
+                                />
+                              </div>
+                              <div className="flex gap-3">
+                                
+                              {/* C / S group - single pill split in half */}
+                              <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
+                                {[
+                                  { code: "C", value: "com" },
+                                  { code: "S", value: "sur" },
+                                ].map((opt, idx) => {
+                                  const current =
+                                    (commission.entCommType || "").toLowerCase();
+                                  const isActive = current === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.code}
+                                      type="button"
+                                      onClick={() =>
+                                        handleCommissionChange(
+                                          commission.id,
+                                          "entCommType",
+                                          opt.value,
+                                        )
+                                      }
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                        isActive
+                                          ? "bg-[#000000] text-white"
+                                          : "bg-white text-[#121216]"
+                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                    >
+                                      {opt.code}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {/* P / F group - single pill split in half */}
+                              <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
+                                {[
+                                  { code: "P", value: "per" },
+                                  { code: "F", value: "fix" },
+                                ].map((opt, idx) => {
+                                  const current =
+                                    (commission.entMarginType || "").toLowerCase();
+                                  const isActive = current === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.code}
+                                      type="button"
+                                      onClick={() =>
+                                        handleCommissionChange(
+                                          commission.id,
+                                          "entMarginType",
+                                          opt.value,
+                                        )
+                                      }
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                        isActive
+                                          ? "bg-[#000000] text-white"
+                                          : "bg-white text-[#121216]"
+                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                    >
+                                      {opt.code}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              </div>
+                            </div>
+
+                            <div className="flex flex-col items-center gap-2 text-xs">
+                              <div className="flex items-center justify-center gap-2">
+                                <input
+                                  type="text"
+                                  value={commission.whitelabel || ""}
+                                  onChange={(e) =>
+                                    handleCommissionChange(
+                                      commission.id,
+                                      "whitelabel",
+                                      e.target.value,
+                                    )
+                                  }
+                                  className="w-28 px-3 py-1.5 border rounded-md text-xs"
+                                />
+                              </div>
+                              <div className="flex gap-3">
+                              {/* C / S group - single pill split in half */}
+                              <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
+                                {[
+                                  { code: "C", value: "com" },
+                                  { code: "S", value: "sur" },
+                                ].map((opt, idx) => {
+                                  const current =
+                                    (commission.whitelabelCommType || "").toLowerCase();
+                                  const isActive = current === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.code}
+                                      type="button"
+                                      onClick={() =>
+                                        handleCommissionChange(
+                                          commission.id,
+                                          "whitelabelCommType",
+                                          opt.value,
+                                        )
+                                      }
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                        isActive
+                                          ? "bg-[#000000] text-white"
+                                          : "bg-white text-[#121216]"
+                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                    >
+                                      {opt.code}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+
+                              {/* P / F group - single pill split in half */}
+                              <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
+                                {[
+                                  { code: "P", value: "per" },
+                                  { code: "F", value: "fix" },
+                                ].map((opt, idx) => {
+                                  const current =
+                                    (commission.whitelabelType || "").toLowerCase();
+                                  const isActive = current === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.code}
+                                      type="button"
+                                      onClick={() =>
+                                        handleCommissionChange(
+                                          commission.id,
+                                          "whitelabelType",
+                                          opt.value,
+                                        )
+                                      }
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                        isActive
+                                          ? "bg-[#000000] text-white"
+                                          : "bg-white text-[#121216]"
+                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                    >
+                                      {opt.code}
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center justify-center">
+                              <button
+                                type="button"
+                                onClick={() => handleSaveCommissionRow(commission)}
+                                disabled={!isDirty || isSaving}
+                                className={`w-9 h-7 rounded border flex items-center justify-center transition ${
+                                  isDirty
+                                    ? "border-[#039155] bg-[#039155]/10 hover:bg-[#039155]/20"
+                                    : "border-[#DADADA] bg-white cursor-default opacity-60"
+                                } ${isSaving ? "cursor-wait opacity-70" : ""}`}
+                              >
+                                <Check
+                                  className={`w-5 h-5 ${
+                                    isDirty ? "text-[#039155]" : "text-[#121216]"
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                          <hr className="mx-4 border-[#1B1717]/20" />
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+      </div>
     );
   };
 
@@ -85,8 +558,8 @@ const EditMembership = ({ scheme, onBack }) => {
             onClick={onBack}
             className="flex items-center text-[#1B1717] hover:text-[#039155] transition"
           >
-            <div className="rounded-full p-2 bg-[#FFFFFF] border-[0.5px] border-[#1B1717]/80 transition">
-              <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717] opacity-80" />
+            <div className="rounded-full p-2.5 sm:p-3 bg-[#FFFFFF] border-[0.5px] border-[#1B1717]/80 transition">
+              <HiArrowLeft className="text-2xl sm:text-3xl text-[#1B1717] opacity-80" />
             </div>
           </button>
           <div className="flex flex-col">
@@ -200,111 +673,25 @@ const EditMembership = ({ scheme, onBack }) => {
         </div>
       </div>
 
-      {/* Mobile And DTH Recharge Commissions Section */}
+      {/* All commissions in a single outer section with grey background */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
-        <div className="rounded-2xl bg-[#FAFAFA] p-4">
-          {/* Section Header */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-4 bg-[#FFFFFF] rounded-lg p-4 sm:p-6">
-            <div>
-              <h2 className="text-base sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                Mobile And DTH Recharge
-              </h2>
-              <p className="text-sm sm:text-base font-['Gilroy-Regular'] text-[#1B1717]">
-                Commissions
-              </p>
-            </div>
-          </div>
+        <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6 ">
+          {/* AEPS Commissions Section (accordion by operatorType) */}
+          {renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
 
-          {/* Commissions Table */}
-          <div className="mb-4 sm:mb-6">
-            <div className="bg-[#FFFFFF] rounded-lg mb-3">
-              <div className="overflow-x-auto">
-                <div className="min-w-[800px] grid grid-cols-6 gap-4 px-4 py-3">
-                  {[
-                    "Operator",
-                    "Operator Type",
-                    "My Deal",
-                    "ENT Margin",
-                    "Whitelabel",
-                    "Actions",
-                  ].map((h, i) => (
-                    <div
-                      key={i}
-                      className={`text-[14px] font-[gilroy-medium] text-[#121216] ${
-                        h === "Actions" ? "text-center" : "text-left"
-                      }`}
-                    >
-                      {h}
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
+          {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
+          {renderCommissionSection(
+            "Mobile And DTH Recharge",
+            mobileDthCommissions,
+            "mobileDth",
+          )}
 
-            {/* Table Body */}
-            <div className="bg-white rounded-xl overflow-x-auto">
-              <div className="min-w-[800px]">
-                {commissions.map((commission, index) => (
-                  <div key={commission.id || index}>
-                    <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50">
-                      <span className="text-xs text-[#121216]">
-                        {commission.operator}
-                      </span>
-
-                      <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
-                        {commission.operatorType}
-                      </span>
-
-                      <span className="text-xs">{commission.myDeal}</span>
-
-                      <input
-                        type="text"
-                        value={commission.entMargin || ""}
-                        onChange={(e) =>
-                          handleCommissionChange(
-                            commission.id,
-                            "entMargin",
-                            e.target.value,
-                          )
-                        }
-                        className="w-20 px-2 py-1 border rounded-md text-xs"
-                      />
-
-                      <input
-                        type="text"
-                        value={commission.whitelabel || ""}
-                        onChange={(e) =>
-                          handleCommissionChange(
-                            commission.id,
-                            "whitelabel",
-                            e.target.value,
-                          )
-                        }
-                        className="w-20 px-2 py-1 border rounded-md text-xs"
-                      />
-
-                      <div className="flex justify-center">
-                        <div className="w-7 h-5 rounded border flex items-center justify-center">
-                          <Check className="w-4 h-4" />
-                        </div>
-                      </div>
-                    </div>
-                    <hr className="mx-4 border-[#1B1717]/20" />
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Add New Operator Button */}
-            <div className="flex justify-center mt-6 mb-6">
-              <button className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 transition shadow-md">
-                <div className="w-4 h-4 rounded-full border border-white flex items-center justify-center">
-                  <Plus className="w-3 h-3 text-white" />
-                </div>
-                <span>Add New Operator</span>
-              </button>
-            </div>
-          </div>
+          {/* BBPS Commissions Section (accordion by operatorType) */}
+          {renderCommissionSection(
+            "BBPS Commissions",
+            otherCommissions,
+            "bbps",
+          )}
         </div>
       </div>
     </div>
@@ -326,10 +713,6 @@ EditMembership.propTypes = {
     ),
   }),
   onBack: PropTypes.func.isRequired,
-};
-
-EditMembership.defaultProps = {
-  scheme: null,
 };
 
 export default EditMembership;
