@@ -8,13 +8,12 @@ import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceT
 import WalletLoad from "../../pages/retailerDashboard/fundManagement/WalletLoad";
 import MobileRecharge from "../../pages/retailerDashboard/services/MobileRecharge";
 import DTHRecharge from "../../pages/retailerDashboard/services/DTHRecharge";
-import OnBoardingBBPS from "../../pages/retailerDashboard/bbps/onBoardingBBPS";
 import BusinessReport from "../../pages/retailerDashboard/Reports/BusinessReport";
 import EarningReport from "../../pages/retailerDashboard/Reports/EarningReport";
 import UserPerformance from "../../pages/retailerDashboard/Reports/UserPerformance";
 import TaxHistory from "../../pages/retailerDashboard/TaxHistory";
 import BBPSServices from "../../pages/retailerDashboard/services/BBPSServices";
-
+import PanService from "../../pages/retailerDashboard/services/PanService";
 const RetailerDash = () => {
   return (
     <RetailerDashLayout>
@@ -30,10 +29,10 @@ const RetailerDash = () => {
           element={<OnBoardingAepsTwo />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
-        {/* <Route
-          path="/services/bbps"
-          element={<OnBoardingBBPS />}
-        /> */}
+        <Route
+          path="/services/pan-service"
+          element={<PanService />}
+        />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
 
         <Route

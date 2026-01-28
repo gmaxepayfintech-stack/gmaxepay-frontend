@@ -10,7 +10,8 @@ import {
 import BankKyc from "./BankKyc";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
-
+import { aepsBankOtp } from "../../../redux/action/aepsAction";
+import { getLocationAndIP } from "../../../util/getLocationAndIP";
 const OTP_LENGTH = 6;
 
 const BankOtp = ({ onBack }) => {
@@ -21,6 +22,8 @@ const BankOtp = ({ onBack }) => {
   const [touchedSubmit, setTouchedSubmit] = useState(false);
   const [showBankKyc, setShowBankKyc] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0); // seconds
   const inputsRef = useRef([]);
 
   // Call getUserProfile on component mount
@@ -49,6 +52,16 @@ const BankOtp = ({ onBack }) => {
   const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
 
   const otpValue = useMemo(() => otp.join(""), [otp]);
+
+  // Handle resend OTP countdown
+  useEffect(() => {
+    if (!resendCooldown) return;
+    const timer = setTimeout(
+      () => setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0)),
+      1000,
+    );
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -81,6 +94,41 @@ const BankOtp = ({ onBack }) => {
 
     const nextIndex = Math.min(idx + chars.length, OTP_LENGTH - 1);
     focusIndex(nextIndex);
+  };
+
+  const handleResendOtp = async () => {
+    if (isResendLoading || resendCooldown > 0) return;
+    setIsResendLoading(true);
+    try {
+      // Get location (latitude & longitude)
+      const locationAndIP = await getLocationAndIP();
+      const latitude = locationAndIP?.location?.latitude || "";
+      const longitude = locationAndIP?.location?.longitude || "";
+
+      // Prepare payload with only latitude and longitude
+      const payload = {
+        latitude,
+        longitude,
+      };
+
+      const response = await dispatch(aepsBankOtp(payload));
+      console.log("aepsBankOtp resend response:", response);
+      if (response?.status === "SUCCESS") {
+        // Start cooldown for 3 minutes (180 seconds)
+        setResendCooldown(180);
+      }
+    } catch (error) {
+      console.error("aepsBankOtp resend error:", error);
+    } finally {
+      setIsResendLoading(false);
+    }
+  };
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleKeyDown = (idx, e) => {
@@ -218,16 +266,40 @@ const BankOtp = ({ onBack }) => {
             )}
           </div>
 
+          {/* Submit OTP Button */}
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition flex items-center justify-center gap-2"
+            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
           >
             {isLoading && (
               <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
             )}
             {isLoading ? "Processing..." : "Submit"}
           </button>
+
+          {/* Resend OTP section – match IdentityVerification style */}
+          <div className="mt-[24px]">
+            <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+              Didn't Receive The Code?
+            </div>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={isResendLoading || resendCooldown > 0}
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
+                isResendLoading || resendCooldown > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+              }`}
+            >
+              {isResendLoading
+                ? "Resending OTP..."
+                : resendCooldown > 0
+                ? `Resend In ${formatTimer(resendCooldown)}`
+                : "Resend OTP"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
