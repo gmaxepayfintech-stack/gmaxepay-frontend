@@ -10,9 +10,25 @@ import {
   X,
   ChevronDown,
 } from "lucide-react";
+import { useDispatch, useSelector } from "react-redux";
+import { useCompany } from "../../context/CompanyContext";
+import { useNotification } from "../../context/NotificationContext";
+import { createSlab, getSlabList } from "../../redux/action/slabAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
 import EditMembership from "./EditMembership";
 
 const SchemeMaster = () => {
+  const dispatch = useDispatch();
+  const { company } = useCompany();
+  const { success, error: showError } = useNotification();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+  
+  // Redux state
+  const slabState = useSelector((state) => state?.slab);
+  const { slabs, loading: slabsLoading, createSlabSuccess, createSlabMessage, createSlabError } = slabState || {};
+  const [isCreating, setIsCreating] = useState(false);
+
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Schemes");
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,14 +38,52 @@ const SchemeMaster = () => {
   const [formData, setFormData] = useState({
     schemeName: "",
     schemeMode: "Global",
-    schemeType: "Premium",
-    subscriptionType: "",
-    premiumAmount: "",
+    schemeType: "Free",
   });
-  const [isSubscriptionDropdownOpen, setIsSubscriptionDropdownOpen] =
-    useState(false);
   const modalRef = useRef(null);
-  const dropdownRef = useRef(null);
+
+  // Get company ID
+  const getCompanyId = () => {
+    return companyData?.companyId || companyData?._id || companyData?.id || null;
+  };
+
+  // Fetch slabs on component mount and when page changes
+  useEffect(() => {
+    const companyId = getCompanyId();
+    if (companyId) {
+      dispatch(getSlabList(companyId, currentPage, 6));
+    }
+  }, [dispatch, currentPage]);
+
+  // Handle create success
+  useEffect(() => {
+    if (createSlabSuccess && createSlabMessage) {
+      success(createSlabMessage || "Slab created successfully");
+      setIsModalOpen(false);
+      setFormData({
+        schemeName: "",
+        schemeMode: "Global",
+        schemeType: "Free",
+      });
+      // Reset to first page after creating (this will trigger fetch via the other useEffect)
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        // If already on page 1, explicitly fetch to refresh
+        const companyId = getCompanyId();
+        if (companyId) {
+          dispatch(getSlabList(companyId, 1, 6));
+        }
+      }
+    }
+  }, [createSlabSuccess, createSlabMessage, dispatch, currentPage, success]);
+
+  // Handle create error
+  useEffect(() => {
+    if (createSlabError) {
+      showError(createSlabError);
+    }
+  }, [createSlabError, showError]);
 
   // Close modal when clicking outside
   useEffect(() => {
@@ -46,187 +100,52 @@ const SchemeMaster = () => {
     };
   }, [isModalOpen]);
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsSubscriptionDropdownOpen(false);
-      }
-    };
-    if (isSubscriptionDropdownOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isSubscriptionDropdownOpen]);
-
-  //Reset page when search or filter changes
+  //Reset page when search or filter changes and refetch
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchQuery, activeFilter]);
+    const companyId = getCompanyId();
+    if (companyId) {
+      dispatch(getSlabList(companyId, 1, 6));
+    }
+  }, [searchQuery, activeFilter, dispatch]);
 
-  const schemes = [
-    {
-      id: 1,
-      name: "WL Globe",
-      icon: Globe,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-100",
-      iconImage: "/img/WLGlobe.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
+  // Map API slabs to scheme format
+  const mapSlabToScheme = (slab) => {
+    const getIcon = (schemaType, schemaMode) => {
+      if (schemaType === "free" && schemaMode === "global") {
+        return { icon: Globe, iconColor: "text-green-600", iconBg: "bg-green-100", iconImage: "/img/WLGlobe.png", useImage: true };
+      } else if (schemaMode === "private") {
+        return { icon: Lock, iconColor: "text-purple-600", iconBg: "bg-purple-100", iconImage: "/img/GramPay.png", useImage: true };
+      } else {
+        return { icon: Grid3x3, iconColor: "text-orange-600", iconBg: "bg-orange-100", iconImage: "/img/Platanium.png", useImage: true };
+      }
+    };
+
+    const iconData = getIcon(slab.schemaType, slab.schemaMode);
+    const createdAt = slab.createdAt ? new Date(slab.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
+    
+    return {
+      id: slab.id,
+      name: slab.slabName,
+      ...iconData,
+      status: slab.isActive ? "Active" : "Inactive",
+      isActive: slab.isActive ?? true,
+      schemeId: `#${slab.id}`,
+      created: createdAt,
+      members: slab.totalUsers?.toString() || "0",
       tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Free", color: "bg-[#366BCD] text-white" },
+        { label: slab.schemaMode === "global" ? "Global" : "Private", color: slab.schemaMode === "global" ? "bg-[#08A000] text-white" : "bg-[#9B3FEF] text-white" },
+        { label: slab.schemaType === "free" ? "Free" : "Premium", color: slab.schemaType === "free" ? "bg-[#366BCD] text-white" : "bg-[#D6C407] text-white" },
       ],
-    },
-    {
-      id: 2,
-      name: "Grampay",
-      icon: Lock,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-100",
-      iconImage: "/img/GramPay.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Private", color: "bg-[#9B3FEF] text-white" },
-        { label: "N/A", color: "bg-[#969696] text-white" },
-      ],
-    },
-    {
-      id: 3,
-      name: "Platinum Membership",
-      icon: Grid3x3,
-      iconColor: "text-orange-600",
-      iconBg: "bg-orange-100",
-      iconImage: "/img/Platanium.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Premium", color: "bg-[#D6C407] text-white" },
-      ],
-    },
-    {
-      id: 4,
-      name: "WL Globe",
-      icon: Globe,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-100",
-      iconImage: "/img/WLGlobe.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Free", color: "bg-[#366BCD] text-white" },
-      ],
-    },
-    {
-      id: 5,
-      name: "Grampay",
-      icon: Lock,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-100",
-      iconImage: "/img/GramPay.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Private", color: "bg-[#9B3FEF] text-white" },
-        { label: "N/A", color: "bg-[#969696] text-white" },
-      ],
-    },
-    {
-      id: 6,
-      name: "Platinum Membership",
-      icon: Grid3x3,
-      iconColor: "text-orange-600",
-      iconBg: "bg-orange-100",
-      iconImage: "/img/Platanium.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Premium", color: "bg-[#D6C407] text-white" },
-      ],
-    },
-    {
-      id: 7,
-      name: "WL Globe",
-      icon: Globe,
-      iconColor: "text-green-600",
-      iconBg: "bg-green-100",
-      iconImage: "/img/WLGlobe.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Free", color: "bg-[#366BCD] text-white" },
-      ],
-    },
-    {
-      id: 8,
-      name: "Grampay",
-      icon: Lock,
-      iconColor: "text-purple-600",
-      iconBg: "bg-purple-100",
-      iconImage: "/img/GramPay.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Private", color: "bg-[#9B3FEF] text-white" },
-        { label: "N/A", color: "bg-[#969696] text-white" },
-      ],
-    },
-    {
-      id: 9,
-      name: "Platinum Membership",
-      icon: Grid3x3,
-      iconColor: "text-orange-600",
-      iconBg: "bg-orange-100",
-      iconImage: "/img/Platanium.png",
-      useImage: true,
-      status: "Active",
-      schemeId: "#1234",
-      created: "23-06-25",
-      members: "34",
-      tags: [
-        { label: "Global", color: "bg-[#08A000] text-white" },
-        { label: "Premium", color: "bg-[#D6C407] text-white" },
-      ],
-    },
-  ];
+      ...slab, // Include original slab data
+    };
+  };
+
+  const schemes = (slabs || []).map(mapSlabToScheme);
 
   const filters = ["All Schemes", "Global", "Private", "Premium", "Free"];
 
-  const ITEMS_PER_PAGE = 6;
-
-  // 1️⃣ Search + Filter
+  // 1️⃣ Search + Filter (works on current page data)
   const filteredSchemes = schemes.filter((scheme) => {
     const matchesSearch = scheme.name
       .toLowerCase()
@@ -241,13 +160,83 @@ const SchemeMaster = () => {
     return matchesSearch && matchesFilter;
   });
 
-  // 2️⃣ Pagination
-  const totalPages = Math.ceil(filteredSchemes.length / ITEMS_PER_PAGE);
+  // 2️⃣ Use API paginator for total pages
+  const paginator = slabState?.paginator || {};
+  const totalPages = paginator.pageCount || 1;
+  
+  // Display filtered schemes (search/filter works on current page)
+  const paginatedSchemes = filteredSchemes;
 
-  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
-  const endIndex = startIndex + ITEMS_PER_PAGE;
+  // Handle create slab
+  const handleCreateSlab = async (e) => {
+    e?.preventDefault?.();
+    console.log("handleCreateSlab called");
+    const companyId = getCompanyId();
+    if (!companyId) {
+      console.error("Company ID not found");
+      showError("Company ID not found. Please refresh the page.");
+      return;
+    }
 
-  const paginatedSchemes = filteredSchemes.slice(startIndex, endIndex);
+    if (!formData.schemeName || !formData.schemeName.trim()) {
+      showError("Please enter a scheme name");
+      return;
+    }
+
+    console.log("Creating slab with data:", formData);
+    console.log("Company ID:", companyId);
+
+    setIsCreating(true);
+    try {
+      const result = await dispatch(createSlab(formData, companyId));
+      console.log("Create slab result:", result);
+      if (result?.success) {
+        // Success is handled in useEffect
+        // List refresh is handled in the action
+      } else {
+        showError(result?.message || "Failed to create slab. Please try again.");
+      }
+    } catch (error) {
+      console.error("Error creating slab:", error);
+      showError(error?.message || "An error occurred while creating the slab. Please try again.");
+    } finally {
+      setIsCreating(false);
+    }
+  };
+
+  // Skeleton loader component
+  const SchemeSkeleton = () => (
+    <div className="bg-white rounded-lg sm:rounded-3xl border-[0.5px] border-[#1B1717]/80 border-opacity-40 shadow-sm px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4 flex flex-col h-full animate-pulse">
+      <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+        <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg bg-gray-200 flex-shrink-0" />
+          <div className="flex-1 min-w-0">
+            <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+            <div className="flex gap-2">
+              <div className="h-5 bg-gray-200 rounded-full w-16" />
+              <div className="h-5 bg-gray-200 rounded-full w-16" />
+            </div>
+          </div>
+        </div>
+        <div className="h-6 bg-gray-200 rounded-3xl w-20 flex-shrink-0" />
+      </div>
+      <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
+        <div className="flex justify-between">
+          <div className="h-4 bg-gray-200 rounded w-20" />
+          <div className="h-4 bg-gray-200 rounded w-16" />
+        </div>
+        <div className="flex justify-between">
+          <div className="h-4 bg-gray-200 rounded w-20" />
+          <div className="h-4 bg-gray-200 rounded w-16" />
+        </div>
+        <div className="flex justify-between">
+          <div className="h-4 bg-gray-200 rounded w-20" />
+          <div className="h-4 bg-gray-200 rounded w-16" />
+        </div>
+      </div>
+      <div className="h-10 bg-gray-200 rounded-xl w-full" />
+    </div>
+  );
 
   // Show EditMembership component when selected
   if (showEditMembership) {
@@ -335,7 +324,17 @@ const SchemeMaster = () => {
 
         {/* Scheme Cards Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 items-stretch">
-          {paginatedSchemes.map((scheme) => {
+          {slabsLoading ? (
+            // Show skeleton loaders
+            Array.from({ length: 6 }).map((_, index) => (
+              <SchemeSkeleton key={index} />
+            ))
+          ) : paginatedSchemes.length === 0 ? (
+            <div className="col-span-full text-center py-8 text-[#1B1717]/60">
+              No schemes found
+            </div>
+          ) : (
+            paginatedSchemes.map((scheme) => {
             const IconComponent = scheme.icon;
             return (
               <div
@@ -389,10 +388,11 @@ const SchemeMaster = () => {
 
                   {/* Status Indicator */}
                   <div
-                    className="flex items-center bg-[#008D1E] rounded-3xl
-              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0 mt-2"
+                    className={`flex items-center rounded-3xl
+              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0 mt-2
+              ${scheme.isActive ? 'bg-[#008D1E]' : 'bg-gray-500'}`}
                   >
-                    <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-white" />
+                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? 'bg-white' : 'bg-white'}`} />
                     <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
                       {scheme.status}
                     </span>
@@ -441,15 +441,18 @@ const SchemeMaster = () => {
                 </button>
               </div>
             );
-          })}
+          })
+          )}
         </div>
       </div>
 
       {/* Pagination */}
+      {!slabsLoading && totalPages > 0 && (
       <div className="flex items-center justify-center gap-1.5 sm:gap-2">
         <button
           onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-          className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition"
+            disabled={currentPage === 1}
+            className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
@@ -469,14 +472,14 @@ const SchemeMaster = () => {
         ))}
 
         <button
-          onClick={() =>
-            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-          }
-          className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition"
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+            disabled={currentPage === totalPages}
+            className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
         </button>
       </div>
+      )}
 
       {/* Create New Membership Scheme Modal */}
       {isModalOpen && (
@@ -690,69 +693,6 @@ const SchemeMaster = () => {
                 </div>
               </div>
 
-              {/* Subscription & Amount */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
-                {/* Subscription Type */}
-                <div ref={dropdownRef} className="relative">
-                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-1.5">
-                    Subscription Type
-                  </label>
-
-                  <input
-                    readOnly
-                    value={formData.subscriptionType}
-                    placeholder="Select Subscription Type"
-                    onClick={() =>
-                      setIsSubscriptionDropdownOpen(!isSubscriptionDropdownOpen)
-                    }
-                    className="w-full px-3 sm:px-4 py-3 sm:py-4
-                         border border-[#1B1717]/70 rounded-lg
-                         text-sm sm:text-base cursor-pointer"
-                  />
-
-                  {isSubscriptionDropdownOpen && (
-                    <div className="absolute z-20 w-full mt-1 bg-white border rounded-lg shadow max-h-44 overflow-y-auto">
-                      {["Monthly", "Yearly", "Lifetime"].map((item) => (
-                        <div
-                          key={item}
-                          onClick={() => {
-                            setFormData({
-                              ...formData,
-                              subscriptionType: item,
-                            });
-                            setIsSubscriptionDropdownOpen(false);
-                          }}
-                          className="px-4 py-2 text-sm hover:bg-gray-50 cursor-pointer"
-                        >
-                          {item}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Premium Amount */}
-                <div>
-                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-1.5">
-                    Premium Amount
-                  </label>
-
-                  <input
-                    type="number"
-                    value={formData.premiumAmount}
-                    onChange={(e) =>
-                      setFormData({
-                        ...formData,
-                        premiumAmount: e.target.value,
-                      })
-                    }
-                    placeholder="Enter Premium Amount"
-                    className="w-full px-3 sm:px-4 py-3 sm:py-4
-                         border border-[#1B1717]/70 rounded-lg
-                         text-sm sm:text-base"
-                  />
-                </div>
-              </div>
             </div>
 
             {/* Footer */}
@@ -766,14 +706,21 @@ const SchemeMaster = () => {
               </button>
 
               <button
-                onClick={() => {
-                  console.log("Creating scheme:", formData);
-                  setIsModalOpen(false);
-                }}
+                type="button"
+                onClick={handleCreateSlab}
+                disabled={isCreating || slabsLoading}
                 className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
-                     text-white rounded-xl transition"
+                     text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed
+                     flex items-center justify-center gap-2"
               >
-                Create
+                {isCreating ? (
+                  <>
+                    <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+                    <span>Creating...</span>
+                  </>
+                ) : (
+                  "Create"
+                )}
               </button>
             </div>
           </div>
