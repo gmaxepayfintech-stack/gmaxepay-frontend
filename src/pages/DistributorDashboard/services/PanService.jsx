@@ -162,7 +162,7 @@ const PanService = () => {
                   value="new"
                   checked={action === 'new'}
                   onChange={(e) => setAction(e.target.value)}
-                  className="w-4 h-4 text-[#039155] border-gray-300 focus:ring-[#039155] focus:ring-2"
+                  className="w-4 h-4 text-[#039155] border-gray-300 "
                 />
                 <span className="ml-2 text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                   PAN Creation
@@ -175,7 +175,7 @@ const PanService = () => {
                   value="correction"
                   checked={action === 'correction'}
                   onChange={(e) => setAction(e.target.value)}
-                  className="w-4 h-4 text-[#039155] border-gray-300 focus:ring-[#039155] focus:ring-2"
+                  className="w-4 h-4 text-[#039155] border-gray-300"
                 />
                 <span className="ml-2 text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                   PAN Correction
