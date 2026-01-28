@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { MapPin, FileText, Camera, ChevronDown, Plus, X } from "lucide-react";
+import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getSlabList, assignSlabToCompany } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
@@ -781,15 +781,10 @@ const ProfileDetails = ({ onBack = null }) => {
         {activeTab === "bankDetails" && (
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             {/* Header */}
-            <div className="flex items-center justify-between mb-6">
+            <div className="mb-6">
               <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                 Bank Details
               </h3>
-
-              <button className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-[#1B1717] hover:bg-gray-50">
-                <Plus className="w-4 h-4" />
-                Add New Account
-              </button>
             </div>
 
             <div className="space-y-6">
