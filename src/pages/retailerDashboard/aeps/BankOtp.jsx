@@ -22,7 +22,7 @@ const BankOtp = ({ onBack }) => {
   const [showBankKyc, setShowBankKyc] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isResendLoading, setIsResendLoading] = useState(false);
-  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendCooldown, setResendCooldown] = useState(0); // seconds
   const inputsRef = useRef([]);
 
   // Call getUserProfile on component mount
@@ -110,6 +110,13 @@ const BankOtp = ({ onBack }) => {
     } finally {
       setIsResendLoading(false);
     }
+  };
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
   };
 
   const handleKeyDown = (idx, e) => {
@@ -251,7 +258,7 @@ const BankOtp = ({ onBack }) => {
           <button
             type="submit"
             disabled={isLoading}
-            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition flex items-center justify-center gap-2"
+            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
           >
             {isLoading && (
               <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
@@ -259,24 +266,28 @@ const BankOtp = ({ onBack }) => {
             {isLoading ? "Processing..." : "Submit"}
           </button>
 
-          {/* Resend OTP Button (styled similar to submit, but outlined) */}
-          <button
-            type="button"
-            onClick={resendCooldown === 0 ? handleResendOtp : undefined}
-            disabled={isResendLoading || resendCooldown > 0}
-            className="mt-4 w-[510px] max-w-full border border-[#039155] text-[#039155] bg-white hover:bg-[#F0FFF7] disabled:opacity-60 disabled:cursor-not-allowed rounded-lg py-2 text-[16px] font-['Gilroy-Medium'] transition flex items-center justify-center gap-2"
-          >
-            {isResendLoading ? (
-              <>
-                <ButtonLoader color="#039155" size={18} thickness={3} />
-                <span>Resending OTP...</span>
-              </>
-            ) : resendCooldown > 0 ? (
-              `Resend OTP in (${resendCooldown}s)`
-            ) : (
-              "Resend OTP"
-            )}
-          </button>
+          {/* Resend OTP section – match IdentityVerification style */}
+          <div className="mt-[24px]">
+            <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+              Didn't Receive The Code?
+            </div>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={isResendLoading || resendCooldown > 0}
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
+                isResendLoading || resendCooldown > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+              }`}
+            >
+              {isResendLoading
+                ? "Resending OTP..."
+                : resendCooldown > 0
+                ? `Resend In ${formatTimer(resendCooldown)}`
+                : "Resend OTP"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
