@@ -11,7 +11,7 @@ const PanService = () => {
     const dispatch = useDispatch();
     const { showNotification } = useNotification();
     const [mobileNumber, setMobileNumber] = useState('');
-    const [action, setAction] = useState('correction'); // 'creation' or 'correction'
+    const [action, setAction] = useState('correction'); // 'new' or 'correction'
     const [loading, setLoading] = useState(false);
     const [errors, setErrors] = useState({});
 
@@ -44,7 +44,7 @@ const PanService = () => {
         try {
             // Prepare payload
             const payload = {
-                action: action, // 'creation' or 'correction'
+                action: action, // 'new' or 'correction'
                 mobile_number: mobileNumber,
             };
 
@@ -52,6 +52,7 @@ const PanService = () => {
             const response = await dispatch(PanRequest(payload));
 
             // The API response structure:
+            // Success:
             // {
             //   "status": "SUCCESS",
             //   "message": "Pan Redirection url created",
@@ -59,28 +60,38 @@ const PanService = () => {
             //     "txid": 53815182,
             //     "status": "Success",
             //     "url": "https://connect.inspay.in/nsdl/pan_cr?...",
-            //     "message": "Pan Redirection url created",
             //     ...
             //   }
             // }
-            //
-            // PanRequest action returns:
+            // Failure:
             // {
-            //   panServiceRequest: { ...data object from API... },
-            //   status: "SUCCESS",
-            //   message: "..."
+            //   "status": "FAILURE",
+            //   "message": "Same number same amount try afer 5 minute",
+            //   "data": {
+            //     "status": "Failure",
+            //     "message": "Same number same amount try afer 5 minute",
+            //     ...
+            //   }
             // }
 
-            // Get the panServiceRequest data (which is the data object from API response)
+            // Get the response status and data
+            const responseStatus = response?.status;
             const panData = response?.panServiceRequest;
 
-            // Check if URL is available and status is Success
-            if (panData?.url && panData?.status === 'Success') {
-                // Redirect to the URL
+            // Check if outer status is FAILURE
+            if (responseStatus === 'FAILURE') {
+                // Show failure message from data or response
+                const errorMessage = panData?.message || response?.message || 'Failed to submit PAN request';
+                showNotification({
+                    type: 'error',
+                    message: errorMessage,
+                });
+            } else if (panData?.url && panData?.status === 'Success') {
+                // Redirect to the URL on success
                 window.location.href = panData.url;
             } else if (panData?.status === 'Failure') {
-                // Show failure message
-                const errorMessage = panData?.message || panData?.opid || response?.message || 'Failed to submit PAN correction request';
+                // Show failure message from inner data
+                const errorMessage = panData?.message || panData?.opid || response?.message || 'Failed to submit PAN request';
                 showNotification({
                     type: 'error',
                     message: errorMessage,
@@ -92,7 +103,7 @@ const PanService = () => {
                     window.location.href = panData.url;
                 } else {
                     // Show error if no URL and no clear status
-                    const errorMessage = panData?.message || response?.message || 'Failed to submit PAN correction request';
+                    const errorMessage = panData?.message || response?.message || 'Failed to submit PAN request';
                     showNotification({
                         type: 'error',
                         message: errorMessage,
@@ -148,8 +159,8 @@ const PanService = () => {
                                 <input
                                     type="radio"
                                     name="action"
-                                    value="creation"
-                                    checked={action === 'creation'}
+                                    value="new"
+                                    checked={action === 'new'}
                                     onChange={(e) => setAction(e.target.value)}
                                     className="w-4 h-4 text-[#039155] border-gray-300 focus:ring-[#039155] focus:ring-2"
                                 />
@@ -208,10 +219,10 @@ const PanService = () => {
                     {/* Action Info */}
                     <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
                         <p className="text-sm text-blue-800">
-                            <span className="font-semibold">Action:</span> {action === 'creation' ? 'Creation' : 'Correction'}
+                            <span className="font-semibold">Action:</span> {action === 'new' ? 'Creation' : 'Correction'}
                         </p>
                         <p className="text-xs text-blue-600 mt-1">
-                            {action === 'creation' 
+                            {action === 'new' 
                                 ? 'This will submit a PAN creation request for the provided mobile number.'
                                 : 'This will submit a PAN correction request for the provided mobile number.'}
                         </p>
