@@ -539,14 +539,14 @@ export const getAepsTransactionDetails = (transactionId) => async (dispatch) => 
     }
 };
 
-export const aepsBankOtp = () => async (dispatch) => {
+export const aepsBankOtp = (payload = {}) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/aeps/bank-kyc-send-otp`,
-            {},
+            payload,
             {
                 headers: {
                     "Content-Type": "application/json",

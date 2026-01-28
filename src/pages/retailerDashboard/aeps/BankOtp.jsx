@@ -11,6 +11,7 @@ import BankKyc from "./BankKyc";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 import { aepsBankOtp } from "../../../redux/action/aepsAction";
+import { getLocationAndIP } from "../../../util/getLocationAndIP";
 const OTP_LENGTH = 6;
 
 const BankOtp = ({ onBack }) => {
@@ -99,7 +100,18 @@ const BankOtp = ({ onBack }) => {
     if (isResendLoading || resendCooldown > 0) return;
     setIsResendLoading(true);
     try {
-      const response = await dispatch(aepsBankOtp());
+      // Get location (latitude & longitude)
+      const locationAndIP = await getLocationAndIP();
+      const latitude = locationAndIP?.location?.latitude || "";
+      const longitude = locationAndIP?.location?.longitude || "";
+
+      // Prepare payload with only latitude and longitude
+      const payload = {
+        latitude,
+        longitude,
+      };
+
+      const response = await dispatch(aepsBankOtp(payload));
       console.log("aepsBankOtp resend response:", response);
       if (response?.status === "SUCCESS") {
         // Start cooldown for 3 minutes (180 seconds)
