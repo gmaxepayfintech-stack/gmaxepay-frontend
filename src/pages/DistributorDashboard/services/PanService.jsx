@@ -11,6 +11,7 @@ const PanService = () => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const [mobileNumber, setMobileNumber] = useState('');
+  const [action, setAction] = useState('correction'); // 'creation' or 'correction'
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -43,53 +44,60 @@ const PanService = () => {
     try {
       // Prepare payload
       const payload = {
-        action: 'correction',
+        action: action, // 'creation' or 'correction'
         mobile_number: mobileNumber,
       };
 
       // Make API call using PanRequest action
       const response = await dispatch(PanRequest(payload));
 
-      // The API response structure from PanRequest action:
-      // response = {
-      //   panServiceRequest: {
-      //     "status": "FAILURE", // outer status
-      //     "message": "...",
-      //     "data": {
-      //       "status": "Success" or "Failure", // inner status
-      //       "url": "...", // if Success
-      //       "message": "...", // error message if Failure
-      //       "opid": "...", // error message if Failure
-      //     }
-      //   },
+      // The API response structure:
+      // {
+      //   "status": "SUCCESS",
+      //   "message": "Pan Redirection url created",
+      //   "data": {
+      //     "txid": 53815182,
+      //     "status": "Success",
+      //     "url": "https://connect.inspay.in/nsdl/pan_cr?...",
+      //     "message": "Pan Redirection url created",
+      //     ...
+      //   }
+      // }
+      //
+      // PanRequest action returns:
+      // {
+      //   panServiceRequest: { ...data object from API... },
       //   status: "SUCCESS",
       //   message: "..."
       // }
 
-      // Get the panServiceRequest data (which is the API response)
-      const apiResponse = response?.panServiceRequest || response;
-      
-      // Get the inner data object
-      const innerData = apiResponse?.data;
+      // Get the panServiceRequest data (which is the data object from API response)
+      const panData = response?.panServiceRequest;
 
-      // Check if inner data.status is "Success" (even if outer status is "FAILURE")
-      if (innerData?.status === 'Success' && innerData?.url) {
+      // Check if URL is available and status is Success
+      if (panData?.url && panData?.status === 'Success') {
         // Redirect to the URL
-        window.location.href = innerData.url;
-      } else if (innerData?.status === 'Failure') {
+        window.location.href = panData.url;
+      } else if (panData?.status === 'Failure') {
         // Show failure message
-        const errorMessage = innerData?.message || innerData?.opid || apiResponse?.message || 'Failed to submit PAN correction request';
+        const errorMessage = panData?.message || panData?.opid || response?.message || 'Failed to submit PAN correction request';
         showNotification({
           type: 'error',
           message: errorMessage,
         });
       } else {
-        // Fallback for other response structures
-        const errorMessage = apiResponse?.message || 'Failed to submit PAN correction request';
-        showNotification({
-          type: 'error',
-          message: errorMessage,
-        });
+        // Fallback: check if URL exists even if status check fails
+        if (panData?.url) {
+          // Redirect if URL is available
+          window.location.href = panData.url;
+        } else {
+          // Show error if no URL and no clear status
+          const errorMessage = panData?.message || response?.message || 'Failed to submit PAN correction request';
+          showNotification({
+            type: 'error',
+            message: errorMessage,
+          });
+        }
       }
     } catch (error) {
       const errorMessage = error?.response?.data?.message || error?.message || 'Failed to submit PAN correction request';
@@ -122,7 +130,7 @@ const PanService = () => {
             PAN Service
           </h1>
           <p className="text-sm text-gray-600 mt-1">
-            Request PAN correction using mobile number
+            Request PAN creation or correction using mobile number
           </p>
         </div>
       </div>
@@ -130,6 +138,41 @@ const PanService = () => {
       {/* Form Card */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 p-6 sm:p-8 max-w-2xl">
         <form onSubmit={handleSubmit} className="space-y-6">
+          {/* Action Selection */}
+          <div>
+            <label className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-3">
+              Select Action <span className="text-red-400">*</span>
+            </label>
+            <div className="flex gap-4">
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="action"
+                  value="creation"
+                  checked={action === 'creation'}
+                  onChange={(e) => setAction(e.target.value)}
+                  className="w-4 h-4 text-[#039155] border-gray-300 focus:ring-[#039155] focus:ring-2"
+                />
+                <span className="ml-2 text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                  PAN Creation
+                </span>
+              </label>
+              <label className="flex items-center cursor-pointer">
+                <input
+                  type="radio"
+                  name="action"
+                  value="correction"
+                  checked={action === 'correction'}
+                  onChange={(e) => setAction(e.target.value)}
+                  className="w-4 h-4 text-[#039155] border-gray-300 focus:ring-[#039155] focus:ring-2"
+                />
+                <span className="ml-2 text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                  PAN Correction
+                </span>
+              </label>
+            </div>
+          </div>
+
           {/* Mobile Number Input */}
           <div>
             <label
@@ -166,10 +209,12 @@ const PanService = () => {
           {/* Action Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <span className="font-semibold">Action:</span> Correction
+              <span className="font-semibold">Action:</span> {action === 'creation' ? 'Creation' : 'Correction'}
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              This will submit a PAN correction request for the provided mobile number.
+              {action === 'creation' 
+                ? 'This will submit a PAN creation request for the provided mobile number.'
+                : 'This will submit a PAN correction request for the provided mobile number.'}
             </p>
           </div>
 
