@@ -30,7 +30,7 @@ const PanService = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate mobile number
     const mobileError = validateMobileNumber(mobileNumber);
     if (mobileError) {
@@ -85,6 +85,7 @@ const PanService = () => {
         showNotification({
           type: 'error',
           message: errorMessage,
+          isCritical: true,
         });
       } else if (panData?.url && panData?.status === 'Success') {
         // Redirect to the URL on success
@@ -206,11 +207,10 @@ const PanService = () => {
               }}
               placeholder="Enter 10-digit mobile number"
               maxLength={10}
-              className={`w-full px-4 h-[48px] border rounded-lg focus:outline-none transition-colors ${
-                errors.mobileNumber
+              className={`w-full px-4 h-[48px] border rounded-lg focus:outline-none transition-colors ${errors.mobileNumber
                   ? 'border-red-400 focus:border-red-500'
                   : 'border-[#1B1717] border-opacity-50 focus:border-[#039155]'
-              }`}
+                }`}
             />
             {errors.mobileNumber && (
               <p className="text-red-500 text-xs mt-1">{errors.mobileNumber}</p>
@@ -223,7 +223,7 @@ const PanService = () => {
               <span className="font-semibold">Action:</span> {action === 'new' ? 'Creation' : 'Correction'}
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              {action === 'new' 
+              {action === 'new'
                 ? 'This will submit a PAN creation request for the provided mobile number.'
                 : 'This will submit a PAN correction request for the provided mobile number.'}
             </p>

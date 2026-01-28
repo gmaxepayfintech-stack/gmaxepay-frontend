@@ -85,6 +85,7 @@ const PanService = () => {
                 showNotification({
                     type: 'error',
                     message: errorMessage,
+                    isCritical: true,
                 });
             } else if (panData?.url && panData?.status === 'Success') {
                 // Redirect to the URL on success
