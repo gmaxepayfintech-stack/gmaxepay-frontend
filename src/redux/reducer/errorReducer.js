@@ -94,6 +94,8 @@ const errorReducer = (state = initialState, action) => {
     case AEPSTWO_BANKLIST_FAILURE:
     case RETAILER_FUND_GET_ALL_BANKS_FAILURE:
     case RETAILER_FUND_LOAD_FAILURE:
+    case PAN_SERVICE_REQUEST_FAILURE:
+
       console.log("actionssssssssssssss", action?.payload);
 
       return {
@@ -127,7 +129,6 @@ const errorReducer = (state = initialState, action) => {
     case AEPS_BANK_OTP_SUBMIT_FAILURE:
     case AEPS_BANK_KYC_FAILURE:
     case PAY_RECHARGE_FAILURE:
-    case PAN_SERVICE_REQUEST_FAILURE:
       return {
         ...state,
         loading: false,
