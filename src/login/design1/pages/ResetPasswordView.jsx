@@ -44,7 +44,7 @@ const ResetPasswordView = ({ onSubmit }) => {
             />
           </div>
           <h1
-            className="text-gray-900 mb-2 text-3xl sm:text-4xl md:text-5xl lg:text-[38px]"
+            className="text-[#1B1717] mb-2 text-3xl sm:text-4xl "
             style={{
               fontFamily: "Gilroy-SemiBold",
               fontWeight: 400,
@@ -54,7 +54,7 @@ const ResetPasswordView = ({ onSubmit }) => {
             Reset Password
           </h1>
           <p
-            className="text-gray-600 text-lg sm:text-xl md:text-2xl lg:text-2xl"
+            className="text-[#1B1717] text-lg sm:text-xl md:text-2xl "
             style={{
               fontFamily: "Gilroy-Medium",
               fontWeight: 400,
@@ -76,7 +76,7 @@ const ResetPasswordView = ({ onSubmit }) => {
               <div className="mb-5 sm:mb-6 md:mb-5 lg:mb-7">
                 <label
                   htmlFor="newPassword"
-                  className="block text-gray-700 mb-2 sm:mb-3 md:mb-2"
+                  className="block text-[#1B1717] mb-2 sm:mb-3 md:mb-2"
                   style={{
                     fontFamily: "Gilroy-SemiBold",
                     fontWeight: 400,
@@ -108,9 +108,13 @@ const ResetPasswordView = ({ onSubmit }) => {
                     >
                       <img
                         src={
-                          showNewPassword ? "/img/EyeClosed.png" : "/img/Eye.png"
+                          showNewPassword
+                            ? "/img/EyeClosed.png"
+                            : "/img/Eye.png"
                         }
-                        alt={showNewPassword ? "Hide password" : "Show password"}
+                        alt={
+                          showNewPassword ? "Hide password" : "Show password"
+                        }
                         className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                       />
                     </button>
@@ -129,9 +133,7 @@ const ResetPasswordView = ({ onSubmit }) => {
                       lineHeight: "100%",
                       paddingRight: values.newPassword ? "60px" : "16px",
                       border: `1.5px solid ${
-                        values.newPassword
-                          ? "#1B1717"
-                          : "rgba(27, 23, 23, 0.5)"
+                        values.newPassword ? "#1B1717" : "rgba(27, 23, 23, 0.5)"
                       }`,
                     }}
                     required
@@ -153,7 +155,7 @@ const ResetPasswordView = ({ onSubmit }) => {
               <div className="mb-5 sm:mb-6 md:mb-5 lg:mb-7">
                 <label
                   htmlFor="confirmPassword"
-                  className="block text-gray-700 mb-2 sm:mb-3 md:mb-2"
+                  className="block text-[#1B1717] mb-2 sm:mb-3 md:mb-2"
                   style={{
                     fontFamily: "Gilroy-SemiBold",
                     fontWeight: 400,
@@ -166,7 +168,9 @@ const ResetPasswordView = ({ onSubmit }) => {
                 <div className="relative">
                   <div className="absolute inset-y-0 left-[14px] flex items-center pointer-events-none z-40">
                     <img
-                      src={values.confirmPassword ? NumpadIconFilled : NumpadIcon}
+                      src={
+                        values.confirmPassword ? NumpadIconFilled : NumpadIcon
+                      }
                       alt="Password"
                       className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                     />
@@ -180,14 +184,22 @@ const ResetPasswordView = ({ onSubmit }) => {
                   {values.confirmPassword && (
                     <button
                       type="button"
-                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      onClick={() =>
+                        setShowConfirmPassword(!showConfirmPassword)
+                      }
                       className="absolute inset-y-0 right-[14px] flex items-center cursor-pointer z-20 bg-transparent border-0 outline-none"
                     >
                       <img
                         src={
-                          showConfirmPassword ? "/img/EyeClosed.png" : "/img/Eye.png"
+                          showConfirmPassword
+                            ? "/img/EyeClosed.png"
+                            : "/img/Eye.png"
                         }
-                        alt={showConfirmPassword ? "Hide password" : "Show password"}
+                        alt={
+                          showConfirmPassword
+                            ? "Hide password"
+                            : "Show password"
+                        }
                         className="object-contain w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7"
                       />
                     </button>
@@ -237,7 +249,11 @@ const ResetPasswordView = ({ onSubmit }) => {
                     boxShadow: "0 4px 14px 0",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isLoading && !isSubmitting && company?.secondaryColor) {
+                    if (
+                      !isLoading &&
+                      !isSubmitting &&
+                      company?.secondaryColor
+                    ) {
                       e.target.style.backgroundColor = company.secondaryColor;
                     }
                   }}
@@ -276,4 +292,3 @@ const ResetPasswordView = ({ onSubmit }) => {
 };
 
 export default ResetPasswordView;
-

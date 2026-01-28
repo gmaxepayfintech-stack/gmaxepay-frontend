@@ -35,7 +35,7 @@ const VerificationCodeView = ({
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-6 sm:py-10 overflow-y-auto">
-      <div className="w-full max-w-sm mx-auto">
+      <div className="w-full max-w-md mx-auto">
         <div className="flex justify-center mb-6">
           <img
             src={company?.logo || "/img/gmaxepay.png"}
@@ -44,17 +44,17 @@ const VerificationCodeView = ({
           />
         </div>
 
-        <h1 className="text-1B1717 text-[36px] font-semibold text-center mb-4">
+        <h1 className="text-[#1B1717] text-4xl font-[gilroy-semibold] text-center mb-4">
           Enter Verification Code
         </h1>
-        <p className="text-1B1717 opacity-70 text-center text-[24px] mb-4">
-          We've sent a 6-digit code to
+        <p className="text-[#1B1717]/70 font-[gilroy-medium] text-center text-[24px] mb-4">
+          We've Sent A 6-Digit Code To
         </p>
-        <p className="text-gray-900 font-md text-center mb-10 text-[24px]">
+        <p className=" text-center mb-10 text-2xl font-[gilroy-medium] text-[#1B1717]">
           +91 {phoneNumber}
         </p>
 
-        <div className="flex gap-6 sm:gap-6 mb-8 justify-center">
+        <div className="flex gap-6 sm:gap-6 mb-8 justify-center ">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -63,7 +63,9 @@ const VerificationCodeView = ({
               value={digit}
               onChange={(e) => onOtpChange(e.target.value, index, otpInputRefs)}
               onKeyDown={(e) => onOtpKeyDown(e, index, otpInputRefs)}
-              onPaste={index === 0 ? (e) => onOtpPaste(e, otpInputRefs) : undefined}
+              onPaste={
+                index === 0 ? (e) => onOtpPaste(e, otpInputRefs) : undefined
+              }
               className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
               style={{
                 border: digit
@@ -74,13 +76,13 @@ const VerificationCodeView = ({
           ))}
         </div>
 
-        <p className="text-sm text-[24px] text-gray-500 text-center mb-1">
-          Didn't receive code?
+        <p className="text-sm sm:text-2xl text-[#1B1717]/70 font-[gilroy-medium] text-center mb-1">
+          Didn't Receive The Code?
         </p>
         <button
           disabled={verificationTimer !== 0}
           onClick={onResend}
-          className={`text-sm font-semibold w-full text-center text-[18px] mt-6 ${
+          className={` font-[gilroy-semibold] w-full text-center text-xl mt-4 ${
             verificationTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
           }`}
         >
@@ -92,7 +94,7 @@ const VerificationCodeView = ({
         <button
           onClick={!isLoading ? onSubmit : undefined}
           disabled={isLoading}
-          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-medium mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full max-w-md mx-auto text-white text-[24px] font-[gilroy-semibold] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {isLoading ? (
@@ -110,4 +112,3 @@ const VerificationCodeView = ({
 };
 
 export default VerificationCodeView;
-

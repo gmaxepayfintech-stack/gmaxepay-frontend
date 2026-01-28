@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
@@ -11,6 +10,7 @@ import {
   dthCustomerInfo,
 } from "../../../redux/action/rechargeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 
 // Sample recent recharge data
 const recentDTHRecharges = [
@@ -502,7 +502,7 @@ const DTHRecharge = ({ onBack }) => {
   const displayPlans = getFilteredPlans();
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* payment details card */}
       {showPayment && selectedPlan && (
         <div
@@ -787,7 +787,7 @@ const DTHRecharge = ({ onBack }) => {
             }}
             className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
           >
-            <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+            <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
           </button>
         )}
         <div className="flex-1 mt-[-10px]">

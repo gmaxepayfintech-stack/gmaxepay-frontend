@@ -542,10 +542,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           <div
                             className={`text-xs sm:text-sm font-[gilroy-medium] ${
                               done
-                                ? "text-green-600" // ✅ Completed
+                                ? "text-[#039155]" // ✅ Completed
                                 : active
-                                  ? "text-red-500/80" // 🔴 In progress
-                                  : "text-orange-500/80" // 🟠 Pending
+                                  ? "text-[#E32424]" // 🔴 In progress
+                                  : "text-[#D66000]" // 🟠 Pending
                             }`}
                           >
                             {done

@@ -1,5 +1,4 @@
 import { useMemo, useState } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import Mobile from "../../../../public/img/Mobile.svg";
@@ -15,6 +14,7 @@ import {
   aepsOnboarding,
 } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 const AepsAcceptanceTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -157,7 +157,7 @@ const AepsAcceptanceTwo = () => {
   // Default: show AepsAcceptance
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -166,7 +166,7 @@ const AepsAcceptanceTwo = () => {
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer hover:bg-gray-50 transition"
           aria-label="Go back"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">

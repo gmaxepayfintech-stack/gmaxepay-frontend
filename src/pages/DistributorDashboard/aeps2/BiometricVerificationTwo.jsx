@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useRef } from "react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import StartCapture from "../../../../public/img/StartCapture.svg";
@@ -9,6 +8,7 @@ import {
   aepsTwoStatusCheck,
   aepsTwoBiometricSubmit,
 } from "../../../redux/action/aepsTwoAction";
+import { HiArrowLeft } from "react-icons/hi2";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -487,7 +487,7 @@ const BiometricVerificationTwo = () => {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -496,7 +496,7 @@ const BiometricVerificationTwo = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">

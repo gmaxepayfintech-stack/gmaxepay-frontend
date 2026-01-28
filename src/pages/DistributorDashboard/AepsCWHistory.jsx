@@ -10,13 +10,13 @@ import {
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import TransactioDetails from "./TransactioDetails";
 import {
   getAepsCwHistory,
   getAepsTransactionDetails,
 } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const AepsCWHistory = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -324,7 +324,7 @@ const AepsCWHistory = ({ onBack }) => {
               className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
             >
               <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
-                <HiOutlineArrowNarrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
+                <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
               </div>
             </button>
 

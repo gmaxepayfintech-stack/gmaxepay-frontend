@@ -76,19 +76,19 @@ const NWoverview = ({ embedded = false }) => {
 
   return (
     <div
-      className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : ""}`}
+      className={`py-4 px-1 text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : ""}`}
     >
       {/* Filter Section */}
-      <div className="bg-white rounded-[24px] mb-6 sm:mb-8 shadow-sm border border-gray-200 w-full h-[164px] relative">
+      <div className="bg-white rounded-[24px] mb-6 sm:mb-8 shadow-sm w-full h-[164px] relative">
         <div className="absolute inset-0 flex flex-col items-center justify-center px-[18px]">
-          <h3 className="text-[16px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-6 text-left w-full">
+          <h3 className="text-base font-['Gilroy-SemiBold'] text-[#1B1717] mb-4 text-left w-full">
             Add Filter
           </h3>
           <div className="flex flex-row gap-4 w-full items-start">
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="fromDate"
-                className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
               >
                 From Date
               </label>
@@ -99,14 +99,14 @@ const NWoverview = ({ embedded = false }) => {
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
                   placeholder="Select"
-                  className="w-full h-[44px] pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-gray-400 focus:ring-2 focus:ring-[#039155] focus:border-[#039155] outline-none transition"
+                  className="w-[190px] h-[44px] pl-4 pr-4 py-2.5 border border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-[#1B1717]/80  focus:outline-none transition"
                 />
               </div>
             </div>
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="toDate"
-                className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
               >
                 To Date
               </label>
@@ -117,14 +117,14 @@ const NWoverview = ({ embedded = false }) => {
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
                   placeholder="Select"
-                  className="w-full h-[44px] pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-gray-400 focus:ring-2 focus:ring-[#039155] focus:border-[#039155] outline-none transition"
+                  className="w-[190px] h-[44px] pl-4 pr-4 py-2.5 border border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-[#1B1717]/80  focus:outline-none transition"
                 />
               </div>
             </div>
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="role"
-                className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
               >
                 Role
               </label>
@@ -135,14 +135,14 @@ const NWoverview = ({ embedded = false }) => {
                   value={role}
                   onChange={(e) => setRole(e.target.value)}
                   placeholder="Select Role"
-                  className="w-full h-[44px] pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-gray-400 focus:ring-2 focus:ring-[#039155] focus:border-[#039155] outline-none transition"
+                  className="w-[190px] h-[44px] pl-4 pr-4 py-2.5 border border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-[#1B1717]/80  focus:outline-none transition"
                 />
               </div>
             </div>
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="client"
-                className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
               >
                 Client
               </label>
@@ -153,7 +153,7 @@ const NWoverview = ({ embedded = false }) => {
                   value={client}
                   onChange={(e) => setClient(e.target.value)}
                   placeholder="Select Client"
-                  className="w-full h-[44px] pl-4 pr-4 py-2.5 border border-gray-300 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-gray-400 focus:ring-2 focus:ring-[#039155] focus:border-[#039155] outline-none transition"
+                  className="w-[190px] h-[44px] pl-4 pr-4 py-2.5 border border-[#1B1717]/80 rounded-lg text-sm bg-white text-[#1B1717] placeholder:text-[#1B1717]/80  focus:outline-none transition"
                 />
               </div>
             </div>
@@ -162,10 +162,10 @@ const NWoverview = ({ embedded = false }) => {
       </div>
 
       {/* Table Section */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-200">
+      <div className="bg-white rounded-3xl shadow overflow-hidden ">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[800px]">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="border-b border-[#1B1717]/50">
               <tr>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
                   Services
@@ -190,7 +190,7 @@ const NWoverview = ({ embedded = false }) => {
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-[#1B1717]/20">
               {servicesData.map((service, index) => (
                 <tr
                   key={index}
@@ -199,46 +199,46 @@ const NWoverview = ({ embedded = false }) => {
                   }`}
                 >
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                    <span className="text-[10px] font-['Gilroy-SemiBold'] text-gray-900">
+                    <span className="text-[10px] font-['Gilroy-SemiBold'] text-[#121216]">
                       {service.service}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-[10px] font-['Gilroy-Regular'] text-gray-900">
+                    <span className="text-[10px] font-['Gilroy-Regular'] text-[#121216]">
                       {service.txnVolume.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-[10px] font-['Gilroy-Regular'] text-gray-900">
+                    <span className="text-[10px] font-['Gilroy-Regular'] text-[#121216]">
                       {service.txnCount.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-[10px] font-['Gilroy-Regular'] text-green-600">
+                    <span className="text-[10px] font-['Gilroy-semibold'] text-[#039155]">
                       {service.success.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-[10px] font-['Gilroy-Regular'] text-orange-600">
+                    <span className="text-[10px] font-['Gilroy-semibold'] text-[#D66000]">
                       {service.pending.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                    <span className="text-[10px] font-['Gilroy-Regular'] text-red-600">
+                    <span className="text-[10px] font-['Gilroy-semibold'] text-[#E32424]">
                       {service.failed === 0
                         ? "000"
                         : service.failed.toLocaleString()}
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                    <div className="flex items-center justify-end gap-2 sm:gap-3">
+                    <div className="flex items-center justify-end gap-2">
                       <div className="w-[54px] h-[7px] bg-gray-200 rounded-full overflow-hidden">
                         <div
                           className="bg-[#039155] h-full rounded-full transition-all duration-500"
                           style={{ width: `${service.successRate}%` }}
                         />
                       </div>
-                      <span className="text-[10px] font-['Gilroy-SemiBold'] font-normal leading-[100%] tracking-[0%] align-middle capitalize text-gray-900 min-w-[35px] sm:min-w-[45px] text-right">
+                      <span className="text-[10px] font-['Gilroy-SemiBold'] leading-[100%] tracking-[0%] align-middle capitalize text-[#121216] min-w-[35px] sm:min-w-[45px] ">
                         {service.successRate.toFixed(1)}%
                       </span>
                     </div>
@@ -247,34 +247,34 @@ const NWoverview = ({ embedded = false }) => {
               ))}
 
               {/* Total Row */}
-              <tr className="bg-gray-50 border-t-2 border-gray-300">
+              <tr className=" border-t-2 border-gray-300">
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                  <span className="text-[10px] font-['Gilroy-SemiBold'] text-gray-900">
+                  <span className="text-[14px] font-['Gilroy-SemiBold'] text-[#121216]">
                     Total
                   </span>
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                  <span className="text-[10px] font-['Gilroy-Regular'] text-gray-900">
+                  <span className="text-[14px] font-['Gilroy-Semibold'] text-[#121216]">
                     {totals.txnVolume.toLocaleString()}
                   </span>
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                  <span className="text-[10px] font-['Gilroy-Regular'] text-gray-900">
+                  <span className="text-[14px] font-['Gilroy-Semibold'] text-[#121216]">
                     {totals.txnCount.toLocaleString()}
                   </span>
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                  <span className="text-[10px] font-['Gilroy-Regular'] text-green-600">
+                  <span className="text-[14px] font-['Gilroy-Semibold'] text-[#039155]">
                     {totals.success.toLocaleString()}
                   </span>
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                  <span className="text-[10px] font-['Gilroy-Regular'] text-orange-600">
+                  <span className="text-[14px] font-['Gilroy-Semibold'] text-[#D66000]">
                     {totals.pending.toLocaleString()}
                   </span>
                 </td>
                 <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-right">
-                  <span className="text-[10px] font-['Gilroy-Regular'] text-red-600">
+                  <span className="text-[14px] font-['Gilroy-Semibold'] text-[#E32424]">
                     {totals.failed.toLocaleString()}
                   </span>
                 </td>

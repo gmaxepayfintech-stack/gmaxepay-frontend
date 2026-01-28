@@ -2,10 +2,10 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import MainWalletStatement from "./MainWalletStatement";
 import { getAepsTransactionDetails } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const TransactioDetails = ({ transactionId, onBack }) => {
   const dispatch = useDispatch();
@@ -183,7 +183,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
             className="flex items-center text-[#1B1717] hover:text-[#039155] transition mb-4"
           >
             <div className="rounded-full p-1.5 bg-[#FFFFFF] border border-[#1B1717] transition">
-              <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+              <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
             </div>
           </button>
         </div>
@@ -204,7 +204,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
   }
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
+    <div className="min-h-screen bg-[#FAFAFA] px-3 py-2 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-4 sm:mb-6">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-2 sm:mb-3">
@@ -214,7 +214,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
               className="flex items-center text-[#1B1717] hover:text-[#039155] transition"
             >
               <div className="rounded-full p-1.5 bg-[#FFFFFF] border border-[#1B1717] transition">
-                <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+                <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
               </div>
             </button>
             <div>

@@ -18,6 +18,7 @@ import OperatorInfoCard from "./MobileRecharge/components/OperatorInfoCard";
 import SuggestedPlans from "./MobileRecharge/components/SuggestedPlans";
 import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilters";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const recentRecharges = [
   {
@@ -652,7 +653,9 @@ const MobileRecharge = ({ onBack }) => {
         // Call rechargefindPlan with the required payload
         const planPayload = {
           mobileNumber: numberToUse,
-          opCode: operatorDataFromResponse?.operatorCode|| operatorDataFromResponse?.company_code,
+          opCode:
+            operatorDataFromResponse?.operatorCode ||
+            operatorDataFromResponse?.company_code,
           circle: operatorDataFromResponse.circle_code || "06",
         };
 
@@ -708,7 +711,7 @@ const MobileRecharge = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -723,7 +726,7 @@ const MobileRecharge = ({ onBack }) => {
           }}
           className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
         <div className="flex-1 mt-[-10px]">
           <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
@@ -1066,7 +1069,9 @@ const MobileRecharge = ({ onBack }) => {
                     // Prepare payment payload
                     const paymentPayload = {
                       mobileNumber: mobileNumber,
-                      opcode: operatorData?.operatorCode || operatorData?.company_code,
+                      opcode:
+                        operatorData?.operatorCode ||
+                        operatorData?.company_code,
                       amount: selectedPlanForRecharge.price
                         .replace("₹", "")
                         .trim(),

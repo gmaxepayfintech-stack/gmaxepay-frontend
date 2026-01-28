@@ -171,7 +171,7 @@ const WalletLoad = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen bg-gray-50 py-4 px-1">
       <div className="max-w-7xl mx-auto">
         <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8">
           {/* Left Container: Wallet Load */}
@@ -259,10 +259,10 @@ const WalletLoad = () => {
                   </label>
                   <input
                     id="referenceNumber"
+                    type="text"
                     maxLength={25}
                     minLength={10}
                     pattern="[A-Za-z0-9]+"
-                    type="text"
                     value={referenceNumber}
                     onChange={(e) => setReferenceNumber(e.target.value)}
                     placeholder="Enter Reference Number"
@@ -356,7 +356,7 @@ const WalletLoad = () => {
               <div>
                 <label
                   htmlFor="remarks"
-                  className="block  text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                  className="block   text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
                 >
                   Remarks
                 </label>
