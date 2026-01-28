@@ -931,16 +931,19 @@ export const PanRequest = (payload) => async (dispatch) => {
       });
       return { panServiceRequest, status, message };
     } else {
+      // Also return the data object for FAILURE cases so component can access it
       dispatch({
         type: PAN_SERVICE_REQUEST_FAILURE,
         payload: {
           status: response?.data?.status ?? "FAILURE",
           message: response?.data?.message ?? commonError,
+          panServiceRequest: panServiceRequest, // Include data object
         },
       });
       return {
         status: response?.data?.status ?? "FAILURE",
         message: response?.data?.message ?? commonError,
+        panServiceRequest: panServiceRequest, // Include data object
       };
     }
   } catch (error) {
