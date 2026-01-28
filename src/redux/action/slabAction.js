@@ -13,6 +13,9 @@ import {
   SLAB_UPDATE_COMM_START,
   SLAB_UPDATE_COMM_SUCCESS,
   SLAB_UPDATE_COMM_FAILURE,
+  SLAB_ASSIGN_START,
+  SLAB_ASSIGN_SUCCESS,
+  SLAB_ASSIGN_FAILURE,
 } from '../actionType/slabActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -365,6 +368,85 @@ export const updateSlabCommission = (companyId, roleId, payload) => async (dispa
     return {
       success: false,
       message: errorMessage,
+    };
+  }
+};
+
+// Assign slab to company admin
+export const assignSlabToCompany = (slabId, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_ASSIGN_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+
+    const payload = {
+      slabId: String(slabId),
+      companyId: String(companyId),
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/admin/slabs/assign`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_ASSIGN_SUCCESS,
+        payload: {
+          data: data?.data,
+          message: data?.message || 'Slab assigned successfully',
+          status: data?.status,
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data,
+        message: data?.message || 'Slab assigned successfully',
+        status: data?.status,
+      };
+    } else {
+      dispatch({
+        type: SLAB_ASSIGN_FAILURE,
+        payload: {
+          message: data?.message || commonError,
+          status: data?.status || 'ERROR',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+        status: data?.status || 'ERROR',
+      };
+    }
+  } catch (error) {
+    dispatch({
+      type: SLAB_ASSIGN_FAILURE,
+      payload: {
+        message: error.response?.data?.message || error.message || commonError,
+        status: 'ERROR',
+      },
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: error.response?.data?.message || error.message || commonError,
+      status: 'ERROR',
     };
   }
 };

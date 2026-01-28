@@ -1,25 +1,205 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
-import { MapPin, FileText, Camera, ChevronDown, Plus } from "lucide-react";
+import { useSelector, useDispatch } from "react-redux";
+import { MapPin, FileText, Camera, ChevronDown, Plus, X } from "lucide-react";
+import { HiArrowLeft } from "react-icons/hi2";
+import { getSlabList, assignSlabToCompany } from "../../redux/action/slabAction";
+import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
 import Pincode from "../../../public/img/Pincode.png";
 import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
-import aadhaarfront from "../../../public/img/aadhaar-front.png";
-import aadhaarback from "../../../public/img/aadhaar-back.png";
-import pancardfront from "../../../public/img/pancard-front.png";
-import pancardback from "../../../public/img/pancard-back.png";
-import bgimage from "../../../public/img/image.png";
+import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 
-const ProfileDetails = ({ onBack }) => {
-  const [activeTab, setActiveTab] = useState("bankDetails");
+const ProfileDetails = ({ onBack = null }) => {
+  const dispatch = useDispatch();
+  const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
+  const [imageError, setImageError] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showImageModal, setShowImageModal] = useState(false);
+  
+  // Get company admin data from Redux
+  const companyAdminState = useSelector((state) => state?.whitelabel?.companyAdmin);
+  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const companyAdminData = companyAdminState?.companyAdminData || null;
+  
+  // Get slab list from Redux
+  const slabList = useSelector((state) => state?.slab?.slabs || []);
+  const assignSlabLoading = useSelector((state) => state?.slab?.assignSlabLoading || false);
+  const assignSlabSuccess = useSelector((state) => state?.slab?.assignSlabSuccess || false);
+
+  // Extract data from companyAdminData (do this before early returns to maintain hook order)
+  const data = companyAdminData || {};
+  const companyDetails = data?.companyDetails || {};
+  const outletDetails = data?.outletDetails || {};
+  const bankDetails = data?.bankDetails || [];
+
+  // Helper function to get Google Maps embed URL
+  const getMapEmbedUrl = () => {
+    // Prefer coordinates if available (most reliable)
+    if (data?.latitude && data?.longitude) {
+      return `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
+    }
+    // Extract place_id from googleMapsLink if available
+    if (outletDetails?.googleMapsLink) {
+      const placeIdMatch = outletDetails.googleMapsLink.match(/place_id:([^&]+)/);
+      if (placeIdMatch) {
+        return `https://www.google.com/maps?q=place_id:${placeIdMatch[1]}&output=embed`;
+      }
+    }
+    return '';
+  };
+
+  // Reset image error when data changes
+  useEffect(() => {
+    setImageError(false);
+  }, [companyAdminData]);
+
+  // Fetch slab list when company admin data is loaded
+  useEffect(() => {
+    if (companyAdminData) {
+      // Try to get companyId from companyDetails or use data.id as fallback
+      const companyId = companyDetails?.companyId || data?.id;
+      if (companyId) {
+        dispatch(getSlabList(companyId, 1, 10));
+      }
+    }
+  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
+
+  // Set default selected scheme to current slabId
+  useEffect(() => {
+    if (data?.slabId && !selectedScheme) {
+      setSelectedScheme(String(data.slabId));
+    }
+  }, [data?.slabId, selectedScheme]);
+
+  // Handle assign slab success
+  useEffect(() => {
+    if (assignSlabSuccess) {
+      setShowConfirmModal(false);
+      // Refresh company admin data to get updated slabId
+      if (data?.id) {
+        dispatch(getCompanyAdmin(data.id));
+      }
+    }
+  }, [assignSlabSuccess, data?.id, dispatch]);
+
+  // Handle ESC key to close image modal
+  useEffect(() => {
+    const handleEsc = (event) => {
+      if (event.key === 'Escape' && showImageModal) {
+        setShowImageModal(false);
+      }
+    };
+    window.addEventListener('keydown', handleEsc);
+    return () => window.removeEventListener('keydown', handleEsc);
+  }, [showImageModal]);
+
+  // Skeleton loader component
+  const SkeletonLoader = ({ className }) => (
+    <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
+  );
+
+  // Show skeleton while loading
+  if (isLoading || !companyAdminData) {
+    return (
+      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+        {/* Cover Picture Section Skeleton */}
+        <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+          <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+            <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+              <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Section Skeleton */}
+        <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+              <div className="flex-1">
+                <SkeletonLoader className="h-6 w-48 mb-4" />
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <SkeletonLoader className="h-4 w-24" />
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-20" />
+                  <SkeletonLoader className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+              <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+            </div>
+          </div>
+
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3">
+                <SkeletonLoader className="w-12 h-12 rounded" />
+                <div className="flex-1">
+                  <SkeletonLoader className="h-5 w-16 mb-2" />
+                  <SkeletonLoader className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+          <SkeletonLoader className="h-6 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <SkeletonLoader className="h-4 w-32" />
+                <SkeletonLoader className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+      {/* Header Section */}
+      <div className="mb-3 sm:mb-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
+          <div className="flex items-start gap-3 sm:gap-5">
+            <button
+              onClick={onBack || (() => globalThis.history?.back())}
+              className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
+            >
+              <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
+                <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
+              </div>
+            </button>
+
+            <div>
+              <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+                Profile Details
+              </h1>
+              <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
+                Manage And Track All Company Admin Details
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Cover Picture Section */}
       <div
         className="w-full h-48 sm:h-64 relative bg-cover bg-center bg-no-repeat rounded-t-3xl"
@@ -29,10 +209,19 @@ const ProfileDetails = ({ onBack }) => {
       >
         {/* Profile Picture - Overlapping bottom-left */}
         <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-          <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#039155] rounded-full flex items-center justify-center cursor-pointer">
-              <Camera className="text-white w-8 h-8 sm:w-10 sm:h-10" />
-            </div>
+          <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
+            {(data?.profileImage || outletDetails?.shopImage || companyDetails?.compnyLogo) && !imageError ? (
+              <img
+                src={data?.profileImage || outletDetails?.shopImage || companyDetails?.compnyLogo}
+                alt="Profile"
+                className="w-full h-full object-cover rounded-2xl"
+                onError={() => setImageError(true)}
+              />
+            ) : (
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-[#039155] rounded-full flex items-center justify-center cursor-pointer">
+                <Camera className="text-white w-8 h-8 sm:w-10 sm:h-10" />
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -47,7 +236,7 @@ const ProfileDetails = ({ onBack }) => {
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
             <div className="flex-1">
               <h2 className="text-[16px] sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
-                RUDRAA INITIATIVES
+                {companyDetails?.companyName || data?.name || "N/A"}
               </h2>
               <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-[8px] text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
@@ -56,7 +245,7 @@ const ProfileDetails = ({ onBack }) => {
                     alt="Phone"
                     className="w-[12px] h-[12px] text-[#1B1717]/80"
                   />
-                  <span>9740418525</span>
+                  <span>{data?.mobileNo || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
                   <img
@@ -64,11 +253,11 @@ const ProfileDetails = ({ onBack }) => {
                     alt="Email"
                     className="w-[12px] h-[12px] text-[#1B1717]/80"
                   />
-                  <span>Rudra@GMAIL.COM</span>
+                  <span>{data?.email || "N/A"}</span>
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-[#1B1717]/80">
                   <MapPin className="w-4 h-4 text-[#1B1717]/80" />
-                  <span className="font-[gilroy-medium]">Karnataka</span>
+                  <span className="font-[gilroy-medium]">{data?.state || "N/A"}</span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
                   Whitelabel
@@ -77,10 +266,14 @@ const ProfileDetails = ({ onBack }) => {
             </div>
 
             {/* Active Status */}
-            <div className="flex items-center gap-2 bg-[#008D1E] px-2 py-1 rounded-3xl mb-16">
+            <div className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
+              (data?.status || "Active").toLowerCase() === "inactive" 
+                ? "bg-red-500" 
+                : "bg-[#008D1E]"
+            }`}>
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
-                Active
+                {data?.status || "Active"}
               </span>
             </div>
           </div>
@@ -96,7 +289,7 @@ const ProfileDetails = ({ onBack }) => {
             />
             <div>
               <p className="text-[16px] text-[#1B1717]/80 font-['Gilroy-SemiBold'] mb-1">
-                16007
+                {data?.id || "N/A"}
               </p>
               <p className="text-[14px] sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 User Id
@@ -111,7 +304,7 @@ const ProfileDetails = ({ onBack }) => {
             />
             <div>
               <p className="text-[16px] text-[#1B1717] text-opacity-80 font-['Gilroy-SemiBold']  mb-1">
-                SECPY26007
+                {data?.agentCode || "N/A"}
               </p>
               <p className="text-[14px] sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 Agent Code
@@ -126,7 +319,7 @@ const ProfileDetails = ({ onBack }) => {
             />
             <div>
               <p className="text-[16px] text-[#1B1717] text-opacity-80 font-['Gilroy-SemiBold']  mb-1">
-                6007
+                {data?.pinCode || "N/A"}
               </p>
               <p className="text-[14px] sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 Pincode
@@ -141,7 +334,7 @@ const ProfileDetails = ({ onBack }) => {
             />
             <div>
               <p className="text-[16px] text-[#1B1717] text-opacity-80 font-['Gilroy-SemiBold']  mb-1">
-                N/A
+                {companyDetails?.compnyGst || "N/A"}
               </p>
               <p className="text-[14px] sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 GST
@@ -218,13 +411,13 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Name</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rohan G
+                    {data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Aadhar Number</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    1234 4567 4568 ****
+                    {data?.aadhaarNumber || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -244,21 +437,41 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Aadhar Front</p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-                    <img
-                      src={aadhaarfront}
-                      alt="Aadhar Front"
-                      className="w-full h-48 sm:h-64 object-contain"
-                    />
+                    {data?.aadhaarFrontImage ? (
+                      <img
+                        src={data.aadhaarFrontImage}
+                        alt="Aadhar Front"
+                        className="w-full h-48 sm:h-64 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.aadhaarFrontImage ? 'none' : 'flex' }}>
+                      <FileText className="w-12 h-12 text-gray-400" />
+                    </div>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Aadhar Back</p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-                    <img
-                      src={aadhaarback}
-                      alt="Aadhar Back"
-                      className="w-full h-48 sm:h-64 object-contain"
-                    />
+                    {data?.aadhaarBackImage ? (
+                      <img
+                        src={data.aadhaarBackImage}
+                        alt="Aadhar Back"
+                        className="w-full h-48 sm:h-64 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.aadhaarBackImage ? 'none' : 'flex' }}>
+                      <FileText className="w-12 h-12 text-gray-400" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -273,13 +486,13 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Name</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rohan G
+                    {data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Pan Number</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    DDG4568 ****
+                    {companyDetails?.compnyPan || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -299,21 +512,41 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Pan Front</p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-                    <img
-                      src={pancardfront}
-                      alt="Pan Front"
-                      className="w-full h-48 sm:h-64 object-contain"
-                    />
+                    {data?.pancardFrontImage ? (
+                      <img
+                        src={data.pancardFrontImage}
+                        alt="Pan Front"
+                        className="w-full h-48 sm:h-64 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.pancardFrontImage ? 'none' : 'flex' }}>
+                      <FileText className="w-12 h-12 text-gray-400" />
+                    </div>
                   </div>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Pan Back</p>
                   <div className="border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50">
-                    <img
-                      src={pancardback}
-                      alt="Pan Back"
-                      className="w-full h-48 sm:h-64 object-contain"
-                    />
+                    {data?.pancardBackImage ? (
+                      <img
+                        src={data.pancardBackImage}
+                        alt="Pan Back"
+                        className="w-full h-48 sm:h-64 object-contain"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          const fallback = e.target.nextElementSibling;
+                          if (fallback) fallback.style.display = 'flex';
+                        }}
+                      />
+                    ) : null}
+                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.pancardBackImage ? 'none' : 'flex' }}>
+                      <FileText className="w-12 h-12 text-gray-400" />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -328,24 +561,68 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Shop Name</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rohan G
+                    {outletDetails?.shopName || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Shop Address</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rajaji Nagar Near Metro Station
+                    {outletDetails?.shopAddress || "N/A"}
                   </p>
                 </div>
               </div>
-              <div>
-                <p className="text-xs text-gray-500 mb-2">Shop Image</p>
-                <div className="border-2 border-dashed border-gray-300 rounded-lg h-48 sm:h-64 bg-gray-50 flex items-center justify-center">
-                  <div className="text-center">
-                    <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2" />
-                    <p className="text-xs text-gray-500">Shop Image</p>
+              {/* Shop Image and Google Map in Two Columns */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                {/* Shop Image - Square */}
+                <div>
+                  <p className="text-xs text-gray-500 mb-2">Shop Image</p>
+                  <div 
+                    className={`border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden aspect-square ${outletDetails?.shopImage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
+                    onClick={() => outletDetails?.shopImage && setShowImageModal(true)}
+                  >
+                    {outletDetails?.shopImage ? (
+                      <img
+                        src={outletDetails.shopImage}
+                        alt="Shop"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="text-center">
+                        <FileText className="w-12 h-12 sm:w-16 sm:h-16 text-gray-400 mx-auto mb-2" />
+                        <p className="text-xs text-gray-500">Shop Image</p>
+                      </div>
+                    )}
                   </div>
                 </div>
+
+                {/* Google Map - Square */}
+                {(outletDetails?.googleMapsLink || (data?.latitude && data?.longitude)) && getMapEmbedUrl() && (
+                  <div>
+                    <p className="text-xs text-gray-500 mb-2">Location</p>
+                    <div className="border-2 border-gray-300 rounded-lg overflow-hidden aspect-square relative">
+                      <iframe
+                        src={getMapEmbedUrl()}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0, position: 'absolute', top: 0, left: 0 }}
+                        allowFullScreen=""
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="w-full h-full"
+                      />
+                    </div>
+                    {outletDetails?.googleMapsLink && (
+                      <a
+                        href={outletDetails.googleMapsLink}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block"
+                      >
+                        Open in Google Maps →
+                      </a>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
           </div>
@@ -364,16 +641,27 @@ const ProfileDetails = ({ onBack }) => {
                     value={selectedScheme}
                     onChange={(e) => setSelectedScheme(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
+                    disabled={assignSlabLoading}
                   >
-                    <option value="">Select</option>
-                    <option value="basic">Basic</option>
-                    <option value="premium">Premium</option>
-                    <option value="enterprise">Enterprise</option>
+                    <option value="">Select Slab</option>
+                    {slabList.map((slab) => (
+                      <option key={slab.id} value={slab.id}>
+                        {slab.slabName} ({slab.schemaType})
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
-                <button className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap">
-                  Upgrade
+                <button
+                  onClick={() => {
+                    if (selectedScheme && selectedScheme !== String(data?.slabId)) {
+                      setShowConfirmModal(true);
+                    }
+                  }}
+                  disabled={!selectedScheme || selectedScheme === String(data?.slabId) || assignSlabLoading}
+                  className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {assignSlabLoading ? "Upgrading..." : "Upgrade"}
                 </button>
               </div>
             </div>
@@ -388,37 +676,37 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Company Name</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    RUDRAA INITIATIVES MEDIA PRIVATE LIMITED
+                    {companyDetails?.companyName || data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Mobile Number</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    9740418522
+                    {data?.mobileNo || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Email Id</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rudra@Gmail.Com
+                    {data?.email || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Agent Code</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    102212
+                    {data?.agentCode || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">GST Number</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Ghb1234
+                    {companyDetails?.compnyGst || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">User ID</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    16007
+                    {data?.id || "N/A"}
                   </p>
                 </div>
 
@@ -426,19 +714,19 @@ const ProfileDetails = ({ onBack }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">State</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Karnataka
+                    {data?.state || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">City</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Bangalore
+                    {data?.city || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Pin Code</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    577006
+                    {data?.pinCode || "N/A"}
                   </p>
                 </div>
                 <div>
@@ -446,19 +734,23 @@ const ProfileDetails = ({ onBack }) => {
                     Profile Expiry Date
                   </p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rudra@Gmail.Com
+                    {data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Login URL</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    Rudra@Gmail.Com
+                    {companyDetails?.companyDomain || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#039155] text-white">
-                    Active
+                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${
+                    (data?.status || "Active").toLowerCase() === "inactive" 
+                      ? "bg-red-500" 
+                      : "bg-[#039155]"
+                  }`}>
+                    {data?.status || "Active"}
                   </span>
                 </div>
 
@@ -466,19 +758,19 @@ const ProfileDetails = ({ onBack }) => {
                 <div className="sm:col-span-2 lg:col-span-3">
                   <p className="text-xs text-gray-500 mb-1">Address</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    501 Blue Mountain Building Malda East Mumbai
+                    {data?.address || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Latitude</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    15.0123049
+                    {data?.latitude || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Longitude</p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    76.6158185
+                    {data?.longitude || "N/A"}
                   </p>
                 </div>
               </div>
@@ -501,74 +793,165 @@ const ProfileDetails = ({ onBack }) => {
             </div>
 
             <div className="space-y-6">
-              {[1, 2, 3].map((item) => (
-                <div
-                  key={item}
-                  className="flex items-start justify-between gap-6 w-full"
-                >
-                  {/* Bank Name */}
-                  <div className="flex flex-col w-1/5">
-                    <p className="text-xs text-gray-500">Bank Name</p>
-                    <p className="text-sm text-[#1B1717] font-medium">
-                      Kotak Mahindra Bank
-                    </p>
-                  </div>
+              {bankDetails && bankDetails.length > 0 ? (
+                bankDetails.map((bank, index) => (
+                  <div
+                    key={bank.id || index}
+                    className="flex items-start justify-between gap-6 w-full"
+                  >
+                    {/* Bank Name */}
+                    <div className="flex flex-col w-1/5">
+                      <p className="text-xs text-gray-500">Bank Name</p>
+                      <p className="text-sm text-[#1B1717] font-medium">
+                        {bank.bankName || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* Created On */}
-                  <div className="flex flex-col w-1/5">
-                    <p className="text-xs text-gray-500">Created On</p>
-                    <p className="text-sm text-[#1B1717] font-medium">
-                      2024-07-12 20:34:25
-                    </p>
-                  </div>
+                    {/* Created On */}
+                    <div className="flex flex-col w-1/5">
+                      <p className="text-xs text-gray-500">City</p>
+                      <p className="text-sm text-[#1B1717] font-medium">
+                        {bank.city || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* Account Number */}
-                  <div className="flex flex-col w-1/6">
-                    <p className="text-xs text-gray-500">Account Number</p>
-                    <p className="text-sm text-[#1B1717] font-medium">
-                      049754551
-                    </p>
-                  </div>
+                    {/* Account Number */}
+                    <div className="flex flex-col w-1/6">
+                      <p className="text-xs text-gray-500">Account Number</p>
+                      <p className="text-sm text-[#1B1717] font-medium">
+                        {bank.accountNumber || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* IFSC Code */}
-                  <div className="flex flex-col w-1/6">
-                    <p className="text-xs text-gray-500">IFSC Code</p>
-                    <p className="text-sm text-[#1B1717] font-medium">
-                      KKBK0805
-                    </p>
-                  </div>
+                    {/* IFSC Code */}
+                    <div className="flex flex-col w-1/6">
+                      <p className="text-xs text-gray-500">IFSC Code</p>
+                      <p className="text-sm text-[#1B1717] font-medium">
+                        {bank.ifsc || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* Branch */}
-                  <div className="flex flex-col w-1/6">
-                    <p className="text-xs text-gray-500">Branch</p>
-                    <p className="text-sm text-[#1B1717] font-medium">
-                      Bangalore Main
-                    </p>
-                  </div>
+                    {/* Branch */}
+                    <div className="flex flex-col w-1/6">
+                      <p className="text-xs text-gray-500">Branch</p>
+                      <p className="text-sm text-[#1B1717] font-medium">
+                        {bank.branch || "N/A"}
+                      </p>
+                    </div>
 
-                  {/* Status */}
-                  <div className="flex flex-col w-20">
-                    <p className="text-xs text-gray-500">Status</p>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
-                      Active
-                    </span>
+                    {/* Status */}
+                    <div className="flex flex-col w-20">
+                      <p className="text-xs text-gray-500">Status</p>
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
+                        Active
+                      </span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="text-center py-8 text-gray-500">
+                  <p>No bank details available</p>
                 </div>
-              ))}
+              )}
             </div>
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp">
+            <div className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  Confirm Slab Upgrade
+                </h3>
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+              <div className="mb-6">
+                <p className="text-gray-700 mb-2">
+                  Are you sure you want to upgrade the membership scheme?
+                </p>
+                {selectedScheme && (
+                  <p className="text-sm text-gray-600">
+                    New Slab:{" "}
+                    <span className="font-semibold">
+                      {slabList.find((s) => String(s.id) === selectedScheme)?.slabName || "N/A"}
+                    </span>
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  disabled={assignSlabLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={async () => {
+                    const companyId = companyDetails?.companyId || data?.id;
+                    if (selectedScheme && companyId) {
+                      const result = await dispatch(
+                        assignSlabToCompany(selectedScheme, companyId)
+                      );
+                      if (result?.success) {
+                        // Success will be handled by useEffect
+                      }
+                    }
+                  }}
+                  className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  disabled={assignSlabLoading}
+                >
+                  {assignSlabLoading ? "Upgrading..." : "Confirm Upgrade"}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Image Popup Modal */}
+      {showImageModal && outletDetails?.shopImage && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn"
+          onClick={() => setShowImageModal(false)}
+        >
+          <div 
+            className="relative max-w-7xl max-h-[90vh] mx-4 animate-slideUp"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setShowImageModal(false)}
+              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+              aria-label="Close"
+            >
+              <X className="w-6 h-6 text-gray-800" />
+            </button>
+            
+            {/* Full Image */}
+            <img
+              src={outletDetails.shopImage}
+              alt="Shop - Full View"
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 ProfileDetails.propTypes = {
   onBack: PropTypes.func,
-};
-
-ProfileDetails.defaultProps = {
-  onBack: null,
 };
 
 export default ProfileDetails;
