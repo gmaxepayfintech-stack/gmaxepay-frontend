@@ -1,5 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState, useEffect, useRef, useMemo } from "react";
+import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import {
   FaSearch,
   FaPlus,
@@ -32,9 +32,14 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
+  getCompanyAdmin,
 } from "../redux/action/whiteLabelAction";
+import { getSlabList } from "../redux/action/slabAction";
 import { ButtonLoader } from "../widgets/layout/loader";
 import { motion } from "framer-motion";
+
+// Stable empty array reference to prevent unnecessary re-renders
+const EMPTY_ARRAY = [];
 
 const generateTableData = (type, count = 12) => {
   let userRole = "WL";
@@ -81,7 +86,10 @@ const CreateWhiteLabel = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [isTableLoading, setIsTableLoading] = useState(false);
+  const [isTableLoading, setIsTableLoading] = useState(true); // Start with true to show loader on initial load
+  
+  // Track previous response to detect when data actually arrives
+  const prevResponseRef = useRef(undefined);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
 
   // Set toDate to today's date in YYYY-MM-DD format
@@ -96,6 +104,7 @@ const CreateWhiteLabel = () => {
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
+  const tableContainerRef = useRef(null);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -109,9 +118,17 @@ const CreateWhiteLabel = () => {
   );
 
   // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
-  const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  // Use stable empty array reference to prevent unnecessary re-renders
+  const responseForTableRaw = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList,
   );
+  const responseForTable = useMemo(
+    () => responseForTableRaw || EMPTY_ARRAY,
+    [responseForTableRaw],
+  );
+
+  // Get loading state from Redux
+  const reduxLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   const totalCount = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
@@ -243,11 +260,22 @@ const CreateWhiteLabel = () => {
     dispatch,
   ]);
 
+  // Set loading state based on Redux loading and data availability
   useEffect(() => {
-    if (isTableLoading) {
-      setIsTableLoading(false);
+    // If Redux is loading, show loader
+    if (reduxLoading) {
+      setIsTableLoading(true);
+      return;
     }
-  }, [responseForTable]);
+    
+    // If Redux loading has ended, check if we have data (even if empty array)
+    // This means the API call completed
+    if (!reduxLoading && responseForTableRaw !== undefined) {
+      // Data has arrived (could be empty array), hide loader
+      setIsTableLoading(false);
+      prevResponseRef.current = responseForTableRaw;
+    }
+  }, [reduxLoading, responseForTableRaw]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -311,6 +339,26 @@ const CreateWhiteLabel = () => {
     };
   }, [showKycModal]);
 
+  // Handle wheel event for horizontal scrolling (non-passive to allow preventDefault)
+  useEffect(() => {
+    const container = tableContainerRef.current;
+    if (!container) return;
+
+    const handleWheel = (e) => {
+      // Enable horizontal scrolling with Shift + mouse wheel or horizontal wheel
+      if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
+        e.preventDefault();
+        container.scrollLeft += e.deltaX || e.deltaY;
+      }
+    };
+
+    container.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      container.removeEventListener("wheel", handleWheel);
+    };
+  }, []);
+
   const tableHeaders = [
     "ID",
     "User",
@@ -319,6 +367,7 @@ const CreateWhiteLabel = () => {
     "User Role",
     "Mobile No",
     "Email Id",
+    "Slab Name",
     "Parent Name",
     "Parent Role",
     "Company Name",
@@ -406,6 +455,7 @@ const CreateWhiteLabel = () => {
         userRole: safeString(item.userRole, "N/A"),
         mobileNo: safeString(item.mobileNo || item.mobile, "N/A"),
         emailId: safeString(item.email, "N/A"),
+        slabName: safeString(item.slab, "N/A"),
         parentName: safeString(item.parentName || item.parent?.name, "N/A"),
         parentRole: safeString(item.parentRole || item.parent?.role, "N/A"),
         companyName: safeString(
@@ -489,6 +539,7 @@ const CreateWhiteLabel = () => {
           "N/A",
         ),
         emailId: safeString(item.email, "N/A"),
+        slabName: safeString(item.slab, "N/A"),
         parentName: safeString(
           item.parentName || item.parent?.name,
           "GMAXEPAY",
@@ -626,13 +677,14 @@ const CreateWhiteLabel = () => {
       ID: row.id || "N/A",
       Date: row.date || "N/A",
       "User Agent Code": row.userId || "N/A",
-      Name: row.name || "N/A",
+      "Name": row.name || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || "N/A",
       "Email Id": row.emailId || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
       "Company Name": row.companyName || "N/A",
+      "Slab Name": row.slabName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
@@ -865,14 +917,8 @@ const CreateWhiteLabel = () => {
 
               {/* Table */}
               <div
+                ref={tableContainerRef}
                 className="flex-1 overflow-x-auto rounded-xl bg-white mb-4 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]"
-                onWheel={(e) => {
-                  // Enable horizontal scrolling with Shift + mouse wheel or horizontal wheel
-                  if (e.shiftKey || Math.abs(e.deltaX) > Math.abs(e.deltaY)) {
-                    e.preventDefault();
-                    e.currentTarget.scrollLeft += e.deltaX || e.deltaY;
-                  }
-                }}
                 style={{ cursor: "pointer" }}
                 onMouseDown={(e) => {
                   if (e.button === 0) {
@@ -912,7 +958,7 @@ const CreateWhiteLabel = () => {
                       {tableHeaders.map((header) => (
                         <th
                           key={header}
-                          className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap"
+                          className="px-3 py-4 font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap text-center"
                         >
                           {header}
                         </th>
@@ -922,7 +968,7 @@ const CreateWhiteLabel = () => {
 
                   <tbody className="bg-white divide-y font-normal divide-gray-100">
                     {isTableLoading ? (
-                      <TableBodyLoader colSpan={13} />
+                      <TableBodyLoader colSpan={tableHeaders.length} />
                     ) : !currentTableData || currentTableData.length === 0 ? (
                       <tr>
                         <td
@@ -943,52 +989,68 @@ const CreateWhiteLabel = () => {
                           }`}
                         >
                           {/* ID */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.id || "N/A"}
                           </td>
                           {/* User */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <button
-                              onClick={() => setShowProfileDetails(true)}
+                              onClick={() => {
+                                const userId = row.id || row.originalItem?.id;
+                                if (userId) {
+                                  dispatch(getCompanyAdmin(userId));
+                                  setShowProfileDetails(true);
+                                }
+                              }}
                               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                             >
                               <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                             </button>
                           </td>
                           {/* User ID */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.userId || "N/A"}
                           </td>
                           {/* Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.name || "N/A"}
                           </td>
                           {/* User Role */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.userRole || "N/A"}
                           </td>
                           {/* Mobile No */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.mobileNo || "N/A"}
                           </td>
                           {/* Email Id */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.emailId || "N/A"}
                           </td>
+                          {/* Slab Name */}
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                            {row.slabName ? (
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-medium bg-[#FFF7E0] text-[#B7791F] border border-[#F6E0A3]">
+                                {row.slabName}
+                              </span>
+                            ) : (
+                              <span className="text-[11px] text-gray-500">N/A</span>
+                            )}
+                          </td>
                           {/* Parent Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.parentName || "N/A"}
                           </td>
                           {/* Parent Role */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.parentRole || "N/A"}
                           </td>
                           {/* Company Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.companyName || "N/A"}
                           </td>
                           {/* KYC Status */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {(() => {
                               const status = row.kycStatus?.toLowerCase();
                               let className =
@@ -1027,7 +1089,7 @@ const CreateWhiteLabel = () => {
                             {row.remainingDays || "0"}
                           </td>
                           {/* Status */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <span
                               className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
                                 row.status?.toLowerCase() === "active"
@@ -1039,7 +1101,7 @@ const CreateWhiteLabel = () => {
                             </span>
                           </td>
                           {/* KYC Details */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <button
                               onClick={() => {
                                 const userId = row.id || row.originalItem?.id;

@@ -10,6 +10,9 @@ import {
   SLAB_UPDATE_COMM_START,
   SLAB_UPDATE_COMM_SUCCESS,
   SLAB_UPDATE_COMM_FAILURE,
+  SLAB_ASSIGN_START,
+  SLAB_ASSIGN_SUCCESS,
+  SLAB_ASSIGN_FAILURE,
 } from '../actionType/slabActionType';
 
 const initialState = {
@@ -34,6 +37,11 @@ const initialState = {
   updateCommLoading: false,
   updateCommError: null,
   updateCommSuccess: false,
+  // Assign slab state
+  assignSlabLoading: false,
+  assignSlabError: null,
+  assignSlabSuccess: false,
+  assignSlabMessage: null,
 };
 
 const slabReducer = (state = initialState, action) => {
@@ -134,6 +142,33 @@ const slabReducer = (state = initialState, action) => {
         updateCommLoading: false,
         updateCommError: action.payload,
         updateCommSuccess: false,
+      };
+
+    case SLAB_ASSIGN_START:
+      return {
+        ...state,
+        assignSlabLoading: true,
+        assignSlabError: null,
+        assignSlabSuccess: false,
+        assignSlabMessage: null,
+      };
+
+    case SLAB_ASSIGN_SUCCESS:
+      return {
+        ...state,
+        assignSlabLoading: false,
+        assignSlabError: null,
+        assignSlabSuccess: true,
+        assignSlabMessage: action.payload?.message || 'Slab assigned successfully',
+      };
+
+    case SLAB_ASSIGN_FAILURE:
+      return {
+        ...state,
+        assignSlabLoading: false,
+        assignSlabError: action.payload,
+        assignSlabSuccess: false,
+        assignSlabMessage: null,
       };
 
     default:
