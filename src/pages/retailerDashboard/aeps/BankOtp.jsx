@@ -10,7 +10,7 @@ import {
 import BankKyc from "./BankKyc";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
-
+import { aepsBankOtp } from "../../../redux/action/aepsAction";
 const OTP_LENGTH = 6;
 
 const BankOtp = ({ onBack }) => {
@@ -21,6 +21,8 @@ const BankOtp = ({ onBack }) => {
   const [touchedSubmit, setTouchedSubmit] = useState(false);
   const [showBankKyc, setShowBankKyc] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0);
   const inputsRef = useRef([]);
 
   // Call getUserProfile on component mount
@@ -49,6 +51,16 @@ const BankOtp = ({ onBack }) => {
   const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
 
   const otpValue = useMemo(() => otp.join(""), [otp]);
+
+  // Handle resend OTP countdown
+  useEffect(() => {
+    if (!resendCooldown) return;
+    const timer = setTimeout(
+      () => setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0)),
+      1000,
+    );
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -81,6 +93,23 @@ const BankOtp = ({ onBack }) => {
 
     const nextIndex = Math.min(idx + chars.length, OTP_LENGTH - 1);
     focusIndex(nextIndex);
+  };
+
+  const handleResendOtp = async () => {
+    if (isResendLoading || resendCooldown > 0) return;
+    setIsResendLoading(true);
+    try {
+      const response = await dispatch(aepsBankOtp());
+      console.log("aepsBankOtp resend response:", response);
+      if (response?.status === "SUCCESS") {
+        // Start cooldown for 3 minutes (180 seconds)
+        setResendCooldown(180);
+      }
+    } catch (error) {
+      console.error("aepsBankOtp resend error:", error);
+    } finally {
+      setIsResendLoading(false);
+    }
   };
 
   const handleKeyDown = (idx, e) => {
@@ -218,6 +247,7 @@ const BankOtp = ({ onBack }) => {
             )}
           </div>
 
+          {/* Submit OTP Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -227,6 +257,25 @@ const BankOtp = ({ onBack }) => {
               <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
             )}
             {isLoading ? "Processing..." : "Submit"}
+          </button>
+
+          {/* Resend OTP Button (styled similar to submit, but outlined) */}
+          <button
+            type="button"
+            onClick={resendCooldown === 0 ? handleResendOtp : undefined}
+            disabled={isResendLoading || resendCooldown > 0}
+            className="mt-4 w-[510px] max-w-full border border-[#039155] text-[#039155] bg-white hover:bg-[#F0FFF7] disabled:opacity-60 disabled:cursor-not-allowed rounded-lg py-2 text-[16px] font-['Gilroy-Medium'] transition flex items-center justify-center gap-2"
+          >
+            {isResendLoading ? (
+              <>
+                <ButtonLoader color="#039155" size={18} thickness={3} />
+                <span>Resending OTP...</span>
+              </>
+            ) : resendCooldown > 0 ? (
+              `Resend OTP in (${resendCooldown}s)`
+            ) : (
+              "Resend OTP"
+            )}
           </button>
         </div>
       </form>

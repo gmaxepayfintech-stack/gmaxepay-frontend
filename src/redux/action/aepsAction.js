@@ -647,7 +647,7 @@ export const aepsSubmitBiomatric = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-biometric-validate`,
+            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-biometric-validate`,
             data || {},
             {
                 headers: {
