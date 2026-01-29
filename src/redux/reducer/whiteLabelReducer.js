@@ -12,8 +12,8 @@ import {
   REVERT_KYC_DETAILS_SUCCESS,
   RESEND_ONBOARDING_LINK_SUCCESS,
   DEACTIVATE_ONBOARDING_LINK_SUCCESS,
-
-
+  GET_COMPANY_ADMIN_SUCCESS,
+  GET_COMPANY_ADMIN_FAILURE,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -34,6 +34,7 @@ const initialState = {
   kycRevert:null,
   resendOnboardingLink:null,
   deactivateOnboardingLink:null,
+  companyAdmin:null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -161,6 +162,21 @@ const whiteLabelReducer = (state = initialState, action) => {
           deactivateOnboardingLink: action.payload,
           Success: action.payload.status,
           message: action.payload.message,
+        }
+      case GET_COMPANY_ADMIN_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          companyAdmin: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case GET_COMPANY_ADMIN_FAILURE:
+        return{
+          ...state,
+          loading: false,
+          error: action.payload,
+          message: action.payload?.message,
         }
 
         

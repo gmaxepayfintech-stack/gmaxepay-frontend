@@ -27,6 +27,8 @@ import {
   RESEND_ONBOARDING_LINK_FAILURE,
   DEACTIVATE_ONBOARDING_LINK_SUCCESS,
   DEACTIVATE_ONBOARDING_LINK_FAILURE,
+  GET_COMPANY_ADMIN_SUCCESS,
+  GET_COMPANY_ADMIN_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -552,6 +554,48 @@ export const deActiveOnboarding = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: DEACTIVATE_ONBOARDING_LINK_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getCompanyAdmin = (userId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/users/company-admin/${userId}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: companyAdminData, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_COMPANY_ADMIN_SUCCESS,
+        payload: { companyAdminData, message, status },
+      });
+    } else {
+      dispatch({
+        type: GET_COMPANY_ADMIN_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: GET_COMPANY_ADMIN_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",

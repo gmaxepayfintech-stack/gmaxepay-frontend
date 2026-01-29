@@ -539,14 +539,14 @@ export const getAepsTransactionDetails = (transactionId) => async (dispatch) => 
     }
 };
 
-export const aepsBankOtp = () => async (dispatch) => {
+export const aepsBankOtp = (payload = {}) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-send-otp`,
-            {},
+            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-send-otp`,
+            payload,
             {
                 headers: {
                     "Content-Type": "application/json",
@@ -596,7 +596,7 @@ export const aepsSubmitBankOtp = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-validate-otp`,
+            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-validate-otp`,
             data || {},
             {
                 headers: {
@@ -647,7 +647,7 @@ export const aepsSubmitBiomatric = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps/bank-kyc-biometric-validate`,
+            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-biometric-validate`,
             data || {},
             {
                 headers: {
