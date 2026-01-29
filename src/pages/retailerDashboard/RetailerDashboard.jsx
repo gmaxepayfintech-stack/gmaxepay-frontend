@@ -15,6 +15,7 @@ import {
 } from "../../redux/action/payoutAction";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { getUserWalletBalance } from "../../redux/action/walletAction";
+import {ButtonLoader} from "../../widgets/layout/loader";
 
 const RetailerDashboard = () => {
   const dispatch = useDispatch();
@@ -31,6 +32,7 @@ const RetailerDashboard = () => {
   });
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [addBankOpen, setAddBankOpen] = useState(false);
+  const [isTransferLoading, setIsTransferLoading] = useState(false);
 
   // Get bank list from Redux
   const payoutBankListData = useSelector(
@@ -771,11 +773,10 @@ const RetailerDashboard = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
-                              selectedBank === bank.id
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
                                 ? "border-[#039155] bg-green-50"
                                 : "border-[#1B1717] border-opacity-80"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
@@ -839,7 +840,7 @@ const RetailerDashboard = () => {
                         // open add bank modal / navigate
                         setAddBankOpen(true); // or navigate("/add-bank")
                       }}
-                      className="w-full cursor-pointer border-[0.5px] border-dashed border-[#1B1717]/80
+                      className="w-full mt-5 cursor-pointer border-[0.5px] border-dashed border-[#1B1717]/80
                   rounded-xl py-4 flex items-center justify-center gap-2
                   hover:border-[#039155]  transition"
                     >
@@ -866,8 +867,10 @@ const RetailerDashboard = () => {
                   <button
                     className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
                font-['Gilroy-SemiBold']
-               hover:bg-[#027a47] transition"
+               hover:bg-[#027a47] transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    disabled={isTransferLoading}
                     onClick={async () => {
+                      setIsTransferLoading(true);
                       try {
                         let payload = {};
 
@@ -961,10 +964,19 @@ const RetailerDashboard = () => {
                       } catch (error) {
                         console.error("Error processing transfer:", error);
                         // You might want to show an error message to the user here
+                      } finally {
+                        setIsTransferLoading(false);
                       }
                     }}
                   >
-                    Processed Transfer
+                    {isTransferLoading ? (
+                      <>
+                        <ButtonLoader color="#FFFFFF" size={20} />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      "Processed Transfer"
+                    )}
                   </button>
                 </div>
               </>
