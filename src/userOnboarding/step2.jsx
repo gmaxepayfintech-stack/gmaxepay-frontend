@@ -9,7 +9,7 @@ import {
 } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
   const dispatch = useDispatch();
@@ -150,7 +150,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
   };
 
   const emailOtpStatus = useSelector(
-    (state) => state?.retailerOnboarding?.emailSendEmailOtpResponse?.status
+    (state) => state?.retailerOnboarding?.emailSendEmailOtpResponse?.status,
   );
 
   const verifuSuccess = emailOtpStatus === "SUCCESS" ? "SUCCESS" : null;
@@ -158,21 +158,21 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
   // Get email OTP submit status from Redux
   // Check specifically for submit response, not resend
   const emailSubmitStatus = useSelector(
-    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.status
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.status,
   );
 
   const emailSubmitMessage = useSelector(
-    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.message
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse?.message,
   );
 
   // Get the full submit response data
   const emailSubmitResponse = useSelector(
-    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse
+    (state) => state?.retailerOnboarding?.emailSubmitEmailOtpResponse,
   );
 
   // Also get resend status for cooldown
   const emailResendStatus = useSelector(
-    (state) => state?.retailerOnboarding?.emailReSendOtp?.status
+    (state) => state?.retailerOnboarding?.emailReSendOtp?.status,
   );
 
   useEffect(() => {
@@ -192,7 +192,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
     if (successCooldown > 0) {
       const interval = setInterval(
         () => setSuccessCooldown((t) => t - 1),
-        1000
+        1000,
       );
       return () => clearInterval(interval);
     }
@@ -224,28 +224,28 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
           try {
             secureLocalStorage.setItem(
               "onboardingToken",
-              responseData.userToken
+              responseData.userToken,
             );
             console.log(
               "Stored onboardingToken from email verification successfully:",
-              responseData.userToken
+              responseData.userToken,
             );
           } catch (e) {
             console.error(
               "Error storing onboardingToken from email verification:",
-              e
+              e,
             );
           }
         } else {
           console.warn(
             "No userToken found in email verification response:",
-            responseData
+            responseData,
           );
         }
       } else {
         console.warn(
           "No response data found in emailSubmitResponse:",
-          emailSubmitResponse
+          emailSubmitResponse,
         );
       }
 
@@ -308,7 +308,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 onClick={onBack}
                 className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 border border-gray-400 rounded-full hover:bg-gray-50 transition absolute left-0"
               >
-                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
+                <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
               </button>
             )}
             <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">

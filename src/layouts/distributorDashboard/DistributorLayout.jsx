@@ -136,12 +136,6 @@ const DistributorLayout = ({ children }) => {
     },
 
     {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/services",
-      dropdown: false,
-    },
-    {
       name: "Fund Manage",
       icon: MaskGroup4,
       dropdown: true,
@@ -160,12 +154,7 @@ const DistributorLayout = ({ children }) => {
         },
       ],
     },
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/tax-history",
-      dropdown: false,
-    },
+
     {
       name: "Reports",
       icon: MaskGroup5,
@@ -188,6 +177,18 @@ const DistributorLayout = ({ children }) => {
           path: "/distributerDashboard/reports/user-performance",
         },
       ],
+    },
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/services",
+      dropdown: false,
+    },
+    {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/tax-history",
+      dropdown: false,
     },
     {
       name: "Help",
@@ -337,27 +338,27 @@ const DistributorLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 bg-[#FAFAFA] w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-4 mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
+        <header className="sticky top-4 mx-3 md:mx-5 lg:mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
           <div className="flex items-center gap-3">
             <button
-              className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
+              className="md:p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open sidebar"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <div>
-              <h1 className="text-2xl font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-base font-[gilroy-medium] text-[#1B1717]">
+              <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
                 {name || email || "Admin"}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-11 h-11 sm:w-13 sm:h-13 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
+            <button className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
@@ -369,16 +370,13 @@ const DistributorLayout = ({ children }) => {
               />
             </button>
 
-            <div
-              className="relative flex items-center gap-2"
-              ref={profileDropdownRef}
-            >
+            <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
-                {name || email || "Admin Panel"}
+                {name || email || "Retailer Dashboard"}
               </span>
               <button
                 onClick={toggleProfileDropdown}
-                className="focus:outline-none focus:ring-2 focus:ring-[#039155] focus:ring-offset-2 rounded-full"
+                className="focus:outline-none  rounded-full"
                 aria-label="Profile menu"
               >
                 <img

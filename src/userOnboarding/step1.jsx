@@ -9,7 +9,7 @@ import {
 } from "../redux/action/retailerOnboardingAction";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function Step1({
   formData,
@@ -25,7 +25,7 @@ function Step1({
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const retailerOnboardingState = useSelector(
-    (state) => state?.retailerOnboarding
+    (state) => state?.retailerOnboarding,
   );
   const validationSchema = Yup.object({
     phone: Yup.string()
@@ -82,7 +82,7 @@ function Step1({
         otpSubmittedRef.current = true;
         // Dispatch the otpSubmitResponse action
         const result = await dispatch(
-          otpSubmitResponse(requestBody, companyData, token)
+          otpSubmitResponse(requestBody, companyData, token),
         );
       } catch (error) {
         console.error("Error submitting OTP:", error);
@@ -100,21 +100,21 @@ function Step1({
   });
 
   const otpSubmitStatus = useSelector(
-    (state) => state?.retailerOnboarding?.OTPSubmitResponse?.status
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse?.status,
   );
   const OTPSubmitResponseData = useSelector(
-    (state) => state?.retailerOnboarding?.OTPSubmitResponse
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse,
   );
   const FailureOTP = useSelector(
-    (state) => state?.error?.onBoarding?.onBoarding?.status
+    (state) => state?.error?.onBoarding?.onBoarding?.status,
   );
   const retailerOnboardingFailure = useSelector(
-    (state) => state?.retailerOnboarding?.status
+    (state) => state?.retailerOnboarding?.status,
   );
   const errorPayload = useSelector((state) => state?.error?.error);
   const errorMessage = useSelector((state) => state?.error?.message);
   const retailerOnboardingError = useSelector(
-    (state) => state?.retailerOnboarding?.error
+    (state) => state?.retailerOnboarding?.error,
   );
 
   // Use refs to track if we've already handled success/failure to prevent multiple calls
@@ -172,28 +172,28 @@ function Step1({
           try {
             secureLocalStorage.setItem(
               "onboardingToken",
-              responseData.userToken
+              responseData.userToken,
             );
             console.log(
               "Stored onboardingToken from verifySmsOtp successfully:",
-              responseData.userToken
+              responseData.userToken,
             );
           } catch (e) {
             console.error(
               "Error storing onboardingToken from verifySmsOtp:",
-              e
+              e,
             );
           }
         } else {
           console.warn(
             "No userToken found in verifySmsOtp response:",
-            responseData
+            responseData,
           );
         }
       } else {
         console.warn(
           "No response data found in OTPSubmitResponseData:",
-          OTPSubmitResponseData
+          OTPSubmitResponseData,
         );
       }
 
@@ -305,7 +305,7 @@ function Step1({
           referCode = storedFromUrl.trim();
           console.log(
             "Retrieved referCode from localStorage (URL):",
-            referCode
+            referCode,
           );
         }
       } catch (e) {
@@ -356,13 +356,13 @@ function Step1({
   };
 
   const UserTokenToken = useSelector(
-    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse?.userToken
+    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse?.userToken,
   );
   const OTPResponseStatus = useSelector(
-    (state) => state?.retailerOnboarding?.OTPResponse?.status
+    (state) => state?.retailerOnboarding?.OTPResponse?.status,
   );
   const OTPResponseData = useSelector(
-    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse
+    (state) => state?.retailerOnboarding?.OTPResponse?.OTPResponse,
   );
 
   // Countdown timer state for resend OTP
@@ -481,7 +481,7 @@ function Step1({
               className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
               aria-label="Back to Steps"
             >
-              <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+              <HiArrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
             </button>
           )}
           <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
@@ -580,11 +580,11 @@ function Step1({
             >
               {OTPResponseStatus === "SUCCESS" && resendCountdown > 0
                 ? `Resend (${Math.floor(resendCountdown / 60)}:${String(
-                    resendCountdown % 60
+                    resendCountdown % 60,
                   ).padStart(2, "0")})`
                 : OTPResponseStatus === "SUCCESS"
-                ? "Resend"
-                : "Verify"}
+                  ? "Resend"
+                  : "Verify"}
             </button>
           </div>
 

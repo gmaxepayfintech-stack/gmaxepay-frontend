@@ -1,11 +1,11 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useCompany } from "./../context/CompanyContext";
 import secureLocalStorage from "react-secure-storage";
 import { useNotification } from "../context/NotificationContext";
 import { postProfile } from "../redux/action/retailerOnboardingAction";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
@@ -15,7 +15,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const retailerOnboardingState = useSelector(
-    (state) => state?.retailerOnboarding
+    (state) => state?.retailerOnboarding,
   );
 
   const { postProfileError, postProfileSuccess, postProfileMessage } =
@@ -153,7 +153,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
     try {
       // eslint-disable-next-line @typescript-eslint/await-thenable
       await dispatch(
-        postProfile(formData.profilePhotoDataUrl, companyData, token)
+        postProfile(formData.profilePhotoDataUrl, companyData, token),
       );
     } catch (error) {
       console.error("Error submitting profile:", error);
@@ -177,11 +177,11 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
         try {
           secureLocalStorage.setItem(
             "onboardingSteps",
-            JSON.stringify(stepsData)
+            JSON.stringify(stepsData),
           );
           console.log(
             "Stored onboarding steps in secureLocalStorage:",
-            stepsData
+            stepsData,
           );
         } catch (e) {
           console.error("Error storing steps data in secureLocalStorage:", e);
@@ -275,7 +275,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                 className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors bg-transparent p-0 absolute left-0"
                 aria-label="Back to Steps"
               >
-                <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
+                <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
               </button>
             )}
 
