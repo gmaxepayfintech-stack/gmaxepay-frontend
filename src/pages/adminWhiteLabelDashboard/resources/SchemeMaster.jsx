@@ -11,12 +11,11 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
-import { useCompany } from "../../context/CompanyContext";
-import { useNotification } from "../../context/NotificationContext";
+import { useCompany } from "../../../context/CompanyContext";
+import { useNotification } from "../../../context/NotificationContext";
 import { createSlab, getSlabList } from "../../redux/action/slabAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
 import EditMembership from "./EditMembership";
-
+import { ButtonLoader } from "../../../widgets/layout/loader";
 const SchemeMaster = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
