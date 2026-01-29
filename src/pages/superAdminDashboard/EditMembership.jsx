@@ -14,9 +14,34 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
 
-  const [schemeName, setSchemeName] = useState(scheme?.name || "");
-  const [schemeMode, setSchemeMode] = useState("Global");
-  const [schemeType, setSchemeType] = useState("Free");
+  // Map scheme data from API format to display format
+  const getSchemeMode = (schemeData) => {
+    if (schemeData?.schemaMode) {
+      const mode = schemeData.schemaMode.toLowerCase();
+      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+    }
+    if (schemeData?.schemeMode) {
+      const mode = schemeData.schemeMode.toLowerCase();
+      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+    }
+    return "Global";
+  };
+
+  const getSchemeType = (schemeData) => {
+    if (schemeData?.schemaType) {
+      const type = schemeData.schemaType.toLowerCase();
+      return type === "free" ? "Free" : type === "premium" ? "Premium" : "Free";
+    }
+    if (schemeData?.schemeType) {
+      const type = schemeData.schemeType.toLowerCase();
+      return type === "free" ? "Free" : type === "premium" ? "Premium" : "Free";
+    }
+    return "Free";
+  };
+
+  const [schemeName, setSchemeName] = useState(scheme?.name || scheme?.slabName || "");
+  const [schemeMode, setSchemeMode] = useState(() => getSchemeMode(scheme));
+  const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
   // Redux state for commissions
   const { commData } = useSelector((state) => state?.slab || {});
@@ -31,6 +56,15 @@ const EditMembership = ({ scheme = null, onBack }) => {
     mobileDth: false,
     bbps: false,
   });
+
+  // Update scheme data when scheme prop changes
+  useEffect(() => {
+    if (scheme) {
+      setSchemeName(scheme?.name || scheme?.slabName || "");
+      setSchemeMode(getSchemeMode(scheme));
+      setSchemeType(getSchemeType(scheme));
+    }
+  }, [scheme]);
 
   // Fetch commission list when component mounts or scheme changes
   useEffect(() => {
@@ -346,7 +380,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                 )}
                                 {commission.myDealType && (
                                   <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
-                                    {commission.myDealType}
+                                    {(commission.myDealType || "").toLowerCase() === "fix" ? "flat" : 
+                                     (commission.myDealType || "").toLowerCase() === "per" ? "per" : 
+                                     commission.myDealType}
                                   </span>
                                 )}
                               </div>
@@ -598,35 +634,21 @@ const EditMembership = ({ scheme = null, onBack }) => {
             <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
-            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
+            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
               <div className="relative mt-1 flex-shrink-0">
-                <input
-                  type="radio"
-                  name="schemeMode"
-                  value="Global"
-                  checked={schemeMode === "Global"}
-                  onChange={(e) => setSchemeMode(e.target.value)}
-                  className="sr-only"
-                />
-                <div
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    schemeMode === "Global"
-                      ? "border-[#039155] bg-[#039155]"
-                      : "border-gray-300 bg-white"
-                  }`}
-                >
-                  {schemeMode === "Global" && (
-                    <div className="w-2 h-2 rounded-full bg-white"></div>
-                  )}
+                <div className="w-4 h-4 rounded-full border-2 border-[#039155] bg-[#039155] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-white"></div>
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
-                  Global
+                  {schemeMode}
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
-                  Available To All Users Worldwide
+                  {schemeMode === "Global"
+                    ? "Available To All Users Worldwide"
+                    : "Restricted To Specific Users"}
                 </p>
               </div>
             </label>
@@ -637,35 +659,21 @@ const EditMembership = ({ scheme = null, onBack }) => {
             <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
               Scheme Type
             </label>
-            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
+            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
               <div className="relative mt-1 flex-shrink-0">
-                <input
-                  type="radio"
-                  name="schemeType"
-                  value="Free"
-                  checked={schemeType === "Free"}
-                  onChange={(e) => setSchemeType(e.target.value)}
-                  className="sr-only"
-                />
-                <div
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    schemeType === "Free"
-                      ? "border-[#039155] bg-[#039155]"
-                      : "border-gray-300 bg-white"
-                  }`}
-                >
-                  {schemeType === "Free" && (
-                    <div className="w-2 h-2 rounded-full bg-white"></div>
-                  )}
+                <div className="w-4 h-4 rounded-full border-2 border-[#039155] bg-[#039155] flex items-center justify-center">
+                  <div className="w-2 h-2 rounded-full bg-white"></div>
                 </div>
               </div>
 
               <div className="flex-1 min-w-0">
                 <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
-                  Free
+                  {schemeType}
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
-                  No Cost Membership
+                  {schemeType === "Free"
+                    ? "No Cost Membership"
+                    : "Restricted Access With Invitation Only"}
                 </p>
               </div>
             </label>
