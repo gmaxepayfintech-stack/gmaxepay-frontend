@@ -215,11 +215,12 @@ function App() {
 
   useEffect(() => {
     if (error && error !== prevErrorRef.current) {
-      // Only show notification if previous value was not null (i.e., value actually changed, not initial mount)
+console.log('error', error);
       if (prevErrorRef.current !== null) {
         showNotification({
           type: "error",
           message: error.message,
+          isCritical: true,
         });
       }
       prevErrorRef.current = error;

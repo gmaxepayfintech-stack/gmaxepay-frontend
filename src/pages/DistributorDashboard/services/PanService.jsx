@@ -91,8 +91,8 @@ const PanService = () => {
           isCritical: true,
         });
       } else if (panData?.url && panData?.status === "Success") {
-        // Redirect to the URL on success
-        window.location.href = panData.url;
+        // Open URL in a new tab
+        window.open(panData.url, "_blank", "noopener,noreferrer");
       } else if (panData?.status === "Failure") {
         // Show failure message from inner data
         const errorMessage =
@@ -107,8 +107,8 @@ const PanService = () => {
       } else {
         // Fallback: check if URL exists even if status check fails
         if (panData?.url) {
-          // Redirect if URL is available
-          window.location.href = panData.url;
+          // Open URL in a new tab
+          window.open(panData.url, "_blank", "noopener,noreferrer");
         } else {
           // Show error if no URL and no clear status
           const errorMessage =

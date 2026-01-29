@@ -95,6 +95,8 @@ const errorReducer = (state = initialState, action) => {
     case RETAILER_FUND_GET_ALL_BANKS_FAILURE:
     case RETAILER_FUND_LOAD_FAILURE:
     case PAN_SERVICE_REQUEST_FAILURE:
+    case PAYOUT_TRANSACTION_FAILURE:
+    case PAYOUT_BANK_LIST_FAILURE:
 
       console.log("actionssssssssssssss", action?.payload);
 
@@ -105,6 +107,7 @@ const errorReducer = (state = initialState, action) => {
         status: action?.payload?.status,
         message: action?.payload?.message,
         onBoarding: action?.payload,
+        isCritical: true,
       };
     case AEPS_STATUS_CHECK_FAILURE:
     case AEPS_TERMS_CONDITION_OTP_FAILURE:
@@ -117,7 +120,6 @@ const errorReducer = (state = initialState, action) => {
     case AEPS_RESCEND_OTP_FAILURE:
     case AEPS_SUBMIT_OTP_FAILURE:
     case PAYOUT_BANK_LIST_FAILURE:
-    case PAYOUT_TRANSACTION_FAILURE:
     case AEPSTWO_STATUS_CHECK_FAILURE:
     case AEPSTWO_ONBOARDING_FAILURE:
     case AEPSTWO_BIOMETRIC_VERIFICATION_FAILURE:
