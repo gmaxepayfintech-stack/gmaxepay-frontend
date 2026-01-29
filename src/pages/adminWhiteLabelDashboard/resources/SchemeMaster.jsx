@@ -13,7 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createSlab, getSlabList } from "../../../redux/action/slabAction";
+import { createCompanySlab, getCompanySlabList } from "../../../redux/action/slabAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 const SchemeMaster = () => {
@@ -50,7 +50,7 @@ const SchemeMaster = () => {
   useEffect(() => {
     const companyId = getCompanyId();
     if (companyId) {
-      dispatch(getSlabList(companyId, currentPage, 6));
+      dispatch(getCompanySlabList(companyId, currentPage, 6));
     }
   }, [dispatch, currentPage]);
 
@@ -71,7 +71,7 @@ const SchemeMaster = () => {
         // If already on page 1, explicitly fetch to refresh
         const companyId = getCompanyId();
         if (companyId) {
-          dispatch(getSlabList(companyId, 1, 6));
+          dispatch(getCompanySlabList(companyId, 1, 6));
         }
       }
     }
@@ -104,7 +104,7 @@ const SchemeMaster = () => {
     setCurrentPage(1);
     const companyId = getCompanyId();
     if (companyId) {
-      dispatch(getSlabList(companyId, 1, 6));
+      dispatch(getCompanySlabList(companyId, 1, 6));
     }
   }, [searchQuery, activeFilter, dispatch]);
 
@@ -187,7 +187,7 @@ const SchemeMaster = () => {
 
     setIsCreating(true);
     try {
-      const result = await dispatch(createSlab(formData, companyId));
+      const result = await dispatch(createCompanySlab(formData, companyId));
       console.log("Create slab result:", result);
       if (result?.success) {
         // Success is handled in useEffect
