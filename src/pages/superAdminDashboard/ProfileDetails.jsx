@@ -3,7 +3,10 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { getSlabList, assignSlabToCompany } from "../../redux/action/slabAction";
+import {
+  getSlabList,
+  assignSlabToCompany,
+} from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
@@ -21,16 +24,22 @@ const ProfileDetails = ({ onBack = null }) => {
   const [imageError, setImageError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
-  
+
   // Get company admin data from Redux
-  const companyAdminState = useSelector((state) => state?.whitelabel?.companyAdmin);
+  const companyAdminState = useSelector(
+    (state) => state?.whitelabel?.companyAdmin,
+  );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
-  
+
   // Get slab list from Redux
   const slabList = useSelector((state) => state?.slab?.slabs || []);
-  const assignSlabLoading = useSelector((state) => state?.slab?.assignSlabLoading || false);
-  const assignSlabSuccess = useSelector((state) => state?.slab?.assignSlabSuccess || false);
+  const assignSlabLoading = useSelector(
+    (state) => state?.slab?.assignSlabLoading || false,
+  );
+  const assignSlabSuccess = useSelector(
+    (state) => state?.slab?.assignSlabSuccess || false,
+  );
 
   // Extract data from companyAdminData (do this before early returns to maintain hook order)
   const data = companyAdminData || {};
@@ -46,12 +55,13 @@ const ProfileDetails = ({ onBack = null }) => {
     }
     // Extract place_id from googleMapsLink if available
     if (outletDetails?.googleMapsLink) {
-      const placeIdMatch = outletDetails.googleMapsLink.match(/place_id:([^&]+)/);
+      const placeIdMatch =
+        outletDetails.googleMapsLink.match(/place_id:([^&]+)/);
       if (placeIdMatch) {
         return `https://www.google.com/maps?q=place_id:${placeIdMatch[1]}&output=embed`;
       }
     }
-    return '';
+    return "";
   };
 
   // Reset image error when data changes
@@ -91,12 +101,12 @@ const ProfileDetails = ({ onBack = null }) => {
   // Handle ESC key to close image modal
   useEffect(() => {
     const handleEsc = (event) => {
-      if (event.key === 'Escape' && showImageModal) {
+      if (event.key === "Escape" && showImageModal) {
         setShowImageModal(false);
       }
     };
-    window.addEventListener('keydown', handleEsc);
-    return () => window.removeEventListener('keydown', handleEsc);
+    window.addEventListener("keydown", handleEsc);
+    return () => window.removeEventListener("keydown", handleEsc);
   }, [showImageModal]);
 
   // Skeleton loader component
@@ -138,7 +148,10 @@ const ProfileDetails = ({ onBack = null }) => {
           {/* Info Cards Skeleton */}
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
             {[1, 2, 3, 4].map((i) => (
-              <div key={i} className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3">
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+              >
                 <SkeletonLoader className="w-12 h-12 rounded" />
                 <div className="flex-1">
                   <SkeletonLoader className="h-5 w-16 mb-2" />
@@ -210,9 +223,16 @@ const ProfileDetails = ({ onBack = null }) => {
         {/* Profile Picture - Overlapping bottom-left */}
         <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
           <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg overflow-hidden">
-            {(data?.profileImage || outletDetails?.shopImage || companyDetails?.compnyLogo) && !imageError ? (
+            {(data?.profileImage ||
+              outletDetails?.shopImage ||
+              companyDetails?.compnyLogo) &&
+            !imageError ? (
               <img
-                src={data?.profileImage || outletDetails?.shopImage || companyDetails?.compnyLogo}
+                src={
+                  data?.profileImage ||
+                  outletDetails?.shopImage ||
+                  companyDetails?.compnyLogo
+                }
                 alt="Profile"
                 className="w-full h-full object-cover rounded-2xl"
                 onError={() => setImageError(true)}
@@ -257,7 +277,9 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-[#1B1717]/80">
                   <MapPin className="w-4 h-4 text-[#1B1717]/80" />
-                  <span className="font-[gilroy-medium]">{data?.state || "N/A"}</span>
+                  <span className="font-[gilroy-medium]">
+                    {data?.state || "N/A"}
+                  </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
                   Whitelabel
@@ -266,11 +288,13 @@ const ProfileDetails = ({ onBack = null }) => {
             </div>
 
             {/* Active Status */}
-            <div className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-              (data?.status || "Active").toLowerCase() === "inactive" 
-                ? "bg-red-500" 
-                : "bg-[#008D1E]"
-            }`}>
+            <div
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
+                (data?.status || "Active").toLowerCase() === "inactive"
+                  ? "bg-red-500"
+                  : "bg-[#008D1E]"
+              }`}
+            >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
                 {data?.status || "Active"}
@@ -443,13 +467,18 @@ const ProfileDetails = ({ onBack = null }) => {
                         alt="Aadhar Front"
                         className="w-full h-48 sm:h-64 object-contain"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.style.display = "none";
                           const fallback = e.target.nextElementSibling;
-                          if (fallback) fallback.style.display = 'flex';
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.aadhaarFrontImage ? 'none' : 'flex' }}>
+                    <div
+                      className="w-full h-48 sm:h-64 flex items-center justify-center"
+                      style={{
+                        display: data?.aadhaarFrontImage ? "none" : "flex",
+                      }}
+                    >
                       <FileText className="w-12 h-12 text-gray-400" />
                     </div>
                   </div>
@@ -463,13 +492,18 @@ const ProfileDetails = ({ onBack = null }) => {
                         alt="Aadhar Back"
                         className="w-full h-48 sm:h-64 object-contain"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.style.display = "none";
                           const fallback = e.target.nextElementSibling;
-                          if (fallback) fallback.style.display = 'flex';
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.aadhaarBackImage ? 'none' : 'flex' }}>
+                    <div
+                      className="w-full h-48 sm:h-64 flex items-center justify-center"
+                      style={{
+                        display: data?.aadhaarBackImage ? "none" : "flex",
+                      }}
+                    >
                       <FileText className="w-12 h-12 text-gray-400" />
                     </div>
                   </div>
@@ -518,13 +552,18 @@ const ProfileDetails = ({ onBack = null }) => {
                         alt="Pan Front"
                         className="w-full h-48 sm:h-64 object-contain"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.style.display = "none";
                           const fallback = e.target.nextElementSibling;
-                          if (fallback) fallback.style.display = 'flex';
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.pancardFrontImage ? 'none' : 'flex' }}>
+                    <div
+                      className="w-full h-48 sm:h-64 flex items-center justify-center"
+                      style={{
+                        display: data?.pancardFrontImage ? "none" : "flex",
+                      }}
+                    >
                       <FileText className="w-12 h-12 text-gray-400" />
                     </div>
                   </div>
@@ -538,13 +577,18 @@ const ProfileDetails = ({ onBack = null }) => {
                         alt="Pan Back"
                         className="w-full h-48 sm:h-64 object-contain"
                         onError={(e) => {
-                          e.target.style.display = 'none';
+                          e.target.style.display = "none";
                           const fallback = e.target.nextElementSibling;
-                          if (fallback) fallback.style.display = 'flex';
+                          if (fallback) fallback.style.display = "flex";
                         }}
                       />
                     ) : null}
-                    <div className="w-full h-48 sm:h-64 flex items-center justify-center" style={{ display: data?.pancardBackImage ? 'none' : 'flex' }}>
+                    <div
+                      className="w-full h-48 sm:h-64 flex items-center justify-center"
+                      style={{
+                        display: data?.pancardBackImage ? "none" : "flex",
+                      }}
+                    >
                       <FileText className="w-12 h-12 text-gray-400" />
                     </div>
                   </div>
@@ -576,9 +620,11 @@ const ProfileDetails = ({ onBack = null }) => {
                 {/* Shop Image - Square */}
                 <div>
                   <p className="text-xs text-gray-500 mb-2">Shop Image</p>
-                  <div 
-                    className={`border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden aspect-square ${outletDetails?.shopImage ? 'cursor-pointer hover:opacity-90 transition-opacity' : ''}`}
-                    onClick={() => outletDetails?.shopImage && setShowImageModal(true)}
+                  <div
+                    className={`border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 flex items-center justify-center overflow-hidden aspect-square ${outletDetails?.shopImage ? "cursor-pointer hover:opacity-90 transition-opacity" : ""}`}
+                    onClick={() =>
+                      outletDetails?.shopImage && setShowImageModal(true)
+                    }
                   >
                     {outletDetails?.shopImage ? (
                       <img
@@ -596,33 +642,40 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
 
                 {/* Google Map - Square */}
-                {(outletDetails?.googleMapsLink || (data?.latitude && data?.longitude)) && getMapEmbedUrl() && (
-                  <div>
-                    <p className="text-xs text-gray-500 mb-2">Location</p>
-                    <div className="border-2 border-gray-300 rounded-lg overflow-hidden aspect-square relative">
-                      <iframe
-                        src={getMapEmbedUrl()}
-                        width="100%"
-                        height="100%"
-                        style={{ border: 0, position: 'absolute', top: 0, left: 0 }}
-                        allowFullScreen=""
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                        className="w-full h-full"
-                      />
+                {(outletDetails?.googleMapsLink ||
+                  (data?.latitude && data?.longitude)) &&
+                  getMapEmbedUrl() && (
+                    <div>
+                      <p className="text-xs text-gray-500 mb-2">Location</p>
+                      <div className="border-2 border-gray-300 rounded-lg overflow-hidden aspect-square relative">
+                        <iframe
+                          src={getMapEmbedUrl()}
+                          width="100%"
+                          height="100%"
+                          style={{
+                            border: 0,
+                            position: "absolute",
+                            top: 0,
+                            left: 0,
+                          }}
+                          allowFullScreen=""
+                          loading="lazy"
+                          referrerPolicy="no-referrer-when-downgrade"
+                          className="w-full h-full"
+                        />
+                      </div>
+                      {outletDetails?.googleMapsLink && (
+                        <a
+                          href={outletDetails.googleMapsLink}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block"
+                        >
+                          Open in Google Maps →
+                        </a>
+                      )}
                     </div>
-                    {outletDetails?.googleMapsLink && (
-                      <a
-                        href={outletDetails.googleMapsLink}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-xs text-blue-600 hover:text-blue-800 mt-2 inline-block"
-                      >
-                        Open in Google Maps →
-                      </a>
-                    )}
-                  </div>
-                )}
+                  )}
               </div>
             </div>
           </div>
@@ -654,11 +707,18 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
                 <button
                   onClick={() => {
-                    if (selectedScheme && selectedScheme !== String(data?.slabId)) {
+                    if (
+                      selectedScheme &&
+                      selectedScheme !== String(data?.slabId)
+                    ) {
                       setShowConfirmModal(true);
                     }
                   }}
-                  disabled={!selectedScheme || selectedScheme === String(data?.slabId) || assignSlabLoading}
+                  disabled={
+                    !selectedScheme ||
+                    selectedScheme === String(data?.slabId) ||
+                    assignSlabLoading
+                  }
                   className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {assignSlabLoading ? "Upgrading..." : "Upgrade"}
@@ -734,7 +794,9 @@ const ProfileDetails = ({ onBack = null }) => {
                     Profile Expiry Date
                   </p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
-                    {data?.createdAt ? new Date(data.createdAt).toLocaleDateString() : "N/A"}
+                    {data?.createdAt
+                      ? new Date(data.createdAt).toLocaleDateString()
+                      : "N/A"}
                   </p>
                 </div>
                 <div>
@@ -745,11 +807,13 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
-                  <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${
-                    (data?.status || "Active").toLowerCase() === "inactive" 
-                      ? "bg-red-500" 
-                      : "bg-[#039155]"
-                  }`}>
+                  <span
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${
+                      (data?.status || "Active").toLowerCase() === "inactive"
+                        ? "bg-red-500"
+                        : "bg-[#039155]"
+                    }`}
+                  >
                     {data?.status || "Active"}
                   </span>
                 </div>
@@ -877,7 +941,8 @@ const ProfileDetails = ({ onBack = null }) => {
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
                     <span className="font-semibold">
-                      {slabList.find((s) => String(s.id) === selectedScheme)?.slabName || "N/A"}
+                      {slabList.find((s) => String(s.id) === selectedScheme)
+                        ?.slabName || "N/A"}
                     </span>
                   </p>
                 )}
@@ -895,7 +960,7 @@ const ProfileDetails = ({ onBack = null }) => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       const result = await dispatch(
-                        assignSlabToCompany(selectedScheme, companyId)
+                        assignSlabToCompany(selectedScheme, companyId),
                       );
                       if (result?.success) {
                         // Success will be handled by useEffect
@@ -915,11 +980,11 @@ const ProfileDetails = ({ onBack = null }) => {
 
       {/* Image Popup Modal */}
       {showImageModal && outletDetails?.shopImage && (
-        <div 
+        <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn"
           onClick={() => setShowImageModal(false)}
         >
-          <div 
+          <div
             className="relative max-w-7xl max-h-[90vh] mx-4 animate-slideUp"
             onClick={(e) => e.stopPropagation()}
           >
@@ -931,7 +996,7 @@ const ProfileDetails = ({ onBack = null }) => {
             >
               <X className="w-6 h-6 text-gray-800" />
             </button>
-            
+
             {/* Full Image */}
             <img
               src={outletDetails.shopImage}

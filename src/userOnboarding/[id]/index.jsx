@@ -63,7 +63,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
   const [isLoadingPending, setIsLoadingPending] = useState(false);
   const [wasShowingSteps, setWasShowingSteps] = useState(true);
   const isInitialMount = useRef(true);
-
+  const [startedStep, setStartedStep] = useState(null);
   // Redux state
   const getPendingResponse = useSelector(
     (state) => state?.retailerOnboarding?.getPendingResponse,
@@ -368,6 +368,11 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
     }
   };
 
+  const totalSteps = STEP_INFO.length;
+  const completedSteps = STEP_INFO.filter(isStepDone).length;
+  const progressPercent =
+    totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
   // Check if step is accessible (previous steps must be completed)
   const isStepAccessible = (stepIndex) => {
     // Step 1 is always accessible
@@ -471,15 +476,15 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           >
             {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
               <>
-                <h1 className="text-xl sm:text-2xl md:text-2xl font-[gilroy-semibold] text-center text-black mb-2 md:mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-[gilroy-semibold] text-center text-[#1B1717] mb-2 md:mb-3">
                   Complete Your KYC
                 </h1>
-                <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-black text-center mb-4 sm:mb-6 md:mb-8">
+                <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
                   Secure your account by completing this quick verification.
                 </p>
 
                 {/* STEP LIST */}
-                <div className="w-full max-w-md mx-auto mt-4 sm:mt-6 md:mt-8 space-y-2 sm:space-y-3 md:space-y-4">
+                {/* <div className="w-full max-w-md mx-auto mt-4 sm:mt-6 md:mt-8 space-y-2 sm:space-y-3 md:space-y-4">
                   {STEP_INFO.map((step, idx) => {
                     const done = isStepDone(step);
                     const active = currentStep === idx + 1;
@@ -542,10 +547,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           <div
                             className={`text-xs sm:text-sm font-[gilroy-medium] ${
                               done
-                                ? "text-green-600" // ✅ Completed
+                                ? "text-[#039155]" // ✅ Completed
                                 : active
-                                  ? "text-red-500/80" // 🔴 In progress
-                                  : "text-orange-500/80" // 🟠 Pending
+                                  ? "text-[#E32424]" // 🔴 In progress
+                                  : "text-[#D66000]" // 🟠 Pending
                             }`}
                           >
                             {done
@@ -573,6 +578,132 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                             {idx + 1}
                           </div>
                         )}
+                      </div>
+                    );
+                  })}
+                </div> */}
+                {/* PROGRESS BAR */}
+                <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+                  <p className="text-[12px] sm:text-[16px] font-[gilroy-medium] text-[#180404]/80">
+                    Current Progress
+                  </p>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-[gilroy-semibold] text-[12px] sm:text-[16px] text-[#1B1717]">
+                      {progressPercent}% Completed
+                    </span>
+                    <span className="text-[8px] sm:text-xs bg-[#039155] text-[#FBFBFB] px-3 py-1 rounded-lg font-[gilroy-medium] ">
+                      {totalSteps - completedSteps} of {totalSteps} Steps
+                      Remaining
+                    </span>
+                  </div>
+
+                  <div className="w-full bg-[#F6F6F6] rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full transition-all"
+                      style={{
+                        width: `${progressPercent}%`,
+                        backgroundColor: primaryColor,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* STEP CARDS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {STEP_INFO.map((step, idx) => {
+                    const done = isStepDone(step);
+                    const accessible = isStepAccessible(idx);
+
+                    const isActive = startedStep === idx + 1;
+
+                    let status = "pending";
+                    if (done) status = "completed";
+                    else if (isActive) status = "in-progress";
+
+                    return (
+                      <div
+                        key={step.key}
+                        onClick={() => {
+                          if (accessible && !done) {
+                            setStartedStep(idx + 1); // 👈 mark as started
+                            setCurrentStep(idx + 1);
+                            setShowSteps(false);
+                          }
+                        }}
+                        className={`relative rounded-2xl p-4 shadow transition-all
+                            ${
+                              status === "pending"
+                                ? "bg-gray-100 opacity-50 cursor-not-allowed"
+                                : "bg-white cursor-pointer hover:shadow-md"
+                            }
+                          `}
+                      >
+                        <div className="relative">
+                          {/* STATUS (TOP RIGHT) */}
+                          <div className="absolute top-3 right-0 flex items-center gap-2 text-[10px] sm:text-sm font-[gilroy-medium]">
+                            <span
+                              className={`w-2 h-2 rounded-full
+                              ${
+                                status === "completed"
+                                  ? "bg-[#039155]"
+                                  : status === "in-progress"
+                                    ? "bg-[#EA9707]"
+                                    : "bg-[#E32424]"
+                              }
+                            `}
+                            />
+                            <span
+                              className={
+                                status === "completed"
+                                  ? "text-[#039155]"
+                                  : status === "in-progress"
+                                    ? "text-[#EA9707]"
+                                    : "text-[#E32424]"
+                              }
+                            >
+                              {status === "in-progress"
+                                ? "In Progress"
+                                : status === "completed"
+                                  ? "Completed"
+                                  : "Pending"}
+                            </span>
+                          </div>
+
+                          {/* ICON */}
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                            <img
+                              src={getStepIcon(
+                                step.key,
+                                done ? "completed" : "pending",
+                              )}
+                              alt=""
+                              className="w-9 h-9 sm:w-12 sm:h-12"
+                            />
+                          </div>
+
+                          {/* TITLE */}
+                          <h3 className="text-sm sm:text-lg font-[gilroy-semibold] text-[#1B1717] mb-1">
+                            {step.label}
+                          </h3>
+
+                          {/* DESCRIPTION */}
+                          <p className=" text-xs sm:text-sm text-[#1B1717]  mt-1 font-[gilroy-regular] whitespace-pre-line">
+                            {step.key === "mobileVerification" &&
+                              "We will send a 6-digit OTP to your mobile number Please enter it to verify your identity"}
+                            {step.key === "emailVerification" &&
+                              "We will send a 6-digit OTP to your email address Please check your inbox and enter the code"}
+                            {step.key === "aadharVerification" &&
+                              "Please upload clear photos of both the front and back sides of your Aadhaar card Ensure all details are visible"}
+                            {step.key === "panVerification" &&
+                              "Please upload clear photos of the front Ensure all details are visible"}
+                            {step.key === "shopDetails" &&
+                              "Upload your shop name and clear photos of your shop This helps us verify your business details quickly"}
+                            {step.key === "bankVerification" &&
+                              "Fill in your bank name, account number, and IFSC code carefully This helps us process payments smoothly"}
+                            {step.key === "profile" &&
+                              "Add your profile picture. Make sure your face is clearly visible with good lighting"}
+                          </p>
+                        </div>
                       </div>
                     );
                   })}

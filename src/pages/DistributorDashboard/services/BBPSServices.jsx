@@ -156,7 +156,7 @@ const BBPSServices = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       {onBack && (
         <div className="flex items-start gap-3 mb-6">

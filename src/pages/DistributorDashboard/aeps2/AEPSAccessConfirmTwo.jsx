@@ -1,11 +1,11 @@
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 import { useNavigate } from "react-router-dom";
 
 const AEPSAccessConfirmTwo = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -14,7 +14,7 @@ const AEPSAccessConfirmTwo = () => {
           onClick={() => navigate(-1)}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
-          <HiOutlineArrowNarrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
         </button>
 
         <div className="flex-1">

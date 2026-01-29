@@ -92,8 +92,7 @@ const DistributorLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       setIsProfileDropdownOpen(false);
-      const companyId =
-        company?.companyId || company?._id || company?.id || "";
+      const companyId = company?.companyId || company?._id || company?.id || "";
       // Call the logout API - it will clear storage and handle errors internally
       const logoutPromise = dispatch(logOut({}, companyId));
       if (logoutPromise && typeof logoutPromise.then === "function") {
@@ -135,56 +134,7 @@ const DistributorLayout = ({ children }) => {
       path: "/distributerDashboard/home",
       dropdown: false,
     },
-    // {
-    //   name: "Members",
-    //   icon: MaskGroup1,
-    //   dropdown: true,
-    //   path: "/distributerDashboard/members",
-    //   children: [
-    //     { name: "Users", path: "/distributerDashboard/members/user" },
-    //     { name: "Agents", path: "/distributerDashboard/members/list" },
-    //     {
-    //       name: "Role Management",
-    //       path: "/distributerDashboard/members/rolemanagement",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "API Operator",
-    //   icon: MaskGroup2,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Operator List",
-    //       path: "/distributerDashboard/api-operator/list",
-    //     },
-    //     {
-    //       name: "API Settings",
-    //       path: "/distributerDashboard/api-operator/settings",
-    //     },
-    //   ],
-    // },
-    // {
-    //   name: "Resources",
-    //   icon: MaskGroup3,
-    //   dropdown: true,
-    //   children: [
-    //     {
-    //       name: "Schema Master",
-    //       path: "/distributerDashboard/resources/schemamaster",
-    //     },
-    //     {
-    //       name: "Role Upgrade",
-    //       path: "/distributerDashboard/resources/roleupgraderequest",
-    //     },
-    //   ],
-    // },
-    {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/services",
-      dropdown: false,
-    },
+
     {
       name: "Fund Manage",
       icon: MaskGroup4,
@@ -204,12 +154,7 @@ const DistributorLayout = ({ children }) => {
         },
       ],
     },
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/tax-history",
-      dropdown: false,
-    },
+
     {
       name: "Reports",
       icon: MaskGroup5,
@@ -232,6 +177,18 @@ const DistributorLayout = ({ children }) => {
           path: "/distributerDashboard/reports/user-performance",
         },
       ],
+    },
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/services",
+      dropdown: false,
+    },
+    {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/tax-history",
+      dropdown: false,
     },
     {
       name: "Help",
@@ -381,31 +338,31 @@ const DistributorLayout = ({ children }) => {
       {/* Main Content */}
       <div className="flex flex-col flex-1 bg-[#FAFAFA] w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <header className="sticky top-4 mx-11 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
+        <header className="sticky top-4 mx-3 md:mx-5 lg:mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
           <div className="flex items-center gap-3">
             <button
-              className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
+              className="md:p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
               onClick={() => setIsSidebarOpen(true)}
               aria-label="Open sidebar"
             >
-              <Menu className="w-5 h-5" />
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <div>
-              <h1 className="text-lg font-semibold text-[#1B1717]">
+              <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
                 Welcome Back!
               </h1>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
                 {name || email || "Admin"}
               </p>
             </div>
           </div>
 
           <div className="flex items-center gap-3 sm:gap-4">
-            <button className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full border border-[#1B1717]/40 transition hover:border-[#039155]/70">
+            <button className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
               <img
                 src={NotificationIcon}
                 alt="Notifications"
-                className="w-7 h-7 sm:w-8 sm:h-8 object-contain"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
                   e.target.src = "/img/gmaxepay.png";
@@ -413,13 +370,13 @@ const DistributorLayout = ({ children }) => {
               />
             </button>
 
-            <div className="relative flex items-center gap-2" ref={profileDropdownRef}>
-              <span className="hidden text-sm font-medium sm:inline">
-                {name || email || "Distributor Panel"}
+            <div className="flex items-center gap-2" ref={profileDropdownRef}>
+              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
+                {name || email || "Retailer Dashboard"}
               </span>
               <button
                 onClick={toggleProfileDropdown}
-                className="focus:outline-none focus:ring-2 focus:ring-[#039155] focus:ring-offset-2 rounded-full"
+                className="focus:outline-none  rounded-full"
                 aria-label="Profile menu"
               >
                 <img
@@ -444,7 +401,7 @@ const DistributorLayout = ({ children }) => {
                     className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
                   >
                     <Link
-                      to="/distributerDashboard/profile"
+                      to="/superDashboard/profile"
                       onClick={() => setIsProfileDropdownOpen(false)}
                       className="block px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
                     >
@@ -464,7 +421,7 @@ const DistributorLayout = ({ children }) => {
           </div>
 
           {/* Rounded bottom border line */}
-          <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/70 opacity-80 rounded-full shadow-sm"></div>
+          {/* <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div> */}
         </header>
 
         {/* Page Content */}

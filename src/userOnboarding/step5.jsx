@@ -1,7 +1,6 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useParams } from "react-router-dom";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { postShopDetails } from "../redux/action/retailerOnboardingAction";
@@ -9,6 +8,7 @@ import { getLocationAndIP } from "../util/getLocationAndIP";
 import { useCompany } from "../context/CompanyContext";
 import { useNotification } from "../context/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
@@ -345,7 +345,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                 className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 border border-gray-400 rounded-full flex items-center justify-center hover:bg-gray-50 transition"
                 aria-label="Back to Steps"
               >
-                <HiOutlineArrowNarrowLeft className="text-lg text-[#1B1717]" />
+                <HiArrowLeft className="text-lg text-[#1B1717]" />
               </button>
             )}
 

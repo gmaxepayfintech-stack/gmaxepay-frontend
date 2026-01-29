@@ -502,7 +502,7 @@ const DTHRecharge = ({ onBack }) => {
   const displayPlans = getFilteredPlans();
 
   return (
-    <div className="w-full PY-4 PX-1">
+    <div className="w-full py-4 px-1">
       {/* payment details card */}
       {showPayment && selectedPlan && (
         <div

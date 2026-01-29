@@ -188,7 +188,7 @@ const OnBoardingAepsTwo = () => {
     return <AepsAcceptanceTwo />;
   }
   return (
-    <div className="w-full">
+    <div className="w-full py-4 px-1">
       {/* Page header */}
       <div className="mb-6">
         <div className="text-[24px] sm:text-[22px] font-['Gilroy-Medium'] text-[#1B1717]">

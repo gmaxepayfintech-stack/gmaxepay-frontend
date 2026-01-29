@@ -3,11 +3,11 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { useParams } from "react-router-dom";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { postBankDetails } from "../redux/action/retailerOnboardingAction";
 import { useCompany } from "../context/CompanyContext";
 import { useNotification } from "../context/NotificationContext";
 import secureLocalStorage from "react-secure-storage";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
@@ -19,13 +19,13 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
   // Get bank details status from Redux (needed in onSubmit)
   const bankDetailsStatus = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsStatus
+    (state) => state?.retailerOnboarding?.bankDetailsStatus,
   );
   const bankDetailsResponse = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsResponse
+    (state) => state?.retailerOnboarding?.bankDetailsResponse,
   );
   const bankDetailsError = useSelector(
-    (state) => state?.retailerOnboarding?.bankDetailsError
+    (state) => state?.retailerOnboarding?.bankDetailsError,
   );
 
   const validationSchema = Yup.object({
@@ -142,8 +142,8 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
             ifsc: formik.values.ifscCode,
           },
           companyData,
-          token
-        )
+          token,
+        ),
       );
     }
   };
@@ -242,7 +242,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
               className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-10 lg:h-10 xl:w-10 xl:h-10 border border-gray-400 rounded-full cursor-pointer hover:bg-gray-50 transition-colors flex-shrink-0 bg-transparent p-0 absolute left-0"
               aria-label="Back to Steps"
             >
-              <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
+              <HiArrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
             </button>
           )}
 

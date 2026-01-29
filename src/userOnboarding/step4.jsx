@@ -9,7 +9,7 @@ import {
   downloadPanDocument,
   uploadPanDocument,
 } from "../redux/action/retailerOnboardingAction";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 
 function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
   const { referCode: urlReferralCode } = useParams();
@@ -471,7 +471,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 border border-gray-400 rounded-full flex items-center justify-center hover:bg-gray-50 transition"
                     aria-label="Back to Steps"
                   >
-                    <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717]" />
+                    <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717]" />
                   </button>
                 )}
 
@@ -594,7 +594,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     className="absolute left-0 top-1/2 -translate-y-1/2 w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 border border-gray-400 rounded-full flex items-center justify-center hover:bg-gray-50 transition"
                     aria-label="Back to Steps"
                   >
-                    <HiOutlineArrowNarrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717]" />
+                    <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717]" />
                   </button>
                 )}
 

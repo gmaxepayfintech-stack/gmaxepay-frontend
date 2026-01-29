@@ -4,6 +4,7 @@ import * as Yup from "yup";
 import { useCompany } from "../../../context/CompanyContext";
 import { useSelector } from "react-redux";
 import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
+import { HiArrowLeft } from "react-icons/hi2";
 
 const PhoneIcon = "/img/PhoneCall1.png";
 const PhoneIconFilled = "/img/PhoneCall2.png";
@@ -19,7 +20,18 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading);
 
   return (
-    <div className="flex-1 flex items-center justify-center bg-white px-3 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-4 sm:py-6 md:py-8 lg:py-10 overflow-y-auto min-h-screen">
+    <div className="flex-1 flex items-center justify-center relative bg-white px-3 sm:px-6 md:px-10 lg:px-16 xl:px-20 py-4 sm:py-6 md:py-8 lg:py-10 overflow-y-auto min-h-screen">
+      {/* Back Arrow */}
+      <div className="mb-4 absolute top-4 left-4 sm:top-6 sm:left-6 md:top-8 md:left-8 lg:top-10 lg:left-10">
+        <button
+          type="button"
+          onClick={onBack}
+          className="flex items-center justify-center w-10 h-10 rounded-full border border-[#1B1717]/40 hover:border-[#039155] transition"
+          aria-label="Go back"
+        >
+          <HiArrowLeft className="text-xl" />
+        </button>
+      </div>
       <div className="w-full max-w-[95%] sm:max-w-md md:max-w-lg lg:max-w-[534px] xl:max-w-[534px] mx-auto">
         <div className="flex justify-center mb-4 sm:mb-5 md:mb-6 lg:mb-6">
           <img
@@ -29,11 +41,11 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
           />
         </div>
 
-        <h1 className="text-1B1717 text-2xl sm:text-3xl md:text-4xl lg:text-[36px] xl:text-[36px] font-semibold text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
+        <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[gilroy-semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
           Forgot Password
         </h1>
-        <p className="text-1B1717 opacity-70 text-center text-base sm:text-lg md:text-xl lg:text-[24px] xl:text-[24px] mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
-          Reset access in just one step
+        <p className="text-[#1B1717] font-[gilroy-medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
+          Reset Access in Just One Step
         </p>
 
         <Formik
@@ -46,7 +58,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
               <div className="mb-6 sm:mb-8 md:mb-10 lg:mb-10 w-full">
                 <label
                   htmlFor="phoneNumber"
-                  className="block text-gray-700 mb-1.5 sm:mb-2 md:mb-2 lg:mb-2"
+                  className="block text-[#1B1717] mb-1.5 sm:mb-2 md:mb-2 lg:mb-2"
                   style={{
                     fontFamily: "Gilroy-SemiBold",
                     fontWeight: 400,
@@ -61,7 +73,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                     <img
                       src={values.phoneNumber ? PhoneIconFilled : PhoneIcon}
                       alt="Phone"
-                      className="object-contain w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7"
+                      className="object-contain w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 lg:w-7 lg:h-7 xl:w-7 xl:h-7 "
                     />
                   </div>
                   <div className="absolute inset-y-0 left-11 sm:left-[50px] md:left-[50px] lg:left-[50px] flex items-center pointer-events-none z-10">
@@ -77,16 +89,14 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                     placeholder="Enter Your Number"
                     autoComplete="off"
                     maxLength={10}
-                    className="block w-full rounded-lg transition-all outline-none h-12 sm:h-14 md:h-16 lg:h-[60px] xl:h-[60px] pl-12 sm:pl-[60px] md:pl-[60px] lg:pl-[60px] pr-3 sm:pr-4 md:pr-4 lg:pr-4"
+                    className="block w-full rounded-[14px] transition-all outline-none h-12 sm:h-14 md:h-16 lg:h-[60px] xl:h-[60px] pl-12 sm:pl-[60px] md:pl-[60px] lg:pl-[60px] pr-3 sm:pr-4 md:pr-4 lg:pr-4"
                     style={{
                       fontFamily: "Gilroy-Medium",
                       fontWeight: 400,
                       fontSize: "15px",
                       lineHeight: "100%",
                       border: `1.5px solid ${
-                        values.phoneNumber
-                          ? "#1B1717"
-                          : "rgba(27, 23, 23, 0.5)"
+                        values.phoneNumber ? "#1B1717" : "rgba(27, 23, 23, 0.5)"
                       }`,
                     }}
                     onChange={(e) => {
@@ -109,7 +119,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                 </div>
               </div>
 
-              <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6 lg:mb-6">
+              {/* <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-5 md:mb-6 lg:mb-6">
                 <button
                   type="button"
                   onClick={onBack}
@@ -123,7 +133,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                 >
                   Back
                 </button>
-              </div>
+              </div> */}
 
               <div className="w-full flex justify-center">
                 <button
@@ -140,7 +150,11 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                     color: "white",
                   }}
                   onMouseEnter={(e) => {
-                    if (!isLoading && !isSubmitting && company?.secondaryColor) {
+                    if (
+                      !isLoading &&
+                      !isSubmitting &&
+                      company?.secondaryColor
+                    ) {
                       e.target.style.backgroundColor = company.secondaryColor;
                     }
                   }}
@@ -189,4 +203,3 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
 };
 
 export default ForgotPasswordView;
-
