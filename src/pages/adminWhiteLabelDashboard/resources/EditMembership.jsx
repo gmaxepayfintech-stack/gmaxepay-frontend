@@ -14,9 +14,34 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
 
-  const [schemeName, setSchemeName] = useState(scheme?.name || "");
-  const [schemeMode, setSchemeMode] = useState("Global");
-  const [schemeType, setSchemeType] = useState("Free");
+  // Map scheme data from API format to display format
+  const getSchemeMode = (schemeData) => {
+    if (schemeData?.schemaMode) {
+      const mode = schemeData.schemaMode.toLowerCase();
+      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+    }
+    if (schemeData?.schemeMode) {
+      const mode = schemeData.schemeMode.toLowerCase();
+      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+    }
+    return "Global";
+  };
+
+  const getSchemeType = (schemeData) => {
+    if (schemeData?.schemaType) {
+      const type = schemeData.schemaType.toLowerCase();
+      return type === "free" ? "Free" : type === "premium" ? "Premium" : "Free";
+    }
+    if (schemeData?.schemeType) {
+      const type = schemeData.schemeType.toLowerCase();
+      return type === "free" ? "Free" : type === "premium" ? "Premium" : "Free";
+    }
+    return "Free";
+  };
+
+  const [schemeName, setSchemeName] = useState(scheme?.name || scheme?.slabName || "");
+  const [schemeMode, setSchemeMode] = useState(() => getSchemeMode(scheme));
+  const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
   // Redux state for commiss
   const { commData } = useSelector((state) => state?.slab || {});
@@ -31,6 +56,15 @@ const EditMembership = ({ scheme = null, onBack }) => {
     mobileDth: false,
     bbps: false,
   });
+
+  // Update scheme data when scheme prop changes
+  useEffect(() => {
+    if (scheme) {
+      setSchemeName(scheme?.name || scheme?.slabName || "");
+      setSchemeMode(getSchemeMode(scheme));
+      setSchemeType(getSchemeType(scheme));
+    }
+  }, [scheme]);
 
   // Fetch commission list when component mounts or scheme changes
   useEffect(() => {
@@ -507,7 +541,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                 )}
                                 {commission.myDealType && (
                                   <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
-                                    {commission.myDealType}
+                                    {(commission.myDealType || "").toLowerCase() === "fix" ? "flat" : 
+                                     (commission.myDealType || "").toLowerCase() === "per" ? "per" : 
+                                     commission.myDealType}
                                   </span>
                                 )}
                               </div>
