@@ -6,6 +6,8 @@ import RoleUpgradeWhiteLabel from "../../pages/adminWhiteLabelDashboard/RoleUpgr
 import CreateCompanyUser from "../../pages/adminWhiteLabelDashboard/createCompanyUser";
 import WalletLoad from "../../pages/adminWhiteLabelDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/adminWhiteLabelDashboard/fundManagement/FundRequest";
+import SchemeMaster from "../../pages/adminWhiteLabelDashboard/resources/SchemeMaster";
+import RoleUpgrade from "../../pages/adminWhiteLabelDashboard/resources/RoleUpgrade";
 const WhitelabelAdmin = () => {
     return (
         <WhiteLabelDashboardLayout>
@@ -17,6 +19,8 @@ const WhitelabelAdmin = () => {
                 <Route path="/onboarding" element={<AdminWhitelabelList />} />
                 <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
                 <Route path="/fund-manage/fund-request" element={<FundRequest />} />
+                <Route path="/resources/schema-master" element={<SchemeMaster/>}/>
+                <Route path="/resources/list" element={<RoleUpgrade />}/>
             </Routes>
         </WhiteLabelDashboardLayout>
     );

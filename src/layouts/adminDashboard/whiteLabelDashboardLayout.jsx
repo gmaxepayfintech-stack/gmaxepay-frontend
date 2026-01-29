@@ -182,6 +182,8 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       dropdown: true,
       children: [
         { name: "Resource List", path: "/adminDashboard/resources/list" },
+        { name: "Schema Master", path: "/adminDashboard/resources/schema-master" },
+
       ],
     },
     {
