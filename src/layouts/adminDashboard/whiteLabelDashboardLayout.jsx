@@ -194,10 +194,10 @@ const WhiteLabelDashboardLayout = ({ children }) => {
           name: "Fund Request",
           path: "/adminDashboard/fund-manage/fund-request",
         },
-        {
-          name: "QR UPI Transcation",
-          path: "/adminDashboard/fund-manage/qr-upi-transaction",
-        },
+        // {
+        //   name: "QR UPI Transcation",
+        //   path: "/adminDashboard/fund-manage/qr-upi-transaction",
+        // },
       ],
     },
     {

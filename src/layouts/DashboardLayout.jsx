@@ -99,10 +99,10 @@ const DashboardLayout = ({ children }) => {
           name: "Fund Request",
           path: `/superDashboard/fund-management/fund-request`,
         },
-        {
-          name: "QR UPI Transcation",
-          path: `/superDashboard/fund-management/qr-upi-transaction`,
-        },
+        // {
+        //   name: "QR UPI Transcation",
+        //   path: `/superDashboard/fund-management/qr-upi-transaction`,
+        // },
       ],
     },
     {
