@@ -2,52 +2,40 @@ import { useMemo, useRef, useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
 import PropTypes from "prop-types";
-import BiometricVerification from "./BiometricVerification";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import {
-  aepsSubmitOTP,
-  aepsRescendOTP,
   aepsStatusCheck,
+  aepsSubmitBankOtp,
 } from "../../../redux/action/aepsAction";
+import BankKyc from "./BankKyc";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
-
+import { aepsBankOtp } from "../../../redux/action/aepsAction";
+import { getLocationAndIP } from "../../../util/getLocationAndIP";
 const OTP_LENGTH = 6;
 
-const IdentityVerification = ({ onBack }) => {
+const BankOtp = ({ onBack }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
   const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
   const [touchedSubmit, setTouchedSubmit] = useState(false);
-  const [showBiometric, setShowBiometric] = useState(false);
-  const [resendTimer, setResendTimer] = useState(0); // Timer in seconds
+  const [showBankKyc, setShowBankKyc] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isResendLoading, setIsResendLoading] = useState(false);
+  const [resendCooldown, setResendCooldown] = useState(0); // seconds
   const inputsRef = useRef([]);
 
   // Call getUserProfile on component mount
   useEffect(() => {
     dispatch(getUserProfile())
       .then((response) => {
-        console.log(
-          "getUserProfile response in IdentityVerification:",
-          response,
-        );
+        console.log("getUserProfile response in BankOtp:", response);
       })
       .catch((error) => {
-        console.error("getUserProfile error in IdentityVerification:", error);
+        console.error("getUserProfile error in BankOtp:", error);
       });
   }, [dispatch]);
-
-  // Countdown timer effect
-  useEffect(() => {
-    if (resendTimer > 0) {
-      const timer = setTimeout(() => {
-        setResendTimer(resendTimer - 1);
-      }, 1000);
-      return () => clearTimeout(timer);
-    }
-  }, [resendTimer]);
 
   // Format mobile number for display
   const formatPhoneNumber = (mobile) => {
@@ -64,6 +52,16 @@ const IdentityVerification = ({ onBack }) => {
   const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
 
   const otpValue = useMemo(() => otp.join(""), [otp]);
+
+  // Handle resend OTP countdown
+  useEffect(() => {
+    if (!resendCooldown) return;
+    const timer = setTimeout(
+      () => setResendCooldown((prev) => (prev > 0 ? prev - 1 : 0)),
+      1000,
+    );
+    return () => clearTimeout(timer);
+  }, [resendCooldown]);
 
   const focusIndex = (idx) => {
     const el = inputsRef.current?.[idx];
@@ -98,6 +96,41 @@ const IdentityVerification = ({ onBack }) => {
     focusIndex(nextIndex);
   };
 
+  const handleResendOtp = async () => {
+    if (isResendLoading || resendCooldown > 0) return;
+    setIsResendLoading(true);
+    try {
+      // Get location (latitude & longitude)
+      const locationAndIP = await getLocationAndIP();
+      const latitude = locationAndIP?.location?.latitude || "";
+      const longitude = locationAndIP?.location?.longitude || "";
+
+      // Prepare payload with only latitude and longitude
+      const payload = {
+        latitude,
+        longitude,
+      };
+
+      const response = await dispatch(aepsBankOtp(payload));
+      console.log("aepsBankOtp resend response:", response);
+      if (response?.status === "SUCCESS") {
+        // Start cooldown for 3 minutes (180 seconds)
+        setResendCooldown(180);
+      }
+    } catch (error) {
+      console.error("aepsBankOtp resend error:", error);
+    } finally {
+      setIsResendLoading(false);
+    }
+  };
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
   const handleKeyDown = (idx, e) => {
     if (e.key === "Backspace" && !otp[idx] && idx > 0) {
       focusIndex(idx - 1);
@@ -120,37 +153,40 @@ const IdentityVerification = ({ onBack }) => {
 
     setIsLoading(true);
     try {
-      // Submit OTP in the required format
-      const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
-      console.log("aepsSubmitOTP response:", response);
+      // Submit Bank OTP in the required format
+      const response = await dispatch(aepsSubmitBankOtp({ otp: otpValue }));
+      console.log("aepsSubmitBankOtp response:", response);
 
       // Check status regardless of success or failure
       try {
         const statusResponse = await dispatch(aepsStatusCheck());
         console.log(
-          "aepsStatusCheck response after OTP submit:",
-          statusResponse,
-        );
-      } catch (statusError) {
-        console.error("aepsStatusCheck error after OTP submit:", statusError);
-      }
-
-      // Only navigate to next step if OTP submission was successful
-      if (response?.status === "SUCCESS") {
-        setShowBiometric(true);
-      }
-    } catch (error) {
-      console.error("aepsSubmitOTP error:", error);
-      // Check status even on error
-      try {
-        const statusResponse = await dispatch(aepsStatusCheck());
-        console.log(
-          "aepsStatusCheck response after OTP submit error:",
+          "aepsStatusCheck response after Bank OTP submit:",
           statusResponse,
         );
       } catch (statusError) {
         console.error(
-          "aepsStatusCheck error after OTP submit error:",
+          "aepsStatusCheck error after Bank OTP submit:",
+          statusError,
+        );
+      }
+
+      // Only navigate to next step if OTP submission was successful
+      if (response?.status === "SUCCESS") {
+        setShowBankKyc(true);
+      }
+    } catch (error) {
+      console.error("aepsSubmitBankOtp error:", error);
+      // Check status even on error
+      try {
+        const statusResponse = await dispatch(aepsStatusCheck());
+        console.log(
+          "aepsStatusCheck response after Bank OTP submit error:",
+          statusResponse,
+        );
+      } catch (statusError) {
+        console.error(
+          "aepsStatusCheck error after Bank OTP submit error:",
           statusError,
         );
       }
@@ -160,35 +196,12 @@ const IdentityVerification = ({ onBack }) => {
     }
   };
 
-  const handleResendOTP = async () => {
-    if (resendTimer > 0) return; // Don't allow resend if timer is active
-
-    try {
-      const response = await dispatch(aepsRescendOTP());
-      console.log("aepsRescendOTP response:", response);
-
-      if (response?.status === "SUCCESS") {
-        // Start 3-minute countdown (180 seconds)
-        setResendTimer(180);
-      }
-    } catch (error) {
-      console.error("aepsRescendOTP error:", error);
-    }
-  };
-
-  // Format timer display (MM:SS)
-  const formatTimer = (seconds) => {
-    const mins = Math.floor(seconds / 60);
-    const secs = seconds % 60;
-    return `${mins}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  if (showBiometric) {
-    return <BiometricVerification />;
+  if (showBankKyc) {
+    return <BankKyc />;
   }
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full py-4 px-2">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -253,26 +266,7 @@ const IdentityVerification = ({ onBack }) => {
             )}
           </div>
 
-          <div className="mt-[28px]">
-            <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
-              Didn't Receive The Code?
-            </div>
-            <button
-              type="button"
-              onClick={handleResendOTP}
-              disabled={resendTimer > 0}
-              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
-                resendTimer > 0
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-[#039155] hover:text-[#027A47] cursor-pointer"
-              }`}
-            >
-              {resendTimer > 0
-                ? `Resend In ${formatTimer(resendTimer)}`
-                : "Resend OTP"}
-            </button>
-          </div>
-
+          {/* Submit OTP Button */}
           <button
             type="submit"
             disabled={isLoading}
@@ -283,14 +277,37 @@ const IdentityVerification = ({ onBack }) => {
             )}
             {isLoading ? "Processing..." : "Submit"}
           </button>
+
+          {/* Resend OTP section – match IdentityVerification style */}
+          <div className="mt-[24px]">
+            <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+              Didn't Receive The Code?
+            </div>
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={isResendLoading || resendCooldown > 0}
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
+                isResendLoading || resendCooldown > 0
+                  ? "text-gray-400 cursor-not-allowed"
+                  : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+              }`}
+            >
+              {isResendLoading
+                ? "Resending OTP..."
+                : resendCooldown > 0
+                  ? `Resend In ${formatTimer(resendCooldown)}`
+                  : "Resend OTP"}
+            </button>
+          </div>
         </div>
       </form>
     </div>
   );
 };
 
-IdentityVerification.propTypes = {
+BankOtp.propTypes = {
   onBack: PropTypes.func,
 };
 
-export default IdentityVerification;
+export default BankOtp;

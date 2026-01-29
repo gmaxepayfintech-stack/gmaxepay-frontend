@@ -1630,7 +1630,7 @@ const SelectserviceTwo = () => {
     };
 
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black bg-opacity-50">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
         <div
           className={`${colors.bg} ${colors.border} border-2 rounded-xl shadow-xl max-w-lg w-full p-6 max-h-[90vh] overflow-y-auto`}
         >

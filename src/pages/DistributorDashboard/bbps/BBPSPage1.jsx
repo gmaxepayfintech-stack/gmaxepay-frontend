@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from "react";
 import { ChevronDown } from "lucide-react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserBBPSCategories } from "../../../../redux/action/bbpsAction";
-import { ButtonLoader } from "../../../../widgets/layout/loader";
+import { getUserBBPSCategories } from "../../../redux/action/bbpsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
@@ -20,7 +20,7 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   // Fetch categories from Redux
   useEffect(() => {
     if (userCategories.length === 0 && !userCategoriesLoading) {
-      dispatch(getUserBBPSCategories(1, 6));
+      dispatch(getUserBBPSCategories(1, 40));
     }
   }, [dispatch, userCategories.length, userCategoriesLoading]);
 

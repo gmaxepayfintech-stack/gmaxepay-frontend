@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   XAxis,
@@ -10,6 +10,8 @@ import {
   Tooltip,
 } from "recharts";
 import { useNavigate } from "react-router-dom";
+import { getLocationAndIP } from "../../util/getLocationAndIP";
+
 import { getUserWalletBalance } from "../../redux/action/walletAction";
 
 const Distributor = "/img/DistributorM.png";
@@ -19,11 +21,24 @@ const Earning = "/img/Earning.png";
 const DistDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [payoutOpen, setPayout] = useState(false);
+  const [walletType, setWalletType] = useState("bank");
+  const [requestType, setRequestType] = useState("");
+  const [amount, setAmount] = useState("1000");
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [banks, setBanks] = useState([]);
+  const scrollYRef = useRef(0);
   const [walletData, setWalletData] = useState({
     mainWallet: null,
     apesWallet: null,
   });
   const [isWalletLoading, setIsWalletLoading] = useState(true);
+  const [addBankOpen, setAddBankOpen] = useState(false);
+
+  // Get bank list from Redux
+  const payoutBankListData = useSelector(
+    (state) => state?.payout?.payoutBankList,
+  );
 
   const walletBalanceResponse = useSelector(
     (state) => state?.wallet?.userWalletBalance,
@@ -180,6 +195,83 @@ const DistDashboard = () => {
       icon: Earning,
     },
   ];
+
+  const handlePayout = () => {
+    setPayout(true);
+  };
+
+  // Fetch bank list when modal opens
+  useEffect(() => {
+    if (payoutOpen) {
+      const fetchBanks = async () => {
+        const response = await dispatch(payoutBankList({}));
+        if (response?.status === "SUCCESS" && response?.data?.banks) {
+          // Transform API data to match component format
+          const transformedBanks = response.data.banks.map((bank, index) => ({
+            id: bank.id?.toString() || index.toString(),
+            name: bank.bankName || "",
+            logo: "/img/kotak-logo.png", // Default logo, can be updated based on bank name
+            accountNumber: bank.accountNumber || "",
+            ifscCode: bank.ifsc || "",
+          }));
+          setBanks(transformedBanks);
+          // Set first bank as selected if available
+          if (transformedBanks.length > 0 && !selectedBank) {
+            setSelectedBank(transformedBanks[0].id);
+          }
+        }
+      };
+      fetchBanks();
+    }
+  }, [payoutOpen, dispatch]);
+
+  // Also use Redux data if available
+  useEffect(() => {
+    if (
+      payoutBankListData?.data?.banks &&
+      payoutBankListData.data.banks.length > 0
+    ) {
+      const transformedBanks = payoutBankListData.data.banks.map(
+        (bank, index) => ({
+          id: bank.id?.toString() || index.toString(),
+          name: bank.bankName || "",
+          logo: "/img/kotak-logo.png",
+          accountNumber: bank.accountNumber || "",
+          ifscCode: bank.ifsc || "",
+        }),
+      );
+      setBanks(transformedBanks);
+      if (transformedBanks.length > 0 && !selectedBank) {
+        setSelectedBank(transformedBanks[0].id);
+      }
+    }
+  }, [payoutBankListData]);
+
+  useEffect(() => {
+    if (payoutOpen) {
+      // Save current scroll position
+      scrollYRef.current = window.scrollY;
+      document.body.style.position = "fixed";
+      document.body.style.top = `-${scrollYRef.current}px`;
+      document.body.style.width = "100%";
+      document.body.style.overflow = "hidden";
+    } else {
+      // Restore scroll position
+      const scrollY = scrollYRef.current;
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "unset";
+      window.scrollTo(0, scrollY);
+    }
+    return () => {
+      // Cleanup: reset styles only
+      document.body.style.position = "";
+      document.body.style.top = "";
+      document.body.style.width = "";
+      document.body.style.overflow = "unset";
+    };
+  }, [payoutOpen]);
 
   // Skeleton loader component
   const SkeletonLoader = () => (
@@ -542,6 +634,420 @@ const DistDashboard = () => {
           </div>
         </div>
       </div>
+      {payoutOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9CC]">
+          <div className="bg-white rounded-3xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
+            {!addBankOpen && (
+              <>
+                <h2 className="text-2xl font-['Gilroy-Medium'] mb-[20px] text-[#1B1717]">
+                  Transferring Amount
+                </h2>
+                <button
+                  onClick={() => setPayout(false)}
+                  className="absolute top-4 right-4 w-10 h-10
+                   flex items-center justify-center
+                   rounded-xl bg-[#039155]
+                   hover:opacity-90 transition"
+                >
+                  <span
+                    className="w-6 h-6 flex items-center justify-center
+                     rounded-full border-2 border-white
+                     text-white text-sm font-bold"
+                  >
+                    ✕
+                  </span>
+                </button>
+
+                {/* Input Fields */}
+                <div className="space-y-4 mb-6">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-[18px]">
+                    {/* Wallet Type */}
+                    <div>
+                      <label
+                        htmlFor="walletType"
+                        className="text-[14px] font-['Gilroy-Medium'] text-[#121216] mb-4 "
+                      >
+                        Wallet Type
+                      </label>
+                      <select
+                        id="walletType"
+                        value={walletType}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          setWalletType(value);
+
+                          if (value === "wallet") {
+                            setRequestType("");
+                            setSelectedBank(null);
+                          }
+                        }}
+                        className="w-full px-4 h-[43px] border-[0.5px] border-[#1B1717]/80 text-[#1B1717] focus:outline-none border-opacity-50 rounded-lg"
+                      >
+                        <option
+                          value="bank"
+                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                        >
+                          Aeps Wallet To Bank
+                        </option>
+                        <option
+                          value="wallet"
+                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                        >
+                          AEPS wallet To Main Wallet
+                        </option>
+                      </select>
+                    </div>
+
+                    {/* Request Type */}
+                    <div>
+                      <label
+                        htmlFor="requestType"
+                        className="text-[14px] font-['Gilroy-Medium'] text-[#121216] mb-2 "
+                      >
+                        Mode Type
+                      </label>
+                      <select
+                        id="requestType"
+                        value={requestType}
+                        onChange={(e) => setRequestType(e.target.value)}
+                        disabled={walletType === "wallet"}
+                        className={`w-full px-4  h-[43px] border-[0.5px] border-[#1B1717]/80 focus:outline-none text-[#1B1717] rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
+                      >
+                        <option
+                          value=""
+                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                        >
+                          Select
+                        </option>
+                        <option value="IMPS">IMPS</option>
+                        <option
+                          value="NEFT"
+                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                        >
+                          NEFT
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+
+                  {/* Amount To Withdrawal */}
+                  <div className="">
+                    <label
+                      htmlFor="amount"
+                      className="block text-[14px] font-['Gilroy-Medium'] text-[#121216] mb-2"
+                    >
+                      Amount To Withdrawal
+                    </label>
+                    <div className="relative text-[24px]">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[#1B1717] text-opacity-80">
+                        ₹
+                      </span>
+                      <input
+                        id="amount"
+                        type="text"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="Enter amount"
+                        className="
+                          w-full pl-10 pr-4 py-2.5 h-[78px] font-['Gilroy-SemiBold'] text-[#1B1717] text-opacity-80
+                          border border-dashed border-[#1B1717] border-opacity-80
+                          rounded-lg focus:outline-none 
+                        "
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Settlements Banks Added */}
+                {walletType === "bank" && (
+                  <div className="mb-6">
+                    <h3 className="text-[14px] text-[#121216] font-['Gilroy-Medium'] mb-2">
+                      Settlements Banks Added
+                    </h3>
+                    <div className="space-y-3 max-h-56 overflow-y-auto">
+                      {banks.length === 0 ? (
+                        <p className="text-[14px] text-[#1B1717]/80 text-center py-4">
+                          No banks available
+                        </p>
+                      ) : (
+                        banks.map((bank) => (
+                          <div
+                            key={bank.id}
+                            role="button"
+                            tabIndex={0}
+                            onClick={() => setSelectedBank(bank.id)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter" || e.key === " ") {
+                                e.preventDefault();
+                                setSelectedBank(bank.id);
+                              }
+                            }}
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
+                              selectedBank === bank.id
+                                ? "border-[#039155] bg-green-50"
+                                : "border-[#1B1717] border-opacity-80"
+                            }`}
+                          >
+                            <div className="flex items-start gap-4">
+                              {/* Bank Logo */}
+                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                                <img
+                                  src={bank.logo}
+                                  alt={bank.name}
+                                  className="w-10 h-10 object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                    const fallback =
+                                      e.target.nextElementSibling;
+                                    if (fallback)
+                                      fallback.style.display = "block";
+                                  }}
+                                />
+                                <span className="text-[12px] font-['Gilroy-SemiBold'] text-[#1B1717] hidden">
+                                  {bank.name
+                                    ? bank.name.substring(0, 2).toUpperCase()
+                                    : "BK"}
+                                </span>
+                              </div>
+
+                              {/* Bank Details */}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="text-sm font-[gilroy-medium] text-[#1B1717]">
+                                    Bank Name: {bank.name}
+                                  </p>
+                                  {/* FIX: remove margin that increases card height and center the indicator */}
+                                  {selectedBank === bank.id && (
+                                    <div
+                                      className="w-[24px] h-[24px] rounded-full bg-[#039155]
+                        flex items-center justify-center self-center"
+                                    >
+                                      <div className="w-[8px] h-[8px] rounded-full bg-white" />
+                                    </div>
+                                  )}
+                                </div>
+                                <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]/80 mb-1">
+                                  Account Number:{" "}
+                                  <span className="text-[#1B1717]">
+                                    {bank.accountNumber}
+                                  </span>
+                                </p>
+                                <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]/80">
+                                  IFSC Code:{" "}
+                                  <span className="text-[#1B1717]">
+                                    {bank.ifscCode}
+                                  </span>
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                    {/* Add New Bank Button */}
+                    <div
+                      onClick={() => {
+                        // open add bank modal / navigate
+                        setAddBankOpen(true); // or navigate("/add-bank")
+                      }}
+                      className="w-full mt-5 cursor-pointer border-[0.5px] border-dashed border-[#1B1717]/80
+                        rounded-xl py-4 flex items-center justify-center gap-2
+                        hover:border-[#039155]  transition"
+                    >
+                      <div className="w-6 h-6 rounded-full border-[#180404] border-2 border-current flex items-center justify-center text-[24px] text-[#180404] font-medium leading-none">
+                        +
+                      </div>
+                      <span className="font-['Gilroy-Medium'] text-lg text-[#1B1717]">
+                        Add New Bank
+                      </span>
+                    </div>
+                  </div>
+                )}
+                {/* Action Buttons */}
+                <div className="flex w-full gap-3 pt-4 border-gray-200">
+                  <button
+                    className="w-1/2 px-6 py-4 text-[18px] rounded-lg border border-[#1B1717]/80 bg-[#FFFFFF]
+                     text-[#1B1717] font-['Gilroy-Medium']
+                     hover:bg-gray-50 transition"
+                    onClick={() => setPayout(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="w-1/2 px-6 py-2.5 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF]
+                     font-['Gilroy-SemiBold']
+                     hover:bg-[#027a47] transition"
+                    onClick={async () => {
+                      try {
+                        let payload = {};
+
+                        if (walletType === "wallet") {
+                          // Get location data
+                          const locationInfo = await getLocationAndIP();
+                          console.log("Wallet - Location Info:", locationInfo);
+                          const latitude =
+                            locationInfo?.location?.latitude != null
+                              ? locationInfo.location.latitude.toString()
+                              : "";
+                          const longitude =
+                            locationInfo?.location?.longitude != null
+                              ? locationInfo.location.longitude.toString()
+                              : "";
+                          console.log(
+                            "Wallet - Latitude:",
+                            latitude,
+                            "Longitude:",
+                            longitude,
+                          );
+
+                          payload = {
+                            amount: amount.toString(),
+                            mode: "wallet",
+                            latitude: latitude,
+                            longitude: longitude,
+                          };
+                        } else if (walletType === "bank") {
+                          const locationInfo = await getLocationAndIP();
+                          console.log("Bank - Location Info:", locationInfo);
+                          const latitude =
+                            locationInfo?.location?.latitude != null
+                              ? locationInfo.location.latitude.toString()
+                              : "";
+                          const longitude =
+                            locationInfo?.location?.longitude != null
+                              ? locationInfo.location.longitude.toString()
+                              : "";
+                          console.log(
+                            "Bank - Latitude:",
+                            latitude,
+                            "Longitude:",
+                            longitude,
+                          );
+                          payload = {
+                            amount: amount.toString(),
+                            mode: "bank",
+                            bankId: selectedBank,
+                            latitude: latitude,
+                            longitude: longitude,
+                          };
+                          if (requestType) {
+                            payload.paymentMode = requestType;
+                          }
+                        }
+
+                        // Validate payload before sending
+                        if (!payload || Object.keys(payload).length === 0) {
+                          console.error(
+                            "Payload is empty! WalletType:",
+                            walletType,
+                          );
+                          alert(
+                            "Please select a valid wallet type and fill in the required fields.",
+                          );
+                          return;
+                        }
+
+                        console.log(
+                          "Processing transfer with payload:",
+                          payload,
+                        );
+
+                        const response = await dispatch(
+                          payoutTransaction(payload),
+                        );
+
+                        if (response?.status === "SUCCESS") {
+                          console.log("Transfer successful:", response);
+                          setPayout(false);
+                          // Reset form
+                          setWalletType("bank");
+                          setRequestType("");
+                          setAmount("1000");
+                          setSelectedBank(null);
+                        } else {
+                          console.error("Transfer failed:", response?.message);
+                          // You might want to show an error message to the user here
+                        }
+                      } catch (error) {
+                        console.error("Error processing transfer:", error);
+                        // You might want to show an error message to the user here
+                      }
+                    }}
+                  >
+                    Processed Transfer
+                  </button>
+                </div>
+              </>
+            )}
+
+            {/* ================= STEP 2: ADD BANK CARD ================= */}
+            {addBankOpen && (
+              <>
+                <h2 className="text-2xl font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+                  Enter Your Bank Details
+                </h2>
+
+                <div className="space-y-4">
+                  {/* Select Bank */}
+                  <div>
+                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
+                      Select Your Bank *
+                    </label>
+                    <select className="w-full h-[43px] mt-2 border border-[#1B1717]/80 rounded-lg px-4 text-[#1B1717] text-opacity-80">
+                      <option>Select</option>
+                    </select>
+                  </div>
+
+                  {/* Account Number */}
+                  <div>
+                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
+                      Account Number *
+                    </label>
+                    <input
+                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-[#1B1717]/80 rounded-lg px-4"
+                      placeholder="Enter Account Number"
+                    />
+                  </div>
+
+                  {/* IFSC */}
+                  <div>
+                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
+                      IFSC Code *
+                    </label>
+                    <input
+                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-sm text-[#1B1717]/80 rounded-lg px-4"
+                      placeholder="Enter IFSC Code"
+                    />
+                  </div>
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-3 mt-6">
+                  <button
+                    className="w-1/2 py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg font-[gilroy-medium] text-[#1B1717]/80"
+                    onClick={() => setAddBankOpen(false)}
+                  >
+                    Cancel
+                  </button>
+
+                  <button
+                    className="w-1/2 py-3 bg-[#039155] text-white rounded-lg font-[gilroy-semibold] text-sm hover:bg-[#027a47] transition"
+                    onClick={() => {
+                      // save bank API
+                      // after success:
+                      setAddBankOpen(false);
+                      dispatch(payoutBankList({})); // refresh list
+                    }}
+                  >
+                    Save
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 };

@@ -839,7 +839,7 @@ const RetailerDashboard = () => {
                         // open add bank modal / navigate
                         setAddBankOpen(true); // or navigate("/add-bank")
                       }}
-                      className="w-full cursor-pointer border-[0.5px] border-dashed border-[#1B1717]/80
+                      className="w-full mt-5 cursor-pointer border-[0.5px] border-dashed border-[#1B1717]/80
                   rounded-xl py-4 flex items-center justify-center gap-2
                   hover:border-[#039155]  transition"
                     >

@@ -1,31 +1,31 @@
-import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useDispatch } from 'react-redux';
-import { HiArrowLeft } from 'react-icons/hi2';
-import { useNotification } from '../../../context/NotificationContext';
-import { PanRequest } from '../../../redux/action/fundAction';
-import { ButtonLoader } from '../../../widgets/layout/loader';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
+import { PanRequest } from "../../../redux/action/fundAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const PanService = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const [mobileNumber, setMobileNumber] = useState('');
-  const [action, setAction] = useState('correction'); // 'new' or 'correction'
+  const [mobileNumber, setMobileNumber] = useState("");
+  const [action, setAction] = useState("correction"); // 'new' or 'correction'
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   const validateMobileNumber = (number) => {
     if (!number) {
-      return 'Mobile number is required';
+      return "Mobile number is required";
     }
     if (number.length !== 10) {
-      return 'Mobile number must be 10 digits';
+      return "Mobile number must be 10 digits";
     }
     if (!/^\d+$/.test(number)) {
-      return 'Mobile number must contain only digits';
+      return "Mobile number must contain only digits";
     }
-    return '';
+    return "";
   };
 
   const handleSubmit = async (e) => {
@@ -79,22 +79,29 @@ const PanService = () => {
       const panData = response?.panServiceRequest;
 
       // Check if outer status is FAILURE
-      if (responseStatus === 'FAILURE') {
+      if (responseStatus === "FAILURE") {
         // Show failure message from data or response
-        const errorMessage = panData?.message || response?.message || 'Failed to submit PAN request';
+        const errorMessage =
+          panData?.message ||
+          response?.message ||
+          "Failed to submit PAN request";
         showNotification({
-          type: 'error',
+          type: "error",
           message: errorMessage,
           isCritical: true,
         });
-      } else if (panData?.url && panData?.status === 'Success') {
+      } else if (panData?.url && panData?.status === "Success") {
         // Redirect to the URL on success
         window.location.href = panData.url;
-      } else if (panData?.status === 'Failure') {
+      } else if (panData?.status === "Failure") {
         // Show failure message from inner data
-        const errorMessage = panData?.message || panData?.opid || response?.message || 'Failed to submit PAN request';
+        const errorMessage =
+          panData?.message ||
+          panData?.opid ||
+          response?.message ||
+          "Failed to submit PAN request";
         showNotification({
-          type: 'error',
+          type: "error",
           message: errorMessage,
         });
       } else {
@@ -104,17 +111,23 @@ const PanService = () => {
           window.location.href = panData.url;
         } else {
           // Show error if no URL and no clear status
-          const errorMessage = panData?.message || response?.message || 'Failed to submit PAN request';
+          const errorMessage =
+            panData?.message ||
+            response?.message ||
+            "Failed to submit PAN request";
           showNotification({
-            type: 'error',
+            type: "error",
             message: errorMessage,
           });
         }
       }
     } catch (error) {
-      const errorMessage = error?.response?.data?.message || error?.message || 'Failed to submit PAN correction request';
+      const errorMessage =
+        error?.response?.data?.message ||
+        error?.message ||
+        "Failed to submit PAN correction request";
       showNotification({
-        type: 'error',
+        type: "error",
         message: errorMessage,
       });
     } finally {
@@ -123,7 +136,7 @@ const PanService = () => {
   };
 
   const handleBack = () => {
-    navigate('/distributerDashboard/services');
+    navigate("/distributerDashboard/services");
   };
 
   return (
@@ -132,7 +145,7 @@ const PanService = () => {
       <div className="mb-6 flex items-center gap-4">
         <button
           onClick={handleBack}
-          className="flex items-center justify-center w-10 h-10 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
           aria-label="Go back"
         >
           <HiArrowLeft className="w-5 h-5 text-[#1B1717]" />
@@ -161,7 +174,7 @@ const PanService = () => {
                   type="radio"
                   name="action"
                   value="new"
-                  checked={action === 'new'}
+                  checked={action === "new"}
                   onChange={(e) => setAction(e.target.value)}
                   className="w-4 h-4 text-[#039155] border-gray-300 "
                 />
@@ -174,7 +187,7 @@ const PanService = () => {
                   type="radio"
                   name="action"
                   value="correction"
-                  checked={action === 'correction'}
+                  checked={action === "correction"}
                   onChange={(e) => setAction(e.target.value)}
                   className="w-4 h-4 text-[#039155] border-gray-300"
                 />
@@ -199,18 +212,19 @@ const PanService = () => {
               value={mobileNumber}
               onChange={(e) => {
                 // Remove all non-digit characters and limit to 10 digits
-                const value = e.target.value.replace(/\D/g, '').slice(0, 10);
+                const value = e.target.value.replace(/\D/g, "").slice(0, 10);
                 setMobileNumber(value);
                 if (errors.mobileNumber) {
-                  setErrors({ ...errors, mobileNumber: '' });
+                  setErrors({ ...errors, mobileNumber: "" });
                 }
               }}
               placeholder="Enter 10-digit mobile number"
               maxLength={10}
-              className={`w-full px-4 h-[48px] border rounded-lg focus:outline-none transition-colors ${errors.mobileNumber
-                  ? 'border-red-400 focus:border-red-500'
-                  : 'border-[#1B1717] border-opacity-50 focus:border-[#039155]'
-                }`}
+              className={`w-full px-4 h-[48px] border rounded-lg focus:outline-none transition-colors ${
+                errors.mobileNumber
+                  ? "border-red-400 focus:border-red-500"
+                  : "border-[#1B1717] border-opacity-50 focus:border-[#039155]"
+              }`}
             />
             {errors.mobileNumber && (
               <p className="text-red-500 text-xs mt-1">{errors.mobileNumber}</p>
@@ -220,12 +234,13 @@ const PanService = () => {
           {/* Action Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <span className="font-semibold">Action:</span> {action === 'new' ? 'Creation' : 'Correction'}
+              <span className="font-semibold">Action:</span>{" "}
+              {action === "new" ? "Creation" : "Correction"}
             </p>
             <p className="text-xs text-blue-600 mt-1">
-              {action === 'new'
-                ? 'This will submit a PAN creation request for the provided mobile number.'
-                : 'This will submit a PAN correction request for the provided mobile number.'}
+              {action === "new"
+                ? "This will submit a PAN creation request for the provided mobile number."
+                : "This will submit a PAN correction request for the provided mobile number."}
             </p>
           </div>
 
@@ -249,7 +264,7 @@ const PanService = () => {
                   <span>Submitting...</span>
                 </>
               ) : (
-                'Submit Request'
+                "Submit Request"
               )}
             </button>
           </div>

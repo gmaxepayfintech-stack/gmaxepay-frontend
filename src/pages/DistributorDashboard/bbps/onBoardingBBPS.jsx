@@ -29,7 +29,7 @@ const OnBoardingBBPS = () => {
     if (currentPage > 1) {
       setCurrentPage(currentPage - 1);
     } else {
-      navigate("/distributorDashboard/services");
+      navigate("/retailerDashboard/services");
     }
   };
 
