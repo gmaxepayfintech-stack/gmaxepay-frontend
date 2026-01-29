@@ -9,7 +9,7 @@ import RoleUpgrade from "../../pages/MasterDistributorDashboard/Resources/RoleUp
 import BusinessReport from "../../pages/MasterDistributorDashboard/Reports/BusinessReport";
 import UserPerformance from "../../pages/MasterDistributorDashboard/Reports/UserPerformance";
 import EarningReport from "../../pages/MasterDistributorDashboard/Reports/EarningReport";
-import TaxHistory from "../../pages/MasterDistributorDashboard/TaxHistory";
+import TaxHistory from "../../pages/MasterDistributorDashboard/taxHistoryMD/TaxHistory";
 import WalletLoad from "../../pages/MasterDistributorDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/MasterDistributorDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/MasterDistributorDashboard/Reports/NW-Overview";
