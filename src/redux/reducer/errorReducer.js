@@ -104,8 +104,8 @@ const errorReducer = (state = initialState, action) => {
       const errorPayload = action?.payload || {};
       const errorMessage = errorPayload?.message || errorPayload;
       const errorObject = typeof errorPayload === 'object' && errorPayload !== null
-        ? { ...errorPayload, message: errorPayload?.message || errorMessage }
-        : { message: errorMessage };
+        ? { ...errorPayload, message: errorPayload?.message || errorMessage, isCritical: true }
+        : { message: errorMessage, isCritical: true };
 
       return {
         ...state,
