@@ -18,7 +18,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const [schemeMode, setSchemeMode] = useState("Global");
   const [schemeType, setSchemeType] = useState("Free");
 
-  // Redux state for commissions
+  // Redux state for commiss
   const { commData } = useSelector((state) => state?.slab || {});
 
   // Local editable commissions state and loading
