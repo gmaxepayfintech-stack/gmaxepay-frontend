@@ -100,20 +100,14 @@ const errorReducer = (state = initialState, action) => {
 
       console.log("actionssssssssssssss", action?.payload);
 
-      // Ensure error object has message property for App.jsx notification handler
-      const errorPayload = action?.payload || {};
-      const errorMessage = errorPayload?.message || errorPayload;
-      const errorObject = typeof errorPayload === 'object' && errorPayload !== null
-        ? { ...errorPayload, message: errorPayload?.message || errorMessage, isCritical: true }
-        : { message: errorMessage, isCritical: true };
-
       return {
         ...state,
         loading: false,
-        error: errorObject,
-        status: errorPayload?.status,
-        message: errorMessage,
-        onBoarding: errorPayload,
+        error: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+        onBoarding: action?.payload,
+        isCritical: true,
       };
     case AEPS_STATUS_CHECK_FAILURE:
     case AEPS_TERMS_CONDITION_OTP_FAILURE:

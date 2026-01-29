@@ -220,7 +220,7 @@ function App() {
         showNotification({
           type: "error",
           message: error.message,
-          isCritical: error.isCritical || false,
+          isCritical: true,
         });
       }
       prevErrorRef.current = error;
