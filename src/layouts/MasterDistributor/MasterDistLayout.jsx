@@ -188,10 +188,10 @@ const MasterDistLayout = ({ children }) => {
           name: "Fund Request",
           path: `${BASE_PATH}/fund-management/fund-request`,
         },
-        {
-          name: "QR UPI Transcation",
-          path: `${BASE_PATH}/fund-management/qr-upi-transaction`,
-        },
+        // {
+        //   name: "QR UPI Transcation",
+        //   path: `${BASE_PATH}/fund-management/qr-upi-transaction`,
+        // },
       ],
     },
     {

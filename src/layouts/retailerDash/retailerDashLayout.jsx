@@ -56,10 +56,10 @@ const RetailerDashLayout = ({ children }) => {
           name: "Wallet Load",
           path: "/retailerDashboard/fund-management/wallet-load",
         },
-        {
-          name: "QR UPI Transaction",
-          path: "/retailerDashboard/fund-management/qr-upi-transaction",
-        },
+        // {
+        //   name: "QR UPI Transaction",
+        //   path: "/retailerDashboard/fund-management/qr-upi-transaction",
+        // },
       ],
     },
 

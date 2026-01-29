@@ -148,10 +148,10 @@ const DistributorLayout = ({ children }) => {
           name: "Fund Request",
           path: "/distributerDashboard/fund-manage/fund-request",
         },
-        {
-          name: "QR UPI Transaction",
-          path: "/distributerDashboard/fund-manage/qr-upi-transaction",
-        },
+        // {
+        //   name: "QR UPI Transaction",
+        //   path: "/distributerDashboard/fund-manage/qr-upi-transaction",
+        // },
       ],
     },
 
