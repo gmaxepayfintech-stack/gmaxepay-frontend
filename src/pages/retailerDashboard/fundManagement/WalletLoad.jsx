@@ -442,7 +442,7 @@ const WalletLoad = () => {
                     {/* Bank Logo */}
                     <div className="w-10 h-10 flex items-center justify-center shrink-0">
                       <img
-                        src={bank.logo}
+                        src={bank.bankImage}
                         alt={bank.name}
                         className="w-8 h-8 object-cover"
                         onError={(e) => {
@@ -455,7 +455,7 @@ const WalletLoad = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between mb-[2px]">
                         <p className="text-[13px] font-medium text-gray-900 leading-tight">
-                          Bank Name: {bank.name}
+                          Bank Name: {bank.bankName}
                         </p>
 
                         {selectedBank === bank.id && (
