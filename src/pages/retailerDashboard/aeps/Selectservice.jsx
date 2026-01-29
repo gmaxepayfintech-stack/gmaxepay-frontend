@@ -1753,7 +1753,7 @@ const Selectservice = () => {
                             </span>
                           </div>
                         )}
-                        {/* Mini Statement - Only for Statement transactions */}
+                        {/* Mini Stateme - Only for Statement transactions */}
                         {transactionData.miniStatement && Array.isArray(transactionData.miniStatement) && transactionData.miniStatement.length > 0 && (
                           <div className="mt-4 pt-4 border-t border-gray-200">
                             <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700 mb-3">
