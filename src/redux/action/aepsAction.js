@@ -362,22 +362,36 @@ export const aepsBankList = (data) => async (dispatch) => {
             }
         );
 
-        const { data: bankList, status, message } = response?.data ?? {};
-        if (status === "SUCCESS") {
+        // API response structure: { message, data: [...], total, paginator }
+        const responseData = response?.data ?? {};
+        const bankList = responseData?.data ?? [];
+        const message = responseData?.message ?? "All bank details retrieved successfully";
+        const total = responseData?.total ?? 0;
+        const paginator = responseData?.paginator ?? null;
+
+        // If data array exists, treat as success
+        if (Array.isArray(bankList) && bankList.length >= 0) {
+            const payload = {
+                bankList,
+                status: "SUCCESS",
+                message,
+                total,
+                paginator,
+            };
             dispatch({
                 type: AEPS_BANK_LIST_SUCCESS,
-                payload: { bankList, status, message },
+                payload,
             });
-            return { bankList, status, message };
+            return payload;
         } else {
             dispatch({
                 type: AEPS_BANK_LIST_FAILURE,
                 payload: {
-                    status: response?.data?.status ?? "FAILURE",
-                    message: response?.data?.message ?? commonError,
+                    status: "FAILURE",
+                    message: message || commonError,
                 },
             });
-            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+            return { status: "FAILURE", message: message || commonError };
         }
     } catch (error) {
         const errorMessage = error.response ? error.response.data.message : error.message;
