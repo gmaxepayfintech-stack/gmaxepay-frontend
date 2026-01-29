@@ -10,13 +10,13 @@ import {
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import { HiArrowLeft } from "react-icons/hi2";
 import TransactioDetails from "./TransactioDetails";
 import {
   getAepsCwHistory,
   getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
+} from "../../../redux/action/aepsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const AepsCWHistory = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -324,15 +324,15 @@ const AepsCWHistory = ({ onBack }) => {
               className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
             >
               <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
-                <HiOutlineArrowNarrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
+                <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
               </div>
             </button>
 
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-['Gilroy-Medium'] text-[#1B1717]">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                 AEPS CW History
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-[#1B1717] mt-2 sm:mt-3 font-['Gilroy-Regular']">
+              <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
               </p>
             </div>
