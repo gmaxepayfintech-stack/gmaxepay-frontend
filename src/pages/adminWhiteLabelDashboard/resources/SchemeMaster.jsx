@@ -13,7 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createSlab, getSlabList } from "../../redux/action/slabAction";
+import { createSlab, getSlabList } from "../../../redux/action/slabAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 const SchemeMaster = () => {

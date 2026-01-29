@@ -5,7 +5,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { getSlabCommissionList, updateSlabCommission } from "../../../redux/action/slabAction";
+import { getSlabCommissionList,updateSlabCommission } from "../../../redux/action/slabAction";
 
 const EditMembership = ({ scheme = null, onBack }) => {
   const dispatch = useDispatch();
