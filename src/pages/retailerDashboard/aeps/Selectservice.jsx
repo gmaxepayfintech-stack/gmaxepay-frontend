@@ -1413,15 +1413,35 @@ const Selectservice = () => {
           if (response?.status === "SUCCESS") {
             console.log("✅ Statement enquiry successful!");
             console.log(
-              "📊 Transaction data:",
-              response?.data || response?.withdrawal,
+              "📊 Full response:",
+              response,
             );
+            console.log(
+              "📊 Transaction data:",
+              response?.withdrawal || response?.data,
+            );
+            // Extract transaction data - handle nested data structure
+            // API response structure: { status: "SUCCESS", message: "...", data: { transactionId, miniStatement, ... } }
+            // Action returns: { withdrawal: data, status, message } where withdrawal = response.data.data
+            // So response.withdrawal contains: { transactionId, referenceId, miniStatement, ... }
+            let transactionData = response?.withdrawal || response?.data || null;
+            
+            // The action extracts response.data.data and assigns it to withdrawal
+            // So response.withdrawal should directly contain miniStatement
+            console.log("📊 Final transactionData:", transactionData);
+            console.log("📊 Mini Statement exists:", !!transactionData?.miniStatement);
+            console.log("📊 Mini Statement is array:", Array.isArray(transactionData?.miniStatement));
+            console.log("📊 Mini Statement length:", transactionData?.miniStatement?.length);
+            if (transactionData?.miniStatement) {
+              console.log("📊 First mini statement item:", transactionData.miniStatement[0]);
+            }
+            
             setModal({
               isOpen: true,
               title: "Statement Enquiry Successful",
-              message: response?.message || "Statement enquiry successful!",
+              message: response?.message || transactionData?.message || "Statement enquiry successful!",
               type: "success",
-              transactionData: response?.withdrawal || response?.data || null,
+              transactionData: transactionData,
             });
             setDeviceMessage("Statement enquiry completed successfully");
           } else {
@@ -1731,6 +1751,55 @@ const Selectservice = () => {
                             <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
                               {transactionData.transactionTime}
                             </span>
+                          </div>
+                        )}
+                        {/* Mini Statement - Only for Statement transactions */}
+                        {transactionData.miniStatement && Array.isArray(transactionData.miniStatement) && transactionData.miniStatement.length > 0 && (
+                          <div className="mt-4 pt-4 border-t border-gray-200">
+                            <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700 mb-3">
+                              Mini Statement
+                            </div>
+                            <div className="space-y-2 max-h-[300px] overflow-y-auto">
+                              {transactionData.miniStatement.map((statement, index) => (
+                                <div
+                                  key={index}
+                                  className="flex items-start justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition"
+                                >
+                                  <div className="flex-1 min-w-0">
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <span className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
+                                        {statement.date}
+                                      </span>
+                                      <span
+                                        className={`text-[10px] font-['Gilroy-SemiBold'] px-2 py-0.5 rounded ${
+                                          statement.txnType === "Cr"
+                                            ? "bg-green-100 text-green-700"
+                                            : "bg-red-100 text-red-700"
+                                        }`}
+                                      >
+                                        {statement.txnType}
+                                      </span>
+                                    </div>
+                                    <div className="text-xs font-['Gilroy-Regular'] text-gray-600 break-words">
+                                      {statement.narration?.trim() || "N/A"}
+                                    </div>
+                                  </div>
+                                  <div
+                                    className={`text-sm font-['Gilroy-SemiBold'] ml-4 flex-shrink-0 ${
+                                      statement.txnType === "Cr"
+                                        ? "text-green-600"
+                                        : "text-red-600"
+                                    }`}
+                                  >
+                                    {statement.txnType === "Cr" ? "+" : "-"}₹{" "}
+                                    {parseFloat(statement.amount || 0).toLocaleString('en-IN', {
+                                      minimumFractionDigits: 2,
+                                      maximumFractionDigits: 2
+                                    })}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </>
