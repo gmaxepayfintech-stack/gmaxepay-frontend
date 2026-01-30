@@ -62,7 +62,6 @@ api.interceptors.request.use(
           
           if (!isLoggingOut) {
             isLoggingOut = true;
-            // Clear all storage when token refresh fails
             clearAllStorage();
           }
           return Promise.reject(err);
@@ -98,46 +97,22 @@ api.interceptors.response.use(
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized - token expired
+    // Handle 401 Unauthorized - logout immediately without refresh
     if (
       error.response?.status === 401 &&
-      !originalRequest._retry &&
       !isRefreshCall &&
       !isLogoutCall &&
       !isLoggingOut
     ) {
-      originalRequest._retry = true;
-
-      try {
-        const companyId = originalRequest.headers?.['x-company-id'] || '';
-        
-        // Use shared refresh manager - it handles deduplication internally
-        const newToken = await refreshAccessTokenSync(companyId);
-
-        if (!newToken) {
-          throw new Error('No access token returned');
-        }
-
-        processQueue(null, newToken);
-        originalRequest.headers['token'] = newToken;
-
-        return api(originalRequest);
-      } catch (err) {
-        console.error('❌ Refresh token failed:', err.response?.data || err.message);
-        processQueue(err, null);
-
-        if (!isLoggingOut) {
-          isLoggingOut = true;
-          // Clear all storage when token refresh fails
-          clearAllStorage();
-        }
-
-        return Promise.reject(err);
+      if (!isLoggingOut) {
+        isLoggingOut = true;
+        clearAllStorage();
       }
+      return Promise.reject(error);
     }
 
-    // Handle other 401/403 errors (token expired without refresh token)
-    if ((error.response?.status === 401 || error.response?.status === 403) && !isLoggingOut) {
+    // Handle other 403 errors (token expired without refresh token)
+    if (error.response?.status === 403 && !isLoggingOut) {
       if (isTokenExpiredError(error)) {
         isLoggingOut = true;
         clearAllStorage();
