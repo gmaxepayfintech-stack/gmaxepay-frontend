@@ -224,7 +224,7 @@ const TaxHistory = () => {
                   onClick={() => {
                     if (card.title === "AEPS CW History") {
                       navigate(
-                        "/superDashboard/txn-history?view=aeps-cw-history",
+                        "/adminDashboard/txn-history?view=aeps-cw-history",
                       );
                     }
                   }}
