@@ -220,7 +220,116 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to transform API plan to UI format
   const transformPlanToUIFormat = (plan, index) => {
-    // Handle offers (which have 'offer' field instead of 'desc')
+    // Handle offers (which have 'offer' field instead of 'desc') - Only for Airtel
+    if ((plan.Type === "Offer" || plan.originalOffer) && selectedOperator?.name?.toUpperCase().includes("AIRTEL")) {
+      const offer = plan.originalOffer || plan;
+      const offerText = offer.offer || "";
+      
+      // Extract data from offer text - Look for patterns like "2GB/D", "2GB/day", "6GB data", "50GB data"
+      let dataText = "N/A";
+      const dataPatterns = [
+        /(\d+(?:\.\d+)?\s*GB\/D)/i, // "2GB/D", "2.5GB/D" - prioritize this
+        /(\d+(?:\.\d+)?\s*GB\/day)/i, // "2GB/day" - prioritize this
+        /(\d+(?:\.\d+)?\s*GB)\s+data/i, // "6GB data", "50GB data"
+        /(Unlimited\s+data)/i, // "Unlimited data"
+        /=\s*(\d+(?:\.\d+)?\s*GB)/i, // "=2GB" (from after =)
+        /(\d+(?:\.\d+)?\s*GB)/i, // Just "2GB", "12GB" anywhere (fallback)
+      ];
+      
+      for (const pattern of dataPatterns) {
+        const match = offerText.match(pattern);
+        if (match && match[1]) {
+          dataText = match[1].trim();
+          break;
+        }
+      }
+      
+      
+      // Extract validity from offer text - Look for "28D", "1M", "56D", "84 days", "1 month"
+      let validityText = "N/A";
+      // Prioritize patterns after "=" as they're more accurate
+      const validityPatternsAfterEquals = [
+        /=\s*[^,]*?(\d+\s*D\b)/i, // "=...28D" (from after =)
+        /=\s*[^,]*?(\d+\s*M\b)/i, // "=...1M" (from after =)
+      ];
+      
+      // Try patterns after "=" first (more accurate)
+      for (const pattern of validityPatternsAfterEquals) {
+        const match = offerText.match(pattern);
+        if (match && match[1]) {
+          let validity = match[1].trim();
+          // Format validity text
+          if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+            validityText = validity.replace(/\s*M\b/i, " Month");
+          } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+            validityText = validity.replace(/\s*D\b/i, " Day");
+          } else {
+            validityText = validity;
+          }
+          break; // Found after "=", use this
+        }
+      }
+      
+      // If not found after "=", try other patterns
+      if (validityText === "N/A") {
+        const validityPatterns = [
+          /(\d+\s*(?:day|days|Day|Days))/i, // "1 day", "30 days", "84 days"
+          /(\d+\s*(?:month|months|Month|Months))/i, // "1 month", "6 months"
+          /(\d+)\s*D\b/i, // "28D", "56D", "84D" - word boundary to avoid matching "2GB/D"
+          /(\d+)\s*M\b/i, // "1M", "6M" - word boundary
+        ];
+        
+        for (const pattern of validityPatterns) {
+          const match = offerText.match(pattern);
+          if (match && match[1]) {
+            let validity = match[1].trim();
+            // Format validity text
+            if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+              validityText = validity.replace(/\s*M\b/i, " Month");
+            } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+              validityText = validity.replace(/\s*D\b/i, " Day");
+            } else {
+              validityText = validity;
+            }
+            break;
+          }
+        }
+      }
+      
+      
+      // Extract calls/UL 5G information from offer text
+      let callsText = "N/A";
+      const callsPatterns = [
+        /(UL\s*5G)/i, // "UL 5G"
+        /(Get\s+UL\s*5G)/i, // "Get UL 5G"
+        /(Unltd\s+calls)/i, // "Unltd calls"
+        /(Unlimited\s+calls)/i, // "Unlimited calls"
+        /(ULCL)/i, // "ULCL"
+      ];
+      
+      for (const pattern of callsPatterns) {
+        const match = offerText.match(pattern);
+        if (match) {
+          callsText = match[1].trim();
+          break;
+        }
+      }
+      
+      return {
+        id: plan.id || `offer-${index}`,
+        price: plan.price || `₹${offer.amount}`,
+        validity: (plan.validity && plan.validity !== "N/A") ? plan.validity : validityText,
+        data: (plan.data && plan.data !== "N/A") ? plan.data : dataText,
+        calls: callsText,
+        validityExtra: offerText, // Full offer text
+        planName: "Offer",
+        desc: offerText, // Full offer text
+        originalPlan: offer,
+        rs: offer.amount,
+      };
+    }
+    
+    // Handle offers for non-Airtel operators (fallback to original logic)
     if (plan.Type === "Offer" || plan.originalOffer) {
       const offer = plan.originalOffer || plan;
       const offerText = offer.offer || "";
@@ -657,61 +766,19 @@ const MobileRecharge = ({ onBack }) => {
       selectedPlans = getAllPlansFromData(actualPlansData);
     } else if (activeCategory === "Offers") {
       // Handle Offers category - transform offers to plan format
+      // The actual parsing will be done in transformPlanToUIFormat for Airtel
       const offersData = rechargeOffers?.data || [];
       if (Array.isArray(offersData) && offersData.length > 0) {
         selectedPlans = offersData.map((offer, index) => {
-          const offerText = offer.offer || "";
-          
-          // Extract data from offer text
-          let dataText = "N/A";
-          const dataPatterns = [
-            /(\d+(?:\.\d+)?\s*GB)\s+data/i,
-            /(Unlimited\s+data)/i,
-            /=\s*(\d+(?:\.\d+)?\s*GB)/i,
-            /(\d+(?:\.\d+)?\s*GB)/i,
-          ];
-          
-          for (const pattern of dataPatterns) {
-            const match = offerText.match(pattern);
-            if (match) {
-              dataText = match[1].trim();
-              break;
-            }
-          }
-          
-          // Extract validity from offer text
-          let validityText = "N/A";
-          const validityPatterns = [
-            /(\d+\s*(?:day|days|Day|Days))/i,
-            /(\d+)\s*M\b/i,
-            /(\d+)\s*D\b/i,
-            /=\s*.*?(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i,
-          ];
-          
-          for (const pattern of validityPatterns) {
-            const match = offerText.match(pattern);
-            if (match) {
-              let validity = match[1].trim();
-              if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
-                validityText = validity.replace(/\s*M\b/i, " Month");
-              } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
-                validityText = validity.replace(/\s*D\b/i, " Day");
-              } else {
-                validityText = validity;
-              }
-              break;
-            }
-          }
-          
           return {
             id: `offer-${index}`,
             price: `₹${offer.amount}`,
             rs: offer.amount,
-            validity: validityText,
-            desc: offerText,
-            data: dataText,
+            validity: "N/A", // Will be parsed in transformPlanToUIFormat
+            desc: offer.offer || "",
+            data: "N/A", // Will be parsed in transformPlanToUIFormat
             Type: "Offer",
-            originalOffer: offer,
+            originalOffer: offer, // Store original offer for parsing
           };
         });
       }
