@@ -141,12 +141,14 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to extract suggested plans from offers API response
   const getSuggestedPlansFromOffers = () => {
-    if (!rechargeOffers?.data || !Array.isArray(rechargeOffers.data)) {
+    // Handle nested data structure: offers are in rechargeOffers.data (array)
+    const offersArray = rechargeOffers?.data || [];
+    if (!Array.isArray(offersArray) || offersArray.length === 0) {
       return [];
     }
 
     // Get first 3 offers
-    const offers = rechargeOffers.data.slice(0, 3);
+    const offers = offersArray.slice(0, 3);
 
     return offers.map((offer, index) => {
       const offerText = offer.offer || "";
@@ -218,6 +220,66 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to transform API plan to UI format
   const transformPlanToUIFormat = (plan, index) => {
+    // Handle offers (which have 'offer' field instead of 'desc')
+    if (plan.Type === "Offer" || plan.originalOffer) {
+      const offer = plan.originalOffer || plan;
+      const offerText = offer.offer || "";
+      
+      // Extract data from offer text
+      let dataText = "N/A";
+      const dataPatterns = [
+        /(\d+(?:\.\d+)?\s*GB)\s+data/i,
+        /(Unlimited\s+data)/i,
+        /=\s*(\d+(?:\.\d+)?\s*GB)/i,
+        /(\d+(?:\.\d+)?\s*GB)/i,
+      ];
+      
+      for (const pattern of dataPatterns) {
+        const match = offerText.match(pattern);
+        if (match) {
+          dataText = match[1].trim();
+          break;
+        }
+      }
+      
+      // Extract validity from offer text
+      let validityText = "N/A";
+      const validityPatterns = [
+        /(\d+\s*(?:day|days|Day|Days))/i,
+        /(\d+)\s*M\b/i,
+        /(\d+)\s*D\b/i,
+        /=\s*.*?(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i,
+      ];
+      
+      for (const pattern of validityPatterns) {
+        const match = offerText.match(pattern);
+        if (match) {
+          let validity = match[1].trim();
+          if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+            validityText = validity.replace(/\s*M\b/i, " Month");
+          } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+            validityText = validity.replace(/\s*D\b/i, " Day");
+          } else {
+            validityText = validity;
+          }
+          break;
+        }
+      }
+      
+      return {
+        id: plan.id || `offer-${index}`,
+        price: plan.price || `₹${offer.amount}`,
+        validity: plan.validity || validityText,
+        data: plan.data || dataText,
+        calls: "N/A",
+        validityExtra: offerText,
+        planName: "Offer",
+        desc: offerText,
+        originalPlan: offer,
+        rs: offer.amount,
+      };
+    }
+    
     // Extract data from desc field - handles multiple formats (Airtel and Jio)
     let dataText = "N/A";
 
@@ -464,6 +526,7 @@ const MobileRecharge = ({ onBack }) => {
         "Truly Unlimited",
         "Plan Vouchers",
         "Talktime",
+        "Offers",
       ];
     }
 
@@ -512,25 +575,55 @@ const MobileRecharge = ({ onBack }) => {
 
   // Get category tabs - only show specific allowed categories
   const getCategoryTabs = () => {
-    if (!rechargePlans?.data) {
+    // Handle nested data structure: rechargePlans.data contains the plan categories
+    // API structure: { data: { DATA: [...], STV: [...], FULLTT: [...], PlanVoucher: [...], TOPUP: [...] } }
+    const plansData = rechargePlans?.data || rechargePlans || {};
+    
+    // If plansData has a nested 'data' property, use that (for the nested structure)
+    const actualPlansData = plansData.data || plansData;
+    
+    if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return ["Recommended"];
     }
 
-    const plansData = rechargePlans.data;
-    const allPlans = getAllPlansFromData(plansData);
+    // Get API category keys (DATA, STV, FULLTT, PlanVoucher, TOPUP)
+    const apiCategoryKeys = Object.keys(actualPlansData).filter(key => 
+      Array.isArray(actualPlansData[key]) && actualPlansData[key].length > 0
+    );
 
-    // Get unique plan types from API
-    const uniqueTypes = [
-      ...new Set(allPlans.map((plan) => plan.Type).filter(Boolean)),
-    ];
-    const typeMapping = getCategoryTypeMapping();
+    // Map API category keys to UI categories
+    const categoryKeyMapping = {
+      "DATA": "DATA",
+      "STV": "Entertainment",
+      "FULLTT": "Truly Unlimited",
+      "PlanVoucher": "Plan Vouchers",
+      "TOPUP": "Talktime",
+    };
+
     const allowedCategories = getAllowedCategories();
+    const availableCategories = ["Recommended"];
 
-    // Filter to only include allowed categories that have matching plans in API
-    const availableCategories = allowedCategories.filter((category) => {
-      if (category === "Recommended") return true;
-      const mappedTypes = typeMapping[category] || [];
-      return mappedTypes.some((type) => uniqueTypes.includes(type));
+    // Add categories that have matching API keys
+    allowedCategories.forEach((category) => {
+      if (category === "Recommended") return;
+      
+      // Handle Offers category separately
+      if (category === "Offers") {
+        const offersArray = rechargeOffers?.data || [];
+        if (Array.isArray(offersArray) && offersArray.length > 0) {
+          availableCategories.push(category);
+        }
+        return;
+      }
+      
+      // Find matching API key for this category
+      const matchingApiKey = Object.keys(categoryKeyMapping).find(
+        apiKey => categoryKeyMapping[apiKey] === category
+      );
+      
+      if (matchingApiKey && apiCategoryKeys.includes(matchingApiKey)) {
+        availableCategories.push(category);
+      }
     });
 
     return availableCategories;
@@ -538,25 +631,107 @@ const MobileRecharge = ({ onBack }) => {
 
   // Helper function to get plans based on category (Type)
   const getPlansByCategory = () => {
-    if (!rechargePlans?.data) {
+    // Handle nested data structure: rechargePlans.data contains the plan categories
+    const plansData = rechargePlans?.data || rechargePlans || {};
+    
+    // If plansData has a nested 'data' property, use that (for the nested structure)
+    const actualPlansData = plansData.data || plansData;
+    
+    if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return [];
     }
 
-    const plansData = rechargePlans.data;
     let selectedPlans = [];
+
+    // Map UI categories to API category keys
+    const categoryKeyMapping = {
+      "DATA": "DATA",
+      "Entertainment": "STV",
+      "Truly Unlimited": "FULLTT",
+      "Plan Vouchers": "PlanVoucher",
+      "Talktime": "TOPUP",
+    };
 
     // If "Recommended" is selected, show all plans
     if (activeCategory === "Recommended" || !activeCategory) {
-      selectedPlans = getAllPlansFromData(plansData);
+      selectedPlans = getAllPlansFromData(actualPlansData);
+    } else if (activeCategory === "Offers") {
+      // Handle Offers category - transform offers to plan format
+      const offersData = rechargeOffers?.data || [];
+      if (Array.isArray(offersData) && offersData.length > 0) {
+        selectedPlans = offersData.map((offer, index) => {
+          const offerText = offer.offer || "";
+          
+          // Extract data from offer text
+          let dataText = "N/A";
+          const dataPatterns = [
+            /(\d+(?:\.\d+)?\s*GB)\s+data/i,
+            /(Unlimited\s+data)/i,
+            /=\s*(\d+(?:\.\d+)?\s*GB)/i,
+            /(\d+(?:\.\d+)?\s*GB)/i,
+          ];
+          
+          for (const pattern of dataPatterns) {
+            const match = offerText.match(pattern);
+            if (match) {
+              dataText = match[1].trim();
+              break;
+            }
+          }
+          
+          // Extract validity from offer text
+          let validityText = "N/A";
+          const validityPatterns = [
+            /(\d+\s*(?:day|days|Day|Days))/i,
+            /(\d+)\s*M\b/i,
+            /(\d+)\s*D\b/i,
+            /=\s*.*?(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i,
+          ];
+          
+          for (const pattern of validityPatterns) {
+            const match = offerText.match(pattern);
+            if (match) {
+              let validity = match[1].trim();
+              if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+                validityText = validity.replace(/\s*M\b/i, " Month");
+              } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+                validityText = validity.replace(/\s*D\b/i, " Day");
+              } else {
+                validityText = validity;
+              }
+              break;
+            }
+          }
+          
+          return {
+            id: `offer-${index}`,
+            price: `₹${offer.amount}`,
+            rs: offer.amount,
+            validity: validityText,
+            desc: offerText,
+            data: dataText,
+            Type: "Offer",
+            originalOffer: offer,
+          };
+        });
+      }
     } else {
-      // Filter by Type using category mapping
-      const allPlans = getAllPlansFromData(plansData);
-      const typeMapping = getCategoryTypeMapping();
-      const mappedTypes = typeMapping[activeCategory] || [activeCategory];
+      // Get the API category key for the selected UI category
+      const apiCategoryKey = categoryKeyMapping[activeCategory];
+      
+      if (apiCategoryKey && actualPlansData[apiCategoryKey]) {
+        // Get plans from the specific API category
+        selectedPlans = actualPlansData[apiCategoryKey] || [];
+      } else {
+        // Fallback: filter by Type if API key mapping doesn't exist
+        const allPlans = getAllPlansFromData(actualPlansData);
+        const typeMapping = getCategoryTypeMapping();
+        const mappedTypes = typeMapping[activeCategory] || [activeCategory];
 
-      selectedPlans = allPlans.filter((plan) =>
-        mappedTypes.includes(plan.Type),
-      );
+        selectedPlans = allPlans.filter((plan) =>
+          mappedTypes.includes(plan.Type),
+        );
+      }
     }
 
     return selectedPlans;
@@ -625,7 +800,10 @@ const MobileRecharge = ({ onBack }) => {
   };
 
   // Get filtered plans for display (only show if API data is available, don't show default)
-  const displayDetailedPlans = rechargePlans ? getFilteredPlans() : [];
+  // Include offers when "Offers" category is selected
+  const displayDetailedPlans = (rechargePlans || (activeCategory === "Offers" && rechargeOffers)) 
+    ? getFilteredPlans() 
+    : [];
 
   const handleProceed = async (number = null) => {
     const numberToUse = number || mobileNumber;
@@ -672,15 +850,34 @@ const MobileRecharge = ({ onBack }) => {
         }
 
         // Store the plans data
-        const plansData = planResponse.mobileRechargePlan;
-        setRechargePlans(plansData);
+        // API response structure: { status, message, data: { status, Operator, message, data: { DATA: [...], STV: [...], ... } } }
+        // Action extracts response.data.data and returns: { mobileRechargePlan: { status, Operator, message, data: { DATA: [...], STV: [...], ... }, txid }, status, message }
+        const planData = planResponse.mobileRechargePlan;
+        
+        // Extract the nested data object that contains the plan categories (DATA, STV, FULLTT, etc.)
+        // The plan categories are in planData.data
+        const plansData = planData?.data || {};
+        
+        console.log("📊 Plan response:", planResponse);
+        console.log("📊 Plan data:", planData);
+        console.log("📊 Plans data (nested):", plansData);
+        console.log("📊 Plan categories:", Object.keys(plansData));
+        
+        // Store with the nested data structure: { data: { DATA: [...], STV: [...], ... } }
+        setRechargePlans({ data: plansData });
 
         // Call rechargefindOffers with the same payload
         const offersResponse = await dispatch(rechargefindOffers(planPayload));
 
         // Store the offers data (optional - don't block if offers fail)
+        // API response structure: { status, message, data: { status, mobile, message, data: [...], txid } }
+        // Action extracts response.data.data and returns: { mobileRechargeOffers: { status, mobile, message, data: [...], txid }, status, message }
         if (offersResponse?.mobileRechargeOffers) {
           const offersData = offersResponse.mobileRechargeOffers;
+          // The offers array is in offersData.data
+          console.log("📊 Offers response:", offersResponse);
+          console.log("📊 Offers data:", offersData);
+          console.log("📊 Offers array:", offersData?.data);
           setRechargeOffers(offersData);
         }
 
