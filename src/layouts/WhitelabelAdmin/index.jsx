@@ -23,6 +23,7 @@ const WhitelabelAdmin = () => {
                 <Route path="/resources/schema-master" element={<SchemeMaster/>}/>
                 <Route path="/resources/list" element={<RoleUpgrade />}/>
                 <Route path="/tax-history/list" element={<TaxHistory />}/>
+                <Route path="/txn-history" element={<TaxHistory />}/>
             </Routes>
         </WhiteLabelDashboardLayout>
     );
