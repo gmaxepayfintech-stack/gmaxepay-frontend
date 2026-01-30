@@ -34,10 +34,6 @@ export const getSubscriptionList = (companyId, query = {}, customSearch = {}, op
       options,
     };
 
-    console.log('Fetching subscription list with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/company/subscription/list`);
-    console.log('Company ID:', companyId);
-
     const response = await api.post(
       `${API_ROUTE}/api/v1/company/subscription/list`,
       payload,
@@ -50,10 +46,8 @@ export const getSubscriptionList = (companyId, query = {}, customSearch = {}, op
       }
     );
 
-    console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -102,3 +96,77 @@ export const getSubscriptionList = (companyId, query = {}, customSearch = {}, op
     };
   }
 };
+
+export const getUserSubscriptionList = (userId, query = {}, customSearch = {}, options = { page: 1, paginate: 10, sort: {} }) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SUBSCRIPTION_GET_LIST_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+    if (!userId) {
+      console.error('No user ID provided');
+      throw new Error('User ID is required');
+    }
+
+    const payload = {
+      query,
+      customSearch,
+      options,
+    };
+    const response = await api.post(`${API_ROUTE}/api/v1/user/subscription/list`, payload, {
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = response?.data;
+    const { status } = data ?? {};
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SUBSCRIPTION_GET_LIST_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          status: data?.status,
+          message: data?.message || 'User subscriptions retrieved successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data || [],
+        message: data?.message || 'User subscriptions retrieved successfully',
+      };
+    } else {
+      dispatch({
+        type: SUBSCRIPTION_GET_LIST_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    console.error('User subscription list fetch error:', errorMessage);
+    
+    dispatch({
+      type: SUBSCRIPTION_GET_LIST_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};  
