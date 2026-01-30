@@ -11,11 +11,16 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
-
+import {
+  payoutBankList,
+  payoutTransaction,
+} from "../../redux/action/payoutAction";
 import { getUserWalletBalance } from "../../redux/action/walletAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
+import { FiChevronDown } from "react-icons/fi";
 
 const Distributor = "/img/DistributorM.png";
-const Ratailer = "/img/MRetailer.png";
+const Ratailer = "/img/Retailer.png";
 const Earning = "/img/Earning.png";
 
 const DistDashboard = () => {
@@ -30,11 +35,18 @@ const DistDashboard = () => {
   const scrollYRef = useRef(0);
   const [walletData, setWalletData] = useState({
     mainWallet: null,
-    apesWallet: null,
+    aeps1: null,
+    aeps2: null,
   });
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [addBankOpen, setAddBankOpen] = useState(false);
+  const [isTransferLoading, setIsTransferLoading] = useState(false);
+  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
 
+  const AEPS_LABELS = {
+    aeps1: "AEPS Wallet 1",
+    aeps2: "AEPS Wallet 2",
+  };
   // Get bank list from Redux
   const payoutBankListData = useSelector(
     (state) => state?.payout?.payoutBankList,
@@ -62,10 +74,12 @@ const DistDashboard = () => {
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
-      const { mainWallet, apesWallet } = walletBalanceResponse.data;
+      const { mainWallet, aepsWallet1, aepsWallet2 } =
+        walletBalanceResponse.data;
       setWalletData({
-        mainWallet: mainWallet || null,
-        apesWallet: apesWallet || null,
+        mainWallet: mainWallet || 0,
+        aeps1: aepsWallet1 || 0,
+        aeps2: aepsWallet2 || 0,
       });
     }
   }, [walletBalanceResponse]);
@@ -493,15 +507,59 @@ const DistDashboard = () => {
           {/* AEPS Wallet */}
           <div className="bg-[#4FF2AD]/20 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col justify-between">
             <div>
-              <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717] mb-3">
-                AEPS Wallet
-              </h4>
+              {/* Header with Select */}
+              <div className="flex items-center justify-between mb-3">
+                <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717]">
+                  {AEPS_LABELS[selectedAepsWallet]}
+                </h4>
+
+                {/* Custom Select with react-icons */}
+                <div className="relative">
+                  <select
+                    value={selectedAepsWallet}
+                    onChange={(e) => setSelectedAepsWallet(e.target.value)}
+                    className="
+                        appearance-none
+                        border border-[#039155]
+                        rounded-2xl
+                        pl-3 pr-8
+                        py-1
+                        text-xs
+                        font-[gilroy-semibold]
+                        bg-[#4FF2AD]/10
+                        text-[#1B1717]
+                        focus:outline-none
+                        cursor-pointer
+                    "
+                  >
+                    <option value="aeps1">AEPS 1</option>
+                    <option value="aeps2">AEPS 2</option>
+                  </select>
+
+                  {/* Chevron Icon */}
+                  <FiChevronDown
+                    className="
+                    pointer-events-none
+                    absolute
+                    right-2
+                    top-1/2
+                    -translate-y-1/2
+                    text-[#1B1717]
+                    text-sm
+                    "
+                  />
+                </div>
+              </div>
+
+              {/* Balance */}
               <p className="text-2xl lg:text-[28px] font-[gilroy-semibold] text-[#1B1717] mb-2">
-                {formatCurrency(walletData.apesWallet)}
+                {formatCurrency(walletData[selectedAepsWallet])}
               </p>
+
               <span className="text-[#039155] text-[10px] lg:text-xs font-[gilroy-semibold] flex items-center gap-1 mb-3">
-                ▲ 0.45%
+                ▲ 4.61%
               </span>
+
               <p className="text-xs lg:text-sm text-[#1B1717]/80 font-[gilroy-medium]">
                 Today's Earning
                 <strong className="text-[#1B1717] font-[gilroy-semibold]">
@@ -513,7 +571,7 @@ const DistDashboard = () => {
 
             <button
               className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm"
-              onClick={() => handlePayout()}
+              onClick={handlePayout}
             >
               Wallet Transfer
             </button>
@@ -567,12 +625,51 @@ const DistDashboard = () => {
             Recent Transaction
           </h3>
           <div className="flex items-center gap-2 sm:gap-3">
-            <select className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-xs border border-[#1B1717]/80 rounded-2xl  text-opacity-80">
-              <option className="text-xs font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
-                Select Services
-              </option>
-            </select>
-            <button className="px-2 py-1.5 sm:px-3 sm:py-1.5 lg:px-4 lg:py-2 text-xs font-['Gilroy-Medium'] hover:bg-gray-200 rounded-2xl border border-[#1B1717]/80 text-[#1B1717]/80 transition whitespace-nowrap">
+            <div className="relative inline-flex items-center">
+              <select
+                className="
+                appearance-none
+                h-[26px]
+                sm:h-[30px]
+                lg:h-[34px]
+                pl-3
+                pr-9
+                text-xs
+                font-['Gilroy-Medium']
+                border border-[#1B1717]/80
+                rounded-2xl
+                text-[#1B1717]/80
+                bg-white
+                focus:outline-none
+                cursor-pointer
+                flex items-center
+                "
+              >
+                <option value="">Select Services</option>
+                <option value="recharge">Recharge</option>
+                <option value="aeps">AEPS</option>
+                <option value="bbps">BBPS</option>
+              </select>
+
+              {/* Chevron icon */}
+              <FiChevronDown
+                className="
+                pointer-events-none
+                absolute
+                right-3
+                top-1/2
+                -translate-y-1/2
+                text-[#1B1717]/80
+                text-sm
+                "
+              />
+            </div>
+            <button
+              className="h-[26px]
+                sm:h-[30px]
+                lg:h-[34px] pl-3
+                pr-3 text-xs font-['Gilroy-Medium'] hover:bg-gray-200 rounded-2xl border border-[#1B1717]/80 text-[#1B1717]/80 transition whitespace-nowrap"
+            >
               Today
             </button>
           </div>
@@ -972,10 +1069,19 @@ const DistDashboard = () => {
                       } catch (error) {
                         console.error("Error processing transfer:", error);
                         // You might want to show an error message to the user here
+                      } finally {
+                        setIsTransferLoading(false);
                       }
                     }}
                   >
-                    Processed Transfer
+                    {isTransferLoading ? (
+                      <>
+                        <ButtonLoader color="#FFFFFF" size={20} />
+                        <span>Processing...</span>
+                      </>
+                    ) : (
+                      "Processed Transfer"
+                    )}
                   </button>
                 </div>
               </>

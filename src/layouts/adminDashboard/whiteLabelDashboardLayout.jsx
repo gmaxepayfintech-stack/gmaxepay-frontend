@@ -25,8 +25,8 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error , profile} = useSelector(
-    (state) => state.userProfile
+  const { email, name, unauthorized, error, profile } = useSelector(
+    (state) => state.userProfile,
   );
   // State for open dropdowns
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -92,8 +92,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   const handleLogout = async () => {
     try {
       setIsProfileDropdownOpen(false);
-      const companyId =
-        company?.companyId || company?._id || company?.id || "";
+      const companyId = company?.companyId || company?._id || company?.id || "";
       // Call the logout API - it will clear storage and handle errors internally
       const logoutPromise = dispatch(logOut({}, companyId));
       if (logoutPromise && typeof logoutPromise.then === "function") {
@@ -155,16 +154,16 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       path: "/adminDashboard/home",
       dropdown: false,
     },
-    {
-      name: "Partner",
-      icon: MaskGroup1,
-      dropdown: true,
-      path: "/adminDashboard/partner",
-      children: [
-        { name: "Partner List", path: "/adminDashboard/partner/list" },
-        { name: "Add Partner", path: "/adminDashboard/partner/add" },
-      ],
-    },
+    // {
+    //   name: "Partner",
+    //   icon: MaskGroup1,
+    //   dropdown: true,
+    //   path: "/adminDashboard/partner",
+    //   children: [
+    //     { name: "Partner List", path: "/adminDashboard/partner/list" },
+    //     { name: "Add Partner", path: "/adminDashboard/partner/add" },
+    //   ],
+    // },
     {
       name: "Members",
       icon: MaskGroup1,
@@ -182,8 +181,10 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       dropdown: true,
       children: [
         { name: "Resource List", path: "/adminDashboard/resources/list" },
-        { name: "Schema Master", path: "/adminDashboard/resources/schema-master" },
-
+        {
+          name: "Schema Master",
+          path: "/adminDashboard/resources/schema-master",
+        },
       ],
     },
     {
@@ -191,7 +192,10 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Wallet Load", path: "/adminDashboard/fund-manage/wallet-load" },
+        {
+          name: "Wallet Load",
+          path: "/adminDashboard/fund-manage/wallet-load",
+        },
         {
           name: "Fund Request",
           path: "/adminDashboard/fund-manage/fund-request",
@@ -217,12 +221,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
       ],
     },
-    {
-      name: "Onboarding",
-      icon: MaskGroup1,
-      path: "/adminDashboard/onboarding",
-      dropdown: false,
-    },
+    // {
+    //   name: "Onboarding",
+    //   icon: MaskGroup1,
+    //   path: "/adminDashboard/onboarding",
+    //   dropdown: false,
+    // },
   ];
 
   return (
@@ -235,8 +239,9 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#039155]/10 flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-          }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#039155]/10 flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
+          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+        }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -256,24 +261,27 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         <nav className="flex-1 px-4 py-6 text-[#1B1717] space-y-3 overflow-y-auto overflow-x-hidden">
           {menuItems.map(({ name, icon, path, dropdown, children }) => {
             const isOpen = openDropdown === name;
-            const isActiveParent = activeMenu === name || (path && location.pathname === path);
+            const isActiveParent =
+              activeMenu === name || (path && location.pathname === path);
 
             return (
               <div key={name}>
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${isActiveParent
-                    ? "bg-[#039155] text-white shadow-md"
-                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                    }`}
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                    isActiveParent
+                      ? "bg-[#039155] text-white shadow-md"
+                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                  }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
-                        }`}
+                      className={`w-5 h-5 object-contain ${
+                        isActiveParent ? "filter brightness-0 invert" : ""
+                      }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -315,10 +323,11 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                              ? "text-[#039155] font-semibold"
-                              : "text-gray-700"
-                              }`}
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
+                              isChildPathActive
+                                ? "text-[#039155] font-semibold"
+                                : "text-gray-700"
+                            }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -352,7 +361,9 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         <div className="px-4 py-4  flex-shrink-0">
           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <p className="text-sm font-medium text-[#1B1717]">Referral Code</p>
+              <p className="text-sm font-medium text-[#1B1717]">
+                Referral Code
+              </p>
               <button
                 onClick={shareReferralCode}
                 className="p-1 rounded-md hover:bg-gray-100 transition-colors"
@@ -377,90 +388,93 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       </aside>
 
       {/* Main Content */}
-      <div className="flex flex-col flex-1 w-full min-h-screen overflow-hidden lg:ml-[277px]">
+      <div className="flex flex-col flex-1 bg-[#FAFAFA] w-full min-h-screen overflow-hidden lg:ml-[277px]">
         {/* Header */}
-        <div className="sticky top-0 z-20 px-2 sm:px-4 lg:px-6 pt-4 pb-2 flex-shrink-0">
-          <header className="bg-white rounded-xl shadow-sm px-4 sm:px-6 lg:px-6 py-4 flex items-center justify-between gap-4">
-            <div className="flex items-center gap-3">
-              <button
-                className="p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
-                onClick={() => setIsSidebarOpen(true)}
-                aria-label="Open sidebar"
-              >
-                <Menu className="w-5 h-5" />
-              </button>
-              <div>
-                <h1 className="text-base lg:text-lg font-semibold text-[#1B1717]">
-                  Welcome Back !
-                </h1>
-                <p className="text-sm text-[#1B1717]">{name || email || "Admin"}</p>
-              </div>
+        <header className="sticky top-4 mx-3 md:mx-5 lg:mx-6 rounded-xl bg-white px-4 sm:px-4 lg:px-6 py-4 flex items-center justify-between gap-4 flex-shrink-0 z-20 shadow">
+          <div className="flex items-center gap-3">
+            <button
+              className="md:p-2 rounded-md text-[#1B1717] focus:outline-none lg:hidden"
+              onClick={() => setIsSidebarOpen(true)}
+              aria-label="Open sidebar"
+            >
+              <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+            <div>
+              <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                Welcome Back!
+              </h1>
+              <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                {name || email || "Admin"}
+              </p>
             </div>
+          </div>
 
-            <div className="flex items-center gap-3 sm:gap-4">
-              <button className="relative flex items-center justify-center w-10 h-10 sm:w-11 sm:h-11 rounded-full border border-gray-300 bg-gray-50 transition hover:bg-gray-100">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <button className="relative flex items-center justify-center w-8 h-8 md:w-12 md:h-12 rounded-full border-[0.5px] border-[#1B1717]/80 transition hover:border-[#039155]/70 text-[#1B1717]/80 ">
+              <img
+                src={NotificationIcon}
+                alt="Notifications"
+                className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "/img/gmaxepay.png";
+                }}
+              />
+            </button>
+
+            <div className="flex items-center gap-2" ref={profileDropdownRef}>
+              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
+                {name || email || "WhiteLabel Dashboard"}
+              </span>
+              <button
+                onClick={toggleProfileDropdown}
+                className="focus:outline-none  rounded-full"
+                aria-label="Profile menu"
+              >
                 <img
-                  src={NotificationIcon}
-                  alt="Notifications"
-                  className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
+                  src={defaultProfileImage}
+                  alt="Profile"
+                  className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/img/gmaxepay.png";
+                    e.target.src = companyLogo;
                   }}
                 />
               </button>
 
-              <div className="relative flex items-center gap-2" ref={profileDropdownRef}>
-                <span className="hidden text-xl font-semibold text-[#1B1717] sm:inline">
-                  Company Panel
-                </span>
-                <button
-                  onClick={toggleProfileDropdown}
-                  className="focus:outline-none focus:ring-2 focus:ring-[#039155] focus:ring-offset-2 rounded-full"
-                  aria-label="Profile menu"
-                >
-                  <img
-                    src={profile?.profileImage || defaultProfileImage}
-                    alt="Profile"
-                    className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
-                    onError={(e) => {
-                      e.target.onerror = null;
-                      e.target.src = defaultProfileImage;
-                    }}
-                  />
-                </button>
-
-                {/* Profile Dropdown Menu */}
-                <AnimatePresence>
-                  {isProfileDropdownOpen && (
-                    <motion.div
-                      initial={{ opacity: 0, y: -10, scale: 0.95 }}
-                      animate={{ opacity: 1, y: 0, scale: 1 }}
-                      exit={{ opacity: 0, y: -10, scale: 0.95 }}
-                      transition={{ duration: 0.2 }}
-                      className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+              {/* Profile Dropdown Menu */}
+              <AnimatePresence>
+                {isProfileDropdownOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                    className="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-2 z-50"
+                  >
+                    <Link
+                      to="/adminDashboard/profile"
+                      onClick={() => setIsProfileDropdownOpen(false)}
+                      className="block px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
                     >
-                      <Link
-                        to="/adminDashboard/profile"
-                        onClick={() => setIsProfileDropdownOpen(false)}
-                        className="block px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
-                      >
-                        Profile
-                      </Link>
-                      <div className="border-t border-gray-200 my-1"></div>
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
-                      >
-                        Logout
-                      </button>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
+                      Profile
+                    </Link>
+                    <div className="border-t border-gray-200 my-1"></div>
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-2 text-sm text-[#1B1717] hover:bg-gray-100 transition-colors"
+                    >
+                      Logout
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
-          </header>
-        </div>
+          </div>
+
+          {/* Rounded bottom border line */}
+          {/* <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[95%] h-[1px] bg-[#1B1717]/80 "></div> */}
+        </header>
 
         {/* Page Content */}
         <main className="flex-1 w-full p-2 sm:p-4 lg:p-6 overflow-y-auto">

@@ -410,11 +410,11 @@ const WalletLoad = () => {
                   >
                     <div className="flex items-start gap-3">
                       {/* Bank Logo */}
-                      <div className="w-10 h-10 rounded-lg bg-gray-100 flex items-center justify-center shrink-0">
+                      <div className="w-34 h-10 flex items-center justify-center shrink-0">
                         <img
-                          src={bank.bankImage}
-                          alt={bank.bankName}
-                          className="w-8 h-8 object-cover"
+                          src={bank.bankImage || bank.logo}
+                          alt={bank.bankName || bank.name}
+                          className="w-28 h-12 object-cover"
                           onError={(e) => {
                             e.target.style.display = "none";
                           }}
