@@ -179,6 +179,17 @@ const DistributorLayout = ({ children }) => {
       ],
     },
     {
+      name: "Resources",
+      icon: MaskGroup3,
+      dropdown: true,
+      children: [
+        {
+          name: "Schema Master",
+          path: "/distributerDashboard/resources/schemamaster",
+        },
+      ],
+    },
+    {
       name: "Services",
       icon: MaskGroup5,
       path: "/distributerDashboard/services",
