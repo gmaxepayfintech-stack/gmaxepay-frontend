@@ -205,11 +205,8 @@ const WhiteLabelDashboardLayout = ({ children }) => {
     {
       name: "Tax History",
       icon: MaskGroup4,
-      dropdown: true,
-      children: [
-        { name: "Transaction List", path: "/adminDashboard/tax-history/list" },
-        { name: "Refunds", path: "/adminDashboard/tax-history/refunds" },
-      ],
+      path: "/adminDashboard/txn-history",
+      dropdown: false,
     },
     {
       name: "Reports",
