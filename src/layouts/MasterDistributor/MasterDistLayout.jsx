@@ -170,8 +170,8 @@ const MasterDistLayout = ({ children }) => {
           path: `${BASE_PATH}/resources/schemamaster`,
         },
         {
-          name: "Role Upgrade",
-          path: `${BASE_PATH}/resources/roleupgraderequest`,
+          name: "Subscription",
+          path: `${BASE_PATH}/resources/subscription`,
         },
       ],
     },
