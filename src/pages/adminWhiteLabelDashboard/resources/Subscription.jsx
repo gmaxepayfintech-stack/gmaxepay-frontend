@@ -55,18 +55,8 @@ const Subscription = () => {
       services.push("Others");
     }
 
-    // Format schema type for display
-    const schemaTypeMap = {
-      free: "Free",
-      premium: "Gold",
-      platinum: "Platinum",
-      customization: "Customization",
-    };
-
-    const displayTitle =
-      schemaTypeMap[subscription.schemaType?.toLowerCase()] ||
-      subscription.slabName ||
-      "Customization";
+    // Use slabName directly from API
+    const displayTitle = subscription.slabName || "Customization";
 
     return {
       id: subscription.id,
@@ -153,7 +143,10 @@ const Subscription = () => {
       )}
 
       {/* Subscription Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 justify-items-center md:justify-items-start">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 justify-items-center"
+        style={{ gap: "32px" }}
+      >
         {loading ? (
           // Loading Skeleton
           Array.from({ length: 4 }).map((_, index) => (
@@ -163,9 +156,7 @@ const Subscription = () => {
           displaySubscriptions.map((plan) => (
             <div
               key={plan.id}
-              className={`relative flex flex-col ${
-                plan.isCurrentSlab ? "ring-2 ring-[#039155]" : ""
-              }`}
+              className="relative flex flex-col"
               style={{
                 width: "100%",
                 maxWidth: "438px",
@@ -173,16 +164,23 @@ const Subscription = () => {
                 height: "auto",
                 borderRadius: "16px",
                 border: "1px solid rgba(27, 23, 23, 0.8)",
-                background: "#FEFEFE",
+                background: plan.isCurrentSlab ? "#F5F5F5" : "#FEFEFE",
                 padding: "24px",
               }}
             >
-              {/* Current Plan Badge */}
-              {plan.isCurrentSlab && (
-                <div className="absolute top-4 right-4 bg-[#039155] text-white text-xs font-['Gilroy-Medium'] px-2 py-1 rounded-full">
-                  Current Plan
-                </div>
-              )}
+              {/* Current Plan Radio Button */}
+              <div className="absolute top-4 right-4">
+                <input
+                  type="radio"
+                  name="subscription-plan"
+                  checked={plan.isCurrentSlab}
+                  readOnly
+                  className="w-5 h-5 cursor-pointer"
+                  style={{
+                    accentColor: plan.isCurrentSlab ? "#039155" : "#DADADA",
+                  }}
+                />
+              </div>
 
               {/* Plan Title */}
               <h2 className="text-xl sm:text-2xl md:text-3xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
