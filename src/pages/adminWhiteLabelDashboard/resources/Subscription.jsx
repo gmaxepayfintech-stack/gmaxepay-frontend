@@ -231,20 +231,31 @@ const Subscription = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2 sm:gap-3 mt-auto">
+              <div className="flex flex-col mt-auto" style={{ gap: "13px" }}>
                 <button
                   onClick={() => handleViewDetails(plan)}
-                  className="w-full px-4 py-2.5 sm:py-3 rounded-lg bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors"
+                  className="bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors flex items-center justify-center"
                   style={{
+                    width: "100%",
+                    height: "60px",
+                    borderRadius: "14px",
                     border: "0.5px solid #1B1717",
                   }}
                 >
                   View Details
                 </button>
                 <button
-                  onClick={() => handleSubscribe(plan.title)}
-                  className="w-full px-4 py-2.5 sm:py-3 bg-[#039155] rounded-lg text-white font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-[#039155]/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={() => !plan.isCurrentSlab && handleSubscribe(plan.title)}
                   disabled={plan.isCurrentSlab}
+                  className="text-white font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center"
+                  style={{
+                    width: "100%",
+                    height: "60px",
+                    borderRadius: "14px",
+                    background: "#039155",
+                    opacity: plan.isCurrentSlab ? 0.6 : 1,
+                    cursor: plan.isCurrentSlab ? "not-allowed" : "pointer",
+                  }}
                 >
                   {plan.isCurrentSlab ? "Current Plan" : "Subscribe"}
                 </button>
