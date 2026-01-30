@@ -153,7 +153,7 @@ const Subscription = () => {
       )}
 
       {/* Subscription Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 justify-items-center md:justify-items-start">
         {loading ? (
           // Loading Skeleton
           Array.from({ length: 4 }).map((_, index) => (
@@ -163,9 +163,19 @@ const Subscription = () => {
           displaySubscriptions.map((plan) => (
             <div
               key={plan.id}
-              className={`bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-shadow relative ${
+              className={`relative flex flex-col ${
                 plan.isCurrentSlab ? "ring-2 ring-[#039155]" : ""
               }`}
+              style={{
+                width: "100%",
+                maxWidth: "438px",
+                minHeight: "632px",
+                height: "auto",
+                borderRadius: "16px",
+                border: "1px solid rgba(27, 23, 23, 0.8)",
+                background: "#FEFEFE",
+                padding: "24px",
+              }}
             >
               {/* Current Plan Badge */}
               {plan.isCurrentSlab && (
@@ -195,20 +205,34 @@ const Subscription = () => {
               </p>
 
               {/* Services List */}
-              <ul className="mb-4 sm:mb-6 space-y-2">
-                {plan.services.map((service, serviceIndex) => (
-                  <li
-                    key={serviceIndex}
-                    className="flex items-center text-xs sm:text-sm md:text-base font-['Gilroy-Regular'] text-[#1B1717]"
-                  >
-                    <span className="w-1.5 h-1.5 bg-[#039155] rounded-full mr-2 sm:mr-3 flex-shrink-0"></span>
-                    {service}
-                  </li>
-                ))}
-              </ul>
+              <div
+                className="mb-4 sm:mb-6"
+                style={{
+                  width: "100%",
+                  maxWidth: "402px",
+                  minHeight: "230px",
+                }}
+              >
+                <ul className="flex flex-col" style={{ gap: "12px" }}>
+                  {plan.services.map((service, serviceIndex) => (
+                    <li
+                      key={serviceIndex}
+                      className="flex items-center text-xs sm:text-sm md:text-base font-['Gilroy-Regular']"
+                    >
+                      <span className="w-1.5 h-1.5 bg-[#1B1717] rounded-full mr-2 sm:mr-3 flex-shrink-0"></span>
+                      <span className="text-[#1B1717]">
+                        {service}
+                        {service === "AEPS" && serviceIndex < plan.services.length - 1 && (
+                          <span className="text-[#1B1717] ml-1">...</span>
+                        )}
+                      </span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col gap-2 sm:gap-3">
+              <div className="flex flex-col gap-2 sm:gap-3 mt-auto">
                 <button
                   onClick={() => handleViewDetails(plan)}
                   className="w-full px-4 py-2.5 sm:py-3 border border-[#DADADA] rounded-lg bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors"
