@@ -7,7 +7,7 @@ import CreateCompanyUser from "../../pages/adminWhiteLabelDashboard/createCompan
 import WalletLoad from "../../pages/adminWhiteLabelDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/adminWhiteLabelDashboard/fundManagement/FundRequest";
 import SchemeMaster from "../../pages/adminWhiteLabelDashboard/resources/SchemeMaster";
-import RoleUpgrade from "../../pages/adminWhiteLabelDashboard/resources/RoleUpgrade";
+import Subscription from "../../pages/adminWhiteLabelDashboard/resources/Subscription";
 const WhitelabelAdmin = () => {
     return (
         <WhiteLabelDashboardLayout>
@@ -20,7 +20,7 @@ const WhitelabelAdmin = () => {
                 <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
                 <Route path="/fund-manage/fund-request" element={<FundRequest />} />
                 <Route path="/resources/schema-master" element={<SchemeMaster/>}/>
-                <Route path="/resources/list" element={<RoleUpgrade />}/>
+                <Route path="/resources/subscription" element={<Subscription />}/>
             </Routes>
         </WhiteLabelDashboardLayout>
     );

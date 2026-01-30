@@ -17,6 +17,7 @@ import rechargeReducer from './rechargeReducer';
 import fundReducer from './fundReducer';
 import bbpsReducer from './bbpsReducer';
 import slabReducer from './slabReducer';
+import subscriptionReducer from './subscriptionReducer';
 
 const rootReducer = combineReducers({
     auth: authReducer,
@@ -37,6 +38,7 @@ const rootReducer = combineReducers({
     fund: fundReducer,
     bbps: bbpsReducer,
     slab: slabReducer,
+    subscription: subscriptionReducer,
 });
 
 export default rootReducer;
