@@ -132,14 +132,29 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                   </div>
                 ) : (
                   items.map((comm, index) => {
-                    // Format commission type display
-                    const commTypeDisplay = (comm.commType || "").toLowerCase() === "com" ? "Commission" : 
-                                           (comm.commType || "").toLowerCase() === "sur" ? "Surcharge" : 
-                                           (comm.commType || "").toUpperCase();
+                    // Determine badge text based on combination of commType and amtType
+                    const commType = (comm.commType || "").toLowerCase();
+                    const amtType = (comm.amtType || "").toLowerCase();
                     
-                    const amtTypeDisplay = (comm.amtType || "").toLowerCase() === "per" ? "Percentage" : 
-                                         (comm.amtType || "").toLowerCase() === "fix" ? "Fixed" : 
-                                         (comm.amtType || "").toUpperCase();
+                    let badgeText = "";
+                    if (commType === "com" && amtType === "fix") {
+                      badgeText = "Commission/Flat";
+                    } else if (commType === "com" && amtType === "per") {
+                      badgeText = "Commission/Percentage";
+                    } else if (commType === "sur" && amtType === "fix") {
+                      badgeText = "Surcharge/Flat";
+                    } else if (commType === "sur" && amtType === "per") {
+                      badgeText = "Surcharge/Percentage";
+                    } else {
+                      // Fallback for any other combination
+                      const commTypeDisplay = commType === "com" ? "Commission" : 
+                                             commType === "sur" ? "Surcharge" : 
+                                             (comm.commType || "").toUpperCase();
+                      const amtTypeDisplay = amtType === "fix" ? "Flat" : 
+                                           amtType === "per" ? "Percentage" : 
+                                           (comm.amtType || "").toUpperCase();
+                      badgeText = `${commTypeDisplay}/${amtTypeDisplay}`;
+                    }
 
                     return (
                       <div key={comm.id || index}>
@@ -162,13 +177,13 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                           </div>
 
                           {/* My Deal */}
-                          <div className="flex flex-col items-center gap-1 text-xs">
-                            <div className="text-[#121216]">
+                          <div className="flex items-center justify-center gap-1.5 text-xs">
+                            <span className="text-[#121216] font-medium">
                               {comm.commAmt}
-                            </div>
-                            <div className="text-[#121216]/60">
-                              {commTypeDisplay}/{amtTypeDisplay}
-                            </div>
+                            </span>
+                            <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-[gilroy-medium] bg-[#E8FFF4] text-[#039155] uppercase tracking-wide">
+                              {badgeText}
+                            </span>
                           </div>
                         </div>
                         {index < items.length - 1 && (
@@ -190,7 +205,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-4 md:p-6 text-[#1B1717]">
       {/* Header Section with Back Arrow */}
       <div className="mb-4 sm:mb-6">
-        <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-3 sm:gap-4">
           <button
             onClick={onBack}
             className="flex items-center text-[#1B1717] hover:text-[#039155] transition"
@@ -203,7 +218,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
             <h1 className="text-[20px] sm:text-2xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
               {subscription.title} - Details
             </h1>
-            <span className="block mt-2 sm:mt-0 text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+            <span className="text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
               Complete subscription information
             </span>
           </div>
