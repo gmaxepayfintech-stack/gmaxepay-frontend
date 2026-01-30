@@ -383,7 +383,7 @@ const DistributorLayout = ({ children }) => {
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
-                {name || email || "Retailer Dashboard"}
+                {name || email || "Distributor Dashboard"}
               </span>
               <button
                 onClick={toggleProfileDropdown}

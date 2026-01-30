@@ -44,6 +44,7 @@ const RetailerDash = () => {
         <Route path="/reports/earning" element={<EarningReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />
         <Route path="/tax-history" element={<TaxHistory />} />
+        <Route path="/txn-history" element={<TaxHistory />} />
       </Routes>
     </RetailerDashLayout>
   );

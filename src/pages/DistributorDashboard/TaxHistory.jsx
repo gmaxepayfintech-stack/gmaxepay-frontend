@@ -115,7 +115,7 @@ const TaxHistory = () => {
   // If AepsCWHistory should be shown, render it
   if (showAepsCWHistory) {
     return (
-      <AepsCWHistory onBack={() => navigate("/superDashboard/txn-history")} />
+      <AepsCWHistory onBack={() => navigate("/distributerDashboard/tax-history")} />
     );
   }
 
@@ -224,7 +224,7 @@ const TaxHistory = () => {
                   onClick={() => {
                     if (card.title === "AEPS CW History") {
                       navigate(
-                        "/masterDistributerDashboard/tax-history?view=aeps-cw-history",
+                        "/distributerDashboard/tax-history?view=aeps-cw-history",
                       );
                     }
                   }}

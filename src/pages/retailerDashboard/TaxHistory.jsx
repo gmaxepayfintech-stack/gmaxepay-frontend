@@ -115,7 +115,7 @@ const TaxHistory = () => {
   // If AepsCWHistory should be shown, render it
   if (showAepsCWHistory) {
     return (
-      <AepsCWHistory onBack={() => navigate("/superDashboard/txn-history")} />
+      <AepsCWHistory onBack={() => navigate("/retailerDashboard/txn-history")} />
     );
   }
 
