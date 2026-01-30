@@ -62,6 +62,14 @@ const RetailerDashLayout = ({ children }) => {
         // },
       ],
     },
+    {
+      name: "Resources",
+      icon: MaskGroup5,
+      dropdown: true,
+      children: [
+        { name: "Subscription", path: "/retailerDashboard/resources/subscription" },
+      ],
+    },
 
     {
       name: "Reports",

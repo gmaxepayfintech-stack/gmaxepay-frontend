@@ -2,6 +2,7 @@ import { Routes, Route } from "react-router-dom";
 import RetailerDashLayout from "./retailerDashLayout";
 import RetailerDashboard from "../../pages/retailerDashboard/RetailerDashboard";
 import Services from "../../pages/retailerDashboard/Services";
+import Subscription from "../../pages/retailerDashboard/Resources/Subscription";
 import OnBoardingAeps from "../../pages/retailerDashboard/aeps/onBoardingAeps";
 import OnBoardingAepsTwo from "../../pages/retailerDashboard/aeps2/onBoardingAepsTwo";
 import SelectserviceTwo from "../../pages/retailerDashboard/aeps2/SelectserviceTwo";
@@ -39,6 +40,7 @@ const RetailerDash = () => {
           path="/services/aeps2/select-service"
           element={<SelectserviceTwo />}
         />
+        <Route path="/resources/subscription" element={<Subscription />} />
         <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/earning" element={<EarningReport />} />
