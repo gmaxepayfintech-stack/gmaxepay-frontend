@@ -1,6 +1,9 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useDispatch } from "react-redux";
-import { masterdistributerGetBanks, masterdistributerFundLoad } from "../../../redux/action/fundAction";
+import {
+  masterdistributerGetBanks,
+  masterdistributerFundLoad,
+} from "../../../redux/action/fundAction";
 import { useNotification } from "../../../context/NotificationContext";
 
 const WalletLoad = () => {
@@ -20,7 +23,6 @@ const WalletLoad = () => {
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileError, setFileError] = useState("");
 
-
   // Fetch banks on component mount
   useEffect(() => {
     const fetchBanks = async () => {
@@ -30,7 +32,7 @@ const WalletLoad = () => {
         if (result?.status === "SUCCESS" && result?.mdBanklists) {
           setBanks(result.mdBanklists);
           // Set the first bank as selected by default, or the primary bank if exists
-          const primaryBank = result.mdBanklists.find(bank => bank.isPrimary);
+          const primaryBank = result.mdBanklists.find((bank) => bank.isPrimary);
           if (primaryBank) {
             setSelectedBank(primaryBank.bankId);
           } else if (result.mdBanklists.length > 0) {
@@ -75,7 +77,6 @@ const WalletLoad = () => {
     }
   };
 
-
   const handleFileDrop = (e) => {
     e.preventDefault();
     const file = e.dataTransfer.files[0];
@@ -112,21 +113,21 @@ const WalletLoad = () => {
 
       // Create FormData
       const formData = new FormData();
-      formData.append('amount', amount);
-      formData.append('paymentMode', paymentMode);
-      formData.append('transactionDate', payDate);
-      formData.append('bankId', selectedBank);
+      formData.append("amount", amount);
+      formData.append("paymentMode", paymentMode);
+      formData.append("transactionDate", payDate);
+      formData.append("bankId", selectedBank);
 
       if (referenceNumber) {
-        formData.append('referenceNo', referenceNumber);
+        formData.append("referenceNo", referenceNumber);
       }
 
       if (remarks) {
-        formData.append('remarks', remarks);
+        formData.append("remarks", remarks);
       }
 
       if (paySlipFile) {
-        formData.append('paySlip', paySlipFile);
+        formData.append("paySlip", paySlipFile);
       }
 
       const result = await dispatch(masterdistributerFundLoad(formData));
@@ -148,7 +149,7 @@ const WalletLoad = () => {
           fileInputRef.current.value = "";
         }
         // Reset to primary bank or first bank
-        const primaryBank = banks.find(bank => bank.isPrimary);
+        const primaryBank = banks.find((bank) => bank.isPrimary);
         if (primaryBank) {
           setSelectedBank(primaryBank.bankId);
         } else if (banks.length > 0) {
@@ -273,7 +274,10 @@ const WalletLoad = () => {
 
               {/* Pay Slip */}
               <div>
-                <label htmlFor="paySlip" className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+                <label
+                  htmlFor="paySlip"
+                  className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
                   Pay Slip
                 </label>
                 <div
@@ -399,24 +403,24 @@ const WalletLoad = () => {
                     key={bank.bankId}
                     type="button"
                     onClick={() => setSelectedBank(bank.bankId)}
-                    className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${selectedBank === bank.bankId
-                      ? "border-[#039155] bg-green-50"
-                      : "border-[#1B1717] border-opacity-80 bg-white"
-                      }`}
+                    className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${
+                      selectedBank === bank.bankId
+                        ? "border-[#039155] bg-green-50"
+                        : "border-[#1B1717] border-opacity-80 bg-white"
+                    }`}
                   >
                     <div className="flex items-start gap-3">
                       {/* Bank Logo */}
-                      <div className="w-10 h-10 flex items-center justify-center shrink-0">
+                      <div className="w-34 h-10 flex items-center justify-center shrink-0">
                         <img
-                          src={bank.bankImage}
-                          alt={bank.bankName}
-                          className="w-8 h-8 object-cover"
+                          src={bank.bankImage || bank.logo}
+                          alt={bank.bankName || bank.name}
+                          className="w-28 h-12 object-cover"
                           onError={(e) => {
                             e.target.style.display = "none";
                           }}
                         />
                       </div>
-
 
                       {/* Bank Details */}
                       <div className="flex-1 min-w-0">
