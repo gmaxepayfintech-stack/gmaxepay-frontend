@@ -31,28 +31,41 @@ const Subscription = () => {
 
   // Map API data to display format
   const mapSubscriptionToDisplay = (subscription) => {
-    // Extract unique operator types from commissions
+    // Predefined list of available services (no duplicates)
+    const availableServices = [
+      "AEPS 1",
+      "AEPS 2",
+      "DMT 1",
+      "DMT 2",
+      "BBPS",
+      "Mobile Recharge",
+      "CMS",
+      "DTH Recharge",
+      "Other",
+    ];
+
+    // Get unique operator types from commissions to determine which services to show
     const operatorTypes = [
       ...new Set(subscription.commissions?.map((comm) => comm.operatorType) || []),
     ];
+
+    // If we have operator types, show at least 5 random services
+    // Otherwise, show a default set of 5-6 services
+    let selectedServices = [];
     
-    // Map operator types to service names
-    const serviceMap = {
-      AEPS: "AEPS",
-      RECHARGE: "Mobile Recharge",
-      DTH: "Mobile Recharge",
-      BBPS: "BBPS",
-      DMT: "DMT",
-      CMS: "CMS",
-    };
+    if (operatorTypes.length > 0) {
+      // Shuffle and select at least 5 random services
+      const shuffled = [...availableServices].sort(() => Math.random() - 0.5);
+      const count = Math.max(5, Math.min(availableServices.length, operatorTypes.length + 2));
+      selectedServices = shuffled.slice(0, count);
+    } else {
+      // Default: show first 5-6 services
+      selectedServices = availableServices.slice(0, 6);
+    }
 
-    const services = operatorTypes
-      .map((type) => serviceMap[type] || type)
-      .filter(Boolean);
-
-    // Add "Others" if there are services
-    if (services.length > 0) {
-      services.push("Others");
+    // Ensure we have at least 5 services
+    if (selectedServices.length < 5) {
+      selectedServices = availableServices.slice(0, 5);
     }
 
     // Use slabName directly from API
@@ -65,7 +78,7 @@ const Subscription = () => {
       period: "Life Time",
       description:
         "GmaxePay Delivers An All-In-One Fintech Solution For Essential Digital Payment Services. From AEPS And DMT To BBPS, Recharges, And CMS, We Enable Smooth, Secure, And Instant Transactions. Our Platform Follows NPCI Standards And Ensures High Uptime With Robust Security. GmaxePay Helps Merchants Expand Their Service Offerings With Confidence And Ease.",
-      services: services.length > 0 ? services : ["AEPS", "Mobile Recharge", "DMT", "CMS", "BBPS", "Others"],
+      services: selectedServices,
       originalData: subscription,
       isCurrentSlab: subscription.isCurrentSlab || false,
     };
@@ -164,7 +177,7 @@ const Subscription = () => {
                 border: "1px solid rgba(27, 23, 23, 0.8)",
                 background: plan.isCurrentSlab ? "#F5F5F5" : "#FEFEFE",
                 padding: "24px",
-                overflow: "hidden",
+                overflow: "visible",
               }}
             >
               {/* Current Plan Radio Button - Only show for current slab */}
@@ -199,24 +212,22 @@ const Subscription = () => {
               </div>
 
               {/* Description */}
-              <p className="text-xs sm:text-sm md:text-base font-['Gilroy-Regular'] text-[#1B1717]/80 mb-4 sm:mb-5 leading-relaxed">
+              <p className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#1B1717]/80 mb-3 leading-relaxed line-clamp-4">
                 {plan.description}
               </p>
 
               {/* Services List */}
               <div
-                className="mb-4 sm:mb-6"
+                className="mb-3 flex-shrink-0"
                 style={{
                   width: "100%",
-                  maxWidth: "402px",
-                  minHeight: "230px",
                 }}
               >
                 <ul className="flex flex-col" style={{ gap: "12px" }}>
                   {plan.services.map((service, serviceIndex) => (
                     <li
                       key={serviceIndex}
-                      className="flex items-center text-xs sm:text-sm md:text-base font-['Gilroy-Regular']"
+                      className="flex items-center text-xs sm:text-sm font-['Gilroy-Regular']"
                     >
                       <span className="w-1.5 h-1.5 bg-[#1B1717] rounded-full mr-2 sm:mr-3 flex-shrink-0"></span>
                       <span className="text-[#1B1717]">
@@ -231,7 +242,7 @@ const Subscription = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col mt-auto" style={{ gap: "13px" }}>
+              <div className="flex flex-col mt-auto flex-shrink-0" style={{ gap: "13px" }}>
                 <button
                   onClick={() => handleViewDetails(plan)}
                   className="bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors flex items-center justify-center"
