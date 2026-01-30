@@ -163,25 +163,11 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
 
                           {/* My Deal */}
                           <div className="flex flex-col items-center gap-1 text-xs">
-                            <div className="flex items-center gap-1.5">
-                              <span>{comm.commAmt}</span>
-                              {comm.commType && (
-                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#039155]">
-                                  {comm.commType}
-                                </span>
-                              )}
-                              {comm.amtType && (
-                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
-                                  {(comm.amtType || "").toLowerCase() === "fix" ? "flat" : 
-                                   (comm.amtType || "").toLowerCase() === "per" ? "per" : 
-                                   comm.amtType}
-                                </span>
-                              )}
+                            <div className="text-[#121216]">
+                              {comm.commAmt}
                             </div>
-                            <div className="flex gap-1">
-                              <span className="inline-flex px-1.5 py-0.5 rounded text-[10px] font-[gilroy-medium] bg-[#F5F5F5] text-[#121216]">
-                                {commTypeDisplay}/{amtTypeDisplay}
-                              </span>
+                            <div className="text-[#121216]/60">
+                              {commTypeDisplay}/{amtTypeDisplay}
                             </div>
                           </div>
                         </div>
@@ -226,71 +212,6 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
 
       {/* Content */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
-        {/* Basic Information */}
-        <div className="mb-6">
-          <h3 className="text-lg font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
-            Basic Information
-          </h3>
-          <div className="bg-gray-50 rounded-lg p-4 space-y-3">
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Subscription ID
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                {subscription.originalData?.id}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Slab Name
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                {subscription.originalData?.slabName}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Subscription Amount
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                ₹ {subscription.originalData?.subscriptionAmount || 0}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Schema Mode
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717] capitalize">
-                {subscription.originalData?.schemaMode || "N/A"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Schema Type
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717] capitalize">
-                {subscription.originalData?.schemaType || "N/A"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Role Type
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                {subscription.originalData?.roleName || "N/A"}
-              </span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-sm font-['Gilroy-Regular'] text-[#1B1717]/80">
-                Current Plan
-              </span>
-              <span className="text-sm font-['Gilroy-Medium'] text-[#1B1717]">
-                {subscription.originalData?.isCurrentSlab ? "Yes" : "No"}
-              </span>
-            </div>
-          </div>
-        </div>
-
         {/* Commissions */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
           <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6">
