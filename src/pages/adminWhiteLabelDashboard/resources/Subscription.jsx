@@ -48,24 +48,40 @@ const Subscription = () => {
       ...new Set(subscription.commissions?.map((comm) => comm.operatorType) || []),
     ];
 
-    // Select 5 random services (4 random + "Other" as the last)
+    // Select 5 random services (no duplicates) + "Other" as the 6th
     let selectedServices = [];
     
     if (operatorTypes.length > 0) {
-      // Shuffle and select 4 random services
+      // Shuffle and select 5 random services (no duplicates)
       const shuffled = [...availableServices].sort(() => Math.random() - 0.5);
-      selectedServices = shuffled.slice(0, 4);
+      selectedServices = shuffled.slice(0, 5);
     } else {
-      // Default: show first 4 services
-      selectedServices = availableServices.slice(0, 4);
+      // Default: show first 5 services
+      selectedServices = availableServices.slice(0, 5);
     }
 
-    // Ensure we have exactly 4 services before adding "Other"
-    if (selectedServices.length < 4) {
-      selectedServices = availableServices.slice(0, 4);
+    // Ensure we have exactly 5 unique services before adding "Other"
+    if (selectedServices.length < 5) {
+      // If we don't have enough, fill from the beginning
+      const needed = 5 - selectedServices.length;
+      const used = new Set(selectedServices);
+      for (let i = 0; i < availableServices.length && selectedServices.length < 5; i++) {
+        if (!used.has(availableServices[i])) {
+          selectedServices.push(availableServices[i]);
+          used.add(availableServices[i]);
+        }
+      }
     }
 
-    // Add "Other" as the last service to make it exactly 5 services
+    // Remove duplicates if any (shouldn't happen, but safety check)
+    selectedServices = [...new Set(selectedServices)];
+
+    // Ensure exactly 5 services before adding "Other"
+    if (selectedServices.length > 5) {
+      selectedServices = selectedServices.slice(0, 5);
+    }
+
+    // Add "Other" as the 6th service (total 6 services: 5 random + 1 "Other")
     selectedServices.push("Other");
 
     // Use slabName directly from API
@@ -264,7 +280,16 @@ const Subscription = () => {
                   {plan.services.map((service, serviceIndex) => (
                     <li
                       key={serviceIndex}
-                      className="flex items-center text-xs sm:text-sm font-['Gilroy-Regular']"
+                      className="flex items-center"
+                      style={{
+                        fontFamily: "Gilroy-SemiBold",
+                        fontWeight: 400,
+                        fontSize: "18px",
+                        lineHeight: "100%",
+                        letterSpacing: "0%",
+                        verticalAlign: "middle",
+                        textTransform: "capitalize",
+                      }}
                     >
                       <span className="w-1.5 h-1.5 bg-[#1B1717] rounded-full mr-2 sm:mr-3 flex-shrink-0"></span>
                       <span className="text-[#1B1717]">
