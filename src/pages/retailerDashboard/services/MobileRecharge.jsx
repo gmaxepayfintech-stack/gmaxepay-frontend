@@ -228,38 +228,35 @@ const MobileRecharge = ({ onBack }) => {
       // Extract data from offer text - Look for patterns like "2GB/D", "2GB/day", "6GB data", "50GB data"
       let dataText = "N/A";
       const dataPatterns = [
-        /(\d+(?:\.\d+)?\s*GB\/D)/i, // "2GB/D", "2.5GB/D"
-        /(\d+(?:\.\d+)?\s*GB\/day)/i, // "2GB/day"
+        /(\d+(?:\.\d+)?\s*GB\/D)/i, // "2GB/D", "2.5GB/D" - prioritize this
+        /(\d+(?:\.\d+)?\s*GB\/day)/i, // "2GB/day" - prioritize this
         /(\d+(?:\.\d+)?\s*GB)\s+data/i, // "6GB data", "50GB data"
         /(Unlimited\s+data)/i, // "Unlimited data"
         /=\s*(\d+(?:\.\d+)?\s*GB)/i, // "=2GB" (from after =)
-        /(\d+(?:\.\d+)?\s*GB)/i, // Just "2GB", "12GB" anywhere
+        /(\d+(?:\.\d+)?\s*GB)/i, // Just "2GB", "12GB" anywhere (fallback)
       ];
       
       for (const pattern of dataPatterns) {
         const match = offerText.match(pattern);
-        if (match) {
+        if (match && match[1]) {
           dataText = match[1].trim();
           break;
         }
       }
       
+      
       // Extract validity from offer text - Look for "28D", "1M", "56D", "84 days", "1 month"
       let validityText = "N/A";
-      const validityPatterns = [
-        /(\d+)\s*D\b/i, // "28D", "56D", "84D" - word boundary to avoid matching "2GB/D"
-        /(\d+)\s*M\b/i, // "1M", "6M" - word boundary
-        /(\d+\s*(?:day|days|Day|Days))/i, // "1 day", "30 days", "84 days"
-        /(\d+\s*(?:month|months|Month|Months))/i, // "1 month", "6 months"
-        /=\s*.*?(\d+\s*D\b)/i, // "=...28D" (from after =)
-        /=\s*.*?(\d+\s*M\b)/i, // "=...1M" (from after =)
+      // Prioritize patterns after "=" as they're more accurate
+      const validityPatternsAfterEquals = [
+        /=\s*[^,]*?(\d+\s*D\b)/i, // "=...28D" (from after =)
+        /=\s*[^,]*?(\d+\s*M\b)/i, // "=...1M" (from after =)
       ];
       
-      // Try to find validity, prioritizing patterns after "=" (more accurate)
-      let foundValidity = null;
-      for (const pattern of validityPatterns) {
+      // Try patterns after "=" first (more accurate)
+      for (const pattern of validityPatternsAfterEquals) {
         const match = offerText.match(pattern);
-        if (match) {
+        if (match && match[1]) {
           let validity = match[1].trim();
           // Format validity text
           if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
@@ -269,13 +266,36 @@ const MobileRecharge = ({ onBack }) => {
           } else {
             validityText = validity;
           }
-          foundValidity = validityText;
-          // If found after "=", it's more accurate, so break
-          if (pattern.source.includes("=")) {
+          break; // Found after "=", use this
+        }
+      }
+      
+      // If not found after "=", try other patterns
+      if (validityText === "N/A") {
+        const validityPatterns = [
+          /(\d+\s*(?:day|days|Day|Days))/i, // "1 day", "30 days", "84 days"
+          /(\d+\s*(?:month|months|Month|Months))/i, // "1 month", "6 months"
+          /(\d+)\s*D\b/i, // "28D", "56D", "84D" - word boundary to avoid matching "2GB/D"
+          /(\d+)\s*M\b/i, // "1M", "6M" - word boundary
+        ];
+        
+        for (const pattern of validityPatterns) {
+          const match = offerText.match(pattern);
+          if (match && match[1]) {
+            let validity = match[1].trim();
+            // Format validity text
+            if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
+              validityText = validity.replace(/\s*M\b/i, " Month");
+            } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
+              validityText = validity.replace(/\s*D\b/i, " Day");
+            } else {
+              validityText = validity;
+            }
             break;
           }
         }
       }
+      
       
       // Extract calls/UL 5G information from offer text
       let callsText = "N/A";
@@ -298,8 +318,8 @@ const MobileRecharge = ({ onBack }) => {
       return {
         id: plan.id || `offer-${index}`,
         price: plan.price || `₹${offer.amount}`,
-        validity: plan.validity || validityText,
-        data: plan.data || dataText,
+        validity: (plan.validity && plan.validity !== "N/A") ? plan.validity : validityText,
+        data: (plan.data && plan.data !== "N/A") ? plan.data : dataText,
         calls: callsText,
         validityExtra: offerText, // Full offer text
         planName: "Offer",
