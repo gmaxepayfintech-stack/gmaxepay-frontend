@@ -124,7 +124,7 @@ const Subscription = () => {
   const displaySubscriptions = subscriptions?.map(mapSubscriptionToDisplay) || [];
 
   return (
-    <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-4 md:p-6 text-[#1B1717]">
+    <div className="min-h-screen bg-[#FAFAFA] text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-4 sm:mb-6">
         <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717] mb-1 sm:mb-2">
@@ -144,7 +144,7 @@ const Subscription = () => {
 
       {/* Subscription Cards Grid */}
       <div 
-        className="grid grid-cols-1 md:grid-cols-2 justify-items-center"
+        className="flex flex-wrap justify-center"
         style={{ gap: "32px" }}
       >
         {loading ? (
@@ -158,29 +158,30 @@ const Subscription = () => {
               key={plan.id}
               className="relative flex flex-col"
               style={{
-                width: "100%",
-                maxWidth: "438px",
-                minHeight: "632px",
-                height: "auto",
+                width: "402px",
+                height: "600px",
                 borderRadius: "16px",
                 border: "1px solid rgba(27, 23, 23, 0.8)",
                 background: plan.isCurrentSlab ? "#F5F5F5" : "#FEFEFE",
                 padding: "24px",
+                overflow: "hidden",
               }}
             >
-              {/* Current Plan Radio Button */}
-              <div className="absolute top-4 right-4">
-                <input
-                  type="radio"
-                  name="subscription-plan"
-                  checked={plan.isCurrentSlab}
-                  readOnly
-                  className="w-5 h-5 cursor-pointer"
-                  style={{
-                    accentColor: plan.isCurrentSlab ? "#039155" : "#DADADA",
-                  }}
-                />
-              </div>
+              {/* Current Plan Radio Button - Only show for current slab */}
+              {plan.isCurrentSlab && (
+                <div className="absolute top-4 right-4">
+                  <input
+                    type="radio"
+                    name="subscription-plan"
+                    checked={true}
+                    readOnly
+                    className="w-5 h-5 cursor-pointer"
+                    style={{
+                      accentColor: "#039155",
+                    }}
+                  />
+                </div>
+              )}
 
               {/* Plan Title */}
               <h2 className="text-xl sm:text-2xl md:text-3xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
@@ -233,7 +234,10 @@ const Subscription = () => {
               <div className="flex flex-col gap-2 sm:gap-3 mt-auto">
                 <button
                   onClick={() => handleViewDetails(plan)}
-                  className="w-full px-4 py-2.5 sm:py-3 border border-[#DADADA] rounded-lg bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors"
+                  className="w-full px-4 py-2.5 sm:py-3 rounded-lg bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors"
+                  style={{
+                    border: "0.5px solid #1B1717",
+                  }}
                 >
                   View Details
                 </button>
