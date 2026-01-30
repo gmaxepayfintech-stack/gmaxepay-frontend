@@ -55,18 +55,8 @@ const Subscription = () => {
       services.push("Others");
     }
 
-    // Format schema type for display
-    const schemaTypeMap = {
-      free: "Free",
-      premium: "Gold",
-      platinum: "Platinum",
-      customization: "Customization",
-    };
-
-    const displayTitle =
-      schemaTypeMap[subscription.schemaType?.toLowerCase()] ||
-      subscription.slabName ||
-      "Customization";
+    // Use slabName directly from API
+    const displayTitle = subscription.slabName || "Customization";
 
     return {
       id: subscription.id,
@@ -153,7 +143,10 @@ const Subscription = () => {
       )}
 
       {/* Subscription Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 justify-items-center md:justify-items-start">
+      <div 
+        className="grid grid-cols-1 md:grid-cols-2 justify-items-center md:justify-items-start"
+        style={{ gap: "32px" }}
+      >
         {loading ? (
           // Loading Skeleton
           Array.from({ length: 4 }).map((_, index) => (
