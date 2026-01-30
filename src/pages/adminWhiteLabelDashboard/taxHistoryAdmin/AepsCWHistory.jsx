@@ -15,8 +15,8 @@ import TransactioDetails from "./TransactioDetails";
 import {
   getAepsCwHistory,
   getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
+} from "../../../redux/action/aepsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const AepsCWHistory = ({ onBack }) => {
   const dispatch = useDispatch();
