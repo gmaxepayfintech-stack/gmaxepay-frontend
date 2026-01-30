@@ -180,10 +180,13 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       icon: MaskGroup2,
       dropdown: true,
       children: [
-        { name: "Resource List", path: "/adminDashboard/resources/list" },
         {
           name: "Schema Master",
           path: "/adminDashboard/resources/schema-master",
+        },
+        {
+          name: "Subscription",
+          path: "/adminDashboard/resources/subscription",
         },
       ],
     },
