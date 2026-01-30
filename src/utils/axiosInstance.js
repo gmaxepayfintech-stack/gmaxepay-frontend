@@ -4,6 +4,7 @@ import secureLocalStorage from 'react-secure-storage';
 import { store } from '../redux/store';
 import { shouldRefreshToken, refreshAccessTokenSync } from './tokenRefreshManager';
 import { clearAllStorage, isTokenExpiredError } from './clearStorage';
+import { getGlobalNotificationHandler } from '../context/NotificationContext';
 
 const api = axios.create({
   baseURL: API_ROUTE,
@@ -106,6 +107,18 @@ api.interceptors.response.use(
     ) {
       if (!isLoggingOut) {
         isLoggingOut = true;
+        
+        // Show error notification
+        const notificationHandler = getGlobalNotificationHandler();
+        if (notificationHandler) {
+          notificationHandler.showNotification({
+            message: 'Session Expired Please Login Again',
+            type: 'error',
+            isCritical: true,
+            duration: 5000,
+          });
+        }
+        
         clearAllStorage();
       }
       return Promise.reject(error);

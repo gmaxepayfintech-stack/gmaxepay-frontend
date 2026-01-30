@@ -2,6 +2,14 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 
 const NotificationContext = createContext();
 
+let globalNotificationHandler = null;
+
+export const setGlobalNotificationHandler = (handler) => {
+  globalNotificationHandler = handler;
+};
+
+export const getGlobalNotificationHandler = () => globalNotificationHandler;
+
 export const useNotification = () => {
   const context = useContext(NotificationContext);
   if (!context) {
@@ -69,6 +77,15 @@ export const NotificationProvider = ({ children }) => {
     success,
     error,
   };
+
+  // Set global notification handler so it can be used outside React components
+  useEffect(() => {
+    setGlobalNotificationHandler({
+      showNotification,
+      error,
+      success,
+    });
+  }, [showNotification, error, success]);
 
   return (
     <NotificationContext.Provider value={value}>

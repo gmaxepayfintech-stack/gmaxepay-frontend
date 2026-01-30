@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserProfile } from "../redux/action/userProfileAction";
 import { useNotification } from "../context/NotificationContext";
 import { logOut } from "../redux/action/loginAction";
+import { getGreeting } from "../utils/getGreeting";
 
 // Use absolute paths for public folder assets
 const MaskGroup = "/img/Maskgroup.png";
@@ -25,7 +26,7 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error } = useSelector(
+  const { email, name, unauthorized, error, loading } = useSelector(
     (state) => state.userProfile,
   );
 
@@ -383,12 +384,35 @@ const DashboardLayout = ({ children }) => {
               <Menu className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
             <div>
-              <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                Welcome Back!
-              </h1>
-              <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
-                {name || email || "Admin"}
-              </p>
+              {loading ? (
+                <div className="space-y-2">
+                  <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
+                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+                </div>
+              ) : (() => {
+                const greeting = getGreeting();
+                return (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                        {greeting.text}!
+                      </h1>
+                      <img
+                        src={greeting.image}
+                        alt={greeting.text}
+                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                        onError={(e) => {
+                          e.target.onerror = null;
+                          e.target.src = "/img/gmaxepay.png";
+                        }}
+                      />
+                    </div>
+                    <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                      {name || email || "Admin"}
+                    </p>
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -410,7 +434,7 @@ const DashboardLayout = ({ children }) => {
               ref={profileDropdownRef}
             >
               <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
-                {name || email || "Admin Panel"}
+                {"Admin Panel"}
               </span>
               <button
                 onClick={toggleProfileDropdown}
