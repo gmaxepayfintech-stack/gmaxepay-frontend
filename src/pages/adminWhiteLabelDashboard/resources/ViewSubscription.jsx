@@ -177,13 +177,15 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                           </div>
 
                           {/* My Deal */}
-                          <div className="flex items-center justify-center gap-1.5 text-xs">
-                            <span className="text-[#121216] font-medium">
+                          <div className="flex items-center justify-center gap-2 text-xs">
+                            <div className="flex items-center justify-center text-[#121216] font-medium">
                               {comm.commAmt}
-                            </span>
-                            <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-[gilroy-medium] bg-[#E8FFF4] text-[#039155] uppercase tracking-wide">
-                              {badgeText}
-                            </span>
+                            </div>
+                            <div className="flex items-center justify-center">
+                              <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-[gilroy-medium] bg-[#E8FFF4] text-[#039155] uppercase tracking-wide whitespace-nowrap">
+                                {badgeText}
+                              </span>
+                            </div>
                           </div>
                         </div>
                         {index < items.length - 1 && (
