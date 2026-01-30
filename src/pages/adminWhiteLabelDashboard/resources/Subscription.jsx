@@ -181,7 +181,7 @@ const Subscription = () => {
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1B1717]">
       {/* Header Section */}
-      <div className="mb-4 sm:mb-6">
+      <div className="mb-4 mt-2 sm:mb-6">
         <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717] mb-1 sm:mb-2">
           Subscription Plans
         </h1>
