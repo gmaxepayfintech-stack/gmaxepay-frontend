@@ -112,17 +112,7 @@ const Subscription = () => {
 
   // Loading Skeleton Component
   const SubscriptionCardSkeleton = () => (
-    <div
-      className="relative flex flex-col bg-white animate-pulse"
-      style={{
-        width: "402px",
-        height: "600px",
-        borderRadius: "16px",
-        border: "1px solid rgba(27, 23, 23, 0.8)",
-        background: "#FEFEFE",
-        padding: "24px",
-      }}
-    >
+    <div className="relative flex flex-col w-[402px] h-[600px] rounded-2xl border border-[#1B1717]/80 bg-[#FEFEFE] p-6 animate-pulse">
       {/* Radio Button Skeleton */}
       <div className="absolute top-4 right-4">
         <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
@@ -209,10 +199,7 @@ const Subscription = () => {
       )}
 
       {/* Subscription Cards Grid */}
-      <div 
-        className="flex flex-wrap justify-center"
-        style={{ gap: "32px" }}
-      >
+      <div className="flex flex-wrap justify-center gap-8">
         {loading ? (
           // Loading Skeleton
           Array.from({ length: 4 }).map((_, index) => (
@@ -222,16 +209,9 @@ const Subscription = () => {
           displaySubscriptions.map((plan) => (
             <div
               key={plan.id}
-              className="relative flex flex-col"
-              style={{
-                width: "402px",
-                height: "600px",
-                borderRadius: "16px",
-                border: "1px solid rgba(27, 23, 23, 0.8)",
-                background: plan.isCurrentSlab ? "#F5F5F5" : "#FEFEFE",
-                padding: "24px",
-                overflow: "visible",
-              }}
+              className={`relative flex flex-col w-[402px] h-[600px] rounded-2xl border border-[#1B1717]/80 p-6 overflow-visible ${
+                plan.isCurrentSlab ? "bg-[#F5F5F5]" : "bg-[#FEFEFE]"
+              }`}
             >
               {/* Current Plan Radio Button - Only show for current slab */}
               {plan.isCurrentSlab && (
@@ -242,9 +222,7 @@ const Subscription = () => {
                     checked={true}
                     readOnly
                     className="w-5 h-5 cursor-pointer"
-                    style={{
-                      accentColor: "#039155",
-                    }}
+                    style={{ accentColor: "#039155" }}
                   />
                 </div>
               )}
@@ -270,26 +248,12 @@ const Subscription = () => {
               </p>
 
               {/* Services List */}
-              <div
-                className="mb-3 flex-shrink-0"
-                style={{
-                  width: "100%",
-                }}
-              >
-                <ul className="flex flex-col" style={{ gap: "12px" }}>
+              <div className="mb-3 flex-shrink-0 w-full">
+                <ul className="flex flex-col gap-3">
                   {plan.services.map((service, serviceIndex) => (
                     <li
                       key={serviceIndex}
-                      className="flex items-center"
-                      style={{
-                        fontFamily: "Gilroy-SemiBold",
-                        fontWeight: 400,
-                        fontSize: "18px",
-                        lineHeight: "100%",
-                        letterSpacing: "0%",
-                        verticalAlign: "middle",
-                        textTransform: "capitalize",
-                      }}
+                      className="flex items-center font-['Gilroy-SemiBold'] font-normal text-lg leading-none tracking-normal align-middle capitalize"
                     >
                       <span className="w-1.5 h-1.5 bg-[#1B1717] rounded-full mr-2 sm:mr-3 flex-shrink-0"></span>
                       <span className="text-[#1B1717]">
@@ -304,31 +268,21 @@ const Subscription = () => {
               </div>
 
               {/* Action Buttons */}
-              <div className="flex flex-col mt-auto flex-shrink-0" style={{ gap: "13px" }}>
+              <div className="flex flex-col mt-auto flex-shrink-0 gap-[13px]">
                 <button
                   onClick={() => handleViewDetails(plan)}
-                  className="bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors flex items-center justify-center"
-                  style={{
-                    width: "100%",
-                    height: "60px",
-                    borderRadius: "14px",
-                    border: "0.5px solid #1B1717",
-                  }}
+                  className="w-full h-[60px] rounded-[14px] border-[0.5px] border-[#1B1717] bg-white text-[#1B1717] font-['Gilroy-Medium'] text-sm sm:text-base hover:bg-gray-50 transition-colors flex items-center justify-center"
                 >
                   View Details
                 </button>
                 <button
                   onClick={() => !plan.isCurrentSlab && handleSubscribe(plan.title)}
                   disabled={plan.isCurrentSlab}
-                  className="text-white font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center"
-                  style={{
-                    width: "100%",
-                    height: "60px",
-                    borderRadius: "14px",
-                    background: "#039155",
-                    opacity: plan.isCurrentSlab ? 0.6 : 1,
-                    cursor: plan.isCurrentSlab ? "not-allowed" : "pointer",
-                  }}
+                  className={`w-full h-[60px] rounded-[14px] bg-[#039155] text-white font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center ${
+                    plan.isCurrentSlab
+                      ? "opacity-60 cursor-not-allowed"
+                      : "opacity-100 cursor-pointer"
+                  }`}
                 >
                   {plan.isCurrentSlab ? "Current Plan" : "Subscribe"}
                 </button>
