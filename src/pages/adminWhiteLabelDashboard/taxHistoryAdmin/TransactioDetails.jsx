@@ -4,8 +4,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import MainWalletStatement from "./MainWalletStatement";
-import { getAepsTransactionDetails } from "../../redux/action/aepsAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
+import { getAepsTransactionDetails } from "../../../redux/action/aepsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 
 const TransactioDetails = ({ transactionId, onBack }) => {
   const dispatch = useDispatch();
