@@ -5,7 +5,7 @@ import Members from "../../pages/MasterDistributorDashboard/Members/Members";
 import Rolemanagement from "../../pages/MasterDistributorDashboard/Members/Rolemanagement";
 import CreateWhiteLabel from "../../pages/MasterDistributorDashboard/CreateWhiteLabel";
 import SchemeMaster from "../../pages/MasterDistributorDashboard/Resources/SchemeMaster";
-import RoleUpgrade from "../../pages/MasterDistributorDashboard/Resources/RoleUpgrade";
+import Subscription from "../../pages/MasterDistributorDashboard/Resources/Subscription";
 import BusinessReport from "../../pages/MasterDistributorDashboard/Reports/BusinessReport";
 import UserPerformance from "../../pages/MasterDistributorDashboard/Reports/UserPerformance";
 import EarningReport from "../../pages/MasterDistributorDashboard/Reports/EarningReport";
@@ -25,7 +25,7 @@ const MasterDistributor = () => {
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
-        <Route path="/resources/roleupgraderequest" element={<RoleUpgrade />} />
+        <Route path="/resources/subscription" element={<Subscription />} />
         <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
         <Route path="/fund-management/fund-request" element={<FundRequest />} />
         <Route path="/reports/business" element={<BusinessReport />} />
