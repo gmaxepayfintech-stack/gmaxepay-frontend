@@ -2,15 +2,8 @@ import secureLocalStorage from 'react-secure-storage';
 import { store } from '../redux/store';
 import { logout } from '../redux/action/authAction';
 
-/**
- * Clears all items from secureLocalStorage and dispatches logout action
- * This should be called when token expires or authentication fails
- */
 export const clearAllStorage = () => {
   try {
-    // Get all keys from secureLocalStorage
-    // Note: react-secure-storage doesn't have a getAllKeys method,
-    // so we'll remove known keys and also try to clear all possible keys
     const knownKeys = [
       'userToken',
       'refreshToken',
@@ -38,6 +31,14 @@ export const clearAllStorage = () => {
       localStorage.removeItem('auth');
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      localStorage.removeItem('userData');
+      localStorage.removeItem('userToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('loginToken');
+      localStorage.removeItem('onboardingSteps');
+      localStorage.removeItem('onboardingToken');
+      localStorage.removeItem('companyId');
+      localStorage.removeItem('selectedCompany');
     } catch (e) {
       console.warn('Failed to clear localStorage:', e);
     }
