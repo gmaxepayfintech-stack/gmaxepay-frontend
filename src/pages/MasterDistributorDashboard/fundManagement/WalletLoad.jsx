@@ -14,7 +14,8 @@ const WalletLoad = () => {
   const [selectedBank, setSelectedBank] = useState(null);
   const [paySlipFile, setPaySlipFile] = useState(null);
   const [banks, setBanks] = useState([]);
-  const [loading, setLoading] = useState(false);
+  const [loadingBanks, setLoadingBanks] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const fileInputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileError, setFileError] = useState("");
@@ -24,7 +25,7 @@ const WalletLoad = () => {
   useEffect(() => {
     const fetchBanks = async () => {
       try {
-        setLoading(true);
+        setLoadingBanks(true);
         const result = await dispatch(masterdistributerGetBanks({}));
         if (result?.status === "SUCCESS" && result?.mdBanklists) {
           setBanks(result.mdBanklists);
@@ -42,7 +43,7 @@ const WalletLoad = () => {
           message: error?.message || "Failed to fetch bank details",
         });
       } finally {
-        setLoading(false);
+        setLoadingBanks(false);
       }
     };
 
@@ -107,7 +108,7 @@ const WalletLoad = () => {
     }
 
     try {
-      setLoading(true);
+      setIsSubmitting(true);
 
       // Create FormData
       const formData = new FormData();
@@ -165,7 +166,7 @@ const WalletLoad = () => {
         message: error?.message || "Failed to submit fund request",
       });
     } finally {
-      setLoading(false);
+      setIsSubmitting(false);
     }
   };
 
@@ -300,12 +301,12 @@ const WalletLoad = () => {
 
                   {/* If file selected show preview */}
                   {paySlipFile ? (
-                    <div className="flex flex-col items-center gap-2">
+                    <div className="flex flex-col items-center gap-2 w-full">
                       {previewUrl ? (
                         <img
                           src={previewUrl}
                           alt="Pay Slip Preview"
-                          className="max-h-[120px] object-contain"
+                          className="w-full h-auto object-contain"
                         />
                       ) : (
                         <p className="text-sm text-[#1B1717]">
@@ -380,7 +381,7 @@ const WalletLoad = () => {
             </div>
 
             <div className="space-y-[16px] flex-1 overflow-y-auto pr-2 mb-6">
-              {loading && banks.length === 0 ? (
+              {loadingBanks && banks.length === 0 ? (
                 <div className="text-center py-8">
                   <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
                     Loading banks...
@@ -455,10 +456,10 @@ const WalletLoad = () => {
               <button
                 type="button"
                 onClick={handleSubmit}
-                disabled={loading || !selectedBank}
+                disabled={isSubmitting || !selectedBank}
                 className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? "Submitting..." : "Submit"}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>
