@@ -31,7 +31,7 @@ const Subscription = () => {
 
   // Map API data to display format
   const mapSubscriptionToDisplay = (subscription) => {
-    // Predefined list of available services (no duplicates)
+    // Predefined list of available services (excluding "Other" which will be added last)
     const availableServices = [
       "AEPS 1",
       "AEPS 2",
@@ -41,7 +41,6 @@ const Subscription = () => {
       "Mobile Recharge",
       "CMS",
       "DTH Recharge",
-      "Other",
     ];
 
     // Get unique operator types from commissions to determine which services to show
@@ -49,24 +48,25 @@ const Subscription = () => {
       ...new Set(subscription.commissions?.map((comm) => comm.operatorType) || []),
     ];
 
-    // If we have operator types, show at least 5 random services
-    // Otherwise, show a default set of 5-6 services
+    // Select 4 random services (we'll add "Other" as the 5th)
     let selectedServices = [];
     
     if (operatorTypes.length > 0) {
-      // Shuffle and select at least 5 random services
+      // Shuffle and select 4 random services
       const shuffled = [...availableServices].sort(() => Math.random() - 0.5);
-      const count = Math.max(5, Math.min(availableServices.length, operatorTypes.length + 2));
-      selectedServices = shuffled.slice(0, count);
+      selectedServices = shuffled.slice(0, 4);
     } else {
-      // Default: show first 5-6 services
-      selectedServices = availableServices.slice(0, 6);
+      // Default: show first 4 services
+      selectedServices = availableServices.slice(0, 4);
     }
 
-    // Ensure we have at least 5 services
-    if (selectedServices.length < 5) {
-      selectedServices = availableServices.slice(0, 5);
+    // Ensure we have exactly 4 services before adding "Other"
+    if (selectedServices.length < 4) {
+      selectedServices = availableServices.slice(0, 4);
     }
+
+    // Add "Other" as the last service to make it exactly 5 services
+    selectedServices.push("Other");
 
     // Use slabName directly from API
     const displayTitle = subscription.slabName || "Customization";
@@ -114,22 +114,64 @@ const Subscription = () => {
 
   // Loading Skeleton Component
   const SubscriptionCardSkeleton = () => (
-    <div className="bg-white rounded-xl sm:rounded-2xl p-4 sm:p-6 shadow-sm animate-pulse">
+    <div
+      className="relative flex flex-col bg-white animate-pulse"
+      style={{
+        width: "402px",
+        height: "600px",
+        borderRadius: "16px",
+        border: "1px solid rgba(27, 23, 23, 0.8)",
+        background: "#FEFEFE",
+        padding: "24px",
+      }}
+    >
+      {/* Radio Button Skeleton */}
+      <div className="absolute top-4 right-4">
+        <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
+      </div>
+
+      {/* Title Skeleton */}
       <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-      <div className="h-6 bg-gray-200 rounded w-1/2 mb-4"></div>
-      <div className="space-y-2 mb-4">
-        <div className="h-4 bg-gray-200 rounded w-full"></div>
-        <div className="h-4 bg-gray-200 rounded w-full"></div>
-        <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+
+      {/* Price Skeleton */}
+      <div className="h-6 bg-gray-200 rounded w-1/2 mb-5"></div>
+
+      {/* Description Skeleton */}
+      <div className="space-y-2 mb-3">
+        <div className="h-3 bg-gray-200 rounded w-full"></div>
+        <div className="h-3 bg-gray-200 rounded w-full"></div>
+        <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+        <div className="h-3 bg-gray-200 rounded w-4/5"></div>
       </div>
-      <div className="space-y-2 mb-6">
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-        <div className="h-4 bg-gray-200 rounded w-1/2"></div>
+
+      {/* Services List Skeleton */}
+      <div className="mb-3 space-y-3">
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-20"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-24"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-28"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-22"></div>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-1.5 h-1.5 bg-gray-200 rounded-full"></div>
+          <div className="h-4 bg-gray-200 rounded w-18"></div>
+        </div>
       </div>
-      <div className="space-y-3">
-        <div className="h-10 bg-gray-200 rounded-lg"></div>
-        <div className="h-10 bg-gray-200 rounded-lg"></div>
+
+      {/* Buttons Skeleton */}
+      <div className="flex flex-col mt-auto gap-3">
+        <div className="h-[60px] bg-gray-200 rounded-[14px]"></div>
+        <div className="h-[60px] bg-gray-200 rounded-[14px]"></div>
       </div>
     </div>
   );
