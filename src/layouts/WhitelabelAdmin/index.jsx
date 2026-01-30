@@ -8,6 +8,7 @@ import WalletLoad from "../../pages/adminWhiteLabelDashboard/fundManagement/Wall
 import FundRequest from "../../pages/adminWhiteLabelDashboard/fundManagement/FundRequest";
 import SchemeMaster from "../../pages/adminWhiteLabelDashboard/resources/SchemeMaster";
 import RoleUpgrade from "../../pages/adminWhiteLabelDashboard/resources/RoleUpgrade";
+import TaxHistory from "../../pages/adminWhiteLabelDashboard/taxHistoryAdmin/TaxHistory";
 const WhitelabelAdmin = () => {
     return (
         <WhiteLabelDashboardLayout>
@@ -21,6 +22,7 @@ const WhitelabelAdmin = () => {
                 <Route path="/fund-manage/fund-request" element={<FundRequest />} />
                 <Route path="/resources/schema-master" element={<SchemeMaster/>}/>
                 <Route path="/resources/list" element={<RoleUpgrade />}/>
+                <Route path="/tax-history/list" element={<TaxHistory />}/>
             </Routes>
         </WhiteLabelDashboardLayout>
     );
