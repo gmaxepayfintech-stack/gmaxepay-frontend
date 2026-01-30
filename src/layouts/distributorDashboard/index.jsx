@@ -4,7 +4,7 @@ import DistDashboard from "../../pages/DistributorDashboard/DistDashboard";
 import OnBoardingAeps from "../../pages/DistributorDashboard/aeps/onBoardingAeps";
 import WalletLoad from "../../pages/DistributorDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/DistributorDashboard/fundManagement/FundRequest";
-
+import Subscription from "../../pages/DistributorDashboard/Resources/Subscription";
 import BusinessReport from "../../pages/DistributorDashboard/Reports/BusinessReport";
 import UserPerformance from "../../pages/DistributorDashboard/Reports/UserPerformance";
 import EarningReport from "../../pages/DistributorDashboard/Reports/EarningReport";
@@ -25,6 +25,7 @@ const DistributorDashboard = () => {
         <Route path="/services/bbps-services" element={<BBPSServices />} />
         <Route path="/services/pan-service" element={<PanService />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
+        <Route path="/resources/subscription" element={<Subscription />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
         <Route path="/fund-manage/fund-request" element={<FundRequest />} />
         <Route path="/reports/business" element={<BusinessReport />} />

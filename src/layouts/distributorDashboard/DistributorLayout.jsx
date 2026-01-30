@@ -187,6 +187,10 @@ const DistributorLayout = ({ children }) => {
           name: "Schema Master",
           path: "/distributerDashboard/resources/schemamaster",
         },
+        {
+          name: "Subscription",
+          path: "/distributerDashboard/resources/subscription",
+        },
       ],
     },
     {
