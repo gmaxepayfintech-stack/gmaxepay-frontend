@@ -9,6 +9,7 @@ import {
 } from "../../../redux/action/aepsAction";
 import BankOtp from "./BankOtp";
 import { HiArrowLeft } from "react-icons/hi2";
+  import {getLocationAndIP} from "../../../util/getLocationAndIP";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -337,6 +338,30 @@ const BiometricVerification = () => {
   };
 
   /* -------------------------------------------
+      HELPER: CALL aepsBankOtp WITH LOCATION
+  --------------------------------------------*/
+  const callAepsBankOtp = async () => {
+    try {
+      // Fetch location and IP
+      const locationAndIP = await getLocationAndIP();
+      const latitude = locationAndIP?.location?.latitude || "";
+      const longitude = locationAndIP?.location?.longitude || "";
+
+      // Prepare payload with only latitude and longitude
+      const payload = {
+        latitude,
+        longitude,
+      };
+
+      return await dispatch(aepsBankOtp(payload));
+    } catch (error) {
+      console.error("Error fetching location for aepsBankOtp:", error);
+      // Fallback: call without location if location fetch fails
+      return await dispatch(aepsBankOtp({ latitude: "", longitude: "" }));
+    }
+  };
+
+  /* -------------------------------------------
       AUTO DISPATCH WHEN PID DATA RECEIVED
   --------------------------------------------*/
   useEffect(() => {
@@ -408,8 +433,8 @@ const BiometricVerification = () => {
                 );
                 setDeviceMessage("Biometric verification successful");
 
-                // Call aepsBankOtp API
-                dispatch(aepsBankOtp())
+                // Call aepsBankOtp API with location
+                callAepsBankOtp()
                   .then((bankOtpResponse) => {
                     console.log(
                       "✅ Bank OTP sent successfully:",
@@ -438,8 +463,8 @@ const BiometricVerification = () => {
               // If status data is not available, check response status
               if (response?.status === "SUCCESS") {
                 setDeviceMessage("Biometric verification successful");
-                // Still try to call aepsBankOtp
-                dispatch(aepsBankOtp())
+                // Still try to call aepsBankOtp with location
+                callAepsBankOtp()
                   .then((bankOtpResponse) => {
                     console.log(
                       "✅ Bank OTP sent successfully:",
@@ -463,8 +488,8 @@ const BiometricVerification = () => {
             // Even if status check fails, check the biometric response
             if (response?.status === "SUCCESS") {
               setDeviceMessage("Biometric verification successful");
-              // Try to call aepsBankOtp
-              dispatch(aepsBankOtp())
+              // Try to call aepsBankOtp with location
+              callAepsBankOtp()
                 .then((bankOtpResponse) => {
                   console.log(
                     "✅ Bank OTP sent successfully:",
@@ -535,7 +560,7 @@ const BiometricVerification = () => {
 
         if (nextStep === "bankOtp" && !showBankOtp) {
           console.log("✅ Biometric completed (from Redux), moving to BankOtp");
-          dispatch(aepsBankOtp())
+          callAepsBankOtp()
             .then((bankOtpResponse) => {
               console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
               setShowBankOtp(true);

@@ -247,26 +247,22 @@ const MobileRecharge = ({ onBack }) => {
       
       // Extract validity from offer text - Look for "28D", "1M", "56D", "84 days", "1 month"
       let validityText = "N/A";
-      // Prioritize patterns after "=" as they're more accurate
-      const validityPatternsAfterEquals = [
-        /=\s*[^,]*?(\d+\s*D\b)/i, // "=...28D" (from after =)
-        /=\s*[^,]*?(\d+\s*M\b)/i, // "=...1M" (from after =)
-      ];
       
-      // Try patterns after "=" first (more accurate)
-      for (const pattern of validityPatternsAfterEquals) {
-        const match = offerText.match(pattern);
-        if (match && match[1]) {
-          let validity = match[1].trim();
-          // Format validity text
-          if (/\d+\s*M\b/i.test(validity) && !validity.toLowerCase().includes("month")) {
-            validityText = validity.replace(/\s*M\b/i, " Month");
-          } else if (/\d+\s*D\b/i.test(validity) && !validity.toLowerCase().includes("day")) {
-            validityText = validity.replace(/\s*D\b/i, " Day");
-          } else {
-            validityText = validity;
-          }
-          break; // Found after "=", use this
+      // Prioritize patterns after "=" as they're more accurate
+      // Find all matches after "=" and take the LAST one (most accurate)
+      const afterEquals = offerText.split("=")[1];
+      if (afterEquals) {
+        // Match all D or M patterns after "="
+        const allDMatches = afterEquals.match(/(\d+)\s*D\b/gi);
+        const allMMatches = afterEquals.match(/(\d+)\s*M\b/gi);
+        
+        // Take the last match (most accurate validity)
+        if (allMMatches && allMMatches.length > 0) {
+          const lastM = allMMatches[allMMatches.length - 1].trim();
+          validityText = lastM.replace(/\s*M\b/i, " Month");
+        } else if (allDMatches && allDMatches.length > 0) {
+          const lastD = allDMatches[allDMatches.length - 1].trim();
+          validityText = lastD.replace(/\s*D\b/i, " Day");
         }
       }
       

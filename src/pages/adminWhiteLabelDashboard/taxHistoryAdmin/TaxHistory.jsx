@@ -14,9 +14,17 @@ const TaxHistory = () => {
   // const [indicator, setIndicator] = useState({ width: 0, left: 0 });
 
   // Check if we're viewing a specific history (from URL search params)
+  // This will automatically update when location.search changes
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
   const showAepsCWHistory = viewHistory === "aeps-cw-history";
+
+  // Debug: Log when view parameter changes
+  useEffect(() => {
+    if (viewHistory) {
+      console.log("View history parameter:", viewHistory);
+    }
+  }, [viewHistory, location.search]);
 
   const tabs = [
     "Banking",
@@ -115,7 +123,7 @@ const TaxHistory = () => {
   // If AepsCWHistory should be shown, render it
   if (showAepsCWHistory) {
     return (
-      <AepsCWHistory onBack={() => navigate("/superDashboard/txn-history")} />
+      <AepsCWHistory onBack={() => navigate("/adminDashboard/txn-history")} />
     );
   }
 
@@ -224,7 +232,7 @@ const TaxHistory = () => {
                   onClick={() => {
                     if (card.title === "AEPS CW History") {
                       navigate(
-                        "/superDashboard/txn-history?view=aeps-cw-history",
+                        "/adminDashboard/txn-history?view=aeps-cw-history",
                       );
                     }
                   }}
