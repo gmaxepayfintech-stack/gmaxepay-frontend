@@ -5,7 +5,6 @@ import Members from "../../pages/superAdminDashboard/Members";
 import CreateWhiteLabel from "../../pages/CreateWhiteLabel";
 import Rolemanagement from "../../pages/superAdminDashboard/Rolemanagement";
 import SchemeMaster from "../../pages/superAdminDashboard/SchemeMaster";
-import RoleUpgrade from "../../pages/superAdminDashboard/RoleUpgrade";
 import TaxHistory from "../../pages/superAdminDashboard/TaxHistory";
 import BusinessReport from "../../pages/superAdminDashboard/BusinessReport";
 import UserPerformance from "../../pages/superAdminDashboard/UserPerformance";
@@ -24,7 +23,6 @@ const SuperAdminDashboard = () => {
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
-        <Route path="/resources/roleupgraderequest" element={<RoleUpgrade />} />
         <Route path="/txn-history" element={<TaxHistory />} />
         <Route path="/reports/business" element={<BusinessReport />} />
         <Route path="/reports/user-performance" element={<UserPerformance />} />

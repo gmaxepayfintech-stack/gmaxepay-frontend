@@ -79,11 +79,7 @@ const DashboardLayout = ({ children }) => {
         {
           name: "Schema Master",
           path: "/superDashboard/resources/schemamaster",
-        },
-        {
-          name: "Role Upgrade",
-          path: "/superDashboard/resources/roleupgraderequest",
-        },
+        }
       ],
     },
     {
