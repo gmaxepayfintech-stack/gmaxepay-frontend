@@ -23,10 +23,16 @@ const SchemeMaster = () => {
   const { success, error: showError } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  
+
   // Redux state
   const slabState = useSelector((state) => state?.slab);
-  const { slabs, loading: slabsLoading, createSlabSuccess, createSlabMessage, createSlabError } = slabState || {};
+  const {
+    slabs,
+    loading: slabsLoading,
+    createSlabSuccess,
+    createSlabMessage,
+    createSlabError,
+  } = slabState || {};
   const [isCreating, setIsCreating] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
@@ -44,7 +50,9 @@ const SchemeMaster = () => {
 
   // Get company ID
   const getCompanyId = () => {
-    return companyData?.companyId || companyData?._id || companyData?.id || null;
+    return (
+      companyData?.companyId || companyData?._id || companyData?.id || null
+    );
   };
 
   // Fetch slabs on component mount and when page changes
@@ -113,17 +121,41 @@ const SchemeMaster = () => {
   const mapSlabToScheme = (slab) => {
     const getIcon = (schemaType, schemaMode) => {
       if (schemaType === "free" && schemaMode === "global") {
-        return { icon: Globe, iconColor: "text-green-600", iconBg: "bg-green-100", iconImage: "/img/WLGlobe.png", useImage: true };
+        return {
+          icon: Globe,
+          iconColor: "text-green-600",
+          iconBg: "bg-green-100",
+          iconImage: "/img/WLGlobe.png",
+          useImage: true,
+        };
       } else if (schemaMode === "private") {
-        return { icon: Lock, iconColor: "text-purple-600", iconBg: "bg-purple-100", iconImage: "/img/GramPay.png", useImage: true };
+        return {
+          icon: Lock,
+          iconColor: "text-purple-600",
+          iconBg: "bg-purple-100",
+          iconImage: "/img/GramPay.png",
+          useImage: true,
+        };
       } else {
-        return { icon: Grid3x3, iconColor: "text-orange-600", iconBg: "bg-orange-100", iconImage: "/img/Platanium.png", useImage: true };
+        return {
+          icon: Grid3x3,
+          iconColor: "text-orange-600",
+          iconBg: "bg-orange-100",
+          iconImage: "/img/Platanium.png",
+          useImage: true,
+        };
       }
     };
 
     const iconData = getIcon(slab.schemaType, slab.schemaMode);
-    const createdAt = slab.createdAt ? new Date(slab.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
-    
+    const createdAt = slab.createdAt
+      ? new Date(slab.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        })
+      : "N/A";
+
     return {
       id: slab.id,
       name: slab.slabName,
@@ -134,8 +166,20 @@ const SchemeMaster = () => {
       created: createdAt,
       members: slab.totalUsers?.toString() || "0",
       tags: [
-        { label: slab.schemaMode === "global" ? "Global" : "Private", color: slab.schemaMode === "global" ? "bg-[#08A000] text-white" : "bg-[#9B3FEF] text-white" },
-        { label: slab.schemaType === "free" ? "Free" : "Premium", color: slab.schemaType === "free" ? "bg-[#366BCD] text-white" : "bg-[#D6C407] text-white" },
+        {
+          label: slab.schemaMode === "global" ? "Global" : "Private",
+          color:
+            slab.schemaMode === "global"
+              ? "bg-[#08A000] text-white"
+              : "bg-[#9B3FEF] text-white",
+        },
+        {
+          label: slab.schemaType === "free" ? "Free" : "Premium",
+          color:
+            slab.schemaType === "free"
+              ? "bg-[#366BCD] text-white"
+              : "bg-[#D6C407] text-white",
+        },
       ],
       ...slab, // Include original slab data
     };
@@ -163,7 +207,7 @@ const SchemeMaster = () => {
   // 2️⃣ Use API paginator for total pages
   const paginator = slabState?.paginator || {};
   const totalPages = paginator.pageCount || 1;
-  
+
   // Display filtered schemes (search/filter works on current page)
   const paginatedSchemes = filteredSchemes;
 
@@ -194,11 +238,16 @@ const SchemeMaster = () => {
         // Success is handled in useEffect
         // List refresh is handled in the action
       } else {
-        showError(result?.message || "Failed to create slab. Please try again.");
+        showError(
+          result?.message || "Failed to create slab. Please try again.",
+        );
       }
     } catch (error) {
       console.error("Error creating slab:", error);
-      showError(error?.message || "An error occurred while creating the slab. Please try again.");
+      showError(
+        error?.message ||
+          "An error occurred while creating the slab. Please try again.",
+      );
     } finally {
       setIsCreating(false);
     }
@@ -335,150 +384,154 @@ const SchemeMaster = () => {
             </div>
           ) : (
             paginatedSchemes.map((scheme) => {
-            const IconComponent = scheme.icon;
-            return (
-              <div
-                key={scheme.id}
-                className="bg-white rounded-lg sm:rounded-3xl border-[0.5px] border-[#1B1717]/80 border-opacity-40 shadow-sm
+              const IconComponent = scheme.icon;
+              return (
+                <div
+                  key={scheme.id}
+                  className="bg-white rounded-lg sm:rounded-3xl border-[0.5px] border-[#1B1717]/80 border-opacity-40 shadow-sm
             px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4
             md:hover:shadow-md transition-shadow flex flex-col h-full"
-              >
-                {/* Card Header */}
-                <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <div
-                      className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${
-                        scheme.useImage ? "" : scheme.iconBg
-                      } flex items-center justify-center`}
-                    >
-                      {scheme.useImage ? (
-                        <img
-                          src={scheme.iconImage}
-                          alt={scheme.name}
-                          className="w-full h-full object-contain rounded-lg"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/img/gmaxepay.png";
-                          }}
-                        />
-                      ) : (
-                        <IconComponent
-                          className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${scheme.iconColor}`}
-                        />
-                      )}
-                    </div>
+                >
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <div
+                        className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${
+                          scheme.useImage ? "" : scheme.iconBg
+                        } flex items-center justify-center`}
+                      >
+                        {scheme.useImage ? (
+                          <img
+                            src={scheme.iconImage}
+                            alt={scheme.name}
+                            className="w-full h-full object-contain rounded-lg"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/img/gmaxepay.png";
+                            }}
+                          />
+                        ) : (
+                          <IconComponent
+                            className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${scheme.iconColor}`}
+                          />
+                        )}
+                      </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xs sm:text-sm md:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
-                        {scheme.name}
-                      </h3>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs sm:text-sm md:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
+                          {scheme.name}
+                        </h3>
 
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {scheme.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
-                          >
-                            {tag.label}
-                          </span>
-                        ))}
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {scheme.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
+                            >
+                              {tag.label}
+                            </span>
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Status Indicator */}
-                  <div
-                    className={`flex items-center rounded-3xl
+                    {/* Status Indicator */}
+                    <div
+                      className={`flex items-center rounded-3xl
               px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0 mt-2
-              ${scheme.isActive ? 'bg-[#008D1E]' : 'bg-gray-500'}`}
+              ${scheme.isActive ? "bg-[#008D1E]" : "bg-gray-500"}`}
+                    >
+                      <div
+                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? "bg-white" : "bg-white"}`}
+                      />
+                      <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
+                        {scheme.status}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Scheme Details */}
+                  <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Scheme Id
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.schemeId}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Created
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.created}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Members
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.members}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* View Details Button */}
+                  <button
+                    onClick={() => {
+                      setSelectedScheme(scheme);
+                      setShowEditMembership(true);
+                    }}
+                    className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-xl font-[gilroy-semibold] hover:bg-green-700 transition text-sm sm:text-base mt-auto"
                   >
-                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? 'bg-white' : 'bg-white'}`} />
-                    <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
-                      {scheme.status}
-                    </span>
-                  </div>
+                    View Details
+                  </button>
                 </div>
-
-                {/* Scheme Details */}
-                <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Scheme Id
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.schemeId}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Created
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.created}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Members
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.members}
-                    </span>
-                  </div>
-                </div>
-
-                {/* View Details Button */}
-                <button
-                  onClick={() => {
-                    setSelectedScheme(scheme);
-                    setShowEditMembership(true);
-                  }}
-                  className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-xl font-[gilroy-semibold] hover:bg-green-700 transition text-sm sm:text-base mt-auto"
-                >
-                  View Details
-                </button>
-              </div>
-            );
-          })
+              );
+            })
           )}
         </div>
       </div>
 
       {/* Pagination */}
       {!slabsLoading && totalPages > 0 && (
-      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
             className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
-
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-              currentPage === page
-                ? "bg-[#039155] text-white"
-                : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-            }`}
           >
-            {page}
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
-        ))}
 
-        <button
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                currentPage === page
+                  ? "bg-[#039155] text-white"
+                  : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button
+            onClick={() =>
+              setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+            }
             disabled={currentPage === totalPages}
             className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
-      </div>
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       )}
 
       {/* Create New Membership Scheme Modal */}
@@ -519,7 +572,7 @@ const SchemeMaster = () => {
                 </p>
               </div>
 
-              <button
+              {/* <button
                 onClick={() => setIsModalOpen(false)}
                 className="absolute top-3 right-3 sm:top-4 sm:right-4
                      bg-[#039155] text-white rounded-lg
@@ -529,11 +582,17 @@ const SchemeMaster = () => {
               >
                 <div
                   className="border border-white rounded-full
-                       w-4 h-4 sm:w-5 sm:h-5
+                       w-4 h-4 sm:w-6 sm:h-6
                        flex items-center justify-center"
                 >
-                  <span className="text-[10px] sm:text-xs leading-none">×</span>
+                  <span className="text-[10px] sm:text-xs leading-none">X</span>
                 </div>
+              </button> */}
+              <button
+                onClick={() => setIsModalOpen(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full   border-[2.5px] border-[#FFFFFF] p-0.5" />
               </button>
             </div>
 
@@ -692,7 +751,6 @@ const SchemeMaster = () => {
                   </div>
                 </div>
               </div>
-
             </div>
 
             {/* Footer */}
