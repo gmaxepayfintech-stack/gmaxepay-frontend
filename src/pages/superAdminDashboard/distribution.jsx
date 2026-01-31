@@ -198,23 +198,26 @@ const Distribution = ({
 
             <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
               <div className="flex flex-col xs:flex-row gap-3">
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="From Date"
-                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
-                  />
-                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-                </div>
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
 
-                <div className="relative">
-                  <input
-                    type="text"
-                    placeholder="To Date"
-                    className="pl-3 pr-8 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center"
-                  />
-                  <FaCalendarAlt className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-                </div>
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
               </div>
 
               <div className="relative w-full sm:w-48">
@@ -236,7 +239,7 @@ const Distribution = ({
           </div>
 
           {/* Table */}
-          <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>

@@ -444,7 +444,7 @@ const WalletLoad = () => {
                       <img
                         src={bank.bankImage || bank.logo}
                         alt={bank.bankName || bank.name}
-                        className="w-28 h-12 object-cover"
+                        className="w-28 h-12 object-contain"
                         onError={(e) => {
                           e.target.style.display = "none";
                         }}
