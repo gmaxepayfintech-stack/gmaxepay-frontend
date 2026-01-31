@@ -1,7 +1,6 @@
 import axios from 'axios';
 import { API_ROUTE } from '../data/env';
 import secureLocalStorage from 'react-secure-storage';
-import { store } from '../redux/store';
 import { shouldRefreshToken, refreshAccessTokenSync } from './tokenRefreshManager';
 import { clearAllStorage, isTokenExpiredError } from './clearStorage';
 import { getGlobalNotificationHandler } from '../context/NotificationContext';
@@ -13,8 +12,71 @@ const api = axios.create({
   },
 });
 
+// Log that interceptors are being set up
+console.log('🔧 Axios interceptors initialized');
+
 let isLoggingOut = false;
 let failedQueue = [];
+
+// ================= LOGGING FUNCTION =================
+const logRequest = (config) => {
+  const requestLog = {
+    timestamp: new Date().toISOString(),
+    method: config.method?.toUpperCase() || 'UNKNOWN',
+    url: `${config.baseURL || ''}${config.url || ''}`,
+    endpoint: config.url || '',
+    headers: {
+      ...config.headers,
+      token: config.headers?.token ? `${config.headers.token.substring(0, 10)}...` : 'No token',
+    },
+    params: config.params || {},
+    data: config.data || null,
+    skipAuth: config?.skipAuth || false,
+  };
+  console.log('📤 ========== API REQUEST ==========');
+  console.log('📤 API Request:', requestLog);
+  console.log('📤 =================================');
+};
+
+const logSuccessResponse = (response) => {
+  const responseLog = {
+    timestamp: new Date().toISOString(),
+    status: response.status,
+    statusText: response.statusText,
+    method: response.config?.method?.toUpperCase() || 'UNKNOWN',
+    url: `${response.config?.baseURL || ''}${response.config?.url || ''}`,
+    endpoint: response.config?.url || '',
+    data: response.data || null,
+    headers: response.headers || {},
+  };
+  console.log('📥 ========== API RESPONSE SUCCESS ==========');
+  console.log('📥 API Response Success:', responseLog);
+  console.log('📥 ===========================================');
+};
+
+const logErrorResponse = (error) => {
+  const originalRequest = error.config || {};
+  const isRefreshCall = originalRequest?.url?.includes('/auth/refresh-token');
+  const isLogoutCall = originalRequest?.url?.includes('/auth/logout');
+  
+  const errorLog = {
+    timestamp: new Date().toISOString(),
+    status: error?.response?.status || 'NO_RESPONSE',
+    statusText: error?.response?.statusText || 'Network Error',
+    method: originalRequest?.method?.toUpperCase() || 'UNKNOWN',
+    url: `${originalRequest?.baseURL || ''}${originalRequest?.url || ''}`,
+    endpoint: originalRequest?.url || '',
+    errorMessage: error?.response?.data?.message || error?.message || 'Unknown error',
+    errorData: error?.response?.data || null,
+    headers: error?.response?.headers || {},
+    isRefreshCall,
+    isLogoutCall,
+  };
+  console.error('❌ ========== API RESPONSE ERROR ==========');
+  console.error('❌ API Response Error:', errorLog);
+  console.error('❌ Full Error Object:', error);
+  console.error('❌ ========================================');
+};
 
 const processQueue = (error, token = null) => {
   failedQueue.forEach(prom => {
@@ -24,33 +86,24 @@ const processQueue = (error, token = null) => {
   failedQueue = [];
 };
 
-// Request interceptor - check and refresh token proactively
+// ================= REQUEST INTERCEPTOR =================
 api.interceptors.request.use(
   async config => {
-    // Skip auth for certain endpoints
+    // ================= LOG REQUEST (ALWAYS) =================
+    logRequest(config);
+
     const skipAuth = config?.skipAuth;
     if (skipAuth) return config;
 
-    // Get companyId from config header (not stored)
     let companyId = config.headers?.['x-company-id'] || '';
-
-    // Get token from secure storage
     let token = secureLocalStorage.getItem('userToken');
 
-    // If token exists and needs refresh, refresh it proactively
-    // But only if we have companyId (either from headers or can be retrieved)
+    // Proactive token refresh
     if (token && shouldRefreshToken(token)) {
-      // If companyId is not in headers, skip proactive refresh
-      // The refresh will happen in ProtectedRoute after company context loads
-      // or when handling 401 errors where companyId should be available
-      if (!companyId) {
-        // Skip proactive refresh if no companyId - will be handled by ProtectedRoute
-        // or retried when 401 error occurs
-      } else {
+      if (companyId) {
         try {
-          // Use shared refresh manager - it handles deduplication internally
           const newToken = await refreshAccessTokenSync(companyId);
-          
+
           if (newToken) {
             token = newToken;
             processQueue(null, newToken);
@@ -60,75 +113,121 @@ api.interceptors.request.use(
         } catch (err) {
           console.error('🔁 Token pre-refresh failed:', err.message);
           processQueue(err, null);
-          
+
           if (!isLoggingOut) {
             isLoggingOut = true;
             clearAllStorage();
+            
+            // Show notification
+            const notificationHandler = getGlobalNotificationHandler();
+            if (notificationHandler) {
+              notificationHandler.showNotification({
+                message: 'Token refresh failed. Please login again.',
+                type: 'error',
+                isCritical: true,
+                duration: 5000,
+              });
+            }
+            
+            // Navigate to login page immediately (no re-renders)
+            window.location.replace('/auth/login');
           }
+
           return Promise.reject(err);
         }
       }
     }
 
-    // Add token to request headers
     if (token) {
       config.headers['token'] = token;
     }
 
     return config;
   },
-  error => Promise.reject(error)
+  error => {
+    console.error('❌ Request Error:', {
+      timestamp: new Date().toISOString(),
+      error: error?.message || 'Unknown request error',
+      config: error?.config || null,
+    });
+    return Promise.reject(error);
+  }
 );
 
-// Response interceptor - handle 401 errors and refresh token
+// ================= RESPONSE INTERCEPTOR =================
 api.interceptors.response.use(
-  response => response,
+  response => {
+    // ================= LOG SUCCESS RESPONSE =================
+    logSuccessResponse(response);
+    return response;
+  },
   async error => {
     const originalRequest = error.config;
     const isRefreshCall = originalRequest?.url?.includes('/auth/refresh-token');
     const isLogoutCall = originalRequest?.url?.includes('/auth/logout');
 
-    // Don't retry refresh or logout calls
-    if ((isRefreshCall || isLogoutCall) && !originalRequest._retry) {
-      if (!isLoggingOut) {
-        isLoggingOut = true;
-        // Clear all storage when refresh/logout fails
-        clearAllStorage();
+    // ================= LOG ERROR RESPONSE (ALWAYS) =================
+    logErrorResponse(error);
+
+    // Handle 401 Unauthorized or UNAUTHORIZED status in response
+    // ANY 401 error (including refresh-token failures) should logout and navigate
+    const isUnauthorized = 
+      error.response?.status === 401 || 
+      error.response?.data?.status === 'UNAUTHORIZED';
+    
+    if (isUnauthorized && !isLoggingOut) {
+      // Prevent multiple logout attempts
+      isLoggingOut = true;
+
+      // Get the actual error message from API response
+      const errorMessage = 
+        error.response?.data?.message || 
+        'Token has been invalidated. Please login again.';
+
+      console.error('🔒 Token invalidated - logging out user');
+      console.error('🔒 Error message:', errorMessage);
+
+      // Show notification (non-blocking)
+      const notificationHandler = getGlobalNotificationHandler();
+      if (notificationHandler) {
+        notificationHandler.showNotification({
+          message: errorMessage,
+          type: 'error',
+          isCritical: true,
+          duration: 3000,
+        });
       }
+
+      // Clear all storage and logout (synchronous, no re-renders)
+      clearAllStorage();
+      
+      // Navigate immediately - this will replace the page, no re-renders
+      window.location.replace('/auth/login');
+
       return Promise.reject(error);
     }
 
-    // Handle 401 Unauthorized - logout immediately without refresh
-    if (
-      error.response?.status === 401 &&
-      !isRefreshCall &&
-      !isLogoutCall &&
-      !isLoggingOut
-    ) {
-      if (!isLoggingOut) {
+    // ================= HANDLE 403 =================
+    if (error.response?.status === 403 && !isLoggingOut) {
+      if (isTokenExpiredError(error)) {
         isLoggingOut = true;
+        clearAllStorage();
         
-        // Show error notification
+        const errorMessage = error.response?.data?.message || 'Token expired. Please login again.';
+        
+        // Show notification
         const notificationHandler = getGlobalNotificationHandler();
         if (notificationHandler) {
           notificationHandler.showNotification({
-            message: 'Session Expired Please Login Again',
+            message: errorMessage,
             type: 'error',
             isCritical: true,
             duration: 5000,
           });
         }
         
-        clearAllStorage();
-      }
-      return Promise.reject(error);
-    }
-
-    // Handle other 403 errors (token expired without refresh token)
-    if (error.response?.status === 403 && !isLoggingOut) {
-      if (isTokenExpiredError(error)) {
-        isLoggingOut = true;
-        clearAllStorage();
+        // Navigate to login page immediately (no re-renders)
+        window.location.replace('/auth/login');
       }
     }
 
@@ -136,5 +235,64 @@ api.interceptors.response.use(
   }
 );
 
-export default api;
+// ================= ADD LOGGING TO DEFAULT AXIOS INSTANCE =================
+// This ensures all API calls (even those using axios directly) are logged
+axios.interceptors.request.use(
+  config => {
+    logRequest(config);
+    return config;
+  },
+  error => {
+    logErrorResponse(error);
+    return Promise.reject(error);
+  }
+);
 
+axios.interceptors.response.use(
+  response => {
+    logSuccessResponse(response);
+    return response;
+  },
+  error => {
+    logErrorResponse(error);
+    
+    // Handle 401 Unauthorized for default axios instance as well
+    // ANY 401 error (including refresh-token failures) should logout and navigate
+    const isUnauthorized = 
+      error.response?.status === 401 || 
+      error.response?.data?.status === 'UNAUTHORIZED';
+    
+    if (isUnauthorized && !isLoggingOut) {
+      isLoggingOut = true;
+
+      // Get the actual error message from API response
+      const errorMessage = 
+        error.response?.data?.message || 
+        'Token has been invalidated. Please login again.';
+
+      console.error('🔒 Token invalidated - logging out user (default axios)');
+      console.error('🔒 Error message:', errorMessage);
+
+      // Show notification
+      const notificationHandler = getGlobalNotificationHandler();
+      if (notificationHandler) {
+        notificationHandler.showNotification({
+          message: errorMessage,
+          type: 'error',
+          isCritical: true,
+          duration: 5000,
+        });
+      }
+
+      // Clear all storage and logout
+      clearAllStorage();
+      
+      // Navigate to login page immediately
+      window.location.href = '/auth/login';
+    }
+    
+    return Promise.reject(error);
+  }
+);
+
+export default api;

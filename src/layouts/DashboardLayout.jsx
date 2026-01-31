@@ -26,7 +26,7 @@ const DashboardLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error, loading } = useSelector(
+  const { email, name, error, loading } = useSelector(
     (state) => state.userProfile,
   );
 
@@ -133,22 +133,8 @@ const DashboardLayout = ({ children }) => {
     dispatch(getUserProfile());
   }, [dispatch]);
 
-  // Handle unauthorized token expiration - redirect to login
-  useEffect(() => {
-    if (unauthorized) {
-      const errorMessage = error || "Invalid token. Please login again.";
-      showNotification({
-        message: errorMessage,
-        type: "error",
-        duration: 3000,
-        isCritical: true, // Mark as critical so it shows on dashboard
-      });
-      // Redirect to login after a short delay to show notification
-      setTimeout(() => {
-        navigate("/auth/login", { replace: true });
-      }, 500);
-    }
-  }, [unauthorized, error, navigate, showNotification]);
+  // Unauthorized handling is now done in axios interceptor
+  // No need to check here - interceptor handles error, logout, and navigation
 
   // Update active menu based on current pathname
   useEffect(() => {
