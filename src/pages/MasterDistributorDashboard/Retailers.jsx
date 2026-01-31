@@ -369,9 +369,9 @@ const Retailers = ({
           </div>
 
           {/* Table */}
-          <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[1200px] sm:min-w-full divide-y">
-              <thead className="bg-gray-100">
+              <thead className="bg-white">
                 <tr>
                   <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
