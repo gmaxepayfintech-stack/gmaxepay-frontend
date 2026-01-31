@@ -1,14 +1,19 @@
 import { useState, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserBBPSBillersByCategory, getUserBBPSBillerInfo } from "../../../redux/action/bbpsAction";
+import {
+  getUserBBPSBillersByCategory,
+  getUserBBPSBillerInfo,
+} from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
   const dispatch = useDispatch();
-  const { userBillers, userBillersLoading } = useSelector((state) => state.bbps);
-  
+  const { userBillers, userBillersLoading } = useSelector(
+    (state) => state.bbps,
+  );
+
   const [selectedBiller, setSelectedBiller] = useState(formData.biller || null);
   const [billerSearchQuery, setBillerSearchQuery] = useState("");
   const [isBillerDropdownOpen, setIsBillerDropdownOpen] = useState(false);
@@ -21,14 +26,24 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
   // Fetch billers when category is selected
   useEffect(() => {
     if (formData.category?.name) {
-      dispatch(getUserBBPSBillersByCategory(formData.category.name, billerSearchQuery, 1, 6));
+      dispatch(
+        getUserBBPSBillersByCategory(
+          formData.category.name,
+          billerSearchQuery,
+          1,
+          6,
+        ),
+      );
     }
   }, [dispatch, formData.category, billerSearchQuery]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (billerDropdownRef.current && !billerDropdownRef.current.contains(event.target)) {
+      if (
+        billerDropdownRef.current &&
+        !billerDropdownRef.current.contains(event.target)
+      ) {
         setIsBillerDropdownOpen(false);
       }
     };
@@ -54,7 +69,11 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
   const handleProceed = () => {
     if (!selectedBiller) return;
     setIsLoading(true);
-    setFormData((prev) => ({ ...prev, biller: selectedBiller, billerName: selectedBiller.name }));
+    setFormData((prev) => ({
+      ...prev,
+      biller: selectedBiller,
+      billerName: selectedBiller.name,
+    }));
     setTimeout(() => {
       setIsLoading(false);
       onNext({ biller: selectedBiller, billerName: selectedBiller.name });
@@ -62,7 +81,7 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
   };
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -127,7 +146,9 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
                   ) : (
                     userBillers
                       .filter((biller) =>
-                        biller.name?.toLowerCase().includes(billerSearchQuery.toLowerCase())
+                        biller.name
+                          ?.toLowerCase()
+                          .includes(billerSearchQuery.toLowerCase()),
                       )
                       .map((biller) => (
                         <div

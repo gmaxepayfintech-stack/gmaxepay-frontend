@@ -330,10 +330,10 @@ const AepsCWHistory = ({ onBack }) => {
             </button>
 
             <div>
-              <h1 className="text-xl sm:text-2xl md:text-3xl font-['Gilroy-Medium'] text-[#1B1717]">
+              <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                 AEPS CW History
               </h1>
-              <p className="text-sm sm:text-base md:text-lg text-[#1B1717] mt-2 sm:mt-3 font-['Gilroy-Regular']">
+              <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
               </p>
             </div>

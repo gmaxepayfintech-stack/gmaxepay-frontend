@@ -7,7 +7,9 @@ const BBPSPage4 = ({ onNext, onBack, formData, setFormData }) => {
   const [billNumber, setBillNumber] = useState(
     formData.billDetails?.billDetails?.billNumber || formData.billNumber || "",
   );
-  const [amount, setAmount] = useState(formData.billDetails?.billDetails?.billAmount || formData.amount || "");
+  const [amount, setAmount] = useState(
+    formData.billDetails?.billDetails?.billAmount || formData.amount || "",
+  );
   const [isLoading, setIsLoading] = useState(false);
 
   // Update bill number and amount when billDetails change
@@ -33,7 +35,7 @@ const BBPSPage4 = ({ onNext, onBack, formData, setFormData }) => {
   };
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full ">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -82,21 +84,23 @@ const BBPSPage4 = ({ onNext, onBack, formData, setFormData }) => {
               <span className="absolute left-4 top-1/2 -translate-y-1/2 text-[20px] font-['Gilroy-Medium'] text-[#1B1717]">
                 ₹
               </span>
-                    <input
-                      type="number"
-                      placeholder="Enter Amount"
-                      value={amount}
-                      onChange={(e) => {
-                        const val = e.target.value;
-                        if (val === "" || (!isNaN(val) && parseFloat(val) >= 0)) {
-                          setAmount(val);
-                        }
-                      }}
-                      disabled={formData.billerInfo?.billerPaymentExactness === "Exact"}
-                      min="0"
-                      step="0.01"
-                      className="w-full pl-9 px-4 py-4 border border-dashed border-[#1B1717] border-opacity-30 rounded-lg text-[20px] font-['Gilroy-Medium'] focus:outline-none focus:border-[#039155] transition disabled:bg-gray-50 disabled:cursor-not-allowed"
-                    />
+              <input
+                type="number"
+                placeholder="Enter Amount"
+                value={amount}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "" || (!isNaN(val) && parseFloat(val) >= 0)) {
+                    setAmount(val);
+                  }
+                }}
+                disabled={
+                  formData.billerInfo?.billerPaymentExactness === "Exact"
+                }
+                min="0"
+                step="0.01"
+                className="w-full pl-9 px-4 py-4 border border-dashed border-[#1B1717] border-opacity-30 rounded-lg text-[20px] font-['Gilroy-Medium'] focus:outline-none focus:border-[#039155] transition disabled:bg-gray-50 disabled:cursor-not-allowed"
+              />
             </div>
           </div>
 
