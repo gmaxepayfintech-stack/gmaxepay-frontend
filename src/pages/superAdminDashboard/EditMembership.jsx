@@ -5,7 +5,10 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../context/CompanyContext";
 import { useNotification } from "../../context/NotificationContext";
-import { getSlabCommissionList, updateSlabCommission } from "../../redux/action/slabAction";
+import {
+  getSlabCommissionList,
+  updateSlabCommission,
+} from "../../redux/action/slabAction";
 
 const EditMembership = ({ scheme = null, onBack }) => {
   const dispatch = useDispatch();
@@ -18,11 +21,19 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const getSchemeMode = (schemeData) => {
     if (schemeData?.schemaMode) {
       const mode = schemeData.schemaMode.toLowerCase();
-      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+      return mode === "global"
+        ? "Global"
+        : mode === "private"
+          ? "Private"
+          : "Global";
     }
     if (schemeData?.schemeMode) {
       const mode = schemeData.schemeMode.toLowerCase();
-      return mode === "global" ? "Global" : mode === "private" ? "Private" : "Global";
+      return mode === "global"
+        ? "Global"
+        : mode === "private"
+          ? "Private"
+          : "Global";
     }
     return "Global";
   };
@@ -39,7 +50,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
     return "Free";
   };
 
-  const [schemeName, setSchemeName] = useState(scheme?.name || scheme?.slabName || "");
+  const [schemeName, setSchemeName] = useState(
+    scheme?.name || scheme?.slabName || "",
+  );
   const [schemeMode, setSchemeMode] = useState(() => getSchemeMode(scheme));
   const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
@@ -107,10 +120,12 @@ const EditMembership = ({ scheme = null, onBack }) => {
           whitelabelType: wlRole.amtType || "",
           entRoleId: adRole.id,
           wlRoleId: wlRole.id,
-          originalEntMargin: adRole.commAmt != null ? String(adRole.commAmt) : "",
+          originalEntMargin:
+            adRole.commAmt != null ? String(adRole.commAmt) : "",
           originalEntCommType: adRole.commType || "",
           originalEntMarginType: adRole.amtType || "",
-          originalWhitelabel: wlRole.commAmt != null ? String(wlRole.commAmt) : "",
+          originalWhitelabel:
+            wlRole.commAmt != null ? String(wlRole.commAmt) : "",
           originalWhitelabelCommType: wlRole.commType || "",
           originalWhitelabelType: wlRole.amtType || "",
         };
@@ -141,7 +156,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
   };
 
   const getCompanyId = () => {
-    return companyData?.companyId || companyData?._id || companyData?.id || null;
+    return (
+      companyData?.companyId || companyData?._id || companyData?.id || null
+    );
   };
 
   const handleSaveCommissionRow = async (commission) => {
@@ -228,9 +245,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
   };
 
   // Group commissions by operatorType
-  const aepsCommissions = commissions.filter(
-    (c) => c.operatorType === "AEPS",
-  );
+  const aepsCommissions = commissions.filter((c) => c.operatorType === "AEPS");
   const mobileDthCommissions = commissions
     .filter((c) => c.operatorType === "RECHARGE" || c.operatorType === "DTH")
     .sort((a, b) => {
@@ -257,162 +272,167 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
     return (
       <div className="mb-4 sm:mb-6">
-          {/* Section Header with toggle (arrow on right) */}
-          <div
-            className="flex items-center justify-between mb-4 bg-[#FFFFFF] rounded-lg p-4 sm:p-6 cursor-pointer"
-            onClick={() => toggleSectionExpand(sectionKey)}
-          >
-            <div>
-              <h2 className="text-base sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
-                {title}
-              </h2>
-              <p className="text-sm sm:text-base font-['Gilroy-Regular'] text-[#1B1717]">
-                Commissions
-              </p>
-            </div>
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                toggleSectionExpand(sectionKey);
-              }}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-[#DADADA] text-[#121216]"
-            >
-              {isSectionExpanded ? (
-                <ChevronUp className="w-5 h-5" />
-              ) : (
-                <ChevronDown className="w-5 h-5" />
-              )}
-            </button>
+        {/* Section Header with toggle (arrow on right) */}
+        <div
+          className="flex items-center justify-between mb-4 bg-[#FFFFFF] rounded-lg p-4 sm:p-6 cursor-pointer"
+          onClick={() => toggleSectionExpand(sectionKey)}
+        >
+          <div>
+            <h2 className="text-base sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-1">
+              {title}
+            </h2>
+            <p className="text-sm sm:text-base font-['Gilroy-Regular'] text-[#1B1717]">
+              Commissions
+            </p>
           </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              toggleSectionExpand(sectionKey);
+            }}
+            className="w-9 h-9 flex items-center justify-center rounded-full border border-[#DADADA] text-[#121216]"
+          >
+            {isSectionExpanded ? (
+              <ChevronUp className="w-5 h-5" />
+            ) : (
+              <ChevronDown className="w-5 h-5" />
+            )}
+          </button>
+        </div>
 
-          {/* Commissions Table (only visible when expanded) */}
-          {isSectionExpanded && (
-            <div className="mb-4 sm:mb-6">
-              <div className="bg-[#FFFFFF] rounded-lg mb-3">
-                <div className="overflow-x-auto">
-                  <div className="min-w-[800px] grid grid-cols-6 gap-4 px-4 py-3">
-                    {[
-                      "Operator",
-                      "Operator Type",
-                      "My Deal",
-                      "ENT Margin",
-                      "Whitelabel",
-                      "Actions",
-                    ].map((h, i) => (
-                      <div
-                        key={i}
-                        className="text-[14px] font-[gilroy-medium] text-[#121216] text-center"
-                      >
-                        {h}
-                      </div>
-                    ))}
-                  </div>
+        {/* Commissions Table (only visible when expanded) */}
+        {isSectionExpanded && (
+          <div className="mb-4 sm:mb-6">
+            <div className="bg-[#FFFFFF] rounded-lg mb-3">
+              <div className="overflow-x-auto">
+                <div className="min-w-[800px] grid grid-cols-6 gap-4 px-4 py-3">
+                  {[
+                    "Operator",
+                    "Operator Type",
+                    "My Deal",
+                    "ENT Margin",
+                    "Whitelabel",
+                    "Actions",
+                  ].map((h, i) => (
+                    <div
+                      key={i}
+                      className="text-[14px] font-[gilroy-medium] text-[#121216] text-center"
+                    >
+                      {h}
+                    </div>
+                  ))}
                 </div>
               </div>
+            </div>
 
-              <div className="bg-white rounded-xl overflow-x-auto">
-                <div className="min-w-[800px]">
-                  {commLoading && items.length === 0 ? (
-                    Array.from({ length: 6 }).map((_, index) => (
-                      <div key={index}>
-                        <div className="grid grid-cols-6 gap-4 px-4 py-3 animate-pulse">
-                          <span className="h-3 bg-gray-200 rounded w-20" />
-                          <span className="h-5 bg-gray-200 rounded w-16" />
-                          <span className="h-3 bg-gray-200 rounded w-12" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
-                          <div className="flex items-center justify-center">
-                            <span className="h-7 w-7 bg-gray-200 rounded-full" />
-                          </div>
+            <div className="bg-white rounded-xl overflow-x-auto">
+              <div className="min-w-[800px]">
+                {commLoading && items.length === 0 ? (
+                  Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index}>
+                      <div className="grid grid-cols-6 gap-4 px-4 py-3 animate-pulse">
+                        <span className="h-3 bg-gray-200 rounded w-20" />
+                        <span className="h-5 bg-gray-200 rounded w-16" />
+                        <span className="h-3 bg-gray-200 rounded w-12" />
+                        <span className="h-8 bg-gray-200 rounded w-full" />
+                        <span className="h-8 bg-gray-200 rounded w-full" />
+                        <div className="flex items-center justify-center">
+                          <span className="h-7 w-7 bg-gray-200 rounded-full" />
                         </div>
-                        {index < 5 && (
-                          <div className="h-[1px] bg-[#EAEAEA] mx-4"></div>
-                        )}
                       </div>
-                    ))
-                  ) : items.length === 0 ? (
-                    <div className="px-4 py-6 text-center text-sm text-[#121216]/60">
-                      No commission records found.
+                      {index < 5 && (
+                        <div className="h-[1px] bg-[#EAEAEA] mx-4"></div>
+                      )}
                     </div>
-                  ) : (
-                    items.map((commission, index) => {
-                      const isEntChanged =
-                        commission.entMargin !== commission.originalEntMargin ||
-                        (commission.entCommType || "").toLowerCase() !==
-                          (commission.originalEntCommType || "").toLowerCase() ||
-                        (commission.entMarginType || "").toLowerCase() !==
-                          (commission.originalEntMarginType || "").toLowerCase();
+                  ))
+                ) : items.length === 0 ? (
+                  <div className="px-4 py-6 text-center text-sm text-[#121216]/60">
+                    No commission records found.
+                  </div>
+                ) : (
+                  items.map((commission, index) => {
+                    const isEntChanged =
+                      commission.entMargin !== commission.originalEntMargin ||
+                      (commission.entCommType || "").toLowerCase() !==
+                        (commission.originalEntCommType || "").toLowerCase() ||
+                      (commission.entMarginType || "").toLowerCase() !==
+                        (commission.originalEntMarginType || "").toLowerCase();
 
-                      const isWlChanged =
-                        commission.whitelabel !==
-                          commission.originalWhitelabel ||
-                        (commission.whitelabelCommType || "").toLowerCase() !==
-                          (
-                            commission.originalWhitelabelCommType || ""
-                          ).toLowerCase() ||
-                        (commission.whitelabelType || "").toLowerCase() !==
-                          (commission.originalWhitelabelType || "").toLowerCase();
+                    const isWlChanged =
+                      commission.whitelabel !== commission.originalWhitelabel ||
+                      (commission.whitelabelCommType || "").toLowerCase() !==
+                        (
+                          commission.originalWhitelabelCommType || ""
+                        ).toLowerCase() ||
+                      (commission.whitelabelType || "").toLowerCase() !==
+                        (commission.originalWhitelabelType || "").toLowerCase();
 
-                      const isDirty = isEntChanged || isWlChanged;
-                      const isSaving = !!savingRows[commission.id];
+                    const isDirty = isEntChanged || isWlChanged;
+                    const isSaving = !!savingRows[commission.id];
 
-                      return (
-                        <div key={commission.id || index}>
-                          <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
-                            <div className="flex items-center justify-center text-xs text-[#121216]">
-                              {commission.operator}
+                    return (
+                      <div key={commission.id || index}>
+                        <div className="grid grid-cols-6 gap-4 px-4 py-3 hover:bg-gray-50 items-center">
+                          <div className="flex items-center justify-center text-xs text-[#121216]">
+                            {commission.operator}
+                          </div>
+
+                          <div className="flex items-center justify-center">
+                            <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
+                              {commission.operatorType}
+                            </span>
+                          </div>
+
+                          <div className="flex flex-col items-center gap-1 text-xs">
+                            <div className="flex items-center gap-1.5">
+                              <span>{commission.myDeal}</span>
+                              {commission.myDealCommType && (
+                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#039155]">
+                                  {commission.myDealCommType}
+                                </span>
+                              )}
+                              {commission.myDealType && (
+                                <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
+                                  {(
+                                    commission.myDealType || ""
+                                  ).toLowerCase() === "fix"
+                                    ? "flat"
+                                    : (
+                                          commission.myDealType || ""
+                                        ).toLowerCase() === "per"
+                                      ? "per"
+                                      : commission.myDealType}
+                                </span>
+                              )}
                             </div>
+                          </div>
 
-                            <div className="flex items-center justify-center">
-                              <span className="inline-flex px-2 py-1 rounded-md text-xs bg-[#4F7EF4] text-white w-fit">
-                                {commission.operatorType}
-                              </span>
+                          <div className="flex flex-col items-center gap-1 text-xs">
+                            <div className="flex items-center justify-center gap-2">
+                              <input
+                                type="text"
+                                value={commission.entMargin || ""}
+                                onChange={(e) =>
+                                  handleCommissionChange(
+                                    commission.id,
+                                    "entMargin",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-28 px-3 py-1.5 border rounded-md text-xs"
+                              />
                             </div>
-
-                            <div className="flex flex-col items-center gap-1 text-xs">
-                              <div className="flex items-center gap-1.5">
-                                <span>{commission.myDeal}</span>
-                                {commission.myDealCommType && (
-                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#039155]">
-                                    {commission.myDealCommType}
-                                  </span>
-                                )}
-                                {commission.myDealType && (
-                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
-                                    {(commission.myDealType || "").toLowerCase() === "fix" ? "flat" : 
-                                     (commission.myDealType || "").toLowerCase() === "per" ? "per" : 
-                                     commission.myDealType}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-
-                            <div className="flex flex-col items-center gap-1 text-xs">
-                              <div className="flex items-center justify-center gap-2">
-                                <input
-                                  type="text"
-                                  value={commission.entMargin || ""}
-                                  onChange={(e) =>
-                                    handleCommissionChange(
-                                      commission.id,
-                                      "entMargin",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-28 px-3 py-1.5 border rounded-md text-xs"
-                                />
-                              </div>
-                              <div className="flex gap-3">
-                                
+                            <div className="flex gap-3">
                               {/* C / S group - single pill split in half */}
                               <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
                                 {[
                                   { code: "C", value: "com" },
                                   { code: "S", value: "sur" },
                                 ].map((opt, idx) => {
-                                  const current =
-                                    (commission.entCommType || "").toLowerCase();
+                                  const current = (
+                                    commission.entCommType || ""
+                                  ).toLowerCase();
                                   const isActive = current === opt.value;
                                   return (
                                     <button
@@ -443,8 +463,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   { code: "P", value: "per" },
                                   { code: "F", value: "fix" },
                                 ].map((opt, idx) => {
-                                  const current =
-                                    (commission.entMarginType || "").toLowerCase();
+                                  const current = (
+                                    commission.entMarginType || ""
+                                  ).toLowerCase();
                                   const isActive = current === opt.value;
                                   return (
                                     <button
@@ -468,33 +489,34 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   );
                                 })}
                               </div>
-                              </div>
                             </div>
+                          </div>
 
-                            <div className="flex flex-col items-center gap-2 text-xs">
-                              <div className="flex items-center justify-center gap-2">
-                                <input
-                                  type="text"
-                                  value={commission.whitelabel || ""}
-                                  onChange={(e) =>
-                                    handleCommissionChange(
-                                      commission.id,
-                                      "whitelabel",
-                                      e.target.value,
-                                    )
-                                  }
-                                  className="w-28 px-3 py-1.5 border rounded-md text-xs"
-                                />
-                              </div>
-                              <div className="flex gap-3">
+                          <div className="flex flex-col items-center gap-2 text-xs">
+                            <div className="flex items-center justify-center gap-2">
+                              <input
+                                type="text"
+                                value={commission.whitelabel || ""}
+                                onChange={(e) =>
+                                  handleCommissionChange(
+                                    commission.id,
+                                    "whitelabel",
+                                    e.target.value,
+                                  )
+                                }
+                                className="w-28 px-3 py-1.5 border rounded-md text-xs"
+                              />
+                            </div>
+                            <div className="flex gap-3">
                               {/* C / S group - single pill split in half */}
                               <div className="inline-flex rounded overflow-hidden border border-[#DADADA] bg-white">
                                 {[
                                   { code: "C", value: "com" },
                                   { code: "S", value: "sur" },
                                 ].map((opt, idx) => {
-                                  const current =
-                                    (commission.whitelabelCommType || "").toLowerCase();
+                                  const current = (
+                                    commission.whitelabelCommType || ""
+                                  ).toLowerCase();
                                   const isActive = current === opt.value;
                                   return (
                                     <button
@@ -525,8 +547,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   { code: "P", value: "per" },
                                   { code: "F", value: "fix" },
                                 ].map((opt, idx) => {
-                                  const current =
-                                    (commission.whitelabelType || "").toLowerCase();
+                                  const current = (
+                                    commission.whitelabelType || ""
+                                  ).toLowerCase();
                                   const isActive = current === opt.value;
                                   return (
                                     <button
@@ -550,37 +573,39 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   );
                                 })}
                               </div>
-                              </div>
-                            </div>
-
-                            <div className="flex items-center justify-center">
-                              <button
-                                type="button"
-                                onClick={() => handleSaveCommissionRow(commission)}
-                                disabled={!isDirty || isSaving}
-                                className={`w-9 h-7 rounded border flex items-center justify-center transition ${
-                                  isDirty
-                                    ? "border-[#039155] bg-[#039155]/10 hover:bg-[#039155]/20"
-                                    : "border-[#DADADA] bg-white cursor-default opacity-60"
-                                } ${isSaving ? "cursor-wait opacity-70" : ""}`}
-                              >
-                                <Check
-                                  className={`w-5 h-5 ${
-                                    isDirty ? "text-[#039155]" : "text-[#121216]"
-                                  }`}
-                                />
-                              </button>
                             </div>
                           </div>
-                          <hr className="mx-4 border-[#1B1717]/20" />
+
+                          <div className="flex items-center justify-center">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleSaveCommissionRow(commission)
+                              }
+                              disabled={!isDirty || isSaving}
+                              className={`w-9 h-7 rounded border flex items-center justify-center transition ${
+                                isDirty
+                                  ? "border-[#039155] bg-[#039155]/10 hover:bg-[#039155]/20"
+                                  : "border-[#DADADA] bg-white cursor-default opacity-60"
+                              } ${isSaving ? "cursor-wait opacity-70" : ""}`}
+                            >
+                              <Check
+                                className={`w-5 h-5 ${
+                                  isDirty ? "text-[#039155]" : "text-[#121216]"
+                                }`}
+                              />
+                            </button>
+                          </div>
                         </div>
-                      );
-                    })
-                  )}
-                </div>
+                        <hr className="mx-4 border-[#1B1717]/20" />
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </div>
-          )}
+          </div>
+        )}
       </div>
     );
   };
@@ -592,10 +617,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
         <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
           <button
             onClick={onBack}
-            className="flex items-center text-[#1B1717] hover:text-[#039155] transition"
+            className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
           >
-            <div className="rounded-full p-2.5 sm:p-3 bg-[#FFFFFF] border-[0.5px] border-[#1B1717]/80 transition">
-              <HiArrowLeft className="text-2xl sm:text-3xl text-[#1B1717] opacity-80" />
+            <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
+              <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
             </div>
           </button>
           <div className="flex flex-col">

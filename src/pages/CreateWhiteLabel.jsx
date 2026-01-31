@@ -87,7 +87,7 @@ const CreateWhiteLabel = () => {
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
   const [isTableLoading, setIsTableLoading] = useState(true); // Start with true to show loader on initial load
-  
+
   // Track previous response to detect when data actually arrives
   const prevResponseRef = useRef(undefined);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
@@ -128,7 +128,9 @@ const CreateWhiteLabel = () => {
   );
 
   // Get loading state from Redux
-  const reduxLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const reduxLoading = useSelector(
+    (state) => state?.loading?.isLoading || false,
+  );
 
   const totalCount = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
@@ -267,7 +269,7 @@ const CreateWhiteLabel = () => {
       setIsTableLoading(true);
       return;
     }
-    
+
     // If Redux loading has ended, check if we have data (even if empty array)
     // This means the API call completed
     if (!reduxLoading && responseForTableRaw !== undefined) {
@@ -677,7 +679,7 @@ const CreateWhiteLabel = () => {
       ID: row.id || "N/A",
       Date: row.date || "N/A",
       "User Agent Code": row.userId || "N/A",
-      "Name": row.name || "N/A",
+      Name: row.name || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || "N/A",
       "Email Id": row.emailId || "N/A",
@@ -968,7 +970,7 @@ const CreateWhiteLabel = () => {
 
                   <tbody className="bg-white divide-y font-normal divide-gray-100">
                     {isTableLoading ? (
-                      <TableBodyLoader colSpan={tableHeaders.length} />
+                      <TableBodyLoader colSpan={13} />
                     ) : !currentTableData || currentTableData.length === 0 ? (
                       <tr>
                         <td
@@ -1034,7 +1036,9 @@ const CreateWhiteLabel = () => {
                                 {row.slabName}
                               </span>
                             ) : (
-                              <span className="text-[11px] text-gray-500">N/A</span>
+                              <span className="text-[11px] text-gray-500">
+                                N/A
+                              </span>
                             )}
                           </td>
                           {/* Parent Name */}

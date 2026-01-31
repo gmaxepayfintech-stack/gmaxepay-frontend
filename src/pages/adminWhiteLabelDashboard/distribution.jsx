@@ -53,6 +53,10 @@ const Distribution = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState(
+    () => new Date().toISOString().split("T")[0],
+  );
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);

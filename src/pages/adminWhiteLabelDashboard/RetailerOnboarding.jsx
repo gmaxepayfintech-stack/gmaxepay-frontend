@@ -10,6 +10,7 @@ import {
   FaBuilding,
   FaUniversity,
   FaExpand,
+  FaUpload,
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
