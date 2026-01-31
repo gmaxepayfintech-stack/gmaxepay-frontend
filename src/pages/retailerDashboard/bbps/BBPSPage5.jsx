@@ -10,7 +10,9 @@ import { HiArrowLeft } from "react-icons/hi2";
 const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const { userPayBill, userPayBillLoading } = useSelector((state) => state.bbps);
+  const { userPayBill, userPayBillLoading } = useSelector(
+    (state) => state.bbps,
+  );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const handlePayNow = () => {
@@ -19,14 +21,14 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
 
   const handleConfirmPayment = async () => {
     if (!formData.billDetails?.requestId) return;
-    
+
     const paymentPayload = {
       fetchRefId: formData.billDetails.requestId,
       secureKey: "1234",
     };
 
     const result = await dispatch(getUserBBPSPayBill(paymentPayload));
-    if (result?.status === 'SUCCESS') {
+    if (result?.status === "SUCCESS") {
       setShowConfirmModal(false);
       setFormData((prev) => ({
         ...prev,
@@ -42,7 +44,7 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
     formData.category?.name || formData.category || "Selected Category";
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
@@ -73,7 +75,12 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
             </p>
 
             <div className="flex justify-between text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              <span>Bill Number: {formData.billDetails?.billDetails?.billNumber || formData.billNumber || "N/A"}</span>
+              <span>
+                Bill Number:{" "}
+                {formData.billDetails?.billDetails?.billNumber ||
+                  formData.billNumber ||
+                  "N/A"}
+              </span>
             </div>
 
             <div className="grid grid-cols-3 gap-y-8">
@@ -118,7 +125,10 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
                   Amount Due
                 </p>
                 <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
-                  ₹{formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00"}
+                  ₹
+                  {formData.amount ||
+                    formData.billDetails?.billDetails?.billAmount ||
+                    "0.00"}
                 </p>
               </div>
             </div>
@@ -174,7 +184,10 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
             {/* Amount */}
             <div className="border border-dashed border-gray-300 rounded-lg py-6 mt-4 text-center">
               <span className="text-[28px] font-['Gilroy-SemiBold']">
-                ₹ {formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00"}
+                ₹{" "}
+                {formData.amount ||
+                  formData.billDetails?.billDetails?.billAmount ||
+                  "0.00"}
               </span>
             </div>
 
@@ -214,7 +227,9 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
 
               <button
                 onClick={handleConfirmPayment}
-                disabled={userPayBillLoading || !formData.billDetails?.requestId}
+                disabled={
+                  userPayBillLoading || !formData.billDetails?.requestId
+                }
                 className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2"
               >
                 {userPayBillLoading ? (

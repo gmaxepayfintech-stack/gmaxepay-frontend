@@ -21,7 +21,10 @@ import {
   deActiveOnboarding,
 } from "../../redux/action/whiteLabelAction";
 
-const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }) => {
+const AdminWhitelabelList = ({
+  embedded = false,
+  tableData: propTableData = [],
+}) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKyc, setSelectedKyc] = useState("");
@@ -38,39 +41,52 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
   const kycModalRef = useRef(null);
 
   // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector((state) => state?.whitelabel?.whitelabelList?.whitelabelList || []);
-  
+  const responseForTable = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  );
+
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycDetailsFromRedux = kycDetailsState?.data || null;
 
   // Get kycStatusCheck and kycUnlock success states to refresh table after update
-  const kycStatusCheckResponse = useSelector((state) => state?.whitelabel?.kycStatusCheck);
-  const kycLockStatusResponse = useSelector((state) => state?.whitelabel?.kycLockStatus);
+  const kycStatusCheckResponse = useSelector(
+    (state) => state?.whitelabel?.kycStatusCheck,
+  );
+  const kycLockStatusResponse = useSelector(
+    (state) => state?.whitelabel?.kycLockStatus,
+  );
 
   // Get kycRevert success state to refresh KYC data after revert
-  const kycRevertResponse = useSelector((state) => state?.whitelabel?.kycRevert);
-  
+  const kycRevertResponse = useSelector(
+    (state) => state?.whitelabel?.kycRevert,
+  );
+
   // Use Redux data if search is active, otherwise use prop data
   const allTableData = debouncedSearchTerm.trim()
-    ? (Array.isArray(responseForTable) && responseForTable.length > 0 ? responseForTable : [])
-    : (Array.isArray(propTableData) && propTableData.length > 0 ? propTableData : []);
-  
+    ? Array.isArray(responseForTable) && responseForTable.length > 0
+      ? responseForTable
+      : []
+    : Array.isArray(propTableData) && propTableData.length > 0
+      ? propTableData
+      : [];
+
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     // Check if API response includes total count or pagination info
     return response?.totalCount || response?.total || 0;
   });
-  
+
   // Use Redux total count if available and search is active, otherwise use current data length
-  const totalCount = (debouncedSearchTerm.trim() && totalCountFromRedux > 0) 
-    ? totalCountFromRedux 
-    : allTableData.length;
-  
+  const totalCount =
+    debouncedSearchTerm.trim() && totalCountFromRedux > 0
+      ? totalCountFromRedux
+      : allTableData.length;
+
   // Calculate total pages based on total count (10 records per page)
   const totalPages = Math.ceil(totalCount / 10) || 1;
-  
+
   // Slice data to show only 10 records per page
   // Note: API should already be paginated, but we ensure client-side pagination as well
   const startIndex = (currentPage - 1) * 10;
@@ -167,7 +183,10 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
         setSelectedKycData(deepCopy);
       } catch (error) {
         // Fallback to shallow copy if deep copy fails
-        console.warn("Failed to deep clone KYC data, using shallow copy:", error);
+        console.warn(
+          "Failed to deep clone KYC data, using shallow copy:",
+          error,
+        );
         setSelectedKycData({ ...kycDetailsFromRedux });
       }
     }
@@ -175,17 +194,21 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
 
   // Refresh KYC data when revert succeeds
   useEffect(() => {
-    if (kycRevertResponse?.status === "SUCCESS" && selectedUserId && showKycModal) {
+    if (
+      kycRevertResponse?.status === "SUCCESS" &&
+      selectedUserId &&
+      showKycModal
+    ) {
       // Clear current data to force re-render
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
         // Force update by incrementing refresh key
-        setKycDataRefreshKey(prev => prev + 1);
+        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
         dispatch(kycDataAction(selectedUserId));
       }, 500);
-      
+
       return () => clearTimeout(timer);
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
@@ -212,127 +235,392 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
   }, [showKycModal]);
 
   return (
-    <div className={`text-[#1B1717] ${embedded ? 'flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]' : 'min-h-screen p-2 sm:p-6 flex flex-col'}`}>
+    <div
+      className={`text-[#1B1717] ${embedded ? "flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-2 sm:p-6 flex flex-col"}`}
+    >
       {/* Header with Filters */}
-        <div className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? 'py-4 mb-0' : 'mb-6'}`}>
-          <h1 className="text-lg sm:text-2xl lg:text-2xl font-medium text-[#1B1717]">
-            Whitelabel Onboarding List
-          </h1>
-          
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-            {/* Search Bar */}
-            <div className="relative w-full sm:w-48">
-              <input
-                type="text"
-                placeholder="Search by Mobile No or Name"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-4 pr-10 py-2 w-full text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
-              />
-              <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
-            </div>
+      <div
+        className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? "py-4 mb-0" : "mb-6"}`}
+      >
+        <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
+          Whitelabel Onboarding List
+        </h1>
 
-            {/* Select KYC Dropdown */}
-            <select
-              value={selectedKyc}
-              onChange={(e) => setSelectedKyc(e.target.value)}
-              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
-            >
-              <option value="">Select KYC</option>
-              <option value="pending">Pending</option>
-              <option value="approved">Approved</option>
-              <option value="rejected">Rejected</option>
-            </select>
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+          {/* Search Bar */}
+          <div className="relative w-full sm:w-48">
+            <input
+              type="text"
+              placeholder="Search by Mobile No or Name"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-4 pr-10 py-2 w-full text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
+            />
+            <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+          </div>
 
-            {/* From Date */}
-            <div className="relative">
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            </div>
+          {/* Select KYC Dropdown */}
+          <select
+            value={selectedKyc}
+            onChange={(e) => setSelectedKyc(e.target.value)}
+            className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
+          >
+            <option value="">Select KYC</option>
+            <option value="pending">Pending</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+          </select>
 
-            {/* To Date */}
-            <div className="relative">
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
-              />
-              <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
-            </div>
+          {/* From Date */}
+          <div className="relative">
+            <input
+              type="date"
+              value={fromDate}
+              onChange={(e) => setFromDate(e.target.value)}
+              className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
+          </div>
+
+          {/* To Date */}
+          <div className="relative">
+            <input
+              type="date"
+              value={toDate}
+              onChange={(e) => setToDate(e.target.value)}
+              className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+            />
+            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
         </div>
+      </div>
 
-        {/* Table */}
-        <div className={`flex-1 overflow-x-auto ${embedded ? 'mb-4 rounded-xl bg-white' : '-mx-4 sm:mx-0'} [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}>
-          {embedded ? (
-            <table className="min-w-[720px] sm:min-w-full divide-y">
+      {/* Table */}
+      <div
+        className={`flex-1 overflow-x-auto ${embedded ? "mb-4 rounded-3xl bg-white" : "-mx-4 sm:mx-0"} [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]`}
+      >
+        {embedded ? (
+          <table className="min-w-[720px] sm:min-w-full divide-y">
+            <thead>
+              <tr className="border-b bg-white border-gray-200">
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  ID
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Date
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  User Agent Code
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Name
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  User Role
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Mobile No
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Email Id
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Parent Name
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Parent Role
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Company Name
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  KYC Status
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  KYC Steps
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Main Wallet
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  AEPS Wallet
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Status
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  KYC Details
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Action
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Lock Status
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Onboarding
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Token Expire
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {tableData.map((row, index) => (
+                <tr
+                  key={index}
+                  className={`border-b border-gray-100 ${
+                    index % 2 === 0 ? "bg-white" : "bg-green-50"
+                  }`}
+                >
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.id || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.date || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.userId || row.userAgentCode || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.name || row.userName || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.userRole || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.mobileNo || row.mobileNumber || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.emailId || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.parentName || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.parentRole || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.companyName || "N/A"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {(() => {
+                      const status = row.kycStatus?.toLowerCase();
+                      let className =
+                        "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                      if (status === "completed" || status === "full_kyc") {
+                        className += "bg-green-100 text-green-700";
+                      } else if (status === "pending") {
+                        className += "bg-yellow-100 text-yellow-700";
+                      } else {
+                        className += "bg-red-100 text-red-700";
+                      }
+                      return (
+                        <span className={className}>
+                          {row.kycStatus || "N/A"}
+                        </span>
+                      );
+                    })()}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                    {row.kycSteps || "0"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                    {row.mainWallet || "0"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                    {row.aepsWallet || "0"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    <span
+                      className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                        row.status?.toLowerCase() === "active"
+                          ? "bg-green-600"
+                          : "bg-red-600"
+                      }`}
+                    >
+                      {row.status || "Active"}
+                    </span>
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    <button
+                      onClick={() => {
+                        const userId = row.id || row.originalItem?.id;
+                        if (userId) {
+                          dispatch(kycDataAction(userId));
+                          setActiveTab("overview");
+                          setZoomedImage(null);
+                          setShowKycModal(true);
+                        }
+                      }}
+                      className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                    >
+                      KYC Details
+                    </button>
+                  </td>
+                  {/* Action - Toggle Button */}
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {(() => {
+                      const userId = row.id || row.originalItem?.id;
+                      const isActive = row.status?.toLowerCase() === "active";
+
+                      return (
+                        <button
+                          onClick={() => {
+                            if (userId) {
+                              if (isActive) {
+                                dispatch(
+                                  kycStatusCheck(userId, { isActive: "false" }),
+                                );
+                              } else {
+                                dispatch(
+                                  kycStatusCheck(userId, { isActive: "true" }),
+                                );
+                              }
+                            }
+                          }}
+                          className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
+                            isActive ? "bg-green-600" : "bg-gray-300"
+                          }`}
+                          role="switch"
+                          aria-checked={isActive}
+                        >
+                          <span
+                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                              isActive ? "translate-x-6" : "translate-x-1"
+                            }`}
+                          />
+                        </button>
+                      );
+                    })()}
+                  </td>
+                  {/* Lock Status - Colored Button */}
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {(() => {
+                      const userId = row.id || row.originalItem?.id;
+                      const isLocked =
+                        row?.originalItem?.lock === true ||
+                        row?.originalItem?.lock === "true";
+                      return (
+                        <button
+                          onClick={() => {
+                            if (userId && isLocked) {
+                              dispatch(kycUnlock(userId));
+                            }
+                          }}
+                          disabled={!isLocked}
+                          className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                            isLocked
+                              ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                              : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                          }`}
+                          title={
+                            isLocked ? "Click to unlock" : "Already unlocked"
+                          }
+                        >
+                          {isLocked ? "Locked" : "Unlocked"}
+                        </button>
+                      );
+                    })()}
+                  </td>
+                  {/* Onboarding - Re-send Button */}
+                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                    {(() => {
+                      const userId = row.id || row.originalItem?.id;
+                      return (
+                        <button
+                          onClick={() => {
+                            if (userId) {
+                              dispatch(rescendOnboarding(userId));
+                            }
+                          }}
+                          className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
+                        >
+                          Re-send
+                        </button>
+                      );
+                    })()}
+                  </td>
+                  {/* Deactivation - Send Button */}
+                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                    {(() => {
+                      const userId = row.id || row.originalItem?.id;
+                      return (
+                        <button
+                          onClick={() => {
+                            if (userId) {
+                              dispatch(deActiveOnboarding(userId));
+                            }
+                          }}
+                          className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
+                        >
+                          Send
+                        </button>
+                      );
+                    })()}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        ) : (
+          <div className="inline-block min-w-full align-middle">
+            <table className="min-w-full">
               <thead>
                 <tr className="border-b bg-gray-100 border-gray-200">
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                    User Agent Code
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    User ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Status
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Lock Status
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                    Onboarding
-                  </th>
-                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                    Token Expire
                   </th>
                 </tr>
               </thead>
@@ -344,40 +632,41 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                       index % 2 === 0 ? "bg-white" : "bg-green-50"
                     }`}
                   >
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.id || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.date || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.userId || row.userAgentCode || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.name || row.userName || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.userRole || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.mobileNo || row.mobileNumber || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.emailId || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.parentName || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.parentRole || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.companyName || "N/A"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {(() => {
                         const status = row.kycStatus?.toLowerCase();
-                        let className = "px-2 py-1 rounded text-xs font-medium ";
+                        let className =
+                          "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                         if (status === "completed" || status === "full_kyc") {
                           className += "bg-green-100 text-green-700";
                         } else if (status === "pending") {
@@ -392,18 +681,18 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                         );
                       })()}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                       {row.kycSteps || "0"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                       {row.mainWallet || "0"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                       {row.aepsWallet || "0"}
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       <span
-                        className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
+                        className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
                           row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
                             : "bg-red-600"
@@ -412,36 +701,45 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                         {row.status || "Active"}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       <button
                         onClick={() => {
                           const userId = row.id || row.originalItem?.id;
                           if (userId) {
+                            setSelectedUserId(userId);
                             dispatch(kycDataAction(userId));
                             setActiveTab("overview");
                             setZoomedImage(null);
                             setShowKycModal(true);
                           }
                         }}
-                        className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
+                        className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
                       >
                         KYC Details
                       </button>
                     </td>
                     {/* Action - Toggle Button */}
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {(() => {
                         const userId = row.id || row.originalItem?.id;
                         const isActive = row.status?.toLowerCase() === "active";
 
                         return (
-                        <button
-                          onClick={() => {
+                          <button
+                            onClick={() => {
                               if (userId) {
                                 if (isActive) {
-                                  dispatch(kycStatusCheck(userId, { isActive: "false" }));
+                                  dispatch(
+                                    kycStatusCheck(userId, {
+                                      isActive: "false",
+                                    }),
+                                  );
                                 } else {
-                                  dispatch(kycStatusCheck(userId, { isActive: "true" }));
+                                  dispatch(
+                                    kycStatusCheck(userId, {
+                                      isActive: "true",
+                                    }),
+                                  );
                                 }
                               }
                             }}
@@ -456,18 +754,20 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                                 isActive ? "translate-x-6" : "translate-x-1"
                               }`}
                             />
-                        </button>
+                          </button>
                         );
                       })()}
                     </td>
                     {/* Lock Status - Colored Button */}
-                    <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                    <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {(() => {
                         const userId = row.id || row.originalItem?.id;
-                        const isLocked = row?.originalItem?.lock === true || row?.originalItem?.lock === "true";
+                        const isLocked =
+                          row?.originalItem?.lock === true ||
+                          row?.originalItem?.lock === "true";
                         return (
-                        <button
-                          onClick={() => {
+                          <button
+                            onClick={() => {
                               if (userId && isLocked) {
                                 dispatch(kycUnlock(userId));
                               }
@@ -478,45 +778,11 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                                 ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                 : "bg-green-500 text-white cursor-not-allowed opacity-75"
                             }`}
-                            title={isLocked ? "Click to unlock" : "Already unlocked"}
+                            title={
+                              isLocked ? "Click to unlock" : "Already unlocked"
+                            }
                           >
                             {isLocked ? "Locked" : "Unlocked"}
-                        </button>
-                        );
-                      })()}
-                    </td>
-                    {/* Onboarding - Re-send Button */}
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {(() => {
-                        const userId = row.id || row.originalItem?.id;
-                        return (
-                          <button
-                            onClick={() => {
-                              if (userId) {
-                                dispatch(rescendOnboarding(userId));
-                              }
-                            }}
-                            className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
-                          >
-                            Re-send
-                          </button>
-                        );
-                      })()}
-                    </td>
-                    {/* Deactivation - Send Button */}
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                      {(() => {
-                        const userId = row.id || row.originalItem?.id;
-                        return (
-                          <button
-                            onClick={() => {
-                              if (userId) {
-                                dispatch(deActiveOnboarding(userId));
-                              }
-                            }}
-                            className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
-                          >
-                            Send
                           </button>
                         );
                       })()}
@@ -525,271 +791,58 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                 ))}
               </tbody>
             </table>
-          ) : (
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b bg-gray-100 border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      ID
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Date
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      User ID
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      User Role
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Mobile No
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Email Id
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Parent Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Parent Role
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Company Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Status
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Steps
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Main Wallet
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      AEPS Wallet
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Status
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Details
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Action
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Lock Status
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {tableData.map((row, index) => (
-                    <tr
-                      key={index}
-                      className={`border-b border-gray-100 ${
-                        index % 2 === 0 ? "bg-white" : "bg-green-50"
-                      }`}
-                    >
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.id || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.date || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.userId || row.userAgentCode || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.name || row.userName || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.userRole || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.mobileNo || row.mobileNumber || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.emailId || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.parentName || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.parentRole || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.companyName || "N/A"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {(() => {
-                          const status = row.kycStatus?.toLowerCase();
-                          let className = "px-2 py-1 rounded text-xs font-medium ";
-                          if (status === "completed" || status === "full_kyc") {
-                            className += "bg-green-100 text-green-700";
-                          } else if (status === "pending") {
-                            className += "bg-yellow-100 text-yellow-700";
-                          } else {
-                            className += "bg-red-100 text-red-700";
-                          }
-                          return (
-                            <span className={className}>
-                              {row.kycStatus || "N/A"}
-                            </span>
-                          );
-                        })()}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {row.kycSteps || "0"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {row.mainWallet || "0"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {row.aepsWallet || "0"}
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
-                            row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
-                          }`}
-                        >
-                          {row.status || "Active"}
-                        </span>
-                      </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        <button
-                          onClick={() => {
-                            const userId = row.id || row.originalItem?.id;
-                            if (userId) {
-                              setSelectedUserId(userId);
-                              dispatch(kycDataAction(userId));
-                              setActiveTab("overview");
-                              setZoomedImage(null);
-                              setShowKycModal(true);
-                            }
-                          }}
-                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
-                        >
-                          KYC Details
-                        </button>
-                      </td>
-                      {/* Action - Toggle Button */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          const isActive = row.status?.toLowerCase() === "active";
+          </div>
+        )}
+      </div>
 
-                          return (
-                          <button
-                            onClick={() => {
-                                if (userId) {
-                                  if (isActive) {
-                                    dispatch(kycStatusCheck(userId, { isActive: "false" }));
-                                  } else {
-                                    dispatch(kycStatusCheck(userId, { isActive: "true" }));
-                                  }
-                                }
-                              }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                                isActive ? "bg-green-600" : "bg-gray-300"
-                              }`}
-                              role="switch"
-                              aria-checked={isActive}
-                            >
-                              <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  isActive ? "translate-x-6" : "translate-x-1"
-                                }`}
-                              />
-                          </button>
-                          );
-                        })()}
-                      </td>
-                      {/* Lock Status - Colored Button */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {(() => {
-                          const userId = row.id || row.originalItem?.id;
-                          const isLocked = row?.originalItem?.lock === true || row?.originalItem?.lock === "true";
-                          return (
-                          <button
-                            onClick={() => {
-                                if (userId && isLocked) {
-                                  dispatch(kycUnlock(userId));
-                                }
-                              }}
-                              disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
-                                isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                              }`}
-                              title={isLocked ? "Click to unlock" : "Already unlocked"}
-                            >
-                              {isLocked ? "Locked" : "Unlocked"}
-                          </button>
-                          );
-                        })()}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+      {/* Pagination */}
+      <div className="flex items-center justify-center mt-auto pt-6 pb-4 gap-2">
+        <button
+          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          disabled={currentPage === 1 || totalPages === 0}
+          className={`p-2 rounded-lg border transition ${
+            currentPage === 1 || totalPages === 0
+              ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+              : "bg-white border-gray-300 text-[#1B1717] hover:bg-gray-50"
+          }`}
+        >
+          <ChevronLeft className="w-5 h-5" />
+        </button>
 
-        {/* Pagination */}
-        <div className="flex items-center justify-center mt-auto pt-6 pb-4 gap-2">
-          <button
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-            disabled={currentPage === 1 || totalPages === 0}
-            className={`p-2 rounded-lg border transition ${
-              currentPage === 1 || totalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-white border-gray-300 text-[#1B1717] hover:bg-gray-50"
-            }`}
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </button>
+        {totalPages > 0 ? (
+          Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
+                currentPage === page
+                  ? "bg-[#039155] text-white"
+                  : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+              }`}
+            >
+              {page}
+            </button>
+          ))
+        ) : (
+          <span className="w-10 h-10 rounded-lg font-[gilroy-medium] flex items-center justify-center text-gray-500">
+            0
+          </span>
+        )}
 
-          {totalPages > 0 ? (
-            Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg font-medium transition ${
-                  currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))
-          ) : (
-            <span className="w-10 h-10 rounded-lg font-medium flex items-center justify-center text-gray-500">
-              0
-            </span>
-          )}
-
-          <button
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-            disabled={currentPage === totalPages || totalPages === 0}
-            className={`p-2 rounded-lg border transition ${
-              currentPage === totalPages || totalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-white border-gray-300 text-[#1B1717] hover:bg-gray-50"
-            }`}
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
+        <button
+          onClick={() =>
+            setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+          }
+          disabled={currentPage === totalPages || totalPages === 0}
+          className={`p-2 rounded-lg border transition ${
+            currentPage === totalPages || totalPages === 0
+              ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+              : "bg-white border-gray-300 text-[#1B1717] hover:bg-gray-50"
+          }`}
+        >
+          <ChevronRight className="w-5 h-5" />
+        </button>
+      </div>
 
       {/* KYC Details Modal - Tabbed, same as CreateWhiteLabel */}
       {showKycModal && (
@@ -805,9 +858,13 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                   <FaIdCard className="text-green-600" />
                 </div>
                 <div>
-              <h2 className="text-xl font-semibold text-gray-800">KYC Details</h2>
+                  <h2 className="text-xl font-semibold text-gray-800">
+                    KYC Details
+                  </h2>
                   {selectedKycData?.userDetails?.name && (
-                    <p className="text-sm text-gray-500">{selectedKycData.userDetails.name}</p>
+                    <p className="text-sm text-gray-500">
+                      {selectedKycData.userDetails.name}
+                    </p>
                   )}
                 </div>
               </div>
@@ -830,7 +887,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -841,7 +898,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -851,7 +908,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -861,7 +918,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -871,7 +928,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -881,7 +938,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -908,24 +965,28 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-semibold ${
-                      selectedKycData.kycStatus === "FULL_KYC"
-                        ? "bg-green-100 text-green-700"
-                        : selectedKycData.kycStatus === "NO_KYC"
-                        ? "bg-red-100 text-red-700"
-                        : "bg-yellow-100 text-yellow-700"
+                              selectedKycData.kycStatus === "FULL_KYC"
+                                ? "bg-green-100 text-green-700"
+                                : selectedKycData.kycStatus === "NO_KYC"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
                             }`}
                           >
-                      {selectedKycData.kycStatus || "N/A"}
-                    </span>
-                  </div>
+                            {selectedKycData.kycStatus || "N/A"}
+                          </span>
+                        </div>
 
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">Progress</span>
+                            <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              Progress
+                            </span>
                             <span className="text-sm font-semibold text-gray-800">
-                              {selectedKycData.completedSteps || selectedKycData.kycSteps || 0} /{" "}
-                              {selectedKycData.totalSteps || 7} Steps
+                              {selectedKycData.completedSteps ||
+                                selectedKycData.kycSteps ||
+                                0}{" "}
+                              / {selectedKycData.totalSteps || 7} Steps
                             </span>
                           </div>
                           <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
@@ -933,7 +994,9 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                               className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
                               style={{
                                 width: `${
-                                  ((selectedKycData.completedSteps || selectedKycData.kycSteps || 0) /
+                                  ((selectedKycData.completedSteps ||
+                                    selectedKycData.kycSteps ||
+                                    0) /
                                     (selectedKycData.totalSteps || 7)) *
                                   100
                                 }%`,
@@ -941,7 +1004,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                             />
                           </div>
                         </div>
-                  </div>
+                      </div>
 
                       {/* User Details Card */}
                       {selectedKycData.userDetails && (
@@ -952,39 +1015,53 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </h3>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">User ID</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                User ID
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Name</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Mobile No</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                Mobile No
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Email</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                Email
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
                           </div>
                           {selectedKycData.userDetails.profileImage && (
                             <div className="mt-4">
-                              <span className="text-xs text-gray-500 mb-2 block">Profile Image</span>
+                              <span className="text-xs text-gray-500 mb-2 block">
+                                Profile Image
+                              </span>
                               <div className="relative group">
                                 <img
                                   src={selectedKycData.userDetails.profileImage}
                                   alt="Profile"
                                   className="w-32 h-32 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
-                                  onClick={() => setZoomedImage(selectedKycData.userDetails.profileImage)}
+                                  onClick={() =>
+                                    setZoomedImage(
+                                      selectedKycData.userDetails.profileImage,
+                                    )
+                                  }
                                 />
                                 <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
                                   <FaExpand className="text-white opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -1011,10 +1088,14 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { aadhar: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        aadhar: "true",
+                                      }),
+                                    );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1022,28 +1103,37 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Name</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">UID</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                UID
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">DOB</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                DOB
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Status
+                              </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
-                                  selectedKycData.aadhaarDoc.status === "Success"
+                                  selectedKycData.aadhaarDoc.status ===
+                                  "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
                                 }`}
@@ -1055,14 +1145,22 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {selectedKycData.userDetails?.aadharFrontImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Front</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Aadhaar Front
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.aadharFrontImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .aadharFrontImage
+                                    }
                                     alt="Aadhaar Front"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.aadharFrontImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .aadharFrontImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1073,14 +1171,22 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                             )}
                             {selectedKycData.userDetails?.aadharBackImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">Aadhaar Back</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Aadhaar Back
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.aadharBackImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .aadharBackImage
+                                    }
                                     alt="Aadhaar Back"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.aadharBackImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .aadharBackImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1113,10 +1219,14 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { pan: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        pan: "true",
+                                      }),
+                                    );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1124,25 +1234,33 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">PAN Number</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                PAN Number
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">PAN Name</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                PAN Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">DOB</span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-xs text-gray-500 mb-1">
+                                DOB
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Status</span>
+                              <span className="text-xs text-gray-500 mb-1">
+                                Status
+                              </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
                                   selectedKycData.panDoc.status === "Success"
@@ -1157,14 +1275,22 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {selectedKycData.userDetails?.panCardFrontImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">PAN Front</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  PAN Front
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.panCardFrontImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .panCardFrontImage
+                                    }
                                     alt="PAN Front"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.panCardFrontImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .panCardFrontImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1175,14 +1301,22 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                             )}
                             {selectedKycData.userDetails?.panCardBackImage && (
                               <div>
-                                <span className="text-xs text-gray-500 mb-2 block">PAN Back</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  PAN Back
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.userDetails.panCardBackImage}
+                                    src={
+                                      selectedKycData.userDetails
+                                        .panCardBackImage
+                                    }
                                     alt="PAN Back"
                                     className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.userDetails.panCardBackImage)
+                                      setZoomedImage(
+                                        selectedKycData.userDetails
+                                          .panCardBackImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1216,10 +1350,14 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { shopImage: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        shopImage: "true",
+                                      }),
+                                    );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1227,35 +1365,49 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Shop Name</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.outletDetails.shopName || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                Shop Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.outletDetails.shopName ||
+                                  "N/A"}
                               </span>
                             </div>
                             {selectedKycData.outletDetails.gstNo && (
                               <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 mb-1">GST No</span>
-                                <span className="text-sm font-medium text-gray-800">
+                                <span className="text-xs text-gray-500 mb-1">
+                                  GST No
+                                </span>
+                                <span className="text-sm font-[gilroy-medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
                             )}
                             <div className="flex flex-col md:col-span-2">
-                              <span className="text-xs text-gray-500 mb-1">Shop Address</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.outletDetails.shopAddress || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                Shop Address
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.outletDetails.shopAddress ||
+                                  "N/A"}
                               </span>
                             </div>
                             {selectedKycData.outletDetails.shopImage && (
                               <div className="md:col-span-2">
-                                <span className="text-xs text-gray-500 mb-2 block">Shop Image</span>
+                                <span className="text-xs text-gray-500 mb-2 block">
+                                  Shop Image
+                                </span>
                                 <div className="relative group">
                                   <img
-                                    src={selectedKycData.outletDetails.shopImage}
+                                    src={
+                                      selectedKycData.outletDetails.shopImage
+                                    }
                                     alt="Shop"
                                     className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
                                     onClick={() =>
-                                      setZoomedImage(selectedKycData.outletDetails.shopImage)
+                                      setZoomedImage(
+                                        selectedKycData.outletDetails.shopImage,
+                                      )
                                     }
                                   />
                                   <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
@@ -1284,10 +1436,14 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevert(selectedUserId, { bankVerification: "true" }));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        bankVerification: "true",
+                                      }),
+                                    );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1295,27 +1451,39 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Account Number</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.accountNumber || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                Account Number
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.customerBankDetails
+                                  .accountNumber || "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">IFSC</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.ifsc || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                IFSC
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.customerBankDetails.ifsc ||
+                                  "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Bank Name</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.bankName || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                Bank Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.customerBankDetails.bankName ||
+                                  "N/A"}
                               </span>
                             </div>
                             <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">Beneficiary Name</span>
-                              <span className="text-sm font-medium text-gray-800">
-                                {selectedKycData.customerBankDetails.beneficiaryName || "N/A"}
+                              <span className="text-xs text-gray-500 mb-1">
+                                Beneficiary Name
+                              </span>
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                {selectedKycData.customerBankDetails
+                                  .beneficiaryName || "N/A"}
                               </span>
                             </div>
                           </div>
@@ -1329,233 +1497,268 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                   )}
 
                   {/* Verification Tab */}
-                  {activeTab === "verification" && selectedKycData.userDetails && (
-                    <div className="space-y-4">
-                      <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
-                        <FaCheckCircle className="text-green-600" />
-                        Verification Status
-                      </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Mobile Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.mobileVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.mobileVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Mobile</span>
-                          </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  {activeTab === "verification" &&
+                    selectedKycData.userDetails && (
+                      <div className="space-y-4">
+                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <FaCheckCircle className="text-green-600" />
+                          Verification Status
+                        </h3>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Mobile Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.mobileVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.mobileVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Email Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.emailVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.emailVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Email</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.mobileVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Mobile
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.mobileVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.mobileVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Email Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.emailVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.emailVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Aadhar Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.aadharVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.aadharVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Aadhar</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.emailVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Email
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.emailVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.emailVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Aadhar Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.aadharVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.aadharVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* PAN Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.panVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.panVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">PAN</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.aadharVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Aadhar
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.aadharVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.aadharVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* PAN Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.panVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.panVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Shop Details Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.shopDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.shopDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Shop Details</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.panVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                PAN
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.panVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.panVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Shop Details Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.shopDetailsVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.shopDetailsVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Image Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.imageVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.imageVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Image</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.shopDetailsVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Shop Details
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.shopDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.shopDetailsVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Image Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.imageVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.imageVerify ? "Verified" : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Profile Image with Shop Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.profileImageWithShopVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.profileImageWithShopVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Profile with Shop</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.imageVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Image
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.imageVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.imageVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                              selectedKycData.userDetails.profileImageWithShopVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+
+                          {/* Profile Image with Shop Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.profileImageWithShopVerify
-                              ? "Verified"
-                              : "Pending"}
-                        </span>
-                      </div>
-
-                      {/* Bank Details Verify */}
-                        <div
-                          className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                            selectedKycData.userDetails.bankDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                          }`}
-                        >
-                          <div className="flex items-center gap-3">
-                            {selectedKycData.userDetails.bankDetailsVerify ? (
-                              <FaCheckCircle className="text-green-600 text-xl" />
-                            ) : (
-                              <FaTimesCircle className="text-red-600 text-xl" />
-                            )}
-                            <span className="text-sm font-medium text-gray-700">Bank Details</span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails
+                                .profileImageWithShopVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Profile with Shop
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails
+                                  .profileImageWithShopVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
                           </div>
-                          <span
-                            className={`px-3 py-1 rounded-full text-xs font-semibold ${
+
+                          {/* Bank Details Verify */}
+                          <div
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
                               selectedKycData.userDetails.bankDetailsVerify
-                            ? "bg-green-100 text-green-700"
-                            : "bg-red-100 text-red-700"
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
                             }`}
                           >
-                            {selectedKycData.userDetails.bankDetailsVerify ? "Verified" : "Pending"}
-                        </span>
+                            <div className="flex items-center gap-3">
+                              {selectedKycData.userDetails.bankDetailsVerify ? (
+                                <FaCheckCircle className="text-green-600 text-xl" />
+                              ) : (
+                                <FaTimesCircle className="text-red-600 text-xl" />
+                              )}
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                                Bank Details
+                              </span>
+                            </div>
+                            <span
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.bankDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
+                            >
+                              {selectedKycData.userDetails.bankDetailsVerify
+                                ? "Verified"
+                                : "Pending"}
+                            </span>
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                  )}
+                    )}
                 </div>
               ) : (
                 <div className="text-center py-8 text-gray-500">
@@ -1574,7 +1777,7 @@ const AdminWhitelabelList = ({ embedded = false, tableData: propTableData = [] }
                   setActiveTab("overview");
                   setZoomedImage(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[gilroy-medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>

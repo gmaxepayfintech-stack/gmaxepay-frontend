@@ -16,8 +16,10 @@ const TaxHistory = () => {
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  const showAepsCWHistory = viewHistory === "aeps-cw-history";
-
+  const showAepsHistory =
+    viewHistory === "aeps-cw-history" ||
+    viewHistory === "aeps-ms-history" ||
+    viewHistory === "aeps-be-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -30,54 +32,78 @@ const TaxHistory = () => {
   const transactionCards = [
     {
       id: 1,
-      title: "AEPS CW History",
+      title: "AEPS 1 CW History",
       subtitle: "Cash Withdrawal",
       available: true,
+      viewKey: "aeps-cw-history",
     },
     {
       id: 2,
-      title: "AePS MS History",
-      subtitle: "Mini Statement",
+      title: "AEPS 2 CW History",
+      subtitle: "Cash Withdrawal",
       available: true,
+      viewKey: "aeps-cw-history",
     },
     {
       id: 3,
-      title: "AePS BE History",
-      subtitle: "Balance Enquiry",
+      title: "AEPS 1 MS History",
+      subtitle: "Mini Statement",
       available: true,
+      viewKey: "aeps-ms-history",
     },
     {
       id: 4,
+      title: "AEPS 2 MS History",
+      subtitle: "Mini Statement",
+      available: true,
+      viewKey: "aeps-ms-history",
+    },
+    {
+      id: 5,
+      title: "AEPS 1 BE History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "aeps-be-history",
+    },
+    {
+      id: 6,
+      title: "AEPS 2 BE History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "aeps-be-history",
+    },
+    {
+      id: 7,
       title: "DMT",
       subtitle: "Direct Money Transfer",
       available: true,
     },
     {
-      id: 5,
+      id: 8,
       title: "CMS",
       subtitle: "Cash Withdrawal",
       available: true,
     },
     {
-      id: 6,
-      title: "F-CMS",
-      subtitle: "Cash Withdrawal",
-      available: true,
-    },
-    {
-      id: 7,
-      title: "F-CMS",
-      subtitle: "Cash Withdrawal",
-      available: true,
-    },
-    {
-      id: 8,
-      title: "F-CMS",
-      subtitle: "Cash Withdrawal",
-      available: true,
-    },
-    {
       id: 9,
+      title: "F-CMS",
+      subtitle: "Cash Withdrawal",
+      available: true,
+    },
+    {
+      id: 10,
+      title: "F-CMS",
+      subtitle: "Cash Withdrawal",
+      available: true,
+    },
+    {
+      id: 11,
+      title: "F-CMS",
+      subtitle: "Cash Withdrawal",
+      available: true,
+    },
+    {
+      id: 12,
       title: "F-CMS",
       subtitle: "Cash Withdrawal",
       available: true,
@@ -113,9 +139,13 @@ const TaxHistory = () => {
   const paginatedCards = transactionCards.slice(startIndex, endIndex);
 
   // If AepsCWHistory should be shown, render it
-  if (showAepsCWHistory) {
+
+  if (showAepsHistory) {
     return (
-      <AepsCWHistory onBack={() => navigate("/superDashboard/txn-history")} />
+      <AepsCWHistory
+        type={viewHistory} // optional: pass which AEPS history
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
     );
   }
 
@@ -222,13 +252,13 @@ const TaxHistory = () => {
                 {/* View History Button */}
                 <button
                   onClick={() => {
-                    if (card.title === "AEPS CW History") {
+                    if (card.viewKey) {
                       navigate(
-                        "/superDashboard/txn-history?view=aeps-cw-history",
+                        `/superDashboard/txn-history?view=${card.viewKey}`,
                       );
                     }
                   }}
-                  className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-xl font-[gilroy-semibold] hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto"
+                  className="w-full bg-[#039155] text-white py-2 rounded-xl font-[gilroy-semibold]"
                 >
                   View History
                 </button>
