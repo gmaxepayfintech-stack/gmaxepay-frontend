@@ -590,7 +590,7 @@ const DTHRecharge = ({ onBack }) => {
 
                     if (
                       paymentResponse?.status === "SUCCESS" &&
-                      paymentResponse?.data
+                      paymentResponse?.dthRecharge
                     ) {
                       setPaymentResponse(paymentResponse);
                       setShowPayment(false);
@@ -1450,8 +1450,8 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Amount */}
                 <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
                   <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    {paymentResponse?.data?.apiResponse?.amount
-                      ? `₹${paymentResponse.data.apiResponse.amount}`
+                    {paymentResponse?.dthRecharge?.apiResponse?.amount
+                      ? `₹${paymentResponse.dthRecharge.apiResponse.amount}`
                       : selectedPlan?.price || "N/A"}
                   </div>
                 </div>
@@ -1463,18 +1463,18 @@ const DTHRecharge = ({ onBack }) => {
                       Transaction ID
                     </div>
                     <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-                      {paymentResponse?.data?.apiResponse?.txid || "N/A"}
+                      {paymentResponse?.dthRecharge?.apiResponse?.txid || "N/A"}
                     </div>
                   </div>
 
                   <div>
                     <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      {paymentResponse?.data?.apiResponse?.number?.length === 10
+                      {paymentResponse?.dthRecharge?.apiResponse?.number?.length === 10
                         ? "Mobile Number"
                         : "Subscriber ID"}
                     </div>
                     <div className="font-['Gilroy-Medium'] text-sm">
-                      {paymentResponse?.data?.apiResponse?.number || inputValue}
+                      {paymentResponse?.dthRecharge?.apiResponse?.number || inputValue}
                     </div>
                   </div>
 
@@ -1519,7 +1519,7 @@ const DTHRecharge = ({ onBack }) => {
                       Order ID
                     </div>
                     <div className="font-['Gilroy-Medium']">
-                      {paymentResponse?.data?.orderid || "N/A"}
+                      {paymentResponse?.dthRecharge?.orderid || "N/A"}
                     </div>
                   </div>
 
