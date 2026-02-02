@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Search,
   Plus,
@@ -9,8 +9,8 @@ import {
   Grid3x3,
   X,
   ChevronDown,
+  Check,
   Pencil,
-  Users,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
@@ -53,15 +53,16 @@ const SchemeMaster = () => {
     schemeMode: "Global",
     schemeType: "Free",
     subscriptionAmount: "",
+    views: [],
   });
-  const modalRef = useRef(null);
-
-  // Sidebar view users state
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [activeUserTab, setActiveUserTab] = useState("masterDistributor"); // masterDistributor, distributor, retailer
+  const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
   const [userPage, setUserPage] = useState(1);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [selectedUsersData, setSelectedUsersData] = useState([]);
+  const modalRef = useRef(null);
+  const userModalRef = useRef(null);
 
   // Get company ID
   const getCompanyId = () => {
@@ -86,7 +87,10 @@ const SchemeMaster = () => {
         schemeMode: "Global",
         schemeType: "Free",
         subscriptionAmount: "",
+        views: [],
       });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
       // Reset to first page after creating (this will trigger fetch via the other useEffect)
       if (currentPage !== 1) {
         setCurrentPage(1);
@@ -118,7 +122,10 @@ const SchemeMaster = () => {
         schemeMode: "Global",
         schemeType: "Free",
         subscriptionAmount: "",
+        views: [],
       });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
       // Reset to first page after updating (this will trigger fetch via the other useEffect)
       if (currentPage !== 1) {
         setCurrentPage(1);
@@ -139,12 +146,18 @@ const SchemeMaster = () => {
     }
   }, [updateSlabError, showError]);
 
-  // Close modal when clicking outside
+  // Close modal when clicking outside (but not when user selection modal is open)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't close if user selection modal is open
+      if (showUserSelectionModal) return;
+      
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setIsModalOpen(false);
-        setIsEditModalOpen(false);
+        // Also check if click is not on user selection modal
+        if (userModalRef.current && !userModalRef.current.contains(event.target)) {
+          setIsModalOpen(false);
+          setIsEditModalOpen(false);
+        }
       }
     };
     if (isModalOpen || isEditModalOpen) {
@@ -153,7 +166,7 @@ const SchemeMaster = () => {
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen, isEditModalOpen]);
+  }, [isModalOpen, isEditModalOpen, showUserSelectionModal]);
 
   //Reset page when search or filter changes and refetch
   useEffect(() => {
@@ -173,75 +186,122 @@ const SchemeMaster = () => {
     return () => clearTimeout(timer);
   }, [userSearchQuery]);
 
-  // Fetch users when sidebar is open
+  // Fetch users when user selection modal opens
   useEffect(() => {
-    if (!showSidebar) return;
+    if (showUserSelectionModal) {
+      const companyId = getCompanyId();
+      if (!companyId) return;
 
-    const companyId = getCompanyId();
-    if (!companyId) return;
+      // Determine search field based on input type
+      let customSearch = {};
+      if (debouncedUserSearchQuery.trim()) {
+        const searchValue = debouncedUserSearchQuery.trim();
+        // Check if search is a number (mobileNo) or text (name)
+        if (/^\d+$/.test(searchValue)) {
+          customSearch = { mobileNo: searchValue };
+        } else {
+          customSearch = { name: searchValue };
+        }
+      }
 
-    // Determine user role based on active tab
-    const roleMap = {
-      masterDistributor: 3,
-      distributor: 4,
-      retailer: 5,
-    };
-    const userRole = roleMap[activeUserTab];
+      const payload = {
+        query: {
+          userRole: 2, // White label users
+        },
+        customSearch: customSearch,
+        options: {
+          page: userPage,
+          paginate: 10,
+          order: [["name", "ASC"]],
+        },
+      };
 
-    // Determine search field based on input type
-    let customSearch = {};
-    if (debouncedUserSearchQuery.trim()) {
-      const searchValue = debouncedUserSearchQuery.trim();
-      // Check if search is a number (mobileNo) or text (name)
-      if (/^\d+$/.test(searchValue)) {
-        customSearch = { mobileNo: searchValue };
-      } else {
-        customSearch = { name: searchValue };
+      dispatch(getReportToUserList({ ...payload, companyId }));
+    }
+  }, [showUserSelectionModal, userPage, debouncedUserSearchQuery, dispatch]);
+
+  // Reset user search when modal closes
+  useEffect(() => {
+    if (!showUserSelectionModal) {
+      setUserSearchQuery("");
+      setDebouncedUserSearchQuery("");
+      setUserPage(1);
+    }
+  }, [showUserSelectionModal]);
+
+  // Sync selectedUsersData when formData.views changes (e.g., when switching modes)
+  // Only sync when modal is closed to avoid conflicts with user selection
+  useEffect(() => {
+    if (!showUserSelectionModal) {
+      if (!formData.views || formData.views.length === 0) {
+        setSelectedUsersData((prev) => {
+          if (prev.length > 0) {
+            return [];
+          }
+          return prev;
+        });
       }
     }
-
-    const payload = {
-      query: {
-        userRole: userRole,
-      },
-      customSearch: customSearch,
-      options: {
-        page: userPage,
-        paginate: 50,
-        order: [["name", "ASC"]],
-      },
-    };
-
-    dispatch(getReportToUserList({ ...payload, companyId }));
-  }, [showSidebar, activeUserTab, debouncedUserSearchQuery, userPage, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.views, showUserSelectionModal]);
 
   // Get users list from Redux
   const usersListRaw = useSelector(
     (state) => state?.whitelabel?.reportToUserList?.userList || []
   );
-  const usersList = Array.isArray(usersListRaw) ? usersListRaw : [];
+  const usersList = useMemo(
+    () => (Array.isArray(usersListRaw) ? usersListRaw : []),
+    [usersListRaw]
+  );
   const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
   const usersTotalCount = useSelector((state) => {
     const response = state?.whitelabel?.reportToUserList;
     return response?.totalCount || usersList.length || 0;
   });
-  const usersTotalPages = Math.ceil(usersTotalCount / 50) || 1;
+  const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
 
   // Map API slabs to scheme format
   const mapSlabToScheme = (slab) => {
     const getIcon = (schemaType, schemaMode) => {
       if (schemaType === "free" && schemaMode === "global") {
-        return { icon: Globe, iconColor: "text-green-600", iconBg: "bg-green-100", iconImage: "/img/WLGlobe.png", useImage: true };
+        return {
+          icon: Globe,
+          iconColor: "text-green-600",
+          iconBg: "bg-green-100",
+          iconImage: "/img/WLGlobe.png",
+          useImage: true,
+        };
       } else if (schemaMode === "private") {
-        return { icon: Lock, iconColor: "text-purple-600", iconBg: "bg-purple-100", iconImage: "/img/GramPay.png", useImage: true };
+        return {
+          icon: Lock,
+          iconColor: "text-purple-600",
+          iconBg: "bg-purple-100",
+          iconImage: "/img/GramPay.png",
+          useImage: true,
+        };
       } else {
-        return { icon: Grid3x3, iconColor: "text-orange-600", iconBg: "bg-orange-100", iconImage: "/img/Platanium.png", useImage: true };
+        return {
+          icon: Grid3x3,
+          iconColor: "text-orange-600",
+          iconBg: "bg-orange-100",
+          iconImage: "/img/Platanium.png",
+          useImage: true,
+        };
       }
     };
 
     const iconData = getIcon(slab.schemaType, slab.schemaMode);
-    const createdAt = slab.createdAt ? new Date(slab.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
-    
+    const createdAt = slab.createdAt
+      ? new Date(slab.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        })
+      : "N/A";
+
+    // Extract view user IDs from viewDetails
+    const viewUserIds = slab.viewDetails?.map(vd => vd.userId) || [];
+
     return {
       id: slab.id,
       name: slab.slabName,
@@ -251,9 +311,26 @@ const SchemeMaster = () => {
       schemeId: `#${slab.id}`,
       created: createdAt,
       members: slab.totalUsers?.toString() || "0",
+      amount: slab.subscriptionAmount || 0,
+      visibility: slab.totalViews || 0,
+      visibilityType: slab.schemaMode === "global" ? "Global" : "Private",
+      views: viewUserIds,
+      viewDetails: slab.viewDetails || [],
       tags: [
-        { label: slab.schemaMode === "global" ? "Global" : "Private", color: slab.schemaMode === "global" ? "bg-[#08A000] text-white" : "bg-[#9B3FEF] text-white" },
-        { label: slab.schemaType === "free" ? "Free" : "Premium", color: slab.schemaType === "free" ? "bg-[#366BCD] text-white" : "bg-[#D6C407] text-white" },
+        {
+          label: slab.schemaMode === "global" ? "Global" : "Private",
+          color:
+            slab.schemaMode === "global"
+              ? "bg-[#08A000] text-white"
+              : "bg-[#9B3FEF] text-white",
+        },
+        {
+          label: slab.schemaType === "free" ? "Free" : "Premium",
+          color:
+            slab.schemaType === "free"
+              ? "bg-[#366BCD] text-white"
+              : "bg-[#D6C407] text-white",
+        },
       ],
       ...slab, // Include original slab data
     };
@@ -285,19 +362,92 @@ const SchemeMaster = () => {
   // Display filtered schemes (search/filter works on current page)
   const paginatedSchemes = filteredSchemes;
 
+  // Handle user selection
+  const handleUserToggle = (user) => {
+    const userId = user.id || user._id;
+    
+    setSelectedUserIds((prev) => {
+      if (prev.includes(userId)) {
+        // Remove user
+        setSelectedUsersData((prevData) => 
+          prevData.filter((u) => {
+            const uId = u.id || u._id;
+            return uId !== userId;
+          })
+        );
+        return prev.filter((id) => id !== userId);
+      } else {
+        // Add user - check for duplicates first
+        setSelectedUsersData((prevData) => {
+          const existingIds = prevData.map((u) => u.id || u._id);
+          if (existingIds.includes(userId)) {
+            return prevData; // Already exists, don't add duplicate
+          }
+          return [...prevData, user];
+        });
+        // Check if already in selectedUserIds to prevent duplicates
+        if (!prev.includes(userId)) {
+          return [...prev, userId];
+        }
+        return prev;
+      }
+    });
+  };
+
+  const handleSelectAllUsers = () => {
+    const allUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
+    // Remove duplicates
+    const uniqueUserIds = [...new Set(allUserIds)];
+    
+    if (selectedUserIds.length === uniqueUserIds.length && uniqueUserIds.length > 0) {
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
+    } else {
+      // Remove duplicates from usersList
+      const uniqueUsers = usersList.filter((user, index, self) => {
+        const userId = user.id || user._id;
+        return index === self.findIndex((u) => (u.id || u._id) === userId);
+      });
+      setSelectedUserIds(uniqueUserIds);
+      setSelectedUsersData(uniqueUsers);
+    }
+  };
+
+  const handleConfirmUserSelection = () => {
+    setFormData((prev) => ({
+      ...prev,
+      views: selectedUserIds,
+    }));
+    setShowUserSelectionModal(false);
+  };
+
+  // Get display text for selected users
+  const getSelectedUsersDisplay = () => {
+    if (selectedUsersData.length === 0) return "";
+    if (selectedUsersData.length === 1) {
+      const user = selectedUsersData[0];
+      return `${user.name || "N/A"} - ${user.company || "N/A"}`;
+    }
+    return `${selectedUsersData.length} users selected`;
+  };
+
   // Handle create slab
   const handleCreateSlab = async (e) => {
     e?.preventDefault?.();
-    console.log("handleCreateSlab called");
     const companyId = getCompanyId();
     if (!companyId) {
-      console.error("Company ID not found");
       showError("Company ID not found. Please refresh the page.");
       return;
     }
 
     if (!formData.schemeName || !formData.schemeName.trim()) {
       showError("Please enter a scheme name");
+      return;
+    }
+
+    // Validate private mode requires views
+    if (formData.schemeMode === "Private" && (!formData.views || formData.views.length === 0)) {
+      showError("Please select at least one user for private schemes");
       return;
     }
 
@@ -312,16 +462,13 @@ const SchemeMaster = () => {
 
     const slabDataToSend = {
       ...formData,
+      views: formData.views || [],
       subscriptionAmount: formData.subscriptionAmount ? parseFloat(formData.subscriptionAmount) : 0,
     };
-
-    console.log("Creating slab with data:", slabDataToSend);
-    console.log("Company ID:", companyId);
 
     setIsCreating(true);
     try {
       const result = await dispatch(createCompanySlab(slabDataToSend, companyId));
-      console.log("Create slab result:", result);
       if (result?.success) {
         // Success is handled in useEffect
         // List refresh is handled in the action
@@ -329,7 +476,6 @@ const SchemeMaster = () => {
         showError(result?.message || "Failed to create slab. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating slab:", error);
       showError(error?.message || "An error occurred while creating the slab. Please try again.");
     } finally {
       setIsCreating(false);
@@ -355,6 +501,12 @@ const SchemeMaster = () => {
       return;
     }
 
+    // Validate private mode requires views
+    if (formData.schemeMode === "Private" && (!formData.views || formData.views.length === 0)) {
+      showError("Please select at least one user for private schemes");
+      return;
+    }
+
     // Validate premium type requires subscription amount
     if (formData.schemeType === "Premium") {
       const amount = formData.subscriptionAmount;
@@ -366,6 +518,7 @@ const SchemeMaster = () => {
 
     const slabDataToSend = {
       ...formData,
+      views: formData.views || [],
       subscriptionAmount: formData.subscriptionAmount ? parseFloat(formData.subscriptionAmount) : 0,
     };
 
@@ -445,43 +598,26 @@ const SchemeMaster = () => {
             </p>
           </div>
 
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-            <button
-              onClick={() => setShowSidebar(true)}
-              className="flex items-center justify-center gap-2 bg-[#366BCD] text-white
-        px-3 py-2
-        sm:px-4 sm:py-2.5
-        md:px-4 md:py-3
-        rounded-lg font-[gilroy-medium]
-        hover:bg-blue-700 transition shadow-md
-        text-sm sm:text-base
-        flex-1 sm:flex-none"
-            >
-              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="whitespace-nowrap">View Users</span>
-            </button>
-
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center gap-4 bg-[#039155] text-white
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center gap-4 bg-[#039155] text-white
         px-3 py-2
         sm:px-4 sm:py-2.5
         md:px-4 md:py-3
         rounded-lg font-[gilroy-medium]
         hover:bg-green-700 transition shadow-md
         text-sm sm:text-base
-        flex-1 sm:flex-none"
-            >
-              <span className="whitespace-nowrap">Create New Scheme</span>
+        w-full sm:w-auto"
+          >
+            <span className="whitespace-nowrap">Create New Scheme</span>
 
-              <div
-                className="rounded-full border border-white flex items-center justify-center flex-shrink-0
+            <div
+              className="rounded-full border border-white flex items-center justify-center flex-shrink-0
           w-3 h-3 sm:w-4 sm:h-4"
-              >
-                <Plus className="w-2 h-2 sm:w-3 sm:h-3" />
-              </div>
-            </button>
-          </div>
+            >
+              <Plus className="w-2 h-2 sm:w-3 sm:h-3" />
+            </div>
+          </button>
         </div>
       </div>
 
@@ -594,10 +730,37 @@ const SchemeMaster = () => {
                         // Pre-populate form data for editing
                         setFormData({
                           schemeName: scheme.name || "",
-                          schemeMode: scheme.schemaMode === "global" ? "Global" : "Private",
-                          schemeType: scheme.schemaType === "free" ? "Free" : "Premium",
-                          subscriptionAmount: scheme.subscriptionAmount?.toString() || "",
+                          schemeMode: scheme.visibilityType || "Global",
+                          schemeType: scheme.tags?.find(t => t.label === "Free" || t.label === "Premium")?.label || "Free",
+                          subscriptionAmount: scheme.amount?.toString() || "",
+                          views: scheme.views || [],
                         });
+                        // Set selected users data if views exist
+                        const viewIds = scheme.views || (scheme.viewDetails?.map(vd => vd.userId) || []);
+                        if (scheme.viewDetails && scheme.viewDetails.length > 0) {
+                          const usersData = scheme.viewDetails.map(vd => ({
+                            id: vd.userId,
+                            name: vd.userName,
+                            company: vd.companyName,
+                          }));
+                          setSelectedUsersData(usersData);
+                          setSelectedUserIds(viewIds);
+                        } else if (viewIds.length > 0) {
+                          // If we have view IDs but no viewDetails, try to fetch from usersList
+                          const existingUsers = usersList.filter((user) =>
+                            viewIds.includes(user.id || user._id)
+                          );
+                          if (existingUsers.length > 0) {
+                            setSelectedUsersData(existingUsers);
+                            setSelectedUserIds(viewIds);
+                          } else {
+                            setSelectedUsersData([]);
+                            setSelectedUserIds([]);
+                          }
+                        } else {
+                          setSelectedUsersData([]);
+                          setSelectedUserIds([]);
+                        }
                         setIsEditModalOpen(true);
                       }}
                       className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
@@ -637,6 +800,24 @@ const SchemeMaster = () => {
                     </span>
                     <span className="font-[gilroy-medium] text-[#1B1717]">
                       {scheme.created}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-sm sm:text-base">
+                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      Visibility
+                    </span>
+                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                      {scheme.visibilityType === "Global" ? "All" : (scheme.visibility || 0)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-sm sm:text-base">
+                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      Amount
+                    </span>
+                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                      ₹{scheme.amount?.toLocaleString("en-IN") || "0"}
                     </span>
                   </div>
 
@@ -707,7 +888,12 @@ const SchemeMaster = () => {
         <div
           className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-50 
                p-2 xs:p-3 sm:p-4 md:p-6"
-          onClick={() => setIsModalOpen(false)}
+          onClick={() => {
+            // Don't close if user selection modal is open
+            if (!showUserSelectionModal) {
+              setIsModalOpen(false);
+            }
+          }}
         >
           <div
             ref={modalRef}
@@ -742,19 +928,9 @@ const SchemeMaster = () => {
 
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4
-                     bg-[#039155] text-white rounded-lg
-                     w-7 h-7 sm:w-8 sm:h-8
-                     flex items-center justify-center
-                     hover:bg-green-700 transition"
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
               >
-                <div
-                  className="border border-white rounded-full
-                       w-4 h-4 sm:w-5 sm:h-5
-                       flex items-center justify-center"
-                >
-                  <span className="text-[10px] sm:text-xs leading-none">×</span>
-                </div>
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
               </button>
             </div>
 
@@ -821,6 +997,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
                             })
                           }
                           className="sr-only"
@@ -982,8 +1160,11 @@ const SchemeMaster = () => {
           className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-50 
                p-2 xs:p-3 sm:p-4 md:p-6"
           onClick={() => {
-            setIsEditModalOpen(false);
-            setSelectedScheme(null);
+            // Don't close if user selection modal is open
+            if (!showUserSelectionModal) {
+              setIsEditModalOpen(false);
+              setSelectedScheme(null);
+            }
           }}
         >
           <div
@@ -1091,6 +1272,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
                             })
                           }
                           className="sr-only"
@@ -1210,6 +1393,57 @@ const SchemeMaster = () => {
                     />
                   </div>
                 )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Restore selected users data from usersList if views exist
+                        const existingViews = formData.views || [];
+                        // Remove duplicates from existingViews
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id)
+                          );
+                          // Remove duplicates from existingUsers
+                          const uniqueUsers = existingUsers.filter((user, index, self) => {
+                            const userId = user.id || user._id;
+                            return index === self.findIndex((u) => (u.id || u._id) === userId);
+                          });
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]
+                       text-left bg-white hover:bg-gray-50 transition
+                       min-h-[44px] flex items-center"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">Click to select users</span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -1248,145 +1482,153 @@ const SchemeMaster = () => {
         </div>
       )}
 
-      {/* Sidebar View Users */}
-      {showSidebar && (
-        <div className="fixed inset-0 bg-[#D9D9D9]/80 flex z-50">
-          {/* Sidebar */}
-          <div className="bg-white w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-full flex flex-col shadow-2xl">
-            {/* Sidebar Header */}
-            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717]">
-                  View Users
+      {/* User Selection Modal */}
+      {showUserSelectionModal && (
+        <div
+          className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-[60] 
+               p-2 xs:p-3 sm:p-4 md:p-6"
+          onClick={() => setShowUserSelectionModal(false)}
+        >
+          <div
+            ref={userModalRef}
+            className="bg-white rounded-lg sm:rounded-xl shadow-2xl 
+                 w-full max-w-md sm:max-w-lg xl:max-w-xl
+                 max-h-[96vh] sm:max-h-[92vh] 
+                 flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              className="relative bg-white flex items-center justify-center
+                   px-3 py-3 xs:px-4 sm:px-6 sm:py-4
+                   border-b border-gray-100"
+            >
+              <div className="flex-1 min-w-0 text-center px-8 sm:px-12">
+                <h2
+                  className="text-sm xs:text-base sm:text-xl md:text-2xl 
+                         font-[gilroy-medium] text-[#1B1717] leading-snug"
+                >
+                  Select Users
                 </h2>
-                <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular] mt-1">
-                  Master Distributor, Distributor & Retailer
+                <p
+                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                >
+                  Choose users who can access this private scheme
                 </p>
               </div>
               <button
-                onClick={() => {
-                  setShowSidebar(false);
-                  setUserSearchQuery("");
-                  setDebouncedUserSearchQuery("");
-                  setUserPage(1);
-                }}
-                className="p-2 rounded-lg bg-[#039155] text-white hover:bg-green-700 transition"
+                onClick={() => setShowUserSelectionModal(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
               >
-                <X className="w-5 h-5" />
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-2 flex gap-2 overflow-x-auto">
-              {[
-                { key: "masterDistributor", label: "Master Distributor", role: 3 },
-                { key: "distributor", label: "Distributor", role: 4 },
-                { key: "retailer", label: "Retailer", role: 5 },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveUserTab(tab.key);
-                    setUserPage(1);
-                    setUserSearchQuery("");
-                    setDebouncedUserSearchQuery("");
-                  }}
-                  className={`px-4 py-2 rounded-lg font-[gilroy-medium] text-sm sm:text-base whitespace-nowrap transition ${
-                    activeUserTab === tab.key
-                      ? "bg-[#039155] text-white"
-                      : "bg-white text-[#1B1717] hover:bg-gray-100"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Bar */}
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+            {/* Modal Content */}
+            <div
+              className="flex-1 overflow-y-auto 
+                   px-3 xs:px-4 sm:px-6
+                   py-4 sm:py-5
+                   space-y-4"
+            >
+              {/* Search Bar */}
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/50" />
                 <input
                   type="text"
                   placeholder="Search by name or mobile number"
                   value={userSearchQuery}
-                  onChange={(e) => setUserSearchQuery(e.target.value)}
-                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/50 text-[#1B1717] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] text-sm sm:text-base"
+                  onChange={(e) => {
+                    setUserSearchQuery(e.target.value);
+                    setUserPage(1);
+                  }}
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/50 text-[#1B1717]/50 rounded-lg focus:outline-none text-sm sm:text-base"
                 />
               </div>
-            </div>
 
-            {/* Users List */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
-              {usersLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <ButtonLoader size={28} thickness={3} />
-                </div>
-              ) : usersList.length === 0 ? (
-                <div className="text-center py-12 text-[#1B1717]/60">
-                  <Users className="w-12 h-12 mx-auto mb-3 text-[#1B1717]/30" />
-                  <p className="text-sm sm:text-base font-[gilroy-medium]">
+              {/* Select All Button */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleSelectAllUsers}
+                  className="text-xs sm:text-sm text-[#039155] font-[gilroy-medium] hover:underline"
+                >
+                  {selectedUserIds.length === usersList.length && usersList.length > 0
+                    ? "Deselect All"
+                    : "Select All"}
+                </button>
+                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                  {selectedUserIds.length} selected
+                </span>
+              </div>
+
+              {/* Users List */}
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {usersLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <ButtonLoader size={28} thickness={3} />
+                  </div>
+                ) : usersList.length === 0 ? (
+                  <div className="text-center py-8 text-[#1B1717]/60">
                     No users found
-                  </p>
-                  <p className="text-xs sm:text-sm text-[#1B1717]/50 mt-1">
-                    Try adjusting your search criteria
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {usersList.map((user) => (
-                    <div
-                      key={user.id || user._id}
-                      className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
-                            {user.name || "N/A"}
-                          </h3>
-                          <div className="mt-1 space-y-1">
-                            <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                              <span className="font-[gilroy-medium]">Mobile:</span> {user.mobileNo || user.mobile || "N/A"}
-                            </p>
-                            {user.email && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Email:</span> {user.email}
-                              </p>
-                            )}
-                            {user.agentCode && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Agent Code:</span> {user.agentCode}
-                              </p>
-                            )}
-                            {user.company && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Company:</span> {user.company}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        {user.status && (
-                          <div
-                            className={`px-2 py-1 rounded-full text-xs font-[gilroy-medium] whitespace-nowrap ${
-                              user.status === "Active"
-                                ? "bg-[#008D1E] text-white"
-                                : "bg-gray-500 text-white"
+                  </div>
+                ) : (
+                  usersList.map((user) => {
+                    const userId = user.id || user._id;
+                    const isSelected = selectedUserIds.includes(userId);
+                    return (
+                      <label
+                        key={userId}
+                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
+                          ${
+                            isSelected
+                              ? "border-[#039155] bg-green-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleUserToggle(user)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0
+                            ${
+                              isSelected
+                                ? "border-[#039155] bg-[#039155]"
+                                : "border-gray-300"
                             }`}
-                          >
-                            {user.status}
+                        >
+                          {isSelected && (
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                            {user.name || "N/A"}
                           </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
+                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                            {user.mobileNo || user.mobile || "N/A"} • {user.email || "N/A"}
+                          </div>
+                          <div className="text-xs text-[#1B1717]/70 font-[gilroy-regular]">
+                            {user.company || "N/A"}
+                          </div>
+                          {user.userId && (
+                            <div className="text-xs text-[#1B1717]/50 font-[gilroy-regular]">
+                              ID: {user.userId}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
 
-            {/* Pagination */}
-            {!usersLoading && usersTotalPages > 1 && (
-              <div className="border-t border-gray-200 px-4 sm:px-6 py-4 bg-white">
-                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+              {/* Pagination */}
+              {!usersLoading && usersTotalPages > 1 && (
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-4">
                   <button
                     onClick={() => setUserPage((prev) => Math.max(1, prev - 1))}
                     disabled={userPage === 1}
@@ -1395,57 +1637,52 @@ const SchemeMaster = () => {
                     <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
 
-                  {Array.from({ length: Math.min(usersTotalPages, 5) }, (_, i) => {
-                    let page;
-                    if (usersTotalPages <= 5) {
-                      page = i + 1;
-                    } else if (userPage <= 3) {
-                      page = i + 1;
-                    } else if (userPage >= usersTotalPages - 2) {
-                      page = usersTotalPages - 4 + i;
-                    } else {
-                      page = userPage - 2 + i;
-                    }
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setUserPage(page)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                          userPage === page
-                            ? "bg-[#039155] text-white"
-                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
+                  {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setUserPage(page)}
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                        userPage === page
+                          ? "bg-[#039155] text-white"
+                          : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
 
                   <button
-                    onClick={() => setUserPage((prev) => Math.min(usersTotalPages, prev + 1))}
+                    onClick={() =>
+                      setUserPage((prev) => Math.min(usersTotalPages, prev + 1))
+                    }
                     disabled={userPage === usersTotalPages}
                     className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
-                <p className="text-center text-xs sm:text-sm text-[#1B1717]/70 mt-2 font-[gilroy-regular]">
-                  Page {userPage} of {usersTotalPages} ({usersTotalCount} total)
-                </p>
-              </div>
-            )}
-          </div>
+              )}
+            </div>
 
-          {/* Overlay */}
-          <div
-            className="flex-1"
-            onClick={() => {
-              setShowSidebar(false);
-              setUserSearchQuery("");
-              setDebouncedUserSearchQuery("");
-              setUserPage(1);
-            }}
-          />
+            {/* Footer */}
+            <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
+              <button
+                onClick={() => setShowUserSelectionModal(false)}
+                className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl
+                     text-[#1B1717]/80 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUserSelection}
+                className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
+                     text-white rounded-xl transition
+                     flex items-center justify-center gap-2"
+              >
+                Confirm ({selectedUserIds.length} selected)
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
