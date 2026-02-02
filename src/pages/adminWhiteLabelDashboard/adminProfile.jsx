@@ -9,6 +9,7 @@ import { getUserDetails } from "../../redux/action/whiteLabelAction";
 import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
+import { useCompany } from "../../context/CompanyContext";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -18,7 +19,7 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 
-const AdminProfile = ({ onBack = null, skipApi = true }) => {
+const AdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
@@ -27,6 +28,10 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const [imageError, setImageError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+
+  // Get company from context
+  const { company } = useCompany();
+  const companyId = company?.companyId || company?._id || company?.id;
 
   // Get user details from Redux (preferred)
   const userDetailsState = useSelector(
@@ -97,15 +102,17 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
 
   // Fetch user details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
-    if (skipApi) return; // Skip API calls if skipApi is true
     dispatch(getUserDetails());
-    dispatch(getAllCompanySlabVisibility());
-  }, [dispatch, skipApi]);
+    if (companyId) {
+      dispatch(getAllCompanySlabVisibility(companyId));
+    }
+  }, [dispatch, companyId]);
 
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
   }, [profileData]);
+
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -114,21 +121,22 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle upgrade success (skip if skipApi is true)
+  // Handle upgrade success
   useEffect(() => {
-    if (skipApi) return; // Skip API calls if skipApi is true
     if (upgradeSuccess) {
       setShowConfirmModal(false);
       // Refresh user details to get updated data
       dispatch(getUserDetails());
       // Refresh slab visibility
-      dispatch(getAllCompanySlabVisibility());
+      if (companyId) {
+        dispatch(getAllCompanySlabVisibility(companyId));
+      }
     }
-  }, [upgradeSuccess, dispatch, skipApi]);
+  }, [upgradeSuccess, dispatch, companyId]);
 
   // Fetch wallet balance when confirmation modal opens (only if not subscribed)
   useEffect(() => {
-    if (showConfirmModal && selectedScheme && !skipApi) {
+    if (showConfirmModal && selectedScheme) {
       const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
@@ -136,7 +144,7 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
         dispatch(getCompanyWalletBalance());
       }
     }
-  }, [showConfirmModal, selectedScheme, slabList, dispatch, skipApi]);
+  }, [showConfirmModal, selectedScheme, slabList, dispatch]);
 
   // Handle upgrade error from API
   useEffect(() => {
@@ -167,7 +175,7 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
   );
 
   // Show skeleton while loading user details or slab visibility
-  if ((isUserDetailsLoading || visibilityLoading) || (!profileData && !skipApi)) {
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -1072,14 +1080,13 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
                 </button>
                 <button
                   onClick={async () => {
-                    if (skipApi) return; // Skip API call if skipApi is true
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       await dispatch(upgradeOrChangeSlab(selectedScheme, companyId));
                       // Error message from API will be shown via useEffect watching upgradeError
                     }
                   }}
-                  disabled={skipApi || upgradeLoading}
+                  disabled={upgradeLoading}
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {(() => {
@@ -1131,7 +1138,6 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
 
 AdminProfile.propTypes = {
   onBack: PropTypes.func,
-  skipApi: PropTypes.bool,
 };
 
 export default AdminProfile;
