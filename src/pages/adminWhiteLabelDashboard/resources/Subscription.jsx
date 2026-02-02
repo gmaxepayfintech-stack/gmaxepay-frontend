@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
+import { useNotification } from "../../../context/NotificationContext";
 import { getSubscriptionList, upgradeOrChangeSlab } from "../../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../../redux/action/walletAction";
 import { X } from "lucide-react";
@@ -9,6 +10,7 @@ import ViewSubscription from "./ViewSubscription";
 const Subscription = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
+  const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const { subscriptions, loading, error, upgradeLoading, upgradeSuccess, upgradeError } = useSelector((state) => state?.subscription || {});
@@ -142,6 +144,18 @@ const Subscription = () => {
     }
   }, [upgradeSuccess, dispatch]);
 
+  // Handle upgrade error from API
+  useEffect(() => {
+    if (upgradeError) {
+      // Show error notification
+      showNotification({
+        type: 'error',
+        message: upgradeError,
+        duration: 5000,
+      });
+    }
+  }, [upgradeError, showNotification]);
+
   const handleConfirmUpgrade = async () => {
     if (!selectedPlan) return;
     
@@ -153,6 +167,7 @@ const Subscription = () => {
     const companyId = getCompanyId();
     if (companyId && selectedPlan.originalData?.id) {
       await dispatch(upgradeOrChangeSlab(selectedPlan.originalData.id, companyId));
+      // Error message from API will be shown via useEffect watching upgradeError
     }
   };
 
@@ -400,9 +415,6 @@ const Subscription = () => {
                       {selectedPlan.title} - ₹{selectedPlan.originalData?.subscriptionAmount || 0}
                     </span>
                   </p>
-                )}
-                {upgradeError && (
-                  <p className="text-sm text-red-600 mt-2">{upgradeError}</p>
                 )}
               </div>
               <div className="flex justify-end gap-3">
