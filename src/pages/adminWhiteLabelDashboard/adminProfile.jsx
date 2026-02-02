@@ -18,7 +18,7 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 
-const AdminProfile = ({ onBack = null, skipApi = false }) => {
+const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("membership");
@@ -119,7 +119,8 @@ const AdminProfile = ({ onBack = null, skipApi = false }) => {
   );
 
   // Show skeleton while loading (skip if skipApi is true - show UI directly)
-  if (!skipApi && (isLoading || !companyAdminData)) {
+  // Always show UI directly - no API integration needed
+  if (false) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
