@@ -17,7 +17,7 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 
-const ProfileDetails = ({ onBack = null }) => {
+const ProfileDetails = ({ onBack = null, skipApi = false }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
@@ -69,8 +69,9 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [companyAdminData]);
 
-  // Fetch slab list when company admin data is loaded
+  // Fetch slab list when company admin data is loaded (skip if skipApi is true)
   useEffect(() => {
+    if (skipApi) return; // Skip API calls if skipApi is true
     if (companyAdminData) {
       // Try to get companyId from companyDetails or use data.id as fallback
       const companyId = companyDetails?.companyId || data?.id;
@@ -78,7 +79,7 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getSlabList(companyId, 1, 10));
       }
     }
-  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
+  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -87,8 +88,9 @@ const ProfileDetails = ({ onBack = null }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle assign slab success
+  // Handle assign slab success (skip if skipApi is true)
   useEffect(() => {
+    if (skipApi) return; // Skip API calls if skipApi is true
     if (assignSlabSuccess) {
       setShowConfirmModal(false);
       // Refresh company admin data to get updated slabId
@@ -96,7 +98,7 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getCompanyAdmin(data.id));
       }
     }
-  }, [assignSlabSuccess, data?.id, dispatch]);
+  }, [assignSlabSuccess, data?.id, dispatch, skipApi]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
@@ -114,8 +116,8 @@ const ProfileDetails = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading
-  if (isLoading || !companyAdminData) {
+  // Show skeleton while loading (skip if skipApi is true - show UI directly)
+  if (!skipApi && (isLoading || !companyAdminData)) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -957,6 +959,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 </button>
                 <button
                   onClick={async () => {
+                    if (skipApi) return; // Skip API call if skipApi is true
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       const result = await dispatch(
@@ -967,8 +970,8 @@ const ProfileDetails = ({ onBack = null }) => {
                       }
                     }
                   }}
+                  disabled={skipApi || assignSlabLoading}
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  disabled={assignSlabLoading}
                 >
                   {assignSlabLoading ? "Upgrading..." : "Confirm Upgrade"}
                 </button>
@@ -1012,6 +1015,7 @@ const ProfileDetails = ({ onBack = null }) => {
 
 ProfileDetails.propTypes = {
   onBack: PropTypes.func,
+  skipApi: PropTypes.bool,
 };
 
 export default ProfileDetails;

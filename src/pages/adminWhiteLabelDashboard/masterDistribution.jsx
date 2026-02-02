@@ -295,7 +295,12 @@ const MasterDistribution = ({
 
   // Show ProfileDetails component when showProfileDetails is true
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        skipApi={true}
+      />
+    );
   }
 
   return (
@@ -886,10 +891,6 @@ const MasterDistribution = ({
                           <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
                         </button>
                       </td>
-                      {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.date || "N/A"}
-                      </td>
                       {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -1099,6 +1100,10 @@ const MasterDistribution = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))
