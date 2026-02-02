@@ -30,7 +30,6 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
@@ -701,7 +700,12 @@ const CreateCompanyUser = () => {
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        skipApi={true}
+      />
+    );
   }
   return (
     <div className="text-[#1B1717] w-full h-full  py-3  px-2 ">
@@ -987,11 +991,7 @@ const CreateCompanyUser = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <button
                               onClick={() => {
-                                const userId = row.id || row.originalItem?.id;
-                                if (userId) {
-                                  dispatch(getCompanyAdmin(userId));
-                                  setShowProfileDetails(true);
-                                }
+                                setShowProfileDetails(true);
                               }}
                               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                             >
