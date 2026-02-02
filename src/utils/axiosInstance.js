@@ -12,8 +12,6 @@ const api = axios.create({
   },
 });
 
-// Log that interceptors are being set up
-console.log('🔧 Axios interceptors initialized');
 
 let isLoggingOut = false;
 let failedQueue = [];
@@ -33,9 +31,6 @@ const logRequest = (config) => {
     data: config.data || null,
     skipAuth: config?.skipAuth || false,
   };
-  console.log('📤 ========== API REQUEST ==========');
-  console.log('📤 API Request:', requestLog);
-  console.log('📤 =================================');
 };
 
 const logSuccessResponse = (response) => {
@@ -49,9 +44,7 @@ const logSuccessResponse = (response) => {
     data: response.data || null,
     headers: response.headers || {},
   };
-  console.log('📥 ========== API RESPONSE SUCCESS ==========');
-  console.log('📥 API Response Success:', responseLog);
-  console.log('📥 ===========================================');
+  
 };
 
 const logErrorResponse = (error) => {
@@ -72,10 +65,7 @@ const logErrorResponse = (error) => {
     isRefreshCall,
     isLogoutCall,
   };
-  console.error('❌ ========== API RESPONSE ERROR ==========');
-  console.error('❌ API Response Error:', errorLog);
-  console.error('❌ Full Error Object:', error);
-  console.error('❌ ========================================');
+  
 };
 
 const processQueue = (error, token = null) => {

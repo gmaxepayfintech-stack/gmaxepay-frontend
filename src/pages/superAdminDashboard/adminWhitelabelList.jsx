@@ -305,10 +305,7 @@ const AdminWhitelabelList = ({
               <tr className="border-b bg-white border-gray-200">
                 <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                   ID
-                </th>
-                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                  Date
-                </th>
+                </th>               
                 <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                   User Agent Code
                 </th>
@@ -363,6 +360,9 @@ const AdminWhitelabelList = ({
                 <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                   Token Expire
                 </th>
+                <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  Date
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -376,9 +376,7 @@ const AdminWhitelabelList = ({
                   <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                     {row.id || "N/A"}
                   </td>
-                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                    {row.date || "N/A"}
-                  </td>
+                  
                   <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                     {row.userId || row.userAgentCode || "N/A"}
                   </td>
@@ -558,6 +556,9 @@ const AdminWhitelabelList = ({
                         </button>
                       );
                     })()}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                    {row.date || "N/A"}
                   </td>
                 </tr>
               ))}

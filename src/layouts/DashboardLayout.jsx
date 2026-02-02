@@ -56,7 +56,7 @@ const DashboardLayout = ({ children }) => {
       path: null,
       children: [
         { name: "Users", path: "/superDashboard/members/user" },
-        { name: "Agents", path: "/superDashboard/members/list" },
+        // { name: "Agents", path: "/superDashboard/members/list" },
         {
           name: "Role Management",
           path: "/superDashboard/members/rolemanagement",

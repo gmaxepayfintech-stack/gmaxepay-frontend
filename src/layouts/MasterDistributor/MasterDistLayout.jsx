@@ -145,7 +145,7 @@ const MasterDistLayout = ({ children }) => {
       path: null,
       children: [
         { name: "Users", path: `${BASE_PATH}/members/user` },
-        { name: "Agents", path: `${BASE_PATH}/members/list` },
+        // { name: "Agents", path: `${BASE_PATH}/members/list` },
         {
           name: "Role Management",
           path: `${BASE_PATH}/members/rolemanagement`,
