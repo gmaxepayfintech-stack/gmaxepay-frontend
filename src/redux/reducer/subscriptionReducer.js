@@ -2,6 +2,9 @@ import {
   SUBSCRIPTION_GET_LIST_START,
   SUBSCRIPTION_GET_LIST_SUCCESS,
   SUBSCRIPTION_GET_LIST_FAILURE,
+  SUBSCRIPTION_UPGRADE_START,
+  SUBSCRIPTION_UPGRADE_SUCCESS,
+  SUBSCRIPTION_UPGRADE_FAILURE,
 } from '../actionType/subscriptionActionType';
 
 const initialState = {
@@ -9,6 +12,10 @@ const initialState = {
   error: null,
   subscriptions: [],
   message: null,
+  upgradeLoading: false,
+  upgradeSuccess: false,
+  upgradeError: null,
+  upgradeMessage: null,
 };
 
 const subscriptionReducer = (state = initialState, action) => {
@@ -36,6 +43,33 @@ const subscriptionReducer = (state = initialState, action) => {
         error: action.payload,
         subscriptions: [],
         message: null,
+      };
+
+    case SUBSCRIPTION_UPGRADE_START:
+      return {
+        ...state,
+        upgradeLoading: true,
+        upgradeError: null,
+        upgradeSuccess: false,
+        upgradeMessage: null,
+      };
+
+    case SUBSCRIPTION_UPGRADE_SUCCESS:
+      return {
+        ...state,
+        upgradeLoading: false,
+        upgradeError: null,
+        upgradeSuccess: true,
+        upgradeMessage: action.payload?.message || null,
+      };
+
+    case SUBSCRIPTION_UPGRADE_FAILURE:
+      return {
+        ...state,
+        upgradeLoading: false,
+        upgradeError: action.payload,
+        upgradeSuccess: false,
+        upgradeMessage: null,
       };
 
     default:
