@@ -7,7 +7,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 import {
   getSlabVisibility,
 } from "../../redux/action/slabAction";
-import {getUserDetails } from "../../redux/action/whiteLabelAction";
+import { getUserDetails } from "../../redux/action/whiteLabelAction";
 import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
