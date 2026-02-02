@@ -192,23 +192,16 @@ const SchemeMaster = () => {
       const companyId = getCompanyId();
       if (!companyId) return;
 
-      // Determine search field based on input type
-      let customSearch = {};
-      if (debouncedUserSearchQuery.trim()) {
-        const searchValue = debouncedUserSearchQuery.trim();
-        // Check if search is a number (mobileNo) or text (name)
-        if (/^\d+$/.test(searchValue)) {
-          customSearch = { mobileNo: searchValue };
-        } else {
-          customSearch = { name: searchValue };
-        }
-      }
-
       const payload = {
         query: {
           userRole: 2, // White label users
         },
-        customSearch: customSearch,
+        customSearch: debouncedUserSearchQuery.trim()
+          ? {
+              mobileNo: debouncedUserSearchQuery.trim(),
+              name: debouncedUserSearchQuery.trim(),
+            }
+          : {},
         options: {
           page: userPage,
           paginate: 10,
@@ -1116,6 +1109,57 @@ const SchemeMaster = () => {
                        font-[gilroy-medium] text-sm sm:text-base
                        focus:outline-none focus:ring-2 focus:ring-[#039155]"
                     />
+                  </div>
+                )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Restore selected users data from usersList if views exist
+                        const existingViews = formData.views || [];
+                        // Remove duplicates from existingViews
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id)
+                          );
+                          // Remove duplicates from existingUsers
+                          const uniqueUsers = existingUsers.filter((user, index, self) => {
+                            const userId = user.id || user._id;
+                            return index === self.findIndex((u) => (u.id || u._id) === userId);
+                          });
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]
+                       text-left bg-white hover:bg-gray-50 transition
+                       min-h-[44px] flex items-center"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">Click to select users</span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
                   </div>
                 )}
               </div>
