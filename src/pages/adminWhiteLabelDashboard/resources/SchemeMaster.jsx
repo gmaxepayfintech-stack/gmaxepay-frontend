@@ -56,6 +56,7 @@ const SchemeMaster = () => {
     views: [],
   });
   const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
+  const [activeUserTab, setActiveUserTab] = useState("masterDistributor"); // masterDistributor, distributor, retailer
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
   const [userPage, setUserPage] = useState(1);
@@ -192,9 +193,17 @@ const SchemeMaster = () => {
       const companyId = getCompanyId();
       if (!companyId) return;
 
+      // Determine user role based on active tab
+      const roleMap = {
+        masterDistributor: 3,
+        distributor: 4,
+        retailer: 5,
+      };
+      const userRole = roleMap[activeUserTab];
+
       const payload = {
         query: {
-          userRole: 2, // White label users
+          userRole: userRole,
         },
         customSearch: debouncedUserSearchQuery.trim()
           ? {
@@ -211,7 +220,7 @@ const SchemeMaster = () => {
 
       dispatch(getReportToUserList({ ...payload, companyId }));
     }
-  }, [showUserSelectionModal, userPage, debouncedUserSearchQuery, dispatch]);
+  }, [showUserSelectionModal, activeUserTab, userPage, debouncedUserSearchQuery, dispatch]);
 
   // Reset user search when modal closes
   useEffect(() => {
@@ -219,6 +228,7 @@ const SchemeMaster = () => {
       setUserSearchQuery("");
       setDebouncedUserSearchQuery("");
       setUserPage(1);
+      setActiveUserTab("masterDistributor");
     }
   }, [showUserSelectionModal]);
 
@@ -388,21 +398,40 @@ const SchemeMaster = () => {
   };
 
   const handleSelectAllUsers = () => {
-    const allUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
+    const currentTabUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
     // Remove duplicates
-    const uniqueUserIds = [...new Set(allUserIds)];
+    const uniqueCurrentTabUserIds = [...new Set(currentTabUserIds)];
     
-    if (selectedUserIds.length === uniqueUserIds.length && uniqueUserIds.length > 0) {
-      setSelectedUserIds([]);
-      setSelectedUsersData([]);
+    // Check if all current tab users are already selected
+    const allCurrentTabSelected = uniqueCurrentTabUserIds.every(id => selectedUserIds.includes(id));
+    
+    if (allCurrentTabSelected && uniqueCurrentTabUserIds.length > 0) {
+      // Deselect only current tab users, keep users from other tabs
+      setSelectedUserIds((prev) => prev.filter(id => !uniqueCurrentTabUserIds.includes(id)));
+      setSelectedUsersData((prev) => prev.filter(user => {
+        const userId = user.id || user._id;
+        return !uniqueCurrentTabUserIds.includes(userId);
+      }));
     } else {
-      // Remove duplicates from usersList
+      // Select all current tab users, merge with existing selections
       const uniqueUsers = usersList.filter((user, index, self) => {
         const userId = user.id || user._id;
         return index === self.findIndex((u) => (u.id || u._id) === userId);
       });
-      setSelectedUserIds(uniqueUserIds);
-      setSelectedUsersData(uniqueUsers);
+      
+      setSelectedUserIds((prev) => {
+        const merged = [...new Set([...prev, ...uniqueCurrentTabUserIds])];
+        return merged;
+      });
+      
+      setSelectedUsersData((prev) => {
+        const existingIds = prev.map(u => u.id || u._id);
+        const newUsers = uniqueUsers.filter(user => {
+          const userId = user.id || user._id;
+          return !existingIds.includes(userId);
+        });
+        return [...prev, ...newUsers];
+      });
     }
   };
 
@@ -1140,6 +1169,10 @@ const SchemeMaster = () => {
                           setSelectedUserIds([]);
                           setSelectedUsersData([]);
                         }
+                        setActiveUserTab("masterDistributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
                         setShowUserSelectionModal(true);
                       }}
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3
@@ -1466,6 +1499,10 @@ const SchemeMaster = () => {
                           setSelectedUserIds([]);
                           setSelectedUsersData([]);
                         }
+                        setActiveUserTab("masterDistributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
                         setShowUserSelectionModal(true);
                       }}
                       className="w-full px-3 sm:px-4 py-2.5 sm:py-3
@@ -1569,6 +1606,32 @@ const SchemeMaster = () => {
               </button>
             </div>
 
+            {/* Tabs */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-2 flex gap-2 overflow-x-auto">
+              {[
+                { key: "masterDistributor", label: "Master Distributor", role: 3 },
+                { key: "distributor", label: "Distributor", role: 4 },
+                { key: "retailer", label: "Retailer", role: 5 },
+              ].map((tab) => (
+                <button
+                  key={tab.key}
+                  onClick={() => {
+                    setActiveUserTab(tab.key);
+                    setUserPage(1);
+                    setUserSearchQuery("");
+                    setDebouncedUserSearchQuery("");
+                  }}
+                  className={`px-4 py-2 rounded-lg font-[gilroy-medium] text-sm sm:text-base whitespace-nowrap transition ${
+                    activeUserTab === tab.key
+                      ? "bg-[#039155] text-white"
+                      : "bg-white text-[#1B1717] hover:bg-gray-100"
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              ))}
+            </div>
+
             {/* Modal Content */}
             <div
               className="flex-1 overflow-y-auto 
@@ -1597,9 +1660,13 @@ const SchemeMaster = () => {
                   onClick={handleSelectAllUsers}
                   className="text-xs sm:text-sm text-[#039155] font-[gilroy-medium] hover:underline"
                 >
-                  {selectedUserIds.length === usersList.length && usersList.length > 0
-                    ? "Deselect All"
-                    : "Select All"}
+                  {(() => {
+                    const currentTabUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
+                    const uniqueCurrentTabUserIds = [...new Set(currentTabUserIds)];
+                    const allCurrentTabSelected = uniqueCurrentTabUserIds.length > 0 && 
+                      uniqueCurrentTabUserIds.every(id => selectedUserIds.includes(id));
+                    return allCurrentTabSelected ? "Deselect All" : "Select All";
+                  })()}
                 </button>
                 <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
                   {selectedUserIds.length} selected
