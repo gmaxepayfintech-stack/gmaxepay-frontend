@@ -29,6 +29,8 @@ import {
   DEACTIVATE_ONBOARDING_LINK_FAILURE,
   GET_COMPANY_ADMIN_SUCCESS,
   GET_COMPANY_ADMIN_FAILURE,
+  GET_USER_DETAILS_SUCCESS,
+  GET_USER_DETAILS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -601,6 +603,52 @@ export const getCompanyAdmin = (userId) => async (dispatch) => {
         status: "Error",
       },
     });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getUserDetails = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/user/getProfile`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: userDetailsData, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_USER_DETAILS_SUCCESS,
+        payload: { userDetailsData, message, status },
+      });
+      return { success: true, data: userDetailsData, message, status };
+    } else {
+      dispatch({
+        type: GET_USER_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+      return { success: false, message, status };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: GET_USER_DETAILS_FAILURE,
+      payload: {
+        message: errorMessage,
+        status: "Error",
+      },
+    });
+    return { success: false, message: errorMessage, status: "Error" };
   } finally {
     dispatch({ type: LOADING_END });
   }
