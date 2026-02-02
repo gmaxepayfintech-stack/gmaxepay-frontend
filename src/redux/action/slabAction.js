@@ -826,8 +826,8 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
   }
 };
 
-// Get all company slab visibility list (for company user)
-export const getAllCompanySlabVisibility = () => async (dispatch) => {
+// Get all company slab visibility - /api/v1/company/user/visibilityList
+export const getAllCompanySlabVisibility = (companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   dispatch({ type: SLAB_GET_VISIBILITY_START });
 
@@ -837,12 +837,17 @@ export const getAllCompanySlabVisibility = () => async (dispatch) => {
       throw new Error('Authentication token not found');
     }
 
+    if (!companyId) {
+      throw new Error('Company ID is required');
+    }
+
     const response = await api.post(
       `${API_ROUTE}/api/v1/company/user/visibilityList`,
       {},
       {
         headers: {
           'Content-Type': 'application/json',
+          'x-company-id': companyId,
           Authorization: `Bearer ${token}`,
         },
       }
