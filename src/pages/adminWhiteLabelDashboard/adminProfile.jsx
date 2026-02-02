@@ -1015,7 +1015,7 @@ const AdminProfile = ({ onBack = null, skipApi = false }) => {
   );
 };
 
-ProfileDetails.propTypes = {
+AdminProfile.propTypes = {
   onBack: PropTypes.func,
   skipApi: PropTypes.bool,
 };
