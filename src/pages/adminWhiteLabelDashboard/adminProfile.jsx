@@ -7,7 +7,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 import {
   getSlabVisibility,
 } from "../../redux/action/slabAction";
-import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
+import {getUserDetails } from "../../redux/action/whiteLabelAction";
 import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
@@ -30,12 +30,26 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Get company admin data from Redux
+  // Get user details from Redux (preferred)
+  const userDetailsState = useSelector(
+    (state) => state?.whitelabel?.userDetails,
+  );
+  const userDetailsData = userDetailsState?.userDetailsData || null;
+
+  // Get company admin data from Redux (fallback)
   const companyAdminState = useSelector(
     (state) => state?.whitelabel?.companyAdmin,
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
+  
+  // Get loading state for user details
+  const isUserDetailsLoading = useSelector(
+    (state) => state?.whitelabel?.loading || false,
+  );
+
+  // Use userDetailsData if available, otherwise fall back to companyAdminData
+  const profileData = userDetailsData || companyAdminData;
 
   // Get slab visibility from Redux (with isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.visibilityData || []);
@@ -60,8 +74,8 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     (state) => state?.loading?.isLoading || false,
   );
 
-  // Extract data from companyAdminData (do this before early returns to maintain hook order)
-  const data = companyAdminData || {};
+  // Extract data from profileData (do this before early returns to maintain hook order)
+  const data = profileData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
@@ -83,15 +97,20 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     return "";
   };
 
+  // Fetch user details on component mount (always fetch when page is showing)
+  useEffect(() => {
+    dispatch(getUserDetails());
+  }, [dispatch]);
+
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
-  }, [companyAdminData]);
+  }, [profileData]);
 
-  // Fetch slab visibility when company admin data is loaded (skip if skipApi is true)
+  // Fetch slab visibility when profile data is loaded (skip if skipApi is true)
   useEffect(() => {
     if (skipApi) return; // Skip API calls if skipApi is true
-    if (companyAdminData) {
+    if (profileData) {
       // Get userId from data.id and companyId from companyDetails
       const userId = data?.id;
       const companyId = companyDetails?.companyId || data?.id;
@@ -99,7 +118,7 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
         dispatch(getSlabVisibility(userId, companyId));
       }
     }
-  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
+  }, [profileData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -113,10 +132,8 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     if (skipApi) return; // Skip API calls if skipApi is true
     if (upgradeSuccess) {
       setShowConfirmModal(false);
-      // Refresh company admin data to get updated slabId
-      if (data?.id) {
-        dispatch(getCompanyAdmin(data.id));
-      }
+      // Refresh user details to get updated data
+      dispatch(getUserDetails());
       // Refresh slab visibility
       const userId = data?.id;
       const companyId = companyDetails?.companyId || data?.id;
@@ -166,9 +183,8 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading (skip if skipApi is true - show UI directly)
-  // Always show UI directly - no API integration needed
-  if (false) {
+  // Show skeleton while loading user details
+  if (isUserDetailsLoading || (!profileData && !skipApi)) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
