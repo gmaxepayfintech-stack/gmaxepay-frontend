@@ -5,6 +5,9 @@ import {
   SUBSCRIPTION_GET_LIST_START,
   SUBSCRIPTION_GET_LIST_SUCCESS,
   SUBSCRIPTION_GET_LIST_FAILURE,
+  SUBSCRIPTION_UPGRADE_START,
+  SUBSCRIPTION_UPGRADE_SUCCESS,
+  SUBSCRIPTION_UPGRADE_FAILURE,
 } from '../actionType/subscriptionActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -164,6 +167,90 @@ export const getUserSubscriptionList = (userId, query = {}, customSearch = {}, o
       payload: errorMessage,
     });
     dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Upgrade or Change Slab
+export const upgradeOrChangeSlab = (slabId, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SUBSCRIPTION_UPGRADE_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!slabId) {
+      console.error('No slab ID provided');
+      throw new Error('Slab ID is required');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/company/slabs/upradeORChangeSlab/${slabId}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SUBSCRIPTION_UPGRADE_SUCCESS,
+        payload: {
+          status: data?.status,
+          message: data?.message || 'Slab upgraded/changed successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      
+      return {
+        success: true,
+        message: data?.message || 'Slab upgraded/changed successfully',
+      };
+    } else {
+      dispatch({
+        type: SUBSCRIPTION_UPGRADE_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    console.error('Upgrade/Change slab error:', errorMessage);
+    
+    dispatch({
+      type: SUBSCRIPTION_UPGRADE_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    
     return {
       success: false,
       message: errorMessage,
