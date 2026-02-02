@@ -1720,10 +1720,7 @@ const SchemeMaster = () => {
                             {user.name || "N/A"}
                           </div>
                           <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                            {user.mobileNo || user.mobile || "N/A"} • {user.email || "N/A"}
-                          </div>
-                          <div className="text-xs text-[#1B1717]/70 font-[gilroy-regular]">
-                            {user.company || "N/A"}
+                            {user.mobileNo || user.mobile || "N/A"}
                           </div>
                           {user.userId && (
                             <div className="text-xs text-[#1B1717]/50 font-[gilroy-regular]">
