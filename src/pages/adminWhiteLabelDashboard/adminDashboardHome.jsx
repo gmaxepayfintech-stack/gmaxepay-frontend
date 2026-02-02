@@ -37,6 +37,7 @@ const AdminDashboardHome = () => {
     aeps1: null,
     aeps2: null,
   });
+  
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
@@ -56,6 +57,8 @@ const AdminDashboardHome = () => {
     (state) => state?.wallet?.companyWalletBalance,
   );
 
+  const aeps = useSelector((state)=>state);
+  console.log(aeps,"aeps")
 
   // Fetch wallet balance on component mount
   useEffect(() => {
@@ -75,12 +78,12 @@ const AdminDashboardHome = () => {
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
-      const { mainWallet, aepsWallet1, aepsWallet2 } =
+      const { mainWallet, apes1Wallet, apes2Wallet } =
         walletBalanceResponse.data;
       setWalletData({
         mainWallet: mainWallet || 0,
-        aeps1: aepsWallet1 || 0,
-        aeps2: aepsWallet2 || 0,
+        aeps1: apes1Wallet || 0,
+        aeps2: apes2Wallet || 0,
       });
     }
   }, [walletBalanceResponse]);
