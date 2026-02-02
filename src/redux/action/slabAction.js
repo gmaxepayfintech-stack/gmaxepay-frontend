@@ -842,7 +842,7 @@ export const getAllCompanySlabVisibility = (companyId) => async (dispatch) => {
     }
 
     const response = await api.post(
-      `${API_ROUTE}/api/v1/company/user/slabs/visibilityList`,
+      `${API_ROUTE}/api/v1/company/slabs/visibilityList`,
       {},
       {
         headers: {
