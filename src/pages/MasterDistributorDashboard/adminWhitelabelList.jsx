@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight, Calendar, X, ZoomIn } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, X, ZoomIn, User } from "lucide-react";
 import {
   FaSearch,
   FaCheckCircle,
@@ -19,7 +19,9 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
+  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
+import ProfileDetails from "../superAdminDashboard/ProfileDetails";
 
 const AdminWhitelabelList = ({
   embedded = false,
@@ -38,6 +40,7 @@ const AdminWhitelabelList = ({
   const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
   const kycModalRef = useRef(null);
 
   // Get data from Redux when search is active, otherwise use prop data
@@ -234,6 +237,11 @@ const AdminWhitelabelList = ({
     };
   }, [showKycModal]);
 
+  // Show ProfileDetails component when showProfileDetails is true
+  if (showProfileDetails) {
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+  }
+
   return (
     <div
       className={`text-[#1B1717] ${embedded ? "flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-2 sm:p-6 flex flex-col"}`}
@@ -305,6 +313,9 @@ const AdminWhitelabelList = ({
               <tr className="border-b bg-gray-100 border-gray-200">
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
                   ID
+                </th>
+                <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                  User
                 </th>
                 <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
                   Date
@@ -571,6 +582,9 @@ const AdminWhitelabelList = ({
                     ID
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    User
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                   <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
@@ -633,6 +647,20 @@ const AdminWhitelabelList = ({
                   >
                     <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                       {row.id || "N/A"}
+                    </td>
+                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <button
+                        onClick={() => {
+                          const userId = row.id || row.originalItem?.id;
+                          if (userId) {
+                            dispatch(getCompanyAdmin(userId));
+                            setShowProfileDetails(true);
+                          }
+                        }}
+                        className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                      >
+                        <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                      </button>
                     </td>
                     <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                       {row.date || "N/A"}

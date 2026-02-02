@@ -18,6 +18,7 @@ const MasterDistributerList = ({ tableData = [], isLoading = false, onUpgradeCli
             <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
               SR No
             </th>
+            
             <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
               Date
             </th>
