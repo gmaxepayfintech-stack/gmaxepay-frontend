@@ -448,7 +448,7 @@ const SchemeMaster = () => {
     if (selectedUsersData.length === 0) return "";
     if (selectedUsersData.length === 1) {
       const user = selectedUsersData[0];
-      return `${user.name || "N/A"} - ${user.company || "N/A"}`;
+      return `${user.name || "N/A"} - ${user.mobileNo || user.mobile || "N/A"}`;
     }
     return `${selectedUsersData.length} users selected`;
   };
@@ -1606,30 +1606,44 @@ const SchemeMaster = () => {
               </button>
             </div>
 
-            {/* Tabs */}
-            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-2 flex gap-2 overflow-x-auto">
-              {[
-                { key: "masterDistributor", label: "Master Distributor", role: 3 },
-                { key: "distributor", label: "Distributor", role: 4 },
-                { key: "retailer", label: "Retailer", role: 5 },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveUserTab(tab.key);
-                    setUserPage(1);
-                    setUserSearchQuery("");
-                    setDebouncedUserSearchQuery("");
+            {/* Tabs - Slider Design */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-3">
+              <div className="relative bg-white rounded-xl p-1.5 flex shadow-sm border border-gray-200">
+                {/* Sliding Indicator */}
+                <div
+                  className="absolute top-1.5 bottom-1.5 bg-[#039155] rounded-lg transition-all duration-300 ease-in-out shadow-md"
+                  style={{
+                    width: `calc(33.333% - 0.375rem)`,
+                    left: activeUserTab === "masterDistributor" 
+                      ? "0.375rem" 
+                      : activeUserTab === "distributor" 
+                      ? "calc(33.333% + 0.1875rem)" 
+                      : "calc(66.666% + 0.1875rem)",
                   }}
-                  className={`px-4 py-2 rounded-lg font-[gilroy-medium] text-sm sm:text-base whitespace-nowrap transition ${
-                    activeUserTab === tab.key
-                      ? "bg-[#039155] text-white"
-                      : "bg-white text-[#1B1717] hover:bg-gray-100"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
+                />
+                {[
+                  { key: "masterDistributor", label: "Master Distributor", role: 3 },
+                  { key: "distributor", label: "Distributor", role: 4 },
+                  { key: "retailer", label: "Retailer", role: 5 },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => {
+                      setActiveUserTab(tab.key);
+                      setUserPage(1);
+                      setUserSearchQuery("");
+                      setDebouncedUserSearchQuery("");
+                    }}
+                    className={`relative z-10 flex-1 px-3 py-2.5 rounded-lg font-[gilroy-medium] text-xs sm:text-sm whitespace-nowrap transition-colors duration-300 ${
+                      activeUserTab === tab.key
+                        ? "text-white"
+                        : "text-[#1B1717] hover:text-[#039155]"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
             </div>
 
             {/* Modal Content */}
