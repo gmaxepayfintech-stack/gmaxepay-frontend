@@ -15,8 +15,6 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { X, ZoomIn, User } from "lucide-react";
 import * as XLSX from "xlsx";
-// import WhiteLabel from "./WhiteLabel";
-// import AdminWhitelabelList from "./adminWhitelabelList";
 import MasterDistribution from "./masterDistribution";
 import MasterDistributionOnboarding from "./masterDistributionOnboarding";
 import Distribution from "./distribution";
@@ -32,7 +30,6 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
@@ -75,12 +72,13 @@ const generateTableData = (type, count = 12) => {
   }));
 };
 
-const CreateWhiteLabel = () => {
+const CreateCompanyUser = () => {
   const dispatch = useDispatch();
 
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
+  const [hideNavigation, setHideNavigation] = useState(false);
   const [activeNav, setActiveNav] = useState("Master Distributor");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -361,7 +359,6 @@ const CreateWhiteLabel = () => {
 
   const tableHeaders = [
     "ID",
-    "User",
     "User Agent Code",
     "Name",
     "User Role",
@@ -703,88 +700,93 @@ const CreateWhiteLabel = () => {
     XLSX.writeFile(workbook, fileName);
   };
 
-  // if (showWhiteLabel) {
-  //   return <WhiteLabel onBack={() => setShowWhiteLabel(false)} />;
-  // }
-
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        skipApi={true}
+      />
+    );
   }
   return (
     <div className="text-[#1B1717] w-full h-full  py-3  px-2 ">
       <div className="w-full h-full ">
-        {/* Header Navigation */}
-        <div className="w-2/4 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow py-3 ">
-            <nav className="flex justify-evenly ">
-              <div className="inline-flex gap-3  p-2 rounded-2xl">
-                {["Master Distributor", "Distributor", "Retailers"].map(
-                  (item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        setActiveNav(item);
-                        setShowOnboardingList(false);
-                      }}
-                      className="relative"
-                    >
-                      <div className="relative w-[160px] text-center">
-                        {/* Active pill */}
-                        {activeNav === item && (
-                          <motion.div
-                            layoutId="active-nav-pill"
-                            className="absolute inset-0 bg-[#039155] rounded-xl"
-                            transition={{
-                              type: "spring",
-                              stiffness: 500,
-                              damping: 35,
-                            }}
-                          />
-                        )}
+        {/* Header Navigation - Hide when ProfileDetails is shown from child */}
+        {!hideNavigation && (
+          <div className="w-2/4 mb-6 sm:mb-8">
+            <div className="bg-white rounded-xl shadow py-3 ">
+              <nav className="flex justify-evenly ">
+                <div className="inline-flex gap-3  p-2 rounded-2xl">
+                  {["Master Distributor", "Distributor", "Retailers"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          setActiveNav(item);
+                          setShowOnboardingList(false);
+                        }}
+                        className="relative"
+                      >
+                        <div className="relative w-[160px] text-center">
+                          {/* Active pill */}
+                          {activeNav === item && (
+                            <motion.div
+                              layoutId="active-nav-pill"
+                              className="absolute inset-0 bg-[#039155] rounded-xl"
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 35,
+                              }}
+                            />
+                          )}
 
-                        {/* Text */}
-                        <span
-                          className={`relative z-10 block py-2 text-sm sm:text-base font-[gilroy-medium]
+                          {/* Text */}
+                          <span
+                            className={`relative z-10 block py-2 text-sm sm:text-base font-[gilroy-medium]
               ${
                 activeNav === item
                   ? "text-white"
                   : "text-[#1B1717] hover:text-[#039155]"
               }`}
-                        >
-                          {item}
-                        </span>
-                      </div>
-                    </button>
-                  ),
-                )}
-              </div>
-            </nav>
+                          >
+                            {item}
+                          </span>
+                        </div>
+                      </button>
+                    ),
+                  )}
+                </div>
+              </nav>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Top Buttons */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <button
-            onClick={() => setShowOnboardingList(false)}
-            className={`px-4 py-2 rounded-2xl font-medium shadow-md text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                : "bg-[#039155] text-white"
-            }`}
-          >
-            All List
-          </button>
-          <button
-            onClick={() => setShowOnboardingList(true)}
-            className={`px-4 py-2 rounded-2xl font-medium text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-[#039155] text-white shadow-md"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Onboarding Process
-          </button>
-        </div>
+        {/* Top Buttons - Hide when ProfileDetails is shown from child */}
+        {!hideNavigation && (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <button
+              onClick={() => setShowOnboardingList(false)}
+              className={`px-4 py-2 rounded-2xl font-medium shadow-md text-sm sm:text-base ${
+                showOnboardingList
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-[#039155] text-white"
+              }`}
+            >
+              All List
+            </button>
+            <button
+              onClick={() => setShowOnboardingList(true)}
+              className={`px-4 py-2 rounded-2xl font-medium text-sm sm:text-base ${
+                showOnboardingList
+                  ? "bg-[#039155] text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              Onboarding Process
+            </button>
+          </div>
+        )}
 
         {(() => {
           const apiData = getApiDataForComponents();
@@ -816,6 +818,7 @@ const CreateWhiteLabel = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                onProfileDetailsShow={(show) => setHideNavigation(show)}
               />
             );
           }
@@ -994,11 +997,7 @@ const CreateWhiteLabel = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <button
                               onClick={() => {
-                                const userId = row.id || row.originalItem?.id;
-                                if (userId) {
-                                  dispatch(getCompanyAdmin(userId));
-                                  setShowProfileDetails(true);
-                                }
+                                setShowProfileDetails(true);
                               }}
                               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                             >
@@ -2341,4 +2340,4 @@ const CreateWhiteLabel = () => {
   );
 };
 
-export default CreateWhiteLabel;
+export default CreateCompanyUser;

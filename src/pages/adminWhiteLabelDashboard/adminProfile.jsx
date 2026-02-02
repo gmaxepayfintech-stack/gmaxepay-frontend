@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
+import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import {
-  getSlabVisibility,
+  getSlabList,
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
@@ -17,8 +18,9 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 
-const ProfileDetails = ({ onBack = null }) => {
+const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
   const [imageError, setImageError] = useState(false);
@@ -32,11 +34,8 @@ const ProfileDetails = ({ onBack = null }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get slab visibility from Redux
-  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
-  const visibilityLoading = useSelector(
-    (state) => state?.slab?.visibilityLoading || false,
-  );
+  // Get slab list from Redux
+  const slabList = useSelector((state) => state?.slab?.slabs || []);
   const assignSlabLoading = useSelector(
     (state) => state?.slab?.assignSlabLoading || false,
   );
@@ -72,17 +71,17 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [companyAdminData]);
 
-  // Fetch slab visibility when company admin data is loaded
+  // Fetch slab list when company admin data is loaded (skip if skipApi is true)
   useEffect(() => {
+    if (skipApi) return; // Skip API calls if skipApi is true
     if (companyAdminData) {
-      // Get userId from data.id and companyId from companyDetails
-      const userId = data?.id;
+      // Try to get companyId from companyDetails or use data.id as fallback
       const companyId = companyDetails?.companyId || data?.id;
-      if (userId && companyId) {
-        dispatch(getSlabVisibility(userId, companyId));
+      if (companyId) {
+        dispatch(getSlabList(companyId, 1, 10));
       }
     }
-  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
+  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -91,8 +90,9 @@ const ProfileDetails = ({ onBack = null }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle assign slab success
+  // Handle assign slab success (skip if skipApi is true)
   useEffect(() => {
+    if (skipApi) return; // Skip API calls if skipApi is true
     if (assignSlabSuccess) {
       setShowConfirmModal(false);
       // Refresh company admin data to get updated slabId
@@ -100,7 +100,7 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getCompanyAdmin(data.id));
       }
     }
-  }, [assignSlabSuccess, data?.id, dispatch]);
+  }, [assignSlabSuccess, data?.id, dispatch, skipApi]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
@@ -118,8 +118,9 @@ const ProfileDetails = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading
-  if (isLoading || !companyAdminData) {
+  // Show skeleton while loading (skip if skipApi is true - show UI directly)
+  // Always show UI directly - no API integration needed
+  if (false) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -197,7 +198,7 @@ const ProfileDetails = ({ onBack = null }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
           <div className="flex items-start gap-3 sm:gap-5">
             <button
-              onClick={onBack || (() => globalThis.history?.back())}
+              onClick={onBack || (() => navigate("/adminDashboard/home"))}
               className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
             >
               <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
@@ -698,21 +699,14 @@ const ProfileDetails = ({ onBack = null }) => {
                     value={selectedScheme}
                     onChange={(e) => setSelectedScheme(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                    disabled={assignSlabLoading || visibilityLoading}
+                    disabled={assignSlabLoading}
                   >
                     <option value="">Select Slab</option>
-                    {slabList.map((slab) => {
-                      const amountDisplay = 
-                        slab.slabAmount === "free" || slab.slabAmount === 0 
-                          ? "Free" 
-                          : `₹${slab.slabAmount}`;
-                      const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
-                      return (
-                        <option key={slab.id} value={slab.id}>
-                          {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
-                        </option>
-                      );
-                    })}
+                    {slabList.map((slab) => (
+                      <option key={slab.id} value={slab.id}>
+                        {slab.slabName} ({slab.schemaType})
+                      </option>
+                    ))}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
@@ -728,8 +722,7 @@ const ProfileDetails = ({ onBack = null }) => {
                   disabled={
                     !selectedScheme ||
                     selectedScheme === String(data?.slabId) ||
-                    assignSlabLoading ||
-                    visibilityLoading
+                    assignSlabLoading
                   }
                   className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
@@ -932,19 +925,19 @@ const ProfileDetails = ({ onBack = null }) => {
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp">
             <div className="p-6">
-              <div className="mb-4">
+              <div className="flex items-center justify-between mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
                   Confirm Slab Upgrade
                 </h3>
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="text-gray-400 hover:text-gray-600 transition-colors"
+                >
+                  <X className="w-6 h-6" />
+                </button>
               </div>
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
-              >
-                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
-              </button>
               <div className="mb-6">
                 <p className="text-gray-700 mb-2">
                   Are you sure you want to upgrade the membership scheme?
@@ -953,16 +946,8 @@ const ProfileDetails = ({ onBack = null }) => {
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
                     <span className="font-semibold">
-                      {(() => {
-                        const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
-                        if (!selectedSlab) return "N/A";
-                        const amountDisplay = 
-                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
-                            ? "Free" 
-                            : `₹${selectedSlab.slabAmount}`;
-                        const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
-                        return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
-                      })()}
+                      {slabList.find((s) => String(s.id) === selectedScheme)
+                        ?.slabName || "N/A"}
                     </span>
                   </p>
                 )}
@@ -977,6 +962,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 </button>
                 <button
                   onClick={async () => {
+                    if (skipApi) return; // Skip API call if skipApi is true
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       const result = await dispatch(
@@ -987,8 +973,8 @@ const ProfileDetails = ({ onBack = null }) => {
                       }
                     }
                   }}
+                  disabled={skipApi || assignSlabLoading}
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
-                  disabled={assignSlabLoading}
                 >
                   {assignSlabLoading ? "Upgrading..." : "Confirm Upgrade"}
                 </button>
@@ -1030,8 +1016,9 @@ const ProfileDetails = ({ onBack = null }) => {
   );
 };
 
-ProfileDetails.propTypes = {
+AdminProfile.propTypes = {
   onBack: PropTypes.func,
+  skipApi: PropTypes.bool,
 };
 
-export default ProfileDetails;
+export default AdminProfile;

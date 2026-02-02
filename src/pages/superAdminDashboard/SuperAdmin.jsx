@@ -16,7 +16,6 @@ import {
   Area,
 } from "recharts";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
-
 import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { FiChevronDown } from "react-icons/fi";
@@ -92,6 +91,9 @@ const SuperAdmin = () => {
   const payoutBankListData = useSelector(
     (state) => state?.payout?.payoutBankList,
   );
+
+  const aepswallet = useSelector((state) => state?.wallet?.walletBalance?.data);
+
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Fetch wallet balance on component mount
@@ -157,12 +159,12 @@ const SuperAdmin = () => {
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
-      const { mainWallet, aepsWallet1, aepsWallet2 } =
+      const { mainWallet, apes1Wallet, apes2Wallet } =
         walletBalanceResponse.data;
       setWalletData({
         mainWallet: mainWallet || 0,
-        aeps1: aepsWallet1 || 0,
-        aeps2: aepsWallet2 || 0,
+        aeps1: apes1Wallet || 0,
+        aeps2: apes2Wallet || 0,
       });
     }
   }, [walletBalanceResponse]);
@@ -364,11 +366,10 @@ const SuperAdmin = () => {
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
-                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${
-                      selectedDay === day
+                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${selectedDay === day
                         ? "bg-[#039155] text-white "
                         : "border-[#1B1717]/50 text-[#1B1717] border hover:border-[#039155] hover:text-[#039155]"
-                    }`}
+                      }`}
                   >
                     {day}
                   </button>
@@ -595,8 +596,8 @@ const SuperAdmin = () => {
                   </p>
                   <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
                     {(isAslWalletRefreshing && isAslWallet) ||
-                    (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet)
+                      (isEkycHubRefreshing && isEkycHubWallet) ||
+                      (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -658,8 +659,8 @@ const SuperAdmin = () => {
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
-                    (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet)
+                      (isEkycHubRefreshing && isEkycHubWallet) ||
+                      (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>
@@ -742,11 +743,10 @@ const SuperAdmin = () => {
 
                     {/* Text */}
                     <span
-                      className={`relative z-10 text-xs font-[gilroy-medium] transition-colors ${
-                        activeFilter === label
+                      className={`relative z-10 text-xs font-[gilroy-medium] transition-colors ${activeFilter === label
                           ? "text-white font-[gilroy-semibold]"
                           : "text-[#1B1717] hover:text-[#039155]"
-                      }`}
+                        }`}
                     >
                       {label}
                     </span>
@@ -771,11 +771,10 @@ const SuperAdmin = () => {
                   className="w-10 h-10 mb-2 "
                 />
                 <span
-                  className={`text-xs font-[gilroy-semibold] mb-6 ${
-                    item.change.startsWith("▲")
+                  className={`text-xs font-[gilroy-semibold] mb-6 ${item.change.startsWith("▲")
                       ? "text-[#039155]"
                       : "text-[#F60509]"
-                  }`}
+                    }`}
                 >
                   {item.change}
                 </span>
@@ -992,11 +991,10 @@ const SuperAdmin = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
-                              selectedBank === bank.id
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
                                 ? "border-[#039155] bg-green-50"
                                 : "border-[#1B1717] border-opacity-80"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
