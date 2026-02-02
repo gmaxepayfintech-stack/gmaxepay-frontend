@@ -76,7 +76,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   };
 
   const verifuSuccess = useSelector(
-    (state) => state?.onboarding?.emailOtpSent?.status
+    (state) => state?.onboarding?.emailOtpSent?.status,
   );
   console.log("verifuSuccess", verifuSuccess);
 
@@ -90,7 +90,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     (state) =>
       state?.onboarding?.emailOtpVerify?.message ||
       state?.onboarding?.message ||
-      state?.error?.message
+      state?.error?.message,
   );
 
   // Handle 3-minute countdown when verification is successful
@@ -112,7 +112,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
   // Watch email OTP verification result and advance when verified
   const emailVerifyStatus = useSelector(
-    (state) => state?.onboarding?.emailOtpVerify?.status
+    (state) => state?.onboarding?.emailOtpVerify?.status,
   );
 
   console.log("emailVerifyStatus", emailVerifyStatus);
@@ -132,111 +132,157 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
   return (
     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
-      <div className="bg-white rounded-lg p-8 max-w-3xl mx-auto">
-        <h3 className="text-[20px] font-semibold mb-2 text-center">
-          Email Id Verification
-        </h3>
-        <p className="text-[17px] text-[#1B1717] mb-6 text-center">
-          Enter Your Email to Receive OTP
-        </p>
+      <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden ">
+        <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+            Email Id Verification
+          </h3>
+          <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base text-center mb-3">
+            Enter Your Email to Receive OTP
+          </p>
 
-        <div className="space-y-6">
-          {/* Email Input */}
-          <div>
-            <label className="text-[18px] font-semibold mb-2">Email Id</label>
-            <div className="flex items-center">
-              <div className="flex-1 relative">
+          <div className="space-y-6">
+            {/* Email Input */}
+            <div>
+              <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+                Email Id
+              </label>
+              <div className="flex flex-row gap-0">
+                <div className="relative flex-grow">
+                  <img
+                    src="/img/Emailicon.png"
+                    alt="Email"
+                    className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
+                  />
+                  <div
+                    className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
+                      emailFocused || formData.email
+                        ? "bg-[#1B1717]"
+                        : "bg-gray-300"
+                    }`}
+                  />
+                  <input
+                    type="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    onFocus={() => setEmailFocused(true)}
+                    onBlur={() => setEmailFocused(false)}
+                    placeholder="Enter Your Email Id"
+                    className={`w-full h-10 md:h-11 lg:h-14
+                  border-[0.5px] border-r-0
+                  ${verifyError ? "border-red-500" : "border-[#1B1717]/80"}
+                  rounded-l-lg
+                  pl-10 md:pl-12 lg:pl-14
+                  pr-3
+                  text-sm md:text-base
+                  outline-none
+                  focus:border-[#1B1717]/80
+                  transition
+                `}
+                  />
+                </div>
+
+                {/* 🔥 Verify Button → Calls API */}
+                <button
+                  type="button"
+                  onClick={handleVerifyOrResend}
+                  disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
+                  className={`h-10 md:h-11 lg:h-14
+                px-3 md:px-4
+                border-[0.5px] border-l-0
+                ${verifyError ? "border-red-500" : "border-[#039155]"}
+                rounded-r-lg
+                font-[gilroy-semibold]
+                text-xs md:text-sm
+                whitespace-nowrap
+                shadow-md
+                transition
+                flex-shrink-0
+                ${
+                  verifuSuccess === "SUCCESS"
+                    ? "w-[90px] md:w-[100px] lg:w-[110px]"
+                    : "w-[80px] md:w-[90px] lg:w-[100px]"
+                } ${
+                  verifuSuccess === "SUCCESS" && successCooldown > 0
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-[#039155] text-white hover:bg-green-700"
+                }`}
+                >
+                  {verifuSuccess === "SUCCESS"
+                    ? successCooldown > 0
+                      ? `Resend OTP in (${successCooldown}s)`
+                      : "Resend OTP"
+                    : "Verify"}
+                </button>
+              </div>
+            </div>
+
+            {/* OTP Input */}
+            <div>
+              <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+                Enter OTP
+              </label>
+              <div className="relative">
                 <img
-                  src="/img/Emailicon.png"
-                  alt="Email"
-                  className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition ${
-                    emailFocused || formData.email
-                      ? "opacity-100"
-                      : "opacity-50"
-                  }`}
+                  src="/img/DeviceMobileCamera.png"
+                  alt="OTP"
+                  className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
                 />
                 <div
                   className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                    emailFocused || formData.email
+                    otpFocused || formData.emailOtp
                       ? "bg-[#1B1717]"
                       : "bg-gray-300"
                   }`}
                 />
                 <input
-                  type="email"
-                  name="email"
-                  value={formData.email}
+                  type="text"
+                  name="emailOtp"
+                  value={formData.emailOtp}
                   onChange={handleChange}
-                  onFocus={() => setEmailFocused(true)}
-                  onBlur={() => setEmailFocused(false)}
-                  placeholder="Enter Your Email Id"
-                  className="w-[430px] h-[60px] border-2 border-gray-300 rounded-l-lg px-4 py-3 pl-12 outline-none focus:border-[#1B1717] focus:shadow-md transition"
+                  onFocus={() => setOtpFocused(true)}
+                  onBlur={() => setOtpFocused(false)}
+                  placeholder="Enter Email OTP"
+                  className={`w-full h-10 md:h-11 lg:h-14
+                border-[0.5px]
+                ${verifyError ? "border-red-500" : "border-[#1B1717]/80"}
+                rounded-lg
+                pl-10 md:pl-12 lg:pl-14
+                pr-3
+                text-sm md:text-base
+                outline-none
+                focus:border-[#1B1717]/80
+                transition
+              `}
                 />
               </div>
+              {verifyError && (
+                <p className="text-red-500 text-sm mt-2">{verifyError}</p>
+              )}
+            </div>
 
-              {/* 🔥 Verify Button → Calls API */}
+            {/* Submit */}
+            <div>
               <button
                 type="button"
-                onClick={handleVerifyOrResend}
-                disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
-                className={`w-40 px-6 rounded-r-lg text-sm font-medium transition h-[60px] ${
-                  verifuSuccess === "SUCCESS" && successCooldown > 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#039155] text-white hover:bg-green-700"
-                }`}
+                onClick={submitEmailOtp}
+                className="w-full h-10 md:h-11 lg:h-14
+            bg-[#039155]
+            text-white
+            rounded-lg md:rounded-xl
+            font-[gilroy-semibold]
+            text-sm md:text-base
+            hover:bg-green-700
+            transition
+            shadow-lg
+            mt-3
+            flex items-center justify-center
+          "
               >
-                {verifuSuccess === "SUCCESS"
-                  ? successCooldown > 0
-                    ? `Resend OTP in (${successCooldown}s)`
-                    : "Resend OTP"
-                  : "Verify"}
+                Submit
               </button>
             </div>
-          </div>
-
-          {/* OTP Input */}
-          <div>
-            <label className="text-[18px] font-semibold mb-2">Enter OTP</label>
-            <div className="relative">
-              <img
-                src="/img/DeviceMobileCamera.png"
-                alt="OTP"
-                className={`absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 transition ${
-                  otpFocused || formData.emailOtp ? "opacity-100" : "opacity-50"
-                }`}
-              />
-              <div
-                className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                  otpFocused || formData.emailOtp
-                    ? "bg-[#1B1717]"
-                    : "bg-gray-300"
-                }`}
-              />
-              <input
-                type="text"
-                name="emailOtp"
-                value={formData.emailOtp}
-                onChange={handleChange}
-                onFocus={() => setOtpFocused(true)}
-                onBlur={() => setOtpFocused(false)}
-                placeholder="Enter Email OTP"
-                className="w-[534px] h-[60px] border-2 border-gray-300 rounded-lg px-4 py-3 pl-12 outline-none focus:border-[#1B1717] focus:shadow-md transition"
-              />
-            </div>
-            {verifyError && (
-              <p className="text-red-500 text-sm mt-2">{verifyError}</p>
-            )}
-          </div>
-
-          {/* Submit */}
-          <div>
-            <button
-              type="button"
-              onClick={submitEmailOtp}
-              className={`w-full bg-[#039255] text-white py-4 rounded-2xl text-xl font-medium shadow-lg `}
-            >
-              Submit
-            </button>
           </div>
         </div>
       </div>

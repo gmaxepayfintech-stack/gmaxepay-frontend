@@ -253,7 +253,7 @@ const TaxHistory = () => {
                   onClick={() => {
                     if (card.viewKey) {
                       navigate(
-                        `/superDashboard/txn-history?view=${card.viewKey}`,
+                        `/retailerDashboard/txn-history?view=${card.viewKey}`,
                       );
                     }
                   }}

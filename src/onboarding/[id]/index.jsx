@@ -98,7 +98,8 @@ function OnboardingById() {
   // Function to refresh onboarding steps after completion
   const refreshOnboardingSteps = () => {
     const tokenFromQuery = searchParams.get("token");
-    const token = tokenFromQuery || id || localStorage.getItem("onboardingToken");
+    const token =
+      tokenFromQuery || id || localStorage.getItem("onboardingToken");
     if (token) {
       dispatch(fetchOnboarding(token));
     }
@@ -124,7 +125,7 @@ function OnboardingById() {
         if (isStepDone(2)) {
           return "/img/completedMail.png";
         }
-        return currentStep === 2 ? "/img/Envelope.png" : "/img/Email2.png";
+        return currentStep === 2 ? "/img/Envelope.png" : "/img/Email.png";
       case "aadharVerification":
         if (isStepDone(3)) {
           return "/img/AadhaarCompleted.png";
@@ -318,12 +319,12 @@ function OnboardingById() {
       >
         {/* Header and description */}
         <div className="p-8">
-          <h1 className="text-[35px] font-semibold mb-2 text-center text-[#1B1717]">
+          <h1 className="text-2xl font-[gilroy-semibold] mb-2 text-center text-[#1B1717]">
             Complete Your KYC
           </h1>
-          <p className="text-sm text-[16px] text-[#1B1717] mb-6 text-center">
-            Secure Your Account And Unlock All Features By Completing Our
-            Quick Verification Process.
+          <p className="text-sm sm:text-base text-[#1B1717] mb-6 text-center font-[gilroy-medium]">
+            Secure Your Account And Unlock All Features By Completing Our Quick
+            Verification Process.
           </p>
 
           {/* Steps card */}
@@ -334,31 +335,29 @@ function OnboardingById() {
                 alt="Status"
                 className="w-[50px] h-[50px] mt-4"
               />
-              <h2 className="text-[20px] font-semibold mt[-12px] text-[#1B1717]">
+              <h2 className="text-xl font-[gilroy-semibold] mt[-12px] text-[#1B1717]">
                 Complete Your KYC
               </h2>
               {onboardingState.name && (
-                <p className="text-sm text-gray-600 mt-1">
+                <p className="text-sm font-[gilroy-medium] text-[#1B1717]/80 mt-1">
                   Welcome, {onboardingState.name}
                 </p>
               )}
             </div>
-            <p className="text-[18px] text-[#1B1717] mt-[-24px] ml-16">
+            <p className="text-lg font-[gilroy-medium] text-[#1B1717] mt-[-24px] ml-16">
               Onboarding Token Captured. Please Complete The Steps Below.
             </p>
-            <div className="text-[#1B1717] w-[1265px] mt-6 ml-16">
-              <h3 className="text-[16px]  font-medium">
+            <div className="text-[#1B1717] w-[1265px] mt-4 ml-16">
+              <h3 className="text-base  font-[gilroy-medium]">
                 Steps To Complete
               </h3>
               <div className="flex items-center gap-4 mt-4  pb-2 justify-center">
-                {onboardingState.steps &&
-                onboardingState.steps.length > 0 ? (
+                {onboardingState.steps && onboardingState.steps.length > 0 ? (
                   onboardingState.steps.map((step, index) => {
                     const stepNumber = index + 1;
                     const isDone = step.done || false;
                     const isActive = currentStep === stepNumber;
-                    const isLast =
-                      stepNumber === onboardingState.steps.length;
+                    const isLast = stepNumber === onboardingState.steps.length;
 
                     return (
                       <StepBadge
@@ -387,8 +386,8 @@ function OnboardingById() {
                         formData.emailOtpVerified
                           ? "/img/completedMail.png"
                           : currentStep === 2
-                          ? "/img/Envelope.png"
-                          : "/img/Email2.png"
+                            ? "/img/Envelope.png"
+                            : "/img/Email.png"
                       }
                       label="Email OTP"
                       active={currentStep === 2}
@@ -592,8 +591,8 @@ function StepBadge({ icon, label, active, done, connectingLine, lineActive }) {
               done
                 ? "bg-[#039155] border border-[#039155]"
                 : active
-                ? "bg-[#039155] border border-green-200"
-                : "bg-white border border-gray-200"
+                  ? "bg-[#039155] border border-green-200"
+                  : "bg-white border border-gray-200"
             }`}
           >
             <img
@@ -603,8 +602,8 @@ function StepBadge({ icon, label, active, done, connectingLine, lineActive }) {
                 done || (active && isGreenIcon)
                   ? "opacity-100"
                   : active
-                  ? "opacity-100"
-                  : "opacity-100"
+                    ? "opacity-100"
+                    : "opacity-100"
               }`}
             />
           </div>
@@ -614,8 +613,8 @@ function StepBadge({ icon, label, active, done, connectingLine, lineActive }) {
             done || (active && isGreenIcon)
               ? "text-green-600"
               : active
-              ? "text-green-600"
-              : "text-[#1B1717] opacity-80"
+                ? "text-green-600"
+                : "text-[#1B1717] opacity-80"
           }`}
           style={{ fontFamily: "Gilroy-Medium, sans-serif" }}
         >

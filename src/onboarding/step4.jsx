@@ -22,35 +22,32 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
   // Redux selectors
   const digilockerSuccess = useSelector(
-    (state) => state?.onboarding?.panVerify?.panVerify?.status
+    (state) => state?.onboarding?.panVerify?.panVerify?.status,
   );
 
   const url = useSelector(
-    (state) => state?.onboarding?.panVerify?.panVerify?.url
+    (state) => state?.onboarding?.panVerify?.panVerify?.url,
   );
 
   const verification_id = useSelector(
-    (state) => state?.onboarding?.panVerify?.panVerify?.verification_id
+    (state) => state?.onboarding?.panVerify?.panVerify?.verification_id,
   );
 
   const reference_id = useSelector(
-    (state) => state?.onboarding?.panVerify?.panVerify?.reference_id
+    (state) => state?.onboarding?.panVerify?.panVerify?.reference_id,
   );
 
   const document_type = useSelector(
-    (state) =>
-      state?.onboarding?.panVerify?.panVerify?.document_requested?.[0]
+    (state) => state?.onboarding?.panVerify?.panVerify?.document_requested?.[0],
   );
-  
-  const steps = useSelector(
-    (state) => state?.onboarding?.steps
-  );
-  
+
+  const steps = useSelector((state) => state?.onboarding?.steps);
+
   // Get panVerification step and check if connect (verify) is done
   const panStep = steps?.find((step) => step.key === "panVerification");
   const isConnectDone = panStep?.subSteps?.[0]?.done === true;
   const isDownloadDone = panStep?.subSteps?.[1]?.done === true;
-  
+
   // Sync local state with steps data and show tick mark when verified
   useEffect(() => {
     if (isConnectDone) {
@@ -63,10 +60,13 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
   useEffect(() => {
     let timer;
     if (showTickMark) {
-      timer = setTimeout(() => {
-        setShowTickMark(false);
-        setIsVerified(false);
-      }, 3 * 60 * 1000); // 3 minutes = 180000 milliseconds
+      timer = setTimeout(
+        () => {
+          setShowTickMark(false);
+          setIsVerified(false);
+        },
+        3 * 60 * 1000,
+      ); // 3 minutes = 180000 milliseconds
     }
     return () => {
       if (timer) {
@@ -74,7 +74,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
       }
     };
   }, [showTickMark]);
-  
+
   // 🔥 OPEN DIGILOCKER URL WHEN SUCCESS
   useEffect(() => {
     if (digilockerSuccess === "Success" && url) {
@@ -112,7 +112,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
     const token = localStorage.getItem("onboardingToken");
 
     const payload = {
-      document_type: "PAN"
+      document_type: "PAN",
     };
 
     console.log("Dispatching PAN Download:", payload);
@@ -154,14 +154,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
   // Get upload response and loading state from Redux
   const uploadResponse = useSelector(
-    (state) => state?.onboarding?.uploadPanResponse
+    (state) => state?.onboarding?.uploadPanResponse,
   );
-  const uploadError = useSelector(
-    (state) => state?.onboarding?.uploadPanError
-  );
-  const isLoading = useSelector(
-    (state) => state?.onboarding?.loading
-  );
+  const uploadError = useSelector((state) => state?.onboarding?.uploadPanError);
+  const isLoading = useSelector((state) => state?.onboarding?.loading);
 
   const handleSubmitImage = async () => {
     if (!panImage) {
@@ -185,7 +181,8 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
   // Watch for successful upload and proceed to next step
   useEffect(() => {
     if (uploadResponse) {
-      const status = uploadResponse?.status || uploadResponse?.uploadResponse?.status;
+      const status =
+        uploadResponse?.status || uploadResponse?.uploadResponse?.status;
       if (status === "SUCCESS") {
         setUploading(false);
         // Refresh steps after successful completion
@@ -209,18 +206,18 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
         setUploading(false);
         // Extract error message - handle different error structures
         let errorMsg = null;
-        if (typeof uploadError === 'string') {
+        if (typeof uploadError === "string") {
           errorMsg = uploadError;
         } else if (uploadError?.message) {
           errorMsg = uploadError.message;
         } else if (uploadError?.payload) {
-          if (typeof uploadError.payload === 'string') {
+          if (typeof uploadError.payload === "string") {
             errorMsg = uploadError.payload;
           } else if (uploadError.payload?.message) {
             errorMsg = uploadError.payload.message;
           }
         }
-        
+
         if (errorMsg) {
           setErrorMessage(errorMsg);
           // Auto-hide error after 5 seconds
@@ -240,40 +237,37 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
   }, [uploading]);
 
   return (
-    <div className="w-full flex justify-center py-6">
-      <div className="w-[450px] space-y-8">
+    <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
         {/* ================================================================= */}
         {/*                      DIGILOCKER VERIFICATION VIEW                 */}
         {/* ================================================================= */}
         {!showImageUpload && (
-          <>
+          <div className="space-y-3 sm:space-y-3.5 md:space-y-4">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
                 PAN Card Verification
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-xs sm:text-xs md:text-sm lg:text-base text-gray-600 mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* DigiLocker Box */}
-            <div
-              className="bg-gradient-to-br from-green-50 to-emerald-50 
-              border-2 border-dashed border-gray-400 rounded-2xl p-8"
-            >
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-dashed border-gray-400 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-4 lg:p-5 xl:p-6">
               <div className="flex items-start gap-4">
                 <img
                   src="/img/Digilocker1.png"
-                  className="h-24"
+                  className="h-12 sm:h-14 md:h-16 lg:h-16 xl:h-20 flex-shrink-0"
                   alt="Digilocker"
                 />
 
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
+                  <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
                     PAN Via DigiLocker
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Fetch PAN Document Securely From DigiLocker
                   </p>
                 </div>
@@ -284,8 +278,8 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleDownload}
                   disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-[52px] text-lg rounded-xl border-2 border-black/60 
-                    font-medium transition
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md 
+
                     ${
                       !isConnectDone || isDownloadDone
                         ? "text-gray-400 cursor-not-allowed border-gray-300"
@@ -298,20 +292,20 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
-                  className={`flex-1 h-[52px] text-lg rounded-xl text-white font-medium transition 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
                     ${
                       isConnectDone && showTickMark
-                        ? "bg-green-600 cursor-not-allowed"
+                        ? "bg-green-600  cursor-not-allowed"
                         : loading
-                        ? "bg-[#039155] opacity-75 cursor-not-allowed"
-                        : "bg-[#039155] hover:bg-green-700"
+                          ? "bg-[#039155] opacity-75 cursor-not-allowed"
+                          : "bg-[#039155] hover:bg-green-700"
                     }`}
                 >
                   {loading
                     ? "Verifying..."
                     : isConnectDone && showTickMark
-                    ? "Verified ✓"
-                    : "Verify"}
+                      ? "Verified ✓"
+                      : "Verify"}
                 </button>
               </div>
             </div>
@@ -349,48 +343,45 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
             {/* NEXT */}
             <button
               onClick={() => setShowImageUpload(true)}
-              className="w-full py-3 rounded-xl bg-[#039155] text-white 
-                font-semibold text-lg"
+              className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-semibold text-sm md:text-base hover:bg-green-700 transition shadow-lg"
             >
               Next
             </button>
-          </>
+          </div>
         )}
 
         {/* ================================================================= */}
         {/*                          IMAGE UPLOAD VIEW                       */}
         {/* ================================================================= */}
         {showImageUpload && (
-          <>
+          <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-5 bg-white p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
                 PAN Card Verification
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-xs sm:text-xs md:text-sm lg:text-base text-gray-600 mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* PAN Card */}
-            <div 
-              className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex items-center justify-center w-[419px] h-[200px] relative overflow-hidden"
-            >
+            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-3.5 md:p-4 lg:p-4 xl:p-5 mx-auto w-full h-[160px] sm:h-[180px] md:h-[200px] lg:h-[220px] xl:h-[240px] flex items-center justify-center relative overflow-hidden">
               {panImagePreview ? (
                 <>
                   <img
                     src={panImagePreview}
                     alt="PAN Card Preview"
-                    className="w-full h-full object-contain absolute inset-0 p-2"
+                    className="h-12 sm:h-14 md:h-16 lg:h-16 xl:h-20 flex-shrink-0"
                   />
                   <button
                     onClick={handleDeleteImage}
-                    className="absolute top-2 right-2 z-10 w-8 h-8 rounded-full bg-red-500 hover:bg-red-600 flex items-center justify-center transition shadow-lg"
+                    className="absolute top-1.5 right-1.5 sm:top-2 sm:right-2 md:top-2.5 md:right-2.5 lg:top-3 lg:right-3 z-10 w-7 h-7 sm:w-8 sm:h-8 md:w-9 md:h-9 lg:w-9 lg:h-9 rounded-full bg-red-500 hover:bg-red-600 active:scale-90 flex items-center justify-center transition-all shadow-lg"
                     type="button"
                     aria-label="Delete image"
                   >
                     <svg
-                      className="w-5 h-5 text-white"
+                      className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-4.5 md:h-4.5 lg:w-5 lg:h-5 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -405,16 +396,14 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center w-[160px] h-[146px] gap-4">
+                <div className="flex flex-col items-center justify-center gap-2 sm:gap-2.5 md:gap-3">
                   <img
                     src="/img/pancard-front.png"
                     alt="PAN Card"
-                    className="w-[120px] h-[75px] object-contain"
+                    className="w-[100px] h-[60px] sm:w-[110px] sm:h-[70px] md:w-[120px] md:h-[75px] lg:w-[140px] lg:h-[85px] xl:w-[150px] xl:h-[90px] object-contain"
                   />
 
-                  <h3 
-                    className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] w-[160px] h-[11px] text-center leading-[100%] tracking-[0%] align-middle"
-                  >
+                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80 font-normal text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-base text-center leading-[100%] tracking-[0%] align-middle">
                     Add PAN Card Image
                   </h3>
 
@@ -425,16 +414,12 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={handleImageChange}
                     />
-                    <span
-                      className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] rounded-[4px] text-[12px]"
-                    >
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 min-w-[120px] sm:min-w-[130px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[170px] h-auto min-h-[28px] sm:min-h-[30px] md:min-h-[32px] lg:min-h-[38px] xl:min-h-[40px] rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-xs lg:text-sm xl:text-base font-[gilroy-regular]">
                       Select From Browser
                     </span>
                   </label>
 
-                  <p 
-                    className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] leading-[100%] tracking-[0%] align-middle text-[#6B7280]"
-                  >
+                  <p className="capitalize font-['Gilroy-Regular'] text-[#1B1717]/80 text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-sm leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
                     File Size (Max 5 MB)
                   </p>
                 </div>
@@ -445,7 +430,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
             <button
               onClick={handleSubmitImage}
               disabled={!panImage || uploading}
-              className={`w-[419px] py-3 rounded-xl font-semibold text-lg transition
+              className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center 
                 ${
                   panImage && !uploading
                     ? "bg-[#039155] text-white hover:bg-green-700"
@@ -464,13 +449,13 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                     <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
                     <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
                   </div>
-                  
+
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-[gilroy-semibold] text-gray-900 mb-2">
                       Auto Verifying
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-gray-600 font-[gilroy-medium] text-sm">
                       We are auto verifying your PAN details based on eKYC
                     </p>
                   </div>
@@ -518,7 +503,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

@@ -1,6 +1,6 @@
-import { useRef, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { postProfile } from '../redux/action/onboardingAction';
+import { useRef, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { postProfile } from "../redux/action/onboardingAction";
 
 function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
   const dispatch = useDispatch();
@@ -9,7 +9,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
     postProfileError,
     postProfileSuccess,
     postProfileMessage,
-  } = useSelector(state => state.onboarding);
+  } = useSelector((state) => state.onboarding);
 
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
@@ -20,7 +20,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
     try {
       // Stop any existing stream first
       if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(t => t.stop());
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
       }
 
       // Try to get front camera first (for profile photos), fallback to any available camera
@@ -28,17 +28,17 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
       try {
         stream = await navigator.mediaDevices.getUserMedia({
           video: {
-            facingMode: { ideal: 'user' }, // Front camera for profile photos
+            facingMode: { ideal: "user" }, // Front camera for profile photos
             width: { ideal: 1280 },
-            height: { ideal: 720 }
+            height: { ideal: 720 },
           },
-          audio: false
+          audio: false,
         });
       } catch (frontCameraError) {
         // Fallback to any available camera
         stream = await navigator.mediaDevices.getUserMedia({
           video: true,
-          audio: false
+          audio: false,
         });
       }
 
@@ -52,38 +52,38 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
 
         // Wait for video to be ready before playing
         const handleCanPlay = () => {
-          video.play().catch(err => {
-            console.error('Error playing video:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video:", err);
           });
         };
 
         if (video.readyState >= 2) {
           // Video already has data, play immediately
-          video.play().catch(err => {
-            console.error('Error playing video:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video:", err);
           });
         } else {
           // Wait for video to be ready
-          video.addEventListener('canplay', handleCanPlay, { once: true });
+          video.addEventListener("canplay", handleCanPlay, { once: true });
         }
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error("Error accessing camera:", error);
       setIsCameraActive(false);
-      alert('Unable to access camera. Please check permissions.');
+      alert("Unable to access camera. Please check permissions.");
     }
   };
 
   const stopCamera = () => {
     if (mediaStreamRef.current) {
       try {
-        mediaStreamRef.current.getTracks().forEach(t => {
+        mediaStreamRef.current.getTracks().forEach((t) => {
           t.stop();
           t.enabled = false;
         });
         mediaStreamRef.current = null;
       } catch (error) {
-        console.error('Error stopping camera:', error);
+        console.error("Error stopping camera:", error);
       }
       setIsCameraActive(false);
     }
@@ -98,11 +98,11 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
     if (!width || !height) return;
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, width, height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
     stopCamera();
-    setFormData(d => ({ ...d, profilePhotoDataUrl: dataUrl }));
+    setFormData((d) => ({ ...d, profilePhotoDataUrl: dataUrl }));
   };
 
   const handleSubmit = async () => {
@@ -110,9 +110,9 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
       return;
     }
 
-    const token = localStorage.getItem('onboardingToken');
+    const token = localStorage.getItem("onboardingToken");
     if (!token) {
-      alert('Onboarding token not found. Please refresh the page.');
+      alert("Onboarding token not found. Please refresh the page.");
       return;
     }
 
@@ -127,7 +127,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
       if (onRefreshSteps) {
         onRefreshSteps();
       }
-      setFormData(d => ({ ...d, completed: true }));
+      setFormData((d) => ({ ...d, completed: true }));
       if (onComplete) {
         onComplete();
       }
@@ -148,35 +148,36 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
       // Handle video ready state - ensure it plays when metadata is loaded
       const handleLoadedMetadata = () => {
         if (video.paused && isCameraActive) {
-          video.play().catch(err => {
-            console.error('Error playing video after metadata loaded:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video after metadata loaded:", err);
           });
         }
       };
 
       const handlePlay = () => {
-        console.log('Video started playing');
+        console.log("Video started playing");
       };
 
       const handleError = (e) => {
-        console.error('Video error:', e);
+        console.error("Video error:", e);
       };
 
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
-      video.addEventListener('play', handlePlay);
-      video.addEventListener('error', handleError);
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+      video.addEventListener("play", handlePlay);
+      video.addEventListener("error", handleError);
 
       // Try to play immediately if video is ready
-      if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-        video.play().catch(err => {
-          console.error('Error playing video:', err);
+      if (video.readyState >= 2) {
+        // HAVE_CURRENT_DATA
+        video.play().catch((err) => {
+          console.error("Error playing video:", err);
         });
       }
 
       return () => {
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        video.removeEventListener('play', handlePlay);
-        video.removeEventListener('error', handleError);
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeEventListener("play", handlePlay);
+        video.removeEventListener("error", handleError);
       };
     }
   }, [isCameraActive]);
@@ -189,12 +190,12 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
   }, []);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50">
-      <div className="bg-white rounded-lg w-[734px]">
-        <h3 className="text-center text-[24px] font-semibold text-gray-800">
+    <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white text-center rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-1">
           Profile
         </h3>
-        <p className="text-center text-[16px] text-[#1B1717] mt-4 mb-6">
+        <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717] mb-2">
           Profile Picture To Complete Your KYC
         </p>
 
@@ -204,14 +205,14 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
             {/* Always render video element but hide/show it based on state */}
             <video
               ref={videoRef}
-              className={`w-full h-full object-cover rounded-lg ${isCameraActive ? 'block' : 'hidden'}`}
+              className={`w-full h-full object-cover rounded-lg ${isCameraActive ? "block" : "hidden"}`}
               playsInline
               muted
               autoPlay
               style={{
-                minHeight: '100%',
-                minWidth: '100%',
-                backgroundColor: '#000'
+                minHeight: "100%",
+                minWidth: "100%",
+                backgroundColor: "#000",
               }}
             />
 
@@ -246,7 +247,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
                   onClick={(e) => {
                     e.stopPropagation();
                     if (formData.profilePhotoDataUrl) {
-                      setFormData(d => ({ ...d, profilePhotoDataUrl: '' }));
+                      setFormData((d) => ({ ...d, profilePhotoDataUrl: "" }));
                     }
                     if (isCameraActive) {
                       stopCamera();
@@ -264,10 +265,11 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${isCameraActive
-                      ? 'bg-[#039155] text-white hover:bg-green-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    }`}
+                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${
+                    isCameraActive
+                      ? "bg-[#039155] text-white hover:bg-green-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                  }`}
                 >
                   Capture
                 </button>
@@ -278,20 +280,26 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
         </div>
 
         {/* Image Upload Guidelines */}
-        <div className="w-[534px] mx-auto">
+        <div className="w-[534px] mx-auto ">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">Capture A Clear Photo</span>
+                <span className="text-sm text-[#1B1717]">
+                  Capture A Clear Photo
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">Good Lighting Required – Avoid Dark Or Blurry Images.</span>
+                <span className="text-sm text-[#1B1717]">
+                  Good Lighting Required – Avoid Dark Or Blurry Images.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">Your Aadhaar Photo And Uploaded Profile Picture Must Match.</span>
+                <span className="text-sm text-[#1B1717]">
+                  Your Aadhaar Photo And Uploaded Profile Picture Must Match.
+                </span>
               </li>
             </ul>
           </div>
@@ -315,12 +323,23 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
             type="button"
             onClick={handleSubmit}
             disabled={postProfileLoading || !formData.profilePhotoDataUrl}
-            className={`w-full py-2 rounded-lg text-white text-[24px] font-medium h-[60px] transition mt-5 ${postProfileLoading || !formData.profilePhotoDataUrl
-                ? 'bg-[#039155] text-white cursor-not-allowed'
-                : 'bg-[#039155] hover:bg-green-700'
-              }`}
+            className={`w-full mt-2
+            h-10 md:h-11 lg:h-14
+            bg-[#039155]
+            text-white
+            rounded-lg md:rounded-xl
+            font-[gilroy-semibold]
+            text-sm md:text-base
+            transition
+            shadow-lg
+            flex items-center justify-center
+            ${
+              postProfileLoading || !formData.profilePhotoDataUrl
+                ? "bg-[#039155] text-white cursor-not-allowed"
+                : "bg-[#039155] hover:bg-green-700"
+            }`}
           >
-            {postProfileLoading ? 'Submitting...' : 'Submit'}
+            {postProfileLoading ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -329,4 +348,3 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
 }
 
 export default Step7;
-

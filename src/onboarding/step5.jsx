@@ -1,7 +1,7 @@
-import { useRef, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { postShopDetails } from './../redux/action/onboardingAction';
-import { getLocationAndIP } from './../util/getLocationAndIP';
+import { useRef, useEffect, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { postShopDetails } from "./../redux/action/onboardingAction";
+import { getLocationAndIP } from "./../util/getLocationAndIP";
 
 function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
@@ -10,85 +10,85 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
     postShopDetailsError,
     postShopDetailsSuccess,
     postShopDetailsMessage,
-  } = useSelector(state => state.onboarding);
+  } = useSelector((state) => state.onboarding);
   const videoRef = useRef(null);
   const canvasRef = useRef(null);
   const mediaStreamRef = useRef(null);
   const [isCameraActive, setIsCameraActive] = useState(false);
 
-  const handleChange = e => {
+  const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData(d => ({ ...d, [name]: value }));
+    setFormData((d) => ({ ...d, [name]: value }));
   };
 
   const startCamera = async () => {
     try {
       // Stop any existing stream first
       if (mediaStreamRef.current) {
-        mediaStreamRef.current.getTracks().forEach(t => t.stop());
+        mediaStreamRef.current.getTracks().forEach((t) => t.stop());
       }
-      
+
       // Try to get back camera first (for shop photos), fallback to any available camera
       let stream;
       try {
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: { 
-            facingMode: { ideal: 'environment' }, // Back camera for shop photos
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: {
+            facingMode: { ideal: "environment" }, // Back camera for shop photos
             width: { ideal: 1280 },
-            height: { ideal: 720 }
-          }, 
-          audio: false 
+            height: { ideal: 720 },
+          },
+          audio: false,
         });
       } catch (backCameraError) {
         // Fallback to any available camera
-        stream = await navigator.mediaDevices.getUserMedia({ 
-          video: true, 
-          audio: false 
+        stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false,
         });
       }
-      
+
       mediaStreamRef.current = stream;
       setIsCameraActive(true);
-      
+
       // Ensure video element is ready and connected
       if (videoRef.current) {
         const video = videoRef.current;
         video.srcObject = stream;
-        
+
         // Wait for video to be ready before playing
         const handleCanPlay = () => {
-          video.play().catch(err => {
-            console.error('Error playing video:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video:", err);
           });
         };
-        
+
         if (video.readyState >= 2) {
           // Video already has data, play immediately
-          video.play().catch(err => {
-            console.error('Error playing video:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video:", err);
           });
         } else {
           // Wait for video to be ready
-          video.addEventListener('canplay', handleCanPlay, { once: true });
+          video.addEventListener("canplay", handleCanPlay, { once: true });
         }
       }
     } catch (error) {
-      console.error('Error accessing camera:', error);
+      console.error("Error accessing camera:", error);
       setIsCameraActive(false);
-      alert('Unable to access camera. Please check permissions.');
+      alert("Unable to access camera. Please check permissions.");
     }
   };
 
   const stopCamera = () => {
     if (mediaStreamRef.current) {
       try {
-        mediaStreamRef.current.getTracks().forEach(t => {
+        mediaStreamRef.current.getTracks().forEach((t) => {
           t.stop();
           t.enabled = false;
         });
         mediaStreamRef.current = null;
       } catch (error) {
-        console.error('Error stopping camera:', error);
+        console.error("Error stopping camera:", error);
       }
       setIsCameraActive(false);
     }
@@ -103,11 +103,11 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
     if (!width || !height) return;
     canvas.width = width;
     canvas.height = height;
-    const ctx = canvas.getContext('2d');
+    const ctx = canvas.getContext("2d");
     ctx.drawImage(video, 0, 0, width, height);
-    const dataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    const dataUrl = canvas.toDataURL("image/jpeg", 0.9);
     stopCamera();
-    setFormData(d => ({ ...d, shopPhotoDataUrl: dataUrl }));
+    setFormData((d) => ({ ...d, shopPhotoDataUrl: dataUrl }));
   };
 
   const handleSubmit = async () => {
@@ -115,9 +115,9 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
       return;
     }
 
-    const token = localStorage.getItem('onboardingToken');
+    const token = localStorage.getItem("onboardingToken");
     if (!token) {
-      alert('Onboarding token not found. Please refresh the page.');
+      alert("Onboarding token not found. Please refresh the page.");
       return;
     }
 
@@ -136,13 +136,13 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
           token,
           ipAddress,
           longitude,
-          latitude
-        )
+          latitude,
+        ),
       );
       // Success will be handled in useEffect below
     } catch (error) {
       // Error is handled by Redux state and displayed above
-      console.error('Failed to submit shop details:', error);
+      console.error("Failed to submit shop details:", error);
     }
   };
 
@@ -162,46 +162,47 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
     if (isCameraActive && mediaStreamRef.current && videoRef.current) {
       const video = videoRef.current;
       const stream = mediaStreamRef.current;
-      
+
       // Only set if not already set or if different
       if (video.srcObject !== stream) {
         video.srcObject = stream;
       }
-      
+
       // Handle video ready state - ensure it plays when metadata is loaded
       const handleLoadedMetadata = () => {
         if (video.paused && isCameraActive) {
-          video.play().catch(err => {
-            console.error('Error playing video after metadata loaded:', err);
+          video.play().catch((err) => {
+            console.error("Error playing video after metadata loaded:", err);
             // Don't stop camera on play error, just log it
           });
         }
       };
-      
+
       const handlePlay = () => {
-        console.log('Video started playing');
+        console.log("Video started playing");
       };
-      
+
       const handleError = (e) => {
-        console.error('Video error:', e);
+        console.error("Video error:", e);
         // Don't stop camera on video error unless it's critical
       };
-      
-      video.addEventListener('loadedmetadata', handleLoadedMetadata);
-      video.addEventListener('play', handlePlay);
-      video.addEventListener('error', handleError);
-      
+
+      video.addEventListener("loadedmetadata", handleLoadedMetadata);
+      video.addEventListener("play", handlePlay);
+      video.addEventListener("error", handleError);
+
       // Try to play immediately if video is ready
-      if (video.readyState >= 2) { // HAVE_CURRENT_DATA
-        video.play().catch(err => {
-          console.error('Error playing video:', err);
+      if (video.readyState >= 2) {
+        // HAVE_CURRENT_DATA
+        video.play().catch((err) => {
+          console.error("Error playing video:", err);
         });
       }
-      
+
       return () => {
-        video.removeEventListener('loadedmetadata', handleLoadedMetadata);
-        video.removeEventListener('play', handlePlay);
-        video.removeEventListener('error', handleError);
+        video.removeEventListener("loadedmetadata", handleLoadedMetadata);
+        video.removeEventListener("play", handlePlay);
+        video.removeEventListener("error", handleError);
       };
     }
   }, [isCameraActive]);
@@ -214,111 +215,121 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
   }, []);
 
   return (
-    <div className="flex justify-center items-center bg-gray-50">
-      <div className="bg-white rounded-lg w-[734px] h-[679px]">
-        <h3 className="text-center text-[24px] font-semibold text-gray-800">
+    <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+        <h3 className="text-base text-center sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
           Shop Details
         </h3>
-        <p className="text-center text-[16px] text-[#1B1717] mt-4 mb-6">
+        <p className="text-xs text-center sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[gilroy-medium] mt-1 max-w-[90%] mx-auto">
           Tell Us About Your Business
         </p>
-        
+
         {/* Shop Name Section - Separate */}
-        <div className="w-[534px] mx-auto mb-6">
-          <label className="block text-[20px] font-medium text-[#1B1717] mb-2">
+        <div className="w-full max-w-[534px] mx-auto mb-6">
+          <label className="block text-lg font-[gilroy-medium] text-[#1B1717] mb-2">
             Shop Name
           </label>
-          
+
           <div className="relative">
             <img
               src="/img/Store.png"
               alt="Shop"
-              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
-                formData.shopName ? "opacity-100" : "opacity-50"
-              }`}
+              className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
             />
-            
+
             <div
               className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
                 formData.shopName ? "bg-[#1B1717]" : "bg-gray-300"
               }`}
             />
-            
+
             <input
               type="text"
               name="shopName"
-              value={formData.shopName || ''}
+              value={formData.shopName || ""}
               onChange={handleChange}
               placeholder="Enter Shop Name"
-              className="w-full border border-[#1B1717] border-opacity-80 h-[60px] rounded-lg py-2 pl-14 pr-3 text-sm outline-none"
+              className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
+              font-[gilroy-medium]
+             
+              rounded-lg
+              pl-10 md:pl-12 lg:pl-14
+              pr-3
+              text-sm md:text-base
+              outline-none
+          border-[#1B1717]/80
+              transition
+            `}
             />
           </div>
         </div>
 
         {/* Picture Upload Section Label - Separate */}
-        <div className="w-[534px] mx-auto mb-3">
-          <label className="block text-[20px] font-medium text-[#1B1717]">
+        <div className="w-full max-w-[534px] mx-auto mb-4">
+          <label className="block text-lg font-[gilroy-medium] text-[#1B1717]">
             Click Your Picture With Shop
           </label>
         </div>
 
         {/* Dotted Border Card - Fixed dimensions */}
-        <div className="w-[534px] h-[201px] mx-auto mb-4">
-          <div className="border-2 border-dashed border-[#1B1717] border-opacity-30 rounded-lg h-full relative overflow-hidden bg-gray-50">
+        <div className="w-full h-[170px] sm:h-[180px] md:h-[190px] lg:h-[200px]">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
             {/* Always render video element but hide/show it based on state */}
-            <video 
-              ref={videoRef} 
-              className={`w-full h-full object-cover rounded-lg ${isCameraActive ? 'block' : 'hidden'}`}
-              playsInline 
-              muted 
+            <video
+              ref={videoRef}
+              className={`w-full h-full object-cover rounded-lg ${isCameraActive ? "block" : "hidden"}`}
+              playsInline
+              muted
               autoPlay
-              style={{ 
-                minHeight: '100%',
-                minWidth: '100%',
-                backgroundColor: '#000'
+              style={{
+                minHeight: "100%",
+                minWidth: "100%",
+                backgroundColor: "#000",
               }}
             />
-            
+
             {/* Show placeholder when no photo and camera not active */}
             {!formData.shopPhotoDataUrl && !isCameraActive && (
-              <div 
-                className="h-full flex flex-col items-center justify-center p-4 cursor-pointer absolute inset-0"
+              <div
+                className="absolute inset-0 flex items-center justify-center"
                 onClick={startCamera}
               >
                 <img
                   src="/img/Camera.png"
                   alt="Camera"
-                  className="w-12 h-12 mb-2"
+                  className="w-8 h-8 sm:w-10 sm:h-10"
                 />
-                <p className="text-center text-[#1B1717] text-sm mb-2">Click Your Picture With Shop</p>
+                <p className="absolute inset-0 top-14 flex flex-col items-center justify-center gap-2">
+                  Click Your Picture With Shop
+                </p>
               </div>
             )}
-            
+
             {/* Show captured image when photo exists and camera not active */}
             {formData.shopPhotoDataUrl && !isCameraActive && (
               <img
-                src={formData.shopPhotoDataUrl} 
-                alt="Shop" 
+                src={formData.shopPhotoDataUrl}
+                alt="Shop"
                 className="w-full h-full object-cover rounded-lg absolute inset-0"
               />
             )}
-            
+
             {/* Buttons - Show when camera is active or when photo exists */}
             {(isCameraActive || formData.shopPhotoDataUrl) && (
-              <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
+              <div className="absolute bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 flex gap-3 z-10">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     if (formData.shopPhotoDataUrl) {
-                      setFormData(d => ({ ...d, shopPhotoDataUrl: '' }));
+                      setFormData((d) => ({ ...d, shopPhotoDataUrl: "" }));
                     }
                     if (isCameraActive) {
                       stopCamera();
                     }
                     startCamera();
                   }}
-                  className="border border-[#039155] text-[#039155] bg-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-50 transition shadow-md"
+                  className="border border-[#039155] text-[#039155] bg-white px-4 py-1.5 rounded-lg text-sm font-[gilroy-medium] hover:bg-green-50 transition shadow-md"
                 >
                   Retake
                 </button>
@@ -329,10 +340,10 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${
+                  className={`px-4 py-1.5 rounded-lg text-sm font-[gilroy-medium] transition shadow-md ${
                     isCameraActive
-                      ? 'bg-[#039155] text-white hover:bg-green-700'
-                      : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      ? "bg-[#039155] text-white hover:bg-green-700"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
                   }`}
                 >
                   Capture
@@ -344,20 +355,27 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
         </div>
 
         {/* Image Upload Guidelines */}
-        <div className="w-[534px] mx-auto">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className=" my-2">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 font-[gilroy-medium]">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">Capture A Clear View Of The Shop</span>
+                <span className="text-sm text-[#1B1717]">
+                  Capture A Clear View Of The Shop
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">Good Lighting Required – Avoid Dark Or Blurry Images.</span>
+                <span className="text-sm text-[#1B1717]">
+                  Good Lighting Required – Avoid Dark Or Blurry Images.
+                </span>
               </li>
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />
-                <span className="text-sm text-[#1B1717]">No Personal Or Unrelated Photos –The Shop Image Should Be Uploaded.</span>
+                <span className="text-sm text-[#1B1717]">
+                  No Personal Or Unrelated Photos –The Shop Image Should Be
+                  Uploaded.
+                </span>
               </li>
             </ul>
           </div>
@@ -380,14 +398,20 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl}
-            className={`w-full py-2 rounded-lg text-white text-[24px] font-medium h-[60px] transition mt-5 ${
-              postShopDetailsLoading || !formData.shopName || !formData.shopPhotoDataUrl
-                ? 'bg-gray-400 cursor-not-allowed'
-                : 'bg-[#039155] hover:bg-green-700'
+            disabled={
+              postShopDetailsLoading ||
+              !formData.shopName ||
+              !formData.shopPhotoDataUrl
+            }
+            className={`w-full h-10 sm:h-11 md:h-12 mt-2 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+              postShopDetailsLoading ||
+              !formData.shopName ||
+              !formData.shopPhotoDataUrl
+                ? "bg-gray-400 cursor-not-allowed"
+                : "bg-[#039155] hover:bg-green-700"
             }`}
           >
-            {postShopDetailsLoading ? 'Submitting...' : 'Submit'}
+            {postShopDetailsLoading ? "Submitting..." : "Submit"}
           </button>
         </div>
       </div>
@@ -396,4 +420,3 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 }
 
 export default Step5;
-
