@@ -78,6 +78,7 @@ const CreateCompanyUser = () => {
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
+  const [hideNavigation, setHideNavigation] = useState(false);
   const [activeNav, setActiveNav] = useState("Master Distributor");
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
@@ -710,78 +711,82 @@ const CreateCompanyUser = () => {
   return (
     <div className="text-[#1B1717] w-full h-full  py-3  px-2 ">
       <div className="w-full h-full ">
-        {/* Header Navigation */}
-        <div className="w-2/4 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow py-3 ">
-            <nav className="flex justify-evenly ">
-              <div className="inline-flex gap-3  p-2 rounded-2xl">
-                {["Master Distributor", "Distributor", "Retailers"].map(
-                  (item) => (
-                    <button
-                      key={item}
-                      onClick={() => {
-                        setActiveNav(item);
-                        setShowOnboardingList(false);
-                      }}
-                      className="relative"
-                    >
-                      <div className="relative w-[160px] text-center">
-                        {/* Active pill */}
-                        {activeNav === item && (
-                          <motion.div
-                            layoutId="active-nav-pill"
-                            className="absolute inset-0 bg-[#039155] rounded-xl"
-                            transition={{
-                              type: "spring",
-                              stiffness: 500,
-                              damping: 35,
-                            }}
-                          />
-                        )}
+        {/* Header Navigation - Hide when ProfileDetails is shown from child */}
+        {!hideNavigation && (
+          <div className="w-2/4 mb-6 sm:mb-8">
+            <div className="bg-white rounded-xl shadow py-3 ">
+              <nav className="flex justify-evenly ">
+                <div className="inline-flex gap-3  p-2 rounded-2xl">
+                  {["Master Distributor", "Distributor", "Retailers"].map(
+                    (item) => (
+                      <button
+                        key={item}
+                        onClick={() => {
+                          setActiveNav(item);
+                          setShowOnboardingList(false);
+                        }}
+                        className="relative"
+                      >
+                        <div className="relative w-[160px] text-center">
+                          {/* Active pill */}
+                          {activeNav === item && (
+                            <motion.div
+                              layoutId="active-nav-pill"
+                              className="absolute inset-0 bg-[#039155] rounded-xl"
+                              transition={{
+                                type: "spring",
+                                stiffness: 500,
+                                damping: 35,
+                              }}
+                            />
+                          )}
 
-                        {/* Text */}
-                        <span
-                          className={`relative z-10 block py-2 text-sm sm:text-base font-[gilroy-medium]
+                          {/* Text */}
+                          <span
+                            className={`relative z-10 block py-2 text-sm sm:text-base font-[gilroy-medium]
               ${
                 activeNav === item
                   ? "text-white"
                   : "text-[#1B1717] hover:text-[#039155]"
               }`}
-                        >
-                          {item}
-                        </span>
-                      </div>
-                    </button>
-                  ),
-                )}
-              </div>
-            </nav>
+                          >
+                            {item}
+                          </span>
+                        </div>
+                      </button>
+                    ),
+                  )}
+                </div>
+              </nav>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Top Buttons */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <button
-            onClick={() => setShowOnboardingList(false)}
-            className={`px-4 py-2 rounded-2xl font-medium shadow-md text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                : "bg-[#039155] text-white"
-            }`}
-          >
-            All List
-          </button>
-          <button
-            onClick={() => setShowOnboardingList(true)}
-            className={`px-4 py-2 rounded-2xl font-medium text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-[#039155] text-white shadow-md"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            Onboarding Process
-          </button>
-        </div>
+        {/* Top Buttons - Hide when ProfileDetails is shown from child */}
+        {!hideNavigation && (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <button
+              onClick={() => setShowOnboardingList(false)}
+              className={`px-4 py-2 rounded-2xl font-medium shadow-md text-sm sm:text-base ${
+                showOnboardingList
+                  ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                  : "bg-[#039155] text-white"
+              }`}
+            >
+              All List
+            </button>
+            <button
+              onClick={() => setShowOnboardingList(true)}
+              className={`px-4 py-2 rounded-2xl font-medium text-sm sm:text-base ${
+                showOnboardingList
+                  ? "bg-[#039155] text-white shadow-md"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+            >
+              Onboarding Process
+            </button>
+          </div>
+        )}
 
         {(() => {
           const apiData = getApiDataForComponents();
@@ -813,6 +818,7 @@ const CreateCompanyUser = () => {
                 embedded={true}
                 tableData={apiData}
                 isLoading={isTableLoading}
+                onProfileDetailsShow={(show) => setHideNavigation(show)}
               />
             );
           }
