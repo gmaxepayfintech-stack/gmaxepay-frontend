@@ -5,10 +5,12 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import {
-  getSlabList,
-  assignSlabToCompany,
+  getSlabVisibility,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
+import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
+import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import { useNotification } from "../../context/NotificationContext";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -21,6 +23,7 @@ import { motion } from "framer-motion";
 const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
   const [imageError, setImageError] = useState(false);
@@ -34,13 +37,27 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get slab list from Redux
-  const slabList = useSelector((state) => state?.slab?.slabs || []);
-  const assignSlabLoading = useSelector(
-    (state) => state?.slab?.assignSlabLoading || false,
+  // Get slab visibility from Redux (with isSubscribed field)
+  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  const visibilityLoading = useSelector(
+    (state) => state?.slab?.visibilityLoading || false,
   );
-  const assignSlabSuccess = useSelector(
-    (state) => state?.slab?.assignSlabSuccess || false,
+  const upgradeLoading = useSelector(
+    (state) => state?.subscription?.upgradeLoading || false,
+  );
+  const upgradeSuccess = useSelector(
+    (state) => state?.subscription?.upgradeSuccess || false,
+  );
+  const upgradeError = useSelector(
+    (state) => state?.subscription?.upgradeError || null,
+  );
+
+  // Get wallet balance from Redux
+  const companyWalletBalance = useSelector(
+    (state) => state?.wallet?.companyWalletBalance || null,
+  );
+  const walletBalanceLoading = useSelector(
+    (state) => state?.loading?.isLoading || false,
   );
 
   // Extract data from companyAdminData (do this before early returns to maintain hook order)
@@ -71,14 +88,15 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     setImageError(false);
   }, [companyAdminData]);
 
-  // Fetch slab list when company admin data is loaded (skip if skipApi is true)
+  // Fetch slab visibility when company admin data is loaded (skip if skipApi is true)
   useEffect(() => {
     if (skipApi) return; // Skip API calls if skipApi is true
     if (companyAdminData) {
-      // Try to get companyId from companyDetails or use data.id as fallback
+      // Get userId from data.id and companyId from companyDetails
+      const userId = data?.id;
       const companyId = companyDetails?.companyId || data?.id;
-      if (companyId) {
-        dispatch(getSlabList(companyId, 1, 10));
+      if (userId && companyId) {
+        dispatch(getSlabVisibility(userId, companyId));
       }
     }
   }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
@@ -90,17 +108,47 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle assign slab success (skip if skipApi is true)
+  // Handle upgrade success (skip if skipApi is true)
   useEffect(() => {
     if (skipApi) return; // Skip API calls if skipApi is true
-    if (assignSlabSuccess) {
+    if (upgradeSuccess) {
       setShowConfirmModal(false);
       // Refresh company admin data to get updated slabId
       if (data?.id) {
         dispatch(getCompanyAdmin(data.id));
       }
+      // Refresh slab visibility
+      const userId = data?.id;
+      const companyId = companyDetails?.companyId || data?.id;
+      if (userId && companyId) {
+        dispatch(getSlabVisibility(userId, companyId));
+      }
     }
-  }, [assignSlabSuccess, data?.id, dispatch, skipApi]);
+  }, [upgradeSuccess, data?.id, companyDetails?.companyId, dispatch, skipApi]);
+
+  // Fetch wallet balance when confirmation modal opens (only if not subscribed)
+  useEffect(() => {
+    if (showConfirmModal && selectedScheme && !skipApi) {
+      const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+      const isSubscribed = selectedSlab?.isSubscribed || false;
+      // Only fetch wallet balance if NOT subscribed (for upgrade)
+      if (!isSubscribed) {
+        dispatch(getCompanyWalletBalance());
+      }
+    }
+  }, [showConfirmModal, selectedScheme, slabList, dispatch, skipApi]);
+
+  // Handle upgrade error from API
+  useEffect(() => {
+    if (upgradeError) {
+      // Show error notification
+      showNotification({
+        type: 'error',
+        message: upgradeError,
+        duration: 5000,
+      });
+    }
+  }, [upgradeError, showNotification]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
@@ -699,14 +747,21 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
                     value={selectedScheme}
                     onChange={(e) => setSelectedScheme(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                    disabled={assignSlabLoading}
+                    disabled={upgradeLoading || visibilityLoading}
                   >
                     <option value="">Select Slab</option>
-                    {slabList.map((slab) => (
-                      <option key={slab.id} value={slab.id}>
-                        {slab.slabName} ({slab.schemaType})
-                      </option>
-                    ))}
+                    {slabList.map((slab) => {
+                      const amountDisplay = 
+                        slab.slabAmount === "free" || slab.slabAmount === 0 
+                          ? "Free" 
+                          : `₹${slab.slabAmount}`;
+                      const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                      return (
+                        <option key={slab.id} value={slab.id}>
+                          {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
@@ -722,11 +777,17 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
                   disabled={
                     !selectedScheme ||
                     selectedScheme === String(data?.slabId) ||
-                    assignSlabLoading
+                    upgradeLoading ||
+                    visibilityLoading
                   }
                   className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  {assignSlabLoading ? "Upgrading..." : "Upgrade"}
+                  {(() => {
+                    if (upgradeLoading) return "Processing...";
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Change Slab" : "Upgrade";
+                  })()}
                 </button>
               </div>
             </div>
@@ -925,30 +986,80 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
-                  Confirm Slab Upgrade
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Confirm Slab Change" : "Confirm Slab Upgrade";
+                  })()}
                 </h3>
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
               </div>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
               <div className="mb-6">
+                {/* Wallet Balance Display - Only show if NOT subscribed */}
+                {(() => {
+                  const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                  const isSubscribed = selectedSlab?.isSubscribed || false;
+                  
+                  // Only show wallet balance if NOT subscribed (for upgrade)
+                  if (!isSubscribed) {
+                    return (
+                      <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
+                        <p className="text-lg font-semibold text-[#1B1717]">
+                          {walletBalanceLoading ? (
+                            <span className="text-gray-400">Loading...</span>
+                          ) : companyWalletBalance?.data?.mainWallet ? (
+                            `₹${companyWalletBalance.data.mainWallet}`
+                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
+                            `₹${companyWalletBalance.data.data.mainWallet}`
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <p className="text-gray-700 mb-2">
-                  Are you sure you want to upgrade the membership scheme?
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed
+                      ? "Are you sure you want to change the membership scheme?"
+                      : "Are you sure you want to upgrade the membership scheme?";
+                  })()}
                 </p>
                 {selectedScheme && (
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
                     <span className="font-semibold">
-                      {slabList.find((s) => String(s.id) === selectedScheme)
-                        ?.slabName || "N/A"}
+                      {(() => {
+                        const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                        if (!selectedSlab) return "N/A";
+                        const amountDisplay = 
+                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
+                            ? "Free" 
+                            : `₹${selectedSlab.slabAmount}`;
+                        const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                        return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
+                      })()}
                     </span>
+                  </p>
+                )}
+                {upgradeError && (
+                  <p className="text-sm text-red-600 mt-2 font-semibold bg-red-50 p-2 rounded border border-red-200">
+                    {upgradeError}
                   </p>
                 )}
               </div>
@@ -956,7 +1067,7 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
                 <button
                   onClick={() => setShowConfirmModal(false)}
                   className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={assignSlabLoading}
+                  disabled={upgradeLoading}
                 >
                   Cancel
                 </button>
@@ -965,18 +1076,21 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
                     if (skipApi) return; // Skip API call if skipApi is true
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
-                      const result = await dispatch(
-                        assignSlabToCompany(selectedScheme, companyId),
-                      );
-                      if (result?.success) {
-                        // Success will be handled by useEffect
-                      }
+                      await dispatch(upgradeOrChangeSlab(selectedScheme, companyId));
+                      // Error message from API will be shown via useEffect watching upgradeError
                     }
                   }}
-                  disabled={skipApi || assignSlabLoading}
+                  disabled={skipApi || upgradeLoading}
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  {assignSlabLoading ? "Upgrading..." : "Confirm Upgrade"}
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    if (upgradeLoading) {
+                      return isSubscribed ? "Changing..." : "Upgrading...";
+                    }
+                    return isSubscribed ? "Confirm Change" : "Confirm Upgrade";
+                  })()}
                 </button>
               </div>
             </div>
