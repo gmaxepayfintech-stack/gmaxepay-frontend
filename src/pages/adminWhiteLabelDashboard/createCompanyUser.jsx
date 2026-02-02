@@ -15,8 +15,6 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { X, ZoomIn, User } from "lucide-react";
 import * as XLSX from "xlsx";
-// import WhiteLabel from "./WhiteLabel";
-// import AdminWhitelabelList from "./adminWhitelabelList";
 import MasterDistribution from "./masterDistribution";
 import MasterDistributionOnboarding from "./masterDistributionOnboarding";
 import Distribution from "./distribution";
@@ -75,7 +73,7 @@ const generateTableData = (type, count = 12) => {
   }));
 };
 
-const CreateWhiteLabel = () => {
+const CreateCompanyUser = () => {
   const dispatch = useDispatch();
 
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
@@ -361,7 +359,6 @@ const CreateWhiteLabel = () => {
 
   const tableHeaders = [
     "ID",
-    "User",
     "User Agent Code",
     "Name",
     "User Role",
@@ -702,10 +699,6 @@ const CreateWhiteLabel = () => {
     const fileName = `${activeNav}_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
-
-  // if (showWhiteLabel) {
-  //   return <WhiteLabel onBack={() => setShowWhiteLabel(false)} />;
-  // }
 
   if (showProfileDetails) {
     return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
@@ -2341,4 +2334,4 @@ const CreateWhiteLabel = () => {
   );
 };
 
-export default CreateWhiteLabel;
+export default CreateCompanyUser;
