@@ -2,6 +2,9 @@ import {
   SLAB_CREATE_START,
   SLAB_CREATE_SUCCESS,
   SLAB_CREATE_FAILURE,
+  SLAB_UPDATE_START,
+  SLAB_UPDATE_SUCCESS,
+  SLAB_UPDATE_FAILURE,
   SLAB_GET_LIST_START,
   SLAB_GET_LIST_SUCCESS,
   SLAB_GET_LIST_FAILURE,
@@ -13,6 +16,9 @@ import {
   SLAB_ASSIGN_START,
   SLAB_ASSIGN_SUCCESS,
   SLAB_ASSIGN_FAILURE,
+  SLAB_GET_VISIBILITY_START,
+  SLAB_GET_VISIBILITY_SUCCESS,
+  SLAB_GET_VISIBILITY_FAILURE,
 } from '../actionType/slabActionType';
 
 const initialState = {
@@ -29,6 +35,9 @@ const initialState = {
   createSlabSuccess: false,
   createSlabError: null,
   createSlabMessage: null,
+  updateSlabSuccess: false,
+  updateSlabError: null,
+  updateSlabMessage: null,
   // Slab commission list state
   commError: null,
   commData: [],
@@ -42,6 +51,11 @@ const initialState = {
   assignSlabError: null,
   assignSlabSuccess: false,
   assignSlabMessage: null,
+  // Slab visibility state
+  visibilityLoading: false,
+  visibilityError: null,
+  visibilityData: [],
+  visibilitySuccess: false,
 };
 
 const slabReducer = (state = initialState, action) => {
@@ -71,6 +85,33 @@ const slabReducer = (state = initialState, action) => {
         createSlabSuccess: false,
         createSlabError: action.payload,
         createSlabMessage: null,
+      };
+
+    case SLAB_UPDATE_START:
+      return {
+        ...state,
+        loading: true,
+        updateSlabSuccess: false,
+        updateSlabError: null,
+        updateSlabMessage: null,
+      };
+
+    case SLAB_UPDATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        updateSlabSuccess: true,
+        updateSlabError: null,
+        updateSlabMessage: action.payload?.message || 'Slab updated successfully',
+      };
+
+    case SLAB_UPDATE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        updateSlabSuccess: false,
+        updateSlabError: action.payload,
+        updateSlabMessage: null,
       };
 
     case SLAB_GET_LIST_START:
@@ -169,6 +210,33 @@ const slabReducer = (state = initialState, action) => {
         assignSlabError: action.payload,
         assignSlabSuccess: false,
         assignSlabMessage: null,
+      };
+
+    case SLAB_GET_VISIBILITY_START:
+      return {
+        ...state,
+        visibilityLoading: true,
+        visibilityError: null,
+        visibilitySuccess: false,
+        visibilityData: [],
+      };
+
+    case SLAB_GET_VISIBILITY_SUCCESS:
+      return {
+        ...state,
+        visibilityLoading: false,
+        visibilityError: null,
+        visibilitySuccess: true,
+        visibilityData: action.payload?.data || [],
+      };
+
+    case SLAB_GET_VISIBILITY_FAILURE:
+      return {
+        ...state,
+        visibilityLoading: false,
+        visibilityError: action.payload,
+        visibilitySuccess: false,
+        visibilityData: [],
       };
 
     default:
