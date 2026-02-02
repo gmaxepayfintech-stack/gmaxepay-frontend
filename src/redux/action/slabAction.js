@@ -755,11 +755,9 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
       schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
       schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
       subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
     };
 
-    console.log('Creating company slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/company/slabs/create-slab`);
-    console.log('Company ID:', companyId);
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/company/slabs/create-slab`,
@@ -773,10 +771,8 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
       }
     );
 
-    console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -854,6 +850,7 @@ export const updateCompanySlab = (slabId, slabData, companyId) => async (dispatc
       schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
       schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
       subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
     };
 
     console.log('Updating company slab with payload:', payload);
