@@ -30,6 +30,7 @@ const MasterDistribution = ({
   embedded = false,
   tableData: propTableData = [],
   isLoading = false,
+  onProfileDetailsShow = null,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -297,7 +298,12 @@ const MasterDistribution = ({
   if (showProfileDetails) {
     return (
       <ProfileDetails
-        onBack={() => setShowProfileDetails(false)}
+        onBack={() => {
+          setShowProfileDetails(false);
+          if (onProfileDetailsShow) {
+            onProfileDetailsShow(false);
+          }
+        }}
         skipApi={true}
       />
     );
@@ -460,6 +466,9 @@ const MasterDistribution = ({
                         <button
                           onClick={() => {
                             setShowProfileDetails(true);
+                            if (onProfileDetailsShow) {
+                              onProfileDetailsShow(true);
+                            }
                           }}
                           className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                         >
