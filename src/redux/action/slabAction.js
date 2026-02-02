@@ -826,6 +826,74 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
   }
 };
 
+// Get all company slab visibility list (for company user)
+export const getAllCompanySlabVisibility = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_GET_VISIBILITY_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');    
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/company/user/visibilityList`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          status: data?.status,
+          message: data?.message || 'Slab visibility retrieved successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data || [],
+        message: data?.message || 'Slab visibility retrieved successfully',
+      };
+    } else {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_GET_VISIBILITY_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
 // Get company slab list
 export const getCompanySlabList = (companyId, page = 1, paginate = 6) => async (dispatch) => {
   dispatch({ type: LOADING_START });

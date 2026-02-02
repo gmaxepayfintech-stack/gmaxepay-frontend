@@ -4,9 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import {
-  getSlabVisibility,
-} from "../../redux/action/slabAction";
+import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
 import { getUserDetails } from "../../redux/action/whiteLabelAction";
 import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
@@ -97,28 +95,17 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     return "";
   };
 
-  // Fetch user details on component mount (always fetch when page is showing)
+  // Fetch user details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
+    if (skipApi) return; // Skip API calls if skipApi is true
     dispatch(getUserDetails());
-  }, [dispatch]);
+    dispatch(getAllCompanySlabVisibility());
+  }, [dispatch, skipApi]);
 
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
   }, [profileData]);
-
-  // Fetch slab visibility when profile data is loaded (skip if skipApi is true)
-  useEffect(() => {
-    if (skipApi) return; // Skip API calls if skipApi is true
-    if (profileData) {
-      // Get userId from data.id and companyId from companyDetails
-      const userId = data?.id;
-      const companyId = companyDetails?.companyId || data?.id;
-      if (userId && companyId) {
-        dispatch(getSlabVisibility(userId, companyId));
-      }
-    }
-  }, [profileData, companyDetails?.companyId, data?.id, dispatch, skipApi]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
@@ -135,13 +122,9 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
       // Refresh user details to get updated data
       dispatch(getUserDetails());
       // Refresh slab visibility
-      const userId = data?.id;
-      const companyId = companyDetails?.companyId || data?.id;
-      if (userId && companyId) {
-        dispatch(getSlabVisibility(userId, companyId));
-      }
+      dispatch(getAllCompanySlabVisibility());
     }
-  }, [upgradeSuccess, data?.id, companyDetails?.companyId, dispatch, skipApi]);
+  }, [upgradeSuccess, dispatch, skipApi]);
 
   // Fetch wallet balance when confirmation modal opens (only if not subscribed)
   useEffect(() => {
@@ -183,8 +166,8 @@ const AdminProfile = ({ onBack = null, skipApi = true }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading user details
-  if (isUserDetailsLoading || (!profileData && !skipApi)) {
+  // Show skeleton while loading user details or slab visibility
+  if ((isUserDetailsLoading || visibilityLoading) || (!profileData && !skipApi)) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
