@@ -9,12 +9,15 @@ import FundRequest from "../../pages/adminWhiteLabelDashboard/fundManagement/Fun
 import SchemeMaster from "../../pages/adminWhiteLabelDashboard/resources/SchemeMaster";
 import Subscription from "../../pages/adminWhiteLabelDashboard/resources/Subscription";
 import TaxHistory from "../../pages/adminWhiteLabelDashboard/taxHistoryAdmin/TaxHistory";
+import AdminProfile from "../../pages/adminWhiteLabelDashboard/adminProfile";
+
 const WhitelabelAdmin = () => {
     return (
         <WhiteLabelDashboardLayout>
             <Routes>
                 <Route path="/" element={<AdminDashboardHome />} />
                 <Route path="/home" element={<AdminDashboardHome />} />
+                <Route path="/profile" element={<AdminProfile />} />
                 <Route path="/members/roleUpgrade" element={<RoleUpgradeWhiteLabel />} />
                 <Route path="/members/companyUser" element={<CreateCompanyUser />} />
                 <Route path="/onboarding" element={<AdminWhitelabelList />} />
