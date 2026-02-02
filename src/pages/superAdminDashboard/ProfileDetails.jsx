@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import {
-  getSlabList,
+  getSlabVisibility,
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
@@ -32,8 +32,11 @@ const ProfileDetails = ({ onBack = null }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get slab list from Redux
-  const slabList = useSelector((state) => state?.slab?.slabs || []);
+  // Get slab visibility from Redux
+  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  const visibilityLoading = useSelector(
+    (state) => state?.slab?.visibilityLoading || false,
+  );
   const assignSlabLoading = useSelector(
     (state) => state?.slab?.assignSlabLoading || false,
   );
@@ -69,13 +72,14 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [companyAdminData]);
 
-  // Fetch slab list when company admin data is loaded
+  // Fetch slab visibility when company admin data is loaded
   useEffect(() => {
     if (companyAdminData) {
-      // Try to get companyId from companyDetails or use data.id as fallback
+      // Get userId from data.id and companyId from companyDetails
+      const userId = data?.id;
       const companyId = companyDetails?.companyId || data?.id;
-      if (companyId) {
-        dispatch(getSlabList(companyId, 1, 10));
+      if (userId && companyId) {
+        dispatch(getSlabVisibility(userId, companyId));
       }
     }
   }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
@@ -694,14 +698,21 @@ const ProfileDetails = ({ onBack = null }) => {
                     value={selectedScheme}
                     onChange={(e) => setSelectedScheme(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                    disabled={assignSlabLoading}
+                    disabled={assignSlabLoading || visibilityLoading}
                   >
                     <option value="">Select Slab</option>
-                    {slabList.map((slab) => (
-                      <option key={slab.id} value={slab.id}>
-                        {slab.slabName} ({slab.schemaType})
-                      </option>
-                    ))}
+                    {slabList.map((slab) => {
+                      const amountDisplay = 
+                        slab.slabAmount === "free" || slab.slabAmount === 0 
+                          ? "Free" 
+                          : `₹${slab.slabAmount}`;
+                      const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                      return (
+                        <option key={slab.id} value={slab.id}>
+                          {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
+                        </option>
+                      );
+                    })}
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
@@ -717,7 +728,8 @@ const ProfileDetails = ({ onBack = null }) => {
                   disabled={
                     !selectedScheme ||
                     selectedScheme === String(data?.slabId) ||
-                    assignSlabLoading
+                    assignSlabLoading ||
+                    visibilityLoading
                   }
                   className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
@@ -920,19 +932,19 @@ const ProfileDetails = ({ onBack = null }) => {
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
             <div className="p-6">
-              <div className="flex items-center justify-between mb-4">
+              <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
                   Confirm Slab Upgrade
                 </h3>
-                <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <X className="w-6 h-6" />
-                </button>
               </div>
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
               <div className="mb-6">
                 <p className="text-gray-700 mb-2">
                   Are you sure you want to upgrade the membership scheme?
@@ -941,8 +953,16 @@ const ProfileDetails = ({ onBack = null }) => {
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
                     <span className="font-semibold">
-                      {slabList.find((s) => String(s.id) === selectedScheme)
-                        ?.slabName || "N/A"}
+                      {(() => {
+                        const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                        if (!selectedSlab) return "N/A";
+                        const amountDisplay = 
+                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
+                            ? "Free" 
+                            : `₹${selectedSlab.slabAmount}`;
+                        const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                        return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
+                      })()}
                     </span>
                   </p>
                 )}

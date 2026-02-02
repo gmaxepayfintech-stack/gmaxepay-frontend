@@ -5,6 +5,9 @@ import {
   SLAB_CREATE_START,
   SLAB_CREATE_SUCCESS,
   SLAB_CREATE_FAILURE,
+  SLAB_UPDATE_START,
+  SLAB_UPDATE_SUCCESS,
+  SLAB_UPDATE_FAILURE,
   SLAB_GET_LIST_START,
   SLAB_GET_LIST_SUCCESS,
   SLAB_GET_LIST_FAILURE,
@@ -16,6 +19,9 @@ import {
   SLAB_ASSIGN_START,
   SLAB_ASSIGN_SUCCESS,
   SLAB_ASSIGN_FAILURE,
+  SLAB_GET_VISIBILITY_START,
+  SLAB_GET_VISIBILITY_SUCCESS,
+  SLAB_GET_VISIBILITY_FAILURE,
 } from '../actionType/slabActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -38,11 +44,59 @@ export const createSlab = (slabData, companyId) => async (dispatch) => {
       console.error('No company ID provided');
       throw new Error('Company ID is required');
     }
+
+    const schemaMode = (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase();
+    const schemaType = (slabData.schemeType || slabData.schemaType || 'free').toLowerCase();
+    
+    // Validate views for private mode
+    let validatedViews = [];
+    if (schemaMode === 'private') {
+      const views = slabData.views || [];
+      if (!Array.isArray(views) || views.length === 0) {
+        throw new Error('Views is required for private schemes and must contain at least one valid user ID');
+      }
+      // Filter out invalid values and ensure all are valid user IDs
+      validatedViews = views.filter(view => view && (typeof view === 'string' || typeof view === 'number'));
+      if (validatedViews.length === 0) {
+        throw new Error('Views must contain at least one valid user ID');
+      }
+    } else {
+      // For global mode, views is optional
+      if (slabData.views && Array.isArray(slabData.views) && slabData.views.length > 0) {
+        validatedViews = slabData.views.filter(view => view && (typeof view === 'string' || typeof view === 'number'));
+      }
+    }
+
+    // Validate subscriptionAmount for premium type
+    let subscriptionAmount = 0;
+    if (schemaType === 'premium') {
+      const amount = slabData.subscriptionAmount;
+      if (amount === undefined || amount === null || amount === '') {
+        throw new Error('Subscription amount is required for premium schemes');
+      }
+      const numAmount = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+      if (isNaN(numAmount) || numAmount < 0) {
+        throw new Error('Subscription amount must be a valid non-negative number');
+      }
+      subscriptionAmount = numAmount;
+    } else {
+      // For free type, subscriptionAmount is optional (defaults to 0)
+      if (slabData.subscriptionAmount !== undefined && slabData.subscriptionAmount !== null && slabData.subscriptionAmount !== '') {
+        const numAmount = typeof slabData.subscriptionAmount === 'string' 
+          ? parseFloat(slabData.subscriptionAmount) 
+          : Number(slabData.subscriptionAmount);
+        if (!isNaN(numAmount) && numAmount >= 0) {
+          subscriptionAmount = numAmount;
+        }
+      }
+    }
     
     const payload = {
       slabName: slabData.schemeName || slabData.slabName || '',
-      schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
-      schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
+      schemaMode: schemaMode,
+      schemaType: schemaType,
+      ...(validatedViews.length > 0 && { views: validatedViews }),
+      ...(schemaType === 'premium' && { subscriptionAmount: subscriptionAmount }),
     };
 
     console.log('Creating slab with payload:', payload);
@@ -104,6 +158,153 @@ export const createSlab = (slabData, companyId) => async (dispatch) => {
     
     dispatch({
       type: SLAB_CREATE_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Update slab
+export const updateSlab = (slabId, slabData, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_UPDATE_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    if (!slabId) {
+      console.error('No slab ID provided');
+      throw new Error('Slab ID is required');
+    }
+
+    const schemaMode = (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase();
+    const schemaType = (slabData.schemeType || slabData.schemaType || 'free').toLowerCase();
+    
+    // Validate views for private mode
+    let validatedViews = [];
+    if (schemaMode === 'private') {
+      const views = slabData.views || [];
+      if (!Array.isArray(views) || views.length === 0) {
+        throw new Error('Views is required for private schemes and must contain at least one valid user ID');
+      }
+      // Filter out invalid values and ensure all are valid user IDs
+      validatedViews = views.filter(view => view && (typeof view === 'string' || typeof view === 'number'));
+      if (validatedViews.length === 0) {
+        throw new Error('Views must contain at least one valid user ID');
+      }
+    } else {
+      // For global mode, views is optional
+      if (slabData.views && Array.isArray(slabData.views) && slabData.views.length > 0) {
+        validatedViews = slabData.views.filter(view => view && (typeof view === 'string' || typeof view === 'number'));
+      }
+    }
+
+    // Validate subscriptionAmount for premium type
+    let subscriptionAmount = 0;
+    if (schemaType === 'premium') {
+      const amount = slabData.subscriptionAmount;
+      if (amount === undefined || amount === null || amount === '') {
+        throw new Error('Subscription amount is required for premium schemes');
+      }
+      const numAmount = typeof amount === 'string' ? parseFloat(amount) : Number(amount);
+      if (isNaN(numAmount) || numAmount < 0) {
+        throw new Error('Subscription amount must be a valid non-negative number');
+      }
+      subscriptionAmount = numAmount;
+    } else {
+      // For free type, subscriptionAmount is optional (defaults to 0)
+      if (slabData.subscriptionAmount !== undefined && slabData.subscriptionAmount !== null && slabData.subscriptionAmount !== '') {
+        const numAmount = typeof slabData.subscriptionAmount === 'string' 
+          ? parseFloat(slabData.subscriptionAmount) 
+          : Number(slabData.subscriptionAmount);
+        if (!isNaN(numAmount) && numAmount >= 0) {
+          subscriptionAmount = numAmount;
+        }
+      }
+    }
+    
+    const payload = {
+      slabName: slabData.schemeName || slabData.slabName || '',
+      schemaMode: schemaMode,
+      schemaType: schemaType,
+      ...(validatedViews.length > 0 && { views: validatedViews }),
+      ...(schemaType === 'premium' && { subscriptionAmount: subscriptionAmount }),
+    };
+
+    console.log('Updating slab with payload:', payload);
+    console.log('API Route:', `${API_ROUTE}/api/v1/admin/slabs/update/${slabId}`);
+    console.log('Company ID:', companyId);
+    console.log('Slab ID:', slabId);
+
+    const response = await api.put(
+      `${API_ROUTE}/api/v1/admin/slabs/update/${slabId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('API Response:', response);
+    const data = response?.data;
+    const { status } = data ?? {};
+    console.log('Response status:', status);
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_UPDATE_SUCCESS,
+        payload: {
+          data: data?.data || null,
+          status: data?.status,
+          message: data?.message || 'Slab updated successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      
+      // Refresh the list after updating
+      dispatch(getSlabList(companyId, 1, 6));
+      
+      return {
+        success: true,
+        data: data?.data,
+        message: data?.message || 'Slab updated successfully',
+      };
+    } else {
+      dispatch({
+        type: SLAB_UPDATE_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_UPDATE_FAILURE,
       payload: errorMessage,
     });
     dispatch({ type: LOADING_END });
@@ -365,6 +566,84 @@ export const updateSlabCommission = (companyId, roleId, payload) => async (dispa
       payload: errorMessage,
     });
 
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Get slab visibility by ID (id parameter is companyId or slabId depending on API)
+export const getSlabVisibility = (id, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_GET_VISIBILITY_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');    
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+
+    if (!id) {
+      throw new Error('ID is required');
+    }
+
+    if (!companyId) {
+      throw new Error('Company ID is required');
+    }
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/admin/slabs/visiblity/${id}`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          status: data?.status,
+          message: data?.message || 'Slab visibility retrieved successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data || [],
+        message: data?.message || 'Slab visibility retrieved successfully',
+      };
+    } else {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_GET_VISIBILITY_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
     return {
       success: false,
       message: errorMessage,
