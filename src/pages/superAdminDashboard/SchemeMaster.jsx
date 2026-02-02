@@ -11,7 +11,6 @@ import {
   ChevronDown,
   Check,
   Pencil,
-  Users,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../context/CompanyContext";
@@ -65,13 +64,6 @@ const SchemeMaster = () => {
   const [selectedUsersData, setSelectedUsersData] = useState([]);
   const modalRef = useRef(null);
   const userModalRef = useRef(null);
-
-  // Sidebar view users state (separate from user selection modal)
-  const [showSidebar, setShowSidebar] = useState(false);
-  const [activeUserTab, setActiveUserTab] = useState("masterDistributor"); // masterDistributor, distributor, retailer
-  const [sidebarUserSearchQuery, setSidebarUserSearchQuery] = useState("");
-  const [debouncedSidebarUserSearchQuery, setDebouncedSidebarUserSearchQuery] = useState("");
-  const [sidebarUserPage, setSidebarUserPage] = useState(1);
 
   // Get users list from Redux
   const usersListRaw = useSelector(
@@ -259,69 +251,6 @@ const SchemeMaster = () => {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [formData.views, showUserSelectionModal]);
-
-  // Debounce sidebar user search query
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSidebarUserSearchQuery(sidebarUserSearchQuery);
-      setSidebarUserPage(1); // Reset to first page when search changes
-    }, 500);
-    return () => clearTimeout(timer);
-  }, [sidebarUserSearchQuery]);
-
-  // Fetch users for sidebar when sidebar is open
-  useEffect(() => {
-    if (!showSidebar) return;
-
-    // Determine user role based on active tab
-    const roleMap = {
-      masterDistributor: 3,
-      distributor: 4,
-      retailer: 5,
-    };
-    const userRole = roleMap[activeUserTab];
-
-    // Determine search field based on input type
-    let customSearch = {};
-    if (debouncedSidebarUserSearchQuery.trim()) {
-      const searchValue = debouncedSidebarUserSearchQuery.trim();
-      // Check if search is a number (mobileNo) or text (name)
-      if (/^\d+$/.test(searchValue)) {
-        customSearch = { mobileNo: searchValue };
-      } else {
-        customSearch = { name: searchValue };
-      }
-    }
-
-    const payload = {
-      query: {
-        userRole: userRole,
-      },
-      customSearch: customSearch,
-      options: {
-        page: sidebarUserPage,
-        paginate: 50,
-        sort: { id: -1 },
-      },
-    };
-
-    dispatch(useList(payload));
-  }, [showSidebar, activeUserTab, debouncedSidebarUserSearchQuery, sidebarUserPage, dispatch]);
-
-  // Get sidebar users list from Redux (separate from user selection modal)
-  const sidebarUsersListRaw = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || []
-  );
-  const sidebarUsersList = useMemo(
-    () => (Array.isArray(sidebarUsersListRaw) ? sidebarUsersListRaw : []),
-    [sidebarUsersListRaw]
-  );
-  const sidebarUsersLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const sidebarUsersTotalCount = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || sidebarUsersList.length || 0;
-  });
-  const sidebarUsersTotalPages = Math.ceil(sidebarUsersTotalCount / 50) || 1;
 
   // Map API slabs to scheme format
   const mapSlabToScheme = (slab) => {
@@ -671,43 +600,26 @@ const SchemeMaster = () => {
             </p>
           </div>
 
-          <div className="flex gap-2 sm:gap-3 w-full sm:w-auto">
-            <button
-              onClick={() => setShowSidebar(true)}
-              className="flex items-center justify-center gap-2 bg-[#366BCD] text-white
-        px-3 py-2
-        sm:px-4 sm:py-2.5
-        md:px-4 md:py-3
-        rounded-lg font-[gilroy-medium]
-        hover:bg-blue-700 transition shadow-md
-        text-sm sm:text-base
-        flex-1 sm:flex-none"
-            >
-              <Users className="w-4 h-4 sm:w-5 sm:h-5" />
-              <span className="whitespace-nowrap">View Users</span>
-            </button>
-
-            <button
-              onClick={() => setIsModalOpen(true)}
-              className="flex items-center justify-center gap-4 bg-[#039155] text-white
+          <button
+            onClick={() => setIsModalOpen(true)}
+            className="flex items-center justify-center gap-4 bg-[#039155] text-white
         px-3 py-2
         sm:px-4 sm:py-2.5
         md:px-4 md:py-3
         rounded-lg font-[gilroy-medium]
         hover:bg-green-700 transition shadow-md
         text-sm sm:text-base
-        flex-1 sm:flex-none"
-            >
-              <span className="whitespace-nowrap">Create New Scheme</span>
+        w-full sm:w-auto"
+          >
+            <span className="whitespace-nowrap">Create New Scheme</span>
 
-              <div
-                className="rounded-full border border-white flex items-center justify-center flex-shrink-0
+            <div
+              className="rounded-full border border-white flex items-center justify-center flex-shrink-0
           w-3 h-3 sm:w-4 sm:h-4"
-              >
-                <Plus className="w-2 h-2 sm:w-3 sm:h-3" />
-              </div>
-            </button>
-          </div>
+            >
+              <Plus className="w-2 h-2 sm:w-3 sm:h-3" />
+            </div>
+          </button>
         </div>
       </div>
 
@@ -1843,207 +1755,6 @@ const SchemeMaster = () => {
               </button>
             </div>
           </div>
-        </div>
-      )}
-
-      {/* Sidebar View Users */}
-      {showSidebar && (
-        <div className="fixed inset-0 bg-[#D9D9D9]/80 flex z-50">
-          {/* Sidebar */}
-          <div className="bg-white w-full max-w-md sm:max-w-lg md:max-w-xl lg:max-w-2xl h-full flex flex-col shadow-2xl">
-            {/* Sidebar Header */}
-            <div className="bg-white border-b border-gray-200 px-4 sm:px-6 py-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-lg sm:text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717]">
-                  View Users
-                </h2>
-                <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular] mt-1">
-                  Master Distributor, Distributor & Retailer
-                </p>
-              </div>
-              <button
-                onClick={() => {
-                  setShowSidebar(false);
-                  setSidebarUserSearchQuery("");
-                  setDebouncedSidebarUserSearchQuery("");
-                  setSidebarUserPage(1);
-                }}
-                className="p-2 rounded-lg bg-[#039155] text-white hover:bg-green-700 transition"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-
-            {/* Tabs */}
-            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-2 flex gap-2 overflow-x-auto">
-              {[
-                { key: "masterDistributor", label: "Master Distributor", role: 3 },
-                { key: "distributor", label: "Distributor", role: 4 },
-                { key: "retailer", label: "Retailer", role: 5 },
-              ].map((tab) => (
-                <button
-                  key={tab.key}
-                  onClick={() => {
-                    setActiveUserTab(tab.key);
-                    setSidebarUserPage(1);
-                    setSidebarUserSearchQuery("");
-                    setDebouncedSidebarUserSearchQuery("");
-                  }}
-                  className={`px-4 py-2 rounded-lg font-[gilroy-medium] text-sm sm:text-base whitespace-nowrap transition ${
-                    activeUserTab === tab.key
-                      ? "bg-[#039155] text-white"
-                      : "bg-white text-[#1B1717] hover:bg-gray-100"
-                  }`}
-                >
-                  {tab.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Search Bar */}
-            <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/50" />
-                <input
-                  type="text"
-                  placeholder="Search by name or mobile number"
-                  value={sidebarUserSearchQuery}
-                  onChange={(e) => setSidebarUserSearchQuery(e.target.value)}
-                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/50 text-[#1B1717] rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] text-sm sm:text-base"
-                />
-              </div>
-            </div>
-
-            {/* Users List */}
-            <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4">
-              {sidebarUsersLoading ? (
-                <div className="flex justify-center items-center py-12">
-                  <ButtonLoader size={28} thickness={3} />
-                </div>
-              ) : sidebarUsersList.length === 0 ? (
-                <div className="text-center py-12 text-[#1B1717]/60">
-                  <Users className="w-12 h-12 mx-auto mb-3 text-[#1B1717]/30" />
-                  <p className="text-sm sm:text-base font-[gilroy-medium]">
-                    No users found
-                  </p>
-                  <p className="text-xs sm:text-sm text-[#1B1717]/50 mt-1">
-                    Try adjusting your search criteria
-                  </p>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  {sidebarUsersList.map((user) => (
-                    <div
-                      key={user.id || user._id}
-                      className="bg-white border border-gray-200 rounded-lg p-3 sm:p-4 hover:shadow-md transition"
-                    >
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex-1 min-w-0">
-                          <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
-                            {user.name || user.userName || "N/A"}
-                          </h3>
-                          <div className="mt-1 space-y-1">
-                            <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                              <span className="font-[gilroy-medium]">Mobile:</span> {user.mobileNo || user.mobile || user.mobileNumber || "N/A"}
-                            </p>
-                            {(user.email || user.emailId) && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Email:</span> {user.email || user.emailId}
-                              </p>
-                            )}
-                            {(user.userId || user.userAgentCode || user.agentCode) && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Agent Code:</span> {user.userId || user.userAgentCode || user.agentCode}
-                              </p>
-                            )}
-                            {(user.company || user.companyName) && (
-                              <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
-                                <span className="font-[gilroy-medium]">Company:</span> {user.company || user.companyName}
-                              </p>
-                            )}
-                          </div>
-                        </div>
-                        {user.status && (
-                          <div
-                            className={`px-2 py-1 rounded-full text-xs font-[gilroy-medium] whitespace-nowrap ${
-                              user.status === "Active"
-                                ? "bg-[#008D1E] text-white"
-                                : "bg-gray-500 text-white"
-                            }`}
-                          >
-                            {user.status}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {/* Pagination */}
-            {!sidebarUsersLoading && sidebarUsersTotalPages > 1 && (
-              <div className="border-t border-gray-200 px-4 sm:px-6 py-4 bg-white">
-                <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-                  <button
-                    onClick={() => setSidebarUserPage((prev) => Math.max(1, prev - 1))}
-                    disabled={sidebarUserPage === 1}
-                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-
-                  {Array.from({ length: Math.min(sidebarUsersTotalPages, 5) }, (_, i) => {
-                    let page;
-                    if (sidebarUsersTotalPages <= 5) {
-                      page = i + 1;
-                    } else if (sidebarUserPage <= 3) {
-                      page = i + 1;
-                    } else if (sidebarUserPage >= sidebarUsersTotalPages - 2) {
-                      page = sidebarUsersTotalPages - 4 + i;
-                    } else {
-                      page = sidebarUserPage - 2 + i;
-                    }
-                    return (
-                      <button
-                        key={page}
-                        onClick={() => setSidebarUserPage(page)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                          sidebarUserPage === page
-                            ? "bg-[#039155] text-white"
-                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                        }`}
-                      >
-                        {page}
-                      </button>
-                    );
-                  })}
-
-                  <button
-                    onClick={() => setSidebarUserPage((prev) => Math.min(sidebarUsersTotalPages, prev + 1))}
-                    disabled={sidebarUserPage === sidebarUsersTotalPages}
-                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                  >
-                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </button>
-                </div>
-                <p className="text-center text-xs sm:text-sm text-[#1B1717]/70 mt-2 font-[gilroy-regular]">
-                  Page {sidebarUserPage} of {sidebarUsersTotalPages} ({sidebarUsersTotalCount} total)
-                </p>
-              </div>
-            )}
-          </div>
-
-          {/* Overlay */}
-          <div
-            className="flex-1"
-            onClick={() => {
-              setShowSidebar(false);
-              setSidebarUserSearchQuery("");
-              setDebouncedSidebarUserSearchQuery("");
-              setSidebarUserPage(1);
-            }}
-          />
         </div>
       )}
     </div>
