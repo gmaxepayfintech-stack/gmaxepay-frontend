@@ -14,6 +14,10 @@ import {
   DEACTIVATE_ONBOARDING_LINK_SUCCESS,
   GET_COMPANY_ADMIN_SUCCESS,
   GET_COMPANY_ADMIN_FAILURE,
+  GET_USER_DETAILS_SUCCESS,
+  GET_USER_DETAILS_FAILURE,
+  GET_REPORT_TO_USER_LIST_SUCCESS,
+  GET_REPORT_TO_USER_LIST_FAILURE,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -35,6 +39,8 @@ const initialState = {
   resendOnboardingLink:null,
   deactivateOnboardingLink:null,
   companyAdmin:null,
+  userDetails:null,
+  reportToUserList:null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -172,6 +178,36 @@ const whiteLabelReducer = (state = initialState, action) => {
           message: action.payload.message,
         }
       case GET_COMPANY_ADMIN_FAILURE:
+        return{
+          ...state,
+          loading: false,
+          error: action.payload,
+          message: action.payload?.message,
+        }
+      case GET_USER_DETAILS_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          userDetails: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case GET_USER_DETAILS_FAILURE:
+        return{
+          ...state,
+          loading: false,
+          error: action.payload,
+          message: action.payload?.message,
+        }
+      case GET_REPORT_TO_USER_LIST_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          reportToUserList: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case GET_REPORT_TO_USER_LIST_FAILURE:
         return{
           ...state,
           loading: false,

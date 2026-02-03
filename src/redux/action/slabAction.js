@@ -755,11 +755,9 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
       schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
       schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
       subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
     };
 
-    console.log('Creating company slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/company/slabs/create-slab`);
-    console.log('Company ID:', companyId);
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/company/slabs/create-slab`,
@@ -773,10 +771,8 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
       }
     );
 
-    console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -826,6 +822,180 @@ export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
   }
 };
 
+// Update company slab
+export const updateCompanySlab = (slabId, slabData, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_UPDATE_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    if (!slabId) {
+      console.error('No slab ID provided');
+      throw new Error('Slab ID is required');
+    }
+    
+    const payload = {
+      slabName: slabData.schemeName || slabData.slabName || '',
+      schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
+      schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
+      subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
+    };
+
+    console.log('Updating company slab with payload:', payload);
+    console.log('API Route:', `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`);
+    console.log('Company ID:', companyId);
+    console.log('Slab ID:', slabId);
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('API Response:', response);
+    const data = response?.data;
+    const { status } = data ?? {};
+    console.log('Response status:', status);
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_UPDATE_SUCCESS,
+        payload: {
+          data: data?.data || null,
+          status: data?.status,
+          message: data?.message || 'Slab updated successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      
+      // Refresh the list after updating (with default page 1 and paginate 6)
+      dispatch(getCompanySlabList(companyId, 1, 6));
+      
+      return {
+        success: true,
+        data: data?.data,
+        message: data?.message || 'Slab updated successfully',
+      };
+    } else {
+      dispatch({
+        type: SLAB_UPDATE_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_UPDATE_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Get all company slab visibility - /api/v1/company/user/visibilityList
+export const getAllCompanySlabVisibility = (companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_GET_VISIBILITY_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');    
+    if (!token) {
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      throw new Error('Company ID is required');
+    }
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/company/slabs/visibilityList`,
+      {},
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          status: data?.status,
+          message: data?.message || 'Slab visibility retrieved successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data || [],
+        message: data?.message || 'Slab visibility retrieved successfully',
+      };
+    } else {
+      dispatch({
+        type: SLAB_GET_VISIBILITY_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_GET_VISIBILITY_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
 // Get company slab list
 export const getCompanySlabList = (companyId, page = 1, paginate = 6) => async (dispatch) => {
   dispatch({ type: LOADING_START });

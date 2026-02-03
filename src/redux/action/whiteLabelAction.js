@@ -29,6 +29,10 @@ import {
   DEACTIVATE_ONBOARDING_LINK_FAILURE,
   GET_COMPANY_ADMIN_SUCCESS,
   GET_COMPANY_ADMIN_FAILURE,
+  GET_USER_DETAILS_SUCCESS,
+  GET_USER_DETAILS_FAILURE,
+  GET_REPORT_TO_USER_LIST_SUCCESS,
+  GET_REPORT_TO_USER_LIST_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -601,6 +605,126 @@ export const getCompanyAdmin = (userId) => async (dispatch) => {
         status: "Error",
       },
     });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getUserDetails = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/user/getProfile`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: userDetailsData, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_USER_DETAILS_SUCCESS,
+        payload: { userDetailsData, message, status },
+      });
+      return { success: true, data: userDetailsData, message, status };
+    } else {
+      dispatch({
+        type: GET_USER_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+      return { success: false, message, status };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: GET_USER_DETAILS_FAILURE,
+      payload: {
+        message: errorMessage,
+        status: "Error",
+      },
+    });
+    return { success: false, message: errorMessage, status: "Error" };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Get report to user list (Master Distributor, Distributor, Retailer)
+export const getReportToUserList = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const companyId = payload?.companyId || null;
+    
+    if (!companyId) {
+      throw new Error("Company ID is required");
+    }
+
+    // Remove companyId from payload before sending
+    const { companyId: _, ...requestPayload } = payload;
+    
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/user/reportToUserList`,
+      requestPayload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          "x-company-id": companyId,
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const responseData = response?.data ?? {};
+    const { data: userList, message, status, totalCount, total } = responseData;
+    
+    // Handle different response structures
+    const users = Array.isArray(userList) 
+      ? userList 
+      : Array.isArray(responseData?.data?.docs) 
+        ? responseData.data.docs 
+        : Array.isArray(responseData?.data?.data)
+          ? responseData.data.data
+          : Array.isArray(responseData?.docs)
+            ? responseData.docs
+            : [];
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_REPORT_TO_USER_LIST_SUCCESS,
+        payload: { 
+          userList: users, 
+          message, 
+          status,
+          totalCount: totalCount || total || users.length,
+        },
+      });
+      return { success: true, data: users, message, status, totalCount: totalCount || total || users.length };
+    } else {
+      dispatch({
+        type: GET_REPORT_TO_USER_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+      return { success: false, message, status };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: GET_REPORT_TO_USER_LIST_FAILURE,
+      payload: {
+        message: errorMessage,
+        status: "Error",
+      },
+    });
+    return { success: false, message: errorMessage, status: "Error" };
   } finally {
     dispatch({ type: LOADING_END });
   }

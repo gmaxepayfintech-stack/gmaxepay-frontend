@@ -412,7 +412,7 @@ const WalletLoad = () => {
           <div className="bg-white rounded-3xl shadow-sm p-[18px] sm:p-[18px] lg:p-[18px] flex flex-col">
             <div className="mb-4">
               <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
-                Admin Accounts
+              Master Accounts
               </h2>
               <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 Select A Bank To View Details To Transfer

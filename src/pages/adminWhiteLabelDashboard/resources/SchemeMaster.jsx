@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Search,
   Plus,
@@ -9,11 +9,14 @@ import {
   Grid3x3,
   X,
   ChevronDown,
+  Check,
+  Pencil,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createCompanySlab, getCompanySlabList } from "../../../redux/action/slabAction";
+import { createCompanySlab, updateCompanySlab, getCompanySlabList } from "../../../redux/action/slabAction";
+import { getReportToUserList } from "../../../redux/action/whiteLabelAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 const SchemeMaster = () => {
@@ -25,21 +28,42 @@ const SchemeMaster = () => {
   
   // Redux state
   const slabState = useSelector((state) => state?.slab);
-  const { slabs, loading: slabsLoading, createSlabSuccess, createSlabMessage, createSlabError } = slabState || {};
+  const { 
+    slabs, 
+    loading: slabsLoading, 
+    createSlabSuccess, 
+    createSlabMessage, 
+    createSlabError,
+    updateSlabSuccess,
+    updateSlabMessage,
+    updateSlabError,
+  } = slabState || {};
   const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Schemes");
   const [currentPage, setCurrentPage] = useState(1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [selectedScheme, setSelectedScheme] = useState(null);
   const [showEditMembership, setShowEditMembership] = useState(false);
   const [formData, setFormData] = useState({
     schemeName: "",
     schemeMode: "Global",
     schemeType: "Free",
+    subscriptionAmount: "",
+    views: [],
   });
+  const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
+  const [activeUserTab, setActiveUserTab] = useState("masterDistributor"); // masterDistributor, distributor, retailer
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
+  const [userPage, setUserPage] = useState(1);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [selectedUsersData, setSelectedUsersData] = useState([]);
   const modalRef = useRef(null);
+  const userModalRef = useRef(null);
 
   // Get company ID
   const getCompanyId = () => {
@@ -63,7 +87,11 @@ const SchemeMaster = () => {
         schemeName: "",
         schemeMode: "Global",
         schemeType: "Free",
+        subscriptionAmount: "",
+        views: [],
       });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
       // Reset to first page after creating (this will trigger fetch via the other useEffect)
       if (currentPage !== 1) {
         setCurrentPage(1);
@@ -84,20 +112,62 @@ const SchemeMaster = () => {
     }
   }, [createSlabError, showError]);
 
-  // Close modal when clicking outside
+  // Handle update success
+  useEffect(() => {
+    if (updateSlabSuccess && updateSlabMessage) {
+      success(updateSlabMessage || "Slab updated successfully");
+      setIsEditModalOpen(false);
+      setSelectedScheme(null);
+      setFormData({
+        schemeName: "",
+        schemeMode: "Global",
+        schemeType: "Free",
+        subscriptionAmount: "",
+        views: [],
+      });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
+      // Reset to first page after updating (this will trigger fetch via the other useEffect)
+      if (currentPage !== 1) {
+        setCurrentPage(1);
+      } else {
+        // If already on page 1, explicitly fetch to refresh
+        const companyId = getCompanyId();
+        if (companyId) {
+          dispatch(getCompanySlabList(companyId, 1, 6));
+        }
+      }
+    }
+  }, [updateSlabSuccess, updateSlabMessage, dispatch, currentPage, success]);
+
+  // Handle update error
+  useEffect(() => {
+    if (updateSlabError) {
+      showError(updateSlabError);
+    }
+  }, [updateSlabError, showError]);
+
+  // Close modal when clicking outside (but not when user selection modal is open)
   useEffect(() => {
     const handleClickOutside = (event) => {
+      // Don't close if user selection modal is open
+      if (showUserSelectionModal) return;
+      
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setIsModalOpen(false);
+        // Also check if click is not on user selection modal
+        if (userModalRef.current && !userModalRef.current.contains(event.target)) {
+          setIsModalOpen(false);
+          setIsEditModalOpen(false);
+        }
       }
     };
-    if (isModalOpen) {
+    if (isModalOpen || isEditModalOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isEditModalOpen, showUserSelectionModal]);
 
   //Reset page when search or filter changes and refetch
   useEffect(() => {
@@ -108,21 +178,133 @@ const SchemeMaster = () => {
     }
   }, [searchQuery, activeFilter, dispatch]);
 
+  // Debounce user search query
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedUserSearchQuery(userSearchQuery);
+      setUserPage(1); // Reset to first page when search changes
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [userSearchQuery]);
+
+  // Fetch users when user selection modal opens
+  useEffect(() => {
+    if (showUserSelectionModal) {
+      const companyId = getCompanyId();
+      if (!companyId) return;
+
+      // Determine user role based on active tab
+      const roleMap = {
+        masterDistributor: 3,
+        distributor: 4,
+        retailer: 5,
+      };
+      const userRole = roleMap[activeUserTab];
+
+      const payload = {
+        query: {
+          userRole: userRole,
+        },
+        customSearch: debouncedUserSearchQuery.trim()
+          ? {
+              mobileNo: debouncedUserSearchQuery.trim(),
+              name: debouncedUserSearchQuery.trim(),
+            }
+          : {},
+        options: {
+          page: userPage,
+          paginate: 10,
+          order: [["name", "ASC"]],
+        },
+      };
+
+      dispatch(getReportToUserList({ ...payload, companyId }));
+    }
+  }, [showUserSelectionModal, activeUserTab, userPage, debouncedUserSearchQuery, dispatch]);
+
+  // Reset user search when modal closes
+  useEffect(() => {
+    if (!showUserSelectionModal) {
+      setUserSearchQuery("");
+      setDebouncedUserSearchQuery("");
+      setUserPage(1);
+      setActiveUserTab("masterDistributor");
+    }
+  }, [showUserSelectionModal]);
+
+  // Sync selectedUsersData when formData.views changes (e.g., when switching modes)
+  // Only sync when modal is closed to avoid conflicts with user selection
+  useEffect(() => {
+    if (!showUserSelectionModal) {
+      if (!formData.views || formData.views.length === 0) {
+        setSelectedUsersData((prev) => {
+          if (prev.length > 0) {
+            return [];
+          }
+          return prev;
+        });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formData.views, showUserSelectionModal]);
+
+  // Get users list from Redux
+  const usersListRaw = useSelector(
+    (state) => state?.whitelabel?.reportToUserList?.userList || []
+  );
+  const usersList = useMemo(
+    () => (Array.isArray(usersListRaw) ? usersListRaw : []),
+    [usersListRaw]
+  );
+  const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const usersTotalCount = useSelector((state) => {
+    const response = state?.whitelabel?.reportToUserList;
+    return response?.totalCount || usersList.length || 0;
+  });
+  const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
+
   // Map API slabs to scheme format
   const mapSlabToScheme = (slab) => {
     const getIcon = (schemaType, schemaMode) => {
       if (schemaType === "free" && schemaMode === "global") {
-        return { icon: Globe, iconColor: "text-green-600", iconBg: "bg-green-100", iconImage: "/img/WLGlobe.png", useImage: true };
+        return {
+          icon: Globe,
+          iconColor: "text-green-600",
+          iconBg: "bg-green-100",
+          iconImage: "/img/WLGlobe.png",
+          useImage: true,
+        };
       } else if (schemaMode === "private") {
-        return { icon: Lock, iconColor: "text-purple-600", iconBg: "bg-purple-100", iconImage: "/img/GramPay.png", useImage: true };
+        return {
+          icon: Lock,
+          iconColor: "text-purple-600",
+          iconBg: "bg-purple-100",
+          iconImage: "/img/GramPay.png",
+          useImage: true,
+        };
       } else {
-        return { icon: Grid3x3, iconColor: "text-orange-600", iconBg: "bg-orange-100", iconImage: "/img/Platanium.png", useImage: true };
+        return {
+          icon: Grid3x3,
+          iconColor: "text-orange-600",
+          iconBg: "bg-orange-100",
+          iconImage: "/img/Platanium.png",
+          useImage: true,
+        };
       }
     };
 
     const iconData = getIcon(slab.schemaType, slab.schemaMode);
-    const createdAt = slab.createdAt ? new Date(slab.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
-    
+    const createdAt = slab.createdAt
+      ? new Date(slab.createdAt).toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "2-digit",
+          year: "2-digit",
+        })
+      : "N/A";
+
+    // Extract view user IDs from viewDetails
+    const viewUserIds = slab.viewDetails?.map(vd => vd.userId) || [];
+
     return {
       id: slab.id,
       name: slab.slabName,
@@ -132,9 +314,26 @@ const SchemeMaster = () => {
       schemeId: `#${slab.id}`,
       created: createdAt,
       members: slab.totalUsers?.toString() || "0",
+      amount: slab.subscriptionAmount || 0,
+      visibility: slab.totalViews || 0,
+      visibilityType: slab.schemaMode === "global" ? "Global" : "Private",
+      views: viewUserIds,
+      viewDetails: slab.viewDetails || [],
       tags: [
-        { label: slab.schemaMode === "global" ? "Global" : "Private", color: slab.schemaMode === "global" ? "bg-[#08A000] text-white" : "bg-[#9B3FEF] text-white" },
-        { label: slab.schemaType === "free" ? "Free" : "Premium", color: slab.schemaType === "free" ? "bg-[#366BCD] text-white" : "bg-[#D6C407] text-white" },
+        {
+          label: slab.schemaMode === "global" ? "Global" : "Private",
+          color:
+            slab.schemaMode === "global"
+              ? "bg-[#08A000] text-white"
+              : "bg-[#9B3FEF] text-white",
+        },
+        {
+          label: slab.schemaType === "free" ? "Free" : "Premium",
+          color:
+            slab.schemaType === "free"
+              ? "bg-[#366BCD] text-white"
+              : "bg-[#D6C407] text-white",
+        },
       ],
       ...slab, // Include original slab data
     };
@@ -166,13 +365,99 @@ const SchemeMaster = () => {
   // Display filtered schemes (search/filter works on current page)
   const paginatedSchemes = filteredSchemes;
 
+  // Handle user selection
+  const handleUserToggle = (user) => {
+    const userId = user.id || user._id;
+    
+    setSelectedUserIds((prev) => {
+      if (prev.includes(userId)) {
+        // Remove user
+        setSelectedUsersData((prevData) => 
+          prevData.filter((u) => {
+            const uId = u.id || u._id;
+            return uId !== userId;
+          })
+        );
+        return prev.filter((id) => id !== userId);
+      } else {
+        // Add user - check for duplicates first
+        setSelectedUsersData((prevData) => {
+          const existingIds = prevData.map((u) => u.id || u._id);
+          if (existingIds.includes(userId)) {
+            return prevData; // Already exists, don't add duplicate
+          }
+          return [...prevData, user];
+        });
+        // Check if already in selectedUserIds to prevent duplicates
+        if (!prev.includes(userId)) {
+          return [...prev, userId];
+        }
+        return prev;
+      }
+    });
+  };
+
+  const handleSelectAllUsers = () => {
+    const currentTabUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
+    // Remove duplicates
+    const uniqueCurrentTabUserIds = [...new Set(currentTabUserIds)];
+    
+    // Check if all current tab users are already selected
+    const allCurrentTabSelected = uniqueCurrentTabUserIds.every(id => selectedUserIds.includes(id));
+    
+    if (allCurrentTabSelected && uniqueCurrentTabUserIds.length > 0) {
+      // Deselect only current tab users, keep users from other tabs
+      setSelectedUserIds((prev) => prev.filter(id => !uniqueCurrentTabUserIds.includes(id)));
+      setSelectedUsersData((prev) => prev.filter(user => {
+        const userId = user.id || user._id;
+        return !uniqueCurrentTabUserIds.includes(userId);
+      }));
+    } else {
+      // Select all current tab users, merge with existing selections
+      const uniqueUsers = usersList.filter((user, index, self) => {
+        const userId = user.id || user._id;
+        return index === self.findIndex((u) => (u.id || u._id) === userId);
+      });
+      
+      setSelectedUserIds((prev) => {
+        const merged = [...new Set([...prev, ...uniqueCurrentTabUserIds])];
+        return merged;
+      });
+      
+      setSelectedUsersData((prev) => {
+        const existingIds = prev.map(u => u.id || u._id);
+        const newUsers = uniqueUsers.filter(user => {
+          const userId = user.id || user._id;
+          return !existingIds.includes(userId);
+        });
+        return [...prev, ...newUsers];
+      });
+    }
+  };
+
+  const handleConfirmUserSelection = () => {
+    setFormData((prev) => ({
+      ...prev,
+      views: selectedUserIds,
+    }));
+    setShowUserSelectionModal(false);
+  };
+
+  // Get display text for selected users
+  const getSelectedUsersDisplay = () => {
+    if (selectedUsersData.length === 0) return "";
+    if (selectedUsersData.length === 1) {
+      const user = selectedUsersData[0];
+      return `${user.name || "N/A"} - ${user.mobileNo || user.mobile || "N/A"}`;
+    }
+    return `${selectedUsersData.length} users selected`;
+  };
+
   // Handle create slab
   const handleCreateSlab = async (e) => {
     e?.preventDefault?.();
-    console.log("handleCreateSlab called");
     const companyId = getCompanyId();
     if (!companyId) {
-      console.error("Company ID not found");
       showError("Company ID not found. Please refresh the page.");
       return;
     }
@@ -182,13 +467,30 @@ const SchemeMaster = () => {
       return;
     }
 
-    console.log("Creating slab with data:", formData);
-    console.log("Company ID:", companyId);
+    // Validate private mode requires views
+    if (formData.schemeMode === "Private" && (!formData.views || formData.views.length === 0)) {
+      showError("Please select at least one user for private schemes");
+      return;
+    }
+
+    // Validate premium type requires subscription amount
+    if (formData.schemeType === "Premium") {
+      const amount = formData.subscriptionAmount;
+      if (!amount || amount === "" || isNaN(parseFloat(amount)) || parseFloat(amount) < 0) {
+        showError("Please enter a valid subscription amount for premium schemes");
+        return;
+      }
+    }
+
+    const slabDataToSend = {
+      ...formData,
+      views: formData.views || [],
+      subscriptionAmount: formData.subscriptionAmount ? parseFloat(formData.subscriptionAmount) : 0,
+    };
 
     setIsCreating(true);
     try {
-      const result = await dispatch(createCompanySlab(formData, companyId));
-      console.log("Create slab result:", result);
+      const result = await dispatch(createCompanySlab(slabDataToSend, companyId));
       if (result?.success) {
         // Success is handled in useEffect
         // List refresh is handled in the action
@@ -196,10 +498,65 @@ const SchemeMaster = () => {
         showError(result?.message || "Failed to create slab. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating slab:", error);
       showError(error?.message || "An error occurred while creating the slab. Please try again.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  // Handle update slab
+  const handleUpdateSlab = async (e) => {
+    e?.preventDefault?.();
+    const companyId = getCompanyId();
+    if (!companyId) {
+      showError("Company ID not found. Please refresh the page.");
+      return;
+    }
+
+    if (!selectedScheme || !selectedScheme.id) {
+      showError("No scheme selected. Please try again.");
+      return;
+    }
+
+    if (!formData.schemeName || !formData.schemeName.trim()) {
+      showError("Please enter a scheme name");
+      return;
+    }
+
+    // Validate private mode requires views
+    if (formData.schemeMode === "Private" && (!formData.views || formData.views.length === 0)) {
+      showError("Please select at least one user for private schemes");
+      return;
+    }
+
+    // Validate premium type requires subscription amount
+    if (formData.schemeType === "Premium") {
+      const amount = formData.subscriptionAmount;
+      if (!amount || amount === "" || isNaN(parseFloat(amount)) || parseFloat(amount) < 0) {
+        showError("Please enter a valid subscription amount for premium schemes");
+        return;
+      }
+    }
+
+    const slabDataToSend = {
+      ...formData,
+      views: formData.views || [],
+      subscriptionAmount: formData.subscriptionAmount ? parseFloat(formData.subscriptionAmount) : 0,
+    };
+
+    setIsUpdating(true);
+    try {
+      const result = await dispatch(updateCompanySlab(selectedScheme.id, slabDataToSend, companyId));
+      if (result?.success) {
+        // Success is handled in useEffect
+        // List refresh is handled in the action
+      } else {
+        showError(result?.message || "Failed to update slab. Please try again.");
+      }
+    } catch (error) {
+      showError(error?.message || "An error occurred while updating the slab. Please try again.");
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -385,16 +742,66 @@ const SchemeMaster = () => {
                     </div>
                   </div>
 
-                  {/* Status Indicator */}
-                  <div
-                    className={`flex items-center rounded-3xl
-              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0 mt-2
+                  {/* Status Indicator and Edit Button */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Edit Button */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedScheme(scheme);
+                        // Pre-populate form data for editing
+                        setFormData({
+                          schemeName: scheme.name || "",
+                          schemeMode: scheme.visibilityType || "Global",
+                          schemeType: scheme.tags?.find(t => t.label === "Free" || t.label === "Premium")?.label || "Free",
+                          subscriptionAmount: scheme.amount?.toString() || "",
+                          views: scheme.views || [],
+                        });
+                        // Set selected users data if views exist
+                        const viewIds = scheme.views || (scheme.viewDetails?.map(vd => vd.userId) || []);
+                        if (scheme.viewDetails && scheme.viewDetails.length > 0) {
+                          const usersData = scheme.viewDetails.map(vd => ({
+                            id: vd.userId,
+                            name: vd.userName,
+                            company: vd.companyName,
+                          }));
+                          setSelectedUsersData(usersData);
+                          setSelectedUserIds(viewIds);
+                        } else if (viewIds.length > 0) {
+                          // If we have view IDs but no viewDetails, try to fetch from usersList
+                          const existingUsers = usersList.filter((user) =>
+                            viewIds.includes(user.id || user._id)
+                          );
+                          if (existingUsers.length > 0) {
+                            setSelectedUsersData(existingUsers);
+                            setSelectedUserIds(viewIds);
+                          } else {
+                            setSelectedUsersData([]);
+                            setSelectedUserIds([]);
+                          }
+                        } else {
+                          setSelectedUsersData([]);
+                          setSelectedUserIds([]);
+                        }
+                        setIsEditModalOpen(true);
+                      }}
+                      className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
+                      title="Edit Scheme"
+                    >
+                      <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </button>
+                    
+                    {/* Status Indicator */}
+                    <div
+                      className={`flex items-center rounded-3xl
+              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0
               ${scheme.isActive ? 'bg-[#008D1E]' : 'bg-gray-500'}`}
-                  >
-                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? 'bg-white' : 'bg-white'}`} />
-                    <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
-                      {scheme.status}
-                    </span>
+                    >
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? 'bg-white' : 'bg-white'}`} />
+                      <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
+                        {scheme.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -415,6 +822,24 @@ const SchemeMaster = () => {
                     </span>
                     <span className="font-[gilroy-medium] text-[#1B1717]">
                       {scheme.created}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-sm sm:text-base">
+                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      Visibility
+                    </span>
+                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                      {scheme.visibilityType === "Global" ? "All" : (scheme.visibility || 0)}
+                    </span>
+                  </div>
+
+                  <div className="flex justify-between text-sm sm:text-base">
+                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      Amount
+                    </span>
+                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                      ₹{scheme.amount?.toLocaleString("en-IN") || "0"}
                     </span>
                   </div>
 
@@ -485,7 +910,12 @@ const SchemeMaster = () => {
         <div
           className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-50 
                p-2 xs:p-3 sm:p-4 md:p-6"
-          onClick={() => setIsModalOpen(false)}
+          onClick={() => {
+            // Don't close if user selection modal is open
+            if (!showUserSelectionModal) {
+              setIsModalOpen(false);
+            }
+          }}
         >
           <div
             ref={modalRef}
@@ -520,19 +950,9 @@ const SchemeMaster = () => {
 
               <button
                 onClick={() => setIsModalOpen(false)}
-                className="absolute top-3 right-3 sm:top-4 sm:right-4
-                     bg-[#039155] text-white rounded-lg
-                     w-7 h-7 sm:w-8 sm:h-8
-                     flex items-center justify-center
-                     hover:bg-green-700 transition"
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
               >
-                <div
-                  className="border border-white rounded-full
-                       w-4 h-4 sm:w-5 sm:h-5
-                       flex items-center justify-center"
-                >
-                  <span className="text-[10px] sm:text-xs leading-none">×</span>
-                </div>
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
               </button>
             </div>
 
@@ -599,6 +1019,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
                             })
                           }
                           className="sr-only"
@@ -658,6 +1080,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeType: e.target.value,
+                              // Clear subscriptionAmount when switching to Free
+                              subscriptionAmount: e.target.value === "Free" ? "" : formData.subscriptionAmount,
                             })
                           }
                           className="sr-only"
@@ -690,6 +1114,87 @@ const SchemeMaster = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Subscription Amount for Premium */}
+                {formData.schemeType === "Premium" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Subscription Amount <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter subscription amount"
+                      value={formData.subscriptionAmount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          subscriptionAmount: e.target.value,
+                        })
+                      }
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Restore selected users data from usersList if views exist
+                        const existingViews = formData.views || [];
+                        // Remove duplicates from existingViews
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id)
+                          );
+                          // Remove duplicates from existingUsers
+                          const uniqueUsers = existingUsers.filter((user, index, self) => {
+                            const userId = user.id || user._id;
+                            return index === self.findIndex((u) => (u.id || u._id) === userId);
+                          });
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setActiveUserTab("masterDistributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]
+                       text-left bg-white hover:bg-gray-50 transition
+                       min-h-[44px] flex items-center"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">Click to select users</span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
             </div>
@@ -720,6 +1225,583 @@ const SchemeMaster = () => {
                 ) : (
                   "Create"
                 )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Membership Scheme Modal */}
+      {isEditModalOpen && (
+        <div
+          className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-50 
+               p-2 xs:p-3 sm:p-4 md:p-6"
+          onClick={() => {
+            // Don't close if user selection modal is open
+            if (!showUserSelectionModal) {
+              setIsEditModalOpen(false);
+              setSelectedScheme(null);
+            }
+          }}
+        >
+          <div
+            ref={modalRef}
+            className="bg-white rounded-lg sm:rounded-xl shadow-2xl 
+                 w-full max-w-md sm:max-w-lg xl:max-w-xl
+                 max-h-[96vh] sm:max-h-[92vh] 
+                 flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              className="relative bg-white flex items-center justify-center
+                   px-3 py-3 xs:px-4 sm:px-6 sm:py-4
+                   border-b border-gray-100"
+            >
+              <div className="flex-1 min-w-0 text-center px-8 sm:px-12">
+                <h2
+                  className="text-sm xs:text-base sm:text-xl md:text-2xl 
+                         font-[gilroy-medium] text-[#1B1717] leading-snug"
+                >
+                  Edit Membership Scheme
+                </h2>
+
+                <p
+                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                >
+                  Update Your Membership Program <br />
+                  With Custom Settings And Features
+                </p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setSelectedScheme(null);
+                }}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div
+              className="flex-1 overflow-y-auto 
+                   px-3 xs:px-4 sm:px-6
+                   py-4 sm:py-5
+                   space-y-4 sm:space-y-6"
+            >
+              {/* Basic Information */}
+              <div>
+                <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] mb-3">
+                  Basic Information
+                </h3>
+
+                <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                  Scheme Name <span>*</span>
+                </label>
+
+                <input
+                  type="text"
+                  placeholder="Enter Scheme Name"
+                  value={formData.schemeName}
+                  onChange={(e) =>
+                    setFormData({ ...formData, schemeName: e.target.value })
+                  }
+                  className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                />
+              </div>
+
+              {/* Scheme Configuration */}
+              <div>
+                <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] mb-3 sm:mb-4">
+                  Scheme Configuration
+                </h3>
+
+                {/* Scheme Mode */}
+                <div className="mb-4 sm:mb-5">
+                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-2">
+                    Scheme Mode *
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {["Global", "Private"].map((mode) => (
+                      <label
+                        key={mode}
+                        className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
+                    ${
+                      formData.schemeMode === mode
+                        ? "border-[#039155] bg-green-50"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                      >
+                        <input
+                          type="radio"
+                          name="schemeMode"
+                          value={mode}
+                          checked={formData.schemeMode === mode}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
+                            })
+                          }
+                          className="sr-only"
+                        />
+
+                        <div
+                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
+                      ${
+                        formData.schemeMode === mode
+                          ? "border-[#039155] bg-[#039155]"
+                          : "border-gray-300"
+                      }`}
+                        >
+                          {formData.schemeMode === mode && (
+                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
+                          )}
+                        </div>
+
+                        <div>
+                          <span className="block text-xs sm:text-sm font-[gilroy-medium]">
+                            {mode}
+                          </span>
+                          <p className="text-[11px] text-[#1B1717]/70">
+                            {mode === "Global"
+                              ? "Available To All Users Worldwide"
+                              : "Restricted To Specific Users"}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Scheme Type */}
+                <div className="mb-4 sm:mb-5">
+                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-2">
+                    Scheme Type
+                  </label>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {["Free", "Premium"].map((type) => (
+                      <label
+                        key={type}
+                        className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
+                    ${
+                      formData.schemeType === type
+                        ? "border-[#039155] bg-green-50"
+                        : "border-gray-300 hover:border-gray-400"
+                    }`}
+                      >
+                        <input
+                          type="radio"
+                          name="schemeType"
+                          value={type}
+                          checked={formData.schemeType === type}
+                          onChange={(e) =>
+                            setFormData({
+                              ...formData,
+                              schemeType: e.target.value,
+                              // Clear subscriptionAmount when switching to Free
+                              subscriptionAmount: e.target.value === "Free" ? "" : formData.subscriptionAmount,
+                            })
+                          }
+                          className="sr-only"
+                        />
+
+                        <div
+                          className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
+                      ${
+                        formData.schemeType === type
+                          ? "border-[#039155] bg-[#039155]"
+                          : "border-gray-300"
+                      }`}
+                        >
+                          {formData.schemeType === type && (
+                            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
+                          )}
+                        </div>
+
+                        <div>
+                          <span className="block text-xs sm:text-sm font-[gilroy-medium]">
+                            {type}
+                          </span>
+                          <p className="text-[11px] text-[#1B1717]/70">
+                            {type === "Free"
+                              ? "No Cost Membership"
+                              : "Restricted Access With Invitation Only"}
+                          </p>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Subscription Amount for Premium */}
+                {formData.schemeType === "Premium" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Subscription Amount <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter subscription amount"
+                      value={formData.subscriptionAmount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          subscriptionAmount: e.target.value,
+                        })
+                      }
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        // Restore selected users data from usersList if views exist
+                        const existingViews = formData.views || [];
+                        // Remove duplicates from existingViews
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id)
+                          );
+                          // Remove duplicates from existingUsers
+                          const uniqueUsers = existingUsers.filter((user, index, self) => {
+                            const userId = user.id || user._id;
+                            return index === self.findIndex((u) => (u.id || u._id) === userId);
+                          });
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setActiveUserTab("masterDistributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]
+                       text-left bg-white hover:bg-gray-50 transition
+                       min-h-[44px] flex items-center"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">Click to select users</span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
+              <button
+                onClick={() => {
+                  setIsEditModalOpen(false);
+                  setSelectedScheme(null);
+                }}
+                className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl
+                     text-[#1B1717]/80 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+
+              <button
+                type="button"
+                onClick={handleUpdateSlab}
+                disabled={isUpdating || slabsLoading}
+                className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
+                     text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed
+                     flex items-center justify-center gap-2"
+              >
+                {isUpdating ? (
+                  <>
+                    <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+                    <span>Updating...</span>
+                  </>
+                ) : (
+                  "Update"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* User Selection Modal */}
+      {showUserSelectionModal && (
+        <div
+          className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-[60] 
+               p-2 xs:p-3 sm:p-4 md:p-6"
+          onClick={() => setShowUserSelectionModal(false)}
+        >
+          <div
+            ref={userModalRef}
+            className="bg-white rounded-lg sm:rounded-xl shadow-2xl 
+                 w-full max-w-md sm:max-w-lg xl:max-w-xl
+                 max-h-[96vh] sm:max-h-[92vh] 
+                 flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div
+              className="relative bg-white flex items-center justify-center
+                   px-3 py-3 xs:px-4 sm:px-6 sm:py-4
+                   border-b border-gray-100"
+            >
+              <div className="flex-1 min-w-0 text-center px-8 sm:px-12">
+                <h2
+                  className="text-sm xs:text-base sm:text-xl md:text-2xl 
+                         font-[gilroy-medium] text-[#1B1717] leading-snug"
+                >
+                  Select Users
+                </h2>
+                <p
+                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                >
+                  Choose users who can access this private scheme
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUserSelectionModal(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
+            </div>
+
+            {/* Tabs - Slider Design */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-3">
+              <div className="relative bg-white rounded-xl p-1.5 flex shadow-sm border border-gray-200">
+                {/* Sliding Indicator */}
+                <div
+                  className="absolute top-1.5 bottom-1.5 bg-[#039155] rounded-lg transition-all duration-300 ease-in-out shadow-md"
+                  style={{
+                    width: `calc(33.333% - 0.375rem)`,
+                    left: activeUserTab === "masterDistributor" 
+                      ? "0.375rem" 
+                      : activeUserTab === "distributor" 
+                      ? "calc(33.333% + 0.1875rem)" 
+                      : "calc(66.666% + 0.1875rem)",
+                  }}
+                />
+                {[
+                  { key: "masterDistributor", label: "Master Distributor", role: 3 },
+                  { key: "distributor", label: "Distributor", role: 4 },
+                  { key: "retailer", label: "Retailer", role: 5 },
+                ].map((tab) => (
+                  <button
+                    key={tab.key}
+                    onClick={() => {
+                      setActiveUserTab(tab.key);
+                      setUserPage(1);
+                      setUserSearchQuery("");
+                      setDebouncedUserSearchQuery("");
+                    }}
+                    className={`relative z-10 flex-1 px-3 py-2.5 rounded-lg font-[gilroy-medium] text-xs sm:text-sm whitespace-nowrap transition-colors duration-300 ${
+                      activeUserTab === tab.key
+                        ? "text-white"
+                        : "text-[#1B1717] hover:text-[#039155]"
+                    }`}
+                  >
+                    {tab.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div
+              className="flex-1 overflow-y-auto 
+                   px-3 xs:px-4 sm:px-6
+                   py-4 sm:py-5
+                   space-y-4"
+            >
+              {/* Search Bar */}
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/50" />
+                <input
+                  type="text"
+                  placeholder="Search by name or mobile number"
+                  value={userSearchQuery}
+                  onChange={(e) => {
+                    setUserSearchQuery(e.target.value);
+                    setUserPage(1);
+                  }}
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/50 text-[#1B1717]/50 rounded-lg focus:outline-none text-sm sm:text-base"
+                />
+              </div>
+
+              {/* Select All Button */}
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleSelectAllUsers}
+                  className="text-xs sm:text-sm text-[#039155] font-[gilroy-medium] hover:underline"
+                >
+                  {(() => {
+                    const currentTabUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
+                    const uniqueCurrentTabUserIds = [...new Set(currentTabUserIds)];
+                    const allCurrentTabSelected = uniqueCurrentTabUserIds.length > 0 && 
+                      uniqueCurrentTabUserIds.every(id => selectedUserIds.includes(id));
+                    return allCurrentTabSelected ? "Deselect All" : "Select All";
+                  })()}
+                </button>
+                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                  {selectedUserIds.length} selected
+                </span>
+              </div>
+
+              {/* Users List */}
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {usersLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <ButtonLoader size={28} thickness={3} />
+                  </div>
+                ) : usersList.length === 0 ? (
+                  <div className="text-center py-8 text-[#1B1717]/60">
+                    No users found
+                  </div>
+                ) : (
+                  usersList.map((user) => {
+                    const userId = user.id || user._id;
+                    const isSelected = selectedUserIds.includes(userId);
+                    return (
+                      <label
+                        key={userId}
+                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
+                          ${
+                            isSelected
+                              ? "border-[#039155] bg-green-50"
+                              : "border-gray-200 hover:border-gray-300"
+                          }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleUserToggle(user)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0
+                            ${
+                              isSelected
+                                ? "border-[#039155] bg-[#039155]"
+                                : "border-gray-300"
+                            }`}
+                        >
+                          {isSelected && (
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                            {user.name || "N/A"}
+                          </div>
+                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                            {user.mobileNo || user.mobile || "N/A"}
+                          </div>
+                          {user.userId && (
+                            <div className="text-xs text-[#1B1717]/50 font-[gilroy-regular]">
+                              ID: {user.userId}
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Pagination */}
+              {!usersLoading && usersTotalPages > 1 && (
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-4">
+                  <button
+                    onClick={() => setUserPage((prev) => Math.max(1, prev - 1))}
+                    disabled={userPage === 1}
+                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+
+                  {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map((page) => (
+                    <button
+                      key={page}
+                      onClick={() => setUserPage(page)}
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                        userPage === page
+                          ? "bg-[#039155] text-white"
+                          : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  ))}
+
+                  <button
+                    onClick={() =>
+                      setUserPage((prev) => Math.min(usersTotalPages, prev + 1))
+                    }
+                    disabled={userPage === usersTotalPages}
+                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
+              <button
+                onClick={() => setShowUserSelectionModal(false)}
+                className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl
+                     text-[#1B1717]/80 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUserSelection}
+                className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
+                     text-white rounded-xl transition
+                     flex items-center justify-center gap-2"
+              >
+                Confirm ({selectedUserIds.length} selected)
               </button>
             </div>
           </div>

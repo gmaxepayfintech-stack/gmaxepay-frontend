@@ -8,6 +8,7 @@ import {
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
+import { getWalletBalance} from "../../redux/action/walletAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -42,6 +43,14 @@ const ProfileDetails = ({ onBack = null }) => {
   );
   const assignSlabSuccess = useSelector(
     (state) => state?.slab?.assignSlabSuccess || false,
+  );
+
+  // Get wallet balance from Redux
+  const walletBalance = useSelector(
+    (state) => state?.wallet?.walletBalance || null,
+  );
+  const walletBalanceLoading = useSelector(
+    (state) => state?.loading?.isLoading || false,
   );
 
   // Extract data from companyAdminData (do this before early returns to maintain hook order)
@@ -101,6 +110,18 @@ const ProfileDetails = ({ onBack = null }) => {
       }
     }
   }, [assignSlabSuccess, data?.id, dispatch]);
+
+  // Fetch wallet balance when confirmation modal opens (only if not subscribed)
+  useEffect(() => {
+    if (showConfirmModal && selectedScheme) {
+      const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+      const isSubscribed = selectedSlab?.isSubscribed || false;
+      // Only fetch wallet balance if NOT subscribed (for upgrade)
+      if (!isSubscribed) {
+        dispatch(getWalletBalance());
+      }
+    }
+  }, [showConfirmModal, selectedScheme, slabList, dispatch]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
@@ -733,7 +754,12 @@ const ProfileDetails = ({ onBack = null }) => {
                   }
                   className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
-                  {assignSlabLoading ? "Upgrading..." : "Upgrade"}
+                  {(() => {
+                    if (assignSlabLoading) return "Processing...";
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Change Slab" : "Upgrade";
+                  })()}
                 </button>
               </div>
             </div>
@@ -936,7 +962,11 @@ const ProfileDetails = ({ onBack = null }) => {
             <div className="p-6">
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
-                  Confirm Slab Upgrade
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Confirm Slab Change" : "Confirm Slab Upgrade";
+                  })()}
                 </h3>
               </div>
               <button
@@ -946,8 +976,39 @@ const ProfileDetails = ({ onBack = null }) => {
                 <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
               </button>
               <div className="mb-6">
+                {/* Wallet Balance Display - Only show if NOT subscribed */}
+                {(() => {
+                  const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                  const isSubscribed = selectedSlab?.isSubscribed || false;
+                  
+                  // Only show wallet balance if NOT subscribed (for upgrade)
+                  if (!isSubscribed) {
+                    return (
+                      <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                        <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
+                        <p className="text-lg font-semibold text-[#1B1717]">
+                          {walletBalanceLoading ? (
+                            <span className="text-gray-400">Loading...</span>
+                          ) : walletBalance?.data?.mainWallet ? (
+                            `₹${walletBalance.data.mainWallet}`
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </p>
+                      </div>
+                    );
+                  }
+                  return null;
+                })()}
+
                 <p className="text-gray-700 mb-2">
-                  Are you sure you want to upgrade the membership scheme?
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed
+                      ? "Are you sure you want to change the membership scheme?"
+                      : "Are you sure you want to upgrade the membership scheme?";
+                  })()}
                 </p>
                 {selectedScheme && (
                   <p className="text-sm text-gray-600">
@@ -990,7 +1051,14 @@ const ProfileDetails = ({ onBack = null }) => {
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   disabled={assignSlabLoading}
                 >
-                  {assignSlabLoading ? "Upgrading..." : "Confirm Upgrade"}
+                  {(() => {
+                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    if (assignSlabLoading) {
+                      return isSubscribed ? "Changing..." : "Upgrading...";
+                    }
+                    return isSubscribed ? "Confirm Change" : "Confirm Upgrade";
+                  })()}
                 </button>
               </div>
             </div>
