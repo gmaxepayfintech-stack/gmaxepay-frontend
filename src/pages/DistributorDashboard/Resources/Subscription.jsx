@@ -117,6 +117,10 @@ const Subscription = () => {
     if (plan.originalData?.isSubscribed || plan.isCurrentSlab) {
       return;
     }
+    
+    console.log('Subscribe clicked - Plan data:', plan);
+    console.log('Subscription ID:', plan.originalData?.id || plan.id);
+    
     setSelectedPlan(plan);
     setShowConfirmModal(true);
   };
@@ -168,10 +172,29 @@ const Subscription = () => {
       return;
     }
    
+    // Get the subscription id from originalData (from API response)
+    const subscriptionId = selectedPlan.originalData?.id || selectedPlan.id;
+    
+    if (!subscriptionId) {
+      showNotification({
+        type: 'error',
+        message: 'Subscription ID not found. Please try again.',
+        duration: 5000,
+      });
+      return;
+    }
+   
     const companyId = getCompanyId();
-    if (companyId && selectedPlan.originalData?.id) {
-      await dispatch(userUpgradeSubscription(selectedPlan.originalData.id, companyId));
+    if (companyId && subscriptionId) {
+      console.log('Upgrading subscription with ID:', subscriptionId, 'Company ID:', companyId);
+      await dispatch(userUpgradeSubscription(subscriptionId, companyId));
       // Error message from API will be shown via useEffect watching userUpgradeError
+    } else {
+      showNotification({
+        type: 'error',
+        message: 'Company ID or Subscription ID is missing. Please try again.',
+        duration: 5000,
+      });
     }
   };
 
