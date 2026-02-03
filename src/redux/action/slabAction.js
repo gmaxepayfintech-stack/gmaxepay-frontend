@@ -22,6 +22,9 @@ import {
   SLAB_GET_VISIBILITY_START,
   SLAB_GET_VISIBILITY_SUCCESS,
   SLAB_GET_VISIBILITY_FAILURE,
+  SLAB_GET_USERLIST_START,
+  SLAB_GET_USERLIST_SUCCESS,
+  SLAB_GET_USERLIST_FAILURE,
 } from '../actionType/slabActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -1599,6 +1602,84 @@ export const updateUserSlabCommission = (companyId, roleId, payload) => async (d
       payload: errorMessage,
     });
 
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+export const getMDSlabList = (companyId, page = 1, paginate = 6, customSearch = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_GET_USERLIST_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: customSearch,
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/slab/listUserSlabVisibilityList`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_GET_USERLIST_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          paginator: data?.paginator || {},
+          status: data?.status,
+          message: data?.message || 'Slabs retrieved successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: true,
+        data: data?.data || [],
+        total: data?.total || 0,
+        paginator: data?.paginator || {},
+      };
+    } else {
+      dispatch({
+        type: SLAB_GET_USERLIST_FAILURE,
+        payload: data?.message || commonError,
+      });
+      dispatch({ type: LOADING_END });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+    
+    dispatch({
+      type: SLAB_GET_LIST_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
     return {
       success: false,
       message: errorMessage,

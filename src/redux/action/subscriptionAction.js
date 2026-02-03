@@ -10,6 +10,7 @@ import {
   SUBSCRIPTION_UPGRADE_FAILURE,
   SUBSCRIPTION_USER_UPGRADE_FAILURE,
   SUBSCRIPTION_USER_UPGRADE_SUCCESS,
+  SUBSCRIPTION_USER_UPGRADE_START,
 } from '../actionType/subscriptionActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -262,7 +263,7 @@ export const upgradeOrChangeSlab = (slabId, companyId) => async (dispatch) => {
 
 export const userUpgradeSubscription = (slabId, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
-  dispatch({ type: SUBSCRIPTION_UPGRADE_START });
+  dispatch({ type: SUBSCRIPTION_USER_UPGRADE_START });
 
   try {
     const token = secureLocalStorage.getItem('userToken');
