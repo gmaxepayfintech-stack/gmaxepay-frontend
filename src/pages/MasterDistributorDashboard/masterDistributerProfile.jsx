@@ -4,7 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
+import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
@@ -100,7 +100,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
   useEffect(() => {
     dispatch(getMDDetails());
     if (companyId) {
-      dispatch(getAllCompanySlabVisibility(companyId));
+      dispatch(getMDSlabList(companyId));
     }
   }, [dispatch, companyId]);
 
@@ -124,7 +124,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
       dispatch(getMDDetails());
       // Refresh slab visibility
       if (companyId) {
-        dispatch(getAllCompanySlabVisibility(companyId));
+        dispatch(getMDSlabList(companyId));
       }
     }
   }, [upgradeSuccess, dispatch, companyId]);
@@ -270,7 +270,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  Master Distributer
                 </span>
               </div>
             </div>
