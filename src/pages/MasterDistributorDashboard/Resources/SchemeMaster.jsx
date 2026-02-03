@@ -13,7 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createUserSlab, getMDSlabList } from "../../../redux/action/slabAction";
+import { createUserSlab, getUserSlabList } from "../../../redux/action/slabAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -52,7 +52,7 @@ const SchemeMaster = () => {
     const companyId = getCompanyId();
     if (companyId) {
       const customSearch = searchQuery ? { slabName: searchQuery } : {};
-      dispatch(getMDSlabList(companyId, currentPage, 6, customSearch));
+      dispatch(getUserSlabList(companyId, currentPage, 6, customSearch));
     }
   }, [dispatch, currentPage]);
 
@@ -74,7 +74,7 @@ const SchemeMaster = () => {
         const companyId = getCompanyId();
         if (companyId) {
           const customSearch = searchQuery ? { slabName: searchQuery } : {};
-          dispatch(getMDSlabList(companyId, 1, 6, customSearch));
+          dispatch(getUserSlabList(companyId, 1, 6, customSearch));
         }
       }
     }
@@ -108,7 +108,7 @@ const SchemeMaster = () => {
     const companyId = getCompanyId();
     if (companyId) {
       const customSearch = searchQuery ? { slabName: searchQuery } : {};
-      dispatch(getMDSlabList(companyId, 1, 6, customSearch));
+      dispatch(getUserSlabList(companyId, 1, 6, customSearch));
     }
   }, [searchQuery, activeFilter, dispatch]);
 
