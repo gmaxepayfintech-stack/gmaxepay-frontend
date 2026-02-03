@@ -14,12 +14,14 @@ import WalletLoad from "../../pages/MasterDistributorDashboard/fundManagement/Wa
 import FundRequest from "../../pages/MasterDistributorDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/MasterDistributorDashboard/Reports/NW-Overview";
 import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
+import MasterDistributerProfile from "../../pages/MasterDistributorDashboard/masterDistributerProfile";
 const MasterDistributor = () => {
   return (
     <MasterDistLayout>
       <Routes>
         <Route path="/" element={<MasterDistDashboard />} />
         <Route path="/home" element={<MasterDistDashboard />} />
+        <Route path="/profile" element={<MasterDistributerProfile />} />
         <Route path="/members" element={<Members />} />
         <Route path="/members/user" element={<CreateWhiteLabel />} />
         <Route path="/members/list" element={<Members />} />
