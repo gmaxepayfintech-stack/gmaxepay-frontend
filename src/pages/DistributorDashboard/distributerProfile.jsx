@@ -923,7 +923,7 @@ const DistributerProfile = ({ onBack = null }) => {
 
         {activeTab === "bankDetails" && (
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
-            {/* Hader */}
+            {/* Hade */}
             <div className="mb-6">
               <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                 Bank Details
