@@ -70,6 +70,14 @@ const DashboardLayout = ({ children }) => {
       children: [
         { name: "BBPS Settings", path: "/superDashboard/bbps-settings/list" },
         { name: "API Settings", path: "/superDashboard/api-operator/settings" },
+        {
+          name: "Operator Settings",
+          path: "/superDashboard/api-operator/operator-settings",
+        },
+        {
+          name: "Service Settings",
+          path: "/superDashboard/api-operator/service-settings",
+        },
       ],
     },
     {
@@ -80,7 +88,7 @@ const DashboardLayout = ({ children }) => {
         {
           name: "Schema Master",
           path: "/superDashboard/resources/schemamaster",
-        }
+        },
       ],
     },
     {
@@ -375,30 +383,32 @@ const DashboardLayout = ({ children }) => {
                   <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
                 </div>
-              ) : (() => {
-                const greeting = getGreeting();
-                return (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                        {greeting.text}!
-                      </h1>
-                      <img
-                        src={greeting.image}
-                        alt={greeting.text}
-                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "/img/gmaxepay.png";
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
-                      {name || email || "Admin"}
-                    </p>
-                  </>
-                );
-              })()}
+              ) : (
+                (() => {
+                  const greeting = getGreeting();
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                          {greeting.text}!
+                        </h1>
+                        <img
+                          src={greeting.image}
+                          alt={greeting.text}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/img/gmaxepay.png";
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                        {name || email || "Admin"}
+                      </p>
+                    </>
+                  );
+                })()
+              )}
             </div>
           </div>
 
