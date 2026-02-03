@@ -283,7 +283,7 @@ export const userUpgradeSubscription = (slabId, companyId) => async (dispatch) =
     }
 
     const response = await api.post(
-      `${API_ROUTE}/api/v1/user/slab/upradeORChangeSlab/${slabId}`,
+      `${API_ROUTE}/api/v1/user/slab/upgradeOrChangeSlab/${slabId}`,
       {},
       {
         headers: {
