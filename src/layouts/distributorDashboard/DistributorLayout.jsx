@@ -63,6 +63,34 @@ const DistributorLayout = ({ children }) => {
 
   useEffect(() => {
     setIsSidebarOpen(false);
+
+    const currentPath = location.pathname;
+    const currentMenuItem = menuItems.find((item) => {
+      if (item.path && currentPath === item.path) {
+        return true;
+      }
+      if (item.children) {
+        return item.children.some((child) => child.path === currentPath);
+      }
+      return false;
+    });
+
+    if (currentMenuItem) {
+      setActiveMenu(currentMenuItem.name);
+      // If it's a dropdown and a child is active, open the dropdown
+      if (currentMenuItem.dropdown && currentMenuItem.children) {
+        const activeChild = currentMenuItem.children.find(
+          (child) => child.path === currentPath,
+        );
+        if (activeChild) {
+          setOpenDropdown(currentMenuItem.name);
+        } else {
+          setOpenDropdown(null);
+        }
+      } else {
+        setOpenDropdown(null);
+      }
+    }
   }, [location.pathname]);
 
   const handleMenuClick = (name, dropdown, path) => {
