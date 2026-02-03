@@ -5,8 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
-import { getUserDetails } from "../../redux/action/whiteLabelAction";
-import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
+import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
@@ -18,6 +17,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { getMDDetails } from "../../redux/action/whiteLabelAction";
 
 const MasterDistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -33,26 +33,22 @@ const MasterDistributerProfile = ({ onBack = null }) => {
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
-  // Get user details from Redux (preferred)
-  const userDetailsState = useSelector(
-    (state) => state?.whitelabel?.userDetails,
+  // Get MD details from Redux (using getMDDetails API)
+  const mdDetailsState = useSelector(
+    (state) => state?.whitelabel?.mdDetails,
   );
-  const userDetailsData = userDetailsState?.userDetailsData || null;
+  // mdDetailsState contains { mdDetails, message, status }
+  const mdDetailsData = mdDetailsState?.mdDetails || null;
 
-  // Get company admin data from Redux (fallback)
-  const companyAdminState = useSelector(
-    (state) => state?.whitelabel?.companyAdmin,
-  );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const companyAdminData = companyAdminState?.companyAdminData || null;
 
   // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
   );
 
-  // Use userDetailsData if available, otherwise fall back to companyAdminData
-  const profileData = userDetailsData || companyAdminData;
+  // Use mdDetailsData from getMDDetails API
+  const profileData = mdDetailsData || null;
 
   // Get slab visibility from Redux (with isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.visibilityData || []);
@@ -102,7 +98,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
 
   // Fetch user details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
-    dispatch(getUserDetails());
+    dispatch(getMDDetails());
     if (companyId) {
       dispatch(getAllCompanySlabVisibility(companyId));
     }
@@ -125,7 +121,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     if (upgradeSuccess) {
       setShowConfirmModal(false);
       // Refresh user details to get updated data
-      dispatch(getUserDetails());
+      dispatch(getMDDetails());
       // Refresh slab visibility
       if (companyId) {
         dispatch(getAllCompanySlabVisibility(companyId));
@@ -175,77 +171,6 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading user details or slab visibility
-  //   if (isUserDetailsLoading || visibilityLoading || !profileData) {
-  //     return (
-  //       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
-  //         {/* Cover Picture Section Skeleton */}
-  //         <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
-  //           <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-  //             <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-  //               <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
-  //             </div>
-  //           </div>
-  //         </div>
-
-  //         {/* Profile Section Skeleton */}
-  //         <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
-  //           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-  //             <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
-  //             <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
-  //               <div className="flex-1">
-  //                 <SkeletonLoader className="h-6 w-48 mb-4" />
-  //                 <div className="flex flex-wrap items-center gap-4 mb-4">
-  //                   <SkeletonLoader className="h-4 w-24" />
-  //                   <SkeletonLoader className="h-4 w-32" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                   <SkeletonLoader className="h-6 w-20 rounded-full" />
-  //                 </div>
-  //               </div>
-  //               <SkeletonLoader className="h-8 w-20 rounded-3xl" />
-  //             </div>
-  //           </div>
-
-  //           {/* Info Cards Skeleton */}
-  //           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div
-  //                 key={i}
-  //                 className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
-  //               >
-  //                 <SkeletonLoader className="w-12 h-12 rounded" />
-  //                 <div className="flex-1">
-  //                   <SkeletonLoader className="h-5 w-16 mb-2" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                 </div>
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
-
-  //         {/* Content Skeleton */}
-  //         <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
-  //           <div className="flex justify-center gap-4">
-  //             {[1, 2, 3].map((i) => (
-  //               <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
-  //             ))}
-  //           </div>
-  //         </div>
-
-  //         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
-  //           <SkeletonLoader className="h-6 w-32 mb-4" />
-  //           <div className="space-y-4">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div key={i} className="flex justify-between items-center">
-  //                 <SkeletonLoader className="h-4 w-32" />
-  //                 <SkeletonLoader className="h-4 w-24" />
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     );
-  //   }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -1106,7 +1031,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       await dispatch(
-                        upgradeOrChangeSlab(selectedScheme, companyId),
+                        userUpgradeSubscription(selectedScheme, companyId),
                       );
                       // Error message from API will be shown via useEffect watching upgradeError
                     }
