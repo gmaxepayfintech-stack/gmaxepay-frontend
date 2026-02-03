@@ -143,7 +143,7 @@ const TaxHistory = () => {
     return (
       <AepsCWHistory
         type={viewHistory} // optional: pass which AEPS history
-        onBack={() => navigate("/superDashboard/txn-history")}
+        onBack={() => navigate("/distributerDashboard/tax-history")}
       />
     );
   }
@@ -253,7 +253,7 @@ const TaxHistory = () => {
                   onClick={() => {
                     if (card.viewKey) {
                       navigate(
-                        `/distributerDashboard/txn-history?view=${card.viewKey}`,
+                        `/distributerDashboard/tax-history?view=${card.viewKey}`,
                       );
                     }
                   }}
