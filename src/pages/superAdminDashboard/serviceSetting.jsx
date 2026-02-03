@@ -44,25 +44,53 @@ const ServiceSetting = () => {
   return (
     <div className="py-4 px-1">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative">
+      {/* Header */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center mb-6">
+        {/* Search */}
+        <div className="relative w-full lg:w-[622px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search Service"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border border-black/50 px-10 py-2.5 rounded-lg w-[622px] focus:outline-none text-sm"
+            className="
+        w-full
+        border border-black/50
+        px-10 py-2.5
+        rounded-lg
+        focus:outline-none
+        text-sm
+      "
           />
         </div>
 
-        <button
-          onClick={() => setIsOpen(true)}
-          className="bg-[#039155] hover:bg-[#027a46] text-white px-5 py-2.5 rounded-lg text-sm flex items-center gap-2 shadow-sm"
-        >
-          <Plus className="w-4 h-4 border border-white rounded-full" />
-          Add New Service
-        </button>
+        {/* Add Button */}
+        <div className="w-full lg:w-auto">
+          <button
+            onClick={() => setIsOpen(true)}
+            className="
+        w-full
+        lg:w-auto
+        h-[44px]
+        bg-[#039155]
+        hover:bg-[#027a46]
+        text-white
+        px-5
+        rounded-lg
+        text-sm
+        font-[gilroy-semibold]
+        flex
+        items-center
+        justify-center
+        gap-2
+        shadow-sm
+      "
+          >
+            <Plus className="w-4 h-4 border border-white rounded-full" />
+            Add New Service
+          </button>
+        </div>
       </div>
 
       {/* Table */}

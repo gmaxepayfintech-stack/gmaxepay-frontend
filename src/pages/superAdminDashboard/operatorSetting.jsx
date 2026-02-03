@@ -200,36 +200,49 @@ const OperatorSetting = () => {
   return (
     <div className="py-4 px-1">
       {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-        <div className="relative">
+      {/* Header */}
+      <div className="flex flex-col gap-4 lg:flex-row lg:justify-between lg:items-center mb-6">
+        {/* Search */}
+        <div className="relative w-full lg:w-[622px]">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
           <input
             type="text"
             placeholder="Search Service"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="border border-black/50 px-10 py-2.5 rounded-lg w-[622px] focus:outline-none text-sm"
+            className="
+        w-full
+        border border-black/50
+        px-10 py-2.5
+        rounded-lg
+        focus:outline-none
+        text-sm
+      "
           />
         </div>
-        <div className="flex gap-4">
-          {/* Custom Select with react-icons */}
-          <div className="relative">
+
+        {/* Select + Button */}
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
+          {/* Select */}
+          <div className="relative w-full sm:w-auto">
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
               className="
-                h-[44px]
-                appearance-none
-                border border-[#1B1717]/80
-                rounded-lg
-                px-5 pr-10
-                text-sm
-                font-[gilroy-semibold]
-                text-[#1B1717]
-                focus:outline-none
-                cursor-pointer
-                bg-white
-            "
+          w-full
+          sm:w-auto
+          h-[44px]
+          appearance-none
+          border border-[#1B1717]/80
+          rounded-lg
+          px-5 pr-10
+          text-sm
+          font-[gilroy-semibold]
+          text-[#1B1717]
+          focus:outline-none
+          cursor-pointer
+          bg-white
+        "
             >
               <option value="all">All</option>
               <option value="AEPS1">AEPS 1</option>
@@ -238,33 +251,37 @@ const OperatorSetting = () => {
 
             <FiChevronDown
               className="
-                pointer-events-none
-                absolute
-                right-3
-                top-1/2
-                -translate-y-1/2
-                text-[#1B1717]
-                text-sm
-                "
+          pointer-events-none
+          absolute
+          right-3
+          top-1/2
+          -translate-y-1/2
+          text-[#1B1717]
+          text-sm
+        "
             />
           </div>
 
+          {/* Add Button */}
           <button
             onClick={() => setIsOpen(true)}
             className="
-                h-[44px]
-                bg-[#039155]
-                hover:bg-[#027a46]
-                text-white
-                px-5
-                rounded-lg
-                text-sm
-                font-[gilroy-semibold]
-                flex
-                items-center
-                gap-2
-                shadow-sm
-            "
+        w-full
+        sm:w-auto
+        h-[44px]
+        bg-[#039155]
+        hover:bg-[#027a46]
+        text-white
+        px-5
+        rounded-lg
+        text-sm
+        font-[gilroy-semibold]
+        flex
+        items-center
+        justify-center
+        gap-2
+        shadow-sm
+      "
           >
             <Plus className="w-4 h-4 border border-white rounded-full" />
             Add New Operator
