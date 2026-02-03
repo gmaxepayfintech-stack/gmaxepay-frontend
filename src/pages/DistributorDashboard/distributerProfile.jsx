@@ -33,26 +33,22 @@ const DistributerProfile = ({ onBack = null }) => {
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
-  // Get user details from Redux (preferred)
+  // Get user details from Redux (using getUserDetails API)
   const userDetailsState = useSelector(
     (state) => state?.whitelabel?.userDetails,
   );
+  // userDetailsState contains { userDetailsData, message, status }
   const userDetailsData = userDetailsState?.userDetailsData || null;
 
-  // Get company admin data from Redux (fallback)
-  const companyAdminState = useSelector(
-    (state) => state?.whitelabel?.companyAdmin,
-  );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const companyAdminData = companyAdminState?.companyAdminData || null;
 
   // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
   );
 
-  // Use userDetailsData if available, otherwise fall back to companyAdminData
-  const profileData = userDetailsData || companyAdminData;
+  // Use userDetailsData from getUserDetails API
+  const profileData = userDetailsData || null;
 
   // Get slab visibility from Redux (with isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.visibilityData || []);
