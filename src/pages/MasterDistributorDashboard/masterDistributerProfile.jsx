@@ -47,13 +47,13 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     (state) => state?.whitelabel?.loading || false,
   );
 
-  // Use mdDetailsData from getMDDetails API
+  // Use mdDetailsData from   getMDDetails API
   const profileData = mdDetailsData || null;
 
-  // Get slab visibility from Redux (with isSubscribed field)
-  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  // Get slab list from Redux (using getMDSlabList API - contains isSubscribed field)
+  const slabList = useSelector((state) => state?.slab?.userList || []);
   const visibilityLoading = useSelector(
-    (state) => state?.slab?.visibilityLoading || false,
+    (state) => state?.slab?.loading || false,
   );
   const upgradeLoading = useSelector(
     (state) => state?.subscription?.upgradeLoading || false,
