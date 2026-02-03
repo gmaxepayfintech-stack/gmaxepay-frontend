@@ -18,7 +18,6 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { getMDDetails } from "../../redux/action/whiteLabelAction";
-import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 
 const MasterDistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();

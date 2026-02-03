@@ -6,7 +6,7 @@ import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
 import { getUserDetails } from "../../redux/action/whiteLabelAction";
-import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
+import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
@@ -60,13 +60,13 @@ const DistributerProfile = ({ onBack = null }) => {
     (state) => state?.slab?.visibilityLoading || false,
   );
   const upgradeLoading = useSelector(
-    (state) => state?.subscription?.upgradeLoading || false,
+    (state) => state?.subscription?.userUpgradeLoading || false,
   );
   const upgradeSuccess = useSelector(
-    (state) => state?.subscription?.upgradeSuccess || false,
+    (state) => state?.subscription?.userUpgradeSuccess || false,
   );
   const upgradeError = useSelector(
-    (state) => state?.subscription?.upgradeError || null,
+    (state) => state?.subscription?.userUpgradeError || null,
   );
 
   // Get wallet balance from Redux
@@ -1104,7 +1104,7 @@ const DistributerProfile = ({ onBack = null }) => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       await dispatch(
-                        upgradeOrChangeSlab(selectedScheme, companyId),
+                        userUpgradeSubscription(selectedScheme, companyId),
                       );
                       // Error message from API will be shown via useEffect watching upgradeError
                     }
