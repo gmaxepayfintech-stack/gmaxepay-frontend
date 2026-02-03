@@ -24,35 +24,33 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
   // Redux selectors
   const digilockerSuccess = useSelector(
-    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.status
+    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.status,
   );
 
   const url = useSelector(
-    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.url
+    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.url,
   );
 
   const verification_id = useSelector(
-    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.verification_id
+    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.verification_id,
   );
 
   const reference_id = useSelector(
-    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.reference_id
+    (state) => state?.onboarding?.aadhaarVerify?.aadhaarVerify?.reference_id,
   );
 
   const document_type = useSelector(
     (state) =>
-      state?.onboarding?.aadhaarVerify?.aadhaarVerify?.document_requested?.[0]
+      state?.onboarding?.aadhaarVerify?.aadhaarVerify?.document_requested?.[0],
   );
-  
-  const steps = useSelector(
-    (state) => state?.onboarding?.steps
-  );
-  
+
+  const steps = useSelector((state) => state?.onboarding?.steps);
+
   // Get aadharVerification step and check if connect (verify) is done
   const aadharStep = steps?.find((step) => step.key === "aadharVerification");
   const isConnectDone = aadharStep?.subSteps?.[0]?.done === true;
   const isDownloadDone = aadharStep?.subSteps?.[1]?.done === true;
-  
+
   // Sync local state with steps data and show tick mark when verified
   useEffect(() => {
     if (isConnectDone) {
@@ -65,10 +63,13 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
   useEffect(() => {
     let timer;
     if (showTickMark) {
-      timer = setTimeout(() => {
-        setShowTickMark(false);
-        setIsVerified(false);
-      }, 3 * 60 * 1000); // 3 minutes = 180000 milliseconds
+      timer = setTimeout(
+        () => {
+          setShowTickMark(false);
+          setIsVerified(false);
+        },
+        3 * 60 * 1000,
+      ); // 3 minutes = 180000 milliseconds
     }
     return () => {
       if (timer) {
@@ -76,7 +77,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
       }
     };
   }, [showTickMark]);
-  
+
   // 🔥 OPEN DIGILOCKER URL WHEN SUCCESS
   useEffect(() => {
     if (digilockerSuccess === "Success" && url) {
@@ -114,7 +115,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
     const token = localStorage.getItem("onboardingToken");
 
     const payload = {
-      document_type: "AADHAAR"
+      document_type: "AADHAAR",
     };
 
     console.log("Dispatching Aadhaar Download:", payload);
@@ -176,14 +177,12 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
   // Get upload response and loading state from Redux
   const uploadResponse = useSelector(
-    (state) => state?.onboarding?.uploadAadhaarResponse
+    (state) => state?.onboarding?.uploadAadhaarResponse,
   );
   const uploadError = useSelector(
-    (state) => state?.onboarding?.uploadAadhaarError
+    (state) => state?.onboarding?.uploadAadhaarError,
   );
-  const isLoading = useSelector(
-    (state) => state?.onboarding?.loading
-  );
+  const isLoading = useSelector((state) => state?.onboarding?.loading);
 
   const handleSubmitImages = async () => {
     if (!frontImage || !backImage) {
@@ -207,7 +206,8 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
   // Watch for successful upload and proceed to next step
   useEffect(() => {
     if (uploadResponse) {
-      const status = uploadResponse?.status || uploadResponse?.uploadResponse?.status;
+      const status =
+        uploadResponse?.status || uploadResponse?.uploadResponse?.status;
       if (status === "SUCCESS") {
         setUploading(false);
         // Refresh steps after successful completion
@@ -231,18 +231,18 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
         setUploading(false);
         // Extract error message - handle different error structures
         let errorMsg = null;
-        if (typeof uploadError === 'string') {
+        if (typeof uploadError === "string") {
           errorMsg = uploadError;
         } else if (uploadError?.message) {
           errorMsg = uploadError.message;
         } else if (uploadError?.payload) {
-          if (typeof uploadError.payload === 'string') {
+          if (typeof uploadError.payload === "string") {
             errorMsg = uploadError.payload;
           } else if (uploadError.payload?.message) {
             errorMsg = uploadError.payload.message;
           }
         }
-        
+
         if (errorMsg) {
           setErrorMessage(errorMsg);
           // Auto-hide error after 5 seconds
@@ -262,8 +262,8 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
   }, [uploading]);
 
   return (
-    <div className="w-full flex justify-center py-6">
-      <div className="w-[450px] space-y-8">
+    <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
         {/* ================================================================= */}
         {/*                      DIGILOCKER VERIFICATION VIEW                 */}
         {/* ================================================================= */}
@@ -271,47 +271,43 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
           <>
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">
-                Aadhar Verification
+              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                Aadhaar Verification
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-regular] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* DigiLocker Box */}
-            <div
-              className="bg-gradient-to-br from-green-50 to-emerald-50 
-              border-2 border-dashed border-gray-400 rounded-2xl p-8"
-            >
-              <div className="flex items-start gap-4">
+            <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-2 border-dashed border-gray-400 rounded-lg sm:rounded-xl md:rounded-2xl p-3 sm:p-4 md:p-4 lg:p-5 xl:p-6">
+              <div className="flex items-start gap-3">
                 <img
                   src="/img/Digilocker1.png"
-                  className="h-24"
-                  alt="Digilocker"
+                  alt="DigiLocker"
+                  className="h-14 sm:h-16 flex-shrink-0"
                 />
-
                 <div>
-                  <h3 className="text-xl font-semibold text-gray-900">
-                    Aadhar Via DigiLocker
+                  <h3 className="text-sm sm:text-base md:text-lg font-[gilroy-semibold] text-[#1B1717]">
+                    Aadhaar Via DigiLocker
                   </h3>
-                  <p className="text-sm text-gray-600 mt-1">
+                  <p className="text-xs sm:text-sm text-gray-600">
                     Fetch Aadhaar Document Securely From DigiLocker
                   </p>
                 </div>
               </div>
 
               {/* Buttons */}
-              <div className="flex gap-6 mt-6">
+              <div className="flex gap-2 sm:gap-3 mt-3">
                 <button
                   onClick={handleDownload}
                   disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-[52px] text-lg rounded-xl border-2 border-black/60 
-                    font-medium transition
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base border transition shadow-md 
+
                     ${
                       !isConnectDone || isDownloadDone
                         ? "text-gray-400 cursor-not-allowed border-gray-300"
-                        : "text-gray-700 hover:bg-gray-100"
+                        : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
                     }`}
                 >
                   {isDownloadDone ? "Downloaded" : "Download"}
@@ -320,26 +316,26 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
-                  className={`flex-1 h-[52px] text-lg rounded-xl text-white font-medium transition 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md 
                     ${
                       isConnectDone && showTickMark
-                        ? "bg-green-600 cursor-not-allowed"
+                        ? "bg-green-600 text-white cursor-not-allowed"
                         : loading
-                        ? "bg-[#039155] opacity-75 cursor-not-allowed"
-                        : "bg-[#039155] hover:bg-green-700"
+                          ? "bg-[#039155] text-white opacity-75 cursor-not-allowed"
+                          : "bg-[#039155] text-white hover:bg-green-700"
                     }`}
                 >
                   {loading
                     ? "Verifying..."
                     : isConnectDone && showTickMark
-                    ? "Verified ✓"
-                    : "Verify"}
+                      ? "Verified ✓"
+                      : "Verify"}
                 </button>
               </div>
             </div>
 
             {/* Information Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3 mt-1 mb-1">
               <svg
                 className="h-5 w-5 text-blue-600 mt-1"
                 fill="currentColor"
@@ -371,8 +367,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             {/* NEXT */}
             <button
               onClick={() => setShowImageUpload(true)}
-              className="w-full py-3 rounded-xl bg-[#039155] text-white 
-                font-semibold text-lg"
+              className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
             >
               Next
             </button>
@@ -383,20 +378,24 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
         {/*                          IMAGE UPLOAD VIEW                       */}
         {/* ================================================================= */}
         {showImageUpload && (
-          <>
+          <div className="space-y-3 md:space-y-4">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-2xl font-bold text-gray-900">
+              <h1 className="text-base sm:text-sm md:text-lg lg:text-xl font-[gilroy-semibold] text-[#1B1717]">
                 Aadhar Verification
               </h1>
-              <p className="text-gray-600 mt-1">
+              <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-medium] text-[#1B1717]/70 mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
 
             {/* Aadhaar Front */}
-            <div 
-              className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex items-center justify-center w-[419px] h-[200px] relative overflow-hidden"
+            <div
+              className="border-2 border-dashed border-gray-300
+      rounded-lg sm:rounded-xl md:rounded-2xl
+      p-2.5 sm:p-3
+      w-full h-[150px] sm:h-[170px] md:h-[180px] lg:h-[190px] xl:h-[195px]
+      flex items-center justify-center relative overflow-hidden"
             >
               {frontImagePreview ? (
                 <>
@@ -427,15 +426,22 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center w-[160px] h-[146px] gap-4">
+                <div className="flex flex-col items-center justify-center  gap-0.5 sm:gap-1">
                   <img
                     src="/img/aadhaar-front.png"
                     alt="Aadhaar Front"
-                    className="w-[120px] h-[75px] object-contain"
+                    className="w-[85px] h-[50px]
+              sm:w-[95px] sm:h-[55px]
+              md:w-[105px] md:h-[60px]
+              lg:w-[115px] lg:h-[65px]
+              xl:w-[120px] xl:h-[68px]
+              object-contain"
                   />
 
-                  <h3 
-                    className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] w-[160px] h-[11px] text-center leading-[100%] tracking-[0%] align-middle"
+                  <h3
+                    className="capitalize font-['Gilroy-Medium']
+            text-[9px] sm:text-[10px] md:text-[11px]
+            lg:text-xs xl:text-sm text-center text-[#1B1717]/80"
                   >
                     Add Aadhaar Image Front
                   </h3>
@@ -448,14 +454,24 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                       onChange={(e) => handleImageChange("front", e)}
                     />
                     <span
-                      className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] rounded-[4px] text-[12px]"
+                      className="bg-[#C5DBFF] text-gray-900
+              cursor-pointer hover:bg-[#B0CFFF]
+              active:scale-95 transition-all
+              inline-flex items-center justify-center
+              px-2.5 sm:px-3 md:px-3.5
+              py-0.5 sm:py-1
+              min-w-[100px] sm:min-w-[110px] md:min-w-[120px]
+              rounded-lg sm:rounded-xl
+              text-[8px] sm:text-[9px] md:text-[10px]
+              lg:text-xs xl:text-sm font-[gilroy-regular]"
                     >
                       Select From Browser
                     </span>
                   </label>
 
-                  <p 
-                    className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] leading-[100%] tracking-[0%] align-middle text-[#6B7280]"
+                  <p
+                    className="text-[7px] sm:text-[8px] md:text-[9px]
+            lg:text-[10px] xl:text-xs text-[#1B1717]/80 font-[gilroy-regular]"
                   >
                     File Size (Max 5 MB)
                   </p>
@@ -464,9 +480,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             </div>
 
             {/* Aadhaar Back */}
-            <div 
-              className="border-2 border-dashed border-gray-300 rounded-2xl p-8 flex items-center justify-center w-[419px] h-[200px] relative overflow-hidden"
-            >
+            <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl md:rounded-2xl p-2.5 sm:p-2.5 md:p-3 lg:p-3 xl:p-3 mx-auto w-full h-[150px] sm:h-[170px] md:h-[180px] lg:h-[190px] xl:h-[195px] flex items-center justify-center relative overflow-hidden">
               {backImagePreview ? (
                 <>
                   <img
@@ -496,16 +510,14 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   </button>
                 </>
               ) : (
-                <div className="flex flex-col items-center justify-center w-[160px] h-[146px] gap-4">
+                <div className="flex flex-col items-center justify-center gap-0.5 sm:gap-1 md:gap-1 lg:gap-1.5 xl:gap-1">
                   <img
                     src="/img/aadhaar-back.png"
                     alt="Aadhaar Back"
-                    className="w-[120px] h-[75px] object-contain"
+                    className="w-[85px] h-[50px] sm:w-[95px] sm:h-[55px] md:w-[105px] md:h-[60px] lg:w-[115px] lg:h-[65px] xl:w-[120px] xl:h-[68px] object-contain"
                   />
 
-                  <h3 
-                    className="capitalize font-['Gilroy-Medium'] font-normal text-[13px] w-[160px] h-[11px] text-center leading-[100%] tracking-[0%] align-middle"
-                  >
+                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80 text-[9px] sm:text-[10px] md:text-[11px] lg:text-xs xl:text-sm text-center leading-[100%] tracking-[0%] align-middle">
                     Add Aadhaar Image Back
                   </h3>
 
@@ -516,16 +528,12 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={(e) => handleImageChange("back", e)}
                     />
-                    <span
-                      className="bg-[#C5DBFF] text-gray-900 cursor-pointer hover:bg-[#B0CFFF] transition inline-flex items-center justify-center w-[137px] h-[22px] rounded-[4px] text-[12px]"
-                    >
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs xl:text-sm font-[gilroy-regular]">
                       Select From Browser
                     </span>
                   </label>
 
-                  <p 
-                    className="capitalize font-['Gilroy-Regular'] font-normal text-[10px] leading-[100%] tracking-[0%] align-middle text-[#6B7280]"
-                  >
+                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] xl:text-xs leading-[100%] tracking-[0%] align-middle text-[#1B1717]/80">
                     File Size (Max 5 MB)
                   </p>
                 </div>
@@ -536,12 +544,17 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             <button
               onClick={handleSubmitImages}
               disabled={!frontImage || !backImage || uploading}
-              className={`w-[419px] py-3 rounded-xl font-semibold text-lg transition
-                ${
-                  frontImage && backImage && !uploading
-                    ? "bg-[#039155] text-white hover:bg-green-700"
-                    : "bg-gray-400 text-white cursor-not-allowed"
-                }`}
+              className={`w-full
+        h-9 sm:h-10 md:h-10 lg:h-11 xl:h-12
+        rounded-lg sm:rounded-xl
+        font-[gilroy-semibold]
+        text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
+        shadow-md transition-all
+        flex items-center justify-center                ${
+          frontImage && backImage && !uploading
+            ? "bg-[#039155] text-white hover:bg-green-700"
+            : "bg-gray-400 text-white cursor-not-allowed"
+        }`}
             >
               {uploading ? "Uploading..." : "Submit"}
             </button>
@@ -555,7 +568,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                     <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
                     <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
                   </div>
-                  
+
                   {/* Verification Message */}
                   <div className="text-center">
                     <h3 className="text-xl font-semibold text-gray-900 mb-2">
@@ -609,7 +622,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 </div>
               </div>
             )}
-          </>
+          </div>
         )}
       </div>
     </div>

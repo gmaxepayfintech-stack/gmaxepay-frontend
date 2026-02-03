@@ -510,7 +510,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base border transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
                       isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
@@ -529,7 +529,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm md:text-base transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
                       isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
