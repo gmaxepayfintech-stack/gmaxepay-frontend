@@ -2,11 +2,11 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
+import { MapPin, FileText, Camera, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
 import { getUserDetails } from "../../redux/action/whiteLabelAction";
-import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
+import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
@@ -60,13 +60,13 @@ const RetailerProfile = ({ onBack = null }) => {
     (state) => state?.slab?.visibilityLoading || false,
   );
   const upgradeLoading = useSelector(
-    (state) => state?.subscription?.upgradeLoading || false,
+    (state) => state?.subscription?.userUpgradeLoading || false,
   );
   const upgradeSuccess = useSelector(
-    (state) => state?.subscription?.upgradeSuccess || false,
+    (state) => state?.subscription?.userUpgradeSuccess || false,
   );
   const upgradeError = useSelector(
-    (state) => state?.subscription?.upgradeError || null,
+    (state) => state?.subscription?.userUpgradeError || null,
   );
 
   // Get wallet balance from Redux
@@ -435,7 +435,7 @@ const RetailerProfile = ({ onBack = null }) => {
           {[
             {
               key: "membership",
-              label: "Membership Scheme Upgrade / Personal Details",
+              label: "Personal Details",
             },
             {
               key: "kycDetails",
@@ -744,67 +744,6 @@ const RetailerProfile = ({ onBack = null }) => {
 
         {activeTab === "membership" && (
           <div className="space-y-6 sm:space-y-8">
-            {/* Membership Scheme Section */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
-              <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
-                Membership Scheme
-              </h3>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="relative flex-1 sm:max-w-xs">
-                  <select
-                    value={selectedScheme}
-                    onChange={(e) => setSelectedScheme(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                    disabled={upgradeLoading || visibilityLoading}
-                  >
-                    <option value="">Select Slab</option>
-                    {slabList.map((slab) => {
-                      const amountDisplay =
-                        slab.slabAmount === "free" || slab.slabAmount === 0
-                          ? "Free"
-                          : `₹${slab.slabAmount}`;
-                      const subscriptionStatus = slab.isSubscribed
-                        ? "Subscribed"
-                        : "Unsubscribed";
-                      return (
-                        <option key={slab.id} value={slab.id}>
-                          {slab.slabName} ({amountDisplay}) -{" "}
-                          {subscriptionStatus}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                </div>
-                <button
-                  onClick={() => {
-                    if (
-                      selectedScheme &&
-                      selectedScheme !== String(data?.slabId)
-                    ) {
-                      setShowConfirmModal(true);
-                    }
-                  }}
-                  disabled={
-                    !selectedScheme ||
-                    selectedScheme === String(data?.slabId) ||
-                    upgradeLoading ||
-                    visibilityLoading
-                  }
-                  className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  {(() => {
-                    if (upgradeLoading) return "Processing...";
-                    const selectedSlab = slabList.find(
-                      (s) => String(s.id) === selectedScheme,
-                    );
-                    const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed ? "Change Slab" : "Upgrade";
-                  })()}
-                </button>
-              </div>
-            </div>
-
             {/* Personal Details Section */}
             <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
@@ -1104,7 +1043,7 @@ const RetailerProfile = ({ onBack = null }) => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
                       await dispatch(
-                        upgradeOrChangeSlab(selectedScheme, companyId),
+                        userUpgradeSubscription(selectedScheme, companyId),
                       );
                       // Error message from API will be shown via useEffect watching upgradeError
                     }
