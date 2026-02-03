@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { getSubscriptionList, upgradeOrChangeSlab } from "../../../redux/action/subscriptionAction";
+import { getSubscriptionList, userUpgradeSubscription } from "../../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../../redux/action/walletAction";
 import { X } from "lucide-react";
 import ViewSubscription from "./ViewSubscription";
@@ -13,7 +13,7 @@ const Subscription = () => {
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  const { subscriptions, loading, error, upgradeLoading, upgradeSuccess, upgradeError } = useSelector((state) => state?.subscription || {});
+  const { subscriptions, loading, error, upgradeLoading, upgradeSuccess, upgradeError, userUpgradeSuccess, userUpgradeError } = useSelector((state) => state?.subscription || {});
   const companyWalletBalance = useSelector((state) => state?.wallet?.companyWalletBalance || null);
   const walletBalanceLoading = useSelector((state) => state?.loading?.isLoading || false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
@@ -129,9 +129,9 @@ const Subscription = () => {
     }
   }, [showConfirmModal, selectedPlan, dispatch]);
 
-  // Handle upgrade success
+  // Handle upgrade success (backup - primary handling is in handleConfirmUpgrade)
   useEffect(() => {
-    if (upgradeSuccess) {
+    if (userUpgradeSuccess) {
       setShowConfirmModal(false);
       setSelectedPlan(null);
       // Refresh subscription list
@@ -142,19 +142,19 @@ const Subscription = () => {
         );
       }
     }
-  }, [upgradeSuccess, dispatch]);
+  }, [userUpgradeSuccess, dispatch]);
 
   // Handle upgrade error from API
   useEffect(() => {
-    if (upgradeError) {
+    if (userUpgradeError || upgradeError) {
       // Show error notification
       showNotification({
         type: 'error',
-        message: upgradeError,
+        message: userUpgradeError || upgradeError,
         duration: 5000,
       });
     }
-  }, [upgradeError, showNotification]);
+  }, [userUpgradeError, upgradeError, showNotification]);
 
   const handleConfirmUpgrade = async () => {
     if (!selectedPlan) return;
@@ -166,8 +166,33 @@ const Subscription = () => {
     
     const companyId = getCompanyId();
     if (companyId && selectedPlan.originalData?.id) {
-      await dispatch(upgradeOrChangeSlab(selectedPlan.originalData.id, companyId));
-      // Error message from API will be shown via useEffect watching upgradeError
+      try {
+        const response = await dispatch(userUpgradeSubscription(selectedPlan.originalData.id, companyId));
+        
+        // If API call is successful, refresh the subscription list
+        if (response?.success || response?.status === "SUCCESS") {
+          // Close modal
+          setShowConfirmModal(false);
+          setSelectedPlan(null);
+          
+          // Show success notification
+          showNotification({
+            type: 'success',
+            message: response?.message || 'Subscription upgraded successfully',
+            duration: 5000,
+          });
+          
+          // Refresh subscription list
+          if (companyId) {
+            await dispatch(
+              getSubscriptionList(companyId, {}, {}, { page: 1, paginate: 10, sort: {} })
+            );
+          }
+        }
+      } catch (error) {
+        console.error('Error upgrading subscription:', error);
+        // Error message from API will be shown via useEffect watching upgradeError
+      }
     }
   };
 
