@@ -2,25 +2,25 @@ import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { getSubscriptionList, userUpgradeSubscription } from "../../../redux/action/subscriptionAction";
+import { getSubscriptionList, upgradeOrChangeSlab } from "../../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../../redux/action/walletAction";
 import { X } from "lucide-react";
 import ViewSubscription from "./ViewSubscription";
-
+ 
 const Subscription = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
   const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  const { subscriptions, loading, error, upgradeLoading, upgradeSuccess, upgradeError, userUpgradeSuccess, userUpgradeError } = useSelector((state) => state?.subscription || {});
+  const { subscriptions, loading, error, upgradeLoading, upgradeSuccess, upgradeError } = useSelector((state) => state?.subscription || {});
   const companyWalletBalance = useSelector((state) => state?.wallet?.companyWalletBalance || null);
   const walletBalanceLoading = useSelector((state) => state?.loading?.isLoading || false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [showViewSubscription, setShowViewSubscription] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState(null);
-
+ 
   useEffect(() => {
     const fetchSubscriptions = async () => {
       const companyId = companyData?.companyId || companyData?._id || companyData?.id;
@@ -32,11 +32,11 @@ const Subscription = () => {
     };
     fetchSubscriptions();
   }, [dispatch, companyData]);
-
+ 
   const getCompanyId = () => {
     return companyData?.companyId || companyData?._id || companyData?.id || null;
   };
-
+ 
   // Map API data to display format
   const mapSubscriptionToDisplay = (subscription) => {
     // Predefined list of available services (excluding "Other" which will be added last)
@@ -50,15 +50,15 @@ const Subscription = () => {
       "CMS",
       "DTH Recharge",
     ];
-
+ 
     // Get unique operator types from commissions to determine which services to show
     const operatorTypes = [
       ...new Set(subscription.commissions?.map((comm) => comm.operatorType) || []),
     ];
-
+ 
     // Select 5 random services (no duplicates) + "Other" as the 6th
     let selectedServices = [];
-    
+   
     if (operatorTypes.length > 0) {
       // Shuffle and select 5 random services (no duplicates)
       const shuffled = [...availableServices].sort(() => Math.random() - 0.5);
@@ -67,7 +67,7 @@ const Subscription = () => {
       // Default: show first 5 services
       selectedServices = availableServices.slice(0, 5);
     }
-
+ 
     // Ensure we have exactly 5 unique services before adding "Other"
     if (selectedServices.length < 5) {
       // If we don't have enough, fill from the beginning
@@ -80,21 +80,21 @@ const Subscription = () => {
         }
       }
     }
-
+ 
     // Remove duplicates if any (shouldn't happen, but safety check)
     selectedServices = [...new Set(selectedServices)];
-
+ 
     // Ensure exactly 5 services before adding "Other"
     if (selectedServices.length > 5) {
       selectedServices = selectedServices.slice(0, 5);
     }
-
+ 
     // Add "Other" as the 6th service (total 6 services: 5 random + 1 "Other")
     selectedServices.push("Other");
-
+ 
     // Use slabName directly from API
     const displayTitle = subscription.slabName || "Customization";
-
+ 
     return {
       id: subscription.id,
       title: displayTitle,
@@ -107,12 +107,12 @@ const Subscription = () => {
       isCurrentSlab: subscription.isCurrentSlab || false,
     };
   };
-
+ 
   const handleViewDetails = (subscription) => {
     setSelectedSubscription(subscription);
     setShowViewSubscription(true);
   };
-
+ 
   const handleSubscribe = (plan) => {
     // If already subscribed, don't show modal or call API
     if (plan.originalData?.isSubscribed) {
@@ -121,17 +121,17 @@ const Subscription = () => {
     setSelectedPlan(plan);
     setShowConfirmModal(true);
   };
-
+ 
   // Fetch wallet balance when modal opens
   useEffect(() => {
     if (showConfirmModal && selectedPlan) {
       dispatch(getCompanyWalletBalance());
     }
   }, [showConfirmModal, selectedPlan, dispatch]);
-
-  // Handle upgrade success (backup - primary handling is in handleConfirmUpgrade)
+ 
+  // Handle upgrade success
   useEffect(() => {
-    if (userUpgradeSuccess) {
+    if (upgradeSuccess) {
       setShowConfirmModal(false);
       setSelectedPlan(null);
       // Refresh subscription list
@@ -142,60 +142,35 @@ const Subscription = () => {
         );
       }
     }
-  }, [userUpgradeSuccess, dispatch]);
-
+  }, [upgradeSuccess, dispatch]);
+ 
   // Handle upgrade error from API
   useEffect(() => {
-    if (userUpgradeError || upgradeError) {
+    if (upgradeError) {
       // Show error notification
       showNotification({
         type: 'error',
-        message: userUpgradeError || upgradeError,
+        message: upgradeError,
         duration: 5000,
       });
     }
-  }, [userUpgradeError, upgradeError, showNotification]);
-
+  }, [upgradeError, showNotification]);
+ 
   const handleConfirmUpgrade = async () => {
     if (!selectedPlan) return;
-    
+   
     // Don't call API if already subscribed
     if (selectedPlan.originalData?.isSubscribed) {
       return;
     }
-    
+   
     const companyId = getCompanyId();
     if (companyId && selectedPlan.originalData?.id) {
-      try {
-        const response = await dispatch(userUpgradeSubscription(selectedPlan.originalData.id, companyId));
-        
-        // If API call is successful, refresh the subscription list
-        if (response?.success || response?.status === "SUCCESS") {
-          // Close modal
-          setShowConfirmModal(false);
-          setSelectedPlan(null);
-          
-          // Show success notification
-          showNotification({
-            type: 'success',
-            message: response?.message || 'Subscription upgraded successfully',
-            duration: 5000,
-          });
-          
-          // Refresh subscription list
-          if (companyId) {
-            await dispatch(
-              getSubscriptionList(companyId, {}, {}, { page: 1, paginate: 10, sort: {} })
-            );
-          }
-        }
-      } catch (error) {
-        console.error('Error upgrading subscription:', error);
-        // Error message from API will be shown via useEffect watching upgradeError
-      }
+      await dispatch(upgradeOrChangeSlab(selectedPlan.originalData.id, companyId));
+      // Error message from API will be shown via useEffect watching upgradeError
     }
   };
-
+ 
   // Loading Skeleton Component
   const SubscriptionCardSkeleton = () => (
     <div className="relative flex flex-col w-[402px] h-[600px] rounded-2xl border border-[#1B1717]/80 bg-[#FEFEFE] p-6 animate-pulse">
@@ -203,13 +178,13 @@ const Subscription = () => {
       <div className="absolute top-4 right-4">
         <div className="w-5 h-5 bg-gray-200 rounded-full"></div>
       </div>
-
+ 
       {/* Title Skeleton */}
       <div className="h-8 bg-gray-200 rounded w-1/3 mb-4"></div>
-
+ 
       {/* Price Skeleton */}
       <div className="h-6 bg-gray-200 rounded w-1/2 mb-5"></div>
-
+ 
       {/* Description Skeleton */}
       <div className="space-y-2 mb-3">
         <div className="h-3 bg-gray-200 rounded w-full"></div>
@@ -217,7 +192,7 @@ const Subscription = () => {
         <div className="h-3 bg-gray-200 rounded w-5/6"></div>
         <div className="h-3 bg-gray-200 rounded w-4/5"></div>
       </div>
-
+ 
       {/* Services List Skeleton */}
       <div className="mb-3 space-y-3">
         <div className="flex items-center gap-2">
@@ -241,7 +216,7 @@ const Subscription = () => {
           <div className="h-4 bg-gray-200 rounded w-18"></div>
         </div>
       </div>
-
+ 
       {/* Buttons Skeleton */}
       <div className="flex flex-col mt-auto gap-3">
         <div className="h-[60px] bg-gray-200 rounded-[14px]"></div>
@@ -249,9 +224,9 @@ const Subscription = () => {
       </div>
     </div>
   );
-
+ 
   const displaySubscriptions = subscriptions?.map(mapSubscriptionToDisplay) || [];
-
+ 
   // Show ViewSubscription component when selected
   if (showViewSubscription) {
     return (
@@ -264,7 +239,7 @@ const Subscription = () => {
       />
     );
   }
-
+ 
   return (
     <div className="min-h-screen bg-[#FAFAFA] text-[#1B1717]">
       {/* Header Section */}
@@ -276,14 +251,14 @@ const Subscription = () => {
           Choose The Perfect Plan For Your Business
         </p>
       </div>
-
+ 
       {/* Error Message */}
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-sm text-red-600 font-['Gilroy-Medium']">{error}</p>
         </div>
       )}
-
+ 
       {/* Subscription Cards Grid */}
       <div className="flex flex-wrap justify-center gap-8">
         {loading ? (
@@ -312,12 +287,12 @@ const Subscription = () => {
                   />
                 </div>
               )}
-
+ 
               {/* Plan Title */}
               <h2 className="text-xl sm:text-2xl md:text-3xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
                 {plan.title}
               </h2>
-
+ 
               {/* Price */}
               <div className="mb-4 sm:mb-5">
                 <span className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
@@ -327,12 +302,12 @@ const Subscription = () => {
                   / {plan.period}
                 </span>
               </div>
-
+ 
               {/* Description */}
               <p className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#1B1717]/80 mb-3 leading-relaxed line-clamp-4">
                 {plan.description}
               </p>
-
+ 
               {/* Services List */}
               <div className="mb-3 flex-shrink-0 w-full">
                 <ul className="flex flex-col gap-3">
@@ -352,7 +327,7 @@ const Subscription = () => {
                   ))}
                 </ul>
               </div>
-
+ 
               {/* Action Buttons */}
               <div className="flex flex-col mt-auto flex-shrink-0 gap-[13px]">
                 <button
@@ -372,10 +347,10 @@ const Subscription = () => {
                       : "opacity-100 cursor-pointer bg-[#039155] text-white hover:bg-green-700"
                   }`}
                 >
-                  {plan.isCurrentSlab 
-                    ? "Current Plan" 
-                    : plan.originalData?.isSubscribed 
-                    ? "Already Subscribed" 
+                  {plan.isCurrentSlab
+                    ? "Current Plan"
+                    : plan.originalData?.isSubscribed
+                    ? "Already Subscribed"
                     : "Subscribe"}
                 </button>
               </div>
@@ -389,7 +364,7 @@ const Subscription = () => {
           </div>
         )}
       </div>
-
+ 
       {/* Confirmation Modal */}
       {showConfirmModal && selectedPlan && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
@@ -397,8 +372,8 @@ const Subscription = () => {
             <div className="p-6">
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
-                  {selectedPlan.originalData?.isSubscribed 
-                    ? "Confirm Slab Change" 
+                  {selectedPlan.originalData?.isSubscribed
+                    ? "Confirm Slab Change"
                     : "Confirm Subscription Upgrade"}
                 </h3>
               </div>
@@ -427,7 +402,7 @@ const Subscription = () => {
                     )}
                   </p>
                 </div>
-
+ 
                 <p className="text-gray-700 mb-2">
                   {selectedPlan.originalData?.isSubscribed
                     ? "Are you sure you want to change the subscription plan?"
@@ -458,8 +433,8 @@ const Subscription = () => {
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                   disabled={upgradeLoading || selectedPlan.originalData?.isSubscribed || !selectedPlan.originalData?.id}
                 >
-                  {upgradeLoading 
-                    ? (selectedPlan.originalData?.isSubscribed ? "Changing..." : "Upgrading...") 
+                  {upgradeLoading
+                    ? (selectedPlan.originalData?.isSubscribed ? "Changing..." : "Upgrading...")
                     : (selectedPlan.originalData?.isSubscribed ? "Confirm Change" : "Confirm Upgrade")}
                 </button>
               </div>
@@ -470,5 +445,6 @@ const Subscription = () => {
     </div>
   );
 };
-
+ 
 export default Subscription;
+ 
