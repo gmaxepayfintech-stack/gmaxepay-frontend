@@ -113,8 +113,8 @@ const Subscription = () => {
   };
 
   const handleSubscribe = (plan) => {
-    // If already subscribed, don't show modal or call API
-    if (plan.originalData?.isSubscribed) {
+    // If already subscribed or is current slab, don't show modal or call API
+    if (plan.originalData?.isSubscribed || plan.isCurrentSlab) {
       return;
     }
     setSelectedPlan(plan);
@@ -341,7 +341,7 @@ const Subscription = () => {
                   View Details
                 </button>
                 <button
-                  onClick={() => !plan.isCurrentSlab && handleSubscribe(plan)}
+                  onClick={() => handleSubscribe(plan)}
                   disabled={plan.isCurrentSlab || plan.originalData?.isSubscribed}
                   className={`w-full h-[60px] rounded-[14px] font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center ${
                     plan.isCurrentSlab
