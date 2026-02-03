@@ -14,12 +14,14 @@ import Services from "../../pages/DistributorDashboard/Services";
 import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
 import PanService from "../../pages/DistributorDashboard/services/PanService";
 import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaster";
+import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
       <Routes>
         <Route path="/" element={<DistDashboard />} />
         <Route path="/home" element={<DistDashboard />} />
+        <Route path="/profile" element={<DistributerProfile />} />
         <Route path="/aeps" element={<OnBoardingAeps />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/bbps-services" element={<BBPSServices />} />

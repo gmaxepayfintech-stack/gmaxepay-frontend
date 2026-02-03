@@ -12,6 +12,7 @@ import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
 import FundRequest from "../../pages/superAdminDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
+import SuperAdminProfile from "../../pages/superAdminDashboard/superAdminProfile";
 
 const SuperAdminDashboard = () => {
   return (
@@ -19,6 +20,7 @@ const SuperAdminDashboard = () => {
       <Routes>
         <Route path="/" element={<SuperAdmin />} />
         <Route path="/home" element={<SuperAdmin />} />
+        <Route path="/profile" element={<SuperAdminProfile />} />
         <Route path="/members/user" element={<CreateWhiteLabel />} />
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />
