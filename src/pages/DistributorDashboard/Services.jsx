@@ -9,20 +9,50 @@ const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
 
 const servicesData = [
-  { id: "mobile-dth", title: "Recharge", status: "available" ,     logo: "/img/MobileRecharge.svg" },
-  { id: "Aeps", title: "AEPS", status: "available" , logo: "/img/AEPS.svg" },
-  { id: "BBPS", title: "BBPS", status: "available" , logo: "/img/BBPS.svg" },
-  { id: "dth-recharge", title: "DTH Recharge", status: "available", logo: "/img/DTH1.svg" },
-  { id: "dmt-1", title: "DMT-1", status: "available" , logo: "/img/DMT.svg" },
-  { id: "dmt-2", title: "DMT-2", status: "available" , logo: "/img/DMT.svg" },
-  { id: "pan", title: "PAN", status: "available" , logo: "/img/PanCorrection.svg" },
-  { id: "micro-atm", title: "Micro ATM", status: "available" , logo: "/img/MATM.svg" },
-  { id: "cms-1", title: "CMS-1", status: "available", logo: "/img/CMS.svg"},
-  { id: "cms-2", title: "CMS-2", status: "available", logo: "/img/CMS.svg"},
-  { id: "unified-dmt", title: "Unified DMT", status: "available" , logo: "/img/DMT.svg" },
-  { id: "dmt", title: "DMT", status: "available" , logo: "/img/DMT.svg" },
-  { id: "dmt-11", title: "DMT-1", status: "available" , logo: "/img/DMT.svg" },
-  { id: "aeps-cash-deposit", title: "AEPS Cash Deposit", status: "subscribed" , logo: "/img/AEPS.svg" },
+  {
+    id: "mobile-dth",
+    title: "Recharge",
+    status: "available",
+    logo: "/img/MobileRecharge.svg",
+  },
+  { id: "Aeps", title: "AEPS", status: "available", logo: "/img/AEPS.svg" },
+  { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
+  {
+    id: "dth-recharge",
+    title: "DTH Recharge",
+    status: "available",
+    logo: "/img/DTH1.svg",
+  },
+  { id: "dmt-1", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
+  { id: "dmt-2", title: "DMT-2", status: "available", logo: "/img/DMT.svg" },
+  {
+    id: "pan",
+    title: "PAN",
+    status: "available",
+    logo: "/img/PanCorrection.svg",
+  },
+  {
+    id: "micro-atm",
+    title: "Micro ATM",
+    status: "available",
+    logo: "/img/MATM.svg",
+  },
+  { id: "cms-1", title: "CMS-1", status: "available", logo: "/img/CMS.svg" },
+  { id: "cms-2", title: "CMS-2", status: "available", logo: "/img/CMS.svg" },
+  {
+    id: "unified-dmt",
+    title: "Unified DMT",
+    status: "available",
+    logo: "/img/DMT.svg",
+  },
+  { id: "dmt", title: "DMT", status: "available", logo: "/img/DMT.svg" },
+  { id: "dmt-11", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
+  {
+    id: "aeps-cash-deposit",
+    title: "AEPS Cash Deposit",
+    status: "subscribed",
+    logo: "/img/AEPS.svg",
+  },
   { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
   { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
@@ -30,7 +60,7 @@ const servicesData = [
 const ServiceCard = ({ title, description, onClick, logo, status }) => {
   // Show logo if status is "available", otherwise show MobileIcon
   const iconSrc = status === "available" && logo ? logo : MobileIcon;
-  
+
   return (
     <button
       type="button"
@@ -42,7 +72,7 @@ const ServiceCard = ({ title, description, onClick, logo, status }) => {
           <img
             src={iconSrc}
             alt={status === "available" && logo ? title : "Service Icon"}
-            className="w-[32px] h-[32px]"
+            className=""
           />
         </div>
         <div className="min-w-0 flex flex-col justify-center">
