@@ -1,23 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
-import { getUserSubscriptionList } from "../../../redux/action/subscriptionAction";
+import { useNotification } from "../../../context/NotificationContext";
+import { getUserSubscriptionList, userUpgradeSubscription } from "../../../redux/action/subscriptionAction";
+import { getUserWalletBalance } from "../../../redux/action/walletAction";
+import { X } from "lucide-react";
 import ViewSubscription from "./ViewSubscription";
 
 const Subscription = () => {
   const dispatch = useDispatch();
   const { company } = useCompany();
+  const { showNotification } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
   const userId = useSelector((state) => state?.userProfile?.userId);
-  const { subscriptions, loading, error } = useSelector((state) => state?.subscription || {});
+  const { subscriptions, loading, error, upgradeLoading, userUpgradeSuccess, userUpgradeError } = useSelector((state) => state?.subscription || {});
+  const userWalletBalance = useSelector((state) => state?.wallet?.userWalletBalance || null);
+  const walletBalanceLoading = useSelector((state) => state?.loading?.isLoading || false);
   const [selectedSubscription, setSelectedSubscription] = useState(null);
   const [showViewSubscription, setShowViewSubscription] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState(null);
 
   useEffect(() => {
     const fetchSubscriptions = async () => {
       if (userId) {
-        await dispatch(
+        dispatch(
           getUserSubscriptionList(userId, {}, {}, { page: 1, paginate: 10, sort: {} })
         );
       }
@@ -63,7 +71,6 @@ const Subscription = () => {
     // Ensure we have exactly 5 unique services before adding "Other"
     if (selectedServices.length < 5) {
       // If we don't have enough, fill from the beginning
-      const needed = 5 - selectedServices.length;
       const used = new Set(selectedServices);
       for (let i = 0; i < availableServices.length && selectedServices.length < 5; i++) {
         if (!used.has(availableServices[i])) {
@@ -105,9 +112,67 @@ const Subscription = () => {
     setShowViewSubscription(true);
   };
 
-  const handleSubscribe = (planTitle) => {
-    // Handle subscribe action
-    console.log(`Subscribe to ${planTitle}`);
+  const handleSubscribe = (plan) => {
+    // If already subscribed, don't show modal or call API
+    if (plan.originalData?.isSubscribed) {
+      return;
+    }
+    setSelectedPlan(plan);
+    setShowConfirmModal(true);
+  };
+
+  // Fetch wallet balance when modal opens
+  useEffect(() => {
+    if (showConfirmModal && selectedPlan) {
+      dispatch(getUserWalletBalance());
+    }
+  }, [showConfirmModal, selectedPlan, dispatch]);
+
+  // Handle upgrade success
+  useEffect(() => {
+    if (userUpgradeSuccess) {
+      setShowConfirmModal(false);
+      setSelectedPlan(null);
+      // Show success notification
+      showNotification({
+        type: 'success',
+        message: 'Subscription upgraded successfully!',
+        duration: 5000,
+      });
+      // Refresh subscription list
+      if (userId) {
+        dispatch(
+          getUserSubscriptionList(userId, {}, {}, { page: 1, paginate: 10, sort: {} })
+        );
+      }
+    }
+  }, [userUpgradeSuccess, dispatch, userId, showNotification]);
+
+  // Handle upgrade error from API
+  useEffect(() => {
+    if (userUpgradeError) {
+      // Show error notification
+      showNotification({
+        type: 'error',
+        message: userUpgradeError,
+        duration: 5000,
+      });
+    }
+  }, [userUpgradeError, showNotification]);
+
+  const handleConfirmUpgrade = async () => {
+    if (!selectedPlan) return;
+   
+    // Don't call API if already subscribed
+    if (selectedPlan.originalData?.isSubscribed) {
+      return;
+    }
+   
+    const companyId = getCompanyId();
+    if (companyId && selectedPlan.originalData?.id) {
+      await dispatch(userUpgradeSubscription(selectedPlan.originalData.id, companyId));
+      // Error message from API will be shown via useEffect watching userUpgradeError
+    }
   };
 
   // Loading Skeleton Component
@@ -276,15 +341,21 @@ const Subscription = () => {
                   View Details
                 </button>
                 <button
-                  onClick={() => !plan.isCurrentSlab && handleSubscribe(plan.title)}
-                  disabled={plan.isCurrentSlab}
-                  className={`w-full h-[60px] rounded-[14px] bg-[#039155] text-white font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center ${
+                  onClick={() => !plan.isCurrentSlab && handleSubscribe(plan)}
+                  disabled={plan.isCurrentSlab || plan.originalData?.isSubscribed}
+                  className={`w-full h-[60px] rounded-[14px] font-['Gilroy-Medium'] text-sm sm:text-base transition-colors flex items-center justify-center ${
                     plan.isCurrentSlab
-                      ? "opacity-60 cursor-not-allowed"
-                      : "opacity-100 cursor-pointer"
+                      ? "opacity-60 cursor-not-allowed bg-[#039155] text-white"
+                      : plan.originalData?.isSubscribed
+                      ? "opacity-60 cursor-not-allowed bg-gray-400 text-white"
+                      : "opacity-100 cursor-pointer bg-[#039155] text-white hover:bg-green-700"
                   }`}
                 >
-                  {plan.isCurrentSlab ? "Current Plan" : "Subscribe"}
+                  {plan.isCurrentSlab
+                    ? "Current Plan"
+                    : plan.originalData?.isSubscribed
+                    ? "Already Subscribed"
+                    : "Subscribe"}
                 </button>
               </div>
             </div>
@@ -297,6 +368,84 @@ const Subscription = () => {
           </div>
         )}
       </div>
+
+      {/* Confirmation Modal */}
+      {showConfirmModal && selectedPlan && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
+            <div className="p-6">
+              <div className="mb-4">
+                <h3 className="text-xl font-semibold text-gray-800">
+                  {selectedPlan.originalData?.isSubscribed
+                    ? "Confirm Slab Change"
+                    : "Confirm Subscription Upgrade"}
+                </h3>
+              </div>
+              <button
+                onClick={() => {
+                  setShowConfirmModal(false);
+                  setSelectedPlan(null);
+                }}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
+              <div className="mb-6">
+                {/* Wallet Balance Display */}
+                <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                  <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
+                  <p className="text-lg font-semibold text-[#1B1717]">
+                    {walletBalanceLoading ? (
+                      <span className="text-gray-400">Loading...</span>
+                    ) : userWalletBalance?.data?.mainWallet ? (
+                      `₹${userWalletBalance.data.mainWallet}`
+                    ) : userWalletBalance?.data?.data?.mainWallet ? (
+                      `₹${userWalletBalance.data.data.mainWallet}`
+                    ) : (
+                      <span className="text-gray-400">N/A</span>
+                    )}
+                  </p>
+                </div>
+
+                <p className="text-gray-700 mb-2">
+                  {selectedPlan.originalData?.isSubscribed
+                    ? "Are you sure you want to change the subscription plan?"
+                    : `Are you sure you want to upgrade to ${selectedPlan.title} plan?`}
+                </p>
+                {selectedPlan && (
+                  <p className="text-sm text-gray-600">
+                    Plan:{" "}
+                    <span className="font-semibold">
+                      {selectedPlan.title} - ₹{selectedPlan.originalData?.subscriptionAmount || 0}
+                    </span>
+                  </p>
+                )}
+              </div>
+              <div className="flex justify-end gap-3">
+                <button
+                  onClick={() => {
+                    setShowConfirmModal(false);
+                    setSelectedPlan(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                  disabled={upgradeLoading}
+                >
+                  Cancel
+                </button>
+                <button
+                  onClick={handleConfirmUpgrade}
+                  className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  disabled={upgradeLoading || selectedPlan.originalData?.isSubscribed || !selectedPlan.originalData?.id}
+                >
+                  {upgradeLoading
+                    ? (selectedPlan.originalData?.isSubscribed ? "Changing..." : "Upgrading...")
+                    : (selectedPlan.originalData?.isSubscribed ? "Confirm Change" : "Confirm Upgrade")}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
