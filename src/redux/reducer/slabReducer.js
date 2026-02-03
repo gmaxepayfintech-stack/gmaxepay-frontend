@@ -19,6 +19,9 @@ import {
   SLAB_GET_VISIBILITY_START,
   SLAB_GET_VISIBILITY_SUCCESS,
   SLAB_GET_VISIBILITY_FAILURE,
+  SLAB_GET_USERLIST_SUCCESS,
+  SLAB_GET_USERLIST_START,
+  SLAB_GET_USERLIST_FAILURE,
 } from '../actionType/slabActionType';
 
 const initialState = {
@@ -239,6 +242,37 @@ const slabReducer = (state = initialState, action) => {
         visibilityData: [],
       };
 
+    case SLAB_GET_USERLIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        userList: action.payload?.data || [],
+        userListTotal: action.payload?.total || 0,
+        userListPaginator: action.payload?.paginator || {
+          itemCount: 0,
+          perPage: 6,
+          pageCount: 1,
+          currentPage: 1,
+        }
+      }
+
+    case SLAB_GET_USERLIST_START:
+      return {
+        ...state,
+        assignSlabLoading: true,
+        assignSlabError: null,
+        assignSlabSuccess: false,
+        assignSlabMessage: null,
+      }
+    case SLAB_GET_USERLIST_FAILURE:
+      return{
+        ...state,
+        assignSlabLoading: false,
+        assignSlabError: action.payload,
+        assignSlabSuccess: false,
+        assignSlabMessage: null,
+      }
     default:
       return state;
   }
