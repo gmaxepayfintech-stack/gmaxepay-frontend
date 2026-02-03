@@ -18,6 +18,7 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { getMDDetails } from "../../redux/action/whiteLabelAction";
+import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 
 const MasterDistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -56,13 +57,13 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     (state) => state?.slab?.loading || false,
   );
   const upgradeLoading = useSelector(
-    (state) => state?.subscription?.upgradeLoading || false,
+    (state) => state?.subscription?.userUpgradeLoading || false,
   );
   const upgradeSuccess = useSelector(
-    (state) => state?.subscription?.upgradeSuccess || false,
+    (state) => state?.subscription?.userUpgradeSuccess || false,
   );
   const upgradeError = useSelector(
-    (state) => state?.subscription?.upgradeError || null,
+    (state) => state?.subscription?.userUpgradeError || null,
   );
 
   // Get wallet balance from Redux
