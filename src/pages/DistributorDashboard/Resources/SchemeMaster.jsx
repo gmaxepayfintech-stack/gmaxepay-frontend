@@ -60,7 +60,7 @@ const SchemeMaster = () => {
   const modalRef = useRef(null);
 
   const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
-  const [activeUserTab, setActiveUserTab] = useState("distributor");
+  const [activeUserTab, setActiveUserTab] = useState("retailer");
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
   const [userPage, setUserPage] = useState(1);
@@ -193,10 +193,9 @@ const SchemeMaster = () => {
     if (!companyId) return;
 
     const roleMap = {
-      distributor: 4,
       retailer: 5,
     };
-    const userRole = roleMap[activeUserTab];
+    const userRole = roleMap[activeUserTab] || 5; // default to retailer if missing
 
     const payload = {
       query: { userRole },
@@ -222,7 +221,7 @@ const SchemeMaster = () => {
     setUserSearchQuery("");
     setDebouncedUserSearchQuery("");
     setUserPage(1);
-    setActiveUserTab("distributor");
+    setActiveUserTab("retailer");
   }, [showUserSelectionModal]);
 
   // Get users list from Redux
@@ -1066,28 +1065,10 @@ const SchemeMaster = () => {
                     <button
                       type="button"
                       onClick={() => {
-                        const existingViews = formData.views || [];
-                        const uniqueViews = [...new Set(existingViews)];
-                        if (uniqueViews.length > 0) {
-                          const existingUsers = usersList.filter((user) =>
-                            uniqueViews.includes(user.id || user._id),
-                          );
-                          const uniqueUsers = existingUsers.filter(
-                            (user, index, self) => {
-                              const userId = user.id || user._id;
-                              return (
-                                index ===
-                                self.findIndex((u) => (u.id || u._id) === userId)
-                              );
-                            },
-                          );
-                          setSelectedUserIds(uniqueViews);
-                          setSelectedUsersData(uniqueUsers);
-                        } else {
-                          setSelectedUserIds([]);
-                          setSelectedUsersData([]);
-                        }
-                        setActiveUserTab("distributor");
+                        // Open selection modal on Retailer tab and clear any previous selections
+                        setActiveUserTab("retailer");
+                        setSelectedUserIds([]);
+                        setSelectedUsersData([]);
                         setUserPage(1);
                         setUserSearchQuery("");
                         setDebouncedUserSearchQuery("");
