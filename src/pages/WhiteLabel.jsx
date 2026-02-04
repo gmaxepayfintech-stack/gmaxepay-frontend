@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from "react-redux";
 import Loader, { ButtonLoader } from "../widgets/layout/loader";
 import { useNotification } from "../context/NotificationContext";
+import { FiChevronDown } from "react-icons/fi";
 
 const WhiteLabel = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -245,9 +246,9 @@ const WhiteLabel = ({ onBack }) => {
   });
 
   const inputStyle =
-    "p-3 border border-gray-300 rounded-lg w-full text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500";
+    "p-3 border border-[#1B1717]/80 rounded-lg w-full text-xs sm:text-sm placeholder-gray-500 ";
   const labelStyle =
-    "text-md font-medium text-[#1B1717] mb-1 flex items-center";
+    "text-base sm:text-xl font-[gilroy-medium] text-[#1B1717] mb-1 flex items-center";
 
   const ErrorMsg = ({ name }) => (
     <div className="min-h-[0px]">
@@ -400,505 +401,533 @@ const WhiteLabel = ({ onBack }) => {
   }, [panname]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-2">
-      {isLoading && <Loader />}
-      <form onSubmit={formik.handleSubmit}>
-        <div className="mb-6">
-          <div className="flex items-center text-[#1B1717] mb-3">
-            <div
-              onClick={onBack}
-              className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-4 cursor-pointer"
-            >
-              <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
-            </div>
-            <div className="flex flex-col">
-              <h1 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717]">
-                Create Whitelabel
-              </h1>
-              <p className="text-[#1B1717] font-[gilroy-regular] text-sm sm:text-base lg:text-lg">
-                Set Up Your Whitelabel Configuration With Business Details And
-                Profile Settings
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <div className="flex flex-col lg:flex-row justify-center gap-6">
-          <div className="bg-white w-full lg:max-w-[750px] p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg">
-            <h2 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-4 pb-2">
-              Business Information
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className={labelStyle}>
-                  Business Entity<span className="text-red-500 ml-1">*</span>
-                </label>
-                <select
-                  name="businessEntity"
-                  className={inputStyle}
-                  value={formik.values.businessEntity}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                >
-                  <option value="">Select</option>
-                  <option value="individual">Individual / Freelance</option>
-                  <option value="Partnership">Partnership</option>
-                  <option value="Soleproprietership">
-                    Sole proprietership
-                  </option>
-                  <option value="Public/PrivateLimitedCompany">
-                    Public / Private Limited Company
-                  </option>
-                  <option value="Trust/NGO/Societies">
-                    Trust / NGO / Societies
-                  </option>
-                  <option value="LLP">LLP</option>
-                  <option value="CompanyYetToRegister">
-                    Company Yet To Register
-                  </option>
-                </select>
-                <ErrorMsg name="businessEntity" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>
-                  Mobile Number<span className="text-red-500 ml-1">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="mobile"
-                  placeholder="Enter Mobile Number"
-                  className={inputStyle}
-                  value={formik.values.mobile}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                <ErrorMsg name="mobile" />
-              </div>
-            </div>
-
-            {/* PAN Number & Name */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className={labelStyle}>
-                  Pan Number<span className="text-red-500 ml-1">*</span>
-                </label>
-                <div className="flex">
-                  <input
-                    type="text"
-                    name="pan"
-                    placeholder="Enter Pan Number"
-                    className="p-3 border border-gray-300 rounded-l-lg w-full text-sm placeholder-gray-500 border-r-0"
-                    value={formik.values.pan}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleFetchPan}
-                    className="bg-[#039155] text-white p-3 rounded-r-lg font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 whitespace-nowrap"
-                  >
-                    Fetch
-                  </button>
+    <div className="min-h-screen bg-gray-50 py-4 px-2 sm:px-2 lg:px-1">
+      <div className="max-w-[1400px] mx-auto">
+        {isLoading && <Loader />}
+        <form onSubmit={formik.handleSubmit}>
+          <div className="mb-6">
+            <div className="flex sm:flex-row sm:items-center text-[#1B1717] mb-3 gap-3">
+              <button
+                onClick={onBack || (() => globalThis.history?.back())}
+                className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
+              >
+                <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
+                  <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
                 </div>
-                <ErrorMsg name="pan" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>Name (Auto Fetched)</label>
-                <input
-                  type="text"
-                  name="name"
-                  placeholder="Name Of Pan Holder"
-                  className={inputStyle}
-                  value={formik.values.name}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  readOnly={!!panname}
-                />
-              </div>
-            </div>
-
-            {/* Email & Profile Photo */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-              <div>
-                <label className={labelStyle}>
-                  Email Id<span className="text-red-500 ml-1">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="email"
-                  placeholder="Enter Email Id"
-                  className={inputStyle}
-                  value={formik.values.email}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                <ErrorMsg name="email" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>Profile Photo</label>
-                <label
-                  htmlFor="profilePhoto"
-                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-medium hover:bg-gray-300 w-full text-sm cursor-pointer ${
-                    isImageUploading ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
-                >
-                  {isImageUploading ? (
-                    <>
-                      <ButtonLoader size={16} color="#039155" thickness={2} />
-                      <span className="ml-2">Processing...</span>
-                    </>
-                  ) : (
-                    <>
-                      Choose File{" "}
-                      <FaCloudUploadAlt className="ml-2 text-base" />
-                    </>
-                  )}
-                </label>
-                <input
-                  id="profilePhoto"
-                  name="profilePhoto"
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  disabled={isImageUploading}
-                  onChange={async (event) => {
-                    const file = event.currentTarget.files[0];
-                    if (file) {
-                      setIsImageUploading(true);
-                      // Simulate file processing/validation
-                      await new Promise((resolve) => setTimeout(resolve, 500));
-                      formik.setFieldValue("profilePhoto", file);
-                      setIsImageUploading(false);
-                    }
-                  }}
-                />
-                {formik.values.profilePhoto && !isImageUploading && (
-                  <p className="mt-2 text-sm text-[#039155] flex items-center">
-                    <svg
-                      className="w-4 h-4 mr-1"
-                      fill="none"
-                      stroke="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        strokeWidth={2}
-                        d="M5 13l4 4L19 7"
-                      />
-                    </svg>
-                    {formik.values.profilePhoto.name || "File selected"}
-                  </p>
-                )}
-                <ErrorMsg name="profilePhoto" />
-              </div>
-            </div>
-
-            <div className="mt-4">
-              <label className={labelStyle}>
-                Address<span className="text-red-500 ml-1">*</span>
-              </label>
-              <textarea
-                name="address"
-                rows="2"
-                placeholder="Enter Address"
-                className={inputStyle}
-                value={formik.values.address}
-                onChange={formik.handleChange}
-                onBlur={formik.handleBlur}
-              />
-              <ErrorMsg name="address" />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-              {/* City */}
-
-              <div>
-                <label className={labelStyle}>
-                  Postal Code<span className="text-red-500 ml-1">*</span>
-                </label>
-
-                {cityStatus === "SUCCESS" &&
-                pincodeOptions.length > 0 &&
-                !isPincodeFetched ? (
-                  // Case: Fetched by city → show pincode dropdown
-                  <select
-                    name="postalCode"
-                    className={inputStyle}
-                    value={formik.values.postalCode}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "Other") {
-                        setIsPincodeFetched(true); // switch to input mode
-                        formik.setFieldValue("postalCode", "");
-                      } else {
-                        formik.handleChange(e);
-                      }
-                    }}
-                  >
-                    <option value="">Select Pincode</option>
-                    {pincodeOptions.map((p, idx) => (
-                      <option key={idx} value={p}>
-                        {p}
-                      </option>
-                    ))}
-                    <option value="Other">Other</option>
-                  </select>
-                ) : (
-                  // Default input mode
-                  <input
-                    type="text"
-                    name="postalCode"
-                    placeholder="Enter Postal Code"
-                    className={inputStyle}
-                    maxLength={6}
-                    value={formik.values.postalCode}
-                    onChange={(e) => {
-                      const val = e.target.value.replace(/\D/g, "");
-                      setActiveInput("pincode");
-                      if (val.length <= 6) {
-                        formik.setFieldValue("postalCode", val);
-                      }
-                    }}
-                  />
-                )}
-
-                <ErrorMsg name="postalCode" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>
-                  State<span className="text-red-500 ml-1">*</span>
-                </label>
-
-                {/* If auto-fetched or dropdown available */}
-                {presentState && !isCityFetched ? (
-                  <select
-                    name="state"
-                    className={inputStyle}
-                    value={formik.values.state}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "Other") {
-                        // Switch to manual input
-                        formik.setFieldValue("state", "");
-                        setIsCityFetched(true); // disable dropdown mode
-                      } else {
-                        formik.setFieldValue("state", val);
-                      }
-                    }}
-                  >
-                    <option value="">Select State</option>
-                    <option value={presentState}>{presentState}</option>
-                    <option value="Other">Other</option>
-                  </select>
-                ) : (
-                  // Manual typing when "Other" is selected
-                  <input
-                    type="text"
-                    name="state"
-                    placeholder="Enter State"
-                    className={inputStyle}
-                    value={formik.values.state}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                )}
-
-                <ErrorMsg name="state" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>
-                  City<span className="text-red-500 ml-1">*</span>
-                </label>
-
-                {pincodeStatus === "SUCCESS" &&
-                cityOptions.length > 0 &&
-                !isCityFetched ? (
-                  <select
-                    name="city"
-                    className={inputStyle}
-                    value={formik.values.city}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      if (val === "Other") {
-                        // switch to input mode
-                        setIsCityFetched(true);
-                        setActiveInput("city");
-                        formik.setFieldValue("city", "");
-                      } else {
-                        formik.setFieldValue("city", val);
-                        setActiveInput("city");
-                      }
-                    }}
-                    onBlur={formik.handleBlur}
-                  >
-                    <option value="">Select City</option>
-                    {cityOptions.map((city, index) => (
-                      <option key={index} value={city}>
-                        {city}
-                      </option>
-                    ))}
-                    <option value="Other">Other</option>
-                  </select>
-                ) : (
-                  <input
-                    type="text"
-                    name="city"
-                    placeholder="Enter City"
-                    className={inputStyle}
-                    value={formik.values.city}
-                    onChange={(e) => {
-                      setActiveInput("city");
-                      formik.handleChange(e);
-                    }}
-                    onBlur={formik.handleBlur}
-                  />
-                )}
-
-                <ErrorMsg name="city" />
+              </button>
+              <div className="flex flex-col">
+                <h1 className="text-lg sm:text-xl md::text-2xl font-[gilroy-medium] text-[#1B1717]">
+                  Create Whitelabel
+                </h1>
+                <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-sm md:text-base lg:text-lg">
+                  Set Up Your Whitelabel Configuration With Business Details And
+                  Profile Settings
+                </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white w-full lg:max-w-[550px] p-4 sm:p-6 lg:p-8 rounded-xl shadow-lg">
-            <h2 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-4 pb-2">
-              Profile Configuration
-            </h2>
-
-            {/* 👇 this wrapper manages all input gaps */}
-            <div className="space-y-5">
-              <div>
-                <label className={labelStyle}>GSTIN</label>
-                <input
-                  type="text"
-                  name="gstin"
-                  placeholder="Enter GST Number"
-                  className={inputStyle}
-                  value={formik.values.gstin}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-              </div>
-
-              <div>
-                <label className={labelStyle}>
-                  Company Name<span className="text-red-500 ml-1">*</span>
-                </label>
-                <input
-                  type="text"
-                  name="companyName"
-                  placeholder="Enter Company Name"
-                  className={inputStyle}
-                  value={formik.values.companyName}
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                />
-                <ErrorMsg name="companyName" />
-              </div>
-
-              <div>
-                <label className={labelStyle}>
-                  Company Domain<span className="text-red-500 ml-1">*</span>
-                </label>
-                <div className="flex flex-col sm:flex-row sm:items-stretch">
-                  <input
-                    type="text"
-                    name="companyDomain"
-                    placeholder="Enter Company Domain"
-                    className="p-3 border border-gray-300 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full sm:w-2/3 text-sm placeholder-gray-500 focus:ring-green-500 focus:border-green-500 sm:border-r-0"
-                    value={formik.values.companyDomain}
-                    onChange={formik.handleChange}
-                    onBlur={formik.handleBlur}
-                  />
-                  <button
-                    type="button"
-                    onClick={handleIPCheck}
-                    className="bg-[#039155] text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-full sm:w-1/3 mt-2 sm:mt-0"
-                  >
-                    IP Check
-                  </button>
-                </div>
-                <ErrorMsg name="companyDomain" />
-              </div>
-
-              {/* Default Permission */}
-              <div className="flex items-start">
-                <input
-                  id="defaultPermission"
-                  name="defaultPermission"
-                  type="checkbox"
-                  className="w-5 h-5 text-[#039155] bg-gray-100 border-gray-300 rounded mt-1 mr-2"
-                  checked={formik.values.defaultPermission}
-                  onChange={formik.handleChange}
-                />
-                <div className="text-sm text-gray-700">
-                  <label
-                    htmlFor="defaultPermission"
-                    className="font-medium flex items-center"
-                  >
-                    Default Permission
+          <div className="flex flex-col lg:flex-row justify-center gap-6 lg:gap-8">
+            <div className="bg-white w-full lg:max-w-[750px] p-4 sm:p-6 lg:p-8 rounded-xl shadow">
+              <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-4 pb-2">
+                Business Information
+              </h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                <div>
+                  <label className={labelStyle}>
+                    Business Entity<span className="text-red-500 ml-1">*</span>
                   </label>
-                  <p className="text-xs text-gray-500">
-                    Permissions from the default whitelabel group will be
-                    applied.
-                  </p>
+
+                  <div className="relative w-full">
+                    <select
+                      name="businessEntity"
+                      value={formik.values.businessEntity}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                      className={`
+      ${inputStyle}
+      appearance-none
+      pr-10
+      focus:outline-none
+    `}
+                    >
+                      <option value="">Select</option>
+                      <option value="individual">Individual / Freelance</option>
+                      <option value="Partnership">Partnership</option>
+                      <option value="Soleproprietership">
+                        Sole proprietership
+                      </option>
+                      <option value="Public/PrivateLimitedCompany">
+                        Public / Private Limited Company
+                      </option>
+                      <option value="Trust/NGO/Societies">
+                        Trust / NGO / Societies
+                      </option>
+                      <option value="LLP">LLP</option>
+                      <option value="CompanyYetToRegister">
+                        Company Yet To Register
+                      </option>
+                    </select>
+
+                    {/* Custom dropdown icon (no rotation) */}
+                    <FiChevronDown
+                      className="
+      pointer-events-none
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-[#1B1717]
+      text-sm
+    "
+                    />
+                  </div>
+
+                  <ErrorMsg name="businessEntity" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>
+                    Mobile Number<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="mobile"
+                    placeholder="Enter Mobile Number"
+                    className={inputStyle}
+                    value={formik.values.mobile}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  <ErrorMsg name="mobile" />
                 </div>
               </div>
 
-              {/* Remarks */}
-              <div>
-                <label className={labelStyle}>Remarks</label>
-                <textarea
-                  name="remarks"
-                  rows="4"
-                  placeholder="Write Remarks"
-                  className={inputStyle}
-                  value={formik.values.remarks}
-                  onChange={formik.handleChange}
-                />
+              {/* PAN Number & Name */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className={labelStyle}>
+                    Pan Number<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <div className="flex flex-col sm:flex-row">
+                    <input
+                      type="text"
+                      name="pan"
+                      placeholder="Enter Pan Number"
+                      className="p-3 border border-[#1B1717]/80 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full text-sm placeholder-gray-500 sm:border-r-0"
+                      value={formik.values.pan}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleFetchPan}
+                      className="bg-[#039155] text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md w-full sm:w-auto mt-2 sm:mt-0"
+                    >
+                      Fetch
+                    </button>
+                  </div>
+                  <ErrorMsg name="pan" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>Name (Auto Fetched)</label>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="Name Of Pan Holder"
+                    className={inputStyle}
+                    value={formik.values.name}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                    readOnly={!!panname}
+                  />
+                </div>
               </div>
 
-              {/* Client Consent */}
-              <div className="flex items-start">
-                <label className="relative inline-flex items-center cursor-pointer mt-1">
+              {/* Email & Profile Photo */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label className={labelStyle}>
+                    Email Id<span className="text-red-500 ml-1">*</span>
+                  </label>
                   <input
-                    type="checkbox"
-                    name="clientConsent"
-                    className="sr-only peer"
-                    checked={formik.values.clientConsent}
+                    type="text"
+                    name="email"
+                    placeholder="Enter Email Id"
+                    className={inputStyle}
+                    value={formik.values.email}
                     onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
                   />
-                  <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  <ErrorMsg name="email" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>Profile Photo</label>
+                  <label
+                    htmlFor="profilePhoto"
+                    className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[gilroy-medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${
+                      isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                    }`}
+                  >
+                    {isImageUploading ? (
+                      <>
+                        <ButtonLoader size={16} color="#039155" thickness={2} />
+                        <span className="ml-2">Processing...</span>
+                      </>
+                    ) : (
+                      <>
+                        Choose File{" "}
+                        <FaCloudUploadAlt className="ml-2 text-base" />
+                      </>
+                    )}
+                  </label>
+                  <input
+                    id="profilePhoto"
+                    name="profilePhoto"
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    disabled={isImageUploading}
+                    onChange={async (event) => {
+                      const file = event.currentTarget.files[0];
+                      if (file) {
+                        setIsImageUploading(true);
+                        // Simulate file processing/validation
+                        await new Promise((resolve) =>
+                          setTimeout(resolve, 500),
+                        );
+                        formik.setFieldValue("profilePhoto", file);
+                        setIsImageUploading(false);
+                      }
+                    }}
+                  />
+                  {formik.values.profilePhoto && !isImageUploading && (
+                    <p className="mt-2 text-sm text-[#039155] flex items-center">
+                      <svg
+                        className="w-4 h-4 mr-1"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M5 13l4 4L19 7"
+                        />
+                      </svg>
+                      {formik.values.profilePhoto.name || "File selected"}
+                    </p>
+                  )}
+                  <ErrorMsg name="profilePhoto" />
+                </div>
+              </div>
+
+              <div className="mt-4">
+                <label className={labelStyle}>
+                  Address<span className="text-red-500 ml-1">*</span>
                 </label>
-                <div className="ml-3 text-sm">
-                  <span className="font-medium text-[#1B1717]">
-                    Client Consent
-                  </span>
-                  <p className="text-[14px] text-[#1B1717] text-opacity-80">
-                    I hereby confirm that the information submitted is provided
-                    by the client & the client has shown interest in the
-                    whitelabel solution.
-                  </p>
-                  <ErrorMsg name="clientConsent" />
+                <textarea
+                  name="address"
+                  rows="2"
+                  placeholder="Enter Address"
+                  className={inputStyle}
+                  value={formik.values.address}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
+                />
+                <ErrorMsg name="address" />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+                {/* City */}
+
+                <div>
+                  <label className={labelStyle}>
+                    Postal Code<span className="text-red-500 ml-1">*</span>
+                  </label>
+
+                  {cityStatus === "SUCCESS" &&
+                  pincodeOptions.length > 0 &&
+                  !isPincodeFetched ? (
+                    // Case: Fetched by city → show pincode dropdown
+                    <select
+                      name="postalCode"
+                      className={inputStyle}
+                      value={formik.values.postalCode}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "Other") {
+                          setIsPincodeFetched(true); // switch to input mode
+                          formik.setFieldValue("postalCode", "");
+                        } else {
+                          formik.handleChange(e);
+                        }
+                      }}
+                    >
+                      <option value="">Select Pincode</option>
+                      {pincodeOptions.map((p, idx) => (
+                        <option key={idx} value={p}>
+                          {p}
+                        </option>
+                      ))}
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : (
+                    // Default input mode
+                    <input
+                      type="text"
+                      name="postalCode"
+                      placeholder="Enter Postal Code"
+                      className={inputStyle}
+                      maxLength={6}
+                      value={formik.values.postalCode}
+                      onChange={(e) => {
+                        const val = e.target.value.replace(/\D/g, "");
+                        setActiveInput("pincode");
+                        if (val.length <= 6) {
+                          formik.setFieldValue("postalCode", val);
+                        }
+                      }}
+                    />
+                  )}
+
+                  <ErrorMsg name="postalCode" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>
+                    State<span className="text-red-500 ml-1">*</span>
+                  </label>
+
+                  {/* If auto-fetched or dropdown available */}
+                  {presentState && !isCityFetched ? (
+                    <select
+                      name="state"
+                      className={inputStyle}
+                      value={formik.values.state}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "Other") {
+                          // Switch to manual input
+                          formik.setFieldValue("state", "");
+                          setIsCityFetched(true); // disable dropdown mode
+                        } else {
+                          formik.setFieldValue("state", val);
+                        }
+                      }}
+                    >
+                      <option value="">Select State</option>
+                      <option value={presentState}>{presentState}</option>
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : (
+                    // Manual typing when "Other" is selected
+                    <input
+                      type="text"
+                      name="state"
+                      placeholder="Enter State"
+                      className={inputStyle}
+                      value={formik.values.state}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                  )}
+
+                  <ErrorMsg name="state" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>
+                    City<span className="text-red-500 ml-1">*</span>
+                  </label>
+
+                  {pincodeStatus === "SUCCESS" &&
+                  cityOptions.length > 0 &&
+                  !isCityFetched ? (
+                    <select
+                      name="city"
+                      className={inputStyle}
+                      value={formik.values.city}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        if (val === "Other") {
+                          // switch to input mode
+                          setIsCityFetched(true);
+                          setActiveInput("city");
+                          formik.setFieldValue("city", "");
+                        } else {
+                          formik.setFieldValue("city", val);
+                          setActiveInput("city");
+                        }
+                      }}
+                      onBlur={formik.handleBlur}
+                    >
+                      <option value="">Select City</option>
+                      {cityOptions.map((city, index) => (
+                        <option key={index} value={city}>
+                          {city}
+                        </option>
+                      ))}
+                      <option value="Other">Other</option>
+                    </select>
+                  ) : (
+                    <input
+                      type="text"
+                      name="city"
+                      placeholder="Enter City"
+                      className={inputStyle}
+                      value={formik.values.city}
+                      onChange={(e) => {
+                        setActiveInput("city");
+                        formik.handleChange(e);
+                      }}
+                      onBlur={formik.handleBlur}
+                    />
+                  )}
+
+                  <ErrorMsg name="city" />
                 </div>
               </div>
             </div>
 
-            {/* Submit button */}
-            <button
-              type="submit"
-              className="mt-6 bg-[#039155] text-white px-6 py-3 rounded-lg font-bold text-lg w-full shadow-md hover:from-green-600 transition-all duration-300"
-            >
-              Create Profile
-            </button>
+            <div className="bg-white w-full lg:max-w-[550px] p-4 sm:p-6 lg:p-8 rounded-xl shadow">
+              <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-4 pb-2">
+                Profile Configuration
+              </h2>
+
+              {/* 👇 this wrapper manages all input gaps */}
+              <div className="space-y-5">
+                <div>
+                  <label className={labelStyle}>GSTIN</label>
+                  <input
+                    type="text"
+                    name="gstin"
+                    placeholder="Enter GST Number"
+                    className={inputStyle}
+                    value={formik.values.gstin}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>
+                    Company Name<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="companyName"
+                    placeholder="Enter Company Name"
+                    className={inputStyle}
+                    value={formik.values.companyName}
+                    onChange={formik.handleChange}
+                    onBlur={formik.handleBlur}
+                  />
+                  <ErrorMsg name="companyName" />
+                </div>
+
+                <div>
+                  <label className={labelStyle}>
+                    Company Domain<span className="text-red-500 ml-1">*</span>
+                  </label>
+                  <div className="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-0">
+                    <input
+                      type="text"
+                      name="companyDomain"
+                      placeholder="Enter Company Domain"
+                      className="p-3 border border-[#1B1717]/80 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full sm:w-2/3 text-sm placeholder-gray-500  sm:border-r-0"
+                      value={formik.values.companyDomain}
+                      onChange={formik.handleChange}
+                      onBlur={formik.handleBlur}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleIPCheck}
+                      className="bg-[#039155] text-white p-3 rounded-md sm:rounded-r-lg sm:rounded-l-none font-normal text-sm shadow-md hover:bg-green-700 transition-all duration-300 w-full sm:w-1/3 mt-2 sm:mt-0"
+                    >
+                      IP Check
+                    </button>
+                  </div>
+                  <ErrorMsg name="companyDomain" />
+                </div>
+
+                {/* Default Permission */}
+                <div className="flex items-start gap-3">
+                  <input
+                    id="defaultPermission"
+                    name="defaultPermission"
+                    type="checkbox"
+                    className="w-5 h-5 text-[#039155] bg-gray-100 border-gray-300 rounded mt-1 mr-2"
+                    checked={formik.values.defaultPermission}
+                    onChange={formik.handleChange}
+                  />
+                  <div className="text-sm text-gray-700">
+                    <label
+                      htmlFor="defaultPermission"
+                      className="font-[gilroy-medium] flex items-center"
+                    >
+                      Default Permission
+                    </label>
+                    <p className="text-xs text-gray-500">
+                      Permissions from the default whitelabel group will be
+                      applied.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Remarks */}
+                <div>
+                  <label className={labelStyle}>Remarks</label>
+                  <textarea
+                    name="remarks"
+                    rows="4"
+                    placeholder="Write Remarks"
+                    className={inputStyle}
+                    value={formik.values.remarks}
+                    onChange={formik.handleChange}
+                  />
+                </div>
+
+                {/* Client Consent */}
+                <div className="flex items-start gap-3">
+                  <label className="relative inline-flex items-center cursor-pointer mt-1">
+                    <input
+                      type="checkbox"
+                      name="clientConsent"
+                      className="sr-only peer"
+                      checked={formik.values.clientConsent}
+                      onChange={formik.handleChange}
+                    />
+                    <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                  </label>
+                  <div className="ml-3 text-sm">
+                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                      Client Consent
+                    </span>
+                    <p className="text-[14px] text-[#1B1717] text-opacity-80">
+                      I hereby confirm that the information submitted is
+                      provided by the client & the client has shown interest in
+                      the whitelabel solution.
+                    </p>
+                    <ErrorMsg name="clientConsent" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Submit button */}
+              <button
+                type="submit"
+                className="mt-6 bg-[#039155] text-white px-6 py-3 rounded-lg font-bold text-base sm:text-lg w-full"
+              >
+                Create Profile
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
   );
 };
