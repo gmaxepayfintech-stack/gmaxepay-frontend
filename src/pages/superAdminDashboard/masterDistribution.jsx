@@ -355,9 +355,7 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
@@ -415,6 +413,9 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -441,10 +442,7 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.date || "N/A"}
-                      </td>
+
                       {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -658,6 +656,10 @@ const MasterDistribution = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))
@@ -771,9 +773,7 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
@@ -831,6 +831,9 @@ const MasterDistribution = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -857,10 +860,7 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.date || "N/A"}
-                      </td>
+
                       {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -1074,6 +1074,10 @@ const MasterDistribution = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))

@@ -251,9 +251,7 @@ const DistrubtionOnboarding = ({
                     <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       ID
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                      Date
-                    </th>
+
                     <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       User ID
                     </th>
@@ -308,6 +306,9 @@ const DistrubtionOnboarding = ({
                     <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Token Expire
                     </th>
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                      Date
+                    </th>
                   </tr>
                 </thead>
 
@@ -332,10 +333,7 @@ const DistrubtionOnboarding = ({
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
                         </td>
-                        {/* Date */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                          {row.date || "N/A"}
-                        </td>
+
                         {/* User ID */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.userId || row.userAgentCode || "N/A"}
@@ -544,6 +542,10 @@ const DistrubtionOnboarding = ({
                             );
                           })()}
                         </td>
+                        {/* Date */}
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                          {row.date || "N/A"}
+                        </td>
                       </tr>
                     ))
                   )}
@@ -656,9 +658,7 @@ const DistrubtionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
@@ -704,6 +704,9 @@ const DistrubtionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -728,10 +731,7 @@ const DistrubtionOnboarding = ({
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                        {row.date || "N/A"}
-                      </td>
+
                       {/* User ID */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -849,6 +849,10 @@ const DistrubtionOnboarding = ({
                             <FaTrash className="text-sm" />
                           </button>
                         </div>
+                      </td>
+                      {/* Date */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))

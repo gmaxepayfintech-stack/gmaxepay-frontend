@@ -48,6 +48,7 @@ const MasterDistribution = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+
   const kycModalRef = useRef(null);
 
   // Get data from Redux when search is active, otherwise use prop data
@@ -199,9 +200,9 @@ const MasterDistribution = ({
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          }
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
           : {},
       };
       dispatch(useListAction(payload));
@@ -223,9 +224,9 @@ const MasterDistribution = ({
         },
         customSearch: debouncedSearchTerm.trim()
           ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          }
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
           : {},
       };
       dispatch(useListAction(payload));
@@ -293,7 +294,6 @@ const MasterDistribution = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [showKycModal]);
-
   // Show ProfileDetails component when showProfileDetails is true
   if (showProfileDetails) {
     return (
@@ -366,74 +366,72 @@ const MasterDistribution = ({
           </div>
 
           {/* Table */}
-          <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    User
-                  </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -445,7 +443,7 @@ const MasterDistribution = ({
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-medium">
+                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
                         No data available
                       </p>
                     </td>
@@ -454,8 +452,9 @@ const MasterDistribution = ({
                   tableData.map((row, index) => (
                     <tr
                       key={index}
-                      className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
-                        }`}
+                      className={`text-sm ${
+                        index % 2 === 0 ? "bg-green-50" : "bg-white"
+                      }`}
                     >
                       {/* ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -515,7 +514,7 @@ const MasterDistribution = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-medium ";
+                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -549,10 +548,11 @@ const MasterDistribution = ({
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${row.status?.toLowerCase() === "active"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                            }`}
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                            row.status?.toLowerCase() === "active"
+                              ? "bg-green-600"
+                              : "bg-red-600"
+                          }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -569,7 +569,7 @@ const MasterDistribution = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium transition-colors"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium] transition-colors"
                         >
                           KYC Details
                         </button>
@@ -604,14 +604,16 @@ const MasterDistribution = ({
                                   // Refresh will be handled by useEffect watching kycStatusCheckResponse
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
-                                }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
+                                isActive ? "bg-green-600" : "bg-gray-300"
+                              }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
-                                  }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  isActive ? "translate-x-6" : "translate-x-1"
+                                }`}
                               />
                             </button>
                           );
@@ -634,10 +636,11 @@ const MasterDistribution = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isLocked
-                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                                }`}
+                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                isLocked
+                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                              }`}
                               title={
                                 isLocked
                                   ? "Click to unlock"
@@ -660,7 +663,7 @@ const MasterDistribution = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -678,13 +681,14 @@ const MasterDistribution = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Send
                             </button>
                           );
                         })()}
                       </td>
+                      {/* Date */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.date || "N/A"}
                       </td>
@@ -701,10 +705,11 @@ const MasterDistribution = ({
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`p-2 border border-gray-300 rounded-lg ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
               >
                 <IoIosArrowBack />
               </button>
@@ -713,10 +718,11 @@ const MasterDistribution = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium ${page === currentPage
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                      }`}
+                    className={`w-8 h-8 rounded-lg text-sm font-[gilroy-medium] ${
+                      page === currentPage
+                        ? "bg-green-600 text-white"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                    }`}
                   >
                     {page}
                   </button>
@@ -727,10 +733,11 @@ const MasterDistribution = ({
                   setCurrentPage(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`p-2 border border-gray-300 rounded-lg ${
+                  currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
               >
                 <IoIosArrowForward />
               </button>
@@ -782,7 +789,7 @@ const MasterDistribution = ({
 
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
                 Export <FaUpload className="text-xs" />
               </button>
@@ -790,75 +797,73 @@ const MasterDistribution = ({
           </div>
 
           {/* Table */}
-          <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    User
-                  </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
-                  </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
+                  </th>
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
                   </th>
                 </tr>
               </thead>
@@ -869,7 +874,7 @@ const MasterDistribution = ({
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-medium">
+                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
                         No data available
                       </p>
                     </td>
@@ -878,8 +883,9 @@ const MasterDistribution = ({
                   tableData.map((row, index) => (
                     <tr
                       key={index}
-                      className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
-                        }`}
+                      className={`text-sm ${
+                        index % 2 === 0 ? "bg-green-50" : "bg-white"
+                      }`}
                     >
                       {/* ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -936,7 +942,7 @@ const MasterDistribution = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-medium ";
+                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -970,10 +976,11 @@ const MasterDistribution = ({
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${row.status?.toLowerCase() === "active"
-                            ? "bg-green-600"
-                            : "bg-red-600"
-                            }`}
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                            row.status?.toLowerCase() === "active"
+                              ? "bg-green-600"
+                              : "bg-red-600"
+                          }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -990,7 +997,7 @@ const MasterDistribution = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium transition-colors"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium] transition-colors"
                         >
                           KYC Details
                         </button>
@@ -1025,14 +1032,16 @@ const MasterDistribution = ({
                                   // Refresh will be handled by useEffect watching kycStatusCheckResponse
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
-                                }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
+                                isActive ? "bg-green-600" : "bg-gray-300"
+                              }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
-                                  }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                  isActive ? "translate-x-6" : "translate-x-1"
+                                }`}
                               />
                             </button>
                           );
@@ -1055,10 +1064,11 @@ const MasterDistribution = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${isLocked
-                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                                }`}
+                              className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                isLocked
+                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                              }`}
                               title={
                                 isLocked
                                   ? "Click to unlock"
@@ -1081,7 +1091,7 @@ const MasterDistribution = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -1099,7 +1109,7 @@ const MasterDistribution = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Send
                             </button>
@@ -1123,10 +1133,11 @@ const MasterDistribution = ({
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`p-2 border border-gray-300 rounded-lg ${
+                  currentPage === 1
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
               >
                 <IoIosArrowBack />
               </button>
@@ -1135,10 +1146,11 @@ const MasterDistribution = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium ${page === currentPage
-                      ? "bg-green-600 text-white"
-                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                      }`}
+                    className={`w-8 h-8 rounded-lg text-sm font-[gilroy-medium] ${
+                      page === currentPage
+                        ? "bg-green-600 text-white"
+                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                    }`}
                   >
                     {page}
                   </button>
@@ -1149,10 +1161,11 @@ const MasterDistribution = ({
                   setCurrentPage(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages
-                  ? "text-gray-300 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
-                  }`}
+                className={`p-2 border border-gray-300 rounded-lg ${
+                  currentPage === totalPages
+                    ? "text-gray-300 cursor-not-allowed"
+                    : "text-gray-500 hover:bg-gray-100"
+                }`}
               >
                 <IoIosArrowForward />
               </button>
@@ -1204,56 +1217,62 @@ const MasterDistribution = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "overview"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "overview"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   Overview
                 </button>
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "aadhar"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "aadhar"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   Aadhar Document
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "pan"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "pan"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   PAN Document
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "details"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "details"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   Outlet Details
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "bankDetails"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "bankDetails"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   Bank Details
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${activeTab === "verification"
-                    ? "text-green-600 border-b-2 border-green-600"
-                    : "text-gray-600 hover:text-gray-800"
-                    }`}
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                    activeTab === "verification"
+                      ? "text-green-600 border-b-2 border-green-600"
+                      : "text-gray-600 hover:text-gray-800"
+                  }`}
                 >
                   Verification
                 </button>
@@ -1279,12 +1298,13 @@ const MasterDistribution = ({
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-semibold ${selectedKycData.kycStatus === "FULL_KYC"
-                              ? "bg-green-100 text-green-700"
-                              : selectedKycData.kycStatus === "NO_KYC"
-                                ? "bg-red-100 text-red-700"
-                                : "bg-yellow-100 text-yellow-700"
-                              }`}
+                            className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                              selectedKycData.kycStatus === "FULL_KYC"
+                                ? "bg-green-100 text-green-700"
+                                : selectedKycData.kycStatus === "NO_KYC"
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-yellow-100 text-yellow-700"
+                            }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
                           </span>
@@ -1293,7 +1313,7 @@ const MasterDistribution = ({
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-[gilroy-medium] text-gray-700">
                               Progress
                             </span>
                             <span className="text-sm font-semibold text-gray-800">
@@ -1326,7 +1346,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1334,7 +1354,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1342,7 +1362,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1350,7 +1370,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
@@ -1439,11 +1459,12 @@ const MasterDistribution = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
+                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                  selectedKycData.aadhaarDoc.status ===
                                   "Success"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                                  }`}
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
                               </span>
@@ -1569,10 +1590,11 @@ const MasterDistribution = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                                  }`}
+                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                  selectedKycData.panDoc.status === "Success"
+                                    ? "bg-green-100 text-green-700"
+                                    : "bg-red-100 text-red-700"
+                                }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
                               </span>
@@ -1813,10 +1835,11 @@ const MasterDistribution = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Mobile Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.mobileVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.mobileVerify ? (
@@ -1829,10 +1852,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.mobileVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
                                 ? "Verified"
@@ -1842,10 +1866,11 @@ const MasterDistribution = ({
 
                           {/* Email Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.emailVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.emailVerify ? (
@@ -1858,10 +1883,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.emailVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.emailVerify
                                 ? "Verified"
@@ -1871,10 +1897,11 @@ const MasterDistribution = ({
 
                           {/* Aadhar Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.aadharVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.aadharVerify ? (
@@ -1887,10 +1914,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.aadharVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
                                 ? "Verified"
@@ -1900,10 +1928,11 @@ const MasterDistribution = ({
 
                           {/* PAN Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.panVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.panVerify ? (
@@ -1916,10 +1945,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.panVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.panVerify
                                 ? "Verified"
@@ -1929,10 +1959,11 @@ const MasterDistribution = ({
 
                           {/* Shop Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.shopDetailsVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.shopDetailsVerify ? (
@@ -1945,10 +1976,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.shopDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
                                 ? "Verified"
@@ -1958,10 +1990,11 @@ const MasterDistribution = ({
 
                           {/* Image Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.imageVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.imageVerify ? (
@@ -1974,10 +2007,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.imageVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.imageVerify
                                 ? "Verified"
@@ -1987,11 +2021,12 @@ const MasterDistribution = ({
 
                           {/* Profile Image with Shop Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                              .profileImageWithShopVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails
@@ -2005,11 +2040,12 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails
+                                  .profileImageWithShopVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails
                                 .profileImageWithShopVerify
@@ -2020,10 +2056,11 @@ const MasterDistribution = ({
 
                           {/* Bank Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                              ? "bg-green-50 border-green-200"
-                              : "bg-red-50 border-red-200"
-                              }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
+                              selectedKycData.userDetails.bankDetailsVerify
+                                ? "bg-green-50 border-green-200"
+                                : "bg-red-50 border-red-200"
+                            }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.bankDetailsVerify ? (
@@ -2036,10 +2073,11 @@ const MasterDistribution = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-100 text-green-700"
-                                : "bg-red-100 text-red-700"
-                                }`}
+                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                                selectedKycData.userDetails.bankDetailsVerify
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                              }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify
                                 ? "Verified"

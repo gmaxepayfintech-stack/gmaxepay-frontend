@@ -376,9 +376,7 @@ const Retailers = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
@@ -433,6 +431,9 @@ const Retailers = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -456,9 +457,7 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
-                        {formatDate(row.date)}
-                      </td>
+
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
@@ -700,6 +699,9 @@ const Retailers = ({
                           );
                         })()}
                       </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                        {formatDate(row.date)}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -816,9 +818,7 @@ const Retailers = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
@@ -873,6 +873,9 @@ const Retailers = ({
                   <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -896,9 +899,7 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
-                        {formatDate(row.date)}
-                      </td>
+
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
@@ -1145,6 +1146,9 @@ const Retailers = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                        {formatDate(row.date)}
                       </td>
                     </tr>
                   ))

@@ -194,7 +194,7 @@ const DistrubtionOnboarding = ({
             <div
               className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? "py-4 mb-0" : "mb-6"}`}
             >
-              <h1 className="text-lg sm:text-2xl lg:text-2xl font-medium text-[#1B1717]">
+              <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
                 Distributor Onboarding List
               </h1>
 
@@ -236,7 +236,7 @@ const DistrubtionOnboarding = ({
                 {/* Export Button */}
                 <button
                   onClick={handleExportToExcel}
-                  className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+                  className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
                 >
                   Export <FaUpload className="text-xs" />
                 </button>
@@ -248,65 +248,66 @@ const DistrubtionOnboarding = ({
               <table className="min-w-[1200px] sm:min-w-full divide-y">
                 <thead className="bg-white">
                   <tr>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       ID
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Date
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       User ID
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       User Role
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Mobile No
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Email Id
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Parent Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Parent Role
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Company Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Steps
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Main Wallet
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       AEPS Wallet
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Details
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Action
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Lock Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Onboarding
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Token Expire
+                    </th>
+                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                      Date
                     </th>
                   </tr>
                 </thead>
@@ -315,7 +316,7 @@ const DistrubtionOnboarding = ({
                   {!tableData || tableData.length === 0 ? (
                     <tr>
                       <td colSpan={19} className="py-12 text-center">
-                        <p className="text-gray-500 text-lg font-medium">
+                        <p className="text-gray-500 text-lg font-[gilroy-medium]">
                           No data available
                         </p>
                       </td>
@@ -325,58 +326,55 @@ const DistrubtionOnboarding = ({
                       <tr
                         key={index}
                         className={`border-b border-gray-100 ${
-                          index % 2 === 0 ? "bg-white" : "bg-green-50"
+                          index % 2 === 0 ? "bg-green-50" : "bg-white"
                         }`}
                       >
                         {/* ID */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
                         </td>
-                        {/* Date */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.date || "N/A"}
-                        </td>
+
                         {/* User ID */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.userId || row.userAgentCode || "N/A"}
                         </td>
                         {/* Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.name || row.userName || "N/A"}
                         </td>
                         {/* User Role */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.userRole || "N/A"}
                         </td>
                         {/* Mobile No */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.mobileNo ||
                             row.mobile ||
                             row.mobileNumber ||
                             "N/A"}
                         </td>
                         {/* Email Id */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.emailId || row.email || "N/A"}
                         </td>
                         {/* Parent Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.parentName || "N/A"}
                         </td>
                         {/* Parent Role */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.parentRole || "N/A"}
                         </td>
                         {/* Company Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.companyName || "N/A"}
                         </td>
                         {/* KYC Status */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const status = row.kycStatus?.toLowerCase();
                             let className =
-                              "px-2 py-1 rounded text-xs font-medium ";
+                              "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                             if (
                               status === "completed" ||
                               status === "full_kyc"
@@ -395,21 +393,21 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* KYC Steps */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                           {row.kycSteps || "0"}
                         </td>
                         {/* Main Wallet */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                           {row.mainWallet || "0"}
                         </td>
                         {/* AEPS Wallet */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
                           {row.aepsWallet || "0"}
                         </td>
                         {/* Status */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           <span
-                            className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
+                            className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
                               row.status?.toLowerCase() === "active"
                                 ? "bg-green-600"
                                 : "bg-red-600"
@@ -419,7 +417,7 @@ const DistrubtionOnboarding = ({
                           </span>
                         </td>
                         {/* KYC Details */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           <button
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
@@ -431,13 +429,13 @@ const DistrubtionOnboarding = ({
                                 setShowKycModal(true);
                               }
                             }}
-                            className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
+                            className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
                           >
                             KYC Details
                           </button>
                         </td>
                         {/* Action - Toggle Button */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isActive =
@@ -478,7 +476,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Lock Status - Colored Button */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isLocked =
@@ -492,7 +490,7 @@ const DistrubtionOnboarding = ({
                                   }
                                 }}
                                 disabled={!isLocked}
-                                className={`px-4 py-2 rounded-lg text-xs font-semibold transition-colors ${
+                                className={`px-4 py-2 rounded-lg text-xs font-[gilroy-semibold] transition-colors ${
                                   isLocked
                                     ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                     : "bg-green-500 text-white cursor-not-allowed opacity-75"
@@ -519,7 +517,7 @@ const DistrubtionOnboarding = ({
                                     dispatch(rescendOnboarding(userId));
                                   }
                                 }}
-                                className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                                className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
                               >
                                 Re-send
                               </button>
@@ -537,12 +535,16 @@ const DistrubtionOnboarding = ({
                                     dispatch(deActiveOnboarding(userId));
                                   }
                                 }}
-                                className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                                className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
                               >
                                 Send
                               </button>
                             );
                           })()}
+                        </td>
+                        {/* Date */}
+                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                          {row.date || "N/A"}
                         </td>
                       </tr>
                     ))
@@ -559,7 +561,7 @@ const DistrubtionOnboarding = ({
                 className={`p-2 rounded-lg border border-gray-300 transition ${
                   currentPage === 1
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-[#1B1717] hover:bg-gray-50"
+                    : "bg-white text-[#121216] hover:bg-gray-50"
                 }`}
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -569,10 +571,10 @@ const DistrubtionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-medium transition ${
+                    className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
                       page === currentPage
                         ? "bg-[#039155] text-white"
-                        : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                        : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
                     }`}
                   >
                     {page}
@@ -587,7 +589,7 @@ const DistrubtionOnboarding = ({
                 className={`p-2 rounded-lg border border-gray-300 transition ${
                   currentPage === totalPages
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-[#1B1717] hover:bg-gray-50"
+                    : "bg-white text-[#121216] hover:bg-gray-50"
                 }`}
               >
                 <ChevronRight className="w-5 h-5" />
@@ -599,7 +601,7 @@ const DistrubtionOnboarding = ({
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           {/* Header Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-medium text-[#1B1717]">
+            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
               Distributor Onboarding List
             </h1>
 
@@ -641,7 +643,7 @@ const DistrubtionOnboarding = ({
               {/* Export Button */}
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm"
               >
                 Export
               </button>
@@ -649,217 +651,214 @@ const DistrubtionOnboarding = ({
           </div>
 
           {/* Table */}
-          <div className="overflow-x-auto -mx-4 sm:mx-0 [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <div className="inline-block min-w-full align-middle">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="border-b bg-gray-100 border-gray-200">
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      ID
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Date
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      User ID
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      User Role
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Mobile No
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Email Id
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Parent Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Parent Role
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Company Name
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Status
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Steps
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Main Wallet
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      AEPS Wallet
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Status
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      KYC Details
-                    </th>
-                    <th className="text-left py-3 px-4 text-sm font-medium text-[#1B1717] whitespace-nowrap">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
+          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <table className="min-w-[1200px] sm:min-w-full divide-y">
+              <thead className="bg-white">
+                <tr>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    ID
+                  </th>
 
-                <tbody>
-                  {!tableData || tableData.length === 0 ? (
-                    <tr>
-                      <td colSpan={19} className="py-12 text-center">
-                        <p className="text-gray-500 text-lg font-medium">
-                          No data available
-                        </p>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    User ID
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Name
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    User Role
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Mobile No
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Email Id
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Parent Name
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Parent Role
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Company Name
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    KYC Status
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    KYC Steps
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Main Wallet
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS Wallet
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Status
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    KYC Details
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Action
+                  </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {!tableData || tableData.length === 0 ? (
+                  <tr>
+                    <td colSpan={19} className="py-12 text-center">
+                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                        No data available
+                      </p>
+                    </td>
+                  </tr>
+                ) : (
+                  tableData.map((row, index) => (
+                    <tr
+                      key={index}
+                      className={`border-b border-gray-100 ${
+                        index % 2 === 0 ? "bg-green-50" : "bg-white"
+                      }`}
+                    >
+                      {/* ID */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.id || "N/A"}
                       </td>
-                    </tr>
-                  ) : (
-                    tableData.map((row, index) => (
-                      <tr
-                        key={index}
-                        className={`border-b border-gray-100 ${
-                          index % 2 === 0 ? "bg-white" : "bg-green-50"
-                        }`}
-                      >
-                        {/* ID */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.id || "N/A"}
-                        </td>
-                        {/* Date */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.date || "N/A"}
-                        </td>
-                        {/* User ID */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.userId || row.userAgentCode || "N/A"}
-                        </td>
-                        {/* Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.name || row.userName || "N/A"}
-                        </td>
-                        {/* User Role */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.userRole || "N/A"}
-                        </td>
-                        {/* Mobile No */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.mobileNo ||
-                            row.mobile ||
-                            row.mobileNumber ||
-                            "N/A"}
-                        </td>
-                        {/* Email Id */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.emailId || row.email || "N/A"}
-                        </td>
-                        {/* Parent Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.parentName || "N/A"}
-                        </td>
-                        {/* Parent Role */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.parentRole || "N/A"}
-                        </td>
-                        {/* Company Name */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {row.companyName || "N/A"}
-                        </td>
-                        {/* KYC Status */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          {(() => {
-                            const status = row.kycStatus?.toLowerCase();
-                            let className =
-                              "px-2 py-1 rounded text-xs font-medium ";
-                            if (
-                              status === "completed" ||
-                              status === "full_kyc"
-                            ) {
-                              className += "bg-green-100 text-green-700";
-                            } else if (status === "pending") {
-                              className += "bg-yellow-100 text-yellow-700";
-                            } else {
-                              className += "bg-red-100 text-red-700";
+
+                      {/* User ID */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.userId || row.userAgentCode || "N/A"}
+                      </td>
+                      {/* Name */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.name || row.userName || "N/A"}
+                      </td>
+                      {/* User Role */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.userRole || "N/A"}
+                      </td>
+                      {/* Mobile No */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.mobileNo ||
+                          row.mobile ||
+                          row.mobileNumber ||
+                          "N/A"}
+                      </td>
+                      {/* Email Id */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.emailId || row.email || "N/A"}
+                      </td>
+                      {/* Parent Name */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.parentName || "N/A"}
+                      </td>
+                      {/* Parent Role */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.parentRole || "N/A"}
+                      </td>
+                      {/* Company Name */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.companyName || "N/A"}
+                      </td>
+                      {/* KYC Status */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {(() => {
+                          const status = row.kycStatus?.toLowerCase();
+                          let className =
+                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                          if (status === "completed" || status === "full_kyc") {
+                            className += "bg-green-100 text-green-700";
+                          } else if (status === "pending") {
+                            className += "bg-yellow-100 text-yellow-700";
+                          } else {
+                            className += "bg-red-100 text-red-700";
+                          }
+                          return (
+                            <span className={className}>
+                              {row.kycStatus || "N/A"}
+                            </span>
+                          );
+                        })()}
+                      </td>
+                      {/* KYC Steps */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        {row.kycSteps || "0"}
+                      </td>
+                      {/* Main Wallet */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        {row.mainWallet || "0"}
+                      </td>
+                      {/* AEPS Wallet */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        {row.aepsWallet || "0"}
+                      </td>
+                      {/* Status */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <span
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                            row.status?.toLowerCase() === "active"
+                              ? "bg-green-600"
+                              : "bg-red-600"
+                          }`}
+                        >
+                          {row.status || "Active"}
+                        </span>
+                      </td>
+                      {/* KYC Details */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              setSelectedUserId(userId);
+                              dispatch(kycDataAction(userId));
+                              setActiveTab("overview");
+                              setZoomedImage(null);
+                              setShowKycModal(true);
                             }
-                            return (
-                              <span className={className}>
-                                {row.kycStatus || "N/A"}
-                              </span>
-                            );
-                          })()}
-                        </td>
-                        {/* KYC Steps */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                          {row.kycSteps || "0"}
-                        </td>
-                        {/* Main Wallet */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                          {row.mainWallet || "0"}
-                        </td>
-                        {/* AEPS Wallet */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                          {row.aepsWallet || "0"}
-                        </td>
-                        {/* Status */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          <span
-                            className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
-                              row.status?.toLowerCase() === "active"
-                                ? "bg-green-600"
-                                : "bg-red-600"
-                            }`}
-                          >
-                            {row.status || "Active"}
-                          </span>
-                        </td>
-                        {/* KYC Details */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                          }}
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                        >
+                          KYC Details
+                        </button>
+                      </td>
+                      {/* Action */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
-                              const userId = row.id || row.originalItem?.id;
-                              if (userId) {
-                                setSelectedUserId(userId);
-                                dispatch(kycDataAction(userId));
-                                setActiveTab("overview");
-                                setZoomedImage(null);
-                                setShowKycModal(true);
-                              }
+                              console.log("Edit:", row.originalItem || row);
                             }}
-                            className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium"
+                            className="text-gray-600 hover:text-green-600 transition-colors"
                           >
-                            KYC Details
+                            <FaEdit className="text-sm" />
                           </button>
-                        </td>
-                        {/* Action */}
-                        <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                          <div className="flex items-center gap-3">
-                            <button
-                              onClick={() => {
-                                console.log("Edit:", row.originalItem || row);
-                              }}
-                              className="text-gray-600 hover:text-green-600 transition-colors"
-                            >
-                              <FaEdit className="text-sm" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                console.log("Delete:", row.originalItem || row);
-                              }}
-                              className="text-gray-600 hover:text-red-600 transition-colors"
-                            >
-                              <FaTrash className="text-sm" />
-                            </button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))
-                  )}
-                </tbody>
-              </table>
-            </div>
+                          <button
+                            onClick={() => {
+                              console.log("Delete:", row.originalItem || row);
+                            }}
+                            className="text-gray-600 hover:text-red-600 transition-colors"
+                          >
+                            <FaTrash className="text-sm" />
+                          </button>
+                        </div>
+                      </td>
+                      {/* Date */}
+                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        {row.date || "N/A"}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
 
           {/* Pagination */}
@@ -870,7 +869,7 @@ const DistrubtionOnboarding = ({
               className={`p-2 rounded-lg border border-gray-300 transition ${
                 currentPage === 1
                   ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-[#1B1717] hover:bg-gray-50"
+                  : "bg-white text-[#121216] hover:bg-gray-50"
               }`}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -879,10 +878,10 @@ const DistrubtionOnboarding = ({
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg font-medium transition ${
+                className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
                   page === currentPage
                     ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
                 }`}
               >
                 {page}
@@ -896,7 +895,7 @@ const DistrubtionOnboarding = ({
               className={`p-2 rounded-lg border border-gray-300 transition ${
                 currentPage === totalPages
                   ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-[#1B1717] hover:bg-gray-50"
+                  : "bg-white text-[#121216] hover:bg-gray-50"
               }`}
             >
               <ChevronRight className="w-5 h-5" />
@@ -948,7 +947,7 @@ const DistrubtionOnboarding = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -959,7 +958,7 @@ const DistrubtionOnboarding = ({
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -969,7 +968,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -979,7 +978,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -989,7 +988,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -999,7 +998,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1040,7 +1039,7 @@ const DistrubtionOnboarding = ({
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-[gilroy-medium] text-gray-700">
                               Progress
                             </span>
                             <span className="text-sm font-semibold text-gray-800">
@@ -1073,7 +1072,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1081,7 +1080,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1089,7 +1088,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1097,7 +1096,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
@@ -1150,7 +1149,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1161,7 +1160,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
@@ -1169,7 +1168,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 UID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
@@ -1177,7 +1176,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
@@ -1281,7 +1280,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1292,7 +1291,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
@@ -1300,7 +1299,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
@@ -1308,7 +1307,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
@@ -1412,7 +1411,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1423,7 +1422,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopName ||
                                   "N/A"}
                               </span>
@@ -1433,7 +1432,7 @@ const DistrubtionOnboarding = ({
                                 <span className="text-xs text-gray-500 mb-1">
                                   GST No
                                 </span>
-                                <span className="text-sm font-medium text-gray-800">
+                                <span className="text-sm font-[gilroy-medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
@@ -1442,7 +1441,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Address
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopAddress ||
                                   "N/A"}
                               </span>
@@ -1498,7 +1497,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
                               >
                                 Revert
                               </button>
@@ -1509,7 +1508,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Account Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .accountNumber || "N/A"}
                               </span>
@@ -1518,7 +1517,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 IFSC
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.ifsc ||
                                   "N/A"}
                               </span>
@@ -1527,7 +1526,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Bank Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.bankName ||
                                   "N/A"}
                               </span>
@@ -1536,7 +1535,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Beneficiary Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .beneficiaryName || "N/A"}
                               </span>
@@ -1574,7 +1573,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Mobile
                               </span>
                             </div>
@@ -1605,7 +1604,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Email
                               </span>
                             </div>
@@ -1636,7 +1635,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Aadhar
                               </span>
                             </div>
@@ -1667,7 +1666,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 PAN
                               </span>
                             </div>
@@ -1698,7 +1697,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Shop Details
                               </span>
                             </div>
@@ -1729,7 +1728,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Image
                               </span>
                             </div>
@@ -1762,7 +1761,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Profile with Shop
                               </span>
                             </div>
@@ -1795,7 +1794,7 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[gilroy-medium] text-gray-700">
                                 Bank Details
                               </span>
                             </div>
@@ -1832,7 +1831,7 @@ const DistrubtionOnboarding = ({
                   setActiveTab("overview");
                   setZoomedImage(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[gilroy-medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>
