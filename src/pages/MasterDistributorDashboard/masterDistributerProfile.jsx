@@ -6,7 +6,7 @@ import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
-import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
@@ -138,7 +138,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
       if (!isSubscribed) {
-        dispatch(getCompanyWalletBalance());
+        dispatch(getUserWalletBalance());
       }
     }
   }, [showConfirmModal, selectedScheme, slabList, dispatch]);
