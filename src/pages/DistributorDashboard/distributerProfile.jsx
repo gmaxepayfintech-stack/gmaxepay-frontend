@@ -1333,6 +1333,7 @@ const DistributerProfile = ({ onBack = null }) => {
         <div
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn"
           onClick={() => setShowImageModal(false)}
+        >
           <div
             className="relative max-w-7xl max-h-[90vh] mx-4 animate-slideUp"
             onClick={(e) => e.stopPropagation()}
