@@ -861,7 +861,7 @@ export const updateCompanySlab = (slabId, slabData, companyId) => async (dispatc
     console.log('Company ID:', companyId);
     console.log('Slab ID:', slabId);
 
-    const response = await api.post(
+    const response = await api.put(
       `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`,
       payload,
       {
@@ -1388,7 +1388,7 @@ export const updateUserSlab = (slabId, slabData, companyId) => async (dispatch) 
     console.log('Company ID:', companyId);
     console.log('Slab ID:', slabId);
 
-    const response = await api.post(
+    const response = await api.put(
       `${API_ROUTE}/api/v1/user/slab/update/${slabId}`,
       payload,
       {
