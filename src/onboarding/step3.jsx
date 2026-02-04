@@ -87,10 +87,9 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
   const handleVerify = async () => {
     setLoading(true);
-    const token = localStorage.getItem("onboardingToken");
 
     try {
-      await dispatch(aadhaarConnection(token));
+      await dispatch(aadhaarConnection());
       setIsVerified(true);
       setShowTickMark(true); // Show tick mark for 3 minutes
       setFormData((d) => ({
@@ -111,16 +110,11 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
       console.error("Please verify Aadhaar first!");
       return;
     }
-
-    const token = localStorage.getItem("onboardingToken");
-
     const payload = {
       document_type: "AADHAAR",
     };
 
-    console.log("Dispatching Aadhaar Download:", payload);
-
-    dispatch(aadhaarDownload(payload, token));
+    dispatch(aadhaarDownload(payload));
   };
 
   const handleImageChange = (type, e) => {
@@ -189,14 +183,9 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
       return;
     }
 
-    const token = localStorage.getItem("onboardingToken");
-    if (!token) {
-      return;
-    }
-
     setUploading(true);
     try {
-      await dispatch(uploadAadhaarDocuments(frontImage, backImage, token));
+      await dispatch(uploadAadhaarDocuments(frontImage, backImage));
     } catch (error) {
       console.error("Failed to upload Aadhaar documents:", error);
       setUploading(false);
@@ -300,20 +289,6 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               {/* Buttons */}
               <div className="flex gap-2 sm:gap-3 mt-3">
                 <button
-                  onClick={handleDownload}
-                  disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base border transition shadow-md 
-
-                    ${
-                      !isConnectDone || isDownloadDone
-                        ? "text-gray-400 cursor-not-allowed border-gray-300"
-                        : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                    }`}
-                >
-                  {isDownloadDone ? "Downloaded" : "Download"}
-                </button>
-
-                <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md 
@@ -326,10 +301,23 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                     }`}
                 >
                   {loading
-                    ? "Verifying..."
+                    ? "Connecting..."
                     : isConnectDone && showTickMark
-                      ? "Verified ✓"
-                      : "Verify"}
+                      ? "Connected ✓"
+                      : "Connect"}
+                </button>
+                <button
+                  onClick={handleDownload}
+                  disabled={!isConnectDone || isDownloadDone}
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base border transition shadow-md 
+
+                    ${
+                      !isConnectDone || isDownloadDone
+                        ? "text-gray-400 cursor-not-allowed border-gray-300"
+                        : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    }`}
+                >
+                  {isDownloadDone ? "Verified" : "Verify"}
                 </button>
               </div>
             </div>
