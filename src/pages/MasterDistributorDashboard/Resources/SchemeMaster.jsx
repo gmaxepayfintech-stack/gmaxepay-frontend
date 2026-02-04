@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
 import { createUserSlab, getUserSlabList, updateUserSlab } from "../../../redux/action/slabAction";
-import { getReportToUserList } from "../../../redux/action/whiteLabelAction";
+import { getReportToDownline } from "../../../redux/action/whiteLabelAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -203,7 +203,7 @@ const SchemeMaster = () => {
       },
     };
 
-    dispatch(getReportToUserList({ ...payload, companyId }));
+    dispatch(getReportToDownline({ ...payload, companyId }));
   }, [showUserSelectionModal, activeUserTab, userPage, debouncedUserSearchQuery, dispatch]);
 
   // Reset user search when modal closes
@@ -217,7 +217,7 @@ const SchemeMaster = () => {
 
   // Get users list from Redux
   const usersListRaw = useSelector(
-    (state) => state?.whitelabel?.reportToUserList?.userList || [],
+    (state) => state?.whitelabel?.reportToDownlineList?.reportToDownlineList || [],
   );
   const usersList = useMemo(
     () => (Array.isArray(usersListRaw) ? usersListRaw : []),
@@ -225,7 +225,7 @@ const SchemeMaster = () => {
   );
   const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
   const usersTotalCount = useSelector((state) => {
-    const response = state?.whitelabel?.reportToUserList;
+    const response = state?.whitelabel?.reportToDownlineList;
     return response?.totalCount || usersList.length || 0;
   });
   const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;

@@ -19,6 +19,7 @@ import {
   GET_REPORT_TO_USER_LIST_SUCCESS,
   GET_REPORT_TO_USER_LIST_FAILURE,
   GET_MD_DETAILS_SUCCESS,
+  GET_REPORT_TO_DOWNLINE_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -42,7 +43,8 @@ const initialState = {
   companyAdmin:null,
   userDetails:null,
   reportToUserList:null,
-  mdDetails: null
+  mdDetails: null,
+  reportToDownlineList: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -221,6 +223,14 @@ const whiteLabelReducer = (state = initialState, action) => {
           ...state,
           loading: false,
           mdDetails: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
+      case GET_REPORT_TO_DOWNLINE_SUCCESS:
+        return {
+          ...state,
+          loading: false,
+          reportToDownlineList: action.payload,
           Success: action.payload.status,
           message: action.payload.message,
         }
