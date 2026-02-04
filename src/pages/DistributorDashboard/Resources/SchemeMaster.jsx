@@ -787,6 +787,7 @@ const SchemeMaster = () => {
                               ? scheme.views
                               : [],
                           });
+
                           // Sync selection state for modal
                           const viewIds = Array.isArray(scheme?.views)
                             ? scheme.views
@@ -798,14 +799,25 @@ const SchemeMaster = () => {
                             const existingUsers = usersList.filter((u) =>
                               viewIds.includes(u.id || u._id),
                             );
-                            const uniqueUsers = existingUsers.filter((user, index, self) => {
-                              const id = user.id || user._id;
-                              return index === self.findIndex((u) => (u.id || u._id) === id);
-                            });
+                            const uniqueUsers = existingUsers.filter(
+                              (user, index, self) => {
+                                const id = user.id || user._id;
+                                return (
+                                  index ===
+                                  self.findIndex((u) => (u.id || u._id) === id)
+                                );
+                              },
+                            );
                             setSelectedUsersData(uniqueUsers);
                           } else {
                             setSelectedUsersData([]);
                           }
+
+                          // Ensure user selection modal defaults to Retailer when editing and reset paging/search
+                          setActiveUserTab("retailer");
+                          setUserPage(1);
+                          setUserSearchQuery("");
+                          setDebouncedUserSearchQuery("");
 
                           setIsEditModalOpen(true);
                         }}
@@ -1179,13 +1191,17 @@ const SchemeMaster = () => {
                           const existingUsers = usersList.filter((user) =>
                             uniqueViews.includes(user.id || user._id),
                           );
-                          const uniqueUsers = existingUsers.filter((user, index, self) => {
-                            const userId = user.id || user._id;
-                            return (
-                              index ===
-                              self.findIndex((u) => (u.id || u._id) === userId)
-                            );
-                          });
+                          const uniqueUsers = existingUsers.filter(
+                            (user, index, self) => {
+                              const userId = user.id || user._id;
+                              return (
+                                index ===
+                                self.findIndex(
+                                  (u) => (u.id || u._id) === userId,
+                                )
+                              );
+                            },
+                          );
                           setSelectedUserIds(uniqueViews);
                           setSelectedUsersData(uniqueUsers);
                         } else {
