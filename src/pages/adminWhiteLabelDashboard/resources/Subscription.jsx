@@ -416,7 +416,13 @@ const Subscription = () => {
                     </span>
                   </p>
                 )}
+                {upgradeError && (
+                  <p className="text-sm text-red-600 mt-2 font-semibold bg-red-50 p-2 rounded border border-red-200">
+                    {upgradeError}
+                  </p>
+                )}
               </div>
+
               <div className="flex justify-end gap-3">
                 <button
                   onClick={() => {
