@@ -4,8 +4,7 @@ import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
-import { getUserDetails } from "../../redux/action/whiteLabelAction";
+import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
@@ -18,6 +17,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { getMDDetails } from "../../redux/action/whiteLabelAction";
 
 const DistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -33,12 +33,12 @@ const DistributerProfile = ({ onBack = null }) => {
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
-  // Get user details from Redux (using getUserDetails API)
-  const userDetailsState = useSelector(
-    (state) => state?.whitelabel?.userDetails,
+  // Get MD details from Redux (using getMDDetails API)
+  const mdDetailsState = useSelector(
+    (state) => state?.whitelabel?.mdDetails,
   );
-  // userDetailsState contains { userDetailsData, message, status }
-  const userDetailsData = userDetailsState?.userDetailsData || null;
+  // mdDetailsState contains { mdDetails, message, status }
+  const mdDetailsData = mdDetailsState?.mdDetails || null;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -47,13 +47,13 @@ const DistributerProfile = ({ onBack = null }) => {
     (state) => state?.whitelabel?.loading || false,
   );
 
-  // Use userDetailsData from getUserDetails API
-  const profileData = userDetailsData || null;
+  // Use mdDetailsData from getMDDetails API
+  const profileData = mdDetailsData || null;
 
-  // Get slab visibility from Redux (with isSubscribed field)
-  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  // Get slab list from Redux (using getMDSlabList API - contains isSubscribed field)
+  const slabList = useSelector((state) => state?.slab?.userList || []);
   const visibilityLoading = useSelector(
-    (state) => state?.slab?.visibilityLoading || false,
+    (state) => state?.slab?.loading || false,
   );
   const upgradeLoading = useSelector(
     (state) => state?.subscription?.userUpgradeLoading || false,
@@ -98,9 +98,9 @@ const DistributerProfile = ({ onBack = null }) => {
 
   // Fetch user details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
-    dispatch(getUserDetails());
+    dispatch(getMDDetails());
     if (companyId) {
-      dispatch(getAllCompanySlabVisibility(companyId));
+      dispatch(getMDSlabList(companyId));
     }
   }, [dispatch, companyId]);
 
@@ -121,10 +121,10 @@ const DistributerProfile = ({ onBack = null }) => {
     if (upgradeSuccess) {
       setShowConfirmModal(false);
       // Refresh user details to get updated data
-      dispatch(getUserDetails());
+      dispatch(getMDDetails());
       // Refresh slab visibility
       if (companyId) {
-        dispatch(getAllCompanySlabVisibility(companyId));
+        dispatch(getMDSlabList(companyId));
       }
     }
   }, [upgradeSuccess, dispatch, companyId]);
@@ -339,7 +339,7 @@ const DistributerProfile = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  Distributor
                 </span>
               </div>
             </div>
