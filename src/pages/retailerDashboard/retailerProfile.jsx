@@ -2,12 +2,11 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapPin, FileText, Camera, X } from "lucide-react";
+import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
-import { getUserDetails } from "../../redux/action/whiteLabelAction";
+import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
-import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
@@ -18,6 +17,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { getMDDetails } from "../../redux/action/whiteLabelAction";
 
 const RetailerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -29,35 +29,22 @@ const RetailerProfile = ({ onBack = null }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Get company from context
+  // Get company fro context
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
-  // Get user details from Redux (preferred)
-  const userDetailsState = useSelector(
-    (state) => state?.whitelabel?.userDetails,
-  );
-  const userDetailsData = userDetailsState?.userDetailsData || null;
+  // Get MD details from Redux (using getMDDetails API)
+  const mdDetailsState = useSelector((state) => state?.whitelabel?.mdDetails);
+  // mdDetailsState contains { mdDetails, message, status }
+  const mdDetailsData = mdDetailsState?.mdDetails || null;
 
-  // Get company admin data from Redux (fallback)
-  const companyAdminState = useSelector(
-    (state) => state?.whitelabel?.companyAdmin,
-  );
-  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const companyAdminData = companyAdminState?.companyAdminData || null;
+  // Use mdDetailsData from getMDDetails API
+  const profileData = mdDetailsData || null;
 
-  // Get loading state for user details
-  const isUserDetailsLoading = useSelector(
-    (state) => state?.whitelabel?.loading || false,
-  );
-
-  // Use userDetailsData if available, otherwise fall back to companyAdminData
-  const profileData = userDetailsData || companyAdminData;
-
-  // Get slab visibility from Redux (with isSubscribed field)
-  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  // Get slab list from Redux (using getMDSlabList API - contains isSubscribed field)
+  const slabList = useSelector((state) => state?.slab?.userList || []);
   const visibilityLoading = useSelector(
-    (state) => state?.slab?.visibilityLoading || false,
+    (state) => state?.slab?.loading || false,
   );
   const upgradeLoading = useSelector(
     (state) => state?.subscription?.userUpgradeLoading || false,
@@ -69,9 +56,9 @@ const RetailerProfile = ({ onBack = null }) => {
     (state) => state?.subscription?.userUpgradeError || null,
   );
 
-  // Get wallet balance from Redux
-  const companyWalletBalance = useSelector(
-    (state) => state?.wallet?.companyWalletBalance || null,
+  // Get wallet balance from Redux (use user wallet for distributor)
+  const userWalletBalance = useSelector(
+    (state) => state?.wallet?.userWalletBalance || null,
   );
   const walletBalanceLoading = useSelector(
     (state) => state?.loading?.isLoading || false,
@@ -102,9 +89,9 @@ const RetailerProfile = ({ onBack = null }) => {
 
   // Fetch user details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
-    dispatch(getUserDetails());
+    dispatch(getMDDetails());
     if (companyId) {
-      dispatch(getAllCompanySlabVisibility(companyId));
+      dispatch(getMDSlabList(companyId));
     }
   }, [dispatch, companyId]);
 
@@ -125,10 +112,10 @@ const RetailerProfile = ({ onBack = null }) => {
     if (upgradeSuccess) {
       setShowConfirmModal(false);
       // Refresh user details to get updated data
-      dispatch(getUserDetails());
+      dispatch(getMDDetails());
       // Refresh slab visibility
       if (companyId) {
-        dispatch(getAllCompanySlabVisibility(companyId));
+        dispatch(getMDSlabList(companyId));
       }
     }
   }, [upgradeSuccess, dispatch, companyId]);
@@ -142,7 +129,7 @@ const RetailerProfile = ({ onBack = null }) => {
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
       if (!isSubscribed) {
-        dispatch(getCompanyWalletBalance());
+        dispatch(getUserWalletBalance());
       }
     }
   }, [showConfirmModal, selectedScheme, slabList, dispatch]);
@@ -175,77 +162,81 @@ const RetailerProfile = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
+  const isUserDetailsLoading = useSelector(
+    (state) => state?.whitelabel?.loading || false,
+  );
+
   // Show skeleton while loading user details or slab visibility
-  //   if (isUserDetailsLoading || visibilityLoading || !profileData) {
-  //     return (
-  //       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
-  //         {/* Cover Picture Section Skeleton */}
-  //         <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
-  //           <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-  //             <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-  //               <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
-  //             </div>
-  //           </div>
-  //         </div>
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
+    return (
+      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+        {/* Cover Picture Section Skeleton */}
+        <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+          <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+            <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+              <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
+            </div>
+          </div>
+        </div>
 
-  //         {/* Profile Section Skeleton */}
-  //         <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
-  //           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-  //             <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
-  //             <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
-  //               <div className="flex-1">
-  //                 <SkeletonLoader className="h-6 w-48 mb-4" />
-  //                 <div className="flex flex-wrap items-center gap-4 mb-4">
-  //                   <SkeletonLoader className="h-4 w-24" />
-  //                   <SkeletonLoader className="h-4 w-32" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                   <SkeletonLoader className="h-6 w-20 rounded-full" />
-  //                 </div>
-  //               </div>
-  //               <SkeletonLoader className="h-8 w-20 rounded-3xl" />
-  //             </div>
-  //           </div>
+        {/* Profile Section Skeleton */}
+        <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+              <div className="flex-1">
+                <SkeletonLoader className="h-6 w-48 mb-4" />
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <SkeletonLoader className="h-4 w-24" />
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-20" />
+                  <SkeletonLoader className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+              <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+            </div>
+          </div>
 
-  //           {/* Info Cards Skeleton */}
-  //           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div
-  //                 key={i}
-  //                 className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
-  //               >
-  //                 <SkeletonLoader className="w-12 h-12 rounded" />
-  //                 <div className="flex-1">
-  //                   <SkeletonLoader className="h-5 w-16 mb-2" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                 </div>
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+              >
+                <SkeletonLoader className="w-12 h-12 rounded" />
+                <div className="flex-1">
+                  <SkeletonLoader className="h-5 w-16 mb-2" />
+                  <SkeletonLoader className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
 
-  //         {/* Content Skeleton */}
-  //         <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
-  //           <div className="flex justify-center gap-4">
-  //             {[1, 2, 3].map((i) => (
-  //               <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
-  //             ))}
-  //           </div>
-  //         </div>
+        {/* Content Skeleton */}
+        <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+            ))}
+          </div>
+        </div>
 
-  //         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
-  //           <SkeletonLoader className="h-6 w-32 mb-4" />
-  //           <div className="space-y-4">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div key={i} className="flex justify-between items-center">
-  //                 <SkeletonLoader className="h-4 w-32" />
-  //                 <SkeletonLoader className="h-4 w-24" />
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     );
-  //   }
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+          <SkeletonLoader className="h-6 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <SkeletonLoader className="h-4 w-32" />
+                <SkeletonLoader className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -343,7 +334,7 @@ const RetailerProfile = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  Retailer
                 </span>
               </div>
             </div>
@@ -435,7 +426,7 @@ const RetailerProfile = ({ onBack = null }) => {
           {[
             {
               key: "membership",
-              label: "Personal Details",
+              label: "Membership Scheme Upgrade / Personal Details",
             },
             {
               key: "kycDetails",
@@ -744,6 +735,67 @@ const RetailerProfile = ({ onBack = null }) => {
 
         {activeTab === "membership" && (
           <div className="space-y-6 sm:space-y-8">
+            {/* Membership Scheme Section */}
+            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+              <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
+                Membership Scheme
+              </h3>
+              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+                <div className="relative flex-1 sm:max-w-xs">
+                  <select
+                    value={selectedScheme}
+                    onChange={(e) => setSelectedScheme(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
+                    disabled={upgradeLoading || visibilityLoading}
+                  >
+                    <option value="">Select Slab</option>
+                    {slabList.map((slab) => {
+                      const amountDisplay =
+                        slab.slabAmount === "free" || slab.slabAmount === 0
+                          ? "Free"
+                          : `₹${slab.slabAmount}`;
+                      const subscriptionStatus = slab.isSubscribed
+                        ? "Subscribed"
+                        : "Unsubscribed";
+                      return (
+                        <option key={slab.id} value={slab.id}>
+                          {slab.slabName} ({amountDisplay}) -{" "}
+                          {subscriptionStatus}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+                </div>
+                <button
+                  onClick={() => {
+                    if (
+                      selectedScheme &&
+                      selectedScheme !== String(data?.slabId)
+                    ) {
+                      setShowConfirmModal(true);
+                    }
+                  }}
+                  disabled={
+                    !selectedScheme ||
+                    selectedScheme === String(data?.slabId) ||
+                    upgradeLoading ||
+                    visibilityLoading
+                  }
+                  className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
+                >
+                  {(() => {
+                    if (upgradeLoading) return "Processing...";
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
+                    const isSubscribed = selectedSlab?.isSubscribed || false;
+                    return isSubscribed ? "Change Slab" : "Upgrade";
+                  })()}
+                </button>
+              </div>
+            </div>
+
             {/* Personal Details Section */}
             <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
@@ -977,10 +1029,10 @@ const RetailerProfile = ({ onBack = null }) => {
                         <p className="text-lg font-semibold text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
-                          ) : companyWalletBalance?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.mainWallet}`
-                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.data.mainWallet}`
+                          ) : userWalletBalance?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.mainWallet}`
+                          ) : userWalletBalance?.data?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.data.mainWallet}`
                           ) : (
                             <span className="text-gray-400">N/A</span>
                           )}
