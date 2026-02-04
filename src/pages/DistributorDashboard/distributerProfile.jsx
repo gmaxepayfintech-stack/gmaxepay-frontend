@@ -2,11 +2,9 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapPin, FileText, Camera, ChevronDown, X, Pencil } from "lucide-react";
+import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { getMDSlabList, updateUserSlab } from "../../redux/action/slabAction";
-import EditMembership from "./Resources/EditMembership";
-import { ButtonLoader } from "../../widgets/layout/loader";
+import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
 import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
@@ -30,18 +28,6 @@ const DistributerProfile = ({ onBack = null }) => {
   const [imageError, setImageError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
-
-  // Edit modal state (opened by Pencil)
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [editSelectedScheme, setEditSelectedScheme] = useState(null);
-  const [editFormData, setEditFormData] = useState({
-    schemeName: "",
-    schemeMode: "Global",
-    schemeType: "Free",
-    subscriptionAmount: "",
-    views: [],
-  });
-  const [isUpdating, setIsUpdating] = useState(false);
 
   // Get company fro context
   const { company } = useCompany();
@@ -79,10 +65,6 @@ const DistributerProfile = ({ onBack = null }) => {
   const walletBalanceLoading = useSelector(
     (state) => state?.loading?.isLoading || false,
   );
-
-  // Slab update state
-  const slabState = useSelector((state) => state?.slab);
-  const { updateSlabSuccess, updateSlabMessage, updateSlabError } = slabState || {}; 
 
   // Extract data from profileData (do this before early returns to maintain hook order)
   const data = profileData || {};
@@ -166,87 +148,6 @@ const DistributerProfile = ({ onBack = null }) => {
     }
   }, [upgradeError, showNotification]);
 
-  // Handle slab update success
-  useEffect(() => {
-    if (updateSlabSuccess && updateSlabMessage) {
-      showNotification({ type: "success", message: updateSlabMessage || "Slab updated successfully", duration: 5000 });
-      setIsEditModalOpen(false);
-      setEditSelectedScheme(null);
-      setEditFormData({
-        schemeName: "",
-        schemeMode: "Global",
-        schemeType: "Free",
-        subscriptionAmount: "",
-        views: [],
-      });
-      setIsUpdating(false);
-      // Refresh data
-      dispatch(getMDDetails());
-      if (companyId) dispatch(getMDSlabList(companyId));
-    }
-  }, [updateSlabSuccess, updateSlabMessage, dispatch, companyId]);
-
-  // Handle slab update error
-  useEffect(() => {
-    if (updateSlabError) {
-      showNotification({ type: "error", message: updateSlabError, duration: 5000 });
-      setIsUpdating(false);
-    }
-  }, [updateSlabError, showNotification]);
-
-  // Update slab handler (called from Edit modal)
-  const handleUpdateSlab = async (e) => {
-    e?.preventDefault?.();
-    if (!editSelectedScheme?.id) {
-      showNotification({ type: "error", message: "No scheme selected. Please try again.", duration: 5000 });
-      return;
-    }
-    if (!editFormData.schemeName || !editFormData.schemeName.trim()) {
-      showNotification({ type: "error", message: "Please enter a scheme name", duration: 5000 });
-      return;
-    }
-
-    // Validate private mode requires views (we rely on prefilled views here)
-    if (editFormData.schemeMode === "Private" && (!editFormData.views || editFormData.views.length === 0)) {
-      showNotification({ type: "error", message: "Please select at least one user for private schemes", duration: 5000 });
-      return;
-    }
-
-    // Validate premium type requires subscription amount
-    if (editFormData.schemeType === "Premium") {
-      const amount = editFormData.subscriptionAmount;
-      if (
-        amount === null ||
-        amount === undefined ||
-        amount === "" ||
-        isNaN(parseFloat(amount)) ||
-        parseFloat(amount) < 0
-      ) {
-        showNotification({ type: "error", message: "Please enter a valid subscription amount for premium schemes", duration: 5000 });
-        return;
-      }
-    }
-
-    const slabDataToSend = {
-      ...editFormData,
-      views: editFormData.views || [],
-      subscriptionAmount: editFormData.subscriptionAmount ? parseFloat(editFormData.subscriptionAmount) : 0,
-    };
-
-    setIsUpdating(true);
-    try {
-      const result = await dispatch(updateUserSlab(editSelectedScheme.id, slabDataToSend, companyId));
-      if (!result?.success) {
-        showNotification({ type: "error", message: result?.message || "Failed to update slab. Please try again.", duration: 5000 });
-        setIsUpdating(false);
-      }
-      // on success, useEffect will handle closing and refresh
-    } catch (err) {
-      showNotification({ type: "error", message: err?.message || "An error occurred while updating the slab. Please try again.", duration: 5000 });
-      setIsUpdating(false);
-    }
-  };
-
   // Handle ESC key to close image modal
   useEffect(() => {
     const handleEsc = (event) => {
@@ -262,7 +163,8 @@ const DistributerProfile = ({ onBack = null }) => {
   const SkeletonLoader = ({ className }) => (
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
-  
+   
+  // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
   );
@@ -868,29 +770,6 @@ const DistributerProfile = ({ onBack = null }) => {
                   </select>
                   <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
                 </div>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
-                    if (!selectedSlab) return;
-                    setEditSelectedScheme(selectedSlab);
-                    setEditFormData({
-                      schemeName: selectedSlab.slabName || "",
-                      schemeMode: selectedSlab.schemaMode ? (selectedSlab.schemaMode === "global" ? "Global" : "Private") : "Global",
-                      schemeType: selectedSlab.schemaType ? (selectedSlab.schemaType === "free" ? "Free" : "Premium") : "Free",
-                      subscriptionAmount: selectedSlab.subscriptionAmount !== undefined && selectedSlab.subscriptionAmount !== null ? String(selectedSlab.subscriptionAmount) : "",
-                      views: Array.isArray(selectedSlab.views) ? selectedSlab.views : [],
-                    });
-                    setIsEditModalOpen(true);
-                  }}
-                  disabled={!selectedScheme}
-                  className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-[#1B1717]/70 text-sm text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed mr-2"
-                >
-                  <Pencil className="w-4 h-4" />
-                  <span className="text-xs sm:text-sm">Edit</span>
-                </button>
-
                 <button
                   onClick={() => {
                     if (
@@ -899,7 +778,7 @@ const DistributerProfile = ({ onBack = null }) => {
                     ) {
                       setShowConfirmModal(true);
                     }
-                  }} 
+                  }}
                   disabled={
                     !selectedScheme ||
                     selectedScheme === String(data?.slabId) ||
@@ -1239,90 +1118,6 @@ const DistributerProfile = ({ onBack = null }) => {
                   })()}
                 </button>
               </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Edit Membership Scheme Modal */}
-      {isEditModalOpen && editSelectedScheme && (
-        <div className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-50 p-2 xs:p-3 sm:p-4 md:p-6" onClick={() => { setIsEditModalOpen(false); setEditSelectedScheme(null); }}>
-          <div ref={modalRef} className="bg-white rounded-lg sm:rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg xl:max-w-xl max-h-[96vh] sm:max-h-[92vh] flex flex-col overflow-hidden" onClick={(e) => e.stopPropagation()}>
-            <div className="relative bg-white flex items-center justify-center px-3 py-3 xs:px-4 sm:px-6 sm:py-4 border-b border-gray-100">
-              <div className="flex-1 min-w-0 text-center px-8 sm:px-12">
-                <h2 className="text-sm xs:text-base sm:text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] leading-snug">
-                  Edit Membership Scheme
-                </h2>
-                <p className="mt-1 text-[11px] xs:text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed">
-                  Update Your Membership Program <br />
-                  With Custom Settings And Features
-                </p>
-              </div>
-              <button onClick={() => { setIsEditModalOpen(false); setEditSelectedScheme(null); }} className="absolute top-3 right-3 sm:top-4 sm:right-4 bg-[#039155] text-white rounded-lg w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center hover:bg-green-700 transition" type="button">
-                <div className="border border-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center">
-                  <span className="text-[10px] sm:text-xs leading-none">×</span>
-                </div>
-              </button>
-            </div>
-
-            <div className="flex-1 overflow-y-auto px-3 xs:px-4 sm:px-6 py-4 sm:py-5 space-y-4">
-              <div>
-                <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] mb-3">
-                  Basic Information
-                </h3>
-                <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
-                  Scheme Name <span>*</span>
-                </label>
-                <input type="text" placeholder="Enter Scheme Name" value={editFormData.schemeName} onChange={(e) => setEditFormData({ ...editFormData, schemeName: e.target.value })} className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[#1B1717]/70 rounded-lg font-[gilroy-medium] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#039155]" />
-              </div>
-
-              <div>
-                <h3 className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] mb-3 sm:mb-4">Scheme Configuration</h3>
-                <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-2">Scheme Mode *</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {['Global','Private'].map((mode)=>(
-                      <label key={mode} className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition ${ editFormData.schemeMode === mode ? "border-[#039155] bg-green-50" : "border-gray-300 hover:border-gray-400" }`}>
-                        <input type="radio" name="schemeMode" value={mode} checked={editFormData.schemeMode === mode} onChange={(e)=> setEditFormData({ ...editFormData, schemeMode: e.target.value, views: e.target.value === "Global" ? [] : editFormData.views }) } className="sr-only" />
-                        <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${ editFormData.schemeMode === mode ? "border-[#039155] bg-[#039155]" : "border-gray-300" }`}>{ editFormData.schemeMode === mode && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" /> }</div>
-                        <div><span className="block text-xs sm:text-sm font-[gilroy-medium]">{mode}</span><p className="text-[11px] text-[#1B1717]/70">{ mode === "Global" ? "Available To All Users Worldwide" : "Restricted To Specific Users" }</p></div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="mb-4 sm:mb-5">
-                  <label className="block text-xs sm:text-sm font-[gilroy-medium] mb-2">Scheme Type</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    {['Free','Premium'].map((type)=>(
-                      <label key={type} className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition ${ editFormData.schemeType === type ? "border-[#039155] bg-green-50" : "border-gray-300 hover:border-gray-400" }`}>
-                        <input type="radio" name="schemeType" value={type} checked={editFormData.schemeType === type} onChange={(e)=> setEditFormData({ ...editFormData, schemeType: e.target.value, subscriptionAmount: e.target.value === "Free" ? "" : editFormData.subscriptionAmount }) } className="sr-only" />
-                        <div className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center ${ editFormData.schemeType === type ? "border-[#039155] bg-[#039155]" : "border-gray-300" }`}>{ editFormData.schemeType === type && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" /> }</div>
-                        <div><span className="block text-xs sm:text-sm font-[gilroy-medium]">{type}</span><p className="text-[11px] text-[#1B1717]/70">{ type === "Free" ? "No Cost Membership" : "Restricted Access With Invitation Only" }</p></div>
-                      </label>
-                    ))}
-                  </div>
-                </div>
-
-                {editFormData.schemeType === "Premium" && (
-                  <div className="mb-4 sm:mb-5">
-                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">Subscription Amount <span className="text-red-500">*</span></label>
-                    <input type="number" placeholder="Enter subscription amount" value={editFormData.subscriptionAmount} onChange={(e)=> setEditFormData({ ...editFormData, subscriptionAmount: e.target.value })} min="0" step="0.01" className="w-full px-3 sm:px-4 py-2.5 sm:py-3 border border-[#1B1717]/70 rounded-lg font-[gilroy-medium] text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-[#039155]" />
-                  </div>
-                )}
-
-                {/** views are prefilled and not editable here in this modal (we prefill from selected slab) **/}
-                {editFormData.views && editFormData.views.length > 0 && (
-                  <p className="text-xs text-[#1B1717]/70">Currently {editFormData.views.length} user(s) have access to this private scheme.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
-              <button onClick={() => { setIsEditModalOpen(false); setEditSelectedScheme(null); }} className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl text-[#1B1717]/80 hover:bg-gray-50 transition" type="button" disabled={isUpdating}>Cancel</button>
-              <button onClick={handleUpdateSlab} disabled={isUpdating} className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47] text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2" type="button">
-                {isUpdating ? (<><ButtonLoader color="#FFFFFF" size={20} thickness={3} /><span>Updating...</span></>) : "Update"}
-              </button>
             </div>
           </div>
         </div>
