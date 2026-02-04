@@ -163,7 +163,8 @@ const DistributerProfile = ({ onBack = null }) => {
   const SkeletonLoader = ({ className }) => (
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
-  
+   
+  // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
   );
