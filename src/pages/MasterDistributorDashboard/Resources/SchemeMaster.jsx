@@ -18,7 +18,6 @@ import { createUserSlab, getUserSlabList, updateUserSlab } from "../../../redux/
 import { getReportToDownline } from "../../../redux/action/whiteLabelAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { getReportToDownline } from "../../../redux/action/whiteLabelAction";
 
 const SchemeMaster = () => {
   const dispatch = useDispatch();
