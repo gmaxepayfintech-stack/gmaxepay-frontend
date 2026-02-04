@@ -142,6 +142,7 @@ const Subscription = () => {
         type: 'success',
         message: 'Subscription upgraded successfully!',
         duration: 5000,
+        isCritical: true,
       });
       // Refresh subscription list
       if (userId) {
@@ -160,6 +161,7 @@ const Subscription = () => {
         type: 'error',
         message: userUpgradeError,
         duration: 5000,
+        isCritical: true,
       });
     }
   }, [userUpgradeError, showNotification]);
@@ -180,6 +182,7 @@ const Subscription = () => {
         type: 'error',
         message: 'Subscription ID not found. Please try again.',
         duration: 5000,
+        isCritical: true,
       });
       return;
     }
@@ -194,6 +197,7 @@ const Subscription = () => {
         type: 'error',
         message: 'Company ID or Subscription ID is missing. Please try again.',
         duration: 5000,
+        isCritical: true,
       });
     }
   };
