@@ -366,10 +366,11 @@ const SuperAdmin = () => {
                   <button
                     key={day}
                     onClick={() => setSelectedDay(day)}
-                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${selectedDay === day
+                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${
+                      selectedDay === day
                         ? "bg-[#039155] text-white "
                         : "border-[#1B1717]/50 text-[#1B1717] border hover:border-[#039155] hover:text-[#039155]"
-                      }`}
+                    }`}
                   >
                     {day}
                   </button>
@@ -596,8 +597,8 @@ const SuperAdmin = () => {
                   </p>
                   <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
                     {(isAslWalletRefreshing && isAslWallet) ||
-                      (isEkycHubRefreshing && isEkycHubWallet) ||
-                      (isInspayWalletRefreshing && isInspayWallet)
+                    (isEkycHubRefreshing && isEkycHubWallet) ||
+                    (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -659,8 +660,8 @@ const SuperAdmin = () => {
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
-                      (isEkycHubRefreshing && isEkycHubWallet) ||
-                      (isInspayWalletRefreshing && isInspayWallet)
+                    (isEkycHubRefreshing && isEkycHubWallet) ||
+                    (isInspayWalletRefreshing && isInspayWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>
@@ -743,10 +744,11 @@ const SuperAdmin = () => {
 
                     {/* Text */}
                     <span
-                      className={`relative z-10 text-xs font-[gilroy-medium] transition-colors ${activeFilter === label
+                      className={`relative z-10 text-xs font-[gilroy-medium] transition-colors ${
+                        activeFilter === label
                           ? "text-white font-[gilroy-semibold]"
                           : "text-[#1B1717] hover:text-[#039155]"
-                        }`}
+                      }`}
                     >
                       {label}
                     </span>
@@ -771,10 +773,11 @@ const SuperAdmin = () => {
                   className="w-10 h-10 mb-2 "
                 />
                 <span
-                  className={`text-xs font-[gilroy-semibold] mb-6 ${item.change.startsWith("▲")
+                  className={`text-xs font-[gilroy-semibold] mb-6 ${
+                    item.change.startsWith("▲")
                       ? "text-[#039155]"
                       : "text-[#F60509]"
-                    }`}
+                  }`}
                 >
                   {item.change}
                 </span>
@@ -878,33 +881,54 @@ const SuperAdmin = () => {
                       >
                         Wallet Type
                       </label>
-                      <select
-                        id="walletType"
-                        value={walletType}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setWalletType(value);
 
-                          if (value === "wallet") {
-                            setRequestType("");
-                            setSelectedBank(null);
-                          }
-                        }}
-                        className="w-full px-4 h-[43px] border-[0.5px] border-[#1B1717]/80 text-[#1B1717] focus:outline-none border-opacity-50 rounded-lg"
-                      >
-                        <option
-                          value="bank"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                      <div className="relative w-full">
+                        <select
+                          id="walletType"
+                          value={walletType}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setWalletType(value);
+
+                            if (value === "wallet") {
+                              setRequestType("");
+                              setSelectedBank(null);
+                            }
+                          }}
+                          className="
+      w-full
+      h-[43px]
+      px-4 pr-10
+      border-[0.5px]
+      border-[#1B1717]/80
+      border-opacity-50
+      rounded-lg
+      text-[#1B1717]
+      focus:outline-none
+      appearance-none
+      bg-white
+      cursor-pointer
+    "
                         >
-                          Aeps Wallet To Bank
-                        </option>
-                        <option
-                          value="wallet"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
-                        >
-                          AEPS wallet To Main Wallet
-                        </option>
-                      </select>
+                          <option value="bank">Aeps Wallet To Bank</option>
+                          <option value="wallet">
+                            AEPS Wallet To Main Wallet
+                          </option>
+                        </select>
+
+                        {/* Custom dropdown icon */}
+                        <FiChevronDown
+                          className="
+      pointer-events-none
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-[#1B1717]
+      text-sm
+    "
+                        />
+                      </div>
                     </div>
 
                     {/* Request Type */}
@@ -915,27 +939,50 @@ const SuperAdmin = () => {
                       >
                         Mode Type
                       </label>
-                      <select
-                        id="requestType"
-                        value={requestType}
-                        onChange={(e) => setRequestType(e.target.value)}
-                        disabled={walletType === "wallet"}
-                        className={`w-full px-4  h-[43px] border-[0.5px] border-[#1B1717]/80 focus:outline-none text-[#1B1717] rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
-                      >
-                        <option
-                          value=""
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+
+                      <div className="relative w-full">
+                        <select
+                          id="requestType"
+                          value={requestType}
+                          onChange={(e) => setRequestType(e.target.value)}
+                          disabled={walletType === "wallet"}
+                          className={`
+      w-full
+      h-[43px]
+      px-4 pr-10
+      border-[0.5px]
+      border-[#1B1717]/80
+      rounded-lg
+      text-[#1B1717]
+      focus:outline-none
+      appearance-none
+      bg-white
+      ${
+        walletType === "wallet"
+          ? "bg-gray-100 cursor-not-allowed opacity-60"
+          : "cursor-pointer"
+      }
+    `}
                         >
-                          Select
-                        </option>
-                        <option value="IMPS">IMPS</option>
-                        <option
-                          value="NEFT"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
-                        >
-                          NEFT
-                        </option>
-                      </select>
+                          <option value="">Select</option>
+                          <option value="IMPS">IMPS</option>
+                          <option value="NEFT">NEFT</option>
+                        </select>
+
+                        {/* Custom dropdown icon */}
+                        <FiChevronDown
+                          className={`
+      pointer-events-none
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-[#1B1717]
+      text-sm
+      ${walletType === "wallet" ? "opacity-50" : ""}
+    `}
+                        />
+                      </div>
                     </div>
                   </div>
 
@@ -991,10 +1038,11 @@ const SuperAdmin = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
+                              selectedBank === bank.id
                                 ? "border-[#039155] bg-green-50"
                                 : "border-[#1B1717] border-opacity-80"
-                              }`}
+                            }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}

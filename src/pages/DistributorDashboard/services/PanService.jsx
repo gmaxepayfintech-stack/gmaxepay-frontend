@@ -145,10 +145,10 @@ const PanService = () => {
       <div className="mb-6 flex items-center gap-4">
         <button
           onClick={handleBack}
-          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
+          className="flex items-center justify-center w-12 h-12 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
           aria-label="Go back"
         >
-          <HiArrowLeft className="w-5 h-5 text-[#1B1717]" />
+          <HiArrowLeft className="w-6 h-6 text-[#1B1717]" />
         </button>
         <div>
           <h1 className="text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
