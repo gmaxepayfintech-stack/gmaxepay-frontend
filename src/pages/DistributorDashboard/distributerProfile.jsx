@@ -29,7 +29,7 @@ const DistributerProfile = ({ onBack = null }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Get company from context
+  // Get company fro context
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
