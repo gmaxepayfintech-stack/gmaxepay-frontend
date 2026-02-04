@@ -65,9 +65,9 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     (state) => state?.subscription?.userUpgradeError || null,
   );
 
-  // Get wallet balance from Redux
-  const companyWalletBalance = useSelector(
-    (state) => state?.wallet?.companyWalletBalance || null,
+  // Get wallet balance from Redux (user wallet for MD)
+  const userWalletBalance = useSelector(
+    (state) => state?.wallet?.userWalletBalance || null,
   );
   const walletBalanceLoading = useSelector(
     (state) => state?.loading?.isLoading || false,
@@ -965,10 +965,10 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                         <p className="text-lg font-semibold text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
-                          ) : companyWalletBalance?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.mainWallet}`
-                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.data.mainWallet}`
+                          ) : userWalletBalance?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.mainWallet}`
+                          ) : userWalletBalance?.data?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.data.mainWallet}`
                           ) : (
                             <span className="text-gray-400">N/A</span>
                           )}
