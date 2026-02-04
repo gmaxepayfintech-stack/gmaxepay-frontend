@@ -162,20 +162,20 @@ const RetailerDashboard = () => {
   // Quick Access Services data
   const quickServices = [
     {
-      name: "Mobile & DTH Recharge",
-      icon: "/img/MobileIcon.svg",
+      name: "Mobile Recharge",
+      icon: "/img/MobileRecharge.svg",
       amount: "₹ 20542",
     },
-    { name: "DMT-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "Micro ATM", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "CMS-1", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "BBPS", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "DMT-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "CMS-2", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
-    { name: "Indo-Nepal DMT", icon: "/img/MobileIcon.svg", amount: "₹ 20542" },
+    { name: "DMT-1", icon: "/img/DMT.svg", amount: "₹ 20542" },
+    { name: "Micro ATM", icon: "/img/MATM.svg", amount: "₹ 20542" },
+    { name: "CMS-1", icon: "/img/CMS.svg", amount: "₹ 20542" },
+    { name: "BBPS", icon: "/img/BBPS.svg", amount: "₹ 20542" },
+    { name: "DMT-2", icon: "/img/DMT.svg", amount: "₹ 20542" },
+    { name: "CMS-2", icon: "/img/CMS.svg", amount: "₹ 20542" },
+    { name: "Indo-Nepal DMT", icon: "/img/DMT.svg", amount: "₹ 20542" },
     {
-      name: "Mobile & DTH Recharge",
-      icon: "/img/MobileIcon.svg",
+      name: "DTH Recharge",
+      icon: "/img/DTH1.svg",
       amount: "₹ 20542",
     },
   ];
@@ -585,7 +585,7 @@ const RetailerDashboard = () => {
                 <img
                   src={service.icon}
                   alt={service.name}
-                  className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 object-contain"
+                  className=" object-contain"
                   onError={(e) => {
                     e.target.style.display = "none";
                   }}
@@ -753,33 +753,54 @@ const RetailerDashboard = () => {
                       >
                         Wallet Type
                       </label>
-                      <select
-                        id="walletType"
-                        value={walletType}
-                        onChange={(e) => {
-                          const value = e.target.value;
-                          setWalletType(value);
 
-                          if (value === "wallet") {
-                            setRequestType("");
-                            setSelectedBank(null);
-                          }
-                        }}
-                        className="w-full px-4 h-[43px] border-[0.5px] border-[#1B1717]/80 text-[#1B1717] focus:outline-none border-opacity-50 rounded-lg"
-                      >
-                        <option
-                          value="bank"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+                      <div className="relative w-full">
+                        <select
+                          id="walletType"
+                          value={walletType}
+                          onChange={(e) => {
+                            const value = e.target.value;
+                            setWalletType(value);
+
+                            if (value === "wallet") {
+                              setRequestType("");
+                              setSelectedBank(null);
+                            }
+                          }}
+                          className="
+      w-full
+      h-[43px]
+      px-4 pr-10
+      border-[0.5px]
+      border-[#1B1717]/80
+      border-opacity-50
+      rounded-lg
+      text-[#1B1717]
+      focus:outline-none
+      appearance-none
+      bg-white
+      cursor-pointer
+    "
                         >
-                          Aeps Wallet To Bank
-                        </option>
-                        <option
-                          value="wallet"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
-                        >
-                          AEPS wallet To Main Wallet
-                        </option>
-                      </select>
+                          <option value="bank">Aeps Wallet To Bank</option>
+                          <option value="wallet">
+                            AEPS Wallet To Main Wallet
+                          </option>
+                        </select>
+
+                        {/* Custom dropdown icon */}
+                        <FiChevronDown
+                          className="
+      pointer-events-none
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-[#1B1717]
+      text-sm
+    "
+                        />
+                      </div>
                     </div>
 
                     {/* Request Type */}
@@ -790,27 +811,50 @@ const RetailerDashboard = () => {
                       >
                         Mode Type
                       </label>
-                      <select
-                        id="requestType"
-                        value={requestType}
-                        onChange={(e) => setRequestType(e.target.value)}
-                        disabled={walletType === "wallet"}
-                        className={`w-full px-4  h-[43px] border-[0.5px] border-[#1B1717]/80 focus:outline-none text-[#1B1717] rounded-lg ${walletType === "wallet" ? "bg-gray-100 cursor-not-allowed opacity-60" : ""}`}
-                      >
-                        <option
-                          value=""
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
+
+                      <div className="relative w-full">
+                        <select
+                          id="requestType"
+                          value={requestType}
+                          onChange={(e) => setRequestType(e.target.value)}
+                          disabled={walletType === "wallet"}
+                          className={`
+      w-full
+      h-[43px]
+      px-4 pr-10
+      border-[0.5px]
+      border-[#1B1717]/80
+      rounded-lg
+      text-[#1B1717]
+      focus:outline-none
+      appearance-none
+      bg-white
+      ${
+        walletType === "wallet"
+          ? "bg-gray-100 cursor-not-allowed opacity-60"
+          : "cursor-pointer"
+      }
+    `}
                         >
-                          Select
-                        </option>
-                        <option value="IMPS">IMPS</option>
-                        <option
-                          value="NEFT"
-                          className="text-12px font['Gilroy-Medium'] text-[#1B1717] text-opacity-80"
-                        >
-                          NEFT
-                        </option>
-                      </select>
+                          <option value="">Select</option>
+                          <option value="IMPS">IMPS</option>
+                          <option value="NEFT">NEFT</option>
+                        </select>
+
+                        {/* Custom dropdown icon */}
+                        <FiChevronDown
+                          className={`
+      pointer-events-none
+      absolute
+      right-3
+      top-1/2
+      -translate-y-1/2
+      text-[#1B1717]
+      text-sm
+      ${walletType === "wallet" ? "opacity-50" : ""}
+    `}
+                        />
+                      </div>
                     </div>
                   </div>
 

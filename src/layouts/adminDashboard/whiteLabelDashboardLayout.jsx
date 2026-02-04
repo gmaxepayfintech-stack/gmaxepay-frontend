@@ -63,6 +63,34 @@ const WhiteLabelDashboardLayout = ({ children }) => {
 
   useEffect(() => {
     setIsSidebarOpen(false);
+
+    const currentPath = location.pathname;
+    const currentMenuItem = menuItems.find((item) => {
+      if (item.path && currentPath === item.path) {
+        return true;
+      }
+      if (item.children) {
+        return item.children.some((child) => child.path === currentPath);
+      }
+      return false;
+    });
+
+    if (currentMenuItem) {
+      setActiveMenu(currentMenuItem.name);
+      // If it's a dropdown and a child is active, open the dropdown
+      if (currentMenuItem.dropdown && currentMenuItem.children) {
+        const activeChild = currentMenuItem.children.find(
+          (child) => child.path === currentPath,
+        );
+        if (activeChild) {
+          setOpenDropdown(currentMenuItem.name);
+        } else {
+          setOpenDropdown(null);
+        }
+      } else {
+        setOpenDropdown(null);
+      }
+    }
   }, [location.pathname]);
 
   const handleMenuClick = (name, dropdown, path) => {
@@ -409,30 +437,32 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                   <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
                 </div>
-              ) : (() => {
-                const greeting = getGreeting();
-                return (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                        {greeting.text}!
-                      </h1>
-                      <img
-                        src={greeting.image}
-                        alt={greeting.text}
-                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "/img/gmaxepay.png";
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
-                      {name || email || "Admin"}
-                    </p>
-                  </>
-                );
-              })()}
+              ) : (
+                (() => {
+                  const greeting = getGreeting();
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                          {greeting.text}!
+                        </h1>
+                        <img
+                          src={greeting.image}
+                          alt={greeting.text}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/img/gmaxepay.png";
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                        {name || email || "Admin"}
+                      </p>
+                    </>
+                  );
+                })()
+              )}
             </div>
           </div>
 
