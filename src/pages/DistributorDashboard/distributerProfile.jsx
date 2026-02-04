@@ -16,6 +16,7 @@ import Pincode from "../../../public/img/Pincode.png";
 import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
+import { motion } from "framer-motion";
 import { getMDDetails } from "../../redux/action/whiteLabelAction";
 
 const DistributerProfile = ({ onBack = null }) => {
