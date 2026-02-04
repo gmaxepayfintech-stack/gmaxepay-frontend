@@ -1129,6 +1129,219 @@ const SchemeMaster = () => {
           </div>
         </div>
       )}
+
+      {/* User Selection Modal */}
+      {showUserSelectionModal && (
+        <div
+          className="fixed inset-0 bg-[#D9D9D9]/80 flex items-center justify-center z-[60] 
+               p-2 xs:p-3 sm:p-4 md:p-6"
+          onClick={() => setShowUserSelectionModal(false)}
+        >
+          <div
+            ref={userModalRef}
+            className="bg-white rounded-lg sm:rounded-xl shadow-2xl 
+                 w-full max-w-md sm:max-w-lg xl:max-w-xl
+                 max-h-[96vh] sm:max-h-[92vh] 
+                 flex flex-col overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="relative bg-white flex items-center justify-center px-3 py-3 xs:px-4 sm:px-6 sm:py-4 border-b border-gray-100">
+              <div className="flex-1 min-w-0 text-center px-8 sm:px-12">
+                <h2 className="text-sm xs:text-base sm:text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] leading-snug">
+                  Select Users
+                </h2>
+                <p className="mt-1 text-[11px] xs:text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed">
+                  Choose users who can access this private scheme
+                </p>
+              </div>
+              <button
+                onClick={() => setShowUserSelectionModal(false)}
+                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+                type="button"
+              >
+                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+              </button>
+            </div>
+
+            {/* Retailer-only Header */}
+            <div className="bg-gray-50 border-b border-gray-200 px-4 sm:px-6 py-3">
+              <div className="relative bg-white rounded-xl p-1.5 flex shadow-sm border border-gray-200">
+                <div
+                  className="absolute inset-1 bg-[#039155] rounded-lg transition-all duration-300 ease-in-out shadow-md"
+                  style={{
+                    width: `calc(100% - 0.75rem)`,
+                    left: "0.375rem",
+                  }}
+                />
+                <button
+                  onClick={() => {
+                    setActiveUserTab("retailer");
+                    setUserPage(1);
+                    setUserSearchQuery("");
+                    setDebouncedUserSearchQuery("");
+                  }}
+                  className="relative z-10 w-full px-3 py-2.5 rounded-lg font-[gilroy-medium] text-xs sm:text-sm text-white"
+                  type="button"
+                >
+                  Retailer
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Content */}
+            <div className="flex-1 overflow-y-auto px-3 xs:px-4 sm:px-6 py-4 sm:py-5 space-y-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/50" />
+                <input
+                  type="text"
+                  placeholder="Search by name or mobile number"
+                  value={userSearchQuery}
+                  onChange={(e) => {
+                    setUserSearchQuery(e.target.value);
+                    setUserPage(1);
+                  }}
+                  className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/50 text-[#1B1717]/50 rounded-lg focus:outline-none text-sm sm:text-base"
+                />
+              </div>
+
+              <div className="flex items-center justify-between">
+                <button
+                  onClick={handleSelectAllUsers}
+                  className="text-xs sm:text-sm text-[#039155] font-[gilroy-medium] hover:underline"
+                  type="button"
+                >
+                  {(() => {
+                    const currentTabUserIds = usersList
+                      .map((u) => u.id || u._id)
+                      .filter(Boolean);
+                    const uniqueIds = [...new Set(currentTabUserIds)];
+                    const allSelected =
+                      uniqueIds.length > 0 &&
+                      uniqueIds.every((id) => selectedUserIds.includes(id));
+                    return allSelected ? "Deselect All" : "Select All";
+                  })()}
+                </button>
+                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                  {selectedUserIds.length} selected
+                </span>
+              </div>
+
+              <div className="space-y-2 max-h-[400px] overflow-y-auto">
+                {usersLoading ? (
+                  <div className="flex justify-center items-center py-8">
+                    <ButtonLoader size={28} thickness={3} />
+                  </div>
+                ) : usersList.length === 0 ? (
+                  <div className="text-center py-8 text-[#1B1717]/60">
+                    No users found
+                  </div>
+                ) : (
+                  usersList.map((user) => {
+                    const userId = user.id || user._id;
+                    const isSelected = selectedUserIds.includes(userId);
+                    return (
+                      <label
+                        key={userId}
+                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition ${
+                          isSelected
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-200 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleUserToggle(user)}
+                          className="sr-only"
+                        />
+                        <div
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0 ${
+                            isSelected
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                          }`}
+                        >
+                          {isSelected && (
+                            <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                            {user.name || "N/A"}
+                          </div>
+                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                            {user.mobileNo || user.mobile || "N/A"}
+                          </div>
+                        </div>
+                      </label>
+                    );
+                  })
+                )}
+              </div>
+
+              {!usersLoading && usersTotalPages > 1 && (
+                <div className="flex items-center justify-center gap-1.5 sm:gap-2 pt-4">
+                  <button
+                    onClick={() => setUserPage((prev) => Math.max(1, prev - 1))}
+                    disabled={userPage === 1}
+                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
+                  >
+                    <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+
+                  {Array.from({ length: usersTotalPages }, (_, i) => i + 1).map(
+                    (page) => (
+                      <button
+                        key={page}
+                        onClick={() => setUserPage(page)}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                          userPage === page
+                            ? "bg-[#039155] text-white"
+                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                        }`}
+                        type="button"
+                      >
+                        {page}
+                      </button>
+                    ),
+                  )}
+
+                  <button
+                    onClick={() =>
+                      setUserPage((prev) => Math.min(usersTotalPages, prev + 1))
+                    }
+                    disabled={userPage === usersTotalPages}
+                    className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                    type="button"
+                  >
+                    <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
+              <button
+                onClick={() => setShowUserSelectionModal(false)}
+                className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl text-[#1B1717]/80 hover:bg-gray-50 transition"
+                type="button"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={handleConfirmUserSelection}
+                className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47] text-white rounded-xl transition flex items-center justify-center gap-2"
+                type="button"
+              >
+                Confirm ({selectedUserIds.length} selected)
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
