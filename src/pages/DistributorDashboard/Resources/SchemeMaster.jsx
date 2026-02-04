@@ -935,6 +935,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
                             })
                           }
                           className="sr-only"
@@ -994,6 +996,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeType: e.target.value,
+                              // Clear subscriptionAmount when switching to Free
+                              subscriptionAmount: e.target.value === "Free" ? "" : formData.subscriptionAmount,
                             })
                           }
                           className="sr-only"
@@ -1026,6 +1030,89 @@ const SchemeMaster = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Subscription Amount for Premium */}
+                {formData.schemeType === "Premium" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Subscription Amount <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter subscription amount"
+                      value={formData.subscriptionAmount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          subscriptionAmount: e.target.value,
+                        })
+                      }
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const existingViews = formData.views || [];
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id),
+                          );
+                          const uniqueUsers = existingUsers.filter(
+                            (user, index, self) => {
+                              const userId = user.id || user._id;
+                              return (
+                                index ===
+                                self.findIndex((u) => (u.id || u._id) === userId)
+                              );
+                            },
+                          );
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setActiveUserTab("distributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">
+                          Click to select users
+                        </span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
             </div>
