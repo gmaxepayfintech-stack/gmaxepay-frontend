@@ -818,8 +818,8 @@ const SchemeMaster = () => {
                           setUserPage(1);
                           setUserSearchQuery("");
                           setDebouncedUserSearchQuery("");
-
                           setIsEditModalOpen(true);
+                          setIsModalOpen(true);
                         }}
                         className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
                         title="Edit Scheme"
@@ -1243,30 +1243,63 @@ const SchemeMaster = () => {
             {/* Footer */}
             <div className="bg-white border-t px-4 sm:px-6 py-3 flex gap-3">
               <button
-                onClick={() => setIsModalOpen(false)}
+                onClick={() => {
+                  setIsModalOpen(false);
+                  setIsEditModalOpen(false);
+                  setSelectedScheme(null);
+                  setSelectedUserIds([]);
+                  setSelectedUsersData([]);
+                  setFormData({
+                    schemeName: "",
+                    schemeMode: "Global",
+                    schemeType: "Free",
+                    subscriptionAmount: "",
+                    views: [],
+                  });
+                }}
                 className="flex-1 h-12 border border-[#1B1717]/60 rounded-xl
                      text-[#1B1717]/80 hover:bg-gray-50 transition"
               >
                 Cancel
               </button>
 
-              <button
-                type="button"
-                onClick={handleCreateSlab}
-                disabled={isCreating || slabsLoading}
-                className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
-                     text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed
-                     flex items-center justify-center gap-2"
-              >
-                {isCreating ? (
-                  <>
-                    <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
-                    <span>Creating...</span>
-                  </>
-                ) : (
-                  "Create"
-                )}
-              </button>
+              {isEditModalOpen ? (
+                <button
+                  type="button"
+                  onClick={handleUpdateSlab}
+                  disabled={isUpdating || slabsLoading}
+                  className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
+                       text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed
+                       flex items-center justify-center gap-2"
+                >
+                  {isUpdating ? (
+                    <>
+                      <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+                      <span>Updating...</span>
+                    </>
+                  ) : (
+                    "Update"
+                  )}
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleCreateSlab}
+                  disabled={isCreating || slabsLoading}
+                  className="flex-1 h-12 bg-[#039155] hover:bg-[#027A47]
+                       text-white rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed
+                       flex items-center justify-center gap-2"
+                >
+                  {isCreating ? (
+                    <>
+                      <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+                      <span>Creating...</span>
+                    </>
+                  ) : (
+                    "Create"
+                  )}
+                </button>
+              )}
             </div>
           </div>
         </div>
