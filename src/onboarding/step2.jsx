@@ -8,7 +8,7 @@ import {
 
 function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
-  const [successCooldown, setSuccessCooldown] = useState(18);
+  const [successCooldown, setSuccessCooldown] = useState(180);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -46,10 +46,16 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
     dispatch(emailResendOtp(value, token)).then((res) => {
       if (res?.status === 200 || res?.success === true) {
-        setSuccessCooldown(18);
+        setSuccessCooldown(180);
       }
     });
   };
+
+  // Get Redux state first (before using in functions)
+  const verifySuccess = useSelector(
+    (state) => state?.onboarding?.emailOtpSent?.status,
+  );
+  console.log("verifySuccess", verifySuccess);
 
   // Submit OTP verification
   const submitEmailOtp = () => {
@@ -64,7 +70,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
   // Handle Verify or Resend based on state
   const handleVerifyOrResend = () => {
-    if (verifuSuccess === "SUCCESS") {
+    if (verifySuccess === "SUCCESS") {
       // Already sent, resend if countdown is 0
       if (successCooldown === 0) {
         handleResendOtp();
@@ -74,11 +80,6 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
       sendEmailOtp();
     }
   };
-
-  const verifuSuccess = useSelector(
-    (state) => state?.onboarding?.emailOtpSent?.status,
-  );
-  console.log("verifuSuccess", verifuSuccess);
 
   const verifyfailure = useSelector((state) => state?.error?.status);
   console.log("verifyfailure", verifyfailure);
@@ -95,10 +96,10 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
   // Handle 3-minute countdown when verification is successful
   useEffect(() => {
-    if (verifuSuccess === "SUCCESS") {
-      setSuccessCooldown(18);
+    if (verifySuccess === "SUCCESS") {
+      setSuccessCooldown(180);
     }
-  }, [verifuSuccess]);
+  }, [verifySuccess]);
 
   // Countdown timer logic
   useEffect(() => {
@@ -128,7 +129,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     } else if (emailVerifyStatus && emailVerifyStatus !== "SUCCESS") {
       setVerifyError(emailVerifyMessage || "OTP verification failed");
     }
-  }, [emailVerifyStatus, onRefreshSteps]);
+  }, [emailVerifyStatus, onRefreshSteps, onNext, emailVerifyMessage]);
 
   return (
     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
@@ -187,9 +188,9 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                 <button
                   type="button"
                   onClick={handleVerifyOrResend}
-                  disabled={verifuSuccess === "SUCCESS" && successCooldown > 0}
+                  disabled={verifySuccess === "SUCCESS" && successCooldown > 0}
                   className={`h-10 md:h-11 lg:h-14
-                px-3 md:px-4
+                px-5 md:px-8
                 border-[0.5px] border-l-0
                 ${verifyError ? "border-red-500" : "border-[#039155]"}
                 rounded-r-lg
@@ -200,16 +201,12 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                 transition
                 flex-shrink-0
                 ${
-                  verifuSuccess === "SUCCESS"
-                    ? "w-[90px] md:w-[100px] lg:w-[110px]"
-                    : "w-[80px] md:w-[90px] lg:w-[100px]"
-                } ${
-                  verifuSuccess === "SUCCESS" && successCooldown > 0
+                  verifySuccess === "SUCCESS" && successCooldown > 0
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-[#039155] text-white hover:bg-green-700"
                 }`}
                 >
-                  {verifuSuccess === "SUCCESS"
+                  {verifySuccess === "SUCCESS"
                     ? successCooldown > 0
                       ? `Resend OTP in (${successCooldown}s)`
                       : "Resend OTP"

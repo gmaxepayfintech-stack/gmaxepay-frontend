@@ -316,7 +316,8 @@ export const emailOtpVerify = (values, token) => async (dispatch) => {
   }
 };
 
-export const aadhaarConnection = (token) => async (dispatch) => {
+export const aadhaarConnection = () => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -357,7 +358,9 @@ export const aadhaarConnection = (token) => async (dispatch) => {
   }
 };
 
-export const aadhaarDownload = (value,token) => async (dispatch) => {
+export const aadhaarDownload = (value) => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
+
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -396,7 +399,8 @@ export const aadhaarDownload = (value,token) => async (dispatch) => {
   }
 };
 
-export const uploadAadhaarDocuments = (frontImage, backImage, token) => async (dispatch) => {
+export const uploadAadhaarDocuments = (frontImage, backImage) => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
   dispatch({ type: LOADING_START });
   try {
     const formData = new FormData();
@@ -445,6 +449,7 @@ export const uploadAadhaarDocuments = (frontImage, backImage, token) => async (d
 };
 
 export const panConnection = (token) => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -485,7 +490,8 @@ export const panConnection = (token) => async (dispatch) => {
   }
 };
 
-export const panDownload = (value, token) => async (dispatch) => {
+export const panDownload = (value) => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
@@ -524,7 +530,9 @@ export const panDownload = (value, token) => async (dispatch) => {
   }
 };
 
-export const uploadPanDocument = (panImage, token) => async (dispatch) => {
+export const uploadPanDocument = (panImage) => async (dispatch) => {
+  const token = localStorage.getItem("onboardingToken");
+
   dispatch({ type: LOADING_START });
   try {
     const formData = new FormData();

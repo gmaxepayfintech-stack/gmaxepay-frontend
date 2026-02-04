@@ -84,10 +84,9 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
   const handleVerify = async () => {
     setLoading(true);
-    const token = localStorage.getItem("onboardingToken");
 
     try {
-      await dispatch(panConnection(token));
+      await dispatch(panConnection());
       setIsVerified(true);
       setShowTickMark(true); // Show tick mark for 3 minutes
       setFormData((d) => ({
@@ -108,16 +107,11 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
       console.error("Please verify PAN first!");
       return;
     }
-
-    const token = localStorage.getItem("onboardingToken");
-
     const payload = {
       document_type: "PAN",
     };
 
-    console.log("Dispatching PAN Download:", payload);
-
-    dispatch(panDownload(payload, token));
+    dispatch(panDownload(payload));
   };
 
   const handleImageChange = (e) => {
@@ -163,15 +157,9 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
     if (!panImage) {
       return;
     }
-
-    const token = localStorage.getItem("onboardingToken");
-    if (!token) {
-      return;
-    }
-
     setUploading(true);
     try {
-      await dispatch(uploadPanDocument(panImage, token));
+      await dispatch(uploadPanDocument(panImage));
     } catch (error) {
       console.error("Failed to upload PAN document:", error);
       setUploading(false);
@@ -275,21 +263,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
               {/* Buttons */}
               <div className="flex gap-6 mt-6">
-                <button
-                  onClick={handleDownload}
-                  disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md 
-
-                    ${
-                      !isConnectDone || isDownloadDone
-                        ? "text-gray-400 cursor-not-allowed border-gray-300"
-                        : "text-gray-700 hover:bg-gray-100"
-                    }`}
-                >
-                  {isDownloadDone ? "Downloaded" : "Download"}
-                </button>
-
-                <button
+              <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
@@ -302,11 +276,26 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                     }`}
                 >
                   {loading
-                    ? "Verifying..."
+                    ? "Connecting..."
                     : isConnectDone && showTickMark
-                      ? "Verified ✓"
-                      : "Verify"}
+                      ? "Connected ✓"
+                      : "Connect"}
                 </button>
+                
+                <button
+                  onClick={handleDownload}
+                  disabled={!isConnectDone || isDownloadDone}
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md 
+
+                    ${
+                      !isConnectDone || isDownloadDone
+                        ? "text-gray-400 cursor-not-allowed border-gray-300"
+                        : "text-gray-700 hover:bg-gray-100"
+                    }`}
+                >
+                  {isDownloadDone ? "Verified" : "Verify"}
+                </button>
+
               </div>
             </div>
 
