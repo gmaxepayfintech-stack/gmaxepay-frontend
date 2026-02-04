@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import {
   Search,
   Plus,
@@ -8,12 +8,15 @@ import {
   Lock,
   Grid3x3,
   X,
+  Check,
+  Pencil,
   ChevronDown,
 } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
-import { createUserSlab, getUserSlabList } from "../../../redux/action/slabAction";
+import { createUserSlab, getUserSlabList, updateUserSlab } from "../../../redux/action/slabAction";
+import { getReportToDownline } from "../../../redux/action/whiteLabelAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -26,8 +29,20 @@ const SchemeMaster = () => {
   
   // Redux state
   const slabState = useSelector((state) => state?.slab);
-  const { slabs, loading: slabsLoading, createSlabSuccess, createSlabMessage, createSlabError } = slabState || {};
+  const {
+    slabs,
+    loading: slabsLoading,
+    createSlabSuccess,
+    createSlabMessage,
+    createSlabError,
+    updateSlabSuccess,
+    updateSlabMessage,
+    updateSlabError,
+  } = slabState || {};
   const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const userModalRef = useRef(null);
 
   const [searchQuery, setSearchQuery] = useState("");
   const [activeFilter, setActiveFilter] = useState("All Schemes");
@@ -39,8 +54,18 @@ const SchemeMaster = () => {
     schemeName: "",
     schemeMode: "Global",
     schemeType: "Free",
+    subscriptionAmount: "",
+    views: [],
   });
   const modalRef = useRef(null);
+
+  const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
+  const [activeUserTab, setActiveUserTab] = useState("distributor");
+  const [userSearchQuery, setUserSearchQuery] = useState("");
+  const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
+  const [userPage, setUserPage] = useState(1);
+  const [selectedUserIds, setSelectedUserIds] = useState([]);
+  const [selectedUsersData, setSelectedUsersData] = useState([]);
 
   // Get company ID
   const getCompanyId = () => {
@@ -65,7 +90,11 @@ const SchemeMaster = () => {
         schemeName: "",
         schemeMode: "Global",
         schemeType: "Free",
+        subscriptionAmount: "",
+        views: [],
       });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
       // Reset to first page after creating (this will trigger fetch via the other useEffect)
       if (currentPage !== 1) {
         setCurrentPage(1);
@@ -87,20 +116,65 @@ const SchemeMaster = () => {
     }
   }, [createSlabError, showError]);
 
+  // Handle update success
+  useEffect(() => {
+    if (updateSlabSuccess && updateSlabMessage) {
+      success(updateSlabMessage || "Slab updated successfully");
+      setIsEditModalOpen(false);
+      setSelectedScheme(null);
+      setFormData({
+        schemeName: "",
+        schemeMode: "Global",
+        schemeType: "Free",
+        subscriptionAmount: "",
+        views: [],
+      });
+      setSelectedUserIds([]);
+      setSelectedUsersData([]);
+
+      // Refresh current page (and keep search)
+      const companyId = getCompanyId();
+      if (companyId) {
+        const customSearch = searchQuery ? { slabName: searchQuery } : {};
+        dispatch(getUserSlabList(companyId, currentPage, 6, customSearch));
+      }
+    }
+  }, [updateSlabSuccess, updateSlabMessage, dispatch, success, searchQuery, currentPage]);
+
+  // Handle update error
+  useEffect(() => {
+    if (updateSlabError) {
+      showError(updateSlabError);
+    }
+  }, [updateSlabError, showError]);
+
   // Close modal when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
+      if (showUserSelectionModal) return;
       if (modalRef.current && !modalRef.current.contains(event.target)) {
-        setIsModalOpen(false);
+        if (userModalRef.current && !userModalRef.current.contains(event.target)) {
+          setIsModalOpen(false);
+          setIsEditModalOpen(false);
+        }
       }
     };
-    if (isModalOpen) {
+    if (isModalOpen || isEditModalOpen) {
       document.addEventListener("mousedown", handleClickOutside);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isModalOpen]);
+  }, [isModalOpen, isEditModalOpen, showUserSelectionModal]);
+
+  // Debounce user search
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedUserSearchQuery(userSearchQuery);
+      setUserPage(1);
+    }, 500);
+    return () => clearTimeout(timer);
+  }, [userSearchQuery]);
 
   //Reset page when search or filter changes and refetch
   useEffect(() => {
@@ -111,6 +185,130 @@ const SchemeMaster = () => {
       dispatch(getUserSlabList(companyId, 1, 6, customSearch));
     }
   }, [searchQuery, activeFilter, dispatch]);
+
+  // Fetch users when user selection modal opens
+  useEffect(() => {
+    if (!showUserSelectionModal) return;
+    const companyId = getCompanyId();
+    if (!companyId) return;
+
+    const roleMap = {
+      distributor: 4,
+      retailer: 5,
+    };
+    const userRole = roleMap[activeUserTab];
+
+    const payload = {
+      query: { userRole },
+      customSearch: debouncedUserSearchQuery.trim()
+        ? {
+            mobileNo: debouncedUserSearchQuery.trim(),
+            name: debouncedUserSearchQuery.trim(),
+          }
+        : {},
+      options: {
+        page: userPage,
+        paginate: 10,
+        order: [["name", "ASC"]],
+      },
+    };
+
+    dispatch(getReportToDownline({ ...payload, companyId }));
+  }, [showUserSelectionModal, activeUserTab, userPage, debouncedUserSearchQuery, dispatch]);
+
+  // Reset user search when modal closes
+  useEffect(() => {
+    if (showUserSelectionModal) return;
+    setUserSearchQuery("");
+    setDebouncedUserSearchQuery("");
+    setUserPage(1);
+    setActiveUserTab("distributor");
+  }, [showUserSelectionModal]);
+
+  // Get users list from Redux
+  const usersListRaw = useSelector(
+    (state) => state?.whitelabel?.reportToDownlineList?.reportToDownlineList || [],
+  );
+  const usersList = useMemo(
+    () => (Array.isArray(usersListRaw) ? usersListRaw : []),
+    [usersListRaw],
+  );
+  const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const usersTotalCount = useSelector((state) => {
+    const response = state?.whitelabel?.reportToDownlineList;
+    return response?.totalCount || usersList.length || 0;
+  });
+  const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
+
+  const handleUserToggle = (user) => {
+    const userId = user.id || user._id;
+    if (!userId) return;
+
+    setSelectedUserIds((prev) => {
+      if (prev.includes(userId)) {
+        setSelectedUsersData((prevData) =>
+          prevData.filter((u) => (u.id || u._id) !== userId),
+        );
+        return prev.filter((id) => id !== userId);
+      }
+
+      setSelectedUsersData((prevData) => {
+        const existingIds = prevData.map((u) => u.id || u._id);
+        if (existingIds.includes(userId)) return prevData;
+        return [...prevData, user];
+      });
+      return [...prev, userId];
+    });
+  };
+
+  const handleSelectAllUsers = () => {
+    const currentTabUserIds = usersList
+      .map((u) => u.id || u._id)
+      .filter(Boolean);
+    const uniqueCurrentTabUserIds = [...new Set(currentTabUserIds)];
+    const allCurrentTabSelected =
+      uniqueCurrentTabUserIds.length > 0 &&
+      uniqueCurrentTabUserIds.every((id) => selectedUserIds.includes(id));
+
+    if (allCurrentTabSelected) {
+      setSelectedUserIds((prev) =>
+        prev.filter((id) => !uniqueCurrentTabUserIds.includes(id)),
+      );
+      setSelectedUsersData((prev) =>
+        prev.filter((u) => !uniqueCurrentTabUserIds.includes(u.id || u._id)),
+      );
+      return;
+    }
+
+    const uniqueUsers = usersList.filter((user, index, self) => {
+      const id = user.id || user._id;
+      return index === self.findIndex((u) => (u.id || u._id) === id);
+    });
+
+    setSelectedUserIds((prev) => [...new Set([...prev, ...uniqueCurrentTabUserIds])]);
+    setSelectedUsersData((prev) => {
+      const existingIds = prev.map((u) => u.id || u._id);
+      const newUsers = uniqueUsers.filter((u) => !existingIds.includes(u.id || u._id));
+      return [...prev, ...newUsers];
+    });
+  };
+
+  const handleConfirmUserSelection = () => {
+    setFormData((prev) => ({
+      ...prev,
+      views: selectedUserIds,
+    }));
+    setShowUserSelectionModal(false);
+  };
+
+  const getSelectedUsersDisplay = () => {
+    if (selectedUsersData.length === 0) return "";
+    if (selectedUsersData.length === 1) {
+      const u = selectedUsersData[0];
+      return `${u.name || "N/A"} - ${u.mobileNo || u.mobile || "N/A"}`;
+    }
+    return `${selectedUsersData.length} users selected`;
+  };
 
   // Map API slabs to scheme format
   const mapSlabToScheme = (slab) => {
@@ -173,10 +371,8 @@ const SchemeMaster = () => {
   // Handle create slab
   const handleCreateSlab = async (e) => {
     e?.preventDefault?.();
-    console.log("handleCreateSlab called");
     const companyId = getCompanyId();
     if (!companyId) {
-      console.error("Company ID not found");
       showError("Company ID not found. Please refresh the page.");
       return;
     }
@@ -186,24 +382,117 @@ const SchemeMaster = () => {
       return;
     }
 
-    console.log("Creating slab with data:", formData);
-    console.log("Company ID:", companyId);
+    // Validate private mode requires views
+    if (
+      formData.schemeMode === "Private" &&
+      (!formData.views || formData.views.length === 0)
+    ) {
+      showError("Please select at least one user for private schemes");
+      return;
+    }
+
+    // Validate premium type requires subscription amount
+    if (formData.schemeType === "Premium") {
+      const amount = formData.subscriptionAmount;
+      if (
+        amount === null ||
+        amount === undefined ||
+        amount === "" ||
+        isNaN(parseFloat(amount)) ||
+        parseFloat(amount) < 0
+      ) {
+        showError("Please enter a valid subscription amount for premium schemes");
+        return;
+      }
+    }
+
+    const slabDataToSend = {
+      ...formData,
+      views: formData.views || [],
+      subscriptionAmount: formData.subscriptionAmount
+        ? parseFloat(formData.subscriptionAmount)
+        : 0,
+    };
 
     setIsCreating(true);
     try {
-      const result = await dispatch(createUserSlab(formData, companyId));
-      console.log("Create slab result:", result);
-      if (result?.success) {
-        // Success is handled in useEffect
-        // List refresh is handled in the action
-      } else {
+      const result = await dispatch(createUserSlab(slabDataToSend, companyId));
+      if (!result?.success) {
         showError(result?.message || "Failed to create slab. Please try again.");
       }
     } catch (error) {
-      console.error("Error creating slab:", error);
       showError(error?.message || "An error occurred while creating the slab. Please try again.");
     } finally {
       setIsCreating(false);
+    }
+  };
+
+  // Handle update slab
+  const handleUpdateSlab = async (e) => {
+    e?.preventDefault?.();
+    const companyId = getCompanyId();
+    if (!companyId) {
+      showError("Company ID not found. Please refresh the page.");
+      return;
+    }
+
+    if (!selectedScheme?.id) {
+      showError("No scheme selected. Please try again.");
+      return;
+    }
+
+    if (!formData.schemeName || !formData.schemeName.trim()) {
+      showError("Please enter a scheme name");
+      return;
+    }
+
+    // Validate private mode requires views
+    if (
+      formData.schemeMode === "Private" &&
+      (!formData.views || formData.views.length === 0)
+    ) {
+      showError("Please select at least one user for private schemes");
+      return;
+    }
+
+    // Validate premium type requires subscription amount
+    if (formData.schemeType === "Premium") {
+      const amount = formData.subscriptionAmount;
+      if (
+        amount === null ||
+        amount === undefined ||
+        amount === "" ||
+        isNaN(parseFloat(amount)) ||
+        parseFloat(amount) < 0
+      ) {
+        showError("Please enter a valid subscription amount for premium schemes");
+        return;
+      }
+    }
+
+    const slabDataToSend = {
+      ...formData,
+      views: formData.views || [],
+      subscriptionAmount: formData.subscriptionAmount
+        ? parseFloat(formData.subscriptionAmount)
+        : 0,
+    };
+
+    setIsUpdating(true);
+    try {
+      const result = await dispatch(
+        updateUserSlab(selectedScheme.id, slabDataToSend, companyId),
+      );
+      if (!result?.success) {
+        showError(result?.message || "Failed to update slab. Please try again.");
+      }
+    } catch (error) {
+      showError(
+        error?.message ||
+          "An error occurred while updating the slab. Please try again.",
+      );
+    } finally {
+      setIsUpdating(false);
     }
   };
 
@@ -389,16 +678,59 @@ const SchemeMaster = () => {
                     </div>
                   </div>
 
-                  {/* Status Indicator */}
-                  <div
-                    className={`flex items-center rounded-3xl
-              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0 mt-2
-              ${scheme.isActive ? 'bg-[#008D1E]' : 'bg-gray-500'}`}
-                  >
-                    <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? 'bg-white' : 'bg-white'}`} />
-                    <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
-                      {scheme.status}
-                    </span>
+                  {/* Status Indicator and Edit Button */}
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedScheme(scheme);
+                        setFormData({
+                          schemeName: scheme.name || "",
+                          schemeMode:
+                            scheme?.schemaMode
+                              ? scheme.schemaMode === "global"
+                                ? "Global"
+                                : "Private"
+                              : scheme?.visibilityType || "Global",
+                          schemeType:
+                            scheme?.schemaType
+                              ? scheme.schemaType === "free"
+                                ? "Free"
+                                : "Premium"
+                              : "Free",
+                          subscriptionAmount:
+                            scheme?.subscriptionAmount !== undefined &&
+                            scheme?.subscriptionAmount !== null
+                              ? String(scheme.subscriptionAmount)
+                              : "",
+                          views: Array.isArray(scheme?.views) ? scheme.views : [],
+                        });
+                        // Sync selection state for modal
+                        const viewIds = Array.isArray(scheme?.views) ? scheme.views : [];
+                        setSelectedUserIds(viewIds);
+                        // We may not have user objects here; keep any existing selections
+                        if (viewIds.length === 0) {
+                          setSelectedUsersData([]);
+                        }
+                        setIsEditModalOpen(true);
+                      }}
+                      className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
+                      title="Edit Scheme"
+                      type="button"
+                    >
+                      <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                    </button>
+
+                    <div
+                      className={`flex items-center rounded-3xl
+              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0
+              ${scheme.isActive ? "bg-[#008D1E]" : "bg-gray-500"}`}
+                    >
+                      <div className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? "bg-white" : "bg-white"}`} />
+                      <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
+                        {scheme.status}
+                      </span>
+                    </div>
                   </div>
                 </div>
 
@@ -603,6 +935,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeMode: e.target.value,
+                              // Clear views when switching to Global
+                              views: e.target.value === "Global" ? [] : formData.views,
                             })
                           }
                           className="sr-only"
@@ -662,6 +996,8 @@ const SchemeMaster = () => {
                             setFormData({
                               ...formData,
                               schemeType: e.target.value,
+                              // Clear subscriptionAmount when switching to Free
+                              subscriptionAmount: e.target.value === "Free" ? "" : formData.subscriptionAmount,
                             })
                           }
                           className="sr-only"
@@ -694,6 +1030,89 @@ const SchemeMaster = () => {
                     ))}
                   </div>
                 </div>
+
+                {/* Subscription Amount for Premium */}
+                {formData.schemeType === "Premium" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Subscription Amount <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="number"
+                      placeholder="Enter subscription amount"
+                      value={formData.subscriptionAmount}
+                      onChange={(e) =>
+                        setFormData({
+                          ...formData,
+                          subscriptionAmount: e.target.value,
+                        })
+                      }
+                      min="0"
+                      step="0.01"
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                )}
+
+                {/* User Selection for Private Mode */}
+                {formData.schemeMode === "Private" && (
+                  <div className="mb-4 sm:mb-5">
+                    <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-1.5">
+                      Select Users <span className="text-red-500">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const existingViews = formData.views || [];
+                        const uniqueViews = [...new Set(existingViews)];
+                        if (uniqueViews.length > 0) {
+                          const existingUsers = usersList.filter((user) =>
+                            uniqueViews.includes(user.id || user._id),
+                          );
+                          const uniqueUsers = existingUsers.filter(
+                            (user, index, self) => {
+                              const userId = user.id || user._id;
+                              return (
+                                index ===
+                                self.findIndex((u) => (u.id || u._id) === userId)
+                              );
+                            },
+                          );
+                          setSelectedUserIds(uniqueViews);
+                          setSelectedUsersData(uniqueUsers);
+                        } else {
+                          setSelectedUserIds([]);
+                          setSelectedUsersData([]);
+                        }
+                        setActiveUserTab("distributor");
+                        setUserPage(1);
+                        setUserSearchQuery("");
+                        setDebouncedUserSearchQuery("");
+                        setShowUserSelectionModal(true);
+                      }}
+                      className="w-full px-3 sm:px-4 py-2.5 sm:py-3
+                       border border-[#1B1717]/70 rounded-lg
+                       font-[gilroy-medium] text-sm sm:text-base
+                       focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    >
+                      {selectedUsersData.length > 0 ? (
+                        <span className="truncate">{getSelectedUsersDisplay()}</span>
+                      ) : (
+                        <span className="text-[#1B1717]/50">
+                          Click to select users
+                        </span>
+                      )}
+                    </button>
+                    {selectedUsersData.length > 0 && (
+                      <p className="text-xs text-[#1B1717]/70 mt-1">
+                        {selectedUsersData.length} user(s) selected
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
 
             </div>
