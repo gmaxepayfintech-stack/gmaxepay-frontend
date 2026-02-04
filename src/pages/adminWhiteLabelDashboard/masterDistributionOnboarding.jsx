@@ -244,9 +244,7 @@ const MasterDistributionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
@@ -301,6 +299,9 @@ const MasterDistributionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -327,10 +328,7 @@ const MasterDistributionOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
-                        {row.date || "N/A"}
-                      </td>
+
                       {/* User ID */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -543,6 +541,10 @@ const MasterDistributionOnboarding = ({
                           );
                         })()}
                       </td>
+                      {/* Date */}
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
+                        {row.date || "N/A"}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -648,9 +650,7 @@ const MasterDistributionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
@@ -705,6 +705,10 @@ const MasterDistributionOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
+
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -731,10 +735,7 @@ const MasterDistributionOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.date || "N/A"}
-                      </td>
+
                       {/* User ID */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -946,6 +947,10 @@ const MasterDistributionOnboarding = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))

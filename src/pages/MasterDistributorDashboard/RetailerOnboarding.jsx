@@ -340,9 +340,7 @@ const RetailerOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
@@ -397,6 +395,9 @@ const RetailerOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -418,9 +419,7 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
-                        {formatDate(row.date)}
-                      </td>
+
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {safeString(row.userId, "N/A")}
                       </td>
@@ -659,6 +658,9 @@ const RetailerOnboarding = ({
                           );
                         })()}
                       </td>
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
+                        {formatDate(row.date)}
+                      </td>
                     </tr>
                   ))
                 )}
@@ -773,9 +775,7 @@ const RetailerOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
+
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
@@ -824,6 +824,9 @@ const RetailerOnboarding = ({
                   <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Lock Status
                   </th>
+                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    Date
+                  </th>
                 </tr>
               </thead>
 
@@ -845,9 +848,7 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {formatDate(row.date)}
-                      </td>
+
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {safeString(row.userId, "N/A")}
                       </td>
@@ -1040,6 +1041,9 @@ const RetailerOnboarding = ({
                             </button>
                           );
                         })()}
+                      </td>
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                        {formatDate(row.date)}
                       </td>
                     </tr>
                   ))
