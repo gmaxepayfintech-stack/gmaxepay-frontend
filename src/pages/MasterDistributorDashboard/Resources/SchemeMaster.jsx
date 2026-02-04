@@ -415,7 +415,7 @@ const SchemeMaster = () => {
 
     setIsCreating(true);
     try {
-      const result = dispatch(createUserSlab(slabDataToSend, companyId));
+      const result = await dispatch(createUserSlab(slabDataToSend, companyId));
       if (!result?.success) {
         showError(result?.message || "Failed to create slab. Please try again.");
       }
@@ -479,7 +479,7 @@ const SchemeMaster = () => {
 
     setIsUpdating(true);
     try {
-      const result = dispatch(
+      const result = await dispatch(
         updateUserSlab(selectedScheme.id, slabDataToSend, companyId),
       );
       if (!result?.success) {
