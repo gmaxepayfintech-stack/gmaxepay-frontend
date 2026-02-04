@@ -6,7 +6,7 @@ import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getMDSlabList } from "../../redux/action/slabAction";
 import { userUpgradeSubscription } from "../../redux/action/subscriptionAction";
-import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
@@ -40,8 +40,6 @@ const MasterDistributerProfile = ({ onBack = null }) => {
   // mdDetailsState contains { mdDetails, message, status }
   const mdDetailsData = mdDetailsState?.mdDetails || null;
 
-  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-
   // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
@@ -65,9 +63,9 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     (state) => state?.subscription?.userUpgradeError || null,
   );
 
-  // Get wallet balance from Redux
-  const companyWalletBalance = useSelector(
-    (state) => state?.wallet?.companyWalletBalance || null,
+  // Get wallet balance from Redux (user wallet for MD)
+  const userWalletBalance = useSelector(
+    (state) => state?.wallet?.userWalletBalance || null,
   );
   const walletBalanceLoading = useSelector(
     (state) => state?.loading?.isLoading || false,
@@ -138,7 +136,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
       if (!isSubscribed) {
-        dispatch(getCompanyWalletBalance());
+        dispatch(getUserWalletBalance());
       }
     }
   }, [showConfirmModal, selectedScheme, slabList, dispatch]);
@@ -171,6 +169,77 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
+  // Show skeleton while loading user details or slab visibility
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
+    return (
+      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+        {/* Cover Picture Section Skeleton */}
+        <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+          <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+            <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+              <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Section Skeleton */}
+        <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+              <div className="flex-1">
+                <SkeletonLoader className="h-6 w-48 mb-4" />
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <SkeletonLoader className="h-4 w-24" />
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-20" />
+                  <SkeletonLoader className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+              <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+            </div>
+          </div>
+
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+              >
+                <SkeletonLoader className="w-12 h-12 rounded" />
+                <div className="flex-1">
+                  <SkeletonLoader className="h-5 w-16 mb-2" />
+                  <SkeletonLoader className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+          <SkeletonLoader className="h-6 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <SkeletonLoader className="h-4 w-32" />
+                <SkeletonLoader className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -965,10 +1034,10 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                         <p className="text-lg font-semibold text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
-                          ) : companyWalletBalance?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.mainWallet}`
-                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.data.mainWallet}`
+                          ) : userWalletBalance?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.mainWallet}`
+                          ) : userWalletBalance?.data?.data?.mainWallet ? (
+                            `₹${userWalletBalance.data.data.mainWallet}`
                           ) : (
                             <span className="text-gray-400">N/A</span>
                           )}

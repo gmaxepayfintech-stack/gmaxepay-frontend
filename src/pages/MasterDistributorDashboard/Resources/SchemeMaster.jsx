@@ -15,7 +15,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
 import { createUserSlab, getUserSlabList, updateUserSlab } from "../../../redux/action/slabAction";
-import { getReportToUserList } from "../../../redux/action/whiteLabelAction";
+import { getReportToDownline } from "../../../redux/action/whiteLabelAction";
 import EditMembership from "./EditMembership";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -59,7 +59,7 @@ const SchemeMaster = () => {
   const userModalRef = useRef(null);
 
   const [showUserSelectionModal, setShowUserSelectionModal] = useState(false);
-  const [activeUserTab, setActiveUserTab] = useState("masterDistributor"); // masterDistributor, distributor, retailer
+  const [activeUserTab, setActiveUserTab] = useState("distributor"); // distributor, retailer
   const [userSearchQuery, setUserSearchQuery] = useState("");
   const [debouncedUserSearchQuery, setDebouncedUserSearchQuery] = useState("");
   const [userPage, setUserPage] = useState(1);
@@ -182,7 +182,6 @@ const SchemeMaster = () => {
     if (!companyId) return;
 
     const roleMap = {
-      masterDistributor: 3,
       distributor: 4,
       retailer: 5,
     };
@@ -203,7 +202,7 @@ const SchemeMaster = () => {
       },
     };
 
-    dispatch(getReportToUserList({ ...payload, companyId }));
+    dispatch(getReportToDownline({ ...payload, companyId }));
   }, [showUserSelectionModal, activeUserTab, userPage, debouncedUserSearchQuery, dispatch]);
 
   // Reset user search when modal closes
@@ -212,12 +211,12 @@ const SchemeMaster = () => {
     setUserSearchQuery("");
     setDebouncedUserSearchQuery("");
     setUserPage(1);
-    setActiveUserTab("masterDistributor");
+    setActiveUserTab("distributor");
   }, [showUserSelectionModal]);
 
   // Get users list from Redux
   const usersListRaw = useSelector(
-    (state) => state?.whitelabel?.reportToUserList?.userList || [],
+    (state) => state?.whitelabel?.reportToDownlineList?.reportToDownlineList || [],
   );
   const usersList = useMemo(
     () => (Array.isArray(usersListRaw) ? usersListRaw : []),
@@ -225,7 +224,7 @@ const SchemeMaster = () => {
   );
   const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
   const usersTotalCount = useSelector((state) => {
-    const response = state?.whitelabel?.reportToUserList;
+    const response = state?.whitelabel?.reportToDownlineList;
     return response?.totalCount || usersList.length || 0;
   });
   const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
@@ -416,7 +415,7 @@ const SchemeMaster = () => {
 
     setIsCreating(true);
     try {
-      const result = dispatch(createUserSlab(slabDataToSend, companyId));
+      const result = await dispatch(createUserSlab(slabDataToSend, companyId));
       if (!result?.success) {
         showError(result?.message || "Failed to create slab. Please try again.");
       }
@@ -480,7 +479,7 @@ const SchemeMaster = () => {
 
     setIsUpdating(true);
     try {
-      const result = dispatch(
+      const result = await dispatch(
         updateUserSlab(selectedScheme.id, slabDataToSend, companyId),
       );
       if (!result?.success) {
@@ -1094,7 +1093,7 @@ const SchemeMaster = () => {
                           setSelectedUserIds([]);
                           setSelectedUsersData([]);
                         }
-                        setActiveUserTab("masterDistributor");
+                        setActiveUserTab("distributor");
                         setUserPage(1);
                         setUserSearchQuery("");
                         setDebouncedUserSearchQuery("");
@@ -1439,7 +1438,7 @@ const SchemeMaster = () => {
                           setSelectedUserIds([]);
                           setSelectedUsersData([]);
                         }
-                        setActiveUserTab("masterDistributor");
+                        setActiveUserTab("distributor");
                         setUserPage(1);
                         setUserSearchQuery("");
                         setDebouncedUserSearchQuery("");
@@ -1547,17 +1546,14 @@ const SchemeMaster = () => {
                 <div
                   className="absolute top-1.5 bottom-1.5 bg-[#039155] rounded-lg transition-all duration-300 ease-in-out shadow-md"
                   style={{
-                    width: `calc(33.333% - 0.375rem)`,
+                    width: `calc(50% - 0.375rem)`,
                     left:
-                      activeUserTab === "masterDistributor"
+                      activeUserTab === "distributor"
                         ? "0.375rem"
-                        : activeUserTab === "distributor"
-                          ? "calc(33.333% + 0.1875rem)"
-                          : "calc(66.666% + 0.1875rem)",
+                        : "calc(50% + 0.1875rem)",
                   }}
                 />
                 {[
-                  { key: "masterDistributor", label: "Master Distributor" },
                   { key: "distributor", label: "Distributor" },
                   { key: "retailer", label: "Retailer" },
                 ].map((tab) => (
