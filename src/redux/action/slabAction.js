@@ -1280,6 +1280,7 @@ export const createUserSlab = (slabData, companyId) => async (dispatch) => {
       schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
       schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
       subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
     };
 
     console.log('Creating user slab with payload:', payload);
@@ -1341,6 +1342,106 @@ export const createUserSlab = (slabData, companyId) => async (dispatch) => {
     
     dispatch({
       type: SLAB_CREATE_FAILURE,
+      payload: errorMessage,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Update slab for user
+export const updateUserSlab = (slabId, slabData, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: SLAB_UPDATE_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    if (!slabId) {
+      console.error('No slab ID provided');
+      throw new Error('Slab ID is required');
+    }
+
+    const payload = {
+      slabName: slabData.schemeName || slabData.slabName || '',
+      schemaMode: (slabData.schemeMode || slabData.schemaMode || 'global').toLowerCase(),
+      schemaType: (slabData.schemeType || slabData.schemaType || 'free').toLowerCase(),
+      subscriptionAmount: slabData.subscriptionAmount || 0,
+      views: slabData.views || [],
+    };
+
+    console.log('Updating user slab with payload:', payload);
+    console.log('API Route:', `${API_ROUTE}/api/v1/user/slab/update/${slabId}`);
+    console.log('Company ID:', companyId);
+    console.log('Slab ID:', slabId);
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/user/slab/update/${slabId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    console.log('API Response:', response);
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: SLAB_UPDATE_SUCCESS,
+        payload: {
+          data: data?.data || null,
+          status: data?.status,
+          message: data?.message || 'Slab updated successfully',
+        },
+      });
+      dispatch({ type: LOADING_END });
+
+      // Refresh the list after updating (with default page 1 and paginate 6)
+      dispatch(getUserSlabList(companyId, 1, 6));
+
+      return {
+        success: true,
+        data: data?.data,
+        message: data?.message || 'Slab updated successfully',
+      };
+    }
+
+    dispatch({
+      type: SLAB_UPDATE_FAILURE,
+      payload: data?.message || commonError,
+    });
+    dispatch({ type: LOADING_END });
+    return {
+      success: false,
+      message: data?.message || commonError,
+    };
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+
+    dispatch({
+      type: SLAB_UPDATE_FAILURE,
       payload: errorMessage,
     });
     dispatch({ type: LOADING_END });
