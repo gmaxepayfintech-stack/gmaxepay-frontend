@@ -246,8 +246,6 @@ const RetailerProfile = ({ onBack = null }) => {
         </div>
       );
     }
-    console.log('upgradeError',upgradeError);
-    
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
