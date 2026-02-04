@@ -9,26 +9,58 @@ const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
 
 const servicesData = [
-  { id: "mobile-dth", title: "Recharge", status: "available" },
-  { id: "Aeps", title: "AEPS", status: "available" },
-  { id: "BBPS", title: "BBPS", status: "available" },
-  { id: "dmt-1", title: "DMT-1", status: "available" },
-  { id: "dmt-2", title: "DMT-2", status: "available" },
-  { id: "pan", title: "PAN", status: "available" },
-  { id: "micro-atm", title: "Micro ATM", status: "available" },
-  { id: "cms-1", title: "CMS-1", status: "available" },
-  { id: "cms-2", title: "CMS-2", status: "available" },
-  { id: "unified-dmt", title: "Unified DMT", status: "available" },
-  { id: "dmt", title: "DMT", status: "available" },
-  { id: "dmt-11", title: "DMT-1", status: "available" },
-  { id: "pan-card", title: "Pan Card Creation", status: "subscribed" },
-  { id: "aeps-cash-deposit", title: "AEPS Cash Deposit", status: "subscribed" },
+  {
+    id: "mobile-dth",
+    title: "Recharge",
+    status: "available",
+    logo: "/img/MobileRecharge.svg",
+  },
+  { id: "Aeps", title: "AEPS", status: "available", logo: "/img/AEPS.svg" },
+  { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
+  {
+    id: "dth-recharge",
+    title: "DTH Recharge",
+    status: "available",
+    logo: "/img/DTH1.svg",
+  },
+  { id: "dmt-1", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
+  { id: "dmt-2", title: "DMT-2", status: "available", logo: "/img/DMT.svg" },
+  {
+    id: "pan",
+    title: "PAN",
+    status: "available",
+    logo: "/img/PanCorrection.svg",
+  },
+  {
+    id: "micro-atm",
+    title: "Micro ATM",
+    status: "available",
+    logo: "/img/MATM.svg",
+  },
+  { id: "cms-1", title: "CMS-1", status: "available", logo: "/img/CMS.svg" },
+  { id: "cms-2", title: "CMS-2", status: "available", logo: "/img/CMS.svg" },
+  {
+    id: "unified-dmt",
+    title: "Unified DMT",
+    status: "available",
+    logo: "/img/DMT.svg",
+  },
+  { id: "dmt", title: "DMT", status: "available", logo: "/img/DMT.svg" },
+  { id: "dmt-11", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
+  {
+    id: "aeps-cash-deposit",
+    title: "AEPS Cash Deposit",
+    status: "subscribed",
+    logo: "/img/AEPS.svg",
+  },
   { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
   { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
-  { id: "dth-recharge", title: "DTH Recharge", status: "available" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
-const ServiceCard = ({ title, description, onClick }) => {
+const ServiceCard = ({ title, description, onClick, logo, status }) => {
+  // Show logo if status is "available", otherwise show MobileIcon
+  const iconSrc = status === "available" && logo ? logo : MobileIcon;
+
   return (
     <button
       type="button"
@@ -38,9 +70,9 @@ const ServiceCard = ({ title, description, onClick }) => {
       <div className="flex gap-3">
         <div className="w-[60px] h-[60px] rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
           <img
-            src={MobileIcon}
-            alt="MobileIcon"
-            className="w-[32px] h-[32px]"
+            src={iconSrc}
+            alt={status === "available" && logo ? title : "Service Icon"}
+            className=""
           />
         </div>
         <div className="min-w-0 flex flex-col justify-center">
@@ -60,6 +92,8 @@ ServiceCard.propTypes = {
   title: PropTypes.string.isRequired,
   description: PropTypes.string.isRequired,
   onClick: PropTypes.func,
+  logo: PropTypes.string,
+  status: PropTypes.string,
 };
 
 const Services = () => {
@@ -159,6 +193,8 @@ const Services = () => {
             key={s.id}
             title={s.title}
             description={s.description}
+            logo={s.logo}
+            status={s.status}
             onClick={() => {
               if (s.id === "mobile-dth") {
                 handleMobileRechargeClick();

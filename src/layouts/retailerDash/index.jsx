@@ -15,12 +15,14 @@ import UserPerformance from "../../pages/retailerDashboard/Reports/UserPerforman
 import TaxHistory from "../../pages/retailerDashboard/TaxHistory";
 import BBPSServices from "../../pages/retailerDashboard/services/BBPSServices";
 import PanService from "../../pages/retailerDashboard/services/PanService";
+import RetailerProfile from "../../pages/retailerDashboard/retailerProfile";
 const RetailerDash = () => {
   return (
     <RetailerDashLayout>
       <Routes>
         <Route path="/" element={<RetailerDashboard />} />
         <Route path="/home" element={<RetailerDashboard />} />
+        <Route path="/profile" element={<RetailerProfile />} />
         <Route path="/services" element={<Services />} />
         <Route path="/services/recharge" element={<MobileRecharge />} />
         <Route path="/onboarding-aeps" element={<OnBoardingAeps />} />
@@ -30,10 +32,7 @@ const RetailerDash = () => {
           element={<OnBoardingAepsTwo />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
-        <Route
-          path="/services/pan-service"
-          element={<PanService />}
-        />
+        <Route path="/services/pan-service" element={<PanService />} />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
 
         <Route

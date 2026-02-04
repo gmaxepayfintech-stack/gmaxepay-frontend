@@ -59,6 +59,15 @@ const initialState = {
   visibilityError: null,
   visibilityData: [],
   visibilitySuccess: false,
+  // User slab list state (for getMDSlabList)
+  userList: [],
+  userListTotal: 0,
+  userListPaginator: {
+    itemCount: 0,
+    perPage: 6,
+    pageCount: 1,
+    currentPage: 1,
+  },
 };
 
 const slabReducer = (state = initialState, action) => {

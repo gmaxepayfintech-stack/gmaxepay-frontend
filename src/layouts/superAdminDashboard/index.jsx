@@ -12,6 +12,9 @@ import EarningReport from "../../pages/superAdminDashboard/EarningReport";
 import BBPSSettings from "../../pages/superAdminDashboard/BBPSSettings";
 import FundRequest from "../../pages/superAdminDashboard/fundManagement/FundRequest";
 import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
+import SuperAdminProfile from "../../pages/superAdminDashboard/superAdminProfile";
+import ServiceSetting from "../../pages/superAdminDashboard/serviceSetting";
+import OperatorSetting from "../../pages/superAdminDashboard/operatorSetting";
 
 const SuperAdminDashboard = () => {
   return (
@@ -19,6 +22,7 @@ const SuperAdminDashboard = () => {
       <Routes>
         <Route path="/" element={<SuperAdmin />} />
         <Route path="/home" element={<SuperAdmin />} />
+        <Route path="/profile" element={<SuperAdminProfile />} />
         <Route path="/members/user" element={<CreateWhiteLabel />} />
         <Route path="/members/list" element={<Members />} />
         <Route path="/members/rolemanagement" element={<Rolemanagement />} />
@@ -32,6 +36,14 @@ const SuperAdminDashboard = () => {
         <Route path="/reports/nw-overview" element={<NWoverview />} />
 
         <Route path="/bbps-settings/list" element={<BBPSSettings />} />
+        <Route
+          path="/api-operator/service-settings"
+          element={<ServiceSetting />}
+        />
+        <Route
+          path="/api-operator/operator-settings"
+          element={<OperatorSetting />}
+        />
       </Routes>
     </DashboardLayout>
   );

@@ -33,6 +33,8 @@ import {
   GET_USER_DETAILS_FAILURE,
   GET_REPORT_TO_USER_LIST_SUCCESS,
   GET_REPORT_TO_USER_LIST_FAILURE,
+  GET_MD_DETAILS_SUCCESS,
+  GET_MD_DETAILS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -656,6 +658,53 @@ export const getUserDetails = () => async (dispatch) => {
   }
 };
 
+
+export const getMDDetails = () => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/userDetails/getUserProfile`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: mdDetails, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_MD_DETAILS_SUCCESS,
+        payload: { mdDetails, message, status },
+      });
+      return { success: true, data: mdDetails, message, status };
+    } else {
+      dispatch({
+        type: GET_MD_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+      return { success: false, message, status };
+    }
+  } catch (error) {
+    const errorMessage = error.response ? error.response.data.message : error.message;
+    dispatch({
+      type: GET_MD_DETAILS_FAILURE,
+      payload: {
+        message: errorMessage,
+        status: "Error",
+      },
+    });
+    return { success: false, message: errorMessage, status: "Error" };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
 // Get report to user list (Master Distributor, Distributor, Retailer)
 export const getReportToUserList = (payload) => async (dispatch) => {
   dispatch({ type: LOADING_START });
@@ -729,3 +778,4 @@ export const getReportToUserList = (payload) => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
+
