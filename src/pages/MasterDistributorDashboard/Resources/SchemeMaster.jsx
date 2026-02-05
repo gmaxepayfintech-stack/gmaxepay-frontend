@@ -25,7 +25,7 @@ const SchemeMaster = () => {
   const { success, error: showError } = useNotification();
   const companyFromRedux = useSelector((state) => state?.company?.company);
   const companyData = companyFromRedux || company;
-  
+
   // Redux state
   const slabState = useSelector((state) => state?.slab);
   const {
@@ -191,9 +191,9 @@ const SchemeMaster = () => {
       query: { userRole },
       customSearch: debouncedUserSearchQuery.trim()
         ? {
-            mobileNo: debouncedUserSearchQuery.trim(),
-            name: debouncedUserSearchQuery.trim(),
-          }
+          mobileNo: debouncedUserSearchQuery.trim(),
+          name: debouncedUserSearchQuery.trim(),
+        }
         : {},
       options: {
         page: userPage,
@@ -323,7 +323,7 @@ const SchemeMaster = () => {
 
     const iconData = getIcon(slab.schemaType, slab.schemaMode);
     const createdAt = slab.createdAt ? new Date(slab.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit', year: '2-digit' }) : "N/A";
-    
+
     return {
       id: slab.id,
       name: slab.slabName,
@@ -363,7 +363,7 @@ const SchemeMaster = () => {
   // 2️⃣ Use API paginator for total pages
   const paginator = slabState?.paginator || {};
   const totalPages = paginator.pageCount || 1;
-  
+
   // Display filtered schemes (search/filter works on current page)
   const paginatedSchemes = filteredSchemes;
 
@@ -488,7 +488,7 @@ const SchemeMaster = () => {
     } catch (error) {
       showError(
         error?.message ||
-          "An error occurred while updating the slab. Please try again.",
+        "An error occurred while updating the slab. Please try again.",
       );
     } finally {
       setIsUpdating(false);
@@ -601,11 +601,10 @@ const SchemeMaster = () => {
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-2xl
-            text-xs sm:text-sm transition whitespace-nowrap ${
-              activeFilter === filter
-                ? "bg-[#039155] text-white shadow-md font-[gilroy-semibold]"
-                : "bg-white text-[#1B1717]/80 border border-[#1B1717]/80 hover:bg-gray-50 font-[gilroy-medium]"
-            }`}
+            text-xs sm:text-sm transition whitespace-nowrap ${activeFilter === filter
+                    ? "bg-[#039155] text-white shadow-md font-[gilroy-semibold]"
+                    : "bg-white text-[#1B1717]/80 border border-[#1B1717]/80 hover:bg-gray-50 font-[gilroy-medium]"
+                  }`}
               >
                 {filter}
               </button>
@@ -626,197 +625,218 @@ const SchemeMaster = () => {
             </div>
           ) : (
             paginatedSchemes.map((scheme) => {
-            const IconComponent = scheme.icon;
-            return (
-              <div
-                key={scheme.id}
-                className="bg-white rounded-lg sm:rounded-3xl border-[0.5px] border-[#1B1717]/80 border-opacity-40 shadow-sm
+              const IconComponent = scheme.icon;
+              return (
+                <div
+                  key={scheme.id}
+                  className="bg-white rounded-lg sm:rounded-3xl border-[0.5px] border-[#1B1717]/80 border-opacity-40 shadow-sm
             px-3 py-2 sm:px-4 sm:py-3 md:px-5 md:py-4
             md:hover:shadow-md transition-shadow flex flex-col h-full"
-              >
-                {/* Card Header */}
-                <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
-                  <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
-                    <div
-                      className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${
-                        scheme.useImage ? "" : scheme.iconBg
-                      } flex items-center justify-center`}
-                    >
-                      {scheme.useImage ? (
-                        <img
-                          src={scheme.iconImage}
-                          alt={scheme.name}
-                          className="w-full h-full object-contain rounded-lg"
-                          onError={(e) => {
-                            e.target.onerror = null;
-                            e.target.src = "/img/gmaxepay.png";
-                          }}
-                        />
-                      ) : (
-                        <IconComponent
-                          className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${scheme.iconColor}`}
-                        />
-                      )}
+                >
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
+                    <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
+                      <div
+                        className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${scheme.useImage ? "" : scheme.iconBg
+                          } flex items-center justify-center`}
+                      >
+                        {scheme.useImage ? (
+                          <img
+                            src={scheme.iconImage}
+                            alt={scheme.name}
+                            className="w-full h-full object-contain rounded-lg"
+                            onError={(e) => {
+                              e.target.onerror = null;
+                              e.target.src = "/img/gmaxepay.png";
+                            }}
+                          />
+                        ) : (
+                          <IconComponent
+                            className={`w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6 ${scheme.iconColor}`}
+                          />
+                        )}
+                      </div>
+
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-xs sm:text-sm md:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
+                          {scheme.name}
+                        </h3>
+
+                        <div className="flex flex-wrap gap-1.5 sm:gap-2">
+                          {scheme.tags.map((tag, index) => (
+                            <span
+                              key={index}
+                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
+                            >
+                              {tag.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     </div>
 
-                    <div className="flex-1 min-w-0">
-                      <h3 className="text-xs sm:text-sm md:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
-                        {scheme.name}
-                      </h3>
+                    {/* Status Indicator and Edit Button */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedScheme(scheme);
+                          
+                          // Extract nested ternaries into independent statements
+                          let schemeMode;
+                          if (scheme?.schemaMode) {
+                            schemeMode = scheme.schemaMode === "global" ? "Global" : "Private";
+                          } else {
+                            schemeMode = scheme?.visibilityType || "Global";
+                          }
+                          
+                          let schemeType;
+                          if (scheme?.schemaType) {
+                            schemeType = scheme.schemaType === "free" ? "Free" : "Premium";
+                          } else {
+                            schemeType = "Free";
+                          }
+                          
+                          setFormData({
+                            schemeName: scheme.name || "",
+                            schemeMode,
+                            schemeType,
+                            subscriptionAmount:
+                              scheme?.subscriptionAmount !== undefined &&
+                                scheme?.subscriptionAmount !== null
+                                ? String(scheme.subscriptionAmount)
+                                : "",
+                            views: Array.isArray(scheme?.views) ? scheme.views : [],
+                          });
+                          // Sync selection state for modal
+                          const viewIds = Array.isArray(scheme?.views) ? scheme.views : [];
+                          setSelectedUserIds(viewIds);
+                          // We may not have user objects here; keep any existing selections
+                          if (viewIds.length === 0) {
+                            setSelectedUsersData([]);
+                          }
+                          setIsEditModalOpen(true);
+                        }}
+                        className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
+                        title="Edit Scheme"
+                        type="button"
+                      >
+                        <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
+                      </button>
 
-                      <div className="flex flex-wrap gap-1.5 sm:gap-2">
-                        {scheme.tags.map((tag, index) => (
-                          <span
-                            key={index}
-                            className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
-                          >
-                            {tag.label}
-                          </span>
-                        ))}
+                      <div
+                        className={`flex items-center rounded-3xl
+              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0
+              ${scheme.isActive ? "bg-[#008D1E]" : "bg-gray-500"}`}
+                      >
+                        <div
+                          className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${scheme.isActive ? "bg-white" : "bg-white"
+                            }`}
+                        />
+                        <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
+                          {scheme.status}
+                        </span>
                       </div>
                     </div>
                   </div>
 
-                  {/* Status Indicator and Edit Button */}
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedScheme(scheme);
-                        setFormData({
-                          schemeName: scheme.name || "",
-                          schemeMode:
-                            scheme?.schemaMode
-                              ? scheme.schemaMode === "global"
-                                ? "Global"
-                                : "Private"
-                              : scheme?.visibilityType || "Global",
-                          schemeType:
-                            scheme?.schemaType
-                              ? scheme.schemaType === "free"
-                                ? "Free"
-                                : "Premium"
-                              : "Free",
-                          subscriptionAmount:
-                            scheme?.subscriptionAmount !== undefined &&
-                            scheme?.subscriptionAmount !== null
-                              ? String(scheme.subscriptionAmount)
-                              : "",
-                          views: Array.isArray(scheme?.views) ? scheme.views : [],
-                        });
-                        // Sync selection state for modal
-                        const viewIds = Array.isArray(scheme?.views) ? scheme.views : [];
-                        setSelectedUserIds(viewIds);
-                        // We may not have user objects here; keep any existing selections
-                        if (viewIds.length === 0) {
-                          setSelectedUsersData([]);
-                        }
-                        setIsEditModalOpen(true);
-                      }}
-                      className="p-1.5 sm:p-2 rounded-full bg-[#039155] hover:bg-green-700 transition text-white flex items-center justify-center"
-                      title="Edit Scheme"
-                      type="button"
-                    >
-                      <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
-                    </button>
+                  {/* Scheme Details */}
+                  <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
+                    <div className="flex justify-between text-xs sm:text-sm">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Scheme Id
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.schemeId}
+                      </span>
+                    </div>
 
-                    <div
-                      className={`flex items-center rounded-3xl
-              px-2 py-1 sm:px-3 sm:py-1.5 gap-1 sm:gap-1.5 flex-shrink-0
-              ${scheme.isActive ? "bg-[#008D1E]" : "bg-gray-500"}`}
-                    >
-                      <div
-                        className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${
-                          scheme.isActive ? "bg-white" : "bg-white"
-                        }`}
-                      />
-                      <span className="text-xs font-[gilroy-medium] text-white whitespace-nowrap">
-                        {scheme.status}
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Created
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.created}
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Visibility
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.totalViews === 0 ? "All" : scheme.totalViews}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Amount
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.subscriptionAmount}
+                      </span>
+                    </div>
+
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Members
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.members}
                       </span>
                     </div>
                   </div>
+
+                  {/* View Details Button */}
+                  <button
+                    onClick={() => {
+                      setSelectedScheme(scheme);
+                      setShowEditMembership(true);
+                    }}
+                    className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-xl font-[gilroy-semibold] hover:bg-green-700 transition text-sm sm:text-base mt-auto"
+                  >
+                    View Details
+                  </button>
                 </div>
-
-                {/* Scheme Details */}
-                <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
-                  <div className="flex justify-between text-xs sm:text-sm">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Scheme Id
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.schemeId}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Created
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.created}
-                    </span>
-                  </div>
-
-                  <div className="flex justify-between text-sm sm:text-base">
-                    <span className="text-[#1B1717]/80 font-[gilroy-regular]">
-                      Members
-                    </span>
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
-                      {scheme.members}
-                    </span>
-                  </div>
-                </div>
-
-                {/* View Details Button */}
-                <button
-                  onClick={() => {
-                    setSelectedScheme(scheme);
-                    setShowEditMembership(true);
-                  }}
-                  className="w-full bg-[#039155] text-white py-2.5 sm:py-3 md:py-4 rounded-xl font-[gilroy-semibold] hover:bg-green-700 transition text-sm sm:text-base mt-auto"
-                >
-                  View Details
-                </button>
-              </div>
-            );
-          })
+              );
+            })
           )}
         </div>
       </div>
 
       {/* Pagination */}
       {!slabsLoading && totalPages > 0 && (
-      <div className="flex items-center justify-center gap-1.5 sm:gap-2">
-        <button
-          onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2">
+          <button
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1}
             className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
 
-        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-          <button
-            key={page}
-            onClick={() => setCurrentPage(page)}
-            className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-              currentPage === page
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${currentPage === page
                 ? "bg-[#039155] text-white"
                 : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-            }`}
-          >
-            {page}
-          </button>
-        ))}
+                }`}
+            >
+              {page}
+            </button>
+          ))}
 
-        <button
+          <button
             onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
             disabled={currentPage === totalPages}
             className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-        </button>
-      </div>
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       )}
 
       {/* Create New Membership Scheme Modal */}
@@ -923,11 +943,10 @@ const SchemeMaster = () => {
                       <label
                         key={mode}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeMode === mode
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeMode === mode
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -947,11 +966,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeMode === mode
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeMode === mode
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeMode === mode && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -984,11 +1002,10 @@ const SchemeMaster = () => {
                       <label
                         key={type}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeType === type
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeType === type
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1011,11 +1028,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeType === type
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeType === type
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeType === type && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1268,11 +1284,10 @@ const SchemeMaster = () => {
                       <label
                         key={mode}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeMode === mode
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeMode === mode
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1292,11 +1307,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeMode === mode
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeMode === mode
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeMode === mode && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1329,11 +1343,10 @@ const SchemeMaster = () => {
                       <label
                         key={type}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeType === type
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeType === type
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1356,11 +1369,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeType === type
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeType === type
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeType === type && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1565,11 +1577,10 @@ const SchemeMaster = () => {
                       setUserSearchQuery("");
                       setDebouncedUserSearchQuery("");
                     }}
-                    className={`relative z-10 flex-1 px-3 py-2.5 rounded-lg font-[gilroy-medium] text-xs sm:text-sm whitespace-nowrap transition-colors duration-300 ${
-                      activeUserTab === tab.key
-                        ? "text-white"
-                        : "text-[#1B1717] hover:text-[#039155]"
-                    }`}
+                    className={`relative z-10 flex-1 px-3 py-2.5 rounded-lg font-[gilroy-medium] text-xs sm:text-sm whitespace-nowrap transition-colors duration-300 ${activeUserTab === tab.key
+                      ? "text-white"
+                      : "text-[#1B1717] hover:text-[#039155]"
+                      }`}
                     type="button"
                   >
                     {tab.label}
@@ -1632,11 +1643,10 @@ const SchemeMaster = () => {
                     return (
                       <label
                         key={userId}
-                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition ${
-                          isSelected
-                            ? "border-[#039155] bg-green-50"
-                            : "border-gray-200 hover:border-gray-300"
-                        }`}
+                        className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition ${isSelected
+                          ? "border-[#039155] bg-green-50"
+                          : "border-gray-200 hover:border-gray-300"
+                          }`}
                       >
                         <input
                           type="checkbox"
@@ -1645,11 +1655,10 @@ const SchemeMaster = () => {
                           className="sr-only"
                         />
                         <div
-                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0 ${
-                            isSelected
-                              ? "border-[#039155] bg-[#039155]"
-                              : "border-gray-300"
-                          }`}
+                          className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0 ${isSelected
+                            ? "border-[#039155] bg-[#039155]"
+                            : "border-gray-300"
+                            }`}
                         >
                           {isSelected && (
                             <Check className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
@@ -1685,11 +1694,10 @@ const SchemeMaster = () => {
                       <button
                         key={page}
                         onClick={() => setUserPage(page)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                          userPage === page
-                            ? "bg-[#039155] text-white"
-                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                        }`}
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${userPage === page
+                          ? "bg-[#039155] text-white"
+                          : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                          }`}
                         type="button"
                       >
                         {page}
