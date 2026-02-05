@@ -347,18 +347,46 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
               <div className="bg-white rounded-xl overflow-x-auto">
                 <div className="min-w-[1000px]">
-                  {commLoading && items.length === 0 ? (
+                  {commLoading ? (
                     Array.from({ length: 6 }).map((_, index) => (
                       <div key={index}>
                         <div className="grid grid-cols-7 gap-4 px-4 py-3 animate-pulse">
-                          <span className="h-3 bg-gray-200 rounded w-20" />
-                          <span className="h-5 bg-gray-200 rounded w-16" />
-                          <span className="h-3 bg-gray-200 rounded w-12" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
                           <div className="flex items-center justify-center">
-                            <span className="h-7 w-7 bg-gray-200 rounded-full" />
+                            <span className="h-3 bg-gray-200 rounded w-20" />
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <span className="h-5 bg-gray-200 rounded w-16" />
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-3 bg-gray-200 rounded w-12" />
+                            <div className="flex gap-1">
+                              <span className="h-4 bg-gray-200 rounded w-8" />
+                              <span className="h-4 bg-gray-200 rounded w-8" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-8 bg-gray-200 rounded w-28" />
+                            <div className="flex gap-3">
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-8 bg-gray-200 rounded w-28" />
+                            <div className="flex gap-3">
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-8 bg-gray-200 rounded w-28" />
+                            <div className="flex gap-3">
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <span className="h-7 w-9 bg-gray-200 rounded" />
                           </div>
                         </div>
                         {index < 5 && (
