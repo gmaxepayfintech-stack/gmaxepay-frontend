@@ -270,10 +270,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
   );
 
   const renderCommissionSection = (title, items, sectionKey) => {
-    // If nothing to show and not loading, skip section
-    if (!commLoading && items.length === 0) return null;
-
     const isSectionExpanded = expandedSections[sectionKey];
+    
+    // Show section if loading OR if it has items OR if it's expanded (to show empty state)
+    if (!commLoading && items.length === 0 && !isSectionExpanded) return null;
 
     return (
       <div className="mb-4 sm:mb-6">
@@ -374,8 +374,15 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     </div>
                   ))
                 ) : items.length === 0 ? (
-                  <div className="px-4 py-6 text-center text-sm text-[#121216]/60">
-                    No commission records found.
+                  <div className="px-4 py-6 flex flex-col items-center justify-center">
+                    <img 
+                      src="/img/pagenotfound.gif" 
+                      alt="No data found" 
+                      className="w-64 h-64 object-contain mb-4"
+                    />
+                    <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
+                      No commission records found.
+                    </p>
                   </div>
                 ) : (
                   items.map((commission, index) => {
@@ -736,15 +743,18 @@ const EditMembership = ({ scheme = null, onBack }) => {
       {/* All commissions in a single outer section with grey background */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
         <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6 ">
+          {/* Show sections when loading OR when they have data */}
           {/* AEPS Commissions Section (accordion by operatorType) */}
-          {renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
+          {(commLoading || aepsCommissions.length > 0) && 
+            renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
 
           {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
-          {renderCommissionSection(
-            "Mobile And DTH Recharge",
-            mobileDthCommissions,
-            "mobileDth",
-          )}
+          {(commLoading || mobileDthCommissions.length > 0) && 
+            renderCommissionSection(
+              "Mobile And DTH Recharge",
+              mobileDthCommissions,
+              "mobileDth",
+            )}
           {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, AEPS2, etc.) */}
           {dynamicSectionTypes.map((type) =>
             renderCommissionSection(
