@@ -536,13 +536,14 @@ const OperatorSetting = () => {
               </div>
 
               <div>
-                <h3 className="font-[gilroy-medium] text-sm text-[#121216] mb-1">
+                <label className="font-[gilroy-medium] text-sm text-[#121216]">
                   Remarks
-                </h3>
-
-                <input
-                  placeholder="Enter Remarks"
-                  className="w-full border border-[#1B1717]/80 py-4 px-1.5 rounded-lg flex justify-between items-center focus:outline-none"
+                </label>
+                <textarea
+                  name="remarks"
+                  rows="3"
+                  placeholder="Write Remarks"
+                  className="p-1 border border-[#1B1717]/80 rounded-lg w-full text-xs sm:text-sm placeholder-gray-500 "
                 />
               </div>
             </div>

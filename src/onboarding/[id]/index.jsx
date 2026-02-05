@@ -463,7 +463,7 @@ function OnboardingById() {
         </div>
 
         {/* Centered step content card */}
-        <div className="w-full flex justify-center mt-2">
+        <div className="w-full flex justify-center mb-6">
           <div className="w-full max-w-2xl bg-white border border-gray-100 rounded-2xl p-8 shadow-sm">
             {currentStep === 1 && (
               <Step1

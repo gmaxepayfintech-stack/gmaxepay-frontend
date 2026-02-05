@@ -168,18 +168,18 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
         {/* ================================================================= */}
-        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+        <h3 className="text-base sm:text-lg   font-[gilroy-semibold] text-center text-[#1B1717]">
           Bank Details
         </h3>
-        <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+        <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-4 xl:mb-5 mt-2">
           Tell Us About Bank Details
         </p>
 
         {/* Account Number Section */}
         <div className="mb-3 md:mb-4">
-          <label className="block text-[20px] font-medium text-[#1B1717] mb-2">
+          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
             Account Number
           </label>
 
@@ -253,7 +253,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="ifscCode"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
           >
             IFSC Code
           </label>
@@ -310,7 +310,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
                 formik.values.bankAccountNumber.length < 9
               }
               className={`h-10 md:h-11 lg:h-14
-              px-3 md:px-4
+              px-4 md:px-6
               border-[0.5px] border-l-0
               ${formik.errors.ifscCode ? "border-red-500" : "border-[#039155]"}
               rounded-r-lg text-white
@@ -349,7 +349,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="beneficiaryName"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
           >
             Beneficiary Name
           </label>

@@ -252,18 +252,18 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
         {/* ================================================================= */}
         {/*                      DIGILOCKER VERIFICATION VIEW                 */}
         {/* ================================================================= */}
         {!showImageUpload && (
           <>
             {/* Header */}
-            <div className="text-center">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+            <div className="text-center mb-7">
+              <h1 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
                 Aadhaar Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-regular] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  font-[gilroy-medium] text-[#1B1717]/80 mt-2 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -274,13 +274,13 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 <img
                   src="/img/Digilocker1.png"
                   alt="DigiLocker"
-                  className="h-14 sm:h-16 flex-shrink-0"
+                  className="h-8 sm:h-10 md:h-11 lg:h-12 xl:h-14 flex-shrink-0"
                 />
                 <div>
-                  <h3 className="text-sm sm:text-base md:text-lg font-[gilroy-semibold] text-[#1B1717]">
+                  <h3 className="text-sm sm:text-base  font-[gilroy-medium] text-[#1B1717]">
                     Aadhaar Via DigiLocker
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
                     Fetch Aadhaar Document Securely From DigiLocker
                   </p>
                 </div>
@@ -323,9 +323,9 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             </div>
 
             {/* Information Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3 mt-1 mb-1">
+            <div className="bg-[#EAF5FF] border border-[#08378D] rounded-lg p-4 flex gap-3 mt-4 mb-7">
               <svg
-                className="h-5 w-5 text-blue-600 mt-1"
+                className="h-5 w-5 text-[#0059FF] mt-1"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -342,10 +342,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               </svg>
 
               <div>
-                <h4 className="font-semibold text-blue-900 text-sm">
+                <h4 className="font-[gilroy-semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs text-blue-800">
+                <p className="text-xs text-[#0059FF] font-[gilroy-regular]">
                   Documents are fetched directly from DigiLocker using secure
                   APIs.
                 </p>
@@ -369,10 +369,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
           <div className="space-y-3 md:space-y-4">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-base sm:text-sm md:text-lg lg:text-xl font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-base sm:text-sm md:text-lg font-[gilroy-semibold] text-[#1B1717]">
                 Aadhar Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-medium] text-[#1B1717]/70 mt-1 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  font-[gilroy-medium] text-[#1B1717]/70 mt-2 mb-6 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -451,7 +451,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               min-w-[100px] sm:min-w-[110px] md:min-w-[120px]
               rounded-lg sm:rounded-xl
               text-[8px] sm:text-[9px] md:text-[10px]
-              lg:text-xs xl:text-sm font-[gilroy-regular]"
+              lg:text-xs  font-[gilroy-regular]"
                     >
                       Select From Browser
                     </span>
@@ -459,7 +459,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
                   <p
                     className="text-[7px] sm:text-[8px] md:text-[9px]
-            lg:text-[10px] xl:text-xs text-[#1B1717]/80 font-[gilroy-regular]"
+            lg:text-[10px]  text-[#1B1717]/80 font-[gilroy-regular]"
                   >
                     File Size (Max 5 MB)
                   </p>
@@ -516,12 +516,12 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={(e) => handleImageChange("back", e)}
                     />
-                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs xl:text-sm font-[gilroy-regular]">
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs  font-[gilroy-regular]">
                       Select From Browser
                     </span>
                   </label>
 
-                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px] xl:text-xs leading-[100%] tracking-[0%] align-middle text-[#1B1717]/80">
+                  <p className="capitalize font-['Gilroy-Regular'] font-normal text-[7px] sm:text-[8px] md:text-[9px] lg:text-[10px]  leading-[100%] tracking-[0%] align-middle text-[#1B1717]/80">
                     File Size (Max 5 MB)
                   </p>
                 </div>
@@ -534,7 +534,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               disabled={!frontImage || !backImage || uploading}
               className={`w-full
         h-9 sm:h-10 md:h-10 lg:h-11 xl:h-12
-        rounded-lg sm:rounded-xl
+        rounded-lg sm:rounded-xl 
         font-[gilroy-semibold]
         text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
         shadow-md transition-all
@@ -559,10 +559,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    <h3 className="text-xl font-[gilroy-semibold] text-[#1B1717] mb-2">
                       Auto Verifying
                     </h3>
-                    <p className="text-gray-600 text-sm">
+                    <p className="text-[#1B1717]/80 text-sm">
                       We are auto verifying your Aadhaar details based on eKYC
                     </p>
                   </div>

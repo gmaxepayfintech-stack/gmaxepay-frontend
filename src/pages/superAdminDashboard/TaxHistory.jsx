@@ -33,14 +33,14 @@ const TaxHistory = () => {
     {
       id: 1,
       title: "AEPS 1 CW History",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
       viewKey: "aeps-cw-history",
     },
     {
       id: 2,
       title: "AEPS 2 CW History",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
       viewKey: "aeps-cw-history",
     },
@@ -81,31 +81,31 @@ const TaxHistory = () => {
     {
       id: 8,
       title: "CMS",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
     },
     {
       id: 9,
       title: "F-CMS",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash Histroy",
       available: true,
     },
     {
       id: 10,
       title: "F-CMS",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
     },
     {
       id: 11,
       title: "F-CMS",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
     },
     {
       id: 12,
       title: "F-CMS",
-      subtitle: "Cash Withdrawal",
+      subtitle: "Cash History",
       available: true,
     },
   ];
