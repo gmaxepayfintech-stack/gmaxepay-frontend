@@ -4,22 +4,18 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const ViewSubscription = ({ subscription = null, onBack }) => {
-  // Section-level expand/collapse by operatorType (AEPS, Mobile+DTH, BBPS)
-  const [expandedSections, setExpandedSections] = useState({
-    aeps: false,
-    mobileDth: false,
-    bbps: false,
-  });
+  // Section-level expand/collapse by operatorType (supports dynamic sections)
+  const [expandedSections, setExpandedSections] = useState({});
 
   const toggleSectionExpand = (key) => {
     setExpandedSections((prev) => {
       const isCurrentlyOpen = prev[key];
-      return {
-        aeps: false,
-        mobileDth: false,
-        bbps: false,
-        [key]: !isCurrentlyOpen,
-      };
+      // Accordion behavior: only one section open at a time, dynamic keys
+      const resetState = Object.keys(prev).reduce(
+        (acc, sectionKey) => ({ ...acc, [sectionKey]: false }),
+        {},
+      );
+      return { ...resetState, [key]: !isCurrentlyOpen };
     });
   };
 
@@ -41,27 +37,40 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
     );
   }
 
-  // Group commissions by operatorType
+  // Group commissions by operatorType (dynamic sections)
   const commissions = subscription.originalData?.commissions || [];
-  const aepsCommissions = commissions.filter(
-    (c) => c.operatorType === "AEPS",
-  );
-  const mobileDthCommissions = commissions
-    .filter((c) => c.operatorType === "RECHARGE" || c.operatorType === "DTH")
-    .sort((a, b) => {
-      // RECHARGE operators first, then DTH
-      const order = { RECHARGE: 0, DTH: 1 };
-      const aOrder = order[a.operatorType] ?? 99;
-      const bOrder = order[b.operatorType] ?? 99;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-      // Within same type, sort by operator name
-      return (a.operatorName || "").localeCompare(b.operatorName || "");
-    });
-  const otherCommissions = commissions.filter(
-    (c) =>
-      c.operatorType !== "AEPS" &&
-      c.operatorType !== "RECHARGE" &&
-      c.operatorType !== "DTH",
+  const groupedByType = commissions.reduce((acc, item) => {
+    const type = item.operatorType || "OTHER";
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(item);
+    return acc;
+  }, {});
+
+  // AEPS section (combines AEPS1, AEPS2, and any other AEPS variants)
+  const aepsCommissions = [
+    ...(groupedByType["AEPS"] || []),
+    ...(groupedByType["AEPS1"] || []),
+    ...(groupedByType["AEPS2"] || []),
+  ];
+
+  // Combined Mobile + DTH section (handles both "Recharge" and "RECHARGE", "DTH")
+  const mobileDthCommissions = [
+    ...(groupedByType["RECHARGE"] || []),
+    ...(groupedByType["Recharge"] || []),
+    ...(groupedByType["DTH"] || []),
+  ].sort((a, b) => {
+    // RECHARGE/Recharge operators first, then DTH
+    const order = { RECHARGE: 0, Recharge: 0, DTH: 1 };
+    const aOrder = order[a.operatorType] ?? 99;
+    const bOrder = order[b.operatorType] ?? 99;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    // Within same type, sort by operator name
+    return (a.operatorName || "").localeCompare(b.operatorName || "");
+  });
+
+  // All remaining types become their own dynamic sections
+  const dynamicSectionTypes = Object.keys(groupedByType).filter(
+    (type) => !["AEPS", "AEPS1", "AEPS2", "RECHARGE", "Recharge", "DTH"].includes(type),
   );
 
   const renderCommissionSection = (title, items, sectionKey) => {
@@ -242,11 +251,13 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
               "mobileDth",
             )}
 
-            {/* BBPS Commissions Section */}
-            {renderCommissionSection(
-              "BBPS Commissions",
-              otherCommissions,
-              "bbps",
+            {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, etc.) */}
+            {dynamicSectionTypes.map((type) =>
+              renderCommissionSection(
+                `${type} Commissions`,
+                groupedByType[type] || [],
+                type.toLowerCase().replace(/\s+/g, "_"),
+              ),
             )}
           </div>
         </div>
