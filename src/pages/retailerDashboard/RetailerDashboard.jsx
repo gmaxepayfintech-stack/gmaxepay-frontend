@@ -1105,6 +1105,7 @@ const RetailerDashboard = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
+                              isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1119,6 +1120,7 @@ const RetailerDashboard = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
+                              isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1128,6 +1130,7 @@ const RetailerDashboard = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
+                            isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);

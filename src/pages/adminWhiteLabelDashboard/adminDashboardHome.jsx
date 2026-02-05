@@ -1100,6 +1100,7 @@ const AdminDashboardHome = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
+                              isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1114,6 +1115,7 @@ const AdminDashboardHome = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
+                              isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1123,6 +1125,7 @@ const AdminDashboardHome = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
+                            isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
