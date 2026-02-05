@@ -30,7 +30,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
-      .matches(/^\d{13,18}$/, "Account number must be between 13 and 18 digits")
+      .matches(/^\d{11,18}$/, "Account number must be between 11 and 18 digits")
       .required("Account number is required"),
     ifscCode: Yup.string()
       .required("IFSC code is required")
@@ -202,7 +202,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
     let processedValue = value;
 
     if (name === "bankAccountNumber") {
-      // Only allow digits and limit to 13
+      // Only allow digits and limit to 11
       processedValue = value.replace(/\D/g, "").slice(0, 18);
     } else if (name === "ifscCode") {
       // Convert to uppercase and limit to 11 characters

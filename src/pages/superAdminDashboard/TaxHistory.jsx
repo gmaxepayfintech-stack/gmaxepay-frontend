@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
 import AepsCWHistory from "./AepsCWHistory";
@@ -9,10 +9,6 @@ const TaxHistory = () => {
   const location = useLocation();
   const [activeTab, setActiveTab] = useState("Banking");
   const [currentPage, setCurrentPage] = useState(1);
-  // const containerRef = useRef(null);
-  // const tabRefs = useRef([]);
-  // const [indicator, setIndicator] = useState({ width: 0, left: 0 });
-
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
@@ -29,13 +25,17 @@ const TaxHistory = () => {
     "Verification History",
   ];
 
+  // Each card is tagged with a category matching one of the tabs,
+  // so we can segregate the cards per tab.
   const transactionCards = [
+    // Banking
     {
       id: 1,
       title: "AEPS 1 CW History",
       subtitle: "Cash History",
       available: true,
       viewKey: "aeps-cw-history",
+      category: "Banking",
     },
     {
       id: 2,
@@ -43,6 +43,7 @@ const TaxHistory = () => {
       subtitle: "Cash History",
       available: true,
       viewKey: "aeps-cw-history",
+      category: "Banking",
     },
     {
       id: 3,
@@ -50,6 +51,7 @@ const TaxHistory = () => {
       subtitle: "Mini Statement",
       available: true,
       viewKey: "aeps-ms-history",
+      category: "Banking",
     },
     {
       id: 4,
@@ -57,13 +59,16 @@ const TaxHistory = () => {
       subtitle: "Mini Statement",
       available: true,
       viewKey: "aeps-ms-history",
+      category: "Banking",
     },
     {
+      
       id: 5,
       title: "AEPS 1 BE History",
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "aeps-be-history",
+      category: "Banking",
     },
     {
       id: 6,
@@ -71,72 +76,191 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "aeps-be-history",
+      category: "Banking",
     },
     {
       id: 7,
       title: "DMT",
       subtitle: "Direct Money Transfer",
       available: true,
+      category: "Banking",
     },
     {
       id: 8,
       title: "CMS",
       subtitle: "Cash History",
       available: true,
+      category: "Banking",
     },
     {
       id: 9,
       title: "F-CMS",
       subtitle: "Cash Histroy",
       available: true,
+      category: "Banking",
     },
     {
       id: 10,
       title: "F-CMS",
       subtitle: "Cash History",
       available: true,
+      category: "Banking",
     },
     {
       id: 11,
       title: "F-CMS",
       subtitle: "Cash History",
       available: true,
+      category: "Banking",
     },
     {
       id: 12,
       title: "F-CMS",
       subtitle: "Cash History",
       available: true,
+      category: "Banking",
+    },
+
+    // Utility Payment
+    {
+      id: 13,
+      title: "Electricity Bill History",
+      subtitle: "Electricity Payments",
+      available: true,
+      category: "Utility Payment",
+    },
+    {
+      id: 14,
+      title: "Water Bill History",
+      subtitle: "Water Bill Payments",
+      available: true,
+      category: "Utility Payment",
+    },
+    {
+      id: 15,
+      title: "Gas Bill History",
+      subtitle: "Gas Utility Payments",
+      available: true,
+      category: "Utility Payment",
+    },
+    {
+      id: 16,
+      title: "Broadband History",
+      subtitle: "Internet & Broadband",
+      available: true,
+      category: "Utility Payment",
+    },
+
+    // E-Governance
+    {
+      id: 17,
+      title: "PAN Service History",
+      subtitle: "PAN Applications & Updates",
+      available: true,
+      category: "E-Governance",
+    },
+    {
+      id: 18,
+      title: "Aadhaar KYC History",
+      subtitle: "Aadhaar e-KYC",
+      available: true,
+      category: "E-Governance",
+    },
+    {
+      id: 19,
+      title: "GST Payment History",
+      subtitle: "GST & Tax Payments",
+      available: true,
+      category: "E-Governance",
+    },
+
+    // Insurance
+    {
+      id: 20,
+      title: "Life Insurance History",
+      subtitle: "Life Policy Payments",
+      available: true,
+      category: "Insurance",
+    },
+    {
+      id: 21,
+      title: "Health Insurance History",
+      subtitle: "Health Policy Payments",
+      available: true,
+      category: "Insurance",
+    },
+    {
+      id: 22,
+      title: "Vehicle Insurance History",
+      subtitle: "Motor Policy Payments",
+      available: true,
+      category: "Insurance",
+    },
+
+    // Travel
+    {
+      id: 23,
+      title: "Flight Booking History",
+      subtitle: "Flight Tickets",
+      available: true,
+      category: "Travel",
+    },
+    {
+      id: 24,
+      title: "Bus Booking History",
+      subtitle: "Bus Tickets",
+      available: true,
+      category: "Travel",
+    },
+    {
+      id: 25,
+      title: "Train Booking History",
+      subtitle: "Railway Tickets",
+      available: true,
+      category: "Travel",
+    },
+
+    // Verification History
+    {
+      id: 26,
+      title: "KYC Verification History",
+      subtitle: "Customer KYC Logs",
+      available: true,
+      category: "Verification History",
+    },
+    {
+      id: 27,
+      title: "Aadhaar Verification History",
+      subtitle: "Aadhaar Verification Logs",
+      available: true,
+      category: "Verification History",
+    },
+    {
+      id: 28,
+      title: "PAN Verification History",
+      subtitle: "PAN Verification Logs",
+      available: true,
+      category: "Verification History",
     },
   ];
-
-  // useEffect(() => {
-  //   const activeIndex = tabs.indexOf(activeTab);
-  //   const activeEl = tabRefs.current[activeIndex];
-  //   const containerEl = containerRef.current;
-
-  //   if (activeEl && containerEl) {
-  //     const tabRect = activeEl.getBoundingClientRect();
-  //     const containerRect = containerEl.getBoundingClientRect();
-
-  //     setIndicator({
-  //       width: tabRect.width,
-  //       left: tabRect.left - containerRect.left,
-  //     });
-  //   }
-  // }, [activeTab, tabs]);
 
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
 
   const ITEMS_PER_PAGE = 6;
-  const totalPages = Math.ceil(transactionCards.length / ITEMS_PER_PAGE);
+
+  // Filter cards based on the active tab/category
+  const filteredCards = transactionCards.filter(
+    (card) => card.category === activeTab,
+  );
+
+  const totalPages = Math.ceil(filteredCards.length / ITEMS_PER_PAGE) || 1;
 
   const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
   const endIndex = startIndex + ITEMS_PER_PAGE;
 
-  const paginatedCards = transactionCards.slice(startIndex, endIndex);
+  const paginatedCards = filteredCards.slice(startIndex, endIndex);
 
   // If AepsCWHistory should be shown, render it
 
