@@ -46,13 +46,6 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
     return acc;
   }, {});
 
-  // AEPS section (combines AEPS1, AEPS2, and any other AEPS variants)
-  const aepsCommissions = [
-    ...(groupedByType["AEPS"] || []),
-    ...(groupedByType["AEPS1"] || []),
-    ...(groupedByType["AEPS2"] || []),
-  ];
-
   // Combined Mobile + DTH section (handles both "Recharge" and "RECHARGE", "DTH")
   const mobileDthCommissions = [
     ...(groupedByType["RECHARGE"] || []),
@@ -68,9 +61,9 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
     return (a.operatorName || "").localeCompare(b.operatorName || "");
   });
 
-  // All remaining types become their own dynamic sections
+  // All other types (including AEPS1, AEPS2, AEPS, BANK VERIFICATION, BBPS, etc.) get their own separate sections
   const dynamicSectionTypes = Object.keys(groupedByType).filter(
-    (type) => !["AEPS", "AEPS1", "AEPS2", "RECHARGE", "Recharge", "DTH"].includes(type),
+    (type) => !["RECHARGE", "Recharge", "DTH"].includes(type),
   );
 
   const renderCommissionSection = (title, items, sectionKey) => {
@@ -241,9 +234,6 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
         {/* Commissions */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
           <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6">
-            {/* AEPS Commissions Section */}
-            {renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
-
             {/* Mobile And DTH Recharge Commissions Section */}
             {renderCommissionSection(
               "Mobile And DTH Recharge",
@@ -251,7 +241,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
               "mobileDth",
             )}
 
-            {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, etc.) */}
+            {/* Dynamic sections for all other operator types (AEPS1, AEPS2, AEPS, BANK VERIFICATION, BBPS, etc.) - each gets its own section */}
             {dynamicSectionTypes.map((type) =>
               renderCommissionSection(
                 `${type} Commissions`,
