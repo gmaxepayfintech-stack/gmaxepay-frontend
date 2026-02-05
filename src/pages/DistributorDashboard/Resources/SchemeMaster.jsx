@@ -845,7 +845,7 @@ const SchemeMaster = () => {
                         Visibility
                       </span>
                       <span className="font-[gilroy-medium] text-[#1B1717]">
-                        {scheme.totalViews === 0 ? "Free" : scheme.totalViews}
+                        {scheme.totalViews === 0 ? "All" : scheme.totalViews}
                       </span>
                     </div>
                     <div className="flex justify-between text-sm sm:text-base">
