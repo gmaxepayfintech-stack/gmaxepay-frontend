@@ -1106,6 +1106,7 @@ const MasterDistDashboard = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
+                              isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1120,6 +1121,7 @@ const MasterDistDashboard = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
+                              isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1129,6 +1131,7 @@ const MasterDistDashboard = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
+                            isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
