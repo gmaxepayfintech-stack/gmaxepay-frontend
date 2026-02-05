@@ -15,8 +15,8 @@ import {
   payoutTransaction,
 } from "../../redux/action/payoutAction";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
-import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import { useNotification } from "../../context/NotificationContext";
 import { FiChevronDown } from "react-icons/fi";
 
 const MasterDt = "/img/MMasterD.png";
@@ -42,6 +42,7 @@ const AdminDashboardHome = () => {
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
   const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const { showNotification } = useNotification();
 
   const AEPS_LABELS = {
     aeps1: "AEPS Wallet 1",
@@ -1027,11 +1028,20 @@ const AdminDashboardHome = () => {
                             longitude,
                           );
 
+                          // Map selected AEPS wallet to API aepsType
+                          const aepsType =
+                            selectedAepsWallet === "aeps1"
+                              ? "AEPS1"
+                              : selectedAepsWallet === "aeps2"
+                              ? "AEPS2"
+                              : undefined;
+
                           payload = {
                             amount: amount.toString(),
                             mode: "wallet",
                             latitude: latitude,
                             longitude: longitude,
+                            ...(aepsType ? { aepsType } : {}),
                           };
                         } else if (walletType === "bank") {
                           const locationInfo = await getLocationAndIP();
@@ -1085,6 +1095,13 @@ const AdminDashboardHome = () => {
 
                         if (response?.status === "SUCCESS") {
                           console.log("Transfer successful:", response);
+                          showNotification({
+                            type: "success",
+                            message:
+                              response?.message ||
+                              "Transfer completed successfully.",
+                              isCritical: true,
+                          });
                           setPayout(false);
                           // Reset form
                           setWalletType("bank");
@@ -1093,11 +1110,23 @@ const AdminDashboardHome = () => {
                           setSelectedBank(null);
                         } else {
                           console.error("Transfer failed:", response?.message);
-                          // You might want to show an error message to the user here
+                          showNotification({
+                            type: "error",
+                            message:
+                              response?.message ||
+                              "Failed to process transfer. Please try again.",
+                              isCritical: true,
+                          });
                         }
                       } catch (error) {
                         console.error("Error processing transfer:", error);
-                        // You might want to show an error message to the user here
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "An unexpected error occurred while processing the transfer.",
+                            isCritical: true,
+                        });
                       } finally {
                         setIsTransferLoading(false);
                       }

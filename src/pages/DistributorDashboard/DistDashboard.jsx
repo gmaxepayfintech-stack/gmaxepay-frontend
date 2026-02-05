@@ -11,6 +11,7 @@ import {
 } from "recharts";
 import { useNavigate } from "react-router-dom";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
+import { useNotification } from "../../context/NotificationContext";
 import {
   payoutBankList,
   payoutTransaction,
@@ -26,6 +27,7 @@ const Earning = "/img/Earning.png";
 const DistDashboard = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [payoutOpen, setPayout] = useState(false);
   const [walletType, setWalletType] = useState("bank");
   const [requestType, setRequestType] = useState("");
@@ -1042,11 +1044,20 @@ const DistDashboard = () => {
                             longitude,
                           );
 
+                          // Map selected AEPS wallet to API aepsType
+                          const aepsType =
+                            selectedAepsWallet === "aeps1"
+                              ? "AEPS1"
+                              : selectedAepsWallet === "aeps2"
+                              ? "AEPS2"
+                              : undefined;
+
                           payload = {
                             amount: amount.toString(),
                             mode: "wallet",
                             latitude: latitude,
                             longitude: longitude,
+                            ...(aepsType ? { aepsType } : {}),
                           };
                         } else if (walletType === "bank") {
                           const locationInfo = await getLocationAndIP();
@@ -1100,6 +1111,13 @@ const DistDashboard = () => {
 
                         if (response?.status === "SUCCESS") {
                           console.log("Transfer successful:", response);
+                          showNotification({
+                            type: "success",
+                            message:
+                              response?.message ||
+                              "Transfer completed successfully.",
+                              isCritical: true,
+                          });
                           setPayout(false);
                           // Reset form
                           setWalletType("bank");
@@ -1108,11 +1126,23 @@ const DistDashboard = () => {
                           setSelectedBank(null);
                         } else {
                           console.error("Transfer failed:", response?.message);
-                          // You might want to show an error message to the user here
+                          showNotification({
+                            type: "error",
+                            message:
+                              response?.message ||
+                              "Failed to process transfer. Please try again.",
+                              isCritical: true,
+                          });
                         }
                       } catch (error) {
                         console.error("Error processing transfer:", error);
-                        // You might want to show an error message to the user here
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "An unexpected error occurred while processing the transfer.",
+                            isCritical: true,
+                        });
                       } finally {
                         setIsTransferLoading(false);
                       }
