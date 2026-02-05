@@ -840,6 +840,22 @@ const SchemeMaster = () => {
                         {scheme.created}
                       </span>
                     </div>
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Visibility
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.totalViews === 0 ? "Free" : scheme.totalViews}
+                      </span>
+                    </div>
+                    <div className="flex justify-between text-sm sm:text-base">
+                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                        Amount
+                      </span>
+                      <span className="font-[gilroy-medium] text-[#1B1717]">
+                        {scheme.subscriptionAmount}
+                      </span>
+                    </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
                       <span className="text-[#1B1717]/80 font-[gilroy-regular]">
