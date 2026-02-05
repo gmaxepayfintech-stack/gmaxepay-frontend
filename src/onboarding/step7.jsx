@@ -191,17 +191,17 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white text-center rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
-        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-1">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] text-center mx-auto">
+        <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717] mb-2">
           Profile
         </h3>
-        <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717] mb-2">
+        <p className="text-xs sm:text-sm   font-[gilroy-medium] text-[#1B1717]/80 mb-6">
           Profile Picture To Complete Your KYC
         </p>
 
         {/* Dotted Border Card - Fixed dimensions: 534px x 276px */}
-        <div className="w-[534px] h-[276px] mx-auto mb-4">
-          <div className="border-2 border-dashed border-[#1B1717] border-opacity-30 rounded-lg h-full relative overflow-hidden bg-gray-50">
+        <div className=" h-[276px] mx-auto mb-4">
+          <div className="border-2 border-dashed border-[#1B1717] border-opacity-30 rounded-lg h-full relative overflow-hidden bg-[#FAFAFA]">
             {/* Always render video element but hide/show it based on state */}
             <video
               ref={videoRef}
@@ -280,8 +280,8 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
         </div>
 
         {/* Image Upload Guidelines */}
-        <div className="w-[534px] mx-auto ">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+        <div className="">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-7 ">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />

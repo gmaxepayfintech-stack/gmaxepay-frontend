@@ -216,17 +216,17 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
-        <h3 className="text-base text-center sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] mx-auto ">
+        <h3 className="text-base text-center sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
           Shop Details
         </h3>
-        <p className="text-xs text-center sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[gilroy-medium] mt-1 max-w-[90%] mx-auto">
+        <p className="text-xs text-center sm:text-sm md:text-sm  text-[#1B1717]/80 font-[gilroy-medium] mt-2 max-w-[90%] mx-auto">
           Tell Us About Your Business
         </p>
 
         {/* Shop Name Section - Separate */}
-        <div className="w-full max-w-[534px] mx-auto mb-6">
-          <label className="block text-lg font-[gilroy-medium] text-[#1B1717] mb-2">
+        <div className="w-full max-w-[534px] mx-auto mb-6 mt-5">
+          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
             Shop Name
           </label>
 
@@ -266,14 +266,14 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 
         {/* Picture Upload Section Label - Separate */}
         <div className="w-full max-w-[534px] mx-auto mb-4">
-          <label className="block text-lg font-[gilroy-medium] text-[#1B1717]">
+          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717]">
             Click Your Picture With Shop
           </label>
         </div>
 
         {/* Dotted Border Card - Fixed dimensions */}
         <div className="w-full h-[170px] sm:h-[180px] md:h-[190px] lg:h-[200px]">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-gray-50">
+          <div className="border-2 border-dashed border-gray-300 rounded-lg sm:rounded-xl h-full relative overflow-hidden bg-[#FAFAFA]">
             {/* Always render video element but hide/show it based on state */}
             <video
               ref={videoRef}
@@ -355,7 +355,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
         </div>
 
         {/* Image Upload Guidelines */}
-        <div className=" my-2">
+        <div className="mt-4">
           <div className="bg-green-50 border border-green-200 rounded-lg p-4 font-[gilroy-medium]">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
@@ -403,7 +403,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
               !formData.shopName ||
               !formData.shopPhotoDataUrl
             }
-            className={`w-full h-10 sm:h-11 md:h-12 mt-2 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+            className={`w-full h-10 sm:h-11 md:h-12 mt-6 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
               postShopDetailsLoading ||
               !formData.shopName ||
               !formData.shopPhotoDataUrl

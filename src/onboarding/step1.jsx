@@ -109,11 +109,11 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center  p-1 sm:p-2 md:p-2 lg:p-3 xl:p-4 overflow-hidden ">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
-        <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] mx-auto">
+        <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-center text-[#1B1717]">
           Mobile Verification
         </h3>
-        <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+        <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4 mt-2">
           Enter Your Mobile Number To Receive OTP
         </p>
 
@@ -121,7 +121,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="phone"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
           >
             Mobile Number
           </label>
@@ -208,7 +208,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="otp"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
           >
             Enter OTP
           </label>
@@ -272,7 +272,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
     hover:bg-green-700
     transition
     shadow-lg
-    mt-3
+    mt-7
     flex
     items-center
     justify-center
