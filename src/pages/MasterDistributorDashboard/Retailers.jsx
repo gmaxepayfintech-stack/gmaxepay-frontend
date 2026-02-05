@@ -12,7 +12,7 @@ import {
   FaExpand,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { X, ZoomIn } from "lucide-react";
+import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   useList as useListAction,
@@ -23,8 +23,10 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
+  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import ProfileDetails from "./ProfileDetails";
 
 const Retailers = ({
   embedded = false,
@@ -49,6 +51,7 @@ const Retailers = ({
   const [lastClickedRowId, setLastClickedRowId] = useState(null);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -312,6 +315,10 @@ const Retailers = ({
     }
   };
 
+  if (showProfileDetails) {
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+  }
+
   return (
     <div
       className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}
@@ -371,73 +378,75 @@ const Retailers = ({
           {/* Table */}
           <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[1200px] sm:min-w-full divide-y">
-              <thead className="bg-white">
+              <thead className="bg-white text-center">
                 <tr>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 ml-8  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    User
+                  </th>
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y font-normal divide-gray-100">
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
@@ -456,6 +465,20 @@ const Retailers = ({
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] ">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getCompanyAdmin(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
@@ -813,73 +836,76 @@ const Retailers = ({
           {/* Table */}
           <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[1200px] sm:min-w-full divide-y">
-              <thead className="bg-gray-100">
+              <thead className="bg-gray-100 text-center">
                 <tr>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    User
+                  </th>
 
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
-                  <th className="px-3 py-4 text-left font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4  font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y font-normal divide-gray-100">
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
@@ -898,6 +924,20 @@ const Retailers = ({
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getCompanyAdmin(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
                       </td>
 
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">

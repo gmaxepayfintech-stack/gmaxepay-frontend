@@ -712,48 +712,47 @@ const CreateWhiteLabel = () => {
     <div className="text-[#1B1717] w-full h-full  py-3  px-2 ">
       <div className="w-full h-full ">
         {/* Header Navigation */}
-        <div className="w-1/3 mb-6 sm:mb-8">
-          <div className="bg-white rounded-xl shadow py-3 ">
-            <nav className="flex justify-evenly">
-              <div className="inline-flex gap-3  p-2 rounded-2xl">
-                {["Distributor", "Retailers"].map((item) => (
-                  <button
-                    key={item}
-                    onClick={() => {
-                      setActiveNav(item);
-                      setShowOnboardingList(false);
-                    }}
-                    className="relative"
-                  >
-                    <div className="relative w-[160px] text-center">
-                      {/* Active pill */}
-                      {activeNav === item && (
-                        <motion.div
-                          layoutId="active-nav-pill"
-                          className="absolute inset-0 bg-[#039155] rounded-xl"
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 35,
-                          }}
-                        />
-                      )}
+        <div className="w-[28%] mb-6 sm:mb-8">
+          <div className="bg-white rounded-xl shadow-sm py-2 overflow-x-auto">
+            <nav className="relative flex">
+              {["Distributor", "Retailers"].map((item) => (
+                <button
+                  key={item}
+                  onClick={() => {
+                    setActiveNav(item);
+                    setShowOnboardingList(false);
+                  }}
+                  className="relative flex-auto flex justify-evenly"
+                >
+                  <span className="relative px-2 py-1.5 sm:px-3 sm:py-2 rounded-[16px]">
+                    {/* Moving pill */}
+                    {activeNav === item && (
+                      <motion.span
+                        layoutId="active-nav-pill"
+                        className="absolute inset-0 rounded-[16px] bg-[#039155]"
+                        transition={{
+                          type: "spring",
+                          stiffness: 500,
+                          damping: 35,
+                        }}
+                      />
+                    )}
 
-                      {/* Text */}
-                      <span
-                        className={`relative z-10 block py-2 text-sm sm:text-base font-[gilroy-medium]
-              ${
-                activeNav === item
-                  ? "text-white"
-                  : "text-[#1B1717] hover:text-[#039155]"
-              }`}
-                      >
-                        {item}
-                      </span>
-                    </div>
-                  </button>
-                ))}
-              </div>
+                    {/* Text */}
+                    <span
+                      className={`relative z-10 text-sm sm:text-base lg:text-lg
+                font-[gilroy-medium] whitespace-nowrap
+                ${
+                  activeNav === item
+                    ? "text-white"
+                    : "text-[#1B1717] hover:text-[#039155]"
+                }`}
+                    >
+                      {item}
+                    </span>
+                  </span>
+                </button>
+              ))}
             </nav>
           </div>
         </div>
