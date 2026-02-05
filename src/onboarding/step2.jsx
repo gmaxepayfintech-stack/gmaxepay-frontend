@@ -134,18 +134,18 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   return (
     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
       <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden ">
-        <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
-          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+        <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
+          <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-center text-[#1B1717]">
             Email Id Verification
           </h3>
-          <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base text-center mb-3">
+          <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm  text-center mb-4 mt-2">
             Enter Your Email to Receive OTP
           </p>
 
           <div className="space-y-6">
             {/* Email Input */}
             <div>
-              <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <label className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
                 Email Id
               </label>
               <div className="flex flex-row gap-0">
@@ -217,7 +217,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
             {/* OTP Input */}
             <div>
-              <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <label className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
                 Enter OTP
               </label>
               <div className="relative">
@@ -273,7 +273,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
             hover:bg-green-700
             transition
             shadow-lg
-            mt-3
+            mt-7
             flex items-center justify-center
           "
               >

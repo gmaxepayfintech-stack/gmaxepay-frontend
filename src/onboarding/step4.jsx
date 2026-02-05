@@ -226,18 +226,18 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
-      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] bg-white rounded-3xl shadow p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6 mx-auto">
+      <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
         {/* ================================================================= */}
         {/*                      DIGILOCKER VERIFICATION VIEW                 */}
         {/* ================================================================= */}
         {!showImageUpload && (
-          <div className="space-y-3 sm:space-y-3.5 md:space-y-4">
+          <div className="">
             {/* Header */}
-            <div className="text-center">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
+            <div className="text-center mb-7">
+              <h1 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
                 PAN Card Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm lg:text-base text-gray-600 mt-1 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  text-[#1B1717]/80 font-[gilroy-regular] mt-2 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -247,15 +247,15 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
               <div className="flex items-start gap-4">
                 <img
                   src="/img/Digilocker1.png"
-                  className="h-12 sm:h-14 md:h-16 lg:h-16 xl:h-20 flex-shrink-0"
+                  className="h-8 sm:h-10 md:h-11 lg:h-12 xl:h-14 flex-shrink-0"
                   alt="Digilocker"
                 />
 
                 <div>
-                  <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                  <h3 className="text-sm sm:text-base font-[gilroy-medium] text-[#1B1717]">
                     PAN Via DigiLocker
                   </h3>
-                  <p className="text-xs sm:text-sm text-gray-600">
+                  <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
                     Fetch PAN Document Securely From DigiLocker
                   </p>
                 </div>
@@ -263,7 +263,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
               {/* Buttons */}
               <div className="flex gap-6 mt-6">
-              <button
+                <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
@@ -281,7 +281,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                       ? "Connected ✓"
                       : "Connect"}
                 </button>
-                
+
                 <button
                   onClick={handleDownload}
                   disabled={!isConnectDone || isDownloadDone}
@@ -295,14 +295,13 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 >
                   {isDownloadDone ? "Verified" : "Verify"}
                 </button>
-
               </div>
             </div>
 
             {/* Information Box */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex gap-3">
+            <div className="bg-[#EAF5FF] border border-[#08378D] rounded-lg p-4 flex gap-3 mt-4 mb-7 ">
               <svg
-                className="h-5 w-5 text-blue-600 mt-1"
+                className="h-5 w-5 text-[#0059FF] mt-1"
                 fill="currentColor"
                 viewBox="0 0 20 20"
               >
@@ -319,10 +318,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
               </svg>
 
               <div>
-                <h4 className="font-semibold text-blue-900 text-sm">
+                <h4 className="font-[gilroy-semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs text-blue-800">
+                <p className="text-xs text-[#0059FF] font-[gilroy-regular]  ">
                   Documents are fetched directly from DigiLocker using secure
                   APIs.
                 </p>
@@ -346,10 +345,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
           <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-5 bg-white p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
+              <h1 className="text-base sm:text-lg font-[gilroy-semibold] text-[#1B1717]">
                 PAN Card Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm lg:text-base text-gray-600 mt-1 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm font-[gilroy-medium] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -392,7 +391,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                     className="w-[100px] h-[60px] sm:w-[110px] sm:h-[70px] md:w-[120px] md:h-[75px] lg:w-[140px] lg:h-[85px] xl:w-[150px] xl:h-[90px] object-contain"
                   />
 
-                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80 font-normal text-[11px] sm:text-xs md:text-sm lg:text-base xl:text-base text-center leading-[100%] tracking-[0%] align-middle">
+                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80  text-[11px] sm:text-xs md:text-sm  text-center leading-[100%] tracking-[0%] align-middle">
                     Add PAN Card Image
                   </h3>
 
@@ -403,12 +402,12 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={handleImageChange}
                     />
-                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 min-w-[120px] sm:min-w-[130px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[170px] h-auto min-h-[28px] sm:min-h-[30px] md:min-h-[32px] lg:min-h-[38px] xl:min-h-[40px] rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-xs lg:text-sm xl:text-base font-[gilroy-regular]">
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 rounded-lg sm:rounded-xl text-xs  font-[gilroy-regular]">
                       Select From Browser
                     </span>
                   </label>
 
-                  <p className="capitalize font-['Gilroy-Regular'] text-[#1B1717]/80 text-[9px] sm:text-[10px] md:text-xs lg:text-sm xl:text-sm leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
+                  <p className="capitalize font-['Gilroy-Regular'] text-[#1B1717]/80 text-[9px] sm:text-[10px]  leading-[100%] tracking-[0%] align-middle text-[#6B7280]">
                     File Size (Max 5 MB)
                   </p>
                 </div>
@@ -441,10 +440,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-xl font-[gilroy-semibold] text-gray-900 mb-2">
+                    <h3 className="text-xl font-[gilroy-semibold] text-[#1B1717] mb-2">
                       Auto Verifying
                     </h3>
-                    <p className="text-gray-600 font-[gilroy-medium] text-sm">
+                    <p className="text-[#1B1717]/80 font-[gilroy-medium] text-sm">
                       We are auto verifying your PAN details based on eKYC
                     </p>
                   </div>
