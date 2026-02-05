@@ -161,7 +161,6 @@ const Subscription = () => {
         type: 'error',
         message: userUpgradeError,
         duration: 5000,
-        isCritical: true,
       });
     }
   }, [userUpgradeError, showNotification]);
@@ -197,7 +196,6 @@ const Subscription = () => {
         type: 'error',
         message: 'Company ID or Subscription ID is missing. Please try again.',
         duration: 5000,
-        isCritical: true,
       });
     }
   };
