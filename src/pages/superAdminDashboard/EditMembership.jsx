@@ -82,6 +82,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
       const slabId = scheme?.id || scheme?.slabId;
       if (companyId && slabId) {
         setCommLoading(true);
+        // Auto-expand first section when loading starts to show skeleton
+        setExpandedSections({ aeps: true });
         try {
           await dispatch(getSlabCommissionList(companyId, slabId, 1, 1));
         } finally {
@@ -743,25 +745,53 @@ const EditMembership = ({ scheme = null, onBack }) => {
       {/* All commissions in a single outer section with grey background */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
         <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6 ">
-          {/* Show sections when loading OR when they have data */}
-          {/* AEPS Commissions Section (accordion by operatorType) */}
-          {(commLoading || aepsCommissions.length > 0) && 
-            renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
+          {/* Show skeleton when loading */}
+          {commLoading ? (
+            <>
+              {/* Show skeleton sections when loading */}
+              {renderCommissionSection("AEPS Commissions", [], "aeps")}
+              {renderCommissionSection("Mobile And DTH Recharge", [], "mobileDth")}
+            </>
+          ) : (
+            <>
+              {/* Check if all sections are empty */}
+              {aepsCommissions.length === 0 && 
+               mobileDthCommissions.length === 0 && 
+               dynamicSectionTypes.length === 0 ? (
+                <div className="px-4 py-12 flex flex-col items-center justify-center">
+                  <img 
+                    src="/img/pagenotfound.gif" 
+                    alt="No data found" 
+                    className="w-64 h-64 object-contain mb-4"
+                  />
+                  <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
+                    No commission records found.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* AEPS Commissions Section (accordion by operatorType) */}
+                  {aepsCommissions.length > 0 && 
+                    renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
 
-          {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
-          {(commLoading || mobileDthCommissions.length > 0) && 
-            renderCommissionSection(
-              "Mobile And DTH Recharge",
-              mobileDthCommissions,
-              "mobileDth",
-            )}
-          {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, AEPS2, etc.) */}
-          {dynamicSectionTypes.map((type) =>
-            renderCommissionSection(
-              `${type} Commissions`,
-              groupedByType[type] || [],
-              type.toLowerCase().replace(/\s+/g, "_"),
-            ),
+                  {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
+                  {mobileDthCommissions.length > 0 && 
+                    renderCommissionSection(
+                      "Mobile And DTH Recharge",
+                      mobileDthCommissions,
+                      "mobileDth",
+                    )}
+                  {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, AEPS2, etc.) */}
+                  {dynamicSectionTypes.map((type) =>
+                    renderCommissionSection(
+                      `${type} Commissions`,
+                      groupedByType[type] || [],
+                      type.toLowerCase().replace(/\s+/g, "_"),
+                    ),
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </div>
