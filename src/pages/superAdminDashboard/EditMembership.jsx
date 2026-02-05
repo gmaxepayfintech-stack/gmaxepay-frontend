@@ -647,7 +647,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
               placeholder="Enter Scheme Name"
               value={schemeName}
               onChange={(e) => setSchemeName(e.target.value)}
-              className="w-full px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none text-xs sm:text-sm text-[#1B1717]/80"
+              className="w-full px-3 sm:px-4 py-2 sm:py-4 border border-[#1B1717]/80 rounded-lg focus:outline-none text-xs sm:text-sm text-[#1B1717]/80"
             />
           </div>
 
@@ -659,7 +659,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
             <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
-            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
+            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg bg-white">
               <div className="relative mt-1 flex-shrink-0">
                 <div className="w-4 h-4 rounded-full border-2 border-[#039155] bg-[#039155] flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-white"></div>
@@ -670,7 +670,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                 <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
                   {schemeMode}
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
+                <p className="text-[10px] text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed truncate">
                   {schemeMode === "Global"
                     ? "Available To All Users Worldwide"
                     : "Restricted To Specific Users"}
@@ -684,7 +684,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
             <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
               Scheme Type
             </label>
-            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
+            <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg bg-white">
               <div className="relative mt-1 flex-shrink-0">
                 <div className="w-4 h-4 rounded-full border-2 border-[#039155] bg-[#039155] flex items-center justify-center">
                   <div className="w-2 h-2 rounded-full bg-white"></div>
@@ -695,7 +695,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                 <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
                   {schemeType}
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
+                <p className="text-[10px] text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed truncate">
                   {schemeType === "Free"
                     ? "No Cost Membership"
                     : "Restricted Access With Invitation Only"}

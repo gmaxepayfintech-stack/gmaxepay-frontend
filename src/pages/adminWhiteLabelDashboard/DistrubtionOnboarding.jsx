@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { Calendar, ChevronLeft, ChevronRight, X, ZoomIn } from "lucide-react";
+import {
+  Calendar,
+  ChevronLeft,
+  ChevronRight,
+  User,
+  X,
+  ZoomIn,
+} from "lucide-react";
 import {
   FaEdit,
   FaTrash,
@@ -21,7 +28,9 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
+  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
+import ProfileDetails from "./ProfileDetails";
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -38,6 +47,8 @@ const DistrubtionOnboarding = ({
   const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
+
   const kycModalRef = useRef(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
@@ -183,6 +194,10 @@ const DistrubtionOnboarding = ({
     XLSX.writeFile(workbook, fileName);
   };
 
+  if (showProfileDetails) {
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+  }
+
   return (
     <div
       className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}
@@ -246,73 +261,76 @@ const DistrubtionOnboarding = ({
             {/* Table */}
             <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
               <table className="min-w-[1200px] sm:min-w-full divide-y">
-                <thead className="bg-white">
+                <thead className="bg-white text-center">
                   <tr>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       ID
                     </th>
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                      User
+                    </th>
 
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       User ID
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       User Role
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Mobile No
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Email Id
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Parent Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Parent Role
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Company Name
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Steps
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Main Wallet
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       AEPS Wallet
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       KYC Details
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Action
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Lock Status
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Onboarding
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Token Expire
                     </th>
-                    <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                       Date
                     </th>
                   </tr>
                 </thead>
 
-                <tbody>
+                <tbody className="text-center">
                   {!tableData || tableData.length === 0 ? (
                     <tr>
                       <td colSpan={19} className="py-12 text-center">
@@ -332,6 +350,20 @@ const DistrubtionOnboarding = ({
                         {/* ID */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <button
+                            onClick={() => {
+                              const userId = row.id || row.originalItem?.id;
+                              if (userId) {
+                                dispatch(getCompanyAdmin(userId));
+                                setShowProfileDetails(true);
+                              }
+                            }}
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                          >
+                            <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                          </button>
                         </td>
 
                         {/* User ID */}
@@ -655,62 +687,65 @@ const DistrubtionOnboarding = ({
             <table className="min-w-[1200px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    User
+                  </th>
 
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Status
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
-                  <th className="text-left py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody>
+              <tbody className="text-center">
                 {!tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={19} className="py-12 text-center">
@@ -730,6 +765,20 @@ const DistrubtionOnboarding = ({
                       {/* ID */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                         {row.id || "N/A"}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getCompanyAdmin(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
                       </td>
 
                       {/* User ID */}

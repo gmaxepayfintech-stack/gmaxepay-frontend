@@ -12,7 +12,7 @@ import {
   FaExpand,
 } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
-import { X, ZoomIn } from "lucide-react";
+import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
   useList as useListAction,
@@ -22,8 +22,10 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
+  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import ProfileDetails from "./ProfileDetails";
 
 const MasterDistribution = ({
   embedded = false,
@@ -46,6 +48,7 @@ const MasterDistribution = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
 
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
@@ -291,6 +294,10 @@ const MasterDistribution = ({
     };
   }, [showKycModal]);
 
+  if (showProfileDetails) {
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+  }
+
   return (
     <div
       className={`text-[#1B1717] ${embedded ? "[&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]" : "min-h-screen p-4 sm:p-6"}`}
@@ -348,83 +355,87 @@ const MasterDistribution = ({
           </div>
 
           {/* Table */}
-          <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
-              <thead className="bg-white">
+              <thead className="bg-white text-center">
                 <tr>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    User
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
+                  </th>
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y font-normal divide-gray-100">
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-medium">
+                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
                         No data available
                       </p>
                     </td>
@@ -441,10 +452,21 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.date || "N/A"}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getCompanyAdmin(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
                       </td>
+
                       {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -485,7 +507,7 @@ const MasterDistribution = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-medium ";
+                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -519,7 +541,7 @@ const MasterDistribution = ({
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
                             row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
@@ -540,7 +562,7 @@ const MasterDistribution = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium transition-colors"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium] transition-colors"
                         >
                           KYC Details
                         </button>
@@ -634,7 +656,7 @@ const MasterDistribution = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -652,12 +674,16 @@ const MasterDistribution = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Send
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))
@@ -685,7 +711,7 @@ const MasterDistribution = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium ${
+                    className={`w-8 h-8 rounded-lg text-sm font-[gilroy-medium] ${
                       page === currentPage
                         ? "bg-green-600 text-white"
                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -756,7 +782,7 @@ const MasterDistribution = ({
 
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
                 Export <FaUpload className="text-xs" />
               </button>
@@ -764,83 +790,87 @@ const MasterDistribution = ({
           </div>
 
           {/* Table */}
-          <div className="mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+          <div className="mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Date
+                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    User
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
+                  </th>
+                  <th className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y font-normal divide-gray-100">
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
                 {isLoading ? (
                   <TableBodyLoader colSpan={23} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-medium">
+                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
                         No data available
                       </p>
                     </td>
@@ -857,10 +887,21 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.id || "N/A"}
                       </td>
-                      {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.date || "N/A"}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getCompanyAdmin(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                          className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
+                        >
+                          <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                        </button>
                       </td>
+
                       {/* User ID */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.userId || row.userAgentCode || "N/A"}
@@ -901,7 +942,7 @@ const MasterDistribution = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-medium ";
+                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -935,7 +976,7 @@ const MasterDistribution = ({
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-medium ${
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
                             row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
@@ -956,7 +997,7 @@ const MasterDistribution = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-medium transition-colors"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium] transition-colors"
                         >
                           KYC Details
                         </button>
@@ -1050,7 +1091,7 @@ const MasterDistribution = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -1068,12 +1109,16 @@ const MasterDistribution = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
                             >
                               Send
                             </button>
                           );
                         })()}
+                      </td>
+                      {/* Date */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                        {row.date || "N/A"}
                       </td>
                     </tr>
                   ))
@@ -1101,7 +1146,7 @@ const MasterDistribution = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-8 h-8 rounded-lg text-sm font-medium ${
+                    className={`w-8 h-8 rounded-lg text-sm font-[gilroy-medium] ${
                       page === currentPage
                         ? "bg-green-600 text-white"
                         : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1172,7 +1217,7 @@ const MasterDistribution = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1183,7 +1228,7 @@ const MasterDistribution = ({
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1193,7 +1238,7 @@ const MasterDistribution = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1203,7 +1248,7 @@ const MasterDistribution = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1213,7 +1258,7 @@ const MasterDistribution = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1223,7 +1268,7 @@ const MasterDistribution = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1268,7 +1313,7 @@ const MasterDistribution = ({
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-[gilroy-medium] text-gray-700">
                               Progress
                             </span>
                             <span className="text-sm font-semibold text-gray-800">
@@ -1301,7 +1346,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1309,7 +1354,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1317,7 +1362,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1325,7 +1370,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[gilroy-medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>

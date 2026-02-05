@@ -180,15 +180,15 @@ const MasterDistLayout = ({ children }) => {
         },
       ],
     },
-    {
-      name: "API Operator",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        { name: "Operator List", path: `${BASE_PATH}/api-operator/list` },
-        { name: "API Settings", path: `${BASE_PATH}/api-operator/settings` },
-      ],
-    },
+    // {
+    //   name: "API Operator",
+    //   icon: MaskGroup2,
+    //   dropdown: true,
+    //   children: [
+    //     { name: "Operator List", path: `${BASE_PATH}/api-operator/list` },
+    //     { name: "API Settings", path: `${BASE_PATH}/api-operator/settings` },
+    //   ],
+    // },
     {
       name: "Resources",
       icon: MaskGroup3,
