@@ -5,7 +5,6 @@ import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
-import { getUserDetails } from "../../redux/action/whiteLabelAction";
 import { upgradeOrChangeSlab } from "../../redux/action/subscriptionAction";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
@@ -19,6 +18,7 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { addBankAdminDetails } from "../../redux/action/userProfileAction";
+import { getAdminDetails } from "../../redux/action/userProfileAction";
 
 const SuperAdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -37,11 +37,11 @@ const SuperAdminProfile = ({ onBack = null }) => {
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
-  // Get user details from Redux (preferred)
-  const userDetailsState = useSelector(
-    (state) => state?.whitelabel?.userDetails,
+  // Get admin details from Redux (preferred)
+  const adminDetailsState = useSelector(
+    (state) => state?.userProfile?.adminDetailsResponse,
   );
-  const userDetailsData = userDetailsState?.userDetailsData || null;
+  const userDetailsData = adminDetailsState?.adminDetailsResponse || null;
 
   // Get company admin data from Redux (fallback)
   const companyAdminState = useSelector(
@@ -50,9 +50,9 @@ const SuperAdminProfile = ({ onBack = null }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get loading state for user details
+  // Get loading state for admin details
   const isUserDetailsLoading = useSelector(
-    (state) => state?.whitelabel?.loading || false,
+    (state) => state?.userProfile?.loading || false,
   );
 
   // Use userDetailsData if available, otherwise fall back to companyAdminData
@@ -104,9 +104,9 @@ const SuperAdminProfile = ({ onBack = null }) => {
     return "";
   };
 
-  // Fetch user details and slab visibility on component mount (always fetch when page is showing)
+  // Fetch admin details and slab visibility on component mount (always fetch when page is showing)
   useEffect(() => {
-    dispatch(getUserDetails());
+    dispatch(getAdminDetails());
     if (companyId) {
       dispatch(getAllCompanySlabVisibility(companyId));
     }
@@ -128,8 +128,8 @@ const SuperAdminProfile = ({ onBack = null }) => {
   useEffect(() => {
     if (upgradeSuccess) {
       setShowConfirmModal(false);
-      // Refresh user details to get updated data
-      dispatch(getUserDetails());
+      // Refresh admin details to get updated data
+      dispatch(getAdminDetails());
       // Refresh slab visibility
       if (companyId) {
         dispatch(getAllCompanySlabVisibility(companyId));
@@ -1035,7 +1035,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
 
                       try {
                         await dispatch(addBankAdminDetails(payload));
-                        await dispatch(getUserDetails());
+                        await dispatch(getAdminDetails());
 
                         showNotification({
                           type: "success",
