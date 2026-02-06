@@ -707,7 +707,6 @@ export const getMDDetails = () => async (dispatch) => {
   }
 };
 
-// Get report to user list (Master Distributor, Distributor, Retailer)
 export const getReportToUserList = (payload) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
@@ -853,3 +852,4 @@ export const getReportToDownline = (payload) => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
+
