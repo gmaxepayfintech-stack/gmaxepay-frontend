@@ -25,7 +25,7 @@ const VerifyMPINView = ({
       <div className="w-full max-w-[534px] mx-auto">
         <div className="flex justify-center mb-6">
           <img
-            src={company?.logo || "/img/gmaxepay.svg"}
+            src={company?.logo || "/img/gmaxepay.png"}
             className="h-14 sm:h-16 md:h-20 object-contain"
             alt="Logo"
           />

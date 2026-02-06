@@ -26,14 +26,14 @@ const Auth2FAView = ({
         <div className="mb-6 sm:mb-8 md:mb-6 lg:mb-8 text-center">
           <div className="flex justify-center mb-4 sm:mb-6 md:mb-4">
             <img
-              src={company?.logo || "/img/gmaxepay.svg"}
+              src={company?.logo || "/img/gmaxepay.png"}
               alt={company?.companyName || "GMAXEPAY Logo"}
               className="object-contain h-16 sm:h-20 md:h-24 lg:h-28"
               loading="eager"
               fetchpriority="high"
               decoding="async"
               onError={(e) => {
-                e.target.src = "/img/gmaxepay.svg";
+                e.target.src = "/img/gmaxepay.png";
               }}
             />
           </div>

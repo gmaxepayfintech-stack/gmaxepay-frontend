@@ -18,7 +18,7 @@ const MaskGroup4 = "/img/Maskgroup4.png";
 const MaskGroup5 = "/img/Maskgroup5.png";
 const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
-const companyLogo = "/img/gmaxepay.svg";
+const companyLogo = "/img/gmaxepay.png";
 
 const RetailerDashLayout = ({ children }) => {
   const { company } = useCompany();
@@ -302,7 +302,7 @@ const RetailerDashLayout = ({ children }) => {
                       }`}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/img/gmaxepay.svg";
+                        e.target.src = "/img/gmaxepay.png";
                       }}
                     />
                     {dropdown ? (
@@ -408,7 +408,7 @@ const RetailerDashLayout = ({ children }) => {
                         className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                         onError={(e) => {
                           e.target.onerror = null;
-                          e.target.src = "/img/gmaxepay.svg";
+                          e.target.src = "/img/gmaxepay.png";
                         }}
                       />
                     </div>
@@ -429,7 +429,7 @@ const RetailerDashLayout = ({ children }) => {
                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "/img/gmaxepay.svg";
+                  e.target.src = "/img/gmaxepay.png";
                 }}
               />
             </button>
