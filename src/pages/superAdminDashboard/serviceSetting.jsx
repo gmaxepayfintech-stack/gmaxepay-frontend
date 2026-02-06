@@ -1,23 +1,14 @@
 import { Plus, Search, Pencil, Trash2 } from "lucide-react";
-import React, { useState } from "react";
-
-const initialServices = [
-  { slno: 1, id: 1, servicename: "Mobile Recharge", active: true },
-  { slno: 2, id: 2, servicename: "DTH Recharge", active: true },
-  { slno: 3, id: 3, servicename: "BBPS", active: true },
-  { slno: 4, id: 4, servicename: "AEPS-1", active: true },
-  { slno: 5, id: 5, servicename: "AEPS-2", active: true },
-  { slno: 6, id: 6, servicename: "CMT-1", active: true },
-  { slno: 7, id: 7, servicename: "CMT-2", active: true },
-  { slno: 8, id: 8, servicename: "DMT-1", active: true },
-  { slno: 9, id: 9, servicename: "DMT-2", active: true },
-  { slno: 10, id: 10, servicename: "Pan Creation", active: true },
-  { slno: 11, id: 11, servicename: "M-Pas", active: true },
-  { slno: 12, id: 12, servicename: "Micro-ATM", active: true },
-];
+import React, { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import {
+  listServices,
+  createService,
+  updateService,
+} from "../../redux/action/serviceActions";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 const ServiceSetting = () => {
-  const [services, setServices] = useState(initialServices);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -29,41 +20,55 @@ const ServiceSetting = () => {
     active: true,
   });
 
-  const toggleStatus = (id) => {
-    setServices((prev) =>
-      prev.map((service) =>
-        service.id === id ? { ...service, active: !service.active } : service,
-      ),
-    );
+  const handleSubmit = () => {
+    if (!formData.servicename) return;
+
+    const payload = {
+      serviceName: formData.servicename,
+      isActive: formData.active,
+    };
+
+    if (isEditMode && editingId) {
+      // 🔁 UPDATE
+      dispatch(updateService(editingId, payload));
+    } else {
+      // ➕ CREATE
+      dispatch(createService(payload));
+    }
+
+    setIsOpen(false);
+    setIsEditMode(false);
+    setEditingId(null);
+    setFormData({ id: "", servicename: "", active: true });
   };
-
-  // 🔍 Search filter
-  const filteredServices = services.filter(
-    (service) =>
-      service.servicename.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.id.toString().includes(searchQuery),
-  );
-
-  const sortedServices = [...filteredServices].sort((a, b) =>
-    a.servicename.localeCompare(b.servicename),
-  );
 
   const handleEdit = (service) => {
     setIsEditMode(true);
     setEditingId(service.id);
+
     setFormData({
       id: service.id,
-      servicename: service.servicename,
-      active: service.active,
+      servicename: service.serviceName,
+      active: service.isActive,
     });
+
     setIsOpen(true);
   };
 
-  const handleDelete = (id) => {
-    if (!window.confirm("Delete this service?")) return;
+  // const handleDelete = (id) => {
+  //   if (!window.confirm("Delete this service?")) return;
 
-    setServices((prev) => prev.filter((service) => service.id !== id));
-  };
+  //   setServices((prev) => prev.filter((service) => service.id !== id));
+  // };
+
+  const dispatch = useDispatch();
+  const { serviceList } = useSelector((state) => state.services);
+  const isLoading = useSelector((state) => state.loading.isLoading);
+  const services = serviceList || [];
+
+  useEffect(() => {
+    dispatch(listServices(searchQuery, 1));
+  }, [dispatch, searchQuery]);
 
   return (
     <div className="py-4 px-1">
@@ -148,8 +153,17 @@ const ServiceSetting = () => {
           </thead>
 
           <tbody>
-            {sortedServices.length > 0 ? (
-              sortedServices.map((service) => (
+            {isLoading ? (
+              <tr>
+                <td
+                  colSpan="4"
+                  className="text-center py-6 text-sm text-gray-500"
+                >
+                  <ButtonLoader />
+                </td>
+              </tr>
+            ) : services.length > 0 ? (
+              services.map((service) => (
                 <tr
                   key={service.id}
                   className="border-b border-[#1B1717]/20 last:border-none"
@@ -161,19 +175,19 @@ const ServiceSetting = () => {
                     {service.id}
                   </td>
                   <td className="w-1/4 py-4 px-6 text-xs font-[gilroy-medium] text-center">
-                    {service.servicename}
+                    {service.serviceName}
                   </td>
                   <td className="w-1/4 py-4 px-6">
                     <div className="flex justify-end">
                       <button
-                        onClick={() => toggleStatus(service.id)}
+                        // onClick={() => toggleStatus(service.id)}
                         className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                          service.active ? "bg-[#039155]" : "bg-gray-300"
+                          service.isActive ? "bg-[#039155]" : "bg-gray-300"
                         }`}
                       >
                         <div
                           className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                            service.active ? "translate-x-6" : "translate-x-0"
+                            service.isActive ? "translate-x-6" : "translate-x-0"
                           }`}
                         />
                       </button>
@@ -184,20 +198,20 @@ const ServiceSetting = () => {
                       {/* Edit */}
                       <button
                         onClick={() => handleEdit(service)}
-                        className="p-2 rounded-lg border border-[#1B1717]/30 hover:bg-[#039155]/10 transition"
+                        className="p-2  transition"
                         title="Edit"
                       >
                         <Pencil className="w-4 h-4 text-[#039155]" />
                       </button>
 
-                      {/* Delete */}
+                      {/* Delete
                       <button
                         onClick={() => handleDelete(service.id)}
                         className="p-2 rounded-lg border border-red-300 hover:bg-red-50 transition"
                         title="Delete"
                       >
                         <Trash2 className="w-4 h-4 text-red-500" />
-                      </button>
+                      </button> */}
                     </div>
                   </td>
                 </tr>
@@ -252,24 +266,8 @@ const ServiceSetting = () => {
               </h3>
 
               {/* Inputs */}
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
-                    Service ID
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.id}
-                    disabled={isEditMode}
-                    onChange={(e) =>
-                      setFormData({ ...formData, id: e.target.value })
-                    }
-                    className={`w-full border border-[#1B1717]/80 rounded-lg px-3 py-2 text-sm ${
-                      isEditMode ? "bg-gray-100 cursor-not-allowed" : ""
-                    }`}
-                  />
-                </div>
-
+              <div className="flex gap-4 items-end">
+                {/* Service Name */}
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[gilroy-medium] text-sm text-[#121216]">
                     Service Name
@@ -281,12 +279,40 @@ const ServiceSetting = () => {
                       setFormData({ ...formData, servicename: e.target.value })
                     }
                     placeholder="Enter Service Name"
-                    className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-2 text-sm"
+                    className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-4 text-sm font-[gilroy-medium]"
                   />
+                </div>
+
+                {/* Active Toggle */}
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                    Active
+                  </label>
+
+                  <div className="border border-[#1B1717]/80 py-4 px-3 rounded-lg flex justify-between items-center">
+                    <span className="text-sm font-[gilroy-medium] text-[#1B1717]">
+                      Activate Service
+                    </span>
+
+                    <button
+                      onClick={() =>
+                        setFormData({ ...formData, active: !formData.active })
+                      }
+                      className={`w-10 h-5 rounded-full p-1 transition-colors ${
+                        formData.active ? "bg-[#039155]" : "bg-gray-300"
+                      }`}
+                    >
+                      <div
+                        className={`w-3 h-3 bg-white rounded-full transition-transform ${
+                          formData.active ? "translate-x-5" : "translate-x-0"
+                        }`}
+                      />
+                    </button>
+                  </div>
                 </div>
               </div>
 
-              {/* Active toggle */}
+              {/* Active toggle
               <div>
                 <h3 className="font-[gilroy-medium] text-sm text-[#121216] mb-1">
                   Active
@@ -317,7 +343,7 @@ const ServiceSetting = () => {
                     />
                   </button>
                 </div>
-              </div>
+              </div> */}
             </div>
 
             {/* Footer buttons */}
@@ -330,33 +356,33 @@ const ServiceSetting = () => {
               </button>
 
               <button
-                onClick={() => {
-                  if (!formData.id || !formData.servicename) return;
+                // onClick={() => {
+                //   if (!formData.id || !formData.servicename) return;
+                onClick={handleSubmit}
+                // if (isEditMode) {
+                //   // UPDATE
+                //   setServices((prev) =>
+                //     prev.map((service) =>
+                //       service.id === editingId
+                //         ? { ...service, ...formData }
+                //         : service,
+                //     ),
+                //   );
+                // } else {
+                //   // ADD
+                //   setServices((prev) => [
+                //     ...prev,
+                //     {
+                //       slno: prev.length + 1,
+                //       ...formData,
+                //     },
+                //   ]);
+                // }
 
-                  if (isEditMode) {
-                    // UPDATE
-                    setServices((prev) =>
-                      prev.map((service) =>
-                        service.id === editingId
-                          ? { ...service, ...formData }
-                          : service,
-                      ),
-                    );
-                  } else {
-                    // ADD
-                    setServices((prev) => [
-                      ...prev,
-                      {
-                        slno: prev.length + 1,
-                        ...formData,
-                      },
-                    ]);
-                  }
-
-                  setIsOpen(false);
-                  setIsEditMode(false);
-                  setEditingId(null);
-                }}
+                //   setIsOpen(false);
+                //   setIsEditMode(false);
+                //   setEditingId(null);
+                // }}
                 className="w-1/2 bg-[#039155] text-white rounded-xl font-[gilroy-semibold] py-3 text-sm"
               >
                 {isEditMode ? "Update Service" : "Add Service"}

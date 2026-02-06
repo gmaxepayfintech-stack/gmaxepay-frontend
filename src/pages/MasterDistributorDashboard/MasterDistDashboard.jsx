@@ -168,7 +168,7 @@ const MasterDistDashboard = () => {
   // Quick Access Services data
   const quickServices = [
     {
-      name: "Mobile & DTH Recharge",
+      name: "Mobile Recharge",
       icon: "/img/MobileRecharge.svg",
       amount: "₹ 20542",
     },
@@ -180,7 +180,7 @@ const MasterDistDashboard = () => {
     { name: "CMS-2", icon: "/img/CMS.svg", amount: "₹ 20542" },
     { name: "Indo-Nepal DMT", icon: "/img/DMT.svg", amount: "₹ 20542" },
     {
-      name: "Mobile & DTH Recharge",
+      name: "DTH Recharge",
       icon: "/img/DTH1.svg",
       amount: "₹ 20542",
     },
@@ -1039,8 +1039,8 @@ const MasterDistDashboard = () => {
                             selectedAepsWallet === "aeps1"
                               ? "AEPS1"
                               : selectedAepsWallet === "aeps2"
-                              ? "AEPS2"
-                              : undefined;
+                                ? "AEPS2"
+                                : undefined;
 
                           payload = {
                             amount: amount.toString(),
@@ -1106,7 +1106,7 @@ const MasterDistDashboard = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1121,7 +1121,7 @@ const MasterDistDashboard = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1131,7 +1131,7 @@ const MasterDistDashboard = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
