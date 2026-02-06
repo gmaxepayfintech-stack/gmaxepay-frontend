@@ -8,7 +8,9 @@ import {
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
-import { getWalletBalance} from "../../redux/action/walletAction";
+import { getWalletBalance } from "../../redux/action/walletAction";
+import { useNotification } from "../../context/NotificationContext";
+import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -20,11 +22,15 @@ import { motion } from "framer-motion";
 
 const ProfileDetails = ({ onBack = null }) => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
   const [selectedScheme, setSelectedScheme] = useState("");
   const [imageError, setImageError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [isAddingBank, setIsAddingBank] = useState(false);
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankIfsc, setBankIfsc] = useState("");
 
   // Get company admin data from Redux
   const companyAdminState = useSelector(
@@ -883,74 +889,203 @@ const ProfileDetails = ({ onBack = null }) => {
         {activeTab === "bankDetails" && (
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             {/* Header */}
-            <div className="mb-6">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                Bank Details
-              </h3>
-            </div>
-
-            <div className="space-y-6">
-              {bankDetails && bankDetails.length > 0 ? (
-                bankDetails.map((bank, index) => (
-                  <div
-                    key={bank.id || index}
-                    className="flex items-start justify-between gap-6 w-full"
+            <div className="mb-6 flex items-center justify-between gap-3">
+              {isAddingBank ? (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingBank(false)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                    aria-label="Back to Bank Details"
                   >
-                    {/* Bank Name */}
-                    <div className="flex flex-col w-1/5">
-                      <p className="text-xs text-gray-500">Bank Name</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.bankName || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Created On */}
-                    <div className="flex flex-col w-1/5">
-                      <p className="text-xs text-gray-500">City</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.city || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Account Number */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">Account Number</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.accountNumber || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* IFSC Code */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">IFSC Code</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.ifsc || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Branch */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">Branch</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.branch || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Status */}
-                    <div className="flex flex-col w-20">
-                      <p className="text-xs text-gray-500">Status</p>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No bank details available</p>
+                    <span className="text-sm font-semibold text-[#1B1717]">
+                      ←
+                    </span>
+                  </button>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+                    Enter Your Bank Details
+                  </h3>
                 </div>
+              ) : (
+                <>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+                    Bank Details
+                  </h3>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingBank(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[gilroy-medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
+                  >
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-md">
+                      +
+                    </span>
+                    <span>Add New Account</span>
+                  </button>
+                </>
               )}
             </div>
+
+            {/* Add / Edit Bank Form */}
+            {isAddingBank ? (
+              <div className="rounded-2xl border border-[#E5E7EB] px-4 py-5 sm:px-6 sm:py-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {/* Account Number */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                      Account Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={bankAccountNumber}
+                      onChange={(e) =>
+                        setBankAccountNumber(e.target.value.replace(/\D/g, ""))
+                      }
+                      placeholder="Enter Account Number"
+                      className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+
+                  {/* IFSC Code */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                      IFSC Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={bankIfsc}
+                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      placeholder="Enter IFSC Code"
+                      className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-center sm:justify-start gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingBank(false);
+                      setBankAccountNumber("");
+                      setBankIfsc("");
+                    }}
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg text-sm font-[gilroy-medium] text-[#111827] hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!bankAccountNumber || !bankIfsc) {
+                        showNotification({
+                          type: "error",
+                          message:
+                            "Please enter account number and IFSC code.",
+                          isCritical: true,
+                        });
+                        return;
+                      }
+
+                      const payload = {
+                        account_number: bankAccountNumber,
+                        ifsc: bankIfsc,
+                      };
+
+                      try {
+                        await dispatch(addBankCompanyDetails(payload));
+                        if (data?.id) {
+                          await dispatch(getCompanyAdmin(data.id));
+                        }
+
+                        showNotification({
+                          type: "success",
+                          message: "Bank details added successfully.",
+                          isCritical: true,
+                        });
+
+                        setIsAddingBank(false);
+                        setBankAccountNumber("");
+                        setBankIfsc("");
+                      } catch (error) {
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "Failed to add bank details. Please try again.",
+                          isCritical: true,
+                        });
+                      }
+                    }}
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] rounded-lg bg-[#039155] text-white text-sm font-[gilroy-semibold] hover:bg-green-700 transition"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {bankDetails && bankDetails.length > 0 ? (
+                  bankDetails.map((bank, index) => (
+                    <div
+                      key={bank.id || index}
+                      className="flex items-start justify-between gap-6 w-full"
+                    >
+                      {/* Bank Name */}
+                      <div className="flex flex-col w-1/5">
+                        <p className="text-xs text-gray-500">Bank Name</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.bankName || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Created On */}
+                      <div className="flex flex-col w-1/5">
+                        <p className="text-xs text-gray-500">City</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.city || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Account Number */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">Account Number</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.accountNumber || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* IFSC Code */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">IFSC Code</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.ifsc || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Branch */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">Branch</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.branch || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Status */}
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Status</p>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No bank details available</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
