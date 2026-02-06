@@ -123,7 +123,7 @@ const OtpVerify = () => {
         <div className="w-full max-w-sm mx-auto">
           <div className="flex justify-center mb-6">
             <img
-              src={company?.logo || "/img/gmaxepay.png"}
+              src={company?.logo || "/img/gmaxepay.svg"}
               className="h-14 sm:h-16 md:h-20 object-contain"
               alt="Logo"
             />

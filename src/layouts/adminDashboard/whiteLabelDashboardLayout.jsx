@@ -18,7 +18,7 @@ const MaskGroup4 = "/img/Maskgroup4.png";
 const MaskGroup5 = "/img/Maskgroup5.png";
 const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
-const companyLogo = "/img/gmaxepay.png";
+const companyLogo = "/img/gmaxepay.svg";
 
 const WhiteLabelDashboardLayout = ({ children }) => {
   const { company } = useCompany();
@@ -316,7 +316,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                       }`}
                       onError={(e) => {
                         e.target.onerror = null;
-                        e.target.src = "/img/gmaxepay.png";
+                        e.target.src = "/img/gmaxepay.svg";
                       }}
                     />
                     {dropdown ? (
@@ -407,7 +407,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                   className="w-4 h-4 object-contain"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "/img/gmaxepay.png";
+                    e.target.src = "/img/gmaxepay.svg";
                   }}
                 />
               </button>
@@ -452,7 +452,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                           className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = "/img/gmaxepay.png";
+                            e.target.src = "/img/gmaxepay.svg";
                           }}
                         />
                       </div>
@@ -474,7 +474,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                 className="w-4 h-4 sm:w-5 sm:h-5 object-contain  "
                 onError={(e) => {
                   e.target.onerror = null;
-                  e.target.src = "/img/gmaxepay.png";
+                  e.target.src = "/img/gmaxepay.svg";
                 }}
               />
             </button>
