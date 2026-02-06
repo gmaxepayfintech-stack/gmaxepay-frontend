@@ -21,6 +21,9 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
   const { company } = useCompany();
   const [showPassword, setShowPassword] = useState(false);
   const isLoading = useSelector((state) => state?.loading?.isLoading);
+  
+  const currentDomain = window.location.hostname;
+  const shouldHideSignUp = currentDomain === "app.gmaxepay.in";
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-3 sm:px-6 md:px-12 lg:px-16 xl:px-20 py-3 sm:py-5 md:py-4 lg:py-0 overflow-y-auto min-h-screen">
@@ -329,32 +332,34 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
           </div>
         </div>
 
-        <div className="mt-3 sm:mt-4 md:mt-6 flex justify-center px-2">
-          <p
-            className="text-center"
-            style={{
-              fontFamily: "Gilroy-Medium",
-              fontWeight: 400,
-              fontSize: "16px",
-              lineHeight: "120%",
-              color: "#1B1717",
-            }}
-          >
-            New To Our Platform ?{" "}
-            <button
-              type="button"
-              onClick={onSignUp}
-              className="cursor-pointer bg-transparent border-0 p-0"
+        {!shouldHideSignUp && (
+          <div className="mt-3 sm:mt-4 md:mt-6 flex justify-center px-2">
+            <p
+              className="text-center"
               style={{
-                fontFamily: "Gilroy-SemiBold",
+                fontFamily: "Gilroy-Medium",
                 fontWeight: 400,
-                color: company?.primaryColor || "#039155",
+                fontSize: "16px",
+                lineHeight: "120%",
+                color: "#1B1717",
               }}
             >
-              Create Your Account
-            </button>
-          </p>
-        </div>
+              New To Our Platform ?{" "}
+              <button
+                type="button"
+                onClick={onSignUp}
+                className="cursor-pointer bg-transparent border-0 p-0"
+                style={{
+                  fontFamily: "Gilroy-SemiBold",
+                  fontWeight: 400,
+                  color: company?.primaryColor || "#039155",
+                }}
+              >
+                Create Your Account
+              </button>
+            </p>
+          </div>
+        )}
 
       </div>
     </div>
