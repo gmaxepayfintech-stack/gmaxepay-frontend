@@ -148,6 +148,7 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
         type: 'error',
         message: upgradeError,
         duration: 5000,
+        isCritical: true,
       });
     }
   }, [upgradeError, showNotification]);
@@ -1004,6 +1005,7 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
                           type: "error",
                           message:
                             "Please enter account number and IFSC code.",
+                            isCritical: true,
                         });
                         return;
                       }
@@ -1022,6 +1024,8 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
                         showNotification({
                           type: "success",
                           message: "Bank details added successfully.",
+                          isCritical: true,
+
                         });
 
                         setIsAddingBank(false);
@@ -1033,6 +1037,8 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
+                            isCritical: true,
+
                         });
                       }
                     }}
