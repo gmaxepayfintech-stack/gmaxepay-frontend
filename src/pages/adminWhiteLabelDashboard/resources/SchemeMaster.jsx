@@ -714,7 +714,7 @@ const SchemeMaster = () => {
                           className="w-full h-full object-contain rounded-lg"
                           onError={(e) => {
                             e.target.onerror = null;
-                            e.target.src = "/img/gmaxepay.png";
+                            e.target.src = "/img/gmaxepay.svg";
                           }}
                         />
                       ) : (

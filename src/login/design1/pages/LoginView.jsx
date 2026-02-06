@@ -34,14 +34,14 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
         <div className="mb-3 sm:mb-5 md:mb-4 lg:mb-6 text-center">
           <div className="flex justify-center mb-3 sm:mb-5 md:mb-4">
             <img
-              src={company?.logo || "/img/gmaxepay.png"}
+              src={company?.logo || "/img/gmaxepay.svg"}
               alt={company?.companyName || "GMAXEPAY Logo"}
               className="object-contain h-12 sm:h-16 md:h-24 lg:h-28"
               loading="eager"
               fetchpriority="high"
               decoding="async"
               onError={(e) => {
-                e.target.src = "/img/gmaxepay.png";
+                e.target.src = "/img/gmaxepay.svg";
               }}
             />
           </div>

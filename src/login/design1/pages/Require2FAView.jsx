@@ -9,12 +9,12 @@ const Require2FAView = ({ qrData, onNext }) => {
       <div className="w-full max-w-sm sm:max-w-md md:max-w-2xl mx-auto text-center">
         <div className="flex justify-center mb-6 sm:mb-8">
           <img
-            src={company?.logo || "/img/gmaxepay.png"}
+            src={company?.logo || "/img/gmaxepay.svg"}
             alt={company?.companyName || "GMAXEPAY Logo"}
             className="object-contain h-16 sm:h-20 md:h-24 lg:h-28"
             loading="eager"
             onError={(e) => {
-              e.target.src = "/img/gmaxepay.png";
+              e.target.src = "/img/gmaxepay.svg";
             }}
           />
         </div>
