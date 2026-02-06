@@ -148,6 +148,7 @@ const DistributerProfile = ({ onBack = null }) => {
         type: "error",
         message: upgradeError,
         duration: 5000,
+        isCritical: true,
       });
     }
   }, [upgradeError, showNotification]);
@@ -1014,6 +1015,7 @@ const DistributerProfile = ({ onBack = null }) => {
                           type: "error",
                           message:
                             "Please enter account number and IFSC code.",
+                            isCritical: true,
                         });
                         return;
                       }
@@ -1032,6 +1034,7 @@ const DistributerProfile = ({ onBack = null }) => {
                           type: "success",
                           message:
                             "Bank details added successfully.",
+                            isCritical: true,
                         });
 
                         setIsAddingBank(false);
@@ -1043,6 +1046,7 @@ const DistributerProfile = ({ onBack = null }) => {
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
+                            isCritical: true,
                         });
                       }
                     }}
