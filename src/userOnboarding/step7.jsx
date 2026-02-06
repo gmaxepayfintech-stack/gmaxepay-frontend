@@ -299,6 +299,8 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                 muted
                 autoPlay
               />
+              {/* Hidden canvas used for capturing the current video frame */}
+              <canvas ref={canvasRef} className="hidden" />
 
               {!formData.profilePhotoDataUrl && !isCameraActive && (
                 <button

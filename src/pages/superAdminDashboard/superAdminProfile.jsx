@@ -18,6 +18,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { addBankAdminDetails } from "../../redux/action/userProfileAction";
 
 const SuperAdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -28,6 +29,9 @@ const SuperAdminProfile = ({ onBack = null }) => {
   const [imageError, setImageError] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
+  const [isAddingBank, setIsAddingBank] = useState(false);
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankIfsc, setBankIfsc] = useState("");
 
   // Get company from context
   const { company } = useCompany();
@@ -155,6 +159,8 @@ const SuperAdminProfile = ({ onBack = null }) => {
         type: "error",
         message: upgradeError,
         duration: 5000,
+        isCritical: true,
+
       });
     }
   }, [upgradeError, showNotification]);
@@ -176,76 +182,77 @@ const SuperAdminProfile = ({ onBack = null }) => {
   );
 
   // Show skeleton while loading user details or slab visibility
-  //   if (isUserDetailsLoading || visibilityLoading || !profileData) {
-  //     return (
-  //       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
-  //         {/* Cover Picture Section Skeleton */}
-  //         <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
-  //           <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-  //             <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-  //               <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
-  //             </div>
-  //           </div>
-  //         </div>
 
-  //         {/* Profile Section Skeleton */}
-  //         <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
-  //           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-  //             <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
-  //             <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
-  //               <div className="flex-1">
-  //                 <SkeletonLoader className="h-6 w-48 mb-4" />
-  //                 <div className="flex flex-wrap items-center gap-4 mb-4">
-  //                   <SkeletonLoader className="h-4 w-24" />
-  //                   <SkeletonLoader className="h-4 w-32" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                   <SkeletonLoader className="h-6 w-20 rounded-full" />
-  //                 </div>
-  //               </div>
-  //               <SkeletonLoader className="h-8 w-20 rounded-3xl" />
-  //             </div>
-  //           </div>
+    if (isUserDetailsLoading || visibilityLoading || !profileData) {
+      return (
+        <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+          {/* Cover Picture Section Skeleton */}
+          <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+            <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+              <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+                <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
+              </div>
+            </div>
+          </div>
 
-  //           {/* Info Cards Skeleton */}
-  //           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div
-  //                 key={i}
-  //                 className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
-  //               >
-  //                 <SkeletonLoader className="w-12 h-12 rounded" />
-  //                 <div className="flex-1">
-  //                   <SkeletonLoader className="h-5 w-16 mb-2" />
-  //                   <SkeletonLoader className="h-4 w-20" />
-  //                 </div>
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
+          {/* Profile Section Skeleton */}
+          <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+              <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+              <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+                <div className="flex-1">
+                  <SkeletonLoader className="h-6 w-48 mb-4" />
+                  <div className="flex flex-wrap items-center gap-4 mb-4">
+                    <SkeletonLoader className="h-4 w-24" />
+                    <SkeletonLoader className="h-4 w-32" />
+                    <SkeletonLoader className="h-4 w-20" />
+                    <SkeletonLoader className="h-6 w-20 rounded-full" />
+                  </div>
+                </div>
+                <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+              </div>
+            </div>
 
-  //         {/* Content Skeleton */}
-  //         <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
-  //           <div className="flex justify-center gap-4">
-  //             {[1, 2, 3].map((i) => (
-  //               <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
-  //             ))}
-  //           </div>
-  //         </div>
+            {/* Info Cards Skeleton */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+              {[1, 2, 3, 4].map((i) => (
+                <div
+                  key={i}
+                  className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+                >
+                  <SkeletonLoader className="w-12 h-12 rounded" />
+                  <div className="flex-1">
+                    <SkeletonLoader className="h-5 w-16 mb-2" />
+                    <SkeletonLoader className="h-4 w-20" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
 
-  //         <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
-  //           <SkeletonLoader className="h-6 w-32 mb-4" />
-  //           <div className="space-y-4">
-  //             {[1, 2, 3, 4].map((i) => (
-  //               <div key={i} className="flex justify-between items-center">
-  //                 <SkeletonLoader className="h-4 w-32" />
-  //                 <SkeletonLoader className="h-4 w-24" />
-  //               </div>
-  //             ))}
-  //           </div>
-  //         </div>
-  //       </div>
-  //     );
-  //   }
+          {/* Content Skeleton */}
+          <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+            <div className="flex justify-center gap-4">
+              {[1, 2, 3].map((i) => (
+                <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+              ))}
+            </div>
+          </div>
+
+          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+            <SkeletonLoader className="h-6 w-32 mb-4" />
+            <div className="space-y-4">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="flex justify-between items-center">
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-24" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      );
+    }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -343,7 +350,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  Admin 
                 </span>
               </div>
             </div>
@@ -924,74 +931,203 @@ const SuperAdminProfile = ({ onBack = null }) => {
         {activeTab === "bankDetails" && (
           <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
             {/* Header */}
-            <div className="mb-6">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                Bank Details
-              </h3>
-            </div>
-
-            <div className="space-y-6">
-              {bankDetails && bankDetails.length > 0 ? (
-                bankDetails.map((bank, index) => (
-                  <div
-                    key={bank.id || index}
-                    className="flex items-start justify-between gap-6 w-full"
+            <div className="mb-6 flex items-center justify-between gap-3">
+              {isAddingBank ? (
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingBank(false)}
+                    className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
+                    aria-label="Back to Bank Details"
                   >
-                    {/* Bank Name */}
-                    <div className="flex flex-col w-1/5">
-                      <p className="text-xs text-gray-500">Bank Name</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.bankName || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Created On */}
-                    <div className="flex flex-col w-1/5">
-                      <p className="text-xs text-gray-500">City</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.city || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Account Number */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">Account Number</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.accountNumber || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* IFSC Code */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">IFSC Code</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.ifsc || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Branch */}
-                    <div className="flex flex-col w-1/6">
-                      <p className="text-xs text-gray-500">Branch</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
-                        {bank.branch || "N/A"}
-                      </p>
-                    </div>
-
-                    {/* Status */}
-                    <div className="flex flex-col w-20">
-                      <p className="text-xs text-gray-500">Status</p>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
-                        Active
-                      </span>
-                    </div>
-                  </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No bank details available</p>
+                    <span className="text-sm font-semibold text-[#1B1717]">
+                      ←
+                    </span>
+                  </button>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+                    Enter Your Bank Details
+                  </h3>
                 </div>
+              ) : (
+                <>
+                  <h3 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
+                    Bank Details
+                  </h3>
+
+                  <button
+                    type="button"
+                    onClick={() => setIsAddingBank(true)}
+                    className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[gilroy-medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
+                  >
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-md">
+                      +
+                    </span>
+                    <span>Add New Account</span>
+                  </button>
+                </>
               )}
             </div>
+
+            {/* Add / Edit Bank Form */}
+            {isAddingBank ? (
+              <div className="rounded-2xl border border-[#E5E7EB] px-4 py-5 sm:px-6 sm:py-6 space-y-6">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
+                  {/* Account Number */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                      Account Number <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={bankAccountNumber}
+                      onChange={(e) =>
+                        setBankAccountNumber(e.target.value.replace(/\D/g, ""))
+                      }
+                      placeholder="Enter Account Number"
+                      className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+
+                  {/* IFSC Code */}
+                  <div className="flex flex-col gap-1">
+                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                      IFSC Code <span className="text-red-500">*</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={bankIfsc}
+                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      placeholder="Enter IFSC Code"
+                      className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row justify-center sm:justify-start gap-3 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setIsAddingBank(false);
+                      setBankAccountNumber("");
+                      setBankIfsc("");
+                    }}
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg text-sm font-[gilroy-medium] text-[#111827] hover:bg-gray-50 transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      if (!bankAccountNumber || !bankIfsc) {
+                        showNotification({
+                          type: "error",
+                          message: "Please enter account number and IFSC code.",
+                          isCritical: true,
+
+                        });
+                        return;
+                      }
+
+                      const payload = {
+                        account_number: bankAccountNumber,
+                        ifsc: bankIfsc,
+                      };
+
+                      try {
+                        await dispatch(addBankAdminDetails(payload));
+                        await dispatch(getUserDetails());
+
+                        showNotification({
+                          type: "success",
+                          message: "Bank details added successfully.",
+                          isCritical: true,
+
+                        });
+
+                        setIsAddingBank(false);
+                        setBankAccountNumber("");
+                        setBankIfsc("");
+                      } catch (error) {
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "Failed to add bank details. Please try again.",
+                            isCritical: true,
+
+                        });
+                      }
+                    }}
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] rounded-lg bg-[#039155] text-white text-sm font-[gilroy-semibold] hover:bg-green-700 transition"
+                  >
+                    Save
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {bankDetails && bankDetails.length > 0 ? (
+                  bankDetails.map((bank, index) => (
+                    <div
+                      key={bank.id || index}
+                      className="flex items-start justify-between gap-6 w-full"
+                    >
+                      {/* Bank Name */}
+                      <div className="flex flex-col w-1/5">
+                        <p className="text-xs text-gray-500">Bank Name</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.bankName || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* City */}
+                      <div className="flex flex-col w-1/5">
+                        <p className="text-xs text-gray-500">City</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.city || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Account Number */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">Account Number</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.accountNumber || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* IFSC Code */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">IFSC Code</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.ifsc || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Branch */}
+                      <div className="flex flex-col w-1/6">
+                        <p className="text-xs text-gray-500">Branch</p>
+                        <p className="text-sm text-[#1B1717] font-medium">
+                          {bank.branch || "N/A"}
+                        </p>
+                      </div>
+
+                      {/* Status */}
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Status</p>
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
+                          Active
+                        </span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No bank details available</p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         )}
       </div>
@@ -1157,6 +1293,8 @@ const SuperAdminProfile = ({ onBack = null }) => {
           </div>
         </div>
       )}
+
+      
     </div>
   );
 };

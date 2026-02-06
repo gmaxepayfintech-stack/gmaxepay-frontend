@@ -50,12 +50,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const [commissions, setCommissions] = useState([]);
   const [savingRows, setSavingRows] = useState({});
   const [commLoading, setCommLoading] = useState(false);
-  // Section-level expand/collapse by operatorType (AEPS, Mobile+DTH, BBPS)
-  const [expandedSections, setExpandedSections] = useState({
-    aeps: false,
-    mobileDth: false,
-    bbps: false,
-  });
+  // Section-level expand/collapse by operatorType (supports dynamic sections)
+  const [expandedSections, setExpandedSections] = useState({});
 
   // Update scheme data when scheme prop changes
   useEffect(() => {
@@ -73,6 +69,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
       const slabId = scheme?.id || scheme?.slabId;
       if (companyId && slabId) {
         setCommLoading(true);
+        // Auto-expand first section when loading starts to show skeleton
+        setExpandedSections({ aeps: true });
         try {
           await dispatch(getUserSlabCommissionList(companyId, slabId, 1, 10));
         } finally {
@@ -132,13 +130,12 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const toggleSectionExpand = (key) => {
     setExpandedSections((prev) => {
       const isCurrentlyOpen = prev[key];
-      // Accordion behavior: only one section open at a time
-      return {
-        aeps: false,
-        mobileDth: false,
-        bbps: false,
-        [key]: !isCurrentlyOpen,
-      };
+      // Accordion behavior: only one section open at a time, dynamic keys
+      const resetState = Object.keys(prev).reduce(
+        (acc, sectionKey) => ({ ...acc, [sectionKey]: false }),
+        {},
+      );
+      return { ...resetState, [key]: !isCurrentlyOpen };
     });
   };
 
@@ -229,33 +226,41 @@ const EditMembership = ({ scheme = null, onBack }) => {
     }
   };
 
-  // Group commissions by operatorType
-  const aepsCommissions = commissions.filter(
-    (c) => c.operatorType === "AEPS",
-  );
-  const mobileDthCommissions = commissions
-    .filter((c) => c.operatorType === "RECHARGE" || c.operatorType === "DTH")
-    .sort((a, b) => {
-      // RECHARGE operators first, then DTH
-      const order = { RECHARGE: 0, DTH: 1 };
-      const aOrder = order[a.operatorType] ?? 99;
-      const bOrder = order[b.operatorType] ?? 99;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-      // Within same type, sort by operator name
-      return (a.operatorName || "").localeCompare(b.operatorName || "");
-    });
-  const otherCommissions = commissions.filter(
-    (c) =>
-      c.operatorType !== "AEPS" &&
-      c.operatorType !== "RECHARGE" &&
-      c.operatorType !== "DTH",
+  // Group commissions by operatorType (dynamic sections)
+  const groupedByType = commissions.reduce((acc, item) => {
+    const type = item.operatorType || "OTHER";
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(item);
+    return acc;
+  }, {});
+
+  // AEPS specific section
+  const aepsCommissions = groupedByType["AEPS"] || [];
+
+  // Combined Mobile + DTH section
+  const mobileDthCommissions = [
+    ...(groupedByType["RECHARGE"] || []),
+    ...(groupedByType["DTH"] || []),
+  ].sort((a, b) => {
+    // RECHARGE operators first, then DTH
+    const order = { RECHARGE: 0, DTH: 1 };
+    const aOrder = order[a.operatorType] ?? 99;
+    const bOrder = order[b.operatorType] ?? 99;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    // Within same type, sort by operator name
+    return (a.operator || "").localeCompare(b.operator || "");
+  });
+
+  // All remaining types become their own dynamic sections
+  const dynamicSectionTypes = Object.keys(groupedByType).filter(
+    (type) => !["AEPS", "RECHARGE", "DTH"].includes(type),
   );
 
   const renderCommissionSection = (title, items, sectionKey) => {
-    // If nothing to show and not loading, skip section
-    if (!commLoading && items.length === 0) return null;
-
     const isSectionExpanded = expandedSections[sectionKey];
+    
+    // Show section if loading OR if it has items OR if it's expanded (to show empty state)
+    if (!commLoading && items.length === 0 && !isSectionExpanded) return null;
 
     return (
       <div className="mb-4 sm:mb-6">
@@ -315,17 +320,39 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
               <div className="bg-white rounded-xl overflow-x-auto">
                 <div className="min-w-[800px]">
-                  {commLoading && items.length === 0 ? (
+                  {commLoading ? (
                     Array.from({ length: 6 }).map((_, index) => (
                       <div key={index}>
                         <div className="grid grid-cols-6 gap-4 px-4 py-3 animate-pulse">
-                          <span className="h-3 bg-gray-200 rounded w-20" />
-                          <span className="h-5 bg-gray-200 rounded w-16" />
-                          <span className="h-3 bg-gray-200 rounded w-12" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
-                          <span className="h-8 bg-gray-200 rounded w-full" />
                           <div className="flex items-center justify-center">
-                            <span className="h-7 w-7 bg-gray-200 rounded-full" />
+                            <span className="h-3 bg-gray-200 rounded w-20" />
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <span className="h-5 bg-gray-200 rounded w-16" />
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-3 bg-gray-200 rounded w-12" />
+                            <div className="flex gap-1">
+                              <span className="h-4 bg-gray-200 rounded w-8" />
+                              <span className="h-4 bg-gray-200 rounded w-8" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-8 bg-gray-200 rounded w-28" />
+                            <div className="flex gap-3">
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                            </div>
+                          </div>
+                          <div className="flex flex-col items-center gap-1">
+                            <span className="h-8 bg-gray-200 rounded w-28" />
+                            <div className="flex gap-3">
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                              <span className="h-6 bg-gray-200 rounded w-12" />
+                            </div>
+                          </div>
+                          <div className="flex items-center justify-center">
+                            <span className="h-7 w-9 bg-gray-200 rounded" />
                           </div>
                         </div>
                         {index < 5 && (
@@ -334,8 +361,15 @@ const EditMembership = ({ scheme = null, onBack }) => {
                       </div>
                     ))
                   ) : items.length === 0 ? (
-                    <div className="px-4 py-6 text-center text-sm text-[#121216]/60">
-                      No commission records found.
+                    <div className="px-4 py-6 flex flex-col items-center justify-center">
+                      <img 
+                        src="/img/pagenotfound.gif" 
+                        alt="No data found" 
+                        className="w-64 h-64 object-contain mb-4"
+                      />
+                      <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
+                        No commission records found.
+                      </p>
                     </div>
                   ) : (
                     items.map((commission, index) => {
@@ -612,21 +646,54 @@ const EditMembership = ({ scheme = null, onBack }) => {
       {/* All commissions in a single outer section with grey background */}
       <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
         <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6 ">
-          {/* AEPS Commissions Section (accordion by operatorType) */}
-          {renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
+          {/* Show skeleton when loading */}
+          {commLoading ? (
+            <>
+              {/* Show skeleton sections when loading */}
+              {renderCommissionSection("AEPS Commissions", [], "aeps")}
+              {renderCommissionSection("Mobile And DTH Recharge", [], "mobileDth")}
+            </>
+          ) : (
+            <>
+              {/* Check if all sections are empty */}
+              {aepsCommissions.length === 0 && 
+               mobileDthCommissions.length === 0 && 
+               dynamicSectionTypes.length === 0 ? (
+                <div className="px-4 py-12 flex flex-col items-center justify-center">
+                  <img 
+                    src="/img/pagenotfound.gif" 
+                    alt="No data found" 
+                    className="w-64 h-64 object-contain mb-4"
+                  />
+                  <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
+                    No commission records found.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* AEPS Commissions Section (accordion by operatorType) */}
+                  {aepsCommissions.length > 0 && 
+                    renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
 
-          {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
-          {renderCommissionSection(
-            "Mobile And DTH Recharge",
-            mobileDthCommissions,
-            "mobileDth",
-          )}
+                  {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
+                  {mobileDthCommissions.length > 0 && 
+                    renderCommissionSection(
+                      "Mobile And DTH Recharge",
+                      mobileDthCommissions,
+                      "mobileDth",
+                    )}
 
-          {/* BBPS Commissions Section (accordion by operatorType) */}
-          {renderCommissionSection(
-            "BBPS Commissions",
-            otherCommissions,
-            "bbps",
+                  {/* Dynamic sections for all other operator types (e.g., BANK VERIFICATION, BBPS, AEPS2, etc.) */}
+                  {dynamicSectionTypes.map((type) =>
+                    renderCommissionSection(
+                      `${type} Commissions`,
+                      groupedByType[type] || [],
+                      type.toLowerCase().replace(/\s+/g, "_"),
+                    ),
+                  )}
+                </>
+              )}
+            </>
           )}
         </div>
       </div>

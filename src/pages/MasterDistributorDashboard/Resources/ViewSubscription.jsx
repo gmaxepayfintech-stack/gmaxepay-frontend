@@ -4,22 +4,18 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { ChevronDown, ChevronUp } from "lucide-react";
 
 const ViewSubscription = ({ subscription = null, onBack }) => {
-  // Section-level expand/collapse by operatorType (AEPS, Mobile+DTH, BBPS)
-  const [expandedSections, setExpandedSections] = useState({
-    aeps: false,
-    mobileDth: false,
-    bbps: false,
-  });
+  // Section-level expand/collapse by operatorType (supports dynamic sections)
+  const [expandedSections, setExpandedSections] = useState({});
 
   const toggleSectionExpand = (key) => {
     setExpandedSections((prev) => {
       const isCurrentlyOpen = prev[key];
-      return {
-        aeps: false,
-        mobileDth: false,
-        bbps: false,
-        [key]: !isCurrentlyOpen,
-      };
+      // Accordion behavior: only one section open at a time, dynamic keys
+      const resetState = Object.keys(prev).reduce(
+        (acc, sectionKey) => ({ ...acc, [sectionKey]: false }),
+        {},
+      );
+      return { ...resetState, [key]: !isCurrentlyOpen };
     });
   };
 
@@ -41,27 +37,33 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
     );
   }
 
-  // Group commissions by operatorType
+  // Group commissions by operatorType (dynamic sections)
   const commissions = subscription.originalData?.commissions || [];
-  const aepsCommissions = commissions.filter(
-    (c) => c.operatorType === "AEPS",
-  );
-  const mobileDthCommissions = commissions
-    .filter((c) => c.operatorType === "RECHARGE" || c.operatorType === "DTH")
-    .sort((a, b) => {
-      // RECHARGE operators first, then DTH
-      const order = { RECHARGE: 0, DTH: 1 };
-      const aOrder = order[a.operatorType] ?? 99;
-      const bOrder = order[b.operatorType] ?? 99;
-      if (aOrder !== bOrder) return aOrder - bOrder;
-      // Within same type, sort by operator name
-      return (a.operatorName || "").localeCompare(b.operatorName || "");
-    });
-  const otherCommissions = commissions.filter(
-    (c) =>
-      c.operatorType !== "AEPS" &&
-      c.operatorType !== "RECHARGE" &&
-      c.operatorType !== "DTH",
+  const groupedByType = commissions.reduce((acc, item) => {
+    const type = item.operatorType || "OTHER";
+    if (!acc[type]) acc[type] = [];
+    acc[type].push(item);
+    return acc;
+  }, {});
+
+  // Combined Mobile + DTH section (handles both "Recharge" and "RECHARGE", "DTH")
+  const mobileDthCommissions = [
+    ...(groupedByType["RECHARGE"] || []),
+    ...(groupedByType["Recharge"] || []),
+    ...(groupedByType["DTH"] || []),
+  ].sort((a, b) => {
+    // RECHARGE/Recharge operators first, then DTH
+    const order = { RECHARGE: 0, Recharge: 0, DTH: 1 };
+    const aOrder = order[a.operatorType] ?? 99;
+    const bOrder = order[b.operatorType] ?? 99;
+    if (aOrder !== bOrder) return aOrder - bOrder;
+    // Within same type, sort by operator name
+    return (a.operatorName || "").localeCompare(b.operatorName || "");
+  });
+
+  // All other types (including AEPS1, AEPS2, AEPS, BANK VERIFICATION, BBPS, etc.) get their own separate sections
+  const dynamicSectionTypes = Object.keys(groupedByType).filter(
+    (type) => !["RECHARGE", "Recharge", "DTH"].includes(type),
   );
 
   const renderCommissionSection = (title, items, sectionKey) => {
@@ -232,9 +234,6 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
         {/* Commissions */}
         <div className="bg-white rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-sm">
           <div className="rounded-2xl bg-[#FAFAFA] p-4 mb-4 sm:mb-6">
-            {/* AEPS Commissions Section */}
-            {renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
-
             {/* Mobile And DTH Recharge Commissions Section */}
             {renderCommissionSection(
               "Mobile And DTH Recharge",
@@ -242,11 +241,13 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
               "mobileDth",
             )}
 
-            {/* BBPS Commissions Section */}
-            {renderCommissionSection(
-              "BBPS Commissions",
-              otherCommissions,
-              "bbps",
+            {/* Dynamic sections for all other operator types (AEPS1, AEPS2, AEPS, BANK VERIFICATION, BBPS, etc.) - each gets its own section */}
+            {dynamicSectionTypes.map((type) =>
+              renderCommissionSection(
+                `${type} Commissions`,
+                groupedByType[type] || [],
+                type.toLowerCase().replace(/\s+/g, "_"),
+              ),
             )}
           </div>
         </div>
