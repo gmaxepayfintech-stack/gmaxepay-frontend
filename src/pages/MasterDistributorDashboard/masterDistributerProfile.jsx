@@ -1025,11 +1025,26 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                         ifsc: bankIfsc,
                       };
 
-                      await dispatch(addBankDetails(payload));
+                      try {
+                        await dispatch(addBankDetails(payload));
+                        await dispatch(getMDDetails());
 
-                      setIsAddingBank(false);
-                      setBankAccountNumber("");
-                      setBankIfsc("");
+                        showNotification({
+                          type: "success",
+                          message: "Bank details added successfully.",
+                        });
+
+                        setIsAddingBank(false);
+                        setBankAccountNumber("");
+                        setBankIfsc("");
+                      } catch (error) {
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "Failed to add bank details. Please try again.",
+                        });
+                      }
                     }}
                     className="w-full sm:w-40 h-[40px] sm:h-[44px] rounded-lg bg-[#039155] text-white text-sm font-[gilroy-semibold] hover:bg-green-700 transition"
                   >
