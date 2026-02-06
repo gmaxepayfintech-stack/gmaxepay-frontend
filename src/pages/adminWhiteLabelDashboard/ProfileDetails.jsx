@@ -18,8 +18,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
-import { addBankDetails } from "../../redux/action/userProfileAction";
-
+import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
 const ProfileDetails = ({ onBack = null, skipApi = false }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
@@ -1016,7 +1015,7 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
                       };
 
                       try {
-                        await dispatch(addBankDetails(payload));
+                        await dispatch(addBankCompanyDetails(payload));
                         if (data?.id) {
                           await dispatch(getCompanyAdmin(data.id));
                         }
