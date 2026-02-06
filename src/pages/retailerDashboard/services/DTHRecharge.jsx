@@ -1409,8 +1409,16 @@ const DTHRecharge = ({ onBack }) => {
             </>
           )}
 
-          {step === "success" && selectedPlan && (
-            <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+          {step === "success" && selectedPlan && (() => {
+            const apiStatus = paymentResponse?.dthRecharge?.apiResponse?.status || paymentResponse?.data?.apiResponse?.status;
+            const isPending = apiStatus?.toLowerCase() === "pending";
+            const bgColor = isPending ? "bg-yellow-100" : "bg-green-100";
+            const iconBgColor = isPending ? "bg-yellow-500" : "bg-[#039155]";
+            const titleText = isPending ? "Payment Pending" : "Payment Successful";
+            const subtitleText = isPending ? "Your Payment Is Being Processed" : "Your Payment Has Been Completed";
+            
+            return (
+            <div className={`${bgColor} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
               {/* Notches */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
               <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
@@ -1421,29 +1429,46 @@ const DTHRecharge = ({ onBack }) => {
                 {/* Success Header */}
                 <div className="text-center mb-6">
                   <div className="flex justify-center mb-3">
-                    <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        className="h-8 w-8 text-white"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                        stroke="currentColor"
-                        strokeWidth={3}
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          d="M5 13l4 4L19 7"
-                        />
-                      </svg>
+                    <div className={`w-14 h-14 rounded-full ${iconBgColor} flex items-center justify-center`}>
+                      {isPending ? (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-8 w-8 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                          />
+                        </svg>
+                      ) : (
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-8 w-8 text-white"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      )}
                     </div>
                   </div>
 
                   <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    Payment Successful
+                    {titleText}
                   </h2>
                   <p className="text-[12px] text-[#1B1717]/80">
-                    Your Payment Has Been Completed
+                    {subtitleText}
                   </p>
                 </div>
 
@@ -1543,7 +1568,8 @@ const DTHRecharge = ({ onBack }) => {
                 </div>
               </div>
             </div>
-          )}
+            );
+          })()}
         </div>
 
         {/* Right Side - Recent Recharge */}
