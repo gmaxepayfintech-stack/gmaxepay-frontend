@@ -9,6 +9,7 @@ import {
   ADD_BANK_DETAILS_SUCCESS,
   ADD_BANK_COMPANY_SUCCESS,
   ADD_BANK_ADMIN_SUCCESS,
+  GET_ADMIN_DETAILS_SUCCESS,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -21,13 +22,14 @@ const initialState = {
   email: null,
   name: null,
   profileImage: null,
-  success:null,
-  message:null,
+  success: null,
+  message: null,
   adminRolesPermission: null,
-  updateRoles:null,
+  updateRoles: null,
   bankDetailsResponse: null,
   bankCompanyResponse: null,
   bankAdminResponse: null,
+  adminDetailsResponse: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -81,50 +83,58 @@ const userProfileReducer = (state = initialState, action) => {
         adminRolesPermission: action.payload,
         loading: false,
         error: null,
-        success:action.payload.status,
-        message:action.payload.message,
+        success: action.payload.status,
+        message: action.payload.message,
       };
 
     case UPDATE_ROLES_PERMISSION_SUCESS:
       return {
         ...state,
-        updateRoles:action.payload,
-        success:action.payload.status,
-        message:action.payload.message,
+        updateRoles: action.payload,
+        success: action.payload.status,
+        message: action.payload.message,
       };
 
     case CLEAR_PROFILE:
       return {
         ...initialState,
       };
-      case ADD_BANK_DETAILS_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          success: action?.payload?.status,
-          message: action?.payload?.message,
-          bankDetailsResponse: action?.payload,
-          error: null,
-        }
-        case ADD_BANK_COMPANY_SUCCESS:
-          return{
-            ...state,
-            loading:false,
-            success: action?.payload?.status,
-            message: action?.payload?.message,
-            error: null,
-            bankCompanyResponse: action?.payload,
-          }
-        case ADD_BANK_ADMIN_SUCCESS:
-          return{
-            ...state,
-            loading:fasle,
-            success: action?.payload?.status,
-            message: action?.payload?.message,
-            error: null,
-            bankAdminResponse: action?.payload,
-          }
-
+    case ADD_BANK_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        bankDetailsResponse: action?.payload,
+        error: null,
+      }
+    case ADD_BANK_COMPANY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        error: null,
+        bankCompanyResponse: action?.payload,
+      }
+    case ADD_BANK_ADMIN_SUCCESS:
+      return {
+        ...state,
+        loading: fasle,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        error: null,
+        bankAdminResponse: action?.payload,
+      }
+    case GET_ADMIN_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        error: null,
+        adminDetailsResponse: action?.payload,
+      }
     default:
       return state;
   }

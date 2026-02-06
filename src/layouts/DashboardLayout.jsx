@@ -4,10 +4,10 @@ import { useCompany } from "../context/CompanyContext";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useDispatch, useSelector } from "react-redux";
-import { getUserProfile } from "../redux/action/userProfileAction";
 import { useNotification } from "../context/NotificationContext";
 import { logOut } from "../redux/action/loginAction";
 import { getGreeting } from "../utils/getGreeting";
+import { getAdminDetails } from "../redux/action/userProfileAction";
 
 // Use absolute paths for public folder assets
 const MaskGroup = "/img/Maskgroup.png";
@@ -136,9 +136,9 @@ const DashboardLayout = ({ children }) => {
     },
   ];
 
-  // Fetch user profile on component mount
+  // Fetch admin details on component mount
   useEffect(() => {
-    dispatch(getUserProfile());
+    dispatch(getAdminDetails());
   }, [dispatch]);
 
   // Unauthorized handling is now done in axios interceptor
