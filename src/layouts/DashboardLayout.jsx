@@ -69,7 +69,7 @@ const DashboardLayout = ({ children }) => {
       dropdown: true,
       children: [
         { name: "BBPS Settings", path: "/superDashboard/bbps-settings/list" },
-        { name: "API Settings", path: "/superDashboard/api-operator/settings" },
+        // { name: "API Settings", path: "/superDashboard/api-operator/settings" },
         {
           name: "Operator Settings",
           path: "/superDashboard/api-operator/operator-settings",
