@@ -18,7 +18,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
-import { addBankDetails } from "../../redux/action/userProfileAction";
+import { addBankAdminDetails } from "../../redux/action/userProfileAction";
 
 const SuperAdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -182,7 +182,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
   );
 
   // Show skeleton while loading user details or slab visibility
-  
+
     if (isUserDetailsLoading || visibilityLoading || !profileData) {
       return (
         <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -1034,7 +1034,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
                       };
 
                       try {
-                        await dispatch(addBankDetails(payload));
+                        await dispatch(addBankAdminDetails(payload));
                         await dispatch(getUserDetails());
 
                         showNotification({
