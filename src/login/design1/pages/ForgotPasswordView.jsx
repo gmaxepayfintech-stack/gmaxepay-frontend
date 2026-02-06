@@ -35,7 +35,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
       <div className="w-full max-w-[95%] sm:max-w-md md:max-w-lg lg:max-w-[534px] xl:max-w-[534px] mx-auto">
         <div className="flex justify-center mb-4 sm:mb-5 md:mb-6 lg:mb-6">
           <img
-            src={company?.logo || "/img/gmaxepay.svg"}
+            src={company?.logo || "/img/gmaxepay.png"}
             className="h-12 sm:h-14 md:h-16 lg:h-20 xl:h-24 object-contain"
             alt="Logo"
           />

@@ -1277,7 +1277,7 @@ const LoginDesign1 = () => {
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Hidden preload image to ensure gmaxepay.png is used immediately and avoid browser warning */}
       <img 
-        src="/img/gmaxepay.svg" 
+        src="/img/gmaxepay.png" 
         alt="" 
         className="hidden" 
         aria-hidden="true"
