@@ -6,6 +6,7 @@ import {
   CLEAR_PROFILE,
   ADMIN_ROLES_PERMISSION_SUCCESS,
   UPDATE_ROLES_PERMISSION_SUCESS,
+  ADD_BANK_DETAILS_SUCCESS,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -22,6 +23,7 @@ const initialState = {
   message:null,
   adminRolesPermission: null,
   updateRoles:null,
+  bankDetailsResponse: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -91,6 +93,15 @@ const userProfileReducer = (state = initialState, action) => {
       return {
         ...initialState,
       };
+      case ADD_BANK_DETAILS_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
+          bankDetailsResponse: action?.payload,
+          error: null,
+        }
 
     default:
       return state;

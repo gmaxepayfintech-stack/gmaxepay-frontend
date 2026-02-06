@@ -253,12 +253,12 @@ const AdminProfile = ({ onBack = null }) => {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
           <div className="flex items-start gap-3 sm:gap-5">
             <button
+              type="button"
               onClick={onBack || (() => navigate("/adminDashboard/home"))}
-              className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-gray-300 bg-white hover:bg-gray-50 transition-colors mt-1"
+              aria-label="Back"
             >
-              <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
-                <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
-              </div>
+              <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
             </button>
 
             <div>

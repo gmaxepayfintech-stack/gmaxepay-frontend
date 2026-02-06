@@ -9,6 +9,8 @@ import {
   ADMIN_ROLES_PERMISSION_FAILURE,
   UPDATE_ROLES_PERMISSION_SUCESS,
   UPDATE_ROLES_PERMISSION_FAILURE,
+  ADD_BANK_DETAILS_SUCCESS,
+  ADD_BANK_DETAILS_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -209,6 +211,48 @@ export const updateRolesPermission = (body) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: UPDATE_ROLES_PERMISSION_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const addBankDetails = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/bank/add`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: bankDetailsResponse, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADD_BANK_DETAILS_SUCCESS,
+        payload: { bankDetailsResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: ADD_BANK_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: ADD_BANK_DETAILS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
