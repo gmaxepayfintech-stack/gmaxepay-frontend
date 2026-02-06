@@ -915,6 +915,18 @@ const DistributerProfile = ({ onBack = null }) => {
                     {data?.longitude || "N/A"}
                   </p>
                 </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Reporting To : </p>
+                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                    {data?.reportingToManager || "N/A"}
+                  </p>
+                </div>
+                <div>
+                  <p className="text-xs text-gray-500 mb-1">Reporting Contact </p>
+                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                    {data?.reportingToManagerMobile || "N/A"}
+                  </p>
+                </div>
               </div>
             </div>
           </div>
