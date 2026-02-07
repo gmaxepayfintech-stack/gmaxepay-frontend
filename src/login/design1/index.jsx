@@ -1281,7 +1281,7 @@ const LoginDesign1 = () => {
         alt="" 
         className="hidden" 
         aria-hidden="true"
-        fetchPriority="high"
+        fetchpriority="high"
       />
       <LeftSideSlider
         company={company}

@@ -6,6 +6,7 @@ import {
   getWalletBalance,
   getEkycHubBalance,
   getInspayWalletBalance,
+  getBbpsWalletBalance,
 } from "../../redux/action/walletAction";
 import {
   XAxis,
@@ -43,6 +44,7 @@ const SuperAdmin = () => {
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
   const [ekycHubBalance, setEkycHubBalance] = useState(null);
   const [inspayWalletBalance, setInspayWalletBalance] = useState(null);
+  const [bbpsWalletBalance, setBbpsWalletBalance] = useState(null);
   const [walletData, setWalletData] = useState({
     mainWallet: null,
     aeps1: null,
@@ -52,11 +54,13 @@ const SuperAdmin = () => {
   const [isAlsWalletLoading, setIsAlsWalletLoading] = useState(true);
   const [isEkycHubLoading, setIsEkycHubLoading] = useState(true);
   const [isInspayWalletLoading, setIsInspayWalletLoading] = useState(true);
+  const [isBbpsWalletLoading, setIsBbpsWalletLoading] = useState(true);
   const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
   const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Today");
   const [isInspayWalletRefreshing, setIsInspayWalletRefreshing] =
     useState(false);
+  const [isBbpsWalletRefreshing, setIsBbpsWalletRefreshing] = useState(false);
 
   const [payoutOpen, setPayout] = useState(false);
   const [walletType, setWalletType] = useState("bank");
@@ -86,6 +90,9 @@ const SuperAdmin = () => {
   );
   const inspayWalletBalanceResponse = useSelector(
     (state) => state?.wallet?.inspayWalletBalance,
+  );
+  const bbpsWalletBalanceResponse = useSelector(
+    (state) => state?.wallet?.bbpsWalletBalance,
   );
   const walletBalanceResponse = useSelector(
     (state) => state?.wallet?.walletBalance,
@@ -158,6 +165,21 @@ const SuperAdmin = () => {
     fetchInspayWalletBalance();
   }, [dispatch]);
 
+  // Fetch BBPS wallet on component mount
+  useEffect(() => {
+    const fetchBbpsWalletBalance = async () => {
+      setIsBbpsWalletLoading(true);
+      try {
+        await dispatch(getBbpsWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch BBPS wallet balance:", error);
+      } finally {
+        setIsBbpsWalletLoading(false);
+      }
+    };
+    fetchBbpsWalletBalance();
+  }, [dispatch]);
+
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
@@ -197,6 +219,15 @@ const SuperAdmin = () => {
       setInspayWalletBalance("0.00");
     }
   }, [inspayWalletBalanceResponse]);
+
+  // Update BBPS wallet balance when data is fetched
+  useEffect(() => {
+    if (bbpsWalletBalanceResponse?.data?.balance) {
+      setBbpsWalletBalance(bbpsWalletBalanceResponse.data.balance);
+    } else {
+      setBbpsWalletBalance("0.00");
+    }
+  }, [bbpsWalletBalanceResponse]);
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
@@ -333,12 +364,13 @@ const SuperAdmin = () => {
     </div>
   );
 
-  // Show skeleton loader while loading wallet balance, ASL wallet, Ekyc Hub wallet, or Inspay wallet
+  // Show skeleton loader while loading wallet balance, ASL wallet, Ekyc Hub wallet, Inspay wallet, or BBPS wallet
   if (
     isWalletLoading ||
     isAlsWalletLoading ||
     isEkycHubLoading ||
-    isInspayWalletLoading
+    isInspayWalletLoading ||
+    isBbpsWalletLoading
   ) {
     return <SkeletonLoader />;
   }
@@ -564,17 +596,20 @@ const SuperAdmin = () => {
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {[...Array(6)].map((_, i) => {
+            {[...Array(7)].map((_, i) => {
               const isAslWallet = i === 0;
               const isEkycHubWallet = i === 1;
               const isInspayWallet = i === 2;
+              const isBbpsWallet = i === 3;
               const walletName = isAslWallet
                 ? "ASL Wallet"
                 : isEkycHubWallet
                   ? "EKYC-HUB Wallet"
                   : isInspayWallet
                     ? "Inspay Wallet"
-                    : `Rupaisa Pay Wallet ${i}`;
+                    : isBbpsWallet
+                      ? "BBPS Wallet"
+                      : `Rupaisa Pay Wallet ${i}`;
               const displayBalance = isAslWallet
                 ? alsOpeningBalance
                   ? `₹${parseFloat(alsOpeningBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -587,7 +622,11 @@ const SuperAdmin = () => {
                     ? inspayWalletBalance
                       ? `₹${parseFloat(inspayWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                       : "₹0.00"
-                    : "$4,21,40,238";
+                    : isBbpsWallet
+                      ? bbpsWalletBalance
+                        ? `₹${parseFloat(bbpsWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                        : "₹0.00"
+                      : "$4,21,40,238";
 
               return (
                 <div
@@ -600,7 +639,8 @@ const SuperAdmin = () => {
                   <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
                     {(isAslWalletRefreshing && isAslWallet) ||
                     (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet)
+                    (isInspayWalletRefreshing && isInspayWallet) ||
+                    (isBbpsWalletRefreshing && isBbpsWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -653,17 +693,34 @@ const SuperAdmin = () => {
                           .finally(() => {
                             setIsInspayWalletRefreshing(false);
                           });
+                      } else if (isBbpsWallet) {
+                        setIsBbpsWalletRefreshing(true);
+                        dispatch(getBbpsWalletBalance())
+                          .then(() => {
+                            // The useEffect will update bbpsWalletBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Failed to refresh BBPS wallet:",
+                              error,
+                            );
+                          })
+                          .finally(() => {
+                            setIsBbpsWalletRefreshing(false);
+                          });
                       }
                     }}
                     disabled={
                       (isAslWalletRefreshing && isAslWallet) ||
                       (isEkycHubRefreshing && isEkycHubWallet) ||
-                      (isInspayWalletRefreshing && isInspayWallet)
+                      (isInspayWalletRefreshing && isInspayWallet) ||
+                      (isBbpsWalletRefreshing && isBbpsWallet)
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
                     (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet)
+                    (isInspayWalletRefreshing && isInspayWallet) ||
+                    (isBbpsWalletRefreshing && isBbpsWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>
