@@ -17,6 +17,8 @@ import {
   ADD_BANK_ADMIN_FAILURE,
   GET_ADMIN_DETAILS_SUCCESS,
   GET_ADMIN_DETAILS_FAILURE,
+  GET_ADMIN_PROFILE_SUCCESS,
+  GET_ADMIN_PROFILE_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -385,6 +387,48 @@ export const getAdminDetails = (payload) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_ADMIN_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getAdminProfileDetails = (payload, id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/userDetails/${id}/profile`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: adminProfileResponse, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_ADMIN_PROFILE_SUCCESS,
+        payload: { adminProfileResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: GET_ADMIN_PROFILE_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: GET_ADMIN_PROFILE_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
