@@ -10,6 +10,7 @@ import {
   ADD_BANK_COMPANY_SUCCESS,
   ADD_BANK_ADMIN_SUCCESS,
   GET_ADMIN_DETAILS_SUCCESS,
+  GET_ADMIN_PROFILE_SUCCESS,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -30,6 +31,7 @@ const initialState = {
   bankCompanyResponse: null,
   bankAdminResponse: null,
   adminDetailsResponse: null,
+  adminProfileResponse: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -135,6 +137,15 @@ const userProfileReducer = (state = initialState, action) => {
         error: null,
         adminDetailsResponse: action?.payload,
       }
+      case GET_ADMIN_PROFILE_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          error: null,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
+          adminProfileResponse: action?.payload,
+        }
     default:
       return state;
   }
