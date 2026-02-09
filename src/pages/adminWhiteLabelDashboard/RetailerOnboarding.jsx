@@ -14,7 +14,6 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -24,6 +23,7 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -69,7 +69,7 @@ const RetailerOnboarding = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
+    const response = state?.role?.roleDataComp;
     return response?.totalCount || response?.total || 0;
   });
 
@@ -104,7 +104,7 @@ const RetailerOnboarding = ({
           name: debouncedSearchTerm.trim(),
         },
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
@@ -167,7 +167,7 @@ const RetailerOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching roleDataCompanyUser again
       if (debouncedSearchTerm.trim()) {
         const payload = {
           query: {
@@ -184,7 +184,7 @@ const RetailerOnboarding = ({
             name: debouncedSearchTerm.trim(),
           },
         };
-        dispatch(useListAction(payload));
+        dispatch(roleDataCompanyUser(payload));
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
@@ -569,7 +569,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -627,7 +627,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1014,7 +1014,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1064,7 +1064,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
