@@ -403,9 +403,9 @@ export const getAdminProfileDetails = (payload, id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/userDetails/${id}/profile`,
+      `${API_ROUTE}/api/v1/admin/user/profile/${id}`,
       payload,
-      {
+      { 
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
