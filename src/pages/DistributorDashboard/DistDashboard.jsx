@@ -933,11 +933,10 @@ const DistDashboard = () => {
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
-                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                              <div className="w-24 h-16 flex items-center justify-center shrink-0 relative">
                                 <img
                                   src={bank.logo}
                                   alt={bank.name}
-                                  className="w-10 h-10 object-cover"
                                   onError={(e) => {
                                     e.target.style.display = "none";
                                     const fallback =
