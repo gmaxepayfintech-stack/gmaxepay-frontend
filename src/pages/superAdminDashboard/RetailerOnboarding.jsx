@@ -24,6 +24,10 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../../redux/action/userProfileAction";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -436,7 +440,19 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Set role code for ProfileDetails badge (Retailer)
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "R";
+                              dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Fetch core company admin details
                               dispatch(getCompanyAdmin(userId));
+
+                              // Additionally fetch admin profile details (slab visibility, etc.)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -882,7 +898,12 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Fetch core company admin details
                               dispatch(getCompanyAdmin(userId));
+
+                              // Additionally fetch admin profile details (slab visibility, etc.)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}

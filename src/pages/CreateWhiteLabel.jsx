@@ -32,12 +32,14 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
 } from "../redux/action/whiteLabelAction";
 import { getSlabList } from "../redux/action/slabAction";
 import { ButtonLoader } from "../widgets/layout/loader";
 import { motion } from "framer-motion";
-import { getAdminProfileDetails } from "../redux/action/userProfileAction";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../redux/action/userProfileAction";
 
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
@@ -1001,7 +1003,17 @@ const CreateWhiteLabel = () => {
                               onClick={() => {
                                 const userId = row.id || row.originalItem?.id;
                                 if (userId) {
-                                  dispatch(getCompanyAdmin(userId));
+                                  // Store selected user's role for ProfileDetails badge
+                                  const roleFromRow =
+                                    row.userRole ||
+                                    row.originalItem?.userRole ||
+                                    row.originalItem?.role ||
+                                    row.originalItem?.userType ||
+                                    null;
+                                  dispatch(setSelectedUserRole(roleFromRow));
+
+                                  // Call admin profile details API with just userId (no payload)
+                                  dispatch(getAdminProfileDetails(userId));
                                   setShowProfileDetails(true);
                                 }
                               }}

@@ -18,10 +18,13 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../../redux/action/userProfileAction";
 
 const MasterDistributionOnboarding = ({
   embedded = false,
@@ -343,7 +346,16 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              // Set role code for ProfileDetails badge (Master Distributor)
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "MD";
+                              dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -767,7 +779,16 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              // Set role code for ProfileDetails badge (Master Distributor)
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "MD";
+                              dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}

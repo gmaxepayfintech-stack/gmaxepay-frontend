@@ -11,6 +11,7 @@ import {
   ADD_BANK_ADMIN_SUCCESS,
   GET_ADMIN_DETAILS_SUCCESS,
   GET_ADMIN_PROFILE_SUCCESS,
+  SET_SELECTED_USER_ROLE,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -32,6 +33,7 @@ const initialState = {
   bankAdminResponse: null,
   adminDetailsResponse: null,
   adminProfileResponse: null,
+  selectedUserRole: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -146,6 +148,11 @@ const userProfileReducer = (state = initialState, action) => {
           message: action?.payload?.message,
           adminProfileResponse: action?.payload,
         }
+    case SET_SELECTED_USER_ROLE:
+      return {
+        ...state,
+        selectedUserRole: action.payload ?? null,
+      };
     default:
       return state;
   }
