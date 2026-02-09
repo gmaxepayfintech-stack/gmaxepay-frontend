@@ -5,6 +5,7 @@ import {
   OPERATOR_CREATE_FAILURE,
   OPERATOR_UPDATE_SUCCESS,
   OPERATOR_UPDATE_FAILURE,
+  ADMIN_UPGRADE_LIST_SUCCESS,
 } from "../actionType/operatorActionType";
 
 const initialState = {
@@ -12,6 +13,8 @@ const initialState = {
   success: null,
   error: null,
   message: null,
+  commTotal: null,
+  adminList: [],
 };
 
 const operatorReducer = (state = initialState, action) => {
@@ -40,6 +43,17 @@ const operatorReducer = (state = initialState, action) => {
         error: action.payload,
         success: false,
       };
+
+    case ADMIN_UPGRADE_LIST_SUCCESS:
+      return{
+        ...state,
+        loading:false,
+        error: null,
+        adminList: action?.payload?.data || [],
+        message: action?.payload?.message,
+        success: action?.payload?.status,
+        commTotal: action.payload?.total || 0,
+      }
 
     default:
       return state;
