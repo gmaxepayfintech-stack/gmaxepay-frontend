@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
 import {
@@ -62,20 +62,26 @@ const RetailerOnboarding = ({
   );
 
   // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Handle both nested (array of companies with users) and flat (array of users) structures
+  const allTableData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.role?.roleDataComp;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available, otherwise use current data length
-  const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Debounce search term
   useEffect(() => {
@@ -109,9 +115,13 @@ const RetailerOnboarding = ({
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Use Redux data when search is active, otherwise use prop data
-  const reduxTableData = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
+  // Flatten the nested structure: data is array of companies, each with users array
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
   const finalTableData = debouncedSearchTerm.trim()
     ? reduxTableData
     : allTableData;
@@ -229,7 +239,7 @@ const RetailerOnboarding = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apesWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -496,7 +506,7 @@ const RetailerOnboarding = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         <span
@@ -942,7 +952,7 @@ const RetailerOnboarding = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         <span

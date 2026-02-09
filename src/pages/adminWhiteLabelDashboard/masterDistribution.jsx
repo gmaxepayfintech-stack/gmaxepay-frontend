@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaSearch,
@@ -52,9 +52,13 @@ const MasterDistribution = ({
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
   // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector(
-    (state) => state?.role?.roleDataComp?.roleDataComp || [],
-  );
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -76,18 +80,30 @@ const MasterDistribution = ({
   );
 
   // Use Redux data if search is active, otherwise use prop data
+  // Handle both nested (array of companies with users) and flat (array of users) structures for prop data
+  const flattenedPropData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
+
   const allTableData = debouncedSearchTerm.trim()
     ? Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
       : []
-    : Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+    : flattenedPropData;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.role?.roleDataComp;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Use Redux total count if available and search is active, otherwise use current data length
@@ -168,8 +184,8 @@ const MasterDistribution = ({
       "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       "Remaining Days": row.remainingDays || "0",
       Status: row.status || "Active",
     }));
@@ -543,11 +559,11 @@ const MasterDistribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
@@ -978,11 +994,11 @@ const MasterDistribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">

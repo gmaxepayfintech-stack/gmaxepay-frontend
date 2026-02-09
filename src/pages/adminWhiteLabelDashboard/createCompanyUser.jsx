@@ -115,10 +115,14 @@ const CreateCompanyUser = () => {
   );
 
   // Get data from Redux - the action extracts data array and stores it as roleDataComp.roleDataComp
+  // Flatten the nested structure: data is array of companies, each with users array
   // Use stable empty array reference to prevent unnecessary re-renders
-  const responseForTableRaw = useSelector(
-    (state) => state?.role?.roleDataComp?.roleDataComp,
-  );
+  const responseForTableRaw = useSelector((state) => {
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return EMPTY_ARRAY;
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
   const responseForTable = useMemo(
     () => responseForTableRaw || EMPTY_ARRAY,
     [responseForTableRaw],
@@ -130,13 +134,10 @@ const CreateCompanyUser = () => {
   );
 
   const totalCount = useSelector((state) => {
-    const response = state?.role?.roleDataComp;
-    return (
-      response?.totalCount ||
-      response?.total ||
-      response?.roleDataComp?.length ||
-      0
-    );
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Get kycStatusCheck success state to refresh table after update
