@@ -1197,6 +1197,14 @@ const SuperAdmin = () => {
                       try {
                         let payload = {};
 
+                        // Map selected AEPS wallet to API aepsType (used for both wallet and bank transfers)
+                        const aepsType =
+                          selectedAepsWallet === "aeps1"
+                            ? "AEPS1"
+                            : selectedAepsWallet === "aeps2"
+                            ? "AEPS2"
+                            : undefined;
+
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
@@ -1215,14 +1223,6 @@ const SuperAdmin = () => {
                             "Longitude:",
                             longitude,
                           );
-
-                          // Map selected AEPS wallet to API aepsType
-                          const aepsType =
-                            selectedAepsWallet === "aeps1"
-                              ? "AEPS1"
-                              : selectedAepsWallet === "aeps2"
-                              ? "AEPS2"
-                              : undefined;
 
                           payload = {
                             amount: amount.toString(),
@@ -1254,6 +1254,7 @@ const SuperAdmin = () => {
                             bankId: selectedBank,
                             latitude: latitude,
                             longitude: longitude,
+                            ...(aepsType ? { aepsType } : {}),
                           };
                           if (requestType) {
                             payload.paymentMode = requestType;

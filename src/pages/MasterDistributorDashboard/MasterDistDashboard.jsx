@@ -220,9 +220,9 @@ const MasterDistDashboard = () => {
           const transformedBanks = response.data.banks.map((bank, index) => ({
             id: bank.id?.toString() || index.toString(),
             name: bank.bankName || "",
-            logo: "/img/kotak-logo.png", // Default logo, can be updated based on bank name
+            logo: bank.bankLogo, 
             accountNumber: bank.accountNumber || "",
-            ifscCode: bank.ifsc || "",
+            ifscCode: bank.ifscCode || "",
           }));
           setBanks(transformedBanks);
           // Set first bank as selected if available
@@ -1015,6 +1015,14 @@ const MasterDistDashboard = () => {
                       try {
                         let payload = {};
 
+                        // Map selected AEPS wallet to API aepsType (used for both wallet and bank transfers)
+                        const aepsType =
+                          selectedAepsWallet === "aeps1"
+                            ? "AEPS1"
+                            : selectedAepsWallet === "aeps2"
+                            ? "AEPS2"
+                            : undefined;
+
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
@@ -1033,14 +1041,6 @@ const MasterDistDashboard = () => {
                             "Longitude:",
                             longitude,
                           );
-
-                          // Map selected AEPS wallet to API aepsType
-                          const aepsType =
-                            selectedAepsWallet === "aeps1"
-                              ? "AEPS1"
-                              : selectedAepsWallet === "aeps2"
-                              ? "AEPS2"
-                              : undefined;
 
                           payload = {
                             amount: amount.toString(),
@@ -1072,6 +1072,7 @@ const MasterDistDashboard = () => {
                             bankId: selectedBank,
                             latitude: latitude,
                             longitude: longitude,
+                            ...(aepsType ? { aepsType } : {}),
                           };
                           if (requestType) {
                             payload.paymentMode = requestType;
