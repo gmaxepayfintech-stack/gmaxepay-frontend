@@ -23,7 +23,6 @@ import Retailers from "./Retailers";
 import RetailerOnboarding from "./RetailerOnboarding";
 import ProfileDetails from "./ProfileDetails";
 import {
-  useList,
   kycData,
   kycStatusCheck,
   kycUnlock,
@@ -34,7 +33,7 @@ import {
 import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { motion } from "framer-motion";
-
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
@@ -115,10 +114,10 @@ const CreateCompanyUser = () => {
     </tr>
   );
 
-  // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
+  // Get data from Redux - the action extracts data array and stores it as roleDataComp.roleDataComp
   // Use stable empty array reference to prevent unnecessary re-renders
   const responseForTableRaw = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList,
+    (state) => state?.role?.roleDataComp?.roleDataComp,
   );
   const responseForTable = useMemo(
     () => responseForTableRaw || EMPTY_ARRAY,
@@ -131,11 +130,11 @@ const CreateCompanyUser = () => {
   );
 
   const totalCount = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
+    const response = state?.role?.roleDataComp;
     return (
       response?.totalCount ||
       response?.total ||
-      response?.whitelabelList?.length ||
+      response?.roleDataComp?.length ||
       0
     );
   });
@@ -212,7 +211,7 @@ const CreateCompanyUser = () => {
     };
 
     setIsTableLoading(true);
-    dispatch(useList(payload));
+    dispatch(roleDataCompanyUser(payload));
   }, [
     activeNav,
     currentPage,
@@ -226,7 +225,7 @@ const CreateCompanyUser = () => {
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
@@ -247,7 +246,7 @@ const CreateCompanyUser = () => {
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
       setIsTableLoading(true);
-      dispatch(useList(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [
     kycStatusCheckResponse,
@@ -1173,7 +1172,7 @@ const CreateCompanyUser = () => {
                                               : {},
                                         };
                                         setIsTableLoading(true);
-                                        dispatch(useList(payload));
+                                        dispatch(roleDataCompanyUser(payload));
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}
@@ -1238,7 +1237,7 @@ const CreateCompanyUser = () => {
                                               : {},
                                         };
                                         setIsTableLoading(true);
-                                        dispatch(useList(payload));
+                                        dispatch(roleDataCompanyUser(payload));
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}

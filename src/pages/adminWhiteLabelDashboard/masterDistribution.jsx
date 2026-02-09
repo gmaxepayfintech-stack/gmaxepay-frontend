@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -26,6 +25,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const MasterDistribution = ({
   embedded = false,
@@ -53,7 +53,7 @@ const MasterDistribution = ({
 
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+    (state) => state?.role?.roleDataComp?.roleDataComp || [],
   );
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
@@ -86,7 +86,7 @@ const MasterDistribution = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
+    const response = state?.role?.roleDataComp;
     return response?.totalCount || response?.total || 0;
   });
 
@@ -144,7 +144,7 @@ const MasterDistribution = ({
         },
       };
 
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
@@ -188,7 +188,7 @@ const MasterDistribution = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -205,14 +205,14 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -229,7 +229,7 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 

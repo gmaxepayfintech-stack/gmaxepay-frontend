@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusData,
   kycStatusCheck,
@@ -27,6 +26,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const Retailers = ({
   embedded = false,
@@ -76,7 +76,7 @@ const Retailers = ({
 
   // Get data from Redux when search is active, otherwise use prop data
   const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+    (state) => state?.role?.roleDataComp?.roleDataComp || [],
   );
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
@@ -108,7 +108,7 @@ const Retailers = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
+    const response = state?.role?.roleDataComp;
     return response?.totalCount || response?.total || 0;
   });
 
@@ -155,7 +155,7 @@ const Retailers = ({
         },
       };
 
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
@@ -224,7 +224,7 @@ const Retailers = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching roleDataCompanyUser again
       if (debouncedSearchTerm.trim()) {
         const payload = {
           query: {
@@ -240,7 +240,7 @@ const Retailers = ({
             name: debouncedSearchTerm.trim(),
           },
         };
-        dispatch(useListAction(payload));
+        dispatch(roleDataCompanyUser(payload));
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
@@ -604,7 +604,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -665,7 +665,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1062,7 +1062,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1130,7 +1130,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}

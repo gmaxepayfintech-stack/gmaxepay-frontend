@@ -14,7 +14,6 @@ import {
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
-  useList as useListAction,
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
@@ -22,6 +21,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const MasterDistributionOnboarding = ({
   embedded = false,
@@ -69,7 +69,7 @@ const MasterDistributionOnboarding = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
+    const response = state?.role?.roleDataComp;
     return response?.totalCount || response?.total || 0;
   });
 
@@ -99,7 +99,7 @@ const MasterDistributionOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -112,14 +112,14 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -132,7 +132,7 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycLockStatusResponse, currentPage, dispatch]);
 
