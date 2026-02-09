@@ -24,3 +24,6 @@ export const GET_ADMIN_DETAILS_FAILURE = 'GET_ADMIN_DETAILS_FAILURE';
 
 export const GET_ADMIN_PROFILE_SUCCESS = 'GET_ADMIN_PROFILE_SUCCESS';
 export const GET_ADMIN_PROFILE_FAILURE = 'GET_ADMIN_PROFILE_FAILURE';
+
+// Selected user role for ProfileDetails (set from list screens like CreateWhiteLabel)
+export const SET_SELECTED_USER_ROLE = 'SET_SELECTED_USER_ROLE';

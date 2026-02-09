@@ -22,10 +22,13 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../../redux/action/userProfileAction";
 
 const MasterDistribution = ({
   embedded = false,
@@ -457,7 +460,16 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              // Set role code for ProfileDetails badge
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "MD"; // Master Distributor
+                              dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -892,7 +904,10 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              const original = row.originalItem || {};
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}

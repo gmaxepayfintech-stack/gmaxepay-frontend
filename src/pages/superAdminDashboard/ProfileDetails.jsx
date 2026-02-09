@@ -30,18 +30,35 @@ const ProfileDetails = ({ onBack = null }) => {
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
 
-  // Get company admin data from Redux
+  // Get company admin data from Redux (old flow)
   const companyAdminState = useSelector(
     (state) => state?.whitelabel?.companyAdmin,
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get admin profile details (slab visibility) from Redux
+  // Get admin profile details from Redux (new profile API used in CreateWhiteLabel, etc.)
   const adminProfileState = useSelector(
     (state) => state?.userProfile?.adminProfileResponse,
   );
-  const slabList = adminProfileState?.adminProfileResponse?.data || adminProfileState?.adminProfileResponse || [];
+
+  // Extract the raw profile data from adminProfileState
+  const adminProfileData =
+    adminProfileState?.adminProfileResponse?.data ||
+    adminProfileState?.adminProfileResponse ||
+    null;
+
+  // Normalise slab list into a safe array (for membership schemes)
+  const rawSlabList =
+    (Array.isArray(adminProfileData) ? adminProfileData : adminProfileData?.slabList) ||
+    adminProfileState?.adminProfileResponse?.data ||
+    adminProfileState?.adminProfileResponse ||
+    [];
+  const slabList = Array.isArray(rawSlabList)
+    ? rawSlabList
+    : Array.isArray(rawSlabList?.data)
+      ? rawSlabList.data
+      : [];
   const visibilityLoading = useSelector(
     (state) => state?.userProfile?.loading || false,
   );
@@ -60,8 +77,10 @@ const ProfileDetails = ({ onBack = null }) => {
     (state) => state?.loading?.isLoading || false,
   );
 
-  // Extract data from companyAdminData (do this before early returns to maintain hook order)
-  const data = companyAdminData || {};
+  // Extract data from companyAdminData if available, otherwise fall back to adminProfileData.
+  // Company admin response usually has full profile (name, role, address, etc.),
+  // while admin profile response is mainly used for slab/membership info.
+  const data = companyAdminData || adminProfileData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
@@ -83,19 +102,70 @@ const ProfileDetails = ({ onBack = null }) => {
     return "";
   };
 
+  // Get explicitly selected user role from Redux (set from list screens like CreateWhiteLabel)
+  const selectedUserRole = useSelector(
+    (state) => state?.userProfile?.selectedUserRole ?? null,
+  );
+
+  const getUserTypeLabel = () => {
+ 
+    const source = companyAdminData || adminProfileData || {};
+
+    const rawRole =
+      selectedUserRole ??
+      source.userRole ??
+      source.role ??
+      source.userType ??
+      source.userRoleCode ??
+      source.userRoleNumber ??
+      source.userRoleId ??
+      source.roleId ??
+      "";
+
+    const roleCode = rawRole.toString().toUpperCase();
+
+    switch (roleCode) {
+      // Master Distributor
+      case "3":
+      case "MD":
+      case "MASTER_DISTRIBUTOR":
+        return "Master Distributor";
+
+      // Distributor
+      case "4":
+      case "DI":
+      case "DISTRIBUTOR":
+        return "Distributor";
+
+      // Retailer
+      case "5":
+      case "RE":
+      case "RETAILER":
+        return "Retailer";
+
+      // Whitelabel
+      case "2":
+      case "WL":
+      case "WHITELABEL":
+      case "WHITE_LABEL":
+      default:
+        return "Whitelabel";
+    }
+  };
+
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
-  }, [companyAdminData]);
+  }, [companyAdminData, adminProfileData]);
 
-  // Fetch admin profile details (slab visibility) when company admin data is loaded
+  // Fetch admin profile details when company admin data is loaded.
+  // (Only userId is required; no payload/body data is needed)
   useEffect(() => {
     if (companyAdminData) {
-      // Get userId from data.id and companyId from companyDetails
+      // Get userId from data.id
       const userId = data?.id;
-      const companyId = companyDetails?.companyId || data?.id;
-      if (userId && companyId) {
-        dispatch(getAdminProfileDetails({ companyId }, userId));
+      if (userId) {
+        dispatch(getAdminProfileDetails(userId));
       }
     }
   }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
@@ -146,8 +216,10 @@ const ProfileDetails = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading
-  if (isLoading || !companyAdminData) {
+  const hasProfileData = !!(adminProfileData || companyAdminData);
+
+  // Show skeleton while loading or until we have either adminProfileData or companyAdminData
+  if (isLoading || !hasProfileData) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -258,7 +330,7 @@ const ProfileDetails = ({ onBack = null }) => {
             {(data?.profileImage ||
               outletDetails?.shopImage ||
               companyDetails?.compnyLogo) &&
-            !imageError ? (
+              !imageError ? (
               <img
                 src={
                   data?.profileImage ||
@@ -288,7 +360,7 @@ const ProfileDetails = ({ onBack = null }) => {
           <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
             <div className="flex-1">
               <h2 className="text-[16px] sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
-                {companyDetails?.companyName || data?.name || "N/A"}
+                {data?.name || "N/A"}
               </h2>
               <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-[8px] text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
@@ -314,18 +386,17 @@ const ProfileDetails = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  {getUserTypeLabel()}
                 </span>
               </div>
             </div>
 
             {/* Active Status */}
             <div
-              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-                (data?.status || "Active").toLowerCase() === "inactive"
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
                   ? "bg-red-500"
                   : "bg-[#008D1E]"
-              }`}
+                }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
@@ -440,11 +511,10 @@ const ProfileDetails = ({ onBack = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[gilroy-medium] whitespace-nowrap transition-colors ${
-                    activeTab === key
+                  className={`relative z-10 text-sm sm:text-base font-[gilroy-medium] whitespace-nowrap transition-colors ${activeTab === key
                       ? "text-white"
                       : "text-[#1B1717]/80 hover:text-[#039155]"
-                  }`}
+                    }`}
                 >
                   {label}
                 </span>
@@ -730,9 +800,9 @@ const ProfileDetails = ({ onBack = null }) => {
                   >
                     <option value="">Select Slab</option>
                     {slabList.map((slab) => {
-                      const amountDisplay = 
-                        slab.slabAmount === "free" || slab.slabAmount === 0 
-                          ? "Free" 
+                      const amountDisplay =
+                        slab.slabAmount === "free" || slab.slabAmount === 0
+                          ? "Free"
                           : `₹${slab.slabAmount}`;
                       const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
                       return (
@@ -853,11 +923,10 @@ const ProfileDetails = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${
-                      (data?.status || "Active").toLowerCase() === "inactive"
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${(data?.status || "Active").toLowerCase() === "inactive"
                         ? "bg-red-500"
                         : "bg-[#039155]"
-                    }`}
+                      }`}
                   >
                     {data?.status || "Active"}
                   </span>
@@ -1116,7 +1185,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 {(() => {
                   const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                   const isSubscribed = selectedSlab?.isSubscribed || false;
-                  
+
                   // Only show wallet balance if NOT subscribed (for upgrade)
                   if (!isSubscribed) {
                     return (
@@ -1153,9 +1222,9 @@ const ProfileDetails = ({ onBack = null }) => {
                       {(() => {
                         const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                         if (!selectedSlab) return "N/A";
-                        const amountDisplay = 
-                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
-                            ? "Free" 
+                        const amountDisplay =
+                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0
+                            ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
                         const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
                         return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
