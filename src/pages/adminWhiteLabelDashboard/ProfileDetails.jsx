@@ -19,6 +19,8 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { addBankDetails } from "../../redux/action/userProfileAction";
+import { getAdminProfileDetails } from "../../redux/action/userProfileAction";
+
 const ProfileDetails = ({ onBack = null, skipApi = false }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();

@@ -4,13 +4,12 @@ import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import {
-  getSlabVisibility,
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
 import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
 import { getWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
-import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
+import { addBankCompanyDetails, getAdminProfileDetails } from "../../redux/action/userProfileAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -19,7 +18,6 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
-
 const ProfileDetails = ({ onBack = null }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
@@ -39,10 +37,13 @@ const ProfileDetails = ({ onBack = null }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
 
-  // Get slab visibility from Redux
-  const slabList = useSelector((state) => state?.slab?.visibilityData || []);
+  // Get admin profile details (slab visibility) from Redux
+  const adminProfileState = useSelector(
+    (state) => state?.userProfile?.adminProfileResponse,
+  );
+  const slabList = adminProfileState?.adminProfileResponse?.data || adminProfileState?.adminProfileResponse || [];
   const visibilityLoading = useSelector(
-    (state) => state?.slab?.visibilityLoading || false,
+    (state) => state?.userProfile?.loading || false,
   );
   const assignSlabLoading = useSelector(
     (state) => state?.slab?.assignSlabLoading || false,
@@ -87,14 +88,14 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [companyAdminData]);
 
-  // Fetch slab visibility when company admin data is loaded
+  // Fetch admin profile details (slab visibility) when company admin data is loaded
   useEffect(() => {
     if (companyAdminData) {
       // Get userId from data.id and companyId from companyDetails
       const userId = data?.id;
       const companyId = companyDetails?.companyId || data?.id;
       if (userId && companyId) {
-        dispatch(getSlabVisibility(userId, companyId));
+        dispatch(getAdminProfileDetails({ companyId }, userId));
       }
     }
   }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);

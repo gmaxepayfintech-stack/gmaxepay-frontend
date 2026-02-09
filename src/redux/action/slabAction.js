@@ -733,9 +733,6 @@ export const assignSlabToCompany = (slabId, companyId) => async (dispatch) => {
   }
 };
 
-// ========== COMPANY SLAB ACTIONS (for adminWhiteLabelDashboard) ==========
-
-// Create slab for company
 export const createCompanySlab = (slabData, companyId) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   dispatch({ type: SLAB_CREATE_START });
