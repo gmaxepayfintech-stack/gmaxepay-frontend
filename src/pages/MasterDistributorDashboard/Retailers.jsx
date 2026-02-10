@@ -274,7 +274,7 @@ const Retailers = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apesWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -293,7 +293,11 @@ const Retailers = ({
     if (!wallet) return "0";
     if (typeof wallet === "object" && wallet !== null) {
       const value =
-        wallet[type] || wallet.mainWallet || wallet.apesWallet || "0";
+        wallet[type] ??
+        wallet.mainWallet ??
+        wallet.apes1Wallet ??
+        wallet.apes2Wallet ??
+        "0";
       return String(value);
     }
     return String(wallet);
@@ -539,7 +543,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
@@ -1002,7 +1006,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
