@@ -22,12 +22,12 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
+  getUserMDDetails,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
-
+import { getUserMDDetails } from "../../redux/action/whiteLabelAction";
 
 const Retailers = ({
   embedded = false,
@@ -484,7 +484,7 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}
@@ -947,7 +947,7 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}

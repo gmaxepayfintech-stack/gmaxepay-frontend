@@ -20,7 +20,7 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
+  getUserMDDetails,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
@@ -433,7 +433,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}
@@ -883,7 +883,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}
