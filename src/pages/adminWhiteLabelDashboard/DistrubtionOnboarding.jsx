@@ -49,6 +49,7 @@ const DistrubtionOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
@@ -205,7 +206,15 @@ const DistrubtionOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -781,6 +790,7 @@ const DistrubtionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
