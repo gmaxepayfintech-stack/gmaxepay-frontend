@@ -578,7 +578,7 @@ export const getCompanyAdmin = (userId) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/admin/users/company-admin/${userId}`,
+      `${API_ROUTE}/api/v1/company/user/profile/${userId}`,
       {},
       {
         headers: {
