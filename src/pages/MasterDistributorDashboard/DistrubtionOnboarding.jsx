@@ -31,6 +31,8 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 const DistrubtionOnboarding = ({
   embedded = false,

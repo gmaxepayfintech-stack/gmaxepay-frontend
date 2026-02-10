@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -26,6 +25,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
 
 const MasterDistribution = ({
   embedded = false,
@@ -50,10 +50,13 @@ const MasterDistribution = ({
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
 
-  // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
+  // Get data from Redux (Master Distributor role-based list)
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    if (!Array.isArray(roleData)) return [];
+    // API returns: [{ companyId, companyName, users: [...] }, ...]
+    return roleData.flatMap((company) => company?.users || []);
+  });
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -74,26 +77,27 @@ const MasterDistribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Redux data if search is active, otherwise use prop data
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
+  // Use Redux data if available, otherwise use prop data
+  const allTableData =
+    Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
-      : []
-    : Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+      : Array.isArray(propTableData) && propTableData.length > 0
+        ? propTableData
+        : [];
 
-  // Get total count from Redux state (if available) or use current data length
+  // Get total count from Redux state (sum of all users across companies)
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    if (!Array.isArray(roleData)) return 0;
+    return roleData.reduce(
+      (total, company) => total + (company?.users?.length || 0),
+      0,
+    );
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
+  // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (10 records per page)
   // If there's at least 1 record, show at least 1 page, otherwise show 0
@@ -125,26 +129,26 @@ const MasterDistribution = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 3, // Master Distributor role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 10,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(useListAction(payload));
-    }
+    dispatch(roleDataMasterDistributorUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Export to Excel function
@@ -187,7 +191,6 @@ const MasterDistribution = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -204,14 +207,13 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataMasterDistributorUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -228,7 +230,7 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataMasterDistributorUser(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
