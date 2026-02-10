@@ -121,7 +121,7 @@ const RetailerDashboard = () => {
   const getService = (key) => services?.[key] || {};
   const getVolume = (key) => getService(key).totalVolume || 0;
 
-  // Bar chart order: AEPS 1, AEPS 2, BBPS, Mobile, DTH, Payout
+  // Bar chart order: AEPS 1, AEPS 2, BBPS, Mobile, DTH, NSDL PAN, Payout
   const chartData = [
     {
       name: getService("aeps1").label || "AEPS 1",
@@ -144,13 +144,17 @@ const RetailerDashboard = () => {
       value: getVolume("dth"),
     },
     {
+      name: getService("nsdlPan").label || "NSDL PAN",
+      value: getVolume("nsdlPan"),
+    },
+    {
       name: getService("payout").label || "Payout",
       value: getVolume("payout"),
     },
   ];
 
   // Transaction table data from services
-  const serviceKeys = ["aeps1", "aeps2", "bbps", "mobile", "dth", "payout"];
+  const serviceKeys = ["aeps1", "aeps2", "bbps", "mobile", "dth", "nsdlPan", "payout"];
   const transactionData = serviceKeys.map((key) => {
     const svc = getService(key);
 
@@ -168,7 +172,7 @@ const RetailerDashboard = () => {
   const totalCommission =
     userDashboardStatisticsResponse?.data?.commissions?.totalCommission ?? 0;
 
-  // Quick Access Services data - Only 6 services with icons from Services.jsx
+  // Quick Access Services data - 7 services with icons from Services.jsx
   const quickServices = [
     {
       name: getService("aeps1").label || "AEPS 1",
@@ -199,6 +203,12 @@ const RetailerDashboard = () => {
       icon: "/img/DTH1.svg",
       amount: formatCurrency(getVolume("dth")),
       key: "dth",
+    },
+    {
+      name: getService("nsdlPan").label || "NSDL PAN",
+      icon: "/img/PanCorrection.svg",
+      amount: formatCurrency(getVolume("nsdlPan")),
+      key: "nsdlPan",
     },
     {
       name: getService("payout").label || "Payout",
