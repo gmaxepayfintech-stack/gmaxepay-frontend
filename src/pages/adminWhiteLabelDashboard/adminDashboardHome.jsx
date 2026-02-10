@@ -199,6 +199,9 @@ const AdminDashboardHome = () => {
       )
     : 0;
 
+  // Total commission for header amount
+  const totalCommission = companyDashboardStatisticsResponse?.data?.commissions?.totalCommission ?? 0;
+
   const kpiCards = (() => {
     const userStats = companyDashboardStatisticsResponse?.data?.userStats;
     const total = userStats?.total;
@@ -457,11 +460,11 @@ const AdminDashboardHome = () => {
           <div className="mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
               <p className="text-lg sm:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                {formatCurrency(totalVolume)}
+                {formatCurrency(totalCommission)}
               </p>
-              <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
+              {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
                 ▲ +0.24% Today
-              </span>
+              </span> */}
             </div>
           </div>
 
