@@ -325,7 +325,6 @@ const MasterDistribution = ({
             onProfileDetailsShow(false);
           }
         }}
-        skipApi={true}
         userRole={selectedUserRole}
       />
     );

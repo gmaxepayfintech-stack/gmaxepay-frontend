@@ -19,7 +19,6 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { addBankDetails } from "../../redux/action/userProfileAction";
-import { getAdminProfileDetails } from "../../redux/action/userProfileAction";
 
 const ProfileDetails = ({
   onBack = null,
@@ -120,8 +119,24 @@ const ProfileDetails = ({
 
   // Compute current membership scheme details for display-only view
   const currentSlab = useMemo(() => {
-    if (!data?.slabId || !Array.isArray(slabList)) return null;
-    return slabList.find((s) => String(s.id) === String(data.slabId)) || null;
+    if (!Array.isArray(slabList) || slabList.length === 0) return null;
+
+    // 1) If user has a slabId, try to match it
+    if (data?.slabId) {
+      const byId =
+        slabList.find((s) => String(s.id) === String(data.slabId)) || null;
+      if (byId) return byId;
+    }
+
+    // 2) Otherwise, prefer any subscribed slab
+    const subscribed = slabList.find((s) => s.isSubscribed);
+    if (subscribed) return subscribed;
+
+    // 3) Fallback: if only one slab available, use that
+    if (slabList.length === 1) return slabList[0];
+
+    // 4) Final fallback: first slab in the list
+    return slabList[0];
   }, [data?.slabId, slabList]);
 
   const currentSchemeLabel = useMemo(() => {
