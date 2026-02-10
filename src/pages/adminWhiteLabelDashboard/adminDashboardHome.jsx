@@ -10,15 +10,13 @@ import {
   Tooltip,
 } from "recharts";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
-import {
-  payoutBankList,
-  payoutTransaction,
-} from "../../redux/action/payoutAction";
+import { payoutTransaction } from "../../redux/action/payoutAction";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { useNotification } from "../../context/NotificationContext";
 import { FiChevronDown } from "react-icons/fi";
 import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
+import { payoutCompanyBankList } from "../../redux/action/payoutAction";
 
 const MasterDt = "/img/MMasterD.png";
 const Distributor = "/img/DistributorM.png";
@@ -56,7 +54,7 @@ const AdminDashboardHome = () => {
 
   // Get bank list from Redux
   const payoutBankListData = useSelector(
-    (state) => state?.payout?.payoutBankList,
+    (state) => state?.payout?.payoutCompanyBankList,
   );
 
   const walletBalanceResponse = useSelector(
@@ -212,7 +210,7 @@ const AdminDashboardHome = () => {
   useEffect(() => {
     if (payoutOpen) {
       const fetchBanks = async () => {
-        const response = await dispatch(payoutBankList({}));
+        const response = await dispatch(payoutCompanyBankList({}));
         if (response?.status === "SUCCESS" && response?.data?.banks) {
           // Transform API data to match component format
           const transformedBanks = response.data.banks.map((bank, index) => ({
@@ -1250,7 +1248,7 @@ const AdminDashboardHome = () => {
                         });
 
                         // Refresh bank list for payout screen
-                        await dispatch(payoutBankList({}));
+                        await dispatch(payoutCompanyBankList({}));
 
                         // Reset & go back
                         setBankAccountNumber("");

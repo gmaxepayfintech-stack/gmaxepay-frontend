@@ -11,7 +11,6 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
-import { getUserMDDetails } from "../../redux/action/whiteLabelAction";
 import { getSlabVisibility } from "../../redux/action/slabAction";
 
 const ProfileDetails = ({ onBack = null }) => {
@@ -20,7 +19,6 @@ const ProfileDetails = ({ onBack = null }) => {
   const [imageError, setImageError] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Get profile data from Redux
   const companyAdminState = useSelector(
     (state) => state?.whitelabel?.companyAdmin,
   );
@@ -31,30 +29,17 @@ const ProfileDetails = ({ onBack = null }) => {
   const companyAdminData = companyAdminState?.companyAdminData || null;
   const userAdminData = userAdminState?.userAdminDetails || null;
 
-  // Get slab visibility list from Redux
   const slabList = useSelector((state) => state?.slab?.visibilityData || []);
 
-  // Extract data from Redux (prefer MD userAdminData, fallback to companyAdminData)
-  // Do this before early returns to maintain hook order
   const data = userAdminData || companyAdminData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
 
-  // Debug logs to verify where data is coming from
-  useEffect(() => {
-    console.log("MD ProfileDetails - companyAdminData:", companyAdminData);
-    console.log("MD ProfileDetails - userAdminData:", userAdminData);
-    console.log("MD ProfileDetails - resolved data:", data);
-  }, [companyAdminData, userAdminData, data]);
-
-  // Helper function to get Google Maps embed URL
   const getMapEmbedUrl = () => {
-    // Prefer coordinates if available (most reliable)
     if (data?.latitude && data?.longitude) {
       return `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
     }
-    // Extract place_id from googleMapsLink if available
     if (outletDetails?.googleMapsLink) {
       const placeIdMatch =
         outletDetails.googleMapsLink.match(/place_id:([^&]+)/);
