@@ -86,7 +86,7 @@ const DistrubtionOnboarding = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return 0;
     // Sum all users from all companies
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
