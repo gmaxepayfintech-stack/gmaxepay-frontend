@@ -42,7 +42,7 @@ const TableBodyLoader = ({ colSpan }) => (
 const Distribution = ({
   embedded = false,
   tableData: propTableData = [],
-  isLoading = false,
+  // isLoading prop is kept for compatibility but we now rely on roles.isLoading
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -75,10 +75,18 @@ const Distribution = ({
     return Array.isArray(roleData) ? roleData : [];
   });
 
+  // Table loading state from roles reducer
+  const isTableLoading = useSelector(
+    (state) => state?.roles?.isLoading || false,
+  );
+
   // Log full API slice and table rows for debugging
   const roleDataMDSlice = useSelector((state) => state?.roles?.roleDataMD);
   useEffect(() => {
-    console.log("MD Distribution - roleDataMasterDistributorUser slice:", roleDataMDSlice);
+    console.log(
+      "MD Distribution - roleDataMasterDistributorUser slice:",
+      roleDataMDSlice,
+    );
     console.log("MD Distribution - table rows from Redux:", reduxTableData);
   }, [roleDataMDSlice, reduxTableData]);
 
@@ -352,7 +360,7 @@ const Distribution = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
