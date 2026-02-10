@@ -28,6 +28,8 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (

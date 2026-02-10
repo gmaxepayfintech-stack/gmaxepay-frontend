@@ -14,12 +14,13 @@ import {
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
-  useList as useListAction,
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 const MasterDistributionOnboarding = ({
   embedded = false,
@@ -64,10 +65,14 @@ const MasterDistributionOnboarding = ({
       ? propTableData
       : [];
 
-  // Get total count from Redux state (if available) or use current data length
+  // Get total count from Redux state (Master Distributor list)
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    if (!Array.isArray(roleData)) return 0;
+    return roleData.reduce(
+      (total, company) => total + (company?.users?.length || 0),
+      0,
+    );
   });
 
   // Use Redux total count if available, otherwise use current data length
@@ -96,7 +101,6 @@ const MasterDistributionOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -109,14 +113,13 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataMasterDistributorUser(payload));
     }
   }, [kycStatusCheckResponse, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -129,7 +132,7 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataMasterDistributorUser(payload));
     }
   }, [kycLockStatusResponse, currentPage, dispatch]);
 
