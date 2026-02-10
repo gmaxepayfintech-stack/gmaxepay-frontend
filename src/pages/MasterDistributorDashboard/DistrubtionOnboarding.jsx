@@ -393,7 +393,7 @@ const DistrubtionOnboarding = ({
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
                               if (userId) {
-                                dispatch(getCompanyAdmin(userId));
+                                dispatch(getUserMDDetails(userId));
                                 setShowProfileDetails(true);
                               }
                             }}
@@ -804,14 +804,6 @@ const DistrubtionOnboarding = ({
                         {row.id || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        <button
-                          onClick={() => {
-                            const userId = row.id || row.originalItem?.id;
-                            if (userId) {
-                              dispatch(getUserMDDetails(userId));
-                              setShowProfileDetails(true);
-                            }
-                          }}
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;

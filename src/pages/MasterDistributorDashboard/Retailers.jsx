@@ -27,7 +27,6 @@ import {
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
-import { getUserMDDetails } from "../../redux/action/whiteLabelAction";
 
 const Retailers = ({
   embedded = false,
