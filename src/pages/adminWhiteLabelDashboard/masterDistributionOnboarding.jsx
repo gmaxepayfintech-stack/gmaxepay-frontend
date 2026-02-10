@@ -61,9 +61,18 @@ const MasterDistributionOnboarding = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get data from Redux when available, otherwise use prop data
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
+
   // Use prop data from API - no dummy data
   // Handle both nested (array of companies with users) and flat (array of users) structures
-  const allTableData = useMemo(() => {
+  const flattenedPropData = useMemo(() => {
     if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
     // Check if data is nested (first item has 'users' property)
     if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
@@ -73,6 +82,16 @@ const MasterDistributionOnboarding = ({
     // Already flat structure
     return propTableData;
   }, [propTableData]);
+
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData = useMemo(() => {
+    // If Redux has data (from API calls), use it
+    if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+      return responseForTable;
+    }
+    // Otherwise use flattened prop data
+    return flattenedPropData;
+  }, [responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -104,6 +123,23 @@ const MasterDistributionOnboarding = ({
       </td>
     </tr>
   );
+
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+        kycStatus: "pending",
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataCompanyUser(payload));
+  }, [currentPage, dispatch]);
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {

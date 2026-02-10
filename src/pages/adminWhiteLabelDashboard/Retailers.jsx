@@ -114,11 +114,11 @@ const Retailers = ({
     return propTableData;
   }, [propTableData]);
 
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData =
+    Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
-      : []
-    : flattenedPropData;
+      : flattenedPropData;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -128,11 +128,9 @@ const Retailers = ({
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
+  // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (5 records per page)
   // If there's at least 1 record, show at least 1 page, otherwise show 0
@@ -153,26 +151,26 @@ const Retailers = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(roleDataCompanyUser(payload));
-    }
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -615,10 +613,12 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
                                     dispatch(roleDataCompanyUser(payload));
                                   }, 500);
@@ -1073,10 +1073,12 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
                                     dispatch(roleDataCompanyUser(payload));
                                   }, 500);

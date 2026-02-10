@@ -79,7 +79,7 @@ const MasterDistribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Redux data if search is active, otherwise use prop data
+  // Use Redux data if available (from search or initial load), otherwise use prop data
   // Handle both nested (array of companies with users) and flat (array of users) structures for prop data
   const flattenedPropData = useMemo(() => {
     if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
@@ -92,11 +92,15 @@ const MasterDistribution = ({
     return propTableData;
   }, [propTableData]);
 
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
-      ? responseForTable
-      : []
-    : flattenedPropData;
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData = useMemo(() => {
+    // If Redux has data (from search or initial load), use it
+    if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+      return responseForTable;
+    }
+    // Otherwise use flattened prop data
+    return flattenedPropData;
+  }, [responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -106,11 +110,9 @@ const MasterDistribution = ({
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
+  // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (10 records per page)
   // If there's at least 1 record, show at least 1 page, otherwise show 0
@@ -142,26 +144,26 @@ const MasterDistribution = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 3, // Master Distributor role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 10,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(roleDataCompanyUser(payload));
-    }
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Export to Excel function
