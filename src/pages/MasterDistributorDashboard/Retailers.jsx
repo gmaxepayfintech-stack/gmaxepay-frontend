@@ -32,7 +32,6 @@ import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
 const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
-  isLoading = false,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -106,6 +105,11 @@ const Retailers = ({
     }
   }, [lockCheck, lastClickedRowId]);
 
+  // Table loading state from roles reducer
+  const isTableLoading = useSelector(
+    (state) => state?.roles?.isLoading || false,
+  );
+
   // Use Redux data if available, otherwise use prop data
   const allTableData =
     Array.isArray(responseForTable) && responseForTable.length > 0
@@ -120,12 +124,9 @@ const Retailers = ({
     return Array.isArray(roleData) ? roleData.length : 0;
   });
 
-  // Use Redux total count if available, otherwise use current data length
   const totalCount =
     totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
-  // If there's at least 1 record, show at least 1 page, otherwise show 0
   const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
 
   // Slice data to show only 5 records per page
@@ -459,7 +460,7 @@ const Retailers = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
@@ -922,7 +923,7 @@ const Retailers = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
