@@ -69,7 +69,7 @@ const RetailerOnboarding = ({
 
   // Get total count from Redux state (Master Distributor list - flat array)
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
     return Array.isArray(roleData) ? roleData.length : 0;
   });
 
@@ -110,7 +110,7 @@ const RetailerOnboarding = ({
 
   // Use Redux data when available, otherwise use prop data
   const reduxTableData = useSelector((state) => {
-    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
     return Array.isArray(roleData) ? roleData : [];
   });
   const finalTableData =

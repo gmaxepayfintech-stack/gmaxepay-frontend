@@ -74,7 +74,7 @@ const DistrubtionOnboarding = ({
 
   // Get Distributor Onboarding list from Redux (Master Distributor role-based list)
   const reduxTableData = useSelector((state) => {
-    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
     return Array.isArray(roleData) ? roleData : [];
   });
 
