@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
@@ -21,7 +21,12 @@ import { motion } from "framer-motion";
 import { addBankDetails } from "../../redux/action/userProfileAction";
 import { getAdminProfileDetails } from "../../redux/action/userProfileAction";
 
-const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) => {
+const ProfileDetails = ({
+  onBack = null,
+  skipApi = false,
+  initialData = null,
+  userRole = null,
+}) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
@@ -112,6 +117,24 @@ const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) 
       setSelectedScheme(String(data.slabId));
     }
   }, [data?.slabId, selectedScheme]);
+
+  // Compute current membership scheme details for display-only view
+  const currentSlab = useMemo(() => {
+    if (!data?.slabId || !Array.isArray(slabList)) return null;
+    return slabList.find((s) => String(s.id) === String(data.slabId)) || null;
+  }, [data?.slabId, slabList]);
+
+  const currentSchemeLabel = useMemo(() => {
+    if (!currentSlab) return "N/A";
+    const amountDisplay =
+      currentSlab.slabAmount === "free" || currentSlab.slabAmount === 0
+        ? "Free"
+        : `₹${currentSlab.slabAmount}`;
+    const subscriptionStatus = currentSlab.isSubscribed
+      ? "Subscribed"
+      : "Unsubscribed";
+    return `${currentSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
+  }, [currentSlab]);
 
   // Handle upgrade success (skip if skipApi is true)
   useEffect(() => {
@@ -317,7 +340,7 @@ const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) 
               <h2 className="text-[16px] sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
                 {companyDetails?.companyName || data?.name || "N/A"}
               </h2>
-              <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
+            <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-[8px] text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
                   <img
                     src={PhoneIcon}
@@ -340,9 +363,42 @@ const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) 
                     {data?.state || "N/A"}
                   </span>
                 </div>
-                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
-                </span>
+              <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
+                {(() => {
+                  // Prefer explicit userRole prop from parent components
+                  const roleSource = userRole || data?.userRole || data?.userType;
+                  const normalized =
+                    typeof roleSource === "string"
+                      ? roleSource.toLowerCase()
+                      : "";
+
+                  if (
+                    normalized === "md" ||
+                    normalized === "master distributor" ||
+                    normalized === "master_distributor"
+                  ) {
+                    return "Master Distributor";
+                  }
+
+                  if (
+                    normalized === "di" ||
+                    normalized === "ds" ||
+                    normalized === "distributor"
+                  ) {
+                    return "Distributor";
+                  }
+
+                  if (
+                    normalized === "re" ||
+                    normalized === "retailer"
+                  ) {
+                    return "Retailer";
+                  }
+
+                  // Default / enterprise / whitelabel level
+                  return "Whitelabel";
+                })()}
+              </span>
               </div>
             </div>
 
@@ -742,59 +798,18 @@ const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) 
 
         {activeTab === "membership" && (
           <div className="space-y-6 sm:space-y-8">
-            {/* Membership Scheme Section */}
+            {/* Membership Scheme Section (Display Only) */}
             <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
-              <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
+              <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-2">
                 Membership Scheme
               </h3>
-              <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-                <div className="relative flex-1 sm:max-w-xs">
-                  <select
-                    value={selectedScheme}
-                    onChange={(e) => setSelectedScheme(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717] appearance-none pr-10"
-                    disabled={upgradeLoading || visibilityLoading}
-                  >
-                    <option value="">Select Slab</option>
-                    {slabList.map((slab) => {
-                      const amountDisplay = 
-                        slab.slabAmount === "free" || slab.slabAmount === 0 
-                          ? "Free" 
-                          : `₹${slab.slabAmount}`;
-                      const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
-                      return (
-                        <option key={slab.id} value={slab.id}>
-                          {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
-                        </option>
-                      );
-                    })}
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
+              <p className="text-xs text-gray-500 mb-2">
+                Current subscribed membership scheme (view only)
+              </p>
+              <div className="max-w-md">
+                <div className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-gray-50 text-sm sm:text-base text-[#1B1717]">
+                  {currentSchemeLabel}
                 </div>
-                <button
-                  onClick={() => {
-                    if (
-                      selectedScheme &&
-                      selectedScheme !== String(data?.slabId)
-                    ) {
-                      setShowConfirmModal(true);
-                    }
-                  }}
-                  disabled={
-                    !selectedScheme ||
-                    selectedScheme === String(data?.slabId) ||
-                    upgradeLoading ||
-                    visibilityLoading
-                  }
-                  className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-green-700 transition-colors text-sm sm:text-base whitespace-nowrap disabled:bg-gray-300 disabled:cursor-not-allowed"
-                >
-                  {(() => {
-                    if (upgradeLoading) return "Processing...";
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
-                    const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed ? "Change Slab" : "Upgrade";
-                  })()}
-                </button>
               </div>
             </div>
 
@@ -1283,6 +1298,7 @@ ProfileDetails.propTypes = {
   onBack: PropTypes.func,
   skipApi: PropTypes.bool,
   initialData: PropTypes.object,
+  userRole: PropTypes.oneOfType([PropTypes.string, PropTypes.null]),
 };
 
 export default ProfileDetails;

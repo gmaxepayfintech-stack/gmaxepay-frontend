@@ -50,6 +50,7 @@ const MasterDistribution = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get data from Redux when search is active, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
@@ -319,11 +320,13 @@ const MasterDistribution = ({
       <ProfileDetails
         onBack={() => {
           setShowProfileDetails(false);
+          setSelectedUserRole(null);
           if (onProfileDetailsShow) {
             onProfileDetailsShow(false);
           }
         }}
         skipApi={true}
+        userRole={selectedUserRole}
       />
     );
   }
@@ -487,6 +490,7 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                               if (onProfileDetailsShow) {
@@ -925,6 +929,7 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }

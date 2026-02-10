@@ -41,6 +41,7 @@ const MasterDistributionOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -239,7 +240,15 @@ const MasterDistributionOnboarding = ({
   }, [showKycModal]);
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -388,6 +397,7 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }

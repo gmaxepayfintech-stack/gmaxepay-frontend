@@ -53,6 +53,7 @@ const Retailers = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -88,7 +89,6 @@ const Retailers = ({
   const roleDataResponse = useSelector((state) => state?.roles?.roleDataComp);
   useEffect(() => {
     if (roleDataResponse) {
-      console.log("Retailers - roleDataCompanyUser API response:", roleDataResponse);
     }
   }, [roleDataResponse]);
 
@@ -346,6 +346,7 @@ const Retailers = ({
           setSelectedProfileData(null);
         }}
         initialData={selectedProfileData}
+        userRole={selectedUserRole || selectedProfileData?.userRole || null}
       />
     );
   }
@@ -504,6 +505,7 @@ const Retailers = ({
                             if (userId) {
                               // Save the clicked row so we can show basic details immediately
                               setSelectedProfileData(row);
+                              setSelectedUserRole(row.userRole || null);
                               // Fetch full profile details
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
@@ -1131,13 +1133,7 @@ const Retailers = ({
                             row?.originalItem?.lock ||
                             row.isLocked ||
                             row.lockStatus;
-                          console.log("Lock value check:", {
-                            lockValue,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            isLocked: row?.isLocked,
-                            lockStatus: row?.lockStatus,
-                          });
+                          
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
