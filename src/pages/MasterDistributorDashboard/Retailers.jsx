@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusData,
   kycStatusCheck,
@@ -27,11 +26,12 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
-  isLoading = false,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -74,10 +74,18 @@ const Retailers = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
+  // Get data from Redux (Master Distributor role-based list - flat array)
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData : [];
+  });
+
+  // Log full API response for debugging
+  const roleDataResponse = useSelector((state) => state?.roles?.roleDataMD || null);
+  useEffect(() => {
+    console.log("MD Retailers - roleDataMasterDistributorUser payload:", roleDataResponse);
+    console.log("MD Retailers - table rows from Redux:", responseForTable);
+  }, [roleDataResponse, responseForTable]);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -97,29 +105,28 @@ const Retailers = ({
     }
   }, [lockCheck, lastClickedRowId]);
 
-  // Use Redux data if search is active, otherwise use prop data
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
-      ? responseForTable
-      : []
-    : Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Table loading state from roles reducer
+  const isTableLoading = useSelector(
+    (state) => state?.roles?.isLoading || false,
+  );
 
-  // Get total count from Redux state (if available) or use current data length
+  // Use Redux data if available, otherwise use prop data
+  const allTableData =
+    Array.isArray(responseForTable) && responseForTable.length > 0
+      ? responseForTable
+      : Array.isArray(propTableData) && propTableData.length > 0
+        ? propTableData
+        : [];
+
+  // Get total count from Redux state (flat array length)
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData.length : 0;
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
-  // Calculate total pages based on total count (5 records per page)
-  // If there's at least 1 record, show at least 1 page, otherwise show 0
   const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
 
   // Slice data to show only 5 records per page
@@ -137,26 +144,26 @@ const Retailers = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(useListAction(payload));
-    }
+    dispatch(roleDataMasterDistributorUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -235,12 +242,14 @@ const Retailers = ({
             page: currentPage,
             paginate: 5,
           },
-          customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          },
+          customSearch: debouncedSearchTerm.trim()
+            ? {
+                mobileNo: debouncedSearchTerm.trim(),
+                name: debouncedSearchTerm.trim(),
+              }
+            : {},
         };
-        dispatch(useListAction(payload));
+        dispatch(roleDataMasterDistributorUser(payload));
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
@@ -266,7 +275,7 @@ const Retailers = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apesWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -285,7 +294,11 @@ const Retailers = ({
     if (!wallet) return "0";
     if (typeof wallet === "object" && wallet !== null) {
       const value =
-        wallet[type] || wallet.mainWallet || wallet.apesWallet || "0";
+        wallet[type] ??
+        wallet.mainWallet ??
+        wallet.apes1Wallet ??
+        wallet.apes2Wallet ??
+        "0";
       return String(value);
     }
     return String(wallet);
@@ -447,7 +460,7 @@ const Retailers = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
@@ -531,7 +544,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
@@ -599,12 +612,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -660,12 +675,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -906,7 +923,7 @@ const Retailers = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
@@ -990,7 +1007,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
@@ -1057,12 +1074,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1125,12 +1144,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}

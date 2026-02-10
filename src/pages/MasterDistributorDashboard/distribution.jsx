@@ -4,8 +4,6 @@ import {
   FaCalendarAlt,
   FaSearch,
   FaUpload,
-  FaEdit,
-  FaTrash,
   FaCheckCircle,
   FaTimesCircle,
   FaUser,
@@ -28,6 +26,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
@@ -43,7 +42,7 @@ const TableBodyLoader = ({ colSpan }) => (
 const Distribution = ({
   embedded = false,
   tableData: propTableData = [],
-  isLoading = false,
+  // isLoading prop is kept for compatibility but we now rely on roles.isLoading
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -70,17 +69,37 @@ const Distribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use prop data from API - no dummy data
+  // Get Distributor list from Redux (Master Distributor role-based list)
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData : [];
+  });
+
+  // Table loading state from roles reducer
+  const isTableLoading = useSelector(
+    (state) => state?.roles?.isLoading || false,
+  );
+
+  // Log full API slice and table rows for debugging
+  const roleDataMDSlice = useSelector((state) => state?.roles?.roleDataMD);
+  useEffect(() => {
+    console.log(
+      "MD Distribution - roleDataMasterDistributorUser slice:",
+      roleDataMDSlice,
+    );
+    console.log("MD Distribution - table rows from Redux:", reduxTableData);
+  }, [roleDataMDSlice, reduxTableData]);
+
+  // Use Redux data if available, otherwise use prop data
   const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+    reduxTableData.length > 0
+      ? reduxTableData
+      : Array.isArray(propTableData) && propTableData.length > 0
+        ? propTableData
+        : [];
 
   // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
-  });
+  const totalCountFromRedux = reduxTableData.length;
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
@@ -93,6 +112,22 @@ const Distribution = ({
   const startIndex = (currentPage - 1) * 10;
   const endIndex = startIndex + 10;
   const tableData = allTableData.slice(startIndex, endIndex);
+
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataMasterDistributorUser(payload));
+  }, [currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -168,14 +203,14 @@ const Distribution = ({
       Name: row.name || row.userName || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || row.mobile || row.mobileNumber || "N/A",
-      "Email Id": row.emailId || row.email || "N/A",
+      "Email Id": row.email || row.emailId || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.companyName || "N/A",
+      "Company Name": row.company || row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet ?? row.mainWallet ?? "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0",
       "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
       Approved: row.approved ? "Yes" : "No",
@@ -325,7 +360,7 @@ const Distribution = ({
               </thead>
 
               <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-                {isLoading ? (
+                {isTableLoading ? (
                   <TableBodyLoader colSpan={13} />
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
@@ -371,13 +406,10 @@ const Distribution = ({
                         {row.userRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.mobileNo ||
-                          row.mobile ||
-                          row.mobileNumber ||
-                          "N/A"}
+                        {row.mobileNo || row.mobile || row.mobileNumber || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.emailId || row.email || "N/A"}
+                        {row.email || row.emailId || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.parentName || "N/A"}
@@ -386,7 +418,7 @@ const Distribution = ({
                         {row.parentRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.companyName || "N/A"}
+                        {row.company || row.companyName || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
@@ -411,10 +443,10 @@ const Distribution = ({
                         {row.kycSteps || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                         {row.remainingDays || "N/A"}
@@ -790,7 +822,7 @@ const Distribution = ({
                       </td>
                       {/* Company Name */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.companyName || "N/A"}
+                        {row.company || row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -818,11 +850,11 @@ const Distribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">

@@ -14,7 +14,6 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -24,6 +23,7 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -67,10 +67,10 @@ const RetailerOnboarding = ({
       ? propTableData
       : [];
 
-  // Get total count from Redux state (if available) or use current data length
+  // Get total count from Redux state (Master Distributor list - flat array)
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData.length : 0;
   });
 
   // Use Redux total count if available, otherwise use current data length
@@ -86,39 +86,37 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term or page changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
-      dispatch(useListAction(payload));
-    }
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+        kycStatus: "pending",
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
+    dispatch(roleDataMasterDistributorUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Use Redux data when search is active, otherwise use prop data
-  const reduxTableData = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
-  const finalTableData = debouncedSearchTerm.trim()
-    ? reduxTableData
-    : allTableData;
+  // Use Redux data when available, otherwise use prop data
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData : [];
+  });
+  const finalTableData =
+    reduxTableData.length > 0 ? reduxTableData : allTableData;
   const finalTotalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : finalTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
   const finalTotalPages =
     finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
   const finalStartIndex = (currentPage - 1) * 5;
@@ -167,25 +165,24 @@ const RetailerOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
-      if (debouncedSearchTerm.trim()) {
-        const payload = {
-          query: {
-            userRole: 5, // Retailer role
-            kycStatus: "pending",
-          },
-          options: {
-            sort: { id: -1 },
-            page: currentPage,
-            paginate: 5,
-          },
-          customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          },
-        };
-        dispatch(useListAction(payload));
-      }
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
+          : {},
+      };
+      dispatch(roleDataMasterDistributorUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -564,12 +561,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -622,12 +621,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1009,12 +1010,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1059,12 +1062,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}

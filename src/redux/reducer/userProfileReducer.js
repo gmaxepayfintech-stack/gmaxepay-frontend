@@ -17,6 +17,7 @@ import {
   DELETE_BANK_COMPANY_FAILURE,
   DELETE_BANK_ADMIN_SUCCESS,
   DELETE_BANK_ADMIN_FAILURE,
+  SET_SELECTED_USER_ROLE,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -38,6 +39,7 @@ const initialState = {
   bankAdminResponse: null,
   adminDetailsResponse: null,
   adminProfileResponse: null,
+  selectedUserRole: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -157,7 +159,7 @@ const userProfileReducer = (state = initialState, action) => {
         ...state,
         error: action.payload,
       };
-      // USER BANK DELETE
+    // USER BANK DELETE
     case DELETE_BANK_USER_SUCCESS:
       return {
         ...state,
@@ -176,7 +178,7 @@ const userProfileReducer = (state = initialState, action) => {
         ...state,
         error: action.payload,
       };
-// ADMIN BANK DELETE
+    // ADMIN BANK DELETE
     case DELETE_BANK_ADMIN_SUCCESS:
       return {
         ...state,
@@ -213,6 +215,11 @@ const userProfileReducer = (state = initialState, action) => {
         success: action?.payload?.status,
         message: action?.payload?.message,
         adminProfileResponse: action?.payload,
+      };
+    case SET_SELECTED_USER_ROLE:
+      return {
+        ...state,
+        selectedUserRole: action.payload ?? null,
       };
     default:
       return state;

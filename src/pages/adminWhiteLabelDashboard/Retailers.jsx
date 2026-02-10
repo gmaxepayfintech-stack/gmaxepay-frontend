@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaSearch,
@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusData,
   kycStatusCheck,
@@ -27,6 +26,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const Retailers = ({
   embedded = false,
@@ -49,9 +49,11 @@ const Retailers = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [rowLockStatus, setRowLockStatus] = useState({}); // Track lock status per row ID
   const [lastClickedRowId, setLastClickedRowId] = useState(null);
+  const [selectedProfileData, setSelectedProfileData] = useState(null);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -75,9 +77,20 @@ const Retailers = ({
   );
 
   // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
+
+  // Log full API response for debugging (data coming from roleDataCompanyUser)
+  const roleDataResponse = useSelector((state) => state?.roles?.roleDataComp);
+  useEffect(() => {
+    if (roleDataResponse) {
+    }
+  }, [roleDataResponse]);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -98,25 +111,35 @@ const Retailers = ({
   }, [lockCheck, lastClickedRowId]);
 
   // Use Redux data if search is active, otherwise use prop data
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
+  // Handle both nested (array of companies with users) and flat (array of users) structures for prop data
+  const flattenedPropData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
+
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData =
+    Array.isArray(responseForTable) && responseForTable.length > 0
       ? responseForTable
-      : []
-    : Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+      : flattenedPropData;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
+  // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (5 records per page)
   // If there's at least 1 record, show at least 1 page, otherwise show 0
@@ -137,26 +160,26 @@ const Retailers = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(useListAction(payload));
-    }
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -224,7 +247,7 @@ const Retailers = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching roleDataCompanyUser again
       if (debouncedSearchTerm.trim()) {
         const payload = {
           query: {
@@ -240,7 +263,7 @@ const Retailers = ({
             name: debouncedSearchTerm.trim(),
           },
         };
-        dispatch(useListAction(payload));
+        dispatch(roleDataCompanyUser(payload));
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
@@ -266,7 +289,7 @@ const Retailers = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apesWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -285,7 +308,7 @@ const Retailers = ({
     if (!wallet) return "0";
     if (typeof wallet === "object" && wallet !== null) {
       const value =
-        wallet[type] || wallet.mainWallet || wallet.apesWallet || "0";
+        wallet[type] || wallet.mainWallet || wallet.apes1Wallet || "0";
       return String(value);
     }
     return String(wallet);
@@ -316,7 +339,16 @@ const Retailers = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedProfileData(null);
+        }}
+        initialData={selectedProfileData}
+        userRole={selectedUserRole || selectedProfileData?.userRole || null}
+      />
+    );
   }
 
   return (
@@ -471,6 +503,10 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Save the clicked row so we can show basic details immediately
+                              setSelectedProfileData(row);
+                              setSelectedUserRole(row.userRole || null);
+                              // Fetch full profile details
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -531,7 +567,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
@@ -599,12 +635,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -665,7 +703,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -930,6 +968,9 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Save the clicked row so we can show basic details immediately
+                              setSelectedProfileData(row);
+                              // Fetch full profile details
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -990,7 +1031,7 @@ const Retailers = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
@@ -1057,12 +1098,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1090,13 +1133,7 @@ const Retailers = ({
                             row?.originalItem?.lock ||
                             row.isLocked ||
                             row.lockStatus;
-                          console.log("Lock value check:", {
-                            lockValue,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            isLocked: row?.isLocked,
-                            lockStatus: row?.lockStatus,
-                          });
+                          
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
@@ -1130,7 +1167,7 @@ const Retailers = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}

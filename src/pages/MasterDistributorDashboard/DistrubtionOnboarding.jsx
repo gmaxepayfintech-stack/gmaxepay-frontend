@@ -31,6 +31,8 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -38,7 +40,8 @@ const DistrubtionOnboarding = ({
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedKyc, setSelectedKyc] = useState("");
+  // Default to pending KYC so list shows only pending distributors by default
+  const [selectedKyc, setSelectedKyc] = useState("pending");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -70,17 +73,35 @@ const DistrubtionOnboarding = ({
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Use prop data from API - no dummy data
+  // Get Distributor Onboarding list from Redux (Master Distributor role-based list)
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData : [];
+  });
+
+  // Log slice and table data for debugging
+  const roleDataMDSlice = useSelector((state) => state?.roles?.roleDataMD);
+  useEffect(() => {
+    console.log(
+      "MD Distribution Onboarding - roleDataMasterDistributorUser slice:",
+      roleDataMDSlice,
+    );
+    console.log(
+      "MD Distribution Onboarding - table rows from Redux:",
+      reduxTableData,
+    );
+  }, [roleDataMDSlice, reduxTableData]);
+
+  // Use Redux data if available, otherwise use prop data
   const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+    reduxTableData.length > 0
+      ? reduxTableData
+      : Array.isArray(propTableData) && propTableData.length > 0
+        ? propTableData
+        : [];
 
   // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
-  });
+  const totalCountFromRedux = reduxTableData.length;
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
@@ -93,6 +114,23 @@ const DistrubtionOnboarding = ({
   const startIndex = (currentPage - 1) * 10;
   const endIndex = startIndex + 10;
   const tableData = allTableData.slice(startIndex, endIndex);
+
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+        kycStatus: selectedKyc || undefined,
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataMasterDistributorUser(payload));
+  }, [currentPage, selectedKyc, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -169,14 +207,14 @@ const DistrubtionOnboarding = ({
       Name: row.name || row.userName || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || row.mobile || row.mobileNumber || "N/A",
-      "Email Id": row.emailId || row.email || "N/A",
+      "Email Id": row.email || row.emailId || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.companyName || "N/A",
+      "Company Name": row.company || row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet ?? row.mainWallet ?? "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0",
       Status: row.status || "Active",
     }));
 
@@ -399,7 +437,7 @@ const DistrubtionOnboarding = ({
                         </td>
                         {/* Company Name */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                          {row.companyName || "N/A"}
+                          {row.company || row.companyName || "N/A"}
                         </td>
                         {/* KYC Status */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
@@ -430,11 +468,11 @@ const DistrubtionOnboarding = ({
                         </td>
                         {/* Main Wallet */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                          {row.mainWallet || "0"}
+                          {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                         </td>
                         {/* AEPS Wallet */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                          {row.aepsWallet || "0"}
+                          {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                         </td>
                         {/* Status */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
@@ -814,7 +852,7 @@ const DistrubtionOnboarding = ({
                       </td>
                       {/* Company Name */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                        {row.companyName || "N/A"}
+                        {row.company || row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
@@ -842,11 +880,11 @@ const DistrubtionOnboarding = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       {/* Status */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">

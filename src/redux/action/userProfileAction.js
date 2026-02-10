@@ -25,6 +25,7 @@ import {
   DELETE_BANK_COMPANY_SUCCESS,
   DELETE_BANK_USER_FAILURE,
   DELETE_BANK_USER_SUCCESS,
+  SET_SELECTED_USER_ROLE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -151,6 +152,12 @@ export const getUserProfile = () => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
+
+// Simple action to store currently selected user's role for ProfileDetails
+export const setSelectedUserRole = (role) => ({
+  type: SET_SELECTED_USER_ROLE,
+  payload: role,
+});
 
 export const getPermission = (id) => async (dispatch) => {
   dispatch({ type: LOADING_START });
@@ -411,14 +418,14 @@ export const getAdminDetails = (payload) => async (dispatch) => {
   }
 };
 
-export const getAdminProfileDetails = (payload, id) => async (dispatch) => {
+export const getAdminProfileDetails = (id) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/userDetails/${id}/profile`,
-      payload,
+      `${API_ROUTE}/api/v1/admin/users/profile/${id}`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",

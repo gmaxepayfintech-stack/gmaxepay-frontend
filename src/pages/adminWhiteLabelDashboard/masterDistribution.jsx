@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaSearch,
@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -26,6 +25,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const MasterDistribution = ({
   embedded = false,
@@ -50,11 +50,16 @@ const MasterDistribution = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get data from Redux when search is active, otherwise use prop data
-  const responseForTable = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -75,26 +80,40 @@ const MasterDistribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Redux data if search is active, otherwise use prop data
-  const allTableData = debouncedSearchTerm.trim()
-    ? Array.isArray(responseForTable) && responseForTable.length > 0
-      ? responseForTable
-      : []
-    : Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Use Redux data if available (from search or initial load), otherwise use prop data
+  // Handle both nested (array of companies with users) and flat (array of users) structures for prop data
+  const flattenedPropData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
+
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData = useMemo(() => {
+    // If Redux has data (from search or initial load), use it
+    if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+      return responseForTable;
+    }
+    // Otherwise use flattened prop data
+    return flattenedPropData;
+  }, [responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
+  // Use Redux total count if available, otherwise use current data length
   const totalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : allTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Calculate total pages based on total count (10 records per page)
   // If there's at least 1 record, show at least 1 page, otherwise show 0
@@ -126,26 +145,26 @@ const MasterDistribution = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 3, // Master Distributor role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 10,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
 
-      dispatch(useListAction(payload));
-    }
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Export to Excel function
@@ -168,8 +187,8 @@ const MasterDistribution = ({
       "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       "Remaining Days": row.remainingDays || "0",
       Status: row.status || "Active",
     }));
@@ -188,7 +207,7 @@ const MasterDistribution = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -205,14 +224,14 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -229,7 +248,7 @@ const MasterDistribution = ({
             }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -301,11 +320,12 @@ const MasterDistribution = ({
       <ProfileDetails
         onBack={() => {
           setShowProfileDetails(false);
+          setSelectedUserRole(null);
           if (onProfileDetailsShow) {
             onProfileDetailsShow(false);
           }
         }}
-        skipApi={true}
+        userRole={selectedUserRole}
       />
     );
   }
@@ -469,6 +489,7 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                               if (onProfileDetailsShow) {
@@ -543,11 +564,11 @@ const MasterDistribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
@@ -907,6 +928,7 @@ const MasterDistribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -978,11 +1000,11 @@ const MasterDistribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">

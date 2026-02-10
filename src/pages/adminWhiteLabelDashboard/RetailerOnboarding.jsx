@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
 import {
@@ -14,7 +14,6 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
@@ -24,6 +23,7 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -44,6 +44,7 @@ const RetailerOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
@@ -62,20 +63,26 @@ const RetailerOnboarding = ({
   );
 
   // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Handle both nested (array of companies with users) and flat (array of users) structures
+  const allTableData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
-  // Use Redux total count if available, otherwise use current data length
-  const totalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Debounce search term
   useEffect(() => {
@@ -86,39 +93,44 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term or page changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
-      dispatch(useListAction(payload));
-    }
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+        kycStatus: "pending",
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Use Redux data when search is active, otherwise use prop data
-  const reduxTableData = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
-  );
-  const finalTableData = debouncedSearchTerm.trim()
-    ? reduxTableData
-    : allTableData;
+  // Use Redux data when available, otherwise use prop data
+  // Flatten the nested structure: data is array of companies, each with users array
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const finalTableData =
+    Array.isArray(reduxTableData) && reduxTableData.length > 0
+      ? reduxTableData
+      : allTableData;
+  // Use Redux total count if available, otherwise use current data length
   const finalTotalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : finalTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
   const finalTotalPages =
     finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
   const finalStartIndex = (currentPage - 1) * 5;
@@ -167,25 +179,25 @@ const RetailerOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
-      if (debouncedSearchTerm.trim()) {
-        const payload = {
-          query: {
-            userRole: 5, // Retailer role
-            kycStatus: "pending",
-          },
-          options: {
-            sort: { id: -1 },
-            page: currentPage,
-            paginate: 5,
-          },
-          customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          },
-        };
-        dispatch(useListAction(payload));
-      }
+      // Refresh table data by dispatching roleDataCompanyUser again
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
+          : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -229,7 +241,7 @@ const RetailerOnboarding = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apesWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -283,7 +295,15 @@ const RetailerOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -436,6 +456,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -496,7 +517,7 @@ const RetailerOnboarding = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         <span
@@ -564,12 +585,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -627,7 +650,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -942,7 +965,7 @@ const RetailerOnboarding = ({
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apesWallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         <span
@@ -1009,12 +1032,14 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1064,7 +1089,7 @@ const RetailerOnboarding = ({
                                         name: debouncedSearchTerm.trim(),
                                       },
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataCompanyUser(payload));
                                   }, 500);
                                 }
                               }}

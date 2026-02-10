@@ -28,6 +28,8 @@ const Ratailer = "/img/Retailer.png";
 const Comission = "/img/Comission.png";
 const TotalCharges = "/img/TotalCharges.png";
 const Revenue = "/img/Revenue.png";
+const FailedTransactions = "/img/FailedTransactions.svg";
+const PendingTransactions = "/img/PendingTransactions.svg";
 const Transactions = "/img/Transactions.png";
 const OpeningBalance = "/img/OpeningBalance.png";
 const FundTransfer = "/img/FundTransfer.png";
@@ -255,31 +257,33 @@ const SuperAdmin = () => {
 
   const summaryItems = [
     {
-      label: "Total Revenue",
-      value: "$4,21,40,238",
-      change: "▲ 4.61%",
-      icon: Revenue,
-      bg: "bg-[#FFF2EC]", // Light peach
-    },
-    {
       label: "Commission",
-      value: "$42,04,100",
-      change: "▼ 4.61%",
+      value: "₹4",
+      change: "",
       icon: Comission,
       bg: "bg-[#EBF5FF]", // Light blue
     },
     {
       label: "Successful Transactions",
       value: "9",
-      change: "▲ 4.61%",
+      change: "",
       icon: Transactions,
       bg: "bg-[#E3FAE9]", // Light green
     },
     {
-      label: "Total Charges",
-      value: "$4,21,40,238",
-      change: "▲ 4.61%",
-      icon: TotalCharges,
+      label: "Failed Transactions",
+      value: "4",
+      change: "",
+      icon: FailedTransactions,
+      bg: "bg-[#FFF2EC]", // Light peach
+    },
+    
+    
+    {
+      label: "Pending Transactions",
+      value: "4",
+      change: "",
+      icon: PendingTransactions,
       bg: "bg-[#FFF2DF]", // Light orange
     },
   ];
@@ -854,7 +858,7 @@ const SuperAdmin = () => {
         </div>
 
         {/* Details Matrix */}
-        <h3 className="font-[gilroy-medium] text-2xl text-[#1B1717]">
+        {/* <h3 className="font-[gilroy-medium] text-2xl text-[#1B1717]">
           Details Matrix
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-3 mt-5 gap-4 sm:gap-4">
@@ -903,7 +907,7 @@ const SuperAdmin = () => {
               </div>
             </div>
           ))}
-        </div>
+        </div> */}
       </div>
       {payoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9CC]">
@@ -1105,11 +1109,10 @@ const SuperAdmin = () => {
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
-                              <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center shrink-0 relative">
+                              <div className="w-24 h-16 flex items-center justify-center shrink-0 relative">
                                 <img
                                   src={bank.logo}
                                   alt={bank.name}
-                                  className="w-10 h-10 object-cover"
                                   onError={(e) => {
                                     e.target.style.display = "none";
                                     const fallback =
@@ -1197,6 +1200,14 @@ const SuperAdmin = () => {
                       try {
                         let payload = {};
 
+                        // Map selected AEPS wallet to API aepsType (used for both wallet and bank transfers)
+                        const aepsType =
+                          selectedAepsWallet === "aeps1"
+                            ? "AEPS1"
+                            : selectedAepsWallet === "aeps2"
+                            ? "AEPS2"
+                            : undefined;
+
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
@@ -1215,14 +1226,6 @@ const SuperAdmin = () => {
                             "Longitude:",
                             longitude,
                           );
-
-                          // Map selected AEPS wallet to API aepsType
-                          const aepsType =
-                            selectedAepsWallet === "aeps1"
-                              ? "AEPS1"
-                              : selectedAepsWallet === "aeps2"
-                              ? "AEPS2"
-                              : undefined;
 
                           payload = {
                             amount: amount.toString(),
@@ -1254,6 +1257,7 @@ const SuperAdmin = () => {
                             bankId: selectedBank,
                             latitude: latitude,
                             longitude: longitude,
+                            ...(aepsType ? { aepsType } : {}),
                           };
                           if (requestType) {
                             payload.paymentMode = requestType;

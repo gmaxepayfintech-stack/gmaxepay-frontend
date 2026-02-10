@@ -752,7 +752,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
         {activeTab === "membership" && (
           <div className="space-y-6 sm:space-y-8">
             {/* Membership Scheme Section */}
-            <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
+            {/* <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">
               <h3 className="text-lg sm:text-xl font-['Gilroy-Medium'] text-[#1B1717] mb-4 sm:mb-6">
                 Membership Scheme
               </h3>
@@ -810,7 +810,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
                   })()}
                 </button>
               </div>
-            </div>
+            </div> */}
 
             {/* Personal Details Section */}
             <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm">

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   FaCalendarAlt,
@@ -28,6 +28,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
@@ -60,6 +61,7 @@ const Distribution = ({
     () => new Date().toISOString().split("T")[0],
   );
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -70,16 +72,44 @@ const Distribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get data from Redux when available, otherwise use prop data
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
+
   // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Handle both nested (array of companies with users) and flat (array of users) structures
+  const flattenedPropData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
+
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData = useMemo(() => {
+    // If Redux has data (from API calls), use it
+    if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+      return responseForTable;
+    }
+    // Otherwise use flattened prop data
+    return flattenedPropData;
+  }, [responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Use Redux total count if available, otherwise use current data length
@@ -135,6 +165,22 @@ const Distribution = ({
     }
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataCompanyUser(payload));
+  }, [currentPage, dispatch]);
+
   // Handle click outside modal
   useEffect(() => {
     const handleClickOutside = (event) => {
@@ -174,8 +220,8 @@ const Distribution = ({
       "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
       Approved: row.approved ? "Yes" : "No",
@@ -192,7 +238,15 @@ const Distribution = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -351,6 +405,7 @@ const Distribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -411,10 +466,10 @@ const Distribution = ({
                         {row.kycSteps || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                         {row.remainingDays || "N/A"}
@@ -818,11 +873,11 @@ const Distribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">

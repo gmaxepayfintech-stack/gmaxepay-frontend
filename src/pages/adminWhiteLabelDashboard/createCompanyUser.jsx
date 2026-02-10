@@ -23,7 +23,6 @@ import Retailers from "./Retailers";
 import RetailerOnboarding from "./RetailerOnboarding";
 import ProfileDetails from "./ProfileDetails";
 import {
-  useList,
   kycData,
   kycStatusCheck,
   kycUnlock,
@@ -34,7 +33,7 @@ import {
 import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { motion } from "framer-motion";
-
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
@@ -115,11 +114,15 @@ const CreateCompanyUser = () => {
     </tr>
   );
 
-  // Get data from Redux - the action extracts data array and stores it as whitelabelList.whitelabelList
+  // Get data from Redux - the action extracts data array and stores it as roleDataComp.roleDataComp
+  // Flatten the nested structure: data is array of companies, each with users array
   // Use stable empty array reference to prevent unnecessary re-renders
-  const responseForTableRaw = useSelector(
-    (state) => state?.whitelabel?.whitelabelList?.whitelabelList,
-  );
+  const responseForTableRaw = useSelector((state) => {
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return EMPTY_ARRAY;
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
   const responseForTable = useMemo(
     () => responseForTableRaw || EMPTY_ARRAY,
     [responseForTableRaw],
@@ -131,13 +134,10 @@ const CreateCompanyUser = () => {
   );
 
   const totalCount = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return (
-      response?.totalCount ||
-      response?.total ||
-      response?.whitelabelList?.length ||
-      0
-    );
+    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Get kycStatusCheck success state to refresh table after update
@@ -212,7 +212,7 @@ const CreateCompanyUser = () => {
     };
 
     setIsTableLoading(true);
-    dispatch(useList(payload));
+    dispatch(roleDataCompanyUser(payload));
   }, [
     activeNav,
     currentPage,
@@ -226,7 +226,7 @@ const CreateCompanyUser = () => {
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useList again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const userRole = getRoleNumber(activeNav);
       const query = {
         userRole: userRole,
@@ -247,7 +247,7 @@ const CreateCompanyUser = () => {
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
       };
       setIsTableLoading(true);
-      dispatch(useList(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [
     kycStatusCheckResponse,
@@ -1173,7 +1173,7 @@ const CreateCompanyUser = () => {
                                               : {},
                                         };
                                         setIsTableLoading(true);
-                                        dispatch(useList(payload));
+                                        dispatch(roleDataCompanyUser(payload));
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}
@@ -1238,7 +1238,7 @@ const CreateCompanyUser = () => {
                                               : {},
                                         };
                                         setIsTableLoading(true);
-                                        dispatch(useList(payload));
+                                        dispatch(roleDataCompanyUser(payload));
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}

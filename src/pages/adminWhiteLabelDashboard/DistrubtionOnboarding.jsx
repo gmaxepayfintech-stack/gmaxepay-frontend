@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import {
   Calendar,
@@ -31,6 +31,7 @@ import {
   getCompanyAdmin,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -48,6 +49,7 @@ const DistrubtionOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
@@ -71,15 +73,24 @@ const DistrubtionOnboarding = ({
   );
 
   // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Handle both nested (array of companies with users) and flat (array of users) structures
+  const allTableData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Use Redux total count if available, otherwise use current data length
@@ -175,8 +186,8 @@ const DistrubtionOnboarding = ({
       "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet || "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -195,7 +206,15 @@ const DistrubtionOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -430,11 +449,11 @@ const DistrubtionOnboarding = ({
                         </td>
                         {/* Main Wallet */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                          {row.mainWallet || "0"}
+                          {row.wallet?.mainWallet || "0"}
                         </td>
                         {/* AEPS Wallet */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
-                          {row.aepsWallet || "0"}
+                          {row.wallet?.apes1Wallet || "0"}
                         </td>
                         {/* Status */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
@@ -771,6 +790,7 @@ const DistrubtionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }

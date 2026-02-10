@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
 import {
@@ -14,7 +14,6 @@ import {
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
-  useList as useListAction,
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
@@ -22,6 +21,7 @@ import {
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
+import { roleDataCompanyUser } from "../../redux/action/roleAction";
 
 const MasterDistributionOnboarding = ({
   embedded = false,
@@ -41,6 +41,7 @@ const MasterDistributionOnboarding = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -61,16 +62,44 @@ const MasterDistributionOnboarding = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get data from Redux when available, otherwise use prop data
+  // Flatten the nested structure: data is array of companies, each with users array
+  const responseForTable = useSelector((state) => {
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return [];
+    // Flatten users from all companies
+    return roleData.flatMap((company) => company?.users || []);
+  });
+
   // Use prop data from API - no dummy data
-  const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+  // Handle both nested (array of companies with users) and flat (array of users) structures
+  const flattenedPropData = useMemo(() => {
+    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
+    // Check if data is nested (first item has 'users' property)
+    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
+      // Flatten nested structure
+      return propTableData.flatMap((company) => company?.users || []);
+    }
+    // Already flat structure
+    return propTableData;
+  }, [propTableData]);
+
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const allTableData = useMemo(() => {
+    // If Redux has data (from API calls), use it
+    if (Array.isArray(responseForTable) && responseForTable.length > 0) {
+      return responseForTable;
+    }
+    // Otherwise use flattened prop data
+    return flattenedPropData;
+  }, [responseForTable, flattenedPropData]);
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
+    if (!Array.isArray(roleData)) return 0;
+    // Sum all users from all companies
+    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
   });
 
   // Use Redux total count if available, otherwise use current data length
@@ -96,10 +125,27 @@ const MasterDistributionOnboarding = ({
     </tr>
   );
 
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+        kycStatus: "pending",
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataCompanyUser(payload));
+  }, [currentPage, dispatch]);
+
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -112,14 +158,14 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Refresh table data by dispatching roleDataCompanyUser again
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
@@ -132,7 +178,7 @@ const MasterDistributionOnboarding = ({
         },
         customSearch: {},
       };
-      dispatch(useListAction(payload));
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycLockStatusResponse, currentPage, dispatch]);
 
@@ -194,7 +240,15 @@ const MasterDistributionOnboarding = ({
   }, [showKycModal]);
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedUserRole(null);
+        }}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -343,6 +397,7 @@ const MasterDistributionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || null);
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
