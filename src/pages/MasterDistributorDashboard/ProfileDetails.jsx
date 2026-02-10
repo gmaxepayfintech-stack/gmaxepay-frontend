@@ -681,7 +681,12 @@ const ProfileDetails = ({ onBack = null }) => {
                     : null;
                   const current = byId || slabList[0];
                   if (!current) return "N/A";
-                  return current.slabName || "N/A";
+                  const isFree =
+                    current.slabAmount === "free" || current.slabAmount === 0;
+                  const amountLabel = isFree
+                    ? "Free"
+                    : `₹${current.slabAmount}`;
+                  return `${current.slabName || "N/A"} (${amountLabel})`;
                 })()}
               </p>
             </div>
