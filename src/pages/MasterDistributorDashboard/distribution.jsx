@@ -82,13 +82,6 @@ const Distribution = ({
 
   // Log full API slice and table rows for debugging
   const roleDataMDSlice = useSelector((state) => state?.roles?.roleDataMD);
-  useEffect(() => {
-    console.log(
-      "MD Distribution - roleDataMasterDistributorUser slice:",
-      roleDataMDSlice,
-    );
-    console.log("MD Distribution - table rows from Redux:", reduxTableData);
-  }, [roleDataMDSlice, reduxTableData]);
 
   // Use Redux data if available, otherwise use prop data
   const allTableData =
