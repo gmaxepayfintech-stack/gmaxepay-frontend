@@ -21,7 +21,7 @@ import { motion } from "framer-motion";
 import { addBankDetails } from "../../redux/action/userProfileAction";
 import { getAdminProfileDetails } from "../../redux/action/userProfileAction";
 
-const ProfileDetails = ({ onBack = null, skipApi = false }) => {
+const ProfileDetails = ({ onBack = null, skipApi = false, initialData = null }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const [activeTab, setActiveTab] = useState("membership");
@@ -64,7 +64,9 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
   );
 
   // Extract data from companyAdminData (do this before early returns to maintain hook order)
-  const data = companyAdminData || {};
+  // If we have full companyAdminData from Redux, use it.
+  // Otherwise, fall back to initialData passed from parent (e.g., Retailers list).
+  const data = companyAdminData || initialData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
@@ -171,7 +173,8 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
   );
 
   // Show skeleton while loading (skip if skipApi is true - show UI directly)
-  if (!skipApi && (isLoading || !companyAdminData)) {
+  // If initialData is provided, show UI immediately even if companyAdminData is not yet loaded.
+  if (!skipApi && (isLoading || !companyAdminData) && !initialData) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
@@ -1279,6 +1282,7 @@ const ProfileDetails = ({ onBack = null, skipApi = false }) => {
 ProfileDetails.propTypes = {
   onBack: PropTypes.func,
   skipApi: PropTypes.bool,
+  initialData: PropTypes.object,
 };
 
 export default ProfileDetails;

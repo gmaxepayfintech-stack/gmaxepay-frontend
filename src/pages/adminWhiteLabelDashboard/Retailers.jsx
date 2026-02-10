@@ -49,6 +49,7 @@ const Retailers = ({
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [rowLockStatus, setRowLockStatus] = useState({}); // Track lock status per row ID
   const [lastClickedRowId, setLastClickedRowId] = useState(null);
+  const [selectedProfileData, setSelectedProfileData] = useState(null);
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
@@ -77,11 +78,19 @@ const Retailers = ({
   // Get data from Redux when search is active, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
   const responseForTable = useSelector((state) => {
-    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return [];
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
   });
+
+  // Log full API response for debugging (data coming from roleDataCompanyUser)
+  const roleDataResponse = useSelector((state) => state?.roles?.roleDataComp);
+  useEffect(() => {
+    if (roleDataResponse) {
+      console.log("Retailers - roleDataCompanyUser API response:", roleDataResponse);
+    }
+  }, [roleDataResponse]);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -122,7 +131,7 @@ const Retailers = ({
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.role?.roleDataComp?.roleDataComp;
+    const roleData = state?.roles?.roleDataComp?.roleDataComp;
     if (!Array.isArray(roleData)) return 0;
     // Sum all users from all companies
     return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
@@ -330,7 +339,15 @@ const Retailers = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => {
+          setShowProfileDetails(false);
+          setSelectedProfileData(null);
+        }}
+        initialData={selectedProfileData}
+      />
+    );
   }
 
   return (
@@ -485,6 +502,9 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Save the clicked row so we can show basic details immediately
+                              setSelectedProfileData(row);
+                              // Fetch full profile details
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
@@ -946,6 +966,9 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Save the clicked row so we can show basic details immediately
+                              setSelectedProfileData(row);
+                              // Fetch full profile details
                               dispatch(getCompanyAdmin(userId));
                               setShowProfileDetails(true);
                             }
