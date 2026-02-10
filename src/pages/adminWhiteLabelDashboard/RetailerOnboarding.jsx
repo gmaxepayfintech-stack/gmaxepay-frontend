@@ -92,29 +92,29 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term or page changes
+  // Fetch data from API on initial load and when search term or page changes
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
-        },
-      };
-      dispatch(roleDataCompanyUser(payload));
-    }
+    const payload = {
+      query: {
+        userRole: 5, // Retailer role
+        kycStatus: "pending",
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 5,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+        : {},
+    };
+    dispatch(roleDataCompanyUser(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Use Redux data when search is active, otherwise use prop data
+  // Use Redux data when available, otherwise use prop data
   // Flatten the nested structure: data is array of companies, each with users array
   const reduxTableData = useSelector((state) => {
     const roleData = state?.role?.roleDataComp?.roleDataComp;
@@ -122,13 +122,14 @@ const RetailerOnboarding = ({
     // Flatten users from all companies
     return roleData.flatMap((company) => company?.users || []);
   });
-  const finalTableData = debouncedSearchTerm.trim()
-    ? reduxTableData
-    : allTableData;
+  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
+  const finalTableData =
+    Array.isArray(reduxTableData) && reduxTableData.length > 0
+      ? reduxTableData
+      : allTableData;
+  // Use Redux total count if available, otherwise use current data length
   const finalTotalCount =
-    debouncedSearchTerm.trim() && totalCountFromRedux > 0
-      ? totalCountFromRedux
-      : finalTableData.length;
+    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
   const finalTotalPages =
     finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
   const finalStartIndex = (currentPage - 1) * 5;
@@ -178,24 +179,24 @@ const RetailerOnboarding = ({
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       // Refresh table data by dispatching roleDataCompanyUser again
-      if (debouncedSearchTerm.trim()) {
-        const payload = {
-          query: {
-            userRole: 5, // Retailer role
-            kycStatus: "pending",
-          },
-          options: {
-            sort: { id: -1 },
-            page: currentPage,
-            paginate: 5,
-          },
-          customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          },
-        };
-        dispatch(roleDataCompanyUser(payload));
-      }
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
+          : {},
+      };
+      dispatch(roleDataCompanyUser(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -574,10 +575,12 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
                                     dispatch(roleDataCompanyUser(payload));
                                   }, 500);
@@ -1019,10 +1022,12 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
                                     dispatch(roleDataCompanyUser(payload));
                                   }, 500);
