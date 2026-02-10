@@ -103,7 +103,7 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-3xl border border-gray-200 p-6">
         <div className="space-y-6">
           {/* Category Info */}
           <div className="flex justify-between items-start pb-4 border-b border-gray-200">

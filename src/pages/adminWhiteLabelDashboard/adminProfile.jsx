@@ -1185,12 +1185,13 @@ const AdminProfile = ({ onBack = null }) => {
                   setShowDeleteModal(false);
                   setSelectedBank(null);
                 }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 font-[gilroy-medium]"
               >
                 Cancel
               </button>
 
               <button
+                className="px-4 py-2 bg-[#039155] text-white rounded-lg text-sm hover:bg-green-700 font-[gilroy-semibold]"
                 onClick={async () => {
                   const bankId = selectedBank?.id;
 

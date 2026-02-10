@@ -129,18 +129,18 @@ const BBPSServices = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full px-1 py-4">
       {/* Min Content - Two Column Layout */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Side - Information */}
-        <div className="rounded-xl p-6 lg:flex-[1.6] w-full lg:w-auto self-start">
+        <div className="rounded-3xl lg:flex-[1.6] w-full lg:w-auto self-start">
           {currentStep === 1 && (
             <BBPSPage1
               onNext={handleNext}
               onBack={handleBack}
               formData={formData}
               setFormData={setFormData}
-            />
+            /> 
           )}
 
           {currentStep === 2 && (
@@ -186,8 +186,8 @@ const BBPSServices = ({ onBack }) => {
 
         {/* Right Side - Last Transaction */}
         {currentStep !== 6 && (
-          <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1]">
-            <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+          <div className="bg-white rounded-3xl border border-gray-200 p-6 sm:mt-6 md:mt-[85px] lg:flex-[1]">
+            <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] mb-6">
               Last Transaction
             </div>
 
