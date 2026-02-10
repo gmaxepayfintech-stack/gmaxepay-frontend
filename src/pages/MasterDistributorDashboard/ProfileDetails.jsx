@@ -36,6 +36,11 @@ const ProfileDetails = ({ onBack = null }) => {
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
 
+  // Debug log for role
+  useEffect(() => {
+    console.log("MD ProfileDetails - userRole:", data?.userRole);
+  }, [data?.userRole]);
+
   const getMapEmbedUrl = () => {
     if (data?.latitude && data?.longitude) {
       return `https://www.google.com/maps?q=${data.latitude},${data.longitude}&output=embed`;
