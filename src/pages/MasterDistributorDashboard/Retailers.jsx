@@ -240,12 +240,14 @@ const Retailers = ({
             page: currentPage,
             paginate: 5,
           },
-          customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          },
+          customSearch: debouncedSearchTerm.trim()
+            ? {
+                mobileNo: debouncedSearchTerm.trim(),
+                name: debouncedSearchTerm.trim(),
+              }
+            : {},
         };
-        dispatch(useListAction(payload));
+        dispatch(roleDataMasterDistributorUser(payload));
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
@@ -604,12 +606,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -665,12 +669,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1062,12 +1068,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
@@ -1130,12 +1138,14 @@ const Retailers = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
+                                      customSearch: debouncedSearchTerm.trim()
+                                        ? {
+                                            mobileNo: debouncedSearchTerm.trim(),
+                                            name: debouncedSearchTerm.trim(),
+                                          }
+                                        : {},
                                     };
-                                    dispatch(useListAction(payload));
+                                    dispatch(roleDataMasterDistributorUser(payload));
                                   }, 500);
                                 }
                               }}
