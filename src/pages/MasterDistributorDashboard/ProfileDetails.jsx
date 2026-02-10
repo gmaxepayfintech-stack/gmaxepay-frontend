@@ -3,10 +3,7 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import {
-  getSlabList,
-  assignSlabToCompany,
-} from "../../redux/action/slabAction";
+import { getSlabList, assignSlabToCompany } from "../../redux/action/slabAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -25,12 +22,16 @@ const ProfileDetails = ({ onBack = null }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showImageModal, setShowImageModal] = useState(false);
 
-  // Get company admin data from Redux
+  // Get profile data from Redux
   const companyAdminState = useSelector(
     (state) => state?.whitelabel?.companyAdmin,
   );
+  const userAdminState = useSelector(
+    (state) => state?.whitelabel?.userAdminDetails,
+  );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
+  const userAdminData = userAdminState?.userAdminDetails || null;
 
   // Get slab list from Redux
   const slabList = useSelector((state) => state?.slab?.slabs || []);
@@ -41,8 +42,9 @@ const ProfileDetails = ({ onBack = null }) => {
     (state) => state?.slab?.assignSlabSuccess || false,
   );
 
-  // Extract data from companyAdminData (do this before early returns to maintain hook order)
-  const data = companyAdminData || {};
+  // Extract data from Redux (prefer MD userAdminData, fallback to companyAdminData)
+  // Do this before early returns to maintain hook order
+  const data = userAdminData || companyAdminData || {};
   const companyDetails = data?.companyDetails || {};
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
