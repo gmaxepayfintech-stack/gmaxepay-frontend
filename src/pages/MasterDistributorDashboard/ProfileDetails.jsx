@@ -78,16 +78,15 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [data]);
 
-  // Fetch slab list when company admin data is loaded
+  // Fetch slab list when profile data is loaded (MD user or company admin)
   useEffect(() => {
-    if (companyAdminData) {
-      // Try to get companyId from companyDetails or use data.id as fallback
-      const companyId = companyDetails?.companyId || data?.id;
-      if (companyId) {
-        dispatch(getSlabList(companyId, 1, 10));
-      }
+    if (!data || !data.id) return;
+    // Try to get companyId from companyDetails or use data.id as fallback
+    const companyId = companyDetails?.companyId || data?.id;
+    if (companyId) {
+      dispatch(getSlabList(companyId, 1, 10));
     }
-  }, [companyAdminData, companyDetails?.companyId, data?.id, dispatch]);
+  }, [data, companyDetails?.companyId, dispatch]);
 
   // Set default selected scheme to current slabId
   useEffect(() => {
