@@ -62,7 +62,7 @@ const BBPSPage2 = ({ onNext, onBack, formData, setFormData }) => {
   };
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button

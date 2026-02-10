@@ -18,7 +18,11 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { getMDDetails } from "../../redux/action/whiteLabelAction";
-import { addBankDetails } from "../../redux/action/userProfileAction";
+import {
+  addBankDetails,
+  deleteUserBank,
+} from "../../redux/action/userProfileAction";
+import { Trash2 } from "lucide-react";
 
 const DistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -32,15 +36,15 @@ const DistributerProfile = ({ onBack = null }) => {
   const [isAddingBank, setIsAddingBank] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(null);
 
   // Get company fro context
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
   // Get MD details from Redux (using getMDDetails API)
-  const mdDetailsState = useSelector(
-    (state) => state?.whitelabel?.mdDetails,
-  );
+  const mdDetailsState = useSelector((state) => state?.whitelabel?.mdDetails);
   // mdDetailsState contains { mdDetails, message, status }
   const mdDetailsData = mdDetailsState?.mdDetails || null;
 
@@ -168,83 +172,106 @@ const DistributerProfile = ({ onBack = null }) => {
   const SkeletonLoader = ({ className }) => (
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
-   
+
   // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
   );
 
+  const handleDeleteBank = async () => {
+    if (!selectedBank?.id) return;
+
+    try {
+      await dispatch(deleteUserBank(selectedBank.id));
+
+      showNotification({
+        type: "success",
+        message: "Bank account deleted successfully",
+        isCritical: true,
+      });
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: "Failed to delete bank account",
+        isCritical: true,
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedBank(null);
+    }
+  };
+
   // Show skeleton while loading user details or slab visibility
-    if (isUserDetailsLoading || visibilityLoading || !profileData) {
-      return (
-        <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
-          {/* Cover Picture Section Skeleton */}
-          <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
-            <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-              <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-                <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Section Skeleton */}
-          <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
-              <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
-                <div className="flex-1">
-                  <SkeletonLoader className="h-6 w-48 mb-4" />
-                  <div className="flex flex-wrap items-center gap-4 mb-4">
-                    <SkeletonLoader className="h-4 w-24" />
-                    <SkeletonLoader className="h-4 w-32" />
-                    <SkeletonLoader className="h-4 w-20" />
-                    <SkeletonLoader className="h-6 w-20 rounded-full" />
-                  </div>
-                </div>
-                <SkeletonLoader className="h-8 w-20 rounded-3xl" />
-              </div>
-            </div>
-
-            {/* Info Cards Skeleton */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
-                >
-                  <SkeletonLoader className="w-12 h-12 rounded" />
-                  <div className="flex-1">
-                    <SkeletonLoader className="h-5 w-16 mb-2" />
-                    <SkeletonLoader className="h-4 w-20" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Content Skeleton */}
-          <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
-            <div className="flex justify-center gap-4">
-              {[1, 2, 3].map((i) => (
-                <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
-            <SkeletonLoader className="h-6 w-32 mb-4" />
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <SkeletonLoader className="h-4 w-32" />
-                  <SkeletonLoader className="h-4 w-24" />
-                </div>
-              ))}
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
+    return (
+      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+        {/* Cover Picture Section Skeleton */}
+        <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+          <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+            <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+              <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
             </div>
           </div>
         </div>
-      );
-    }
+
+        {/* Profile Section Skeleton */}
+        <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+              <div className="flex-1">
+                <SkeletonLoader className="h-6 w-48 mb-4" />
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <SkeletonLoader className="h-4 w-24" />
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-20" />
+                  <SkeletonLoader className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+              <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+            </div>
+          </div>
+
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+              >
+                <SkeletonLoader className="w-12 h-12 rounded" />
+                <div className="flex-1">
+                  <SkeletonLoader className="h-5 w-16 mb-2" />
+                  <SkeletonLoader className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+          <SkeletonLoader className="h-6 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <SkeletonLoader className="h-4 w-32" />
+                <SkeletonLoader className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -922,7 +949,9 @@ const DistributerProfile = ({ onBack = null }) => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Contact </p>
+                  <p className="text-xs text-gray-500 mb-1">
+                    Reporting Contact{" "}
+                  </p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
                     {data?.reportingToManagerMobile || "N/A"}
                   </p>
@@ -1000,7 +1029,9 @@ const DistributerProfile = ({ onBack = null }) => {
                     <input
                       type="text"
                       value={bankIfsc}
-                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setBankIfsc(e.target.value.toUpperCase())
+                      }
                       placeholder="Enter IFSC Code"
                       className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
                     />
@@ -1025,9 +1056,8 @@ const DistributerProfile = ({ onBack = null }) => {
                       if (!bankAccountNumber || !bankIfsc) {
                         showNotification({
                           type: "error",
-                          message:
-                            "Please enter account number and IFSC code.",
-                            isCritical: true,
+                          message: "Please enter account number and IFSC code.",
+                          isCritical: true,
                         });
                         return;
                       }
@@ -1044,9 +1074,8 @@ const DistributerProfile = ({ onBack = null }) => {
 
                         showNotification({
                           type: "success",
-                          message:
-                            "Bank details added successfully.",
-                            isCritical: true,
+                          message: "Bank details added successfully.",
+                          isCritical: true,
                         });
 
                         setIsAddingBank(false);
@@ -1058,7 +1087,7 @@ const DistributerProfile = ({ onBack = null }) => {
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                       }
                     }}
@@ -1073,7 +1102,7 @@ const DistributerProfile = ({ onBack = null }) => {
                 {bankDetails && bankDetails.length > 0 ? (
                   bankDetails.map((bank, index) => (
                     <div
-                      key={bank.id || index}
+                      key={bank.id}
                       className="flex items-start justify-between gap-6 w-full"
                     >
                       {/* Bank Name */}
@@ -1123,6 +1152,21 @@ const DistributerProfile = ({ onBack = null }) => {
                           Active
                         </span>
                       </div>
+
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Action</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBank(bank);
+                            setShowDeleteModal(true);
+                          }}
+                          className="text-red-500 hover:text-red-700 transition"
+                          title="Delete bank account"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -1135,6 +1179,44 @@ const DistributerProfile = ({ onBack = null }) => {
           </div>
         )}
       </div>
+
+      {/* Delete Bank Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+            <h3 className="text-lg font-semibold text-[#1B1717] mb-3">
+              Delete Bank Account
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this bank account?
+              <br />
+              <span className="font-medium text-gray-800">
+                Account No: {selectedBank?.accountNumber}
+              </span>
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedBank(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDeleteBank}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {showConfirmModal && (

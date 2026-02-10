@@ -10,28 +10,31 @@ import SchemeMaster from "../../pages/adminWhiteLabelDashboard/resources/SchemeM
 import Subscription from "../../pages/adminWhiteLabelDashboard/resources/Subscription";
 import TaxHistory from "../../pages/adminWhiteLabelDashboard/taxHistoryAdmin/TaxHistory";
 import AdminProfile from "../../pages/adminWhiteLabelDashboard/adminProfile";
+import Settings from "../../pages/adminWhiteLabelDashboard/settings";
 
 const WhitelabelAdmin = () => {
-    return (
-        <WhiteLabelDashboardLayout>
-            <Routes>
-                <Route path="/" element={<AdminDashboardHome />} />
-                <Route path="/home" element={<AdminDashboardHome />} />
-                <Route path="/profile" element={<AdminProfile />} />
-                <Route path="/members/roleUpgrade" element={<RoleUpgradeWhiteLabel />} />
-                <Route path="/members/companyUser" element={<CreateCompanyUser />} />
-                <Route path="/onboarding" element={<AdminWhitelabelList />} />
-                <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
-                <Route path="/fund-manage/fund-request" element={<FundRequest />} />
-                <Route path="/resources/schema-master" element={<SchemeMaster/>}/>
-                <Route path="/resources/subscription" element={<Subscription />}/>
-                <Route path="/tax-history/list" element={<TaxHistory />}/>
-                <Route path="/txn-history" element={<TaxHistory />}/>
-            </Routes>
-        </WhiteLabelDashboardLayout>
-    );
+  return (
+    <WhiteLabelDashboardLayout>
+      <Routes>
+        <Route path="/" element={<AdminDashboardHome />} />
+        <Route path="/home" element={<AdminDashboardHome />} />
+        <Route path="/profile" element={<AdminProfile />} />
+        <Route
+          path="/members/roleUpgrade"
+          element={<RoleUpgradeWhiteLabel />}
+        />
+        <Route path="/members/companyUser" element={<CreateCompanyUser />} />
+        <Route path="/onboarding" element={<AdminWhitelabelList />} />
+        <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
+        <Route path="/fund-manage/fund-request" element={<FundRequest />} />
+        <Route path="/resources/schema-master" element={<SchemeMaster />} />
+        <Route path="/resources/subscription" element={<Subscription />} />
+        <Route path="/tax-history/list" element={<TaxHistory />} />
+        <Route path="/txn-history" element={<TaxHistory />} />
+        <Route path="/settings" element={<Settings />} />
+      </Routes>
+    </WhiteLabelDashboardLayout>
+  );
 };
 
 export default WhitelabelAdmin;
-
-

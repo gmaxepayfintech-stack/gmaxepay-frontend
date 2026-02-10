@@ -19,6 +19,12 @@ import {
   GET_ADMIN_DETAILS_FAILURE,
   GET_ADMIN_PROFILE_SUCCESS,
   GET_ADMIN_PROFILE_FAILURE,
+  DELETE_BANK_ADMIN_FAILURE,
+  DELETE_BANK_ADMIN_SUCCESS,
+  DELETE_BANK_COMPANY_FAILURE,
+  DELETE_BANK_COMPANY_SUCCESS,
+  DELETE_BANK_USER_FAILURE,
+  DELETE_BANK_USER_SUCCESS,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -50,7 +56,7 @@ export const getUserProfile = () => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     const data = response?.data;
@@ -158,10 +164,14 @@ export const getPermission = (id) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
-    const { data: adminRolesPermission, message, status } = response?.data ?? {};
+    const {
+      data: adminRolesPermission,
+      message,
+      status,
+    } = response?.data ?? {};
 
     if (status === "SUCCESS") {
       dispatch({
@@ -200,7 +210,7 @@ export const updateRolesPermission = (body) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     const { data: updateRoles, message, status } = response?.data ?? {};
@@ -242,7 +252,7 @@ export const addBankDetails = (payload) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     const { data: bankDetailsResponse, message, status } = response?.data ?? {};
@@ -284,7 +294,7 @@ export const addBankCompanyDetails = (payload) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     const { data: bankCompanyResponse, message, status } = response?.data ?? {};
@@ -326,7 +336,7 @@ export const addBankAdminDetails = (payload) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
     const { data: bankAdminResponse, message, status } = response?.data ?? {};
@@ -368,10 +378,14 @@ export const getAdminDetails = (payload) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
-    const { data: adminDetailsResponse, message, status } = response?.data ?? {};
+    const {
+      data: adminDetailsResponse,
+      message,
+      status,
+    } = response?.data ?? {};
 
     if (status === "SUCCESS") {
       dispatch({
@@ -410,10 +424,14 @@ export const getAdminProfileDetails = (payload, id) => async (dispatch) => {
           "Content-Type": "application/json",
           Authorization: `Bearer ${authToken}`,
         },
-      }
+      },
     );
 
-    const { data: adminProfileResponse, message, status } = response?.data ?? {};
+    const {
+      data: adminProfileResponse,
+      message,
+      status,
+    } = response?.data ?? {};
 
     if (status === "SUCCESS") {
       dispatch({
@@ -436,5 +454,92 @@ export const getAdminProfileDetails = (payload, id) => async (dispatch) => {
     });
   } finally {
     dispatch({ type: LOADING_END });
+  }
+};
+
+export const deleteUserBank = (bankId) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem("userToken");
+
+    const res = await axios.post(
+      `${API_ROUTE}/api/v1/user/bank/delete/${bankId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (res.data?.status === "SUCCESS") {
+      dispatch({
+        type: DELETE_BANK_USER_SUCCESS,
+        payload: bankId,
+      });
+    } else {
+      dispatch({
+        type: DELETE_BANK_USER_FAILURE,
+        payload: res.data?.message || "Delete failed",
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DELETE_BANK_USER_FAILURE,
+      payload: error.message,
+    });
+  }
+};
+
+export const deleteCompanyBank = (bankId) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem("userToken");
+
+    const res = await axios.post(
+      `${API_ROUTE}/api/v1/company/bank/delete/${bankId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (res.data?.status === "SUCCESS") {
+      dispatch({
+        type: DELETE_BANK_COMPANY_SUCCESS,
+        payload: bankId,
+      });
+    } else {
+      dispatch({
+        type: DELETE_BANK_COMPANY_FAILURE,
+        payload: res.data?.message || "Delete failed",
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DELETE_BANK_COMPANY_FAILURE,
+      payload: error.message,
+    });
+  }
+};
+
+export const deleteAdminBank = (bankId) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem("userToken");
+
+    const res = await axios.post(
+      `${API_ROUTE}/api/v1/admin/bank/delete/${bankId}`,
+      {},
+      { headers: { Authorization: `Bearer ${token}` } },
+    );
+
+    if (res.data?.status === "SUCCESS") {
+      dispatch({
+        type: DELETE_BANK_ADMIN_SUCCESS,
+        payload: bankId,
+      });
+    } else {
+      dispatch({
+        type: DELETE_BANK_ADMIN_FAILURE,
+        payload: res.data?.message || "Delete failed",
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: DELETE_BANK_ADMIN_FAILURE,
+      payload: error.message,
+    });
   }
 };

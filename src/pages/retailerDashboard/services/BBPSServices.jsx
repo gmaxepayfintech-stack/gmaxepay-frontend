@@ -129,7 +129,7 @@ const BBPSServices = ({ onBack }) => {
   };
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full">
       {/* Min Content - Two Column Layout */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
         {/* Left Side - Information */}
@@ -186,17 +186,20 @@ const BBPSServices = ({ onBack }) => {
 
         {/* Right Side - Last Transaction */}
         {currentStep !== 6 && (
-        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1]">
-          <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
-            Last Transaction
-          </div>
+          <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1]">
+            <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+              Last Transaction
+            </div>
 
-          <div className="max-h-[600px] overflow-y-auto">
-            {lastTransactions.map((transaction) => (
-              <TransactionCard key={transaction.id} transaction={transaction} />
-            ))}
+            <div className="max-h-[600px] overflow-y-auto">
+              {lastTransactions.map((transaction) => (
+                <TransactionCard
+                  key={transaction.id}
+                  transaction={transaction}
+                />
+              ))}
+            </div>
           </div>
-        </div>
         )}
       </div>
     </div>

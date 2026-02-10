@@ -18,6 +18,7 @@ import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { useNotification } from "../../context/NotificationContext";
 import { FiChevronDown } from "react-icons/fi";
+import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
 
 const MasterDt = "/img/MMasterD.png";
 const Distributor = "/img/DistributorM.png";
@@ -43,6 +44,10 @@ const AdminDashboardHome = () => {
   const [isTransferLoading, setIsTransferLoading] = useState(false);
   const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
   const { showNotification } = useNotification();
+
+  const [bankAccountNumber, setBankAccountNumber] = useState("");
+  const [bankIfsc, setBankIfsc] = useState("");
+  const [isAddBankLoading, setIsAddBankLoading] = useState(false);
 
   const AEPS_LABELS = {
     aeps1: "AEPS Wallet 1",
@@ -1033,8 +1038,8 @@ const AdminDashboardHome = () => {
                             selectedAepsWallet === "aeps1"
                               ? "AEPS1"
                               : selectedAepsWallet === "aeps2"
-                              ? "AEPS2"
-                              : undefined;
+                                ? "AEPS2"
+                                : undefined;
 
                           payload = {
                             amount: amount.toString(),
@@ -1100,7 +1105,7 @@ const AdminDashboardHome = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1115,7 +1120,7 @@ const AdminDashboardHome = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1125,7 +1130,7 @@ const AdminDashboardHome = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
@@ -1154,14 +1159,14 @@ const AdminDashboardHome = () => {
 
                 <div className="space-y-4">
                   {/* Select Bank */}
-                  <div>
+                  {/* <div>
                     <label className="text-sm font-[gilroy-medium] text-[#121216] ">
                       Select Your Bank *
                     </label>
                     <select className="w-full h-[43px] mt-2 border border-[#1B1717]/80 rounded-lg px-4 text-[#1B1717] text-opacity-80">
                       <option>Select</option>
                     </select>
-                  </div>
+                  </div> */}
 
                   {/* Account Number */}
                   <div>
@@ -1171,6 +1176,10 @@ const AdminDashboardHome = () => {
                     <input
                       className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-[#1B1717]/80 rounded-lg px-4"
                       placeholder="Enter Account Number"
+                      value={bankAccountNumber}
+                      onChange={(e) =>
+                        setBankAccountNumber(e.target.value.replace(/\D/g, ""))
+                      }
                     />
                   </div>
 
@@ -1182,6 +1191,10 @@ const AdminDashboardHome = () => {
                     <input
                       className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-sm text-[#1B1717]/80 rounded-lg px-4"
                       placeholder="Enter IFSC Code"
+                      value={bankIfsc}
+                      onChange={(e) =>
+                        setBankIfsc(e.target.value.toUpperCase())
+                      }
                     />
                   </div>
                 </div>
@@ -1190,21 +1203,65 @@ const AdminDashboardHome = () => {
                 <div className="flex gap-3 mt-6">
                   <button
                     className="w-1/2 py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg font-[gilroy-medium] text-[#1B1717]/80"
-                    onClick={() => setAddBankOpen(false)}
+                    onClick={() => {
+                      setAddBankOpen(false);
+                      setBankAccountNumber("");
+                      setBankIfsc("");
+                    }}
                   >
                     Cancel
                   </button>
 
                   <button
-                    className="w-1/2 py-3 bg-[#039155] text-white rounded-lg font-[gilroy-semibold] text-sm hover:bg-[#027a47] transition"
-                    onClick={() => {
-                      // save bank API
-                      // after success:
-                      setAddBankOpen(false);
-                      dispatch(payoutBankList({})); // refresh list
+                    className="w-1/2 py-3 bg-[#039155] text-white rounded-lg font-[gilroy-semibold] text-sm hover:bg-[#027a47] transition disabled:opacity-50"
+                    disabled={isAddBankLoading}
+                    onClick={async () => {
+                      if (!bankAccountNumber || !bankIfsc) {
+                        showNotification({
+                          type: "error",
+                          message: "Please enter account number and IFSC code",
+                          isCritical: true,
+                        });
+                        return;
+                      }
+
+                      setIsAddBankLoading(true);
+
+                      try {
+                        const payload = {
+                          account_number: bankAccountNumber,
+                          ifsc: bankIfsc,
+                        };
+
+                        await dispatch(addBankCompanyDetails(payload));
+
+                        showNotification({
+                          type: "success",
+                          message: "Bank added successfully",
+                          isCritical: true,
+                        });
+
+                        // Refresh bank list for payout screen
+                        await dispatch(payoutBankList({}));
+
+                        // Reset & go back
+                        setBankAccountNumber("");
+                        setBankIfsc("");
+                        setAddBankOpen(false);
+                      } catch (error) {
+                        showNotification({
+                          type: "error",
+                          message:
+                            error?.message ||
+                            "Failed to add bank details. Please try again.",
+                          isCritical: true,
+                        });
+                      } finally {
+                        setIsAddBankLoading(false);
+                      }
                     }}
                   >
-                    Save
+                    {isAddBankLoading ? "Saving..." : "Save"}
                   </button>
                 </div>
               </>

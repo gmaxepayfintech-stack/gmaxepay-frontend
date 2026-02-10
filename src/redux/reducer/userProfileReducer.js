@@ -11,6 +11,12 @@ import {
   ADD_BANK_ADMIN_SUCCESS,
   GET_ADMIN_DETAILS_SUCCESS,
   GET_ADMIN_PROFILE_SUCCESS,
+  DELETE_BANK_USER_SUCCESS,
+  DELETE_BANK_USER_FAILURE,
+  DELETE_BANK_COMPANY_SUCCESS,
+  DELETE_BANK_COMPANY_FAILURE,
+  DELETE_BANK_ADMIN_SUCCESS,
+  DELETE_BANK_ADMIN_FAILURE,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -52,7 +58,11 @@ const userProfileReducer = (state = initialState, action) => {
         userId: action.payload?.userId || null,
         mobileNo: action.payload?.mobileNo || null,
         email: action.payload?.email || null,
-        name: action.payload?.name || action.payload?.userName || action.payload?.fullName || null,
+        name:
+          action.payload?.name ||
+          action.payload?.userName ||
+          action.payload?.fullName ||
+          null,
         profileImage: action.payload?.profileImage || null,
       };
 
@@ -109,7 +119,7 @@ const userProfileReducer = (state = initialState, action) => {
         message: action?.payload?.message,
         bankDetailsResponse: action?.payload,
         error: null,
-      }
+      };
     case ADD_BANK_COMPANY_SUCCESS:
       return {
         ...state,
@@ -118,7 +128,7 @@ const userProfileReducer = (state = initialState, action) => {
         message: action?.payload?.message,
         error: null,
         bankCompanyResponse: action?.payload,
-      }
+      };
     case ADD_BANK_ADMIN_SUCCESS:
       return {
         ...state,
@@ -127,7 +137,65 @@ const userProfileReducer = (state = initialState, action) => {
         message: action?.payload?.message,
         error: null,
         bankAdminResponse: action?.payload,
-      }
+      };
+    // COMPANY BANK DELETE
+    case DELETE_BANK_COMPANY_SUCCESS:
+      return {
+        ...state,
+        adminProfileResponse: {
+          ...state.adminProfileResponse,
+          bankDetails: state.adminProfileResponse?.bankDetails?.filter(
+            (bank) => bank.id !== action.payload,
+          ),
+        },
+        error: null,
+        success: true,
+      };
+
+    case DELETE_BANK_COMPANY_FAILURE:
+      return {
+        ...state,
+        error: action.payload,
+      };
+      // USER BANK DELETE
+    case DELETE_BANK_USER_SUCCESS:
+      return {
+        ...state,
+        profile: {
+          ...state.profile,
+          bankDetails: state.profile?.bankDetails?.filter(
+            (bank) => bank.id !== action.payload,
+          ),
+        },
+        error: null,
+        success: true,
+      };
+
+    case DELETE_BANK_USER_FAILURE:
+      return {
+        ...state,
+        error: action.payload,
+      };
+// ADMIN BANK DELETE
+    case DELETE_BANK_ADMIN_SUCCESS:
+      return {
+        ...state,
+        adminProfileResponse: {
+          ...state.adminProfileResponse,
+          bankDetails: state.adminProfileResponse?.bankDetails?.filter(
+            (bank) => bank.id !== action.payload,
+          ),
+        },
+        error: null,
+        success: true,
+      };
+
+    case DELETE_BANK_ADMIN_FAILURE:
+      return {
+        ...state,
+        error: action.payload,
+      };
+
     case GET_ADMIN_DETAILS_SUCCESS:
       return {
         ...state,
@@ -136,20 +204,19 @@ const userProfileReducer = (state = initialState, action) => {
         message: action?.payload?.message,
         error: null,
         adminDetailsResponse: action?.payload,
-      }
-      case GET_ADMIN_PROFILE_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          error: null,
-          success: action?.payload?.status,
-          message: action?.payload?.message,
-          adminProfileResponse: action?.payload,
-        }
+      };
+    case GET_ADMIN_PROFILE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        adminProfileResponse: action?.payload,
+      };
     default:
       return state;
   }
 };
 
 export default userProfileReducer;
-
