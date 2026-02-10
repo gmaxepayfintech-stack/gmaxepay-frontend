@@ -28,11 +28,10 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
+  getUserMDDetails,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
-
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -809,7 +808,15 @@ const DistrubtionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              dispatch(getUserMDDetails(userId));
+                              setShowProfileDetails(true);
+                            }
+                          }}
+                        <button
+                          onClick={() => {
+                            const userId = row.id || row.originalItem?.id;
+                            if (userId) {
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}
