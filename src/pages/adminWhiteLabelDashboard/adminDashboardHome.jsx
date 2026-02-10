@@ -10,13 +10,13 @@ import {
   Tooltip,
 } from "recharts";
 import { getCompanyWalletBalance } from "../../redux/action/walletAction";
-import { payoutTransaction } from "../../redux/action/payoutAction";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { useNotification } from "../../context/NotificationContext";
 import { FiChevronDown } from "react-icons/fi";
 import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
 import { payoutCompanyBankList } from "../../redux/action/payoutAction";
+import { payoutCompanyTransaction } from "../../redux/action/payoutAction";
 
 const MasterDt = "/img/MMasterD.png";
 const Distributor = "/img/DistributorM.png";
@@ -829,11 +829,10 @@ const AdminDashboardHome = () => {
       focus:outline-none
       appearance-none
       bg-white
-      ${
-        walletType === "wallet"
-          ? "bg-gray-100 cursor-not-allowed opacity-60"
-          : "cursor-pointer"
-      }
+      ${walletType === "wallet"
+                              ? "bg-gray-100 cursor-not-allowed opacity-60"
+                              : "cursor-pointer"
+                            }
     `}
                         >
                           <option value="">Select</option>
@@ -910,11 +909,10 @@ const AdminDashboardHome = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
-                              selectedBank === bank.id
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
                                 ? "border-[#039155] bg-green-50"
                                 : "border-[#1B1717] border-opacity-80"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
@@ -1101,7 +1099,7 @@ const AdminDashboardHome = () => {
                         );
 
                         const response = await dispatch(
-                          payoutTransaction(payload),
+                          payoutCompanyTransaction(payload),
                         );
 
                         if (response?.status === "SUCCESS") {
@@ -1164,16 +1162,6 @@ const AdminDashboardHome = () => {
                 </h2>
 
                 <div className="space-y-4">
-                  {/* Select Bank */}
-                  {/* <div>
-                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
-                      Select Your Bank *
-                    </label>
-                    <select className="w-full h-[43px] mt-2 border border-[#1B1717]/80 rounded-lg px-4 text-[#1B1717] text-opacity-80">
-                      <option>Select</option>
-                    </select>
-                  </div> */}
-
                   {/* Account Number */}
                   <div>
                     <label className="text-sm font-[gilroy-medium] text-[#121216] ">
