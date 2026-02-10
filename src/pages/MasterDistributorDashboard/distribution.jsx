@@ -4,8 +4,6 @@ import {
   FaCalendarAlt,
   FaSearch,
   FaUpload,
-  FaEdit,
-  FaTrash,
   FaCheckCircle,
   FaTimesCircle,
   FaUser,
@@ -76,6 +74,13 @@ const Distribution = ({
     const roleData = state?.roles?.roleDataMD?.roleDataMD;
     return Array.isArray(roleData) ? roleData : [];
   });
+
+  // Log full API slice and table rows for debugging
+  const roleDataMDSlice = useSelector((state) => state?.roles?.roleDataMD);
+  useEffect(() => {
+    console.log("MD Distribution - roleDataMasterDistributorUser slice:", roleDataMDSlice);
+    console.log("MD Distribution - table rows from Redux:", reduxTableData);
+  }, [roleDataMDSlice, reduxTableData]);
 
   // Use Redux data if available, otherwise use prop data
   const allTableData =
@@ -190,14 +195,14 @@ const Distribution = ({
       Name: row.name || row.userName || "N/A",
       "User Role": row.userRole || "N/A",
       "Mobile No": row.mobileNo || row.mobile || row.mobileNumber || "N/A",
-      "Email Id": row.emailId || row.email || "N/A",
+      "Email Id": row.email || row.emailId || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.companyName || "N/A",
+      "Company Name": row.company || row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "Main Wallet": row.wallet?.mainWallet ?? row.mainWallet ?? "0",
+      "AEPS Wallet": row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0",
       "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
       Approved: row.approved ? "Yes" : "No",
@@ -393,13 +398,10 @@ const Distribution = ({
                         {row.userRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.mobileNo ||
-                          row.mobile ||
-                          row.mobileNumber ||
-                          "N/A"}
+                        {row.mobileNo || row.mobile || row.mobileNumber || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.emailId || row.email || "N/A"}
+                        {row.email || row.emailId || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.parentName || "N/A"}
@@ -408,7 +410,7 @@ const Distribution = ({
                         {row.parentRole || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.companyName || "N/A"}
+                        {row.company || row.companyName || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
@@ -433,10 +435,10 @@ const Distribution = ({
                         {row.kycSteps || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                         {row.remainingDays || "N/A"}
