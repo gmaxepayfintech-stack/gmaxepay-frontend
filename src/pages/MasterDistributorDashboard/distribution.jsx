@@ -814,7 +814,7 @@ const Distribution = ({
                       </td>
                       {/* Company Name */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.companyName || "N/A"}
+                        {row.company || row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
@@ -842,11 +842,11 @@ const Distribution = ({
                       </td>
                       {/* Main Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.mainWallet || "0"}
+                        {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       {/* AEPS Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       {/* Remaining Days */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
