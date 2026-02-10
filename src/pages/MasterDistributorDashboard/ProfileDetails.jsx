@@ -7,7 +7,6 @@ import {
   getSlabList,
   assignSlabToCompany,
 } from "../../redux/action/slabAction";
-import { getCompanyAdmin } from "../../redux/action/whiteLabelAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
 import Gst from "../../../public/img/Gst.png";
@@ -16,6 +15,7 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
+import { getUserMDDetails } from "../../redux/action/whiteLabelAction";
 
 const ProfileDetails = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -91,9 +91,9 @@ const ProfileDetails = ({ onBack = null }) => {
   useEffect(() => {
     if (assignSlabSuccess) {
       setShowConfirmModal(false);
-      // Refresh company admin data to get updated slabId
+      // Refresh MD user details to get updated slabId
       if (data?.id) {
-        dispatch(getCompanyAdmin(data.id));
+        dispatch(getUserMDDetails(data.id));
       }
     }
   }, [assignSlabSuccess, data?.id, dispatch]);
