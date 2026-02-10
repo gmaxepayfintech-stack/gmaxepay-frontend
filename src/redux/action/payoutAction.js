@@ -166,7 +166,7 @@ export const payoutCompanyTransaction = (payload) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
         console.log('payload', payload);
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/payout`,
+            `${API_ROUTE}/api/v1/company/payout`,
             payload,
             {
                 headers: {
