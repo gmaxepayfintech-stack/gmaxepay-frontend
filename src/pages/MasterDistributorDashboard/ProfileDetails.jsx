@@ -49,6 +49,13 @@ const ProfileDetails = ({ onBack = null }) => {
   const outletDetails = data?.outletDetails || {};
   const bankDetails = data?.bankDetails || [];
 
+  // Debug logs to verify where data is coming from
+  useEffect(() => {
+    console.log("MD ProfileDetails - companyAdminData:", companyAdminData);
+    console.log("MD ProfileDetails - userAdminData:", userAdminData);
+    console.log("MD ProfileDetails - resolved data:", data);
+  }, [companyAdminData, userAdminData, data]);
+
   // Helper function to get Google Maps embed URL
   const getMapEmbedUrl = () => {
     // Prefer coordinates if available (most reliable)
@@ -69,7 +76,7 @@ const ProfileDetails = ({ onBack = null }) => {
   // Reset image error when data changes
   useEffect(() => {
     setImageError(false);
-  }, [companyAdminData]);
+  }, [data]);
 
   // Fetch slab list when company admin data is loaded
   useEffect(() => {
@@ -116,8 +123,9 @@ const ProfileDetails = ({ onBack = null }) => {
     <div className={`animate-pulse bg-gray-200 rounded ${className}`}></div>
   );
 
-  // Show skeleton while loading
-  if (isLoading || !companyAdminData) {
+  // Show skeleton while loading or when no profile data yet
+  const hasData = data && Object.keys(data).length > 0;
+  if (isLoading || !hasData) {
     return (
       <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
