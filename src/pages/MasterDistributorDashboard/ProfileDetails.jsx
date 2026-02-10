@@ -73,8 +73,10 @@ const ProfileDetails = ({ onBack = null }) => {
   // Fetch slab visibility when profile data is loaded (MD user or company admin)
   useEffect(() => {
     if (!data || !data.id) return;
-    dispatch(getSlabVisibility(data.id));
-  }, [data, dispatch]);
+    const companyId = companyDetails?.companyId || data?.companyId;
+    if (!companyId) return;
+    dispatch(getSlabVisibility(data.id, companyId));
+  }, [data, companyDetails?.companyId, dispatch]);
 
   // Handle ESC key to close image modal
   useEffect(() => {
