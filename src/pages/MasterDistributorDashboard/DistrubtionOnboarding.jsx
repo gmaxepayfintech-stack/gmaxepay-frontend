@@ -28,11 +28,10 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
+  getUserMDDetails,
 } from "../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
-
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -51,6 +50,7 @@ const DistrubtionOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
@@ -233,7 +233,12 @@ const DistrubtionOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -394,7 +399,7 @@ const DistrubtionOnboarding = ({
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
                               if (userId) {
-                                dispatch(getCompanyAdmin(userId));
+                                dispatch(getUserMDDetails(userId));
                                 setShowProfileDetails(true);
                               }
                             }}
@@ -809,7 +814,8 @@ const DistrubtionOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}

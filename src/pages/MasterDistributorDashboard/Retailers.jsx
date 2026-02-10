@@ -22,12 +22,11 @@ import {
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
+  getUserMDDetails,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
-
 
 const Retailers = ({
   embedded = false,
@@ -52,6 +51,7 @@ const Retailers = ({
   const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -329,7 +329,12 @@ const Retailers = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -484,7 +489,8 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}
@@ -947,7 +953,8 @@ const Retailers = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
+                              dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
                           }}

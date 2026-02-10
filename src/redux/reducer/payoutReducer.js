@@ -1,4 +1,4 @@
-import { PAYOUT_BANK_LIST_SUCCESS, PAYOUT_TRANSACTION_SUCCESS } from "../actionType/payOutType";
+import { COMPANY_PAYOUT_BANK_LIST_SUCCESS, COMPANY_PAYOUT_TRANSACTION_SUCCESS, PAYOUT_BANK_LIST_SUCCESS, PAYOUT_TRANSACTION_SUCCESS } from "../actionType/payOutType";
 const initialState = {
     loading: false,
     error: null,
@@ -6,6 +6,9 @@ const initialState = {
     message: null,
     success: null,
     payoutTransaction:null,
+    payoutBankList: null,
+    payoutCompanyBankList: null,
+    payoutCompanyTransaction: null,
 };
 
 const payoutReducer = (state = initialState, action) => {
@@ -27,7 +30,22 @@ const payoutReducer = (state = initialState, action) => {
                 status: action?.payload?.status,
                 message: action?.payload?.message,
             }
-
+        case COMPANY_PAYOUT_BANK_LIST_SUCCESS:
+            return{
+                ...state,
+                error: action?.payload?.error,
+                payoutCompanyBankList: action?.payload,
+                status: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case COMPANY_PAYOUT_TRANSACTION_SUCCESS:
+            return{
+                ...state,
+                error: action?.payload?.error,
+                payoutCompanyTransaction: action?.payload,
+                status: action?.payload?.status,
+                message: action?.payload?.message,
+            }
         default:
             return state;
     }

@@ -37,6 +37,8 @@ import {
   GET_MD_DETAILS_FAILURE,
   GET_REPORT_TO_DOWNLINE_SUCCESS,
   GET_REPORT_TO_DOWNLINE_FAILURE,
+  GET_USER_ADMIN_SUCCESS,
+  GET_USER_ADMIN_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -848,6 +850,48 @@ export const getReportToDownline = (payload) => async (dispatch) => {
       },
     });
     return { success: false, message: errorMessage, status: "Error" };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const getUserMDDetails = (userId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/userDetails/profile/${userId}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: userAdminDetails, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: GET_USER_ADMIN_SUCCESS,
+        payload: { userAdminDetails, message, status },
+      });
+    } else {
+      dispatch({
+        type: GET_USER_ADMIN_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: GET_USER_ADMIN_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
   } finally {
     dispatch({ type: LOADING_END });
   }
