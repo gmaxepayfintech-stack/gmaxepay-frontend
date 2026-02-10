@@ -75,12 +75,10 @@ const Retailers = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Get data from Redux (Master Distributor role-based list)
+  // Get data from Redux (Master Distributor role-based list - flat array)
   const responseForTable = useSelector((state) => {
-    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
-    if (!Array.isArray(roleData)) return [];
-    // API returns: [{ companyId, companyName, users: [...] }, ...]
-    return roleData.flatMap((company) => company?.users || []);
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData : [];
   });
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
@@ -109,14 +107,10 @@ const Retailers = ({
         ? propTableData
         : [];
 
-  // Get total count from Redux state (sum of all users across companies)
+  // Get total count from Redux state (flat array length)
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
-    if (!Array.isArray(roleData)) return 0;
-    return roleData.reduce(
-      (total, company) => total + (company?.users?.length || 0),
-      0,
-    );
+    const roleData = state?.roles?.roleDataMD?.roleDataMD;
+    return Array.isArray(roleData) ? roleData.length : 0;
   });
 
   // Use Redux total count if available, otherwise use current data length
