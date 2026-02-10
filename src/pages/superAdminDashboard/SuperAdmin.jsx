@@ -7,12 +7,14 @@ import {
   getEkycHubBalance,
   getInspayWalletBalance,
   getBbpsWalletBalance,
+  getDashboardStatistics,
 } from "../../redux/action/walletAction";
 import {
   XAxis,
   YAxis,
   ResponsiveContainer,
   CartesianGrid,
+  Tooltip,
   AreaChart,
   Area,
 } from "recharts";
@@ -42,7 +44,9 @@ const TotalRevenue = "/img/TotalRevenue.png";
 
 const SuperAdmin = () => {
   const dispatch = useDispatch();
-  const [selectedDay, setSelectedDay] = useState("Sun");
+  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayIndex = new Date().getDay(); 
+  const [selectedDay, setSelectedDay] = useState(days[todayIndex] || "Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
   const [ekycHubBalance, setEkycHubBalance] = useState(null);
   const [inspayWalletBalance, setInspayWalletBalance] = useState(null);
@@ -81,8 +85,6 @@ const SuperAdmin = () => {
     aeps1: "AEPS Wallet 1",
     aeps2: "AEPS Wallet 2",
   };
-
-  const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const filters = ["Today", "Weekly", "Monthly", "Yearly"];
 
   // Get wallet data from Redux
@@ -96,6 +98,9 @@ const SuperAdmin = () => {
   const bbpsWalletBalanceResponse = useSelector(
     (state) => state?.wallet?.bbpsWalletBalance,
   );
+  const dashboardStatisticsResponse = useSelector(
+    (state) => state?.wallet?.dashboardStatistics,
+  );
   const walletBalanceResponse = useSelector(
     (state) => state?.wallet?.walletBalance,
   );
@@ -106,6 +111,55 @@ const SuperAdmin = () => {
   const aepswallet = useSelector((state) => state?.wallet?.walletBalance?.data);
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
+
+  // Helper to format date as YYYY-MM-DD for dashboard statistics query
+  const formatDateForApi = (date) => {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const day = String(date.getDate()).padStart(2, "0");
+    return `${year}-${month}-${day}`;
+  };
+
+  // Get date range for dashboard statistics based on active filter and selected day
+  const getDateRangeForFilter = (filter, selectedDayLabel) => {
+    const today = new Date();
+    const todayIdx = today.getDay(); // 0 = Sun ... 6 = Sat
+
+    // For "Today" filter, use the specific selected day within the current week
+    if (filter === "Today") {
+      const targetIdx = days.indexOf(selectedDayLabel);
+      let targetDate = new Date(today);
+
+      if (targetIdx !== -1 && targetIdx <= todayIdx) {
+        const diff = todayIdx - targetIdx; // how many days back from today
+        targetDate.setDate(today.getDate() - diff);
+      }
+
+      const dayStr = formatDateForApi(targetDate);
+      return { fromDay: dayStr, toDay: dayStr };
+    }
+
+    const toDay = formatDateForApi(today);
+
+    if (filter === "Weekly") {
+      const from = new Date(today);
+      from.setDate(from.getDate() - 6); // last 7 days including today
+      return { fromDay: formatDateForApi(from), toDay };
+    }
+
+    if (filter === "Monthly") {
+      const from = new Date(today.getFullYear(), today.getMonth(), 1); // first of month
+      return { fromDay: formatDateForApi(from), toDay };
+    }
+
+    if (filter === "Yearly") {
+      const from = new Date(today.getFullYear(), 0, 1); // Jan 1st
+      return { fromDay: formatDateForApi(from), toDay };
+    }
+
+    // Fallback to today if filter is unknown
+    return { fromDay: toDay, toDay };
+  };
 
   // Fetch wallet balance on component mount
   useEffect(() => {
@@ -121,6 +175,35 @@ const SuperAdmin = () => {
     };
     fetchBalance();
   }, [dispatch]);
+
+  // Fetch dashboard statistics whenever the filter or selected day changes
+  useEffect(() => {
+    const fetchStatistics = async () => {
+      try {
+        const { fromDay, toDay } = getDateRangeForFilter(
+          activeFilter,
+          selectedDay,
+        );
+        const statsPayload = {
+          query: {
+            fromDay,
+            toDay,
+          },
+          options: {
+            sort: { id: -1 },
+            page: 1,
+            paginate: 25,
+          },
+          customSearch: {},
+        };
+        await dispatch(getDashboardStatistics(statsPayload));
+      } catch (error) {
+        console.error("Failed to fetch dashboard statistics:", error);
+      }
+    };
+
+    fetchStatistics();
+  }, [dispatch, activeFilter, selectedDay]);
 
   // Fetch ASL wallet on component mount
   useEffect(() => {
@@ -233,55 +316,112 @@ const SuperAdmin = () => {
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
-    if (!value) return "₹0.00";
-    const numValue = parseFloat(value);
-    return `₹${numValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (value === null || value === undefined) return "₹0.00";
+    const numValue = parseFloat(value) || 0;
+    return `₹${numValue.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
   const handlePayout = () => {
     setPayout(true);
   };
 
-  const data = [
-    { name: "Rupaisa", value: 400 },
-    { name: "", value: 900 },
-    { name: "", value: 650 },
-    { name: "Asl Wallet", value: 1300 },
-    { name: "", value: 1600 },
-    { name: "Inspay", value: 1250 },
-    { name: "", value: 1900 },
-    { name: "JRI", value: 1000 },
-    { name: "", value: 850 },
-    { name: "Bconnect", value: 550 },
-  ];
+  // Build chart data from dashboard statistics modules (fallback to static data if not available)
+  const buildChartData = () => {
+    const modules = dashboardStatisticsResponse?.data?.modules;
+
+    const toNumber = (val) => {
+      if (typeof val === "number") return val;
+      const parsed = parseFloat(val);
+      return Number.isNaN(parsed) ? 0 : parsed;
+    };
+
+    if (!modules) {
+      // Fallback static data (old behavior)
+      return [
+        { name: "Practomind", value: 400 },
+        { name: "ASL", value: 800 },
+        { name: "BBPS", value: 1200 },
+        { name: "Inspay", value: 1600 },
+      ];
+    }
+
+    return [
+      {
+        name: modules.practomind?.label || "Practomind",
+        value: toNumber(modules.practomind?.totalAmountSuccess),
+      },
+      {
+        name: modules.asl?.label || "ASL",
+        value: toNumber(modules.asl?.totalAmountSuccess),
+      },
+      {
+        name: modules.bbps?.label || "BBPS",
+        value: toNumber(modules.bbps?.totalAmountSuccess),
+      },
+      {
+        // Single Inspay point (mobile + pan + dth combined via total)
+        name: modules.inspay?.total?.label || "Inspay",
+        value: toNumber(
+          modules.inspay?.total?.totalAmountSuccess ??
+            modules.inspay?.mobile?.totalAmountSuccess ??
+            modules.inspay?.pan?.totalAmountSuccess ??
+            modules.inspay?.dth?.totalAmountSuccess,
+        ),
+      },
+    ];
+  };
+
+  const data = buildChartData();
+
+  // Dynamic Y-axis max: highest value * 2 (gives more headroom at the peak)
+  const maxChartValue =
+    data && data.length
+      ? Math.max(...data.map((d) => (typeof d.value === "number" ? d.value : 0)))
+      : 0;
+  const yAxisMax = maxChartValue > 0 ? maxChartValue * 2 : 100;
+  const yAxisStep = yAxisMax / 5 || 1;
+  const yAxisTicks = Array.from({ length: 6 }, (_, i) =>
+    Math.round(i * yAxisStep),
+  );
+
+  // Extract dashboard stats for header and summary cards
+  const dashboardWallet = dashboardStatisticsResponse?.data?.wallet;
+  const statusSummary = dashboardStatisticsResponse?.data?.statusSummary;
+
+  const todayEarningAmount = dashboardWallet
+    ? formatCurrency(dashboardWallet.totalSuccessAmount)
+    : "₹4,21,40,238";
 
   const summaryItems = [
     {
       label: "Commission",
-      value: "₹4",
+      value: dashboardWallet
+        ? formatCurrency(dashboardWallet.totalSuperadminCommission)
+        : "₹4",
       change: "",
       icon: Comission,
       bg: "bg-[#EBF5FF]", // Light blue
     },
     {
       label: "Successful Transactions",
-      value: "9",
+      value: statusSummary?.totalSuccessCount ?? 0,
       change: "",
       icon: Transactions,
       bg: "bg-[#E3FAE9]", // Light green
     },
     {
       label: "Failed Transactions",
-      value: "4",
+      value: statusSummary?.totalFailedCount ?? 0,
       change: "",
       icon: FailedTransactions,
       bg: "bg-[#FFF2EC]", // Light peach
     },
-    
-    
     {
       label: "Pending Transactions",
-      value: "4",
+      value: statusSummary?.totalPendingCount ?? 0,
       change: "",
       icon: PendingTransactions,
       bg: "bg-[#FFF2DF]", // Light orange
@@ -391,7 +531,7 @@ const SuperAdmin = () => {
             <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex flex-wrap items-center gap-3 sm:gap-4">
                 <p className="text-xl sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                  ₹4,21,40,238
+                  {todayEarningAmount}
                 </p>
                 <span className="text-[#039155] text-xs font-[gilroy-semibold] flex items-center gap-1">
                   ▲ $40,238 (4.61%)
@@ -400,19 +540,33 @@ const SuperAdmin = () => {
 
               {/* Weekday Buttons */}
               <div className="flex flex-wrap gap-2 justify-end">
-                {days.map((day) => (
-                  <button
-                    key={day}
-                    onClick={() => setSelectedDay(day)}
-                    className={`px-3 py-1  rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all ${
-                      selectedDay === day
-                        ? "bg-[#039155] text-white "
-                        : "border-[#1B1717]/50 text-[#1B1717] border hover:border-[#039155] hover:text-[#039155]"
-                    }`}
-                  >
-                    {day}
-                  </button>
-                ))}
+                {days.map((day, index) => {
+                  const isFutureDay = index > todayIndex;
+                  const isActive = selectedDay === day;
+
+                  const baseClasses =
+                    "px-3 py-1 rounded-md text-xs[10px] sm:text-xs font-[gilroy-medium] transition-all";
+
+                  const stateClasses = isActive
+                    ? "bg-[#039155] text-white"
+                    : isFutureDay
+                      ? "border-[#1B1717]/20 text-[#1B1717]/40 border cursor-not-allowed"
+                      : "border-[#1B1717]/50 text-[#1B1717] border hover:border-[#039155] hover:text-[#039155]";
+
+                  return (
+                    <button
+                      key={day}
+                      type="button"
+                      disabled={isFutureDay}
+                      onClick={() => {
+                        if (!isFutureDay) setSelectedDay(day);
+                      }}
+                      className={`${baseClasses} ${stateClasses}`}
+                    >
+                      {day}
+                    </button>
+                  );
+                })}
               </div>
             </div>
           </div>
@@ -451,9 +605,31 @@ const SuperAdmin = () => {
                   axisLine={false}
                   tickLine={false}
                   tick={{ fill: "#1B1717", fontSize: 12 }}
-                  domain={[0, 2000]}
-                  ticks={[100, 500, 1000, 1500, 2000]}
+                  domain={[0, yAxisMax]}
+                  ticks={yAxisTicks}
                 />
+
+            {/* Tooltip to show amount on hover */}
+            <Tooltip
+              cursor={{ stroke: "#10b981", strokeWidth: 1, strokeDasharray: "3 3" }}
+              content={({ active, payload, label }) => {
+                if (active && payload && payload.length) {
+                  const mainPoint =
+                    payload.find((p) => p.dataKey === "value") || payload[0];
+                  const amount =
+                    mainPoint && typeof mainPoint.value === "number"
+                      ? formatCurrency(mainPoint.value)
+                      : mainPoint?.value;
+                  return (
+                    <div className="bg-white border border-[#E5E7EB] rounded-md px-3 py-2 shadow-sm text-xs text-[#1B1717]">
+                      <div className="font-[gilroy-medium] mb-1">{label}</div>
+                      <div className="font-[gilroy-semibold]">{amount}</div>
+                    </div>
+                  );
+                }
+                return null;
+              }}
+            />
 
                 {/* BG area slightly higher */}
                 <Area
@@ -600,7 +776,7 @@ const SuperAdmin = () => {
           </h3>
 
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4">
-            {[...Array(7)].map((_, i) => {
+            {[...Array(6)].map((_, i) => {
               const isAslWallet = i === 0;
               const isEkycHubWallet = i === 1;
               const isInspayWallet = i === 2;
