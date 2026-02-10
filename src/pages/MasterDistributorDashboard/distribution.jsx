@@ -30,7 +30,6 @@ import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
 
-
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
   <tr>
@@ -72,17 +71,22 @@ const Distribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use prop data from API - no dummy data
+  // Get Distributor list from Redux (Master Distributor role-based list)
+  const reduxTableData = useSelector((state) => {
+    const roleData = state?.roles?.roleDataMD?.roleDataMD?.data;
+    return Array.isArray(roleData) ? roleData : [];
+  });
+
+  // Use Redux data if available, otherwise use prop data
   const allTableData =
-    Array.isArray(propTableData) && propTableData.length > 0
-      ? propTableData
-      : [];
+    reduxTableData.length > 0
+      ? reduxTableData
+      : Array.isArray(propTableData) && propTableData.length > 0
+        ? propTableData
+        : [];
 
   // Get total count from Redux state (if available) or use current data length
-  const totalCountFromRedux = useSelector((state) => {
-    const response = state?.whitelabel?.whitelabelList;
-    return response?.totalCount || response?.total || 0;
-  });
+  const totalCountFromRedux = reduxTableData.length;
 
   // Use Redux total count if available, otherwise use current data length
   const totalCount =
@@ -95,6 +99,22 @@ const Distribution = ({
   const startIndex = (currentPage - 1) * 10;
   const endIndex = startIndex + 10;
   const tableData = allTableData.slice(startIndex, endIndex);
+
+  // Fetch data from API on initial load and when page changes
+  useEffect(() => {
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: {},
+    };
+    dispatch(roleDataMasterDistributorUser(payload));
+  }, [currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
