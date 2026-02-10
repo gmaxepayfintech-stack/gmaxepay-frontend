@@ -81,6 +81,13 @@ const Retailers = ({
     return Array.isArray(roleData) ? roleData : [];
   });
 
+  // Log full API response for debugging
+  const roleDataResponse = useSelector((state) => state?.roles?.roleDataMD || null);
+  useEffect(() => {
+    console.log("MD Retailers - roleDataMasterDistributorUser payload:", roleDataResponse);
+    console.log("MD Retailers - table rows from Redux:", responseForTable);
+  }, [roleDataResponse, responseForTable]);
+
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycRetrieved = kycDetailsState?.data || null;
