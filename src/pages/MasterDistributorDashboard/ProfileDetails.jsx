@@ -248,7 +248,13 @@ const ProfileDetails = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
-                  Whitelabel
+                  {(() => {
+                    const code = (data?.userRole || "").toUpperCase();
+                    if (code === "DI") return "Distributor";
+                    if (code === "RE") return "Retailer";
+                    if (code === "MD") return "Master Distributor";
+                    return "Whitelabel";
+                  })()}
                 </span>
               </div>
             </div>

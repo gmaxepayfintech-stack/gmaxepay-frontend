@@ -584,8 +584,9 @@ const SuperAdmin = () => {
             </div>
 
             <button
-              className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm"
-              onClick={handlePayout}
+              className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl disabled:opacity-90 disabled:cursor-not-allowed font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm"
+              // onClick={handlePayout}
+              disabled
             >
               Wallet Transfer
             </button>
