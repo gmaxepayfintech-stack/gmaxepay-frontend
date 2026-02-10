@@ -5,9 +5,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserBBPSCategories } from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 
 const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
+
   const { userCategories, userCategoriesLoading, userCategoriesError } =
     useSelector((state) => state.bbps);
   const [selectedCategory, setSelectedCategory] = useState(
@@ -58,7 +61,7 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
         <button
           type="button"
           aria-label="Back"
-          onClick={onBack}
+          onClick={() => navigate("/retailerDashboard/services")}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
           <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />

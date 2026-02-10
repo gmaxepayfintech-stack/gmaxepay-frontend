@@ -5,6 +5,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { getUserBBPSCategories } from "../../../redux/action/bbpsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNavigate } from "react-router-dom";
 
 const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const dropdownRef = useRef(null);
+
+  const navigate = useNavigate();
 
   // Fetch categories from Redux
   useEffect(() => {
@@ -52,13 +55,13 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
   };
 
   return (
-    <div className="w-full py-4 px-1">
+    <div className="w-full">
       {/* Header */}
       <div className="flex items-start gap-3 mb-6">
         <button
           type="button"
           aria-label="Back"
-          onClick={onBack}
+          onClick={() => navigate("/distributerDashboard/services")}
           className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
         >
           <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />

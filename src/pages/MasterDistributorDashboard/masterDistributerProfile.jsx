@@ -18,7 +18,11 @@ import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { getMDDetails } from "../../redux/action/whiteLabelAction";
-import { addBankDetails } from "../../redux/action/userProfileAction";
+import {
+  addBankDetails,
+  deleteUserBank,
+} from "../../redux/action/userProfileAction";
+import { Trash2 } from "lucide-react";
 
 const MasterDistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -32,15 +36,15 @@ const MasterDistributerProfile = ({ onBack = null }) => {
   const [isAddingBank, setIsAddingBank] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(null);
 
   // Get company from context
   const { company } = useCompany();
   const companyId = company?.companyId || company?._id || company?.id;
 
   // Get MD details from Redux (using getMDDetails API)
-  const mdDetailsState = useSelector(
-    (state) => state?.whitelabel?.mdDetails,
-  );
+  const mdDetailsState = useSelector((state) => state?.whitelabel?.mdDetails);
   // mdDetailsState contains { mdDetails, message, status }
   const mdDetailsData = mdDetailsState?.mdDetails || null;
 
@@ -154,7 +158,6 @@ const MasterDistributerProfile = ({ onBack = null }) => {
         message: upgradeError,
         duration: 5000,
         isCritical: true,
-
       });
     }
   }, [upgradeError, showNotification]);
@@ -169,6 +172,29 @@ const MasterDistributerProfile = ({ onBack = null }) => {
     window.addEventListener("keydown", handleEsc);
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showImageModal]);
+
+  const handleDeleteBank = async () => {
+    if (!selectedBank?.id) return;
+
+    try {
+      await dispatch(deleteUserBank(selectedBank.id));
+
+      showNotification({
+        type: "success",
+        message: "Bank account deleted successfully",
+        isCritical: true,
+      });
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: "Failed to delete bank account",
+        isCritical: true,
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedBank(null);
+    }
+  };
 
   // Skeleton loader component
   const SkeletonLoader = ({ className }) => (
@@ -925,7 +951,9 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Contact </p>
+                  <p className="text-xs text-gray-500 mb-1">
+                    Reporting Contact{" "}
+                  </p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
                     {data?.reportingToManagerMobile || "N/A"}
                   </p>
@@ -1009,7 +1037,9 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                     <input
                       type="text"
                       value={bankIfsc}
-                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setBankIfsc(e.target.value.toUpperCase())
+                      }
                       placeholder="Enter IFSC Code"
                       className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
                     />
@@ -1034,10 +1064,8 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                       if (!bankAccountNumber || !bankIfsc) {
                         showNotification({
                           type: "error",
-                          message:
-                            "Please enter account number and IFSC code.",
-                            isCritical: true,
-
+                          message: "Please enter account number and IFSC code.",
+                          isCritical: true,
                         });
                         return;
                       }
@@ -1055,7 +1083,6 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                           type: "success",
                           message: "Bank details added successfully.",
                           isCritical: true,
-
                         });
 
                         setIsAddingBank(false);
@@ -1067,8 +1094,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
-                            isCritical: true,
-
+                          isCritical: true,
                         });
                       }
                     }}
@@ -1083,7 +1109,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                 {bankDetails && bankDetails.length > 0 ? (
                   bankDetails.map((bank, index) => (
                     <div
-                      key={bank.id || index}
+                      key={bank.id}
                       className="flex items-start justify-between gap-6 w-full"
                     >
                       {/* Bank Name */}
@@ -1133,6 +1159,21 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                           Active
                         </span>
                       </div>
+
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Action</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBank(bank);
+                            setShowDeleteModal(true);
+                          }}
+                          className="text-red-500 hover:text-red-700 transition"
+                          title="Delete bank account"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -1145,6 +1186,44 @@ const MasterDistributerProfile = ({ onBack = null }) => {
           </div>
         )}
       </div>
+
+      {/* Delete Bank Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+            <h3 className="text-lg font-semibold text-[#1B1717] mb-3">
+              Delete Bank Account
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this bank account?
+              <br />
+              <span className="font-medium text-gray-800">
+                Account No: {selectedBank?.accountNumber}
+              </span>
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedBank(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDeleteBank}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Confirmation Modal */}
       {showConfirmModal && (

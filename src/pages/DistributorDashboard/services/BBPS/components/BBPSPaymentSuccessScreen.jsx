@@ -5,6 +5,29 @@ import jsPDF from "jspdf";
 import html2canvas from "html2canvas";
 import { Download } from "lucide-react";
 
+const Detail = ({ label, value, green }) => {
+  return (
+    <div>
+      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+        {label}
+      </div>
+      <div
+        className={`font-['Gilroy-Medium'] text-sm ${
+          green ? "text-[#039155]" : "text-[#1B1717]"
+        }`}
+      >
+        {value || "N/A"}
+      </div>
+    </div>
+  );
+};
+
+Detail.propTypes = {
+  label: PropTypes.string.isRequired,
+  value: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  green: PropTypes.bool,
+};
+
 const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
   const receiptRef = useRef(null);
   const { company } = useCompany();
@@ -479,262 +502,113 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
   };
 
   return (
-    <div className="relative rounded-xl border-2 border-[#2F80ED] p-6 overflow-visible shadow-sm">
-      {/* U-Shaped Cutouts */}
-      <div className="absolute left-[12%] top-0 -translate-y-1/2 z-10 pointer-events-none">
-        <svg
-          width="40"
-          height="20"
-          viewBox="0 0 40 20"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 20 Q 20 0 40 20"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute right-[12%] top-0 -translate-y-1/2 z-10 pointer-events-none">
-        <svg
-          width="40"
-          height="20"
-          viewBox="0 0 40 20"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 20 Q 20 0 40 20"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute left-[12%] bottom-0 translate-y-1/2 z-10 pointer-events-none">
-        <svg
-          width="40"
-          height="20"
-          viewBox="0 0 40 20"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 0 Q 20 20 40 0"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute right-[12%] bottom-0 translate-y-1/2 z-10 pointer-events-none">
-        <svg
-          width="40"
-          height="20"
-          viewBox="0 0 40 20"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 0 Q 20 20 40 0"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute left-0 top-[18%] -translate-x-1/2 z-10 pointer-events-none">
-        <svg
-          width="20"
-          height="40"
-          viewBox="0 0 20 40"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 20 0 Q 0 20 20 40"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute left-0 bottom-[18%] -translate-x-1/2 z-10 pointer-events-none">
-        <svg
-          width="20"
-          height="40"
-          viewBox="0 0 20 40"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 20 0 Q 0 20 20 40"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute right-0 top-[18%] translate-x-1/2 z-10 pointer-events-none">
-        <svg
-          width="20"
-          height="40"
-          viewBox="0 0 20 40"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 0 Q 20 20 0 40"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
-      <div className="absolute right-0 bottom-[18%] translate-x-1/2 z-10 pointer-events-none">
-        <svg
-          width="20"
-          height="40"
-          viewBox="0 0 20 40"
-          preserveAspectRatio="none"
-        >
-          <path
-            d="M 0 0 Q 20 20 0 40"
-            fill="white"
-            stroke="#2F80ED"
-            strokeWidth="2"
-          />
-        </svg>
-      </div>
+    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+      {/* Ticket Notches */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full" />
+      <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full" />
+      <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full" />
+      <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full" />
 
-      <div className="relative z-0" ref={receiptRef}>
-        {/* Success Icon */}
-        <div className="flex justify-center mb-6 mt-2">
-          <div className="w-20 h-20 bg-[#039155] rounded-full flex items-center justify-center shadow-sm">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              className="h-10 w-10 text-white"
-              fill="none"
-              viewBox="0 0 24 24"
-              stroke="currentColor"
-              strokeWidth={3}
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M5 13l4 4L19 7"
-              />
-            </svg>
+      <div className="relative z-10 pt-12 pb-12 px-10" ref={receiptRef}>
+        {/* Success Header */}
+        <div className="text-center mb-6">
+          <div className="flex justify-center mb-3">
+            <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-8 w-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                strokeWidth={3}
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+            </div>
           </div>
-        </div>
 
-        {/* Title */}
-        <div className="text-center mb-8">
-          <h2 className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
+          <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
             Payment Successful
           </h2>
-          <p className="text-[16px] text-gray-600 font-['Gilroy-Regular']">
+          <p className="text-[12px] text-[#1B1717]/80 font-[gilroy-regular]">
             Your Payment Has Been Completed
           </p>
         </div>
 
         {/* Amount */}
-        <div className="border-2 border-dashed border-gray-300 rounded-lg py-8 px-4 text-center mb-8">
-          <span className="text-[36px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-            ₹
+        <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
+          <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+            ₹{" "}
             {transactionDetails?.amount ||
               transactionDetails?.respAmount ||
               "0.00"}
-          </span>
-        </div>
-
-        {/* Transaction Details */}
-        <div className="grid grid-cols-2 gap-x-6 gap-y-5 mb-8">
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              Transaction ID
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {transactionDetails?.txid ||
-                transactionDetails?.txnRefId ||
-                "N/A"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              Customer Name
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {transactionDetails?.customerName ||
-                transactionDetails?.respCustomerName ||
-                "N/A"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              Biller Number
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {transactionDetails?.billerNumber ||
-                transactionDetails?.billerId ||
-                "N/A"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              B-Connect Transaction ID
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {transactionDetails?.bConnectId ||
-                transactionDetails?.utr ||
-                transactionDetails?.approvalRefNumber ||
-                "N/A"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              Transaction Status
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#039155]">
-              {transactionDetails?.status ||
-                transactionDetails?.responseReason ||
-                "Success"}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              Date Time
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {getCurrentDateTime()}
-            </p>
-          </div>
-
-          <div>
-            <p className="text-[13px] text-gray-500 font-['Gilroy-Regular'] mb-1">
-              CCF
-            </p>
-            <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-              {transactionDetails?.custConvFee ||
-                transactionDetails?.apiCustConvFee ||
-                "0"}
-            </p>
           </div>
         </div>
 
-        {/* Action Buttons */}
-        <div className="flex gap-4">
+        {/* Details Grid */}
+        <div className="grid grid-cols-2 gap-4 mb-20">
+          <Detail
+            label="Transaction ID"
+            value={transactionDetails?.txid || transactionDetails?.txnRefId}
+          />
+          <Detail
+            label="Customer Name"
+            value={
+              transactionDetails?.customerName ||
+              transactionDetails?.respCustomerName
+            }
+          />
+          <Detail
+            label="Biller Number"
+            value={
+              transactionDetails?.billerNumber || transactionDetails?.billerId
+            }
+          />
+          <Detail
+            label="B-Connect Transaction ID"
+            value={
+              transactionDetails?.bConnectId ||
+              transactionDetails?.utr ||
+              transactionDetails?.approvalRefNumber
+            }
+          />
+          <Detail
+            label="Transaction Status"
+            value={
+              transactionDetails?.status ||
+              transactionDetails?.responseReason ||
+              "Success"
+            }
+            green
+          />
+          <Detail label="Date" value={getCurrentDateTime()} />
+          <Detail
+            label="CCF"
+            value={
+              transactionDetails?.custConvFee ||
+              transactionDetails?.apiCustConvFee ||
+              "0"
+            }
+          />
+        </div>
+
+        {/* Buttons */}
+        <div className="absolute left-5 right-5 bottom-2 flex gap-4">
           <button
             onClick={handleShare}
-            className="flex-1 h-[48px] bg-white border-2 border-gray-300 rounded-lg text-[#1B1717] font-['Gilroy-Medium'] hover:bg-gray-50 transition-colors"
+            className="flex-1 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
           >
             Share
           </button>
+
           <button
             onClick={handleDownload}
-            className="flex-1 h-[48px] bg-[#039155] text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2 hover:bg-[#027A47] transition-colors"
+            className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
           >
-            <Download size={18} />
             Download Receipt
           </button>
         </div>

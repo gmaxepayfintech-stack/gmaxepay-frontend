@@ -18,7 +18,11 @@ import AgentCode from "../../../public/img/AgentCode.png";
 import UserId from "../../../public/img/UserId.png";
 import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
-import { addBankCompanyDetails } from "../../redux/action/userProfileAction";
+import {
+  addBankCompanyDetails,
+  deleteCompanyBank,
+} from "../../redux/action/userProfileAction";
+import { Trash2 } from "lucide-react";
 
 const AdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -32,6 +36,8 @@ const AdminProfile = ({ onBack = null }) => {
   const [isAddingBank, setIsAddingBank] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [selectedBank, setSelectedBank] = useState(null);
 
   // Get company from context
   const { company } = useCompany();
@@ -49,7 +55,7 @@ const AdminProfile = ({ onBack = null }) => {
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const companyAdminData = companyAdminState?.companyAdminData || null;
-  
+
   // Get loading state for user details
   const isUserDetailsLoading = useSelector(
     (state) => state?.whitelabel?.loading || false,
@@ -117,7 +123,6 @@ const AdminProfile = ({ onBack = null }) => {
     setImageError(false);
   }, [profileData]);
 
-
   // Set default selected scheme to current slabId
   useEffect(() => {
     if (data?.slabId && !selectedScheme) {
@@ -141,7 +146,9 @@ const AdminProfile = ({ onBack = null }) => {
   // Fetch wallet balance when confirmation modal opens (only if not subscribed)
   useEffect(() => {
     if (showConfirmModal && selectedScheme) {
-      const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+      const selectedSlab = slabList.find(
+        (s) => String(s.id) === selectedScheme,
+      );
       const isSubscribed = selectedSlab?.isSubscribed || false;
       // Only fetch wallet balance if NOT subscribed (for upgrade)
       if (!isSubscribed) {
@@ -155,7 +162,7 @@ const AdminProfile = ({ onBack = null }) => {
     if (upgradeError) {
       // Show error notification
       showNotification({
-        type: 'error',
+        type: "error",
         message: upgradeError,
         duration: 5000,
       });
@@ -762,14 +769,17 @@ const AdminProfile = ({ onBack = null }) => {
                   >
                     <option value="">Select Slab</option>
                     {slabList.map((slab) => {
-                      const amountDisplay = 
-                        slab.slabAmount === "free" || slab.slabAmount === 0 
-                          ? "Free" 
+                      const amountDisplay =
+                        slab.slabAmount === "free" || slab.slabAmount === 0
+                          ? "Free"
                           : `₹${slab.slabAmount}`;
-                      const subscriptionStatus = slab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                      const subscriptionStatus = slab.isSubscribed
+                        ? "Subscribed"
+                        : "Unsubscribed";
                       return (
                         <option key={slab.id} value={slab.id}>
-                          {slab.slabName} ({amountDisplay}) - {subscriptionStatus}
+                          {slab.slabName} ({amountDisplay}) -{" "}
+                          {subscriptionStatus}
                         </option>
                       );
                     })}
@@ -795,7 +805,9 @@ const AdminProfile = ({ onBack = null }) => {
                 >
                   {(() => {
                     if (upgradeLoading) return "Processing...";
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
                     return isSubscribed ? "Change Slab" : "Upgrade";
                   })()}
@@ -921,7 +933,9 @@ const AdminProfile = ({ onBack = null }) => {
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Contact </p>
+                  <p className="text-xs text-gray-500 mb-1">
+                    Reporting Contact
+                  </p>
                   <p className="text-sm sm:text-base font-medium text-[#1B1717]">
                     {data?.reportingToManagerMobile || "N/A"}
                   </p>
@@ -962,7 +976,7 @@ const AdminProfile = ({ onBack = null }) => {
                     onClick={() => setIsAddingBank(true)}
                     className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[gilroy-medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
                   >
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-md">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-xl">
                       +
                     </span>
                     <span>Add New Account</span>
@@ -999,7 +1013,9 @@ const AdminProfile = ({ onBack = null }) => {
                     <input
                       type="text"
                       value={bankIfsc}
-                      onChange={(e) => setBankIfsc(e.target.value.toUpperCase())}
+                      onChange={(e) =>
+                        setBankIfsc(e.target.value.toUpperCase())
+                      }
                       placeholder="Enter IFSC Code"
                       className="w-full h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg px-3 text-sm text-[#111827] focus:outline-none focus:ring-2 focus:ring-[#039155]"
                     />
@@ -1024,8 +1040,7 @@ const AdminProfile = ({ onBack = null }) => {
                       if (!bankAccountNumber || !bankIfsc) {
                         showNotification({
                           type: "error",
-                          message:
-                            "Please enter account number and IFSC code.",
+                          message: "Please enter account number and IFSC code.",
                           isCritical: true,
                         });
                         return;
@@ -1070,7 +1085,7 @@ const AdminProfile = ({ onBack = null }) => {
                 {bankDetails && bankDetails.length > 0 ? (
                   bankDetails.map((bank, index) => (
                     <div
-                      key={bank.id || index}
+                      key={bank.id}
                       className="flex items-start justify-between gap-6 w-full"
                     >
                       {/* Bank Name */}
@@ -1120,6 +1135,21 @@ const AdminProfile = ({ onBack = null }) => {
                           Active
                         </span>
                       </div>
+
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Action</p>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedBank(bank);
+                            setShowDeleteModal(true);
+                          }}
+                          className="text-red-500 hover:text-red-700 transition"
+                          title="Delete bank account"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -1133,6 +1163,70 @@ const AdminProfile = ({ onBack = null }) => {
         )}
       </div>
 
+      {/* Delete Bank Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+            <h3 className="text-lg font-semibold text-[#1B1717] mb-3">
+              Delete Bank Account
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this bank account?
+              <br />
+              <span className="font-medium text-gray-800">
+                Account No: {selectedBank?.accountNumber}
+              </span>
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedBank(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={async () => {
+                  const bankId = selectedBank?.id;
+
+                  if (!bankId) {
+                    showNotification({
+                      type: "error",
+                      message: "Bank ID not found",
+                    });
+                    return;
+                  }
+
+                  try {
+                    await dispatch(deleteCompanyBank(bankId));
+
+                    showNotification({
+                      type: "success",
+                      message: "Bank deleted successfully",
+                    });
+                  } catch {
+                    showNotification({
+                      type: "error",
+                      message: "Failed to delete bank",
+                    });
+                  } finally {
+                    setShowDeleteModal(false);
+                    setSelectedBank(null);
+                  }
+                }}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Confirmation Modal */}
       {showConfirmModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
@@ -1141,9 +1235,13 @@ const AdminProfile = ({ onBack = null }) => {
               <div className="mb-4">
                 <h3 className="text-xl font-semibold text-gray-800">
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed ? "Confirm Slab Change" : "Confirm Slab Upgrade";
+                    return isSubscribed
+                      ? "Confirm Slab Change"
+                      : "Confirm Slab Upgrade";
                   })()}
                 </h3>
               </div>
@@ -1156,14 +1254,18 @@ const AdminProfile = ({ onBack = null }) => {
               <div className="mb-6">
                 {/* Wallet Balance Display - Only show if NOT subscribed */}
                 {(() => {
-                  const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                  const selectedSlab = slabList.find(
+                    (s) => String(s.id) === selectedScheme,
+                  );
                   const isSubscribed = selectedSlab?.isSubscribed || false;
-                  
+
                   // Only show wallet balance if NOT subscribed (for upgrade)
                   if (!isSubscribed) {
                     return (
                       <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
+                        <p className="text-xs text-gray-500 mb-1">
+                          Main Wallet Balance
+                        </p>
                         <p className="text-lg font-semibold text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
@@ -1183,7 +1285,9 @@ const AdminProfile = ({ onBack = null }) => {
 
                 <p className="text-gray-700 mb-2">
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
                     return isSubscribed
                       ? "Are you sure you want to change the membership scheme?"
@@ -1195,13 +1299,18 @@ const AdminProfile = ({ onBack = null }) => {
                     New Slab:{" "}
                     <span className="font-semibold">
                       {(() => {
-                        const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                        const selectedSlab = slabList.find(
+                          (s) => String(s.id) === selectedScheme,
+                        );
                         if (!selectedSlab) return "N/A";
-                        const amountDisplay = 
-                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
-                            ? "Free" 
+                        const amountDisplay =
+                          selectedSlab.slabAmount === "free" ||
+                          selectedSlab.slabAmount === 0
+                            ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
-                        const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
+                        const subscriptionStatus = selectedSlab.isSubscribed
+                          ? "Subscribed"
+                          : "Unsubscribed";
                         return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
                       })()}
                     </span>
@@ -1225,7 +1334,9 @@ const AdminProfile = ({ onBack = null }) => {
                   onClick={async () => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
-                      await dispatch(upgradeOrChangeSlab(selectedScheme, companyId));
+                      await dispatch(
+                        upgradeOrChangeSlab(selectedScheme, companyId),
+                      );
                       // Error message from API will be shown via useEffect watching upgradeError
                     }
                   }}
@@ -1233,7 +1344,9 @@ const AdminProfile = ({ onBack = null }) => {
                   className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
                   {(() => {
-                    const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
+                    const selectedSlab = slabList.find(
+                      (s) => String(s.id) === selectedScheme,
+                    );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
                     if (upgradeLoading) {
                       return isSubscribed ? "Changing..." : "Upgrading...";
