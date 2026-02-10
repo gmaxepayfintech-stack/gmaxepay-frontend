@@ -58,6 +58,7 @@ const Distribution = ({
     () => new Date().toISOString().split("T")[0],
   );
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -219,7 +220,12 @@ const Distribution = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -378,6 +384,7 @@ const Distribution = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
                               dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
