@@ -44,6 +44,7 @@ const RetailerOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
@@ -280,7 +281,12 @@ const RetailerOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
+    return (
+      <ProfileDetails
+        onBack={() => setShowProfileDetails(false)}
+        userRole={selectedUserRole}
+      />
+    );
   }
 
   return (
@@ -433,6 +439,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
                               dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }
@@ -883,6 +890,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              setSelectedUserRole(row.userRole || row.originalItem?.userRole || null);
                               dispatch(getUserMDDetails(userId));
                               setShowProfileDetails(true);
                             }

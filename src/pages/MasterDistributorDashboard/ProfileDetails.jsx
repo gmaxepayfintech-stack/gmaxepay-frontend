@@ -13,7 +13,7 @@ import bgimage from "../../../public/img/banner.svg";
 import { motion } from "framer-motion";
 import { getSlabVisibility } from "../../redux/action/slabAction";
 
-const ProfileDetails = ({ onBack = null }) => {
+const ProfileDetails = ({ onBack = null, userRole = null }) => {
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState("membership");
   const [imageError, setImageError] = useState(false);
@@ -38,8 +38,9 @@ const ProfileDetails = ({ onBack = null }) => {
 
   // Debug log for role
   useEffect(() => {
-    console.log("MD ProfileDetails - userRole:", data?.userRole);
-  }, [data?.userRole]);
+    console.log("MD ProfileDetails - userRole prop:", userRole);
+    console.log("MD ProfileDetails - userRole from data:", data?.userRole);
+  }, [userRole, data?.userRole]);
 
   const getMapEmbedUrl = () => {
     if (data?.latitude && data?.longitude) {
@@ -254,7 +255,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
                   {(() => {
-                    const code = (data?.userRole || "").toUpperCase();
+                    const code = (userRole || data?.userRole || "").toUpperCase();
                     if (code === "DI") return "Distributor";
                     if (code === "RE") return "Retailer";
                     if (code === "MD") return "Master Distributor";
@@ -912,6 +913,7 @@ const ProfileDetails = ({ onBack = null }) => {
 
 ProfileDetails.propTypes = {
   onBack: PropTypes.func,
+  userRole: PropTypes.string,
 };
 
 export default ProfileDetails;
