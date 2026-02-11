@@ -11,10 +11,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import TransactioDetails from "./TransactioDetails";
 import {
-  getAepsCwHistory,
-  getAepsTransactionDetails,
+  getAepsCwHistoryCompany,
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -24,25 +22,18 @@ const AepsCWHistory = ({ onBack }) => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (company AEPS CW history)
   const aepsCwHistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
+    (state) => state?.aeps?.aepsCwHistoryCompany,
   );
   const apiData = aepsCwHistoryResponse?.data || [];
   const paginator = aepsCwHistoryResponse?.paginator || {};
   const totalCount = aepsCwHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -97,22 +88,33 @@ const AepsCWHistory = ({ onBack }) => {
         return userRole || "N/A";
       };
 
-      // Extract user details from item
+      // Extract user details from item (company response usually has none)
       const userDetails = item.userDetails || {};
+
+      // Prefer consumerNumber as a readable identifier, then fall back
       const userName =
+        item.consumerNumber ||
         userDetails.name ||
         item.name ||
         item.userName ||
         `User ${item.refId || item.addedBy || index + 1}`;
+
       const userRoleValue =
         userDetails.userRole !== undefined
           ? userDetails.userRole
           : item.userRole !== undefined
             ? item.userRole
             : null;
+
       const profileImage = userDetails.profileImage || null;
+
       const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
+        userDetails.mobileNo ||
+        item.mobileNo ||
+        item.mobile ||
+        item.consumerNumber ||
+        "N/A";
+
       const consumerNumber =
         item.consumerNumber || item.consumerAadhaarNumber || "N/A";
 
@@ -124,17 +126,20 @@ const AepsCWHistory = ({ onBack }) => {
         profileImage: profileImage,
         mobileNo: mobileNo,
         consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
-        companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
+        companyId: item.companyId ?? "N/A",
+        // Company response doesn't include companyName/logo; use operator as a friendly name
+        companyName: item.companyName || item.operator || "N/A",
+        merchantLoginId:
+          item.requestPayload?.merchantLoginId || item.merchantTransactionId || "N/A",
+        bankName: item.bankName || item.bankiin || "N/A",
         taxId: item.transactionId || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
+        bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
         via: getViaDisplay(item.captureType),
         status: getStatusDisplay(item.status),
         createdAt: formattedDate,
-        originalItem: item, // Store full item for details
+        originalItem: item,
       };
     });
   };
@@ -223,7 +228,7 @@ const AepsCWHistory = ({ onBack }) => {
       },
     };
 
-    dispatch(getAepsCwHistory(payload));
+    dispatch(getAepsCwHistoryCompany(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -258,61 +263,6 @@ const AepsCWHistory = ({ onBack }) => {
     setCurrentPage(1);
   }, [statusFilter]);
 
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
-  };
-
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // If TransactionDetails should be shown, render it
-  if (showTransactionDetails) {
-    return (
-      <TransactioDetails
-        transactionId={selectedTransactionId}
-        onBack={() => {
-          setShowTransactionDetails(false);
-          setSelectedTransactionId(null);
-          setIsLoadingTransactionDetails(false);
-        }}
-      />
-    );
-  }
-
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
       {/* Header Section */}
@@ -344,11 +294,10 @@ const AepsCWHistory = ({ onBack }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                     ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                     : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -375,15 +324,14 @@ const AepsCWHistory = ({ onBack }) => {
                   },
                 };
 
-                dispatch(getAepsCwHistory(payload));
+                dispatch(getAepsCwHistoryCompany(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -451,9 +399,6 @@ const AepsCWHistory = ({ onBack }) => {
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Profile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -463,13 +408,13 @@ const AepsCWHistory = ({ onBack }) => {
                   Mobile
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Consumer Number
+                  Company Id
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Logo
+                  Merchant Id
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
@@ -498,56 +443,23 @@ const AepsCWHistory = ({ onBack }) => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition =
+                    // Show API 'id' if present; otherwise fall back to simple ascending SR no
+                    const fallbackSrNo =
                       (apiCurrentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
-                    const srNo = String(reverseSrNo).padStart(2, "0");
+                    const srNo = transaction.id ?? fallbackSrNo;
 
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
+                        className={`transition-colors ${index % 2 === 0
                             ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
                             : "bg-white hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {srNo}
                           </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleProfileClick(transaction.id)}
-                            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
-                          >
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                              {transaction.profileImage ? (
-                                <>
-                                  <img
-                                    src={transaction.profileImage}
-                                    alt={transaction.name || "Profile"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      if (e.target.nextElementSibling) {
-                                        e.target.nextElementSibling.style.display =
-                                          "flex";
-                                      }
-                                    }}
-                                  />
-                                  <div className="w-full h-full hidden items-center justify-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                  </div>
-                                </>
-                              ) : (
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                              )}
-                            </div>
-                          </button>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -570,7 +482,7 @@ const AepsCWHistory = ({ onBack }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.consumerNumber}
+                            {transaction.companyId}
                           </span>
                         </td>
 
@@ -580,21 +492,10 @@ const AepsCWHistory = ({ onBack }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {transaction.companyLogo ? (
-                              <img
-                                src={transaction.companyLogo}
-                                alt={transaction.companyName}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-                            )}
-                          </div>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                        <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                        {transaction.merchantLoginId}
+                        </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
@@ -629,13 +530,12 @@ const AepsCWHistory = ({ onBack }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
-                              transaction.status === "Success"
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${transaction.status === "Success"
                                 ? "bg-[#039155] text-white"
                                 : transaction.status === "Pending"
                                   ? "bg-orange-500/80 text-white"
                                   : "bg-red-500/80 text-white"
-                            }`}
+                              }`}
                           >
                             {transaction.status}
                           </span>
@@ -687,11 +587,10 @@ const AepsCWHistory = ({ onBack }) => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${
-                  currentPage === page
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${currentPage === page
                     ? "bg-[#039155] text-white"
                     : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {page}
               </button>
