@@ -109,7 +109,7 @@ const DTHReport = ({ onBack }) => {
 
     return dataArray.map((item, index) => {
       const srNo = (currentPage - 1) * itemsPerPage + index + 1;
-      
+
       // Normalize status: API returns "SUCCESS" or "FAILURE", but UI expects "Success", "Failed", "Pending"
       let normalizedStatus = "Pending";
       if (item.status) {
@@ -123,7 +123,7 @@ const DTHReport = ({ onBack }) => {
           normalizedStatus = item.status;
         }
       }
-      
+
       // Map operator from opcode or apiResponse
       let operator = "N/A";
       if (item.apiResponse?.operatorName) {
@@ -131,21 +131,26 @@ const DTHReport = ({ onBack }) => {
       } else if (item.opcode) {
         // Map opcode to operator name if needed
         const opcodeMap = {
-          "TTV": "Tata Sky",
-          "ATV": "Airtel Digital TV",
-          "DTV": "Dish TV",
-          "STV": "Sun Direct",
-          "VTV": "Videocon D2H",
+          TTV: "Tata Sky",
+          ATV: "Airtel Digital TV",
+          DTV: "Dish TV",
+          STV: "Sun Direct",
+          VTV: "Videocon D2H",
         };
         operator = opcodeMap[item.opcode] || item.opcode;
       }
-      
+
       // Get API message from apiResponse or item
-      const apiMessage = item.apiResponse?.message || item.message || item.apiResponse?.opid || item.opid || "N/A";
-      
+      const apiMessage =
+        item.apiResponse?.message ||
+        item.message ||
+        item.apiResponse?.opid ||
+        item.opid ||
+        "N/A";
+
       // Get DR amount from apiResponse
       const drAmount = item.apiResponse?.dr_amount || 0;
-      
+
       return {
         srNo,
         id: item.id || `dth-${index}`,
@@ -153,7 +158,8 @@ const DTHReport = ({ onBack }) => {
         orderId: item.orderid || "N/A",
         name: item.user?.name || "N/A",
         userId: item.user?.userId || "N/A",
-        mobileNo: item.dthNumber || item.mobileNumber || item.user?.mobileNo || "N/A",
+        mobileNo:
+          item.dthNumber || item.mobileNumber || item.user?.mobileNo || "N/A",
         operator: operator,
         opcode: item.opcode || "N/A",
         circle: item.circle || "N/A",
@@ -279,7 +285,7 @@ const DTHReport = ({ onBack }) => {
               </button>
             ))}
 
-          <button
+            <button
               onClick={() => {
                 setFromDate("");
                 setToDate("");
@@ -310,7 +316,7 @@ const DTHReport = ({ onBack }) => {
                   isReloading && isLoading ? "animate-spin" : ""
                 }`}
               />
-          </button>
+            </button>
           </div>
         </div>
       </div>
@@ -328,11 +334,14 @@ const DTHReport = ({ onBack }) => {
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
             />
-        </div>
+          </div>
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label htmlFor="fromDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="fromDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               From Date
             </label>
             <input
@@ -342,11 +351,14 @@ const DTHReport = ({ onBack }) => {
               onChange={(e) => setFromDate(e.target.value)}
               className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
             />
-        </div>
+          </div>
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label htmlFor="toDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="toDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               To Date
             </label>
             <input
@@ -393,157 +405,170 @@ const DTHReport = ({ onBack }) => {
             );
           }
           return (
-          <div className="w-full overflow-x-auto overscroll-x-contain">
-            <table className="w-full border-collapse min-w-full">
-              <thead className="bg-[#FFFFFF] border-b border-gray-200">
-                <tr>
-                  <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    SR No
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Transaction ID
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Order ID
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Name
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    User ID
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    DTH Number
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Operator
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Opcode
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Circle
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Amount
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    DR Amount
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Commission
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Status
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    TXID
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    OPID
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    API Message
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Date
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Updated Date
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Updated Time
-                  </th>
-                </tr>
-              </thead>
-
-              <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedTransactions.map((transaction) => (
-                  <tr
-                    key={transaction.id}
-                    className="hover:bg-gray-50 transition-colors"
-                  >
-                    <td className="px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.srNo}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.transactionId}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.orderId}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.name}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.userId}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.mobileNo}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.operator}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.opcode}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.circle}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                      ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                      ₹{Number.parseFloat(transaction.drAmount || 0).toFixed(2)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
-                      ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4">
-                      <span
-                        className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
-                          transaction.status,
-                        )}`}
-                      >
-                        {transaction.status}
-                      </span>
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.txid}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.opid}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717] max-w-xs truncate" title={transaction.apiMessage}>
-                      {transaction.apiMessage}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {formatDate(transaction.date)}
-                    </td>       
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.updatedDate ? formatDate(transaction.updatedDate) : "N/A"}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.updatedDate ? formatTime(transaction.updatedDate) : "N/A"}
-                    </td>
+            <div className="w-full overflow-x-auto overscroll-x-contain">
+              <table className="w-full border-collapse min-w-full">
+                <thead className="bg-[#FFFFFF] border-b border-[#1B1717]/50 text-center">
+                  <tr>
+                    <th className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      SR No
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Transaction ID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Order ID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Name
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      User ID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      DTH Number
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-left font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Operator
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Opcode
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Circle
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Amount
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      DR Amount
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Commission
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm  font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      TXID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-left font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      OPID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm text-left font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      API Message
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Date
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Updated Date
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
+                      Updated Time
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {paginatedTransactions.map((transaction) => (
+                    <tr
+                      key={transaction.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.srNo}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.transactionId}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
+                        {transaction.orderId}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                        {transaction.name}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.userId}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
+                        {transaction.mobileNo}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
+                        {transaction.operator}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.opcode}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.circle}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        ₹
+                        {Number.parseFloat(transaction.drAmount || 0).toFixed(
+                          2,
+                        )}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        ₹
+                        {Number.parseFloat(transaction.commission || 0).toFixed(
+                          2,
+                        )}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
+                            transaction.status,
+                          )}`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                        {transaction.txid}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                        {transaction.opid}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                        {transaction.apiMessage}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {formatDate(transaction.date)}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.updatedDate
+                          ? formatDate(transaction.updatedDate)
+                          : "N/A"}
+                      </td>
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.updatedDate
+                          ? formatTime(transaction.updatedDate)
+                          : "N/A"}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           );
         })()}
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-            <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
+          <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            {/* <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
               {(() => {
-                const start = paginatedTransactions.length > 0 ? (apiCurrentPage - 1) * itemsPerPage + 1 : 0;
+                const start =
+                  paginatedTransactions.length > 0
+                    ? (apiCurrentPage - 1) * itemsPerPage + 1
+                    : 0;
                 const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
                 return `Showing ${start} to ${end} of ${totalCount} entries`;
               })()}
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-2">
               <button
@@ -592,8 +617,8 @@ const DTHReport = ({ onBack }) => {
               >
                 <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
+            </div>
           </div>
-        </div>
         )}
       </div>
     </div>
@@ -609,5 +634,3 @@ DTHReport.defaultProps = {
 };
 
 export default DTHReport;
-
-

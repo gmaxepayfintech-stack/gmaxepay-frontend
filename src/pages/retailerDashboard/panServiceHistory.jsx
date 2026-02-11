@@ -328,7 +328,6 @@ const PanServiceHistory = ({ onBack }) => {
                 <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
               </div>
             </button>
-g
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
                 Pan Service History
