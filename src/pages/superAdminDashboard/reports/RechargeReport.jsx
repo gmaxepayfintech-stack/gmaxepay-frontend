@@ -125,7 +125,12 @@ const RechargeReport = ({ onBack }) => {
       }
 
       // Get API message from apiResponse or item
-      const apiMessage = item.apiResponse?.message || item.message || item.apiResponse?.opid || item.opid || "N/A";
+      const apiMessage =
+        item.apiResponse?.message ||
+        item.message ||
+        item.apiResponse?.opid ||
+        item.opid ||
+        "N/A";
 
       // Get DR amount from apiResponse
       const drAmount = item.apiResponse?.dr_amount || 0;
@@ -253,10 +258,11 @@ const RechargeReport = ({ onBack }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
-                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                  }`}
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
+                  statusFilter === status
+                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                }`}
               >
                 {status}
               </button>
@@ -289,8 +295,9 @@ const RechargeReport = ({ onBack }) => {
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
-                  }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
+                  isReloading && isLoading ? "animate-spin" : ""
+                }`}
               />
             </button>
           </div>
@@ -314,7 +321,10 @@ const RechargeReport = ({ onBack }) => {
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label htmlFor="fromDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="fromDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               From Date
             </label>
             <input
@@ -328,7 +338,10 @@ const RechargeReport = ({ onBack }) => {
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label htmlFor="toDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="toDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               To Date
             </label>
             <input
@@ -377,63 +390,63 @@ const RechargeReport = ({ onBack }) => {
           return (
             <div className="w-full overflow-x-auto overscroll-x-contain">
               <table className="w-full border-collapse min-w-full">
-                <thead className="bg-[#FFFFFF] border-b border-gray-200">
+                <thead className="bg-[#FFFFFF] border-b border-[#1B1717]/50 text-center">
                   <tr>
-                    <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-5 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       SR No
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Transaction ID
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Order ID
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Name
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       User ID
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Mobile Number
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Operator
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Opcode
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Circle
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Amount
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       DR Amount
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Commission
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Status
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       TXID
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       OPID
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-left text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       API Message
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Date
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Updated Date
                     </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Updated Time
                     </th>
                   </tr>
@@ -445,43 +458,70 @@ const RechargeReport = ({ onBack }) => {
                       key={transaction.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {/* Default Cell Style Applied Everywhere */}
+                      {/* You can reuse this class for cleaner code */}
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {transaction.srNo}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
                         {transaction.transactionId}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
                         {transaction.orderId}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      {/* Name (Truncated Properly) */}
+                      <td
+                        className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                        title={transaction.name}
+                      >
                         {transaction.name}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
                         {transaction.userId}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {transaction.mobileNo}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {transaction.operator}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {transaction.opcode}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {transaction.circle}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
+
+                      {/* Amount - Right aligned */}
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                        ₹{Number.parseFloat(transaction.drAmount || 0).toFixed(2)}
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        ₹
+                        {Number.parseFloat(transaction.drAmount || 0).toFixed(
+                          2,
+                        )}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
-                        ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        ₹
+                        {Number.parseFloat(transaction.commission || 0).toFixed(
+                          2,
+                        )}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4">
+
+                      {/* Status */}
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-center whitespace-nowrap">
                         <span
                           className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
                             transaction.status,
@@ -490,23 +530,45 @@ const RechargeReport = ({ onBack }) => {
                           {transaction.status}
                         </span>
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      {/* TXID */}
+                      <td
+                        className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                        title={transaction.txid}
+                      >
                         {transaction.txid}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      {/* OPID */}
+                      <td
+                        className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                        title={transaction.opid}
+                      >
                         {transaction.opid}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717] max-w-xs truncate" title={transaction.apiMessage}>
+
+                      {/* API Message */}
+                      <td
+                        className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis"
+                        title={transaction.apiMessage}
+                      >
                         {transaction.apiMessage}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                         {formatDate(transaction.date)}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                        {transaction.updatedDate ? formatDate(transaction.updatedDate) : "N/A"}
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.updatedDate
+                          ? formatDate(transaction.updatedDate)
+                          : "N/A"}
                       </td>
-                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                        {transaction.updatedDate ? formatTime(transaction.updatedDate) : "N/A"}
+
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                        {transaction.updatedDate
+                          ? formatTime(transaction.updatedDate)
+                          : "N/A"}
                       </td>
                     </tr>
                   ))}
@@ -518,14 +580,17 @@ const RechargeReport = ({ onBack }) => {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-            <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
+          <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            {/* <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
               {(() => {
-                const start = paginatedTransactions.length > 0 ? (apiCurrentPage - 1) * itemsPerPage + 1 : 0;
+                const start =
+                  paginatedTransactions.length > 0
+                    ? (apiCurrentPage - 1) * itemsPerPage + 1
+                    : 0;
                 const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
                 return `Showing ${start} to ${end} of ${totalCount} entries`;
               })()}
-            </div>
+            </div> */}
 
             <div className="flex items-center gap-2">
               <button
@@ -553,10 +618,11 @@ const RechargeReport = ({ onBack }) => {
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                      }`}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                      apiCurrentPage === pageNum
+                        ? "bg-[#039155] text-white"
+                        : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                    }`}
                   >
                     {pageNum}
                   </button>
