@@ -13,8 +13,8 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import TransactioDetails from "./TransactioDetails";
 import {
-  getAepsCwHistory,
   getAepsTransactionDetails,
+  getAepsCwHistoryCompany,
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
@@ -32,9 +32,9 @@ const AepsCWHistory = ({ onBack }) => {
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
     useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (company AEPS CW history)
   const aepsCwHistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
+    (state) => state?.aeps?.aepsCwHistoryCompany,
   );
   const apiData = aepsCwHistoryResponse?.data || [];
   const paginator = aepsCwHistoryResponse?.paginator || {};
@@ -223,7 +223,7 @@ const AepsCWHistory = ({ onBack }) => {
       },
     };
 
-    dispatch(getAepsCwHistory(payload));
+    dispatch(getAepsCwHistoryCompany(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -375,7 +375,7 @@ const AepsCWHistory = ({ onBack }) => {
                   },
                 };
 
-                dispatch(getAepsCwHistory(payload));
+                dispatch(getAepsCwHistoryCompany(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
