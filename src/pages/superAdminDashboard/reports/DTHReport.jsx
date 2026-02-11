@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
-  Download,
   Share,
   ChevronLeft,
   ChevronRight,
@@ -27,9 +26,10 @@ const DTHReport = ({ onBack }) => {
   const rechargeReportResponse = useSelector(
     (state) => state?.reports?.adminTransaction,
   );
-  const apiData = rechargeReportResponse?.adminTransaction?.data || [];
-  const paginator = rechargeReportResponse?.adminTransaction?.paginator || {};
-  const totalCount = rechargeReportResponse?.adminTransaction?.total || 0;
+  const apiData = rechargeReportResponse?.data || [];
+  const paginator = rechargeReportResponse?.paginator || {};
+  const totalCount = rechargeReportResponse?.total || 0;
+  const itemsPerPage = paginator.perPage || 10;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Debounce search query
@@ -46,10 +46,10 @@ const DTHReport = ({ onBack }) => {
   const getSearchField = (query) => {
     const trimmedQuery = query.trim();
 
-    // Check if it's a mobile number (10 digits)
-    if (/^\d{10}$/.test(trimmedQuery)) {
-      // API expects mobileNumber
-      return { mobileNumber: trimmedQuery };
+    // Check if it's a DTH number (10-12 digits) or mobile number (10 digits)
+    if (/^\d{10,12}$/.test(trimmedQuery)) {
+      // API expects dthNumber for DTH service
+      return { dthNumber: trimmedQuery };
     }
 
     // Otherwise treat as transactionId (alphanumeric)
@@ -108,20 +108,50 @@ const DTHReport = ({ onBack }) => {
     }
 
     return dataArray.map((item, index) => {
-      const srNo = (currentPage - 1) * 10 + index + 1;
+      const srNo = (currentPage - 1) * itemsPerPage + index + 1;
+      
+      // Normalize status: API returns "SUCCESS" or "FAILURE", but UI expects "Success", "Failed", "Pending"
+      let normalizedStatus = "Pending";
+      if (item.status) {
+        const statusUpper = item.status.toUpperCase();
+        if (statusUpper === "SUCCESS") {
+          normalizedStatus = "Success";
+        } else if (statusUpper === "FAILURE" || statusUpper === "FAILED") {
+          normalizedStatus = "Failed";
+        } else if (statusUpper !== "PENDING") {
+          // Only update if it's not PENDING (which is already the default)
+          normalizedStatus = item.status;
+        }
+      }
+      
+      // Map operator from opcode or apiResponse
+      let operator = "N/A";
+      if (item.apiResponse?.operatorName) {
+        operator = item.apiResponse.operatorName;
+      } else if (item.opcode) {
+        // Map opcode to operator name if needed
+        const opcodeMap = {
+          "TTV": "Tata Sky",
+          "ATV": "Airtel Digital TV",
+          "DTV": "Dish TV",
+          "STV": "Sun Direct",
+          "VTV": "Videocon D2H",
+        };
+        operator = opcodeMap[item.opcode] || item.opcode;
+      }
       
       return {
         srNo,
-        id: item.id || item._id || `recharge-${index}`,
-        transactionId: item.transactionId || item.referenceId || "N/A",
-        name: item.name || item.userName || "N/A",
-        mobileNo: item.mobileNo || item.mobile || "N/A",
-        operator: item.operator || item.operatorName || "N/A",
-        amount: item.amount || item.rechargeAmount || 0,
-        status: item.status || item.txnStatus || "Pending",
-        commission: item.commission || item.commissionAmount || 0,
-        date: item.createdAt || item.date || new Date().toISOString(),
-        userId: item.userId || item.agentCode || "N/A",
+        id: item.id || `dth-${index}`,
+        transactionId: item.transactionId || item.orderid || "N/A",
+        name: item.user?.name || "N/A",
+        mobileNo: item.dthNumber || item.mobileNumber || item.user?.mobileNo || "N/A",
+        operator: operator,
+        amount: item.amount || 0,
+        status: normalizedStatus,
+        commission: item.retailerCom || 0,
+        date: item.createdAt || new Date().toISOString(),
+        userId: item.user?.userId || "N/A",
         circle: item.circle || "N/A",
       };
     });
@@ -140,12 +170,11 @@ const DTHReport = ({ onBack }) => {
   });
 
   // Pagination settings - Use API pagination data
-  const itemsPerPage = paginator.paginate || 10;
   // Since API handles pagination, we use the filtered transactions directly
   const paginatedTransactions = filteredTransactions;
   // Use pagination info from API response
-  const totalPages = paginator.totalPages || 1;
-  const apiCurrentPage = paginator.page || currentPage;
+  const totalPages = paginator.pageCount || 1;
+  const apiCurrentPage = paginator.currentPage || currentPage;
 
   // Reset to page 1 when filter changes
   useEffect(() => {
@@ -163,6 +192,7 @@ const DTHReport = ({ onBack }) => {
         year: "numeric",
       });
     } catch (error) {
+      console.error("Error formatting date:", error);
       return "N/A";
     }
   };
@@ -177,6 +207,7 @@ const DTHReport = ({ onBack }) => {
         minute: "2-digit",
       });
     } catch (error) {
+      console.error("Error formatting time:", error);
       return "N/A";
     }
   };
@@ -279,7 +310,7 @@ const DTHReport = ({ onBack }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Transaction ID, Mobile Number, Name"
+              placeholder="Search By Transaction ID, DTH Number"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
@@ -288,10 +319,11 @@ const DTHReport = ({ onBack }) => {
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label htmlFor="fromDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
               From Date
             </label>
             <input
+              id="fromDate"
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
@@ -301,10 +333,11 @@ const DTHReport = ({ onBack }) => {
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label htmlFor="toDate" className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
               To Date
             </label>
             <input
+              id="toDate"
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
@@ -324,22 +357,29 @@ const DTHReport = ({ onBack }) => {
 
       {/* Transaction History Table */}
       <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden flex-1">
-        {isLoading && paginatedTransactions.length === 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="flex flex-col items-center gap-4">
-              <ButtonLoader color="#039155" size={40} thickness={4} />
-              <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-                Loading DTH recharge reports...
-              </p>
-            </div>
-          </div>
-        ) : paginatedTransactions.length === 0 ? (
-          <div className="flex items-center justify-center py-20">
-            <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
-              No DTH recharge transactions found
-            </p>
-        </div>
-        ) : (
+        {(() => {
+          if (isLoading && paginatedTransactions.length === 0) {
+            return (
+              <div className="flex items-center justify-center py-20">
+                <div className="flex flex-col items-center gap-4">
+                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                  <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
+                    Loading DTH recharge reports...
+                  </p>
+                </div>
+              </div>
+            );
+          }
+          if (paginatedTransactions.length === 0) {
+            return (
+              <div className="flex items-center justify-center py-20">
+                <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
+                  No DTH recharge transactions found
+                </p>
+              </div>
+            );
+          }
+          return (
           <div className="w-full overflow-x-auto overscroll-x-contain">
             <table className="w-full border-collapse min-w-full">
               <thead className="bg-[#FFFFFF] border-b border-gray-200">
@@ -354,7 +394,7 @@ const DTHReport = ({ onBack }) => {
                     Name
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Mobile Number
+                    DTH Number
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Operator
@@ -405,10 +445,10 @@ const DTHReport = ({ onBack }) => {
                       {transaction.circle}
                         </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                      ₹{parseFloat(transaction.amount || 0).toFixed(2)}
+                      ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
                         </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
-                      ₹{parseFloat(transaction.commission || 0).toFixed(2)}
+                      ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
                         </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <span
@@ -430,15 +470,18 @@ const DTHReport = ({ onBack }) => {
               </tbody>
             </table>
           </div>
-        )}
+          );
+        })()}
 
         {/* Pagination */}
         {totalPages > 1 && (
           <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
             <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
-              Showing {paginatedTransactions.length > 0 ? (apiCurrentPage - 1) * itemsPerPage + 1 : 0} to{" "}
-              {Math.min(apiCurrentPage * itemsPerPage, totalCount)} of{" "}
-              {totalCount} entries
+              {(() => {
+                const start = paginatedTransactions.length > 0 ? (apiCurrentPage - 1) * itemsPerPage + 1 : 0;
+                const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
+                return `Showing ${start} to ${end} of ${totalCount} entries`;
+              })()}
             </div>
 
             <div className="flex items-center gap-2">

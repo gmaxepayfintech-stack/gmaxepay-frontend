@@ -24,13 +24,14 @@ export const rechargeReportsAdmin = (payload) => async (dispatch) => {
       }
     );
 
-    const { data: adminTransaction, status, message } = response?.data ?? {};
+    const responseData = response?.data ?? {};
+    const { status, message } = responseData;
     if (status === "SUCCESS") {
       dispatch({
         type: ADMIN_TXN_REPORT_SUCCESS,
-        payload: { adminTransaction, status, message },
+        payload: responseData,
       });
-      return { adminTransaction, status, message };
+      return responseData;
     } else {
       dispatch({
         type: ADMIN_TXN_REPORT_FAILURE,
