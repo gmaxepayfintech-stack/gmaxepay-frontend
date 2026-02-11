@@ -3,6 +3,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
 import AepsCWHistory from "./AepsCWHistory";
 import { motion } from "framer-motion";
+import RechargeReport from "./reports/RechargeReport";
+import PanReport from "./reports/PanReport";
+import DTHReport from "./reports/DTHReport";
+
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -16,6 +20,9 @@ const TaxHistory = () => {
     viewHistory === "aeps-cw-history" ||
     viewHistory === "aeps-ms-history" ||
     viewHistory === "aeps-be-history";
+  const showRechargeHistory = viewHistory === "recharge-history";
+  const showDthHistory = viewHistory === "dth-history";
+  const showPanServiceHistory = viewHistory === "pan-service-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -150,13 +157,30 @@ const TaxHistory = () => {
       available: true,
       category: "Utility Payment",
     },
-
+    {
+      id: 29,
+      title: "Mobile Recharge History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history",
+      category: "Utility Payment",
+    },
+    {
+      id: 30,
+      title: "DTH Recharge History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history",
+      category: "Utility Payment",
+    },
+    
     // E-Governance
     {
       id: 17,
       title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
+      viewKey: "pan-service-history",
       category: "E-Governance",
     },
     {
@@ -242,6 +266,7 @@ const TaxHistory = () => {
       available: true,
       category: "Verification History",
     },
+    
   ];
 
   useEffect(() => {
@@ -262,8 +287,7 @@ const TaxHistory = () => {
 
   const paginatedCards = filteredCards.slice(startIndex, endIndex);
 
-  // If AepsCWHistory should be shown, render it
-
+  // If a specific history should be shown, render the matching report
   if (showAepsHistory) {
     return (
       <AepsCWHistory
@@ -273,14 +297,30 @@ const TaxHistory = () => {
     );
   }
 
+  if (showRechargeHistory) {
+    return (
+      <RechargeReport
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showDthHistory) {
+    return <DTHReport />;
+  }
+
+  if (showPanServiceHistory) {
+    return <PanReport />;
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-1 sm:p-2 md:p-3 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-4 sm:mb-6">
-        <h1 className="text-lg sm:text-xl md:text-2xl text-[#1B1717] mb-1 sm:mb-2 font-[gilroy-medium]">
+        <h1 className="text-lg sm:text-xl md:text-2xl text-[#1B1717] mb-1 sm:mb-2 font-[Gilroy-Medium]">
           Transaction History
         </h1>
-        <p className="text-sm sm:text-base md:text-lg text-[#1B1717]/80 font-[gilroy-regular]">
+        <p className="text-sm sm:text-base md:text-lg text-[#1B1717]/80 font-[Gilroy-Regular]">
           Manage And Track All Your Transactions
         </p>
       </div>
@@ -312,7 +352,7 @@ const TaxHistory = () => {
                 {/* Text */}
                 <span
                   className={`relative z-10 text-xs sm:text-sm md:text-base
-              font-[gilroy-semibold] whitespace-nowrap
+              font-[Gilroy-Semibold] whitespace-nowrap
               ${
                 activeTab === tab
                   ? "text-white"
@@ -341,7 +381,7 @@ const TaxHistory = () => {
                 </div>
                 <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white border border-[#039155]/50 px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-[8px] md:h-[8px] rounded-full bg-[#039155]" />
-                  <span className="text-[#039155] text-[9px] sm:text-[11px] font-[gilroy-semibold] whitespace-nowrap">
+                  <span className="text-[#039155] text-[9px] sm:text-[11px] font-[Gilroy-Semibold] whitespace-nowrap">
                     Active
                   </span>
                 </div>
@@ -350,23 +390,23 @@ const TaxHistory = () => {
               {/* White Body */}
               <div className="p-3 sm:p-4 md:p-5 flex-grow flex flex-col">
                 <div className="mb-3 sm:mb-4 flex-grow">
-                  <h3 className="font-[gilroy-semibold] sm:text-lg md:text-xl text-[#1B1717] mb-1.5 sm:mb-2">
+                  <h3 className="font-[Gilroy-Semibold] sm:text-lg md:text-xl text-[#1B1717] mb-1.5 sm:mb-2">
                     {card.title}
                   </h3>
 
                   {/* FIRST subtitle */}
-                  <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-regullar] mb-2 sm:mb-4">
-                    {card.subtitle}
+                  <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Regullar] mb-2 sm:mb-4">
+                    History
                   </p>
 
                   <div className="flex items-center justify-between gap-2">
                     {/* SECOND subtitle */}
-                    <p className="text-sm sm:text-base font-[gilroy-semibold] text-[#1B1717] truncate">
+                    <p className="text-sm sm:text-base font-[Gilroy-Semibold] text-[#1B1717] truncate">
                       {card.subtitle}
                     </p>
 
                     {card.available && (
-                      <span className="text-xs sm:text-sm text-[#039155] font-[gilroy-medium] whitespace-nowrap flex-shrink-0">
+                      <span className="text-xs sm:text-sm text-[#039155] font-[Gilroy-Medium] whitespace-nowrap flex-shrink-0">
                         Available
                       </span>
                     )}
@@ -382,7 +422,7 @@ const TaxHistory = () => {
                       );
                     }
                   }}
-                  className="w-full bg-[#039155] text-white py-2 rounded-xl font-[gilroy-semibold]"
+                  className="w-full bg-[#039155] text-white py-2 rounded-xl font-[Gilroy-Semibold]"
                 >
                   View History
                 </button>
@@ -405,7 +445,7 @@ const TaxHistory = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${
                 currentPage === page
                   ? "bg-[#039155] text-white"
                   : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
