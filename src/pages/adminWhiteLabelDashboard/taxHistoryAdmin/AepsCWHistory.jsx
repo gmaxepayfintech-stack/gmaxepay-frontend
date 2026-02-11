@@ -441,14 +441,14 @@ const AepsCWHistory = ({ onBack }) => {
             </thead>
             {!isLoading && (
               <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedTransactions.length > 0 ? (
-                  paginatedTransactions.map((transaction, index) => {
-                    const currentPosition =
-                      (apiCurrentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
-                    const srNo = String(reverseSrNo).padStart(2, "0");
+              {paginatedTransactions.length > 0 ? (
+                paginatedTransactions.map((transaction, index) => {
+                  // Show API 'id' if present; otherwise fall back to simple ascending SR no
+                  const fallbackSrNo =
+                    (apiCurrentPage - 1) * itemsPerPage + index + 1;
+                  const srNo = transaction.id ?? fallbackSrNo;
 
-                    return (
+                  return (
                       <tr
                         key={transaction.id}
                         className={`transition-colors ${
