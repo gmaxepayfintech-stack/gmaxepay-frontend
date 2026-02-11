@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
 import AepsCWHistory from "./AepsCWHistory";
 import { motion } from "framer-motion";
+import RechargeReport from "../Reports/RechargeReport";
+import DTHReport from "../Reports/DTHReport";
+import PanReport from "../Reports/PanReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -13,7 +16,13 @@ const TaxHistory = () => {
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  const showAepsCWHistory = viewHistory === "aeps-cw-history";
+  const showAepsHistory =
+    viewHistory === "aeps-cw-history" ||
+    viewHistory === "aeps-ms-history" ||
+    viewHistory === "aeps-be-history";
+  const showRechargeHistory = viewHistory === "recharge-history";
+  const showDthHistory = viewHistory === "dth-history";
+  const showPanServiceHistory = viewHistory === "pan-service-history";
 
   const tabs = [
     "Banking",
@@ -32,6 +41,7 @@ const TaxHistory = () => {
       title: "AEPS CW History",
       subtitle: "Cash History",
       available: true,
+      viewKey: "aeps-cw-history",
       category: "Banking",
     },
     {
@@ -39,6 +49,7 @@ const TaxHistory = () => {
       title: "AePS MS History",
       subtitle: "Mini Statement",
       available: true,
+      viewKey: "aeps-cw-history",
       category: "Banking",
     },
     {
@@ -46,6 +57,7 @@ const TaxHistory = () => {
       title: "AePS BE History",
       subtitle: "Balance Enquiry",
       available: true,
+      viewKey: "aeps-cw-history",
       category: "Banking",
     },
     {
@@ -120,6 +132,22 @@ const TaxHistory = () => {
       available: true,
       category: "Utility Payment",
     },
+    {
+      id: 29,
+      title: "Mobile Recharge History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history",
+      category: "Utility Payment",
+    },
+    {
+      id: 30,
+      title: "DTH Recharge History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history",
+      category: "Utility Payment",
+    },
 
     // E-Governance
     {
@@ -127,6 +155,7 @@ const TaxHistory = () => {
       title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
+      viewKey: "pan-service-history",
       category: "E-Governance",
     },
     {
@@ -249,10 +278,29 @@ const TaxHistory = () => {
   const paginatedCards = filteredCards.slice(startIndex, endIndex);
 
   // If AepsCWHistory should be shown, render it
-  if (showAepsCWHistory) {
+  if (showAepsHistory) {
     return (
-      <AepsCWHistory onBack={() => navigate("/superDashboard/txn-history")} />
+      <AepsCWHistory
+        type={viewHistory} // optional: pass which AEPS history
+        onBack={() => navigate("/masterDistributerDashboard/tax-history")}
+      />
     );
+  }
+
+  if (showRechargeHistory) {
+    return (
+      <RechargeReport
+        onBack={() => navigate("/masterDistributerDashboard/tax-history")}
+      />
+    );
+  }
+
+  if (showDthHistory) {
+    return <DTHReport />;
+  }
+
+  if (showPanServiceHistory) {
+    return <PanReport />;
   }
 
   return (
@@ -358,9 +406,9 @@ const TaxHistory = () => {
                 {/* View History Button */}
                 <button
                   onClick={() => {
-                    if (card.title === "AEPS CW History") {
+                    if (card.viewKey) {
                       navigate(
-                        "/masterDistributerDashboard/tax-history?view=aeps-cw-history",
+                        `/masterDistributerDashboard/tax-history?view=${card.viewKey}`,
                       );
                     }
                   }}

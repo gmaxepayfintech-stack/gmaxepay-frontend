@@ -311,7 +311,9 @@ const TaxHistory = () => {
   }
   if (showRechargeHistory) {
     return (
-      <RechargeReport onBack={() => navigate("/superDashboard/txn-history")} />
+      <RechargeReport
+        onBack={() => navigate("/distributerDashboard/tax-history")}
+      />
     );
   }
 
