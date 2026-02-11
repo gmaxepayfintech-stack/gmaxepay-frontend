@@ -36,7 +36,9 @@ import PaymentHandle from "./mainPage/paymentHandle";
 import OnboardingById from "./onboarding/[id]/index";
 import Welcome from "./userOnboarding/welcome";
 import RetailerOnboarding from "./userOnboarding/[id]";
+import DigilockerAadhaarVerification from "./onboardingKycVerification/digilockerAadhaarVerification";
 import { statsBuffer } from "framer-motion";
+import DigilockerPanVerification from "./onboardingKycVerification/digilockerPanVerification";
 
 function App() {
   const { showNotification } = useNotification();
@@ -215,7 +217,7 @@ function App() {
 
   useEffect(() => {
     if (error && error !== prevErrorRef.current) {
-console.log('error', error);
+      console.log("error", error);
       if (prevErrorRef.current !== null) {
         showNotification({
           type: "error",
@@ -630,6 +632,14 @@ console.log('error', error);
               <RetailerOnboarding />
             </ProtectedOnboardingRoute>
           }
+        />
+        <Route
+          path="/digilocker-aadhaar-verification"
+          element={<DigilockerAadhaarVerification />}
+        />
+        <Route
+          path="/digilocker-pan-verification"
+          element={<DigilockerPanVerification />}
         />
 
         <Route
