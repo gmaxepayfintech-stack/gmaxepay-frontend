@@ -3,21 +3,14 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
-  Download,
   Share,
-  User,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
-import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
-import TransactioDetails from "./TransactioDetails";
-import {
-  getAepsCwHistory,
-  getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { ButtonLoader } from "../../widgets/layout/loader";
+import { rechargeReportsUser } from "../../redux/action/reportAction";
 
 const PanServiceHistory = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -25,188 +18,61 @@ const PanServiceHistory = ({ onBack }) => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
 
-  // Get data from Redux
-  const aepsCwHistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
+  // Get data from Redux (user transaction reports)
+  const rechargeReportResponse = useSelector(
+    (state) => state?.reports?.userTransaction,
   );
-  const apiData = aepsCwHistoryResponse?.data || [];
-  const paginator = aepsCwHistoryResponse?.paginator || {};
-  const totalCount = aepsCwHistoryResponse?.total || 0;
+  const apiData = rechargeReportResponse?.data || [];
+  const paginator = rechargeReportResponse?.paginator || {};
+  const totalCount = rechargeReportResponse?.total || 0;
+  const itemsPerPage = paginator.perPage || 10;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
-
-  // Transform API response data to table format
-  const transformApiData = (dataArray) => {
-    if (!Array.isArray(dataArray) || dataArray.length === 0) {
-      return [];
-    }
-
-    return dataArray.map((item, index) => {
-      // Format date from API
-      let formattedDate = "N/A";
-      if (item.createdAt) {
-        const date = new Date(item.createdAt);
-        formattedDate = date
-          .toLocaleDateString("en-GB", {
-            day: "2-digit",
-            month: "2-digit",
-            year: "2-digit",
-          })
-          .replace(/\//g, "-");
-      }
-
-      // Format amount with currency symbol
-      const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
-
-      // Map status from API to display format
-      const getStatusDisplay = (status) => {
-        if (!status) return "Pending";
-        const statusUpper = status.toUpperCase();
-        if (statusUpper === "SUCCESS") return "Success";
-        if (statusUpper === "FAILED" || statusUpper === "FAILURE")
-          return "Failed";
-        return "Pending";
-      };
-
-      // Map capture type to display format
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeUpper = captureType.toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return captureType;
-      };
-
-      // Map user role number to text
-      const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        // If it's already a string, return as is
-        return userRole || "N/A";
-      };
-
-      // Extract user details from item
-      const userDetails = item.userDetails || {};
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
-      const profileImage = userDetails.profileImage || null;
-      const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
-      const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
-
-      return {
-        id: item.id,
-        refId: item.refId || item.addedBy || "N/A",
-        name: userName,
-        userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
-        mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
-        companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
-        taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
-        amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
-        status: getStatusDisplay(item.status),
-        createdAt: formattedDate,
-        originalItem: item, // Store full item for details
-      };
-    });
-  };
-
-  // Function to determine search field based on input pattern
-  const getSearchField = (searchValue) => {
-    const trimmedValue = searchValue.trim();
-    if (!trimmedValue) return null;
-
-    // Check if it starts with "CW" (FP Transaction ID pattern)
-    if (/^CW/i.test(trimmedValue)) {
-      return { fpTransactionId: trimmedValue };
-    }
-
-    // Check if it's a 10-digit phone number
-    if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue };
-    }
-
-    // Check if it's 11-20 digits (Bank RRN pattern)
-    if (/^\d{11,20}$/.test(trimmedValue)) {
-      return { bankRRN: trimmedValue };
-    }
-
-    // Check if it's all letters and spaces with no numbers (Name pattern)
-    // Must be checked before transaction ID to avoid false matches
-    if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
-      return { name: trimmedValue };
-    }
-
-    // Check if it matches transaction ID pattern (3-4 capital letters at start, then alphanumeric with numbers)
-    // Pattern: 3-4 capital letters at start, followed by alphanumeric that includes numbers
-    // Example: ZPAY2512191006CEEFB5 (ZPAY = 4 caps, then has numbers)
-    if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
-      return { transactionId: trimmedValue };
-    }
-
-    // Default: if pattern doesn't match, try as transactionId
-    return { transactionId: trimmedValue };
-  };
 
   // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setCurrentPage(1); // Reset to first page when search changes
+      setCurrentPage(1); // Reset to first page on search
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch data from API
-  useEffect(() => {
-    // Only make API call if both dates are selected OR both are null
-    // Don't call if only one date is selected
-    const bothDatesSelected = fromDate && toDate;
-    const bothDatesNull = !fromDate && !toDate;
+  // Helper function to determine search field based on input pattern
+  const getSearchField = (query) => {
+    const trimmedQuery = query.trim();
 
-    if (!bothDatesSelected && !bothDatesNull) {
-      return;
+    // Check if it's a mobile number (10 digits)
+    if (/^\d{10}$/.test(trimmedQuery)) {
+      // For PAN service, API might expect mobile_number
+      return { mobileNumber: trimmedQuery };
     }
 
+    // Otherwise treat as transactionId (alphanumeric)
+    if (trimmedQuery) {
+      return { transactionId: trimmedQuery };
+    }
+
+    // No search
+    return {};
+  };
+
+  // Fetch PAN service reports
+  useEffect(() => {
     const query = {
-      aepsTxnType: "CW",
+      // API expects serviceType: "Pan"
+      serviceType: "Pan",
     };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
-      // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
-      query.startDate = fromDate.replace(/-/g, "/");
-      query.endDate = toDate.replace(/-/g, "/");
+      // Format date as YYYY-MM-DD (backend will handle format)
+      query.startDate = fromDate;
+      query.endDate = toDate;
     }
 
     // Get the appropriate search field based on input pattern
@@ -220,11 +86,12 @@ const PanServiceHistory = ({ onBack }) => {
       options: {
         page: currentPage,
         paginate: 10,
-        sort: { createdAt: -1 },
+        // As per API contract: sort by id desc
+        sort: { id: -1 },
       },
     };
 
-    dispatch(getAepsCwHistory(payload));
+    dispatch(rechargeReportsUser(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -233,6 +100,58 @@ const PanServiceHistory = ({ onBack }) => {
       setIsReloading(false);
     }
   }, [isLoading, isReloading]);
+
+  // Transform API data to table format
+  const transformApiData = (dataArray) => {
+    if (!Array.isArray(dataArray) || dataArray.length === 0) {
+      return [];
+    }
+
+    return dataArray.map((item, index) => {
+      const srNo = (currentPage - 1) * itemsPerPage + index + 1;
+
+      // Normalize status: API returns "SUCCESS" or "FAILURE", but UI expects "Success", "Failed", "Pending"
+      let normalizedStatus = "Pending";
+      if (item.status) {
+        const statusUpper = item.status.toUpperCase();
+        if (statusUpper === "SUCCESS") {
+          normalizedStatus = "Success";
+        } else if (statusUpper === "FAILURE" || statusUpper === "FAILED") {
+          normalizedStatus = "Failed";
+        } else if (statusUpper !== "PENDING") {
+          // Only update if it's not PENDING (which is already the default)
+          normalizedStatus = item.status;
+        }
+      }
+
+      // Get amount from apiResponse (as string) or fallback to item.amount
+      let amount = 0;
+      if (item.apiResponse?.amount) {
+        amount = Number.parseFloat(item.apiResponse.amount) || 0;
+      } else if (item.amount) {
+        amount = Number.parseFloat(item.amount) || 0;
+      }
+
+      return {
+        srNo,
+        id: item.id || `pan-${index}`,
+        transactionId: item.transactionId || item.orderid || "N/A",
+        name: item.user?.name || "N/A",
+        mobileNo:
+          item.mobile_number ||
+          item.mobileNumber ||
+          item.user?.mobileNo ||
+          "N/A",
+        operator: "N/A", // Not applicable for PAN service
+        amount: amount,
+        status: normalizedStatus,
+        commission: item.retailerCom || 0,
+        date: item.createdAt || new Date().toISOString(),
+        userId: item.user?.userId || "N/A",
+        circle: "N/A", // Not applicable for PAN service
+      };
+    });
+  };
 
   // Transform API data
   const transactions = apiData.length > 0 ? transformApiData(apiData) : [];
@@ -247,7 +166,6 @@ const PanServiceHistory = ({ onBack }) => {
   });
 
   // Pagination settings - Use API pagination data
-  const itemsPerPage = paginator.perPage || 10;
   // Since API handles pagination, we use the filtered transactions directly
   const paginatedTransactions = filteredTransactions;
   // Use pagination info from API response
@@ -259,60 +177,49 @@ const PanServiceHistory = ({ onBack }) => {
     setCurrentPage(1);
   }, [statusFilter]);
 
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
+  // Format date for display
+  const formatDate = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString("en-GB", {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+      });
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "N/A";
     }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
   };
 
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Format time for display
+  const formatTime = (dateString) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleTimeString("en-GB", {
+        hour: "2-digit",
+        minute: "2-digit",
+      });
+    } catch (error) {
+      console.error("Error formatting time:", error);
+      return "N/A";
+    }
+  };
 
-  // If TransactionDetails should be shown, render it
-  if (showTransactionDetails) {
-    return (
-      <TransactioDetails
-        transactionId={selectedTransactionId}
-        onBack={() => {
-          setShowTransactionDetails(false);
-          setSelectedTransactionId(null);
-          setIsLoadingTransactionDetails(false);
-        }}
-      />
-    );
-  }
+  // Get status badge color
+  const getStatusBadgeColor = (status) => {
+    const statusLower = (status || "").toLowerCase();
+    if (statusLower === "success" || statusLower === "completed") {
+      return "bg-[#039155] text-white";
+    } else if (statusLower === "pending" || statusLower === "processing") {
+      return "bg-yellow-500 text-white";
+    } else if (statusLower === "failed" || statusLower === "failure") {
+      return "bg-red-500 text-white";
+    }
+    return "bg-gray-500 text-white";
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
@@ -328,13 +235,13 @@ const PanServiceHistory = ({ onBack }) => {
                 <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
               </div>
             </button>
-g
+
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                Pan Service History
+                PAN Service History
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
-                Manage And Track All Your Transactions
+                Manage And Track All PAN Service Transactions
               </p>
             </div>
           </div>
@@ -345,11 +252,10 @@ g
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                     ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                     : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -361,7 +267,7 @@ g
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { aepsTxnType: "CW" };
+                const query = { serviceType: "Pan" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -372,19 +278,18 @@ g
                   options: {
                     page: currentPage,
                     paginate: 10,
-                    sort: { createdAt: -1 },
+                    sort: { id: -1 },
                   },
                 };
 
-                dispatch(getAepsCwHistory(payload));
+                dispatch(rechargeReportsUser(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -399,7 +304,7 @@ g
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Reference,ID"
+              placeholder="Search By Transaction ID, Mobile Number, Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
@@ -408,10 +313,14 @@ g
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="fromDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               From Date
             </label>
             <input
+              id="fromDate"
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
@@ -421,10 +330,14 @@ g
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label
+              htmlFor="toDate"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+            >
               To Date
             </label>
             <input
+              id="toDate"
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
@@ -443,273 +356,190 @@ g
       </div>
 
       {/* Transaction History Table */}
-      <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden">
-        <div className="w-full overflow-x-auto overscroll-x-contain">
-          <table className="w-full border-collapse min-w-full">
-            <thead className="bg-[#FFFFFF] border-b border-gray-200">
-              <tr>
-                <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  SR No
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Profile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Name
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  User Role
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Mobile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Consumer Number
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Name
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Logo
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Bank Name
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Tax ID
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Bank RRN
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Amount
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  VIA
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Status
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Created At
-                </th>
-              </tr>
-            </thead>
-            {!isLoading && (
-              <tbody className="bg-white divide-y divide-gray-200">
-                {paginatedTransactions.length > 0 ? (
-                  paginatedTransactions.map((transaction, index) => {
-                    const currentPosition =
-                      (apiCurrentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
-                    const srNo = String(reverseSrNo).padStart(2, "0");
-
-                    return (
-                      <tr
-                        key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
-                        }`}
-                      >
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {srNo}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleProfileClick(transaction.id)}
-                            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
-                          >
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                              {transaction.profileImage ? (
-                                <>
-                                  <img
-                                    src={transaction.profileImage}
-                                    alt={transaction.name || "Profile"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      if (e.target.nextElementSibling) {
-                                        e.target.nextElementSibling.style.display =
-                                          "flex";
-                                      }
-                                    }}
-                                  />
-                                  <div className="w-full h-full hidden items-center justify-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                  </div>
-                                </>
-                              ) : (
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                              )}
-                            </div>
-                          </button>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.name}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.userRole}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.mobileNo}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.consumerNumber}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.companyName}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {transaction.companyLogo ? (
-                              <img
-                                src={transaction.companyLogo}
-                                alt={transaction.companyName}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-                            )}
-                          </div>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.bankName}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.taxId}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.bankRRN}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-medium">
-                            {transaction.amount}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.via}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${
-                              transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
-                            }`}
-                          >
-                            {transaction.status}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.createdAt}
-                          </span>
-                        </td>
-                      </tr>
-                    );
-                  })
-                ) : (
+      <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden flex-1">
+        {(() => {
+          if (isLoading && paginatedTransactions.length === 0) {
+            return (
+              <div className="flex items-center justify-center py-20">
+                <div className="flex flex-col items-center gap-4">
+                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                  <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
+                    Loading PAN service reports...
+                  </p>
+                </div>
+              </div>
+            );
+          }
+          if (paginatedTransactions.length === 0) {
+            return (
+              <div className="flex items-center justify-center py-20">
+                <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
+                  No PAN service transactions found
+                </p>
+              </div>
+            );
+          }
+          return (
+            <div className="w-full overflow-x-auto overscroll-x-contain">
+              <table className="w-full border-collapse min-w-full">
+                <thead className="bg-[#FFFFFF] border-b border-gray-200">
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
-                      <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
-                        No transactions found
-                      </p>
-                    </td>
+                    <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      SR No
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Transaction ID
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Name
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Mobile Number
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Operator
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Circle
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Amount
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Commission
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Date
+                    </th>
+                    <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                      Time
+                    </th>
                   </tr>
-                )}
-              </tbody>
-            )}
-          </table>
-        </div>
-      </div>
+                </thead>
 
-      {/* Loading / Pagination (unchanged) */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
-          <ButtonLoader color="#039155" size={24} thickness={3} />
-          <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading...
-          </p>
-        </div>
-      ) : (
-        totalPages > 0 && (
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {paginatedTransactions.map((transaction) => (
+                    <tr
+                      key={transaction.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.srNo}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.transactionId}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.name}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.mobileNo}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.operator}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {transaction.circle}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
+                        ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
+                        ₹
+                        {Number.parseFloat(transaction.commission || 0).toFixed(
+                          2,
+                        )}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4">
+                        <span
+                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
+                            transaction.status,
+                          )}`}
+                        >
+                          {transaction.status}
+                        </span>
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {formatDate(transaction.date)}
+                      </td>
+                      <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                        {formatTime(transaction.date)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          );
+        })()}
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+            <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
+              {(() => {
+                const start =
+                  paginatedTransactions.length > 0
+                    ? (apiCurrentPage - 1) * itemsPerPage + 1
+                    : 0;
+                const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
+                return `Showing ${start} to ${end} of ${totalCount} entries`;
+              })()}
+            </div>
+
+            <div className="flex items-center gap-2">
               <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${
-                  currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                }`}
+                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                disabled={apiCurrentPage === 1 || isLoading}
+                className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Previous page"
               >
-                {page}
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               </button>
-            ))}
 
-            <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+              {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                let pageNum;
+                if (totalPages <= 5) {
+                  pageNum = i + 1;
+                } else if (apiCurrentPage <= 3) {
+                  pageNum = i + 1;
+                } else if (apiCurrentPage >= totalPages - 2) {
+                  pageNum = totalPages - 4 + i;
+                } else {
+                  pageNum = apiCurrentPage - 2 + i;
+                }
+
+                return (
+                  <button
+                    key={pageNum}
+                    onClick={() => setCurrentPage(pageNum)}
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
+                        ? "bg-[#039155] text-white"
+                        : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                      }`}
+                  >
+                    {pageNum}
+                  </button>
+                );
+              })}
+
+              <button
+                onClick={() =>
+                  setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                }
+                disabled={apiCurrentPage === totalPages || isLoading}
+                className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                aria-label="Next page"
+              >
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
           </div>
-        )
-      )}
+        )}
+      </div>
     </div>
   );
 };
