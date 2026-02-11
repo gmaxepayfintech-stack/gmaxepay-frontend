@@ -492,10 +492,10 @@ const AepsCWHistory = ({ onBack }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {transaction.merchantLoginId}
-                          </div>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                        <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                        {transaction.merchantLoginId}
+                        </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">

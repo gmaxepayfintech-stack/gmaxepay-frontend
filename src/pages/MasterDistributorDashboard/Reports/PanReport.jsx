@@ -9,9 +9,8 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
+import { rechargeReportsUser } from "../../../redux/action/reportAction";
 const PanReport = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
@@ -22,9 +21,9 @@ const PanReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (user transaction reports)
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.userTransaction,
   );
   const apiData = rechargeReportResponse?.data || [];
   const paginator = rechargeReportResponse?.paginator || {};
@@ -91,7 +90,7 @@ const PanReport = ({ onBack }) => {
       },
     };
 
-    dispatch(rechargeReportsAdmin(payload));
+    dispatch(rechargeReportsUser(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -296,7 +295,7 @@ const PanReport = ({ onBack }) => {
                   },
                 };
 
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(rechargeReportsUser(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
