@@ -21,9 +21,9 @@ const RechargeReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (company transaction reports)
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.companyTransaction,
   );
   const apiData = rechargeReportResponse?.data || [];
   const paginator = rechargeReportResponse?.paginator || {};
