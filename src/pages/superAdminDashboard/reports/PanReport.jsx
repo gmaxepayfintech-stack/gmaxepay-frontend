@@ -132,10 +132,14 @@ const PanReport = ({ onBack }) => {
         amount = Number.parseFloat(item.amount) || 0;
       }
       
+      // Get API message from apiResponse
+      const apiMessage = item.apiResponse?.message || item.apiResponse?.opid || item.message || "N/A";
+      
       return {
         srNo,
         id: item.id || `pan-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
+        orderId: item.orderid || "N/A",
         name: item.user?.name || "N/A",
         mobileNo: item.mobile_number || item.mobileNumber || item.user?.mobileNo || "N/A",
         operator: "N/A", // Not applicable for PAN service
@@ -145,6 +149,11 @@ const PanReport = ({ onBack }) => {
         date: item.createdAt || new Date().toISOString(),
         userId: item.user?.userId || "N/A",
         circle: "N/A", // Not applicable for PAN service
+        action: item.action || "N/A",
+        redirectUrl: item.redirect_url || item.apiResponse?.url || "N/A",
+        apiMessage: apiMessage,
+        txid: item.apiResponse?.txid || item.txid || "N/A",
+        responseType: item.apiResponse?.response_type || "N/A",
       };
     });
   };
@@ -383,16 +392,19 @@ const PanReport = ({ onBack }) => {
                     Transaction ID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Order ID
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Name
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    User ID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Mobile Number
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Operator
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Circle
+                    Action
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Amount
@@ -402,6 +414,15 @@ const PanReport = ({ onBack }) => {
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Status
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    TXID
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    API Message
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Redirect URL
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Date
@@ -425,23 +446,28 @@ const PanReport = ({ onBack }) => {
                       {transaction.transactionId}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.orderId}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.name}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.userId}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.mobileNo}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.operator}
-                        </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.circle}
-                        </td>
+                      <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 capitalize">
+                        {transaction.action}
+                      </span>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                       ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
-                        </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
                       ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
-                        </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
@@ -450,10 +476,33 @@ const PanReport = ({ onBack }) => {
                       >
                         {transaction.status}
                       </span>
-                      </td>
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.txid}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717] max-w-xs truncate" title={transaction.apiMessage}>
+                      {transaction.apiMessage}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.redirectUrl !== "N/A" ? (
+                        <a
+                          href={transaction.redirectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline truncate block max-w-xs"
+                          title={transaction.redirectUrl}
+                        >
+                          {transaction.redirectUrl.length > 30
+                            ? `${transaction.redirectUrl.substring(0, 30)}...`
+                            : transaction.redirectUrl}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatDate(transaction.date)}
-                      </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatTime(transaction.date)}
                     </td>
