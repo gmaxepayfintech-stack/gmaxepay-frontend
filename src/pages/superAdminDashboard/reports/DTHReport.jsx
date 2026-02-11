@@ -449,9 +449,6 @@ const DTHReport = ({ onBack }) => {
                     Date
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Time
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Updated Date
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -522,10 +519,7 @@ const DTHReport = ({ onBack }) => {
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatDate(transaction.date)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {formatTime(transaction.date)}
-                    </td>
+                    </td>       
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.updatedDate ? formatDate(transaction.updatedDate) : "N/A"}
                     </td>

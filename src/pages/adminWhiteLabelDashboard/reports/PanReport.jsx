@@ -12,7 +12,6 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { rechargeReportsCompany } from "../../../redux/action/reportAction";
 
-
 const PanReport = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
