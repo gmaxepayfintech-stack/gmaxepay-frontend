@@ -116,7 +116,7 @@ export const rechargeReportsUser = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/recharge/getUserRechargeReports`,
+      `${API_ROUTE}/api/v1/user/recharge/rechargeReports`,
       payload,
       {
         headers: {
