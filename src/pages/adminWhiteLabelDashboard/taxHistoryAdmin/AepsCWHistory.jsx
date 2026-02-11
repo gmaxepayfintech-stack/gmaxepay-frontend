@@ -11,9 +11,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import TransactioDetails from "./TransactioDetails";
 import {
-  getAepsTransactionDetails,
   getAepsCwHistoryCompany,
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
@@ -24,13 +22,9 @@ const AepsCWHistory = ({ onBack }) => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
 
   // Get data from Redux (company AEPS CW history)
   const aepsCwHistoryResponse = useSelector(
@@ -40,9 +34,6 @@ const AepsCWHistory = ({ onBack }) => {
   const paginator = aepsCwHistoryResponse?.paginator || {};
   const totalCount = aepsCwHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -97,22 +88,33 @@ const AepsCWHistory = ({ onBack }) => {
         return userRole || "N/A";
       };
 
-      // Extract user details from item
+      // Extract user details from item (company response usually has none)
       const userDetails = item.userDetails || {};
+
+      // Prefer consumerNumber as a readable identifier, then fall back
       const userName =
+        item.consumerNumber ||
         userDetails.name ||
         item.name ||
         item.userName ||
         `User ${item.refId || item.addedBy || index + 1}`;
+
       const userRoleValue =
         userDetails.userRole !== undefined
           ? userDetails.userRole
           : item.userRole !== undefined
             ? item.userRole
             : null;
+
       const profileImage = userDetails.profileImage || null;
+
       const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
+        userDetails.mobileNo ||
+        item.mobileNo ||
+        item.mobile ||
+        item.consumerNumber ||
+        "N/A";
+
       const consumerNumber =
         item.consumerNumber || item.consumerAadhaarNumber || "N/A";
 
@@ -124,17 +126,18 @@ const AepsCWHistory = ({ onBack }) => {
         profileImage: profileImage,
         mobileNo: mobileNo,
         consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
+        // Company response doesn't include companyName/logo; use operator as a friendly name
+        companyName: item.companyName || item.operator || "N/A",
         companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
+        bankName: item.bankName || item.bankiin || "N/A",
         taxId: item.transactionId || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
+        bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
         via: getViaDisplay(item.captureType),
         status: getStatusDisplay(item.status),
         createdAt: formattedDate,
-        originalItem: item, // Store full item for details
+        originalItem: item,
       };
     });
   };
@@ -257,61 +260,6 @@ const AepsCWHistory = ({ onBack }) => {
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter]);
-
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
-  };
-
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // If TransactionDetails should be shown, render it
-  if (showTransactionDetails) {
-    return (
-      <TransactioDetails
-        transactionId={selectedTransactionId}
-        onBack={() => {
-          setShowTransactionDetails(false);
-          setSelectedTransactionId(null);
-          setIsLoadingTransactionDetails(false);
-        }}
-      />
-    );
-  }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
@@ -451,9 +399,6 @@ const AepsCWHistory = ({ onBack }) => {
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Profile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -516,38 +461,6 @@ const AepsCWHistory = ({ onBack }) => {
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {srNo}
                           </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleProfileClick(transaction.id)}
-                            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
-                          >
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                              {transaction.profileImage ? (
-                                <>
-                                  <img
-                                    src={transaction.profileImage}
-                                    alt={transaction.name || "Profile"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      if (e.target.nextElementSibling) {
-                                        e.target.nextElementSibling.style.display =
-                                          "flex";
-                                      }
-                                    }}
-                                  />
-                                  <div className="w-full h-full hidden items-center justify-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                  </div>
-                                </>
-                              ) : (
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                              )}
-                            </div>
-                          </button>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
