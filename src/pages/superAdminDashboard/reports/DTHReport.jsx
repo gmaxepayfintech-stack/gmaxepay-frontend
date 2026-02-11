@@ -140,19 +140,32 @@ const DTHReport = ({ onBack }) => {
         operator = opcodeMap[item.opcode] || item.opcode;
       }
       
+      // Get API message from apiResponse or item
+      const apiMessage = item.apiResponse?.message || item.message || item.apiResponse?.opid || item.opid || "N/A";
+      
+      // Get DR amount from apiResponse
+      const drAmount = item.apiResponse?.dr_amount || 0;
+      
       return {
         srNo,
         id: item.id || `dth-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
+        orderId: item.orderid || "N/A",
         name: item.user?.name || "N/A",
+        userId: item.user?.userId || "N/A",
         mobileNo: item.dthNumber || item.mobileNumber || item.user?.mobileNo || "N/A",
         operator: operator,
+        opcode: item.opcode || "N/A",
+        circle: item.circle || "N/A",
         amount: item.amount || 0,
+        drAmount: drAmount,
         status: normalizedStatus,
         commission: item.retailerCom || 0,
+        txid: item.apiResponse?.txid || item.txid || "N/A",
+        opid: item.apiResponse?.opid || item.opid || "N/A",
+        apiMessage: apiMessage,
         date: item.createdAt || new Date().toISOString(),
-        userId: item.user?.userId || "N/A",
-        circle: item.circle || "N/A",
+        updatedDate: item.updatedAt || null,
       };
     });
   };
@@ -391,7 +404,13 @@ const DTHReport = ({ onBack }) => {
                     Transaction ID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Order ID
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Name
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    User ID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     DTH Number
@@ -400,10 +419,16 @@ const DTHReport = ({ onBack }) => {
                     Operator
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Opcode
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Circle
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Amount
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    DR Amount
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Commission
@@ -412,10 +437,25 @@ const DTHReport = ({ onBack }) => {
                     Status
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    TXID
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    OPID
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    API Message
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Time
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Updated Date
+                  </th>
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Updated Time
                   </th>
                 </tr>
               </thead>
@@ -433,23 +473,35 @@ const DTHReport = ({ onBack }) => {
                       {transaction.transactionId}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.orderId}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.name}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.userId}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.mobileNo}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.operator}
-                        </td>
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.opcode}
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.circle}
-                        </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                       ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
-                        </td>
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
+                      ₹{Number.parseFloat(transaction.drAmount || 0).toFixed(2)}
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
                       ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
-                        </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4">
                       <span
                         className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
@@ -458,12 +510,27 @@ const DTHReport = ({ onBack }) => {
                       >
                         {transaction.status}
                       </span>
-                      </td>
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.txid}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.opid}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717] max-w-xs truncate" title={transaction.apiMessage}>
+                      {transaction.apiMessage}
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatDate(transaction.date)}
-                      </td>
+                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatTime(transaction.date)}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.updatedDate ? formatDate(transaction.updatedDate) : "N/A"}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.updatedDate ? formatTime(transaction.updatedDate) : "N/A"}
                     </td>
                   </tr>
                 ))}
