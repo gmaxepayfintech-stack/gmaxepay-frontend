@@ -1,4 +1,4 @@
-import { ADMIN_TXN_REPORT_SUCCESS } from "../actionType/reportsActionType";
+import { ADMIN_TXN_REPORT_SUCCESS, COMPANY_TXN_REPORT_SUCCESS } from "../actionType/reportsActionType";
 
 const initialState = {
     loading: false,
@@ -7,6 +7,7 @@ const initialState = {
     message: null,
     success: null,
     adminTransaction: null,
+    companyTransaction: null,
 };
 
 const reportsReducer = (state = initialState, action) => {
@@ -19,7 +20,15 @@ const reportsReducer = (state = initialState, action) => {
                 status: action?.payload?.status,
                 message: action?.payload?.message,
             }
-
+            case COMPANY_TXN_REPORT_SUCCESS:
+                return{
+                    ...state,
+                    error: action?.payload?.error,
+                    companyTransaction: action?.payload,
+                    status: action?.payload?.status,
+                    message: action?.payload?.message,
+                }
+                
         default:
             return state;
     }
