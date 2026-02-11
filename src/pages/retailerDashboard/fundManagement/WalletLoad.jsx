@@ -22,6 +22,7 @@ const WalletLoad = () => {
   const fileInputRef = useRef(null);
   const [previewUrl, setPreviewUrl] = useState(null);
   const [fileError, setFileError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fetch banks on component mount
   useEffect(() => {
@@ -412,7 +413,7 @@ const WalletLoad = () => {
           <div className="bg-white rounded-3xl shadow-sm p-[18px] sm:p-[18px] lg:p-[18px] flex flex-col">
             <div className="mb-4">
               <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
-              Master Accounts
+                Master Accounts
               </h2>
               <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
                 Select A Bank To View Details To Transfer
@@ -420,76 +421,98 @@ const WalletLoad = () => {
             </div>
 
             <div className="space-y-[16px] flex-1 overflow-y-auto pr-2 mb-6">
-              {banks.map((bank) => (
-                <div
-                  key={bank.id}
-                  role="button"
-                  tabIndex={0}
-                  onClick={() => setSelectedBank(bank.id)}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" || e.key === " ") {
-                      e.preventDefault();
-                      setSelectedBank(bank.id);
-                    }
-                  }}
-                  className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${
-                    selectedBank === bank.id
-                      ? "border-[#039155] bg-green-50"
-                      : "border-[#1B1717] border-opacity-80 bg-white"
-                  }`}
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Bank Logo */}
-                    <div className="w-34 h-10 flex items-center justify-center shrink-0">
-                      <img
-                        src={bank.bankImage || bank.logo}
-                        alt={bank.bankName || bank.name}
-                        className="w-28 h-12 object-contain"
-                        onError={(e) => {
-                          e.target.style.display = "none";
-                        }}
-                      />
-                    </div>
-
-                    {/* Bank Details */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-[2px]">
-                        <p className="text-[13px] font-medium text-gray-900 leading-tight">
-                          Bank Name: {bank.bankName}
-                        </p>
-
-                        {selectedBank === bank.id && (
-                          <div className="w-[20px] h-[20px] rounded-full bg-[#039155] flex items-center justify-center shrink-0">
-                            <div className="w-[6px] h-[6px] rounded-full bg-white" />
-                          </div>
-                        )}
+              {loading && banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    Loading banks...
+                  </p>
+                </div>
+              ) : banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    No banks available
+                  </p>
+                </div>
+              ) : (
+                banks.map((bank) => (
+                  <div
+                    key={bank.BankId}
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSelectedBank(bank.bankId)}
+                    // onKeyDown={(e) => {
+                    //   if (e.key === "Enter" || e.key === " ") {
+                    //     e.preventDefault();
+                    //     setSelectedBank(bank.id);
+                    //   }
+                    // }}
+                    className={`p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all ${
+                      selectedBank === bank.bankId
+                        ? "border-[#039155] bg-green-50"
+                        : "border-[#1B1717] border-opacity-80 bg-white"
+                    }`}
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Bank Logo */}
+                      <div className="w-34 h-10 flex items-center justify-center shrink-0">
+                        <img
+                          src={bank.bankImage || bank.logo}
+                          alt={bank.bankName || bank.name}
+                          className="w-28 h-12 object-contain"
+                          onError={(e) => {
+                            e.target.style.display = "none";
+                          }}
+                        />
                       </div>
 
-                      <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
-                        Account Number:{" "}
-                        <span className="text-[#1B1717]">
-                          {bank.accountNumber}
-                        </span>
-                      </p>
+                      {/* Bank Details */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-[2px]">
+                          <p className="text-[13px] font-medium text-gray-900 leading-tight">
+                            Bank Name: {bank.bankName}
+                          </p>
 
-                      <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
-                        IFSC Code:{" "}
-                        <span className="text-[#1B1717]">{bank.ifscCode}</span>
-                      </p>
+                          {selectedBank === bank.bankId && (
+                            <div className="w-[20px] h-[20px] rounded-full bg-[#039155] flex items-center justify-center shrink-0">
+                              <div className="w-[6px] h-[6px] rounded-full bg-white" />
+                            </div>
+                          )}
+                        </div>
+
+                        <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                          Account Number:{" "}
+                          <span className="text-[#1B1717]">
+                            {bank.accountNumber}
+                          </span>
+                        </p>
+
+                        {/* <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                          IFSC Code:{" "}
+                          <span className="text-[#1B1717]">
+                            {bank.ifscCode}
+                          </span>
+                        </p> */}
+                        {bank.isPrimary && (
+                          <p className="text-[10px] font-['Gilroy-Medium'] text-[#039155] leading-tight mt-1">
+                            Primary Account
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                ))
+              )}
             </div>
 
             {/* Submit Button */}
             <div className="mt-auto pt-4 ">
               <button
-                type="submit"
+                type="button"
                 onClick={handleSubmit}
-                className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm"
+                disabled={isSubmitting || !selectedBank}
+                className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Submit
+                {isSubmitting ? "Submitting..." : "Submit"}
               </button>
             </div>
           </div>

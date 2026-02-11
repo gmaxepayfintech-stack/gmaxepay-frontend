@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
 import AepsCWHistory from "./AepsCWHistory";
 import { motion } from "framer-motion";
+import MobileRechargeHistory from "./mobileRechargeHistory";
+import DthRechargeHistory from "./dthRechargeHIstory";
+import PanServiceHistory from "./panServiceHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -17,6 +20,13 @@ const TaxHistory = () => {
     viewHistory === "aeps-cw-history" ||
     viewHistory === "aeps-ms-history" ||
     viewHistory === "aeps-be-history";
+
+  const showMobileRechargeHistory = viewHistory === "mobile-recharge-history";
+
+  const showDthRechargeHistory = viewHistory === "dth-recharge-history";
+
+  const showPanServiceHistory = viewHistory === "pan-service-history";
+
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -149,24 +159,42 @@ const TaxHistory = () => {
       available: true,
       category: "Utility Payment",
     },
+    {
+      id: 17,
+      title: "Mobile Recharge",
+      subtitle: "Mobile Recharge Payments",
+      available: true,
+      category: "Utility Payment",
+      viewKey: "mobile-recharge-history",
+    },
+    {
+      id: 18,
+      title: "DTH Recharge",
+      subtitle: "DTH Recharge Payments",
+      available: true,
+      category: "Utility Payment",
+      viewKey: "dth-recharge-history",
+    },
 
     // E-Governance
     {
-      id: 17,
+      id: 19,
       title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
       category: "E-Governance",
+      viewKey: "pan-service-history",
     },
+
     {
-      id: 18,
+      id: 20,
       title: "Aadhaar KYC History",
       subtitle: "Aadhaar e-KYC",
       available: true,
       category: "E-Governance",
     },
     {
-      id: 19,
+      id: 21,
       title: "GST Payment History",
       subtitle: "GST & Tax Payments",
       available: true,
@@ -175,21 +203,21 @@ const TaxHistory = () => {
 
     // Insurance
     {
-      id: 20,
+      id: 22,
       title: "Life Insurance History",
       subtitle: "Life Policy Payments",
       available: true,
       category: "Insurance",
     },
     {
-      id: 21,
+      id: 23,
       title: "Health Insurance History",
       subtitle: "Health Policy Payments",
       available: true,
       category: "Insurance",
     },
     {
-      id: 22,
+      id: 24,
       title: "Vehicle Insurance History",
       subtitle: "Motor Policy Payments",
       available: true,
@@ -198,21 +226,21 @@ const TaxHistory = () => {
 
     // Travel
     {
-      id: 23,
+      id: 25,
       title: "Flight Booking History",
       subtitle: "Flight Tickets",
       available: true,
       category: "Travel",
     },
     {
-      id: 24,
+      id: 26,
       title: "Bus Booking History",
       subtitle: "Bus Tickets",
       available: true,
       category: "Travel",
     },
     {
-      id: 25,
+      id: 27,
       title: "Train Booking History",
       subtitle: "Railway Tickets",
       available: true,
@@ -221,21 +249,21 @@ const TaxHistory = () => {
 
     // Verification History
     {
-      id: 26,
+      id: 28,
       title: "KYC Verification History",
       subtitle: "Customer KYC Logs",
       available: true,
       category: "Verification History",
     },
     {
-      id: 27,
+      id: 29,
       title: "Aadhaar Verification History",
       subtitle: "Aadhaar Verification Logs",
       available: true,
       category: "Verification History",
     },
     {
-      id: 28,
+      id: 30,
       title: "PAN Verification History",
       subtitle: "PAN Verification Logs",
       available: true,
@@ -282,6 +310,30 @@ const TaxHistory = () => {
     return (
       <AepsCWHistory
         type={viewHistory} // optional: pass which AEPS history
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showMobileRechargeHistory) {
+    return (
+      <MobileRechargeHistory
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showDthRechargeHistory) {
+    return (
+      <DthRechargeHistory
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showPanServiceHistory) {
+    return (
+      <PanServiceHistory
         onBack={() => navigate("/retailerDashboard/txn-history")}
       />
     );

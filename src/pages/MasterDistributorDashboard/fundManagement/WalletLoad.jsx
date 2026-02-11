@@ -305,12 +305,12 @@ const WalletLoad = () => {
 
                   {/* If file selected show preview */}
                   {paySlipFile ? (
-                    <div className="flex flex-col items-center gap-2 w-full">
+                    <div className="flex flex-col items-center gap-2">
                       {previewUrl ? (
                         <img
                           src={previewUrl}
                           alt="Pay Slip Preview"
-                          className="w-full h-auto object-contain"
+                          className="max-h-[120px] object-contain"
                         />
                       ) : (
                         <p className="text-sm text-[#1B1717]">
