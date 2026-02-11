@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -17,6 +17,10 @@ const initialState = {
     inspayWalletBalanceError: null,
     bbpsWalletBalance: null,
     bbpsWalletBalanceError: null,
+    dashboardStatistics: null,
+    dashboardStatisticsError: null,
+    userDashboardStatistics: null,
+    userDashboardStatisticsError: null,
     success: null,
     message: null,
 };
@@ -171,6 +175,50 @@ const walletReducer = (state = initialState, action) => {
                 ...state,
                 bbpsWalletBalance: null,
                 bbpsWalletBalanceError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case DASHBOARD_STATISTICS_SUCCESS:
+            return {
+                ...state,
+                dashboardStatistics: action?.payload,
+                dashboardStatisticsError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case DASHBOARD_STATISTICS_FAILURE:
+            return {
+                ...state,
+                dashboardStatistics: null,
+                dashboardStatisticsError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            };
+
+        case USER_DASHBOARD_STATISTICS_SUCCESS:
+            return {
+                ...state,
+                userDashboardStatistics: action?.payload,
+                userDashboardStatisticsError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            };
+
+        case USER_DASHBOARD_STATISTICS_FAILURE:
+            return {
+                ...state,
+                userDashboardStatistics: null,
+                userDashboardStatisticsError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,

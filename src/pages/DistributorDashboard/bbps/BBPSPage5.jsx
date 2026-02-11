@@ -64,7 +64,7 @@ const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
+      <div className="bg-white rounded-3xl border border-gray-200 p-6">
         <div className="space-y-8">
           {/* BILL DETAILS CARD */}
           <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-4">

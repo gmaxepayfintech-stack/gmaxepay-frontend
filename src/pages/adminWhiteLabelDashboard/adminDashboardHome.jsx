@@ -9,7 +9,11 @@ import {
   Bar,
   Tooltip,
 } from "recharts";
-import { getCompanyWalletBalance } from "../../redux/action/walletAction";
+import {
+  getCompanyWalletBalance,
+  getCompanyDashboardStatistics,
+} from "../../redux/action/walletAction";
+
 import { getLocationAndIP } from "../../util/getLocationAndIP";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { useNotification } from "../../context/NotificationContext";
@@ -60,16 +64,39 @@ const AdminDashboardHome = () => {
   const walletBalanceResponse = useSelector(
     (state) => state?.wallet?.companyWalletBalance,
   );
+  const companyDashboardStatisticsResponse = useSelector(
+    (state) => state?.wallet?.dashboardStatistics,
+  );
 
   const aeps = useSelector((state) => state);
   console.log(aeps, "aeps");
 
-  // Fetch wallet balance on component mount
+  // Fetch wallet balance + company dashboard statistics on component mount
   useEffect(() => {
     const fetchBalance = async () => {
       setIsWalletLoading(true);
       try {
         await dispatch(getCompanyWalletBalance());
+        const today = new Date();
+        const year = today.getFullYear();
+        const month = String(today.getMonth() + 1).padStart(2, "0");
+        const day = String(today.getDate()).padStart(2, "0");
+        const todayStr = `${year}-${month}-${day}`;
+
+        const statsPayload = {
+          query: {
+            fromDay: todayStr,
+            toDay: todayStr,
+          },
+          options: {
+            sort: { id: -1 },
+            page: 1,
+            paginate: 25,
+          },
+          customSearch: {},
+        };
+
+        await dispatch(getCompanyDashboardStatistics(statsPayload));
       } catch (error) {
         console.error("Failed to fetch wallet balance:", error);
       } finally {
@@ -94,114 +121,113 @@ const AdminDashboardHome = () => {
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
-    if (!value) return "₹0.00";
-    const numValue = parseFloat(value);
-    return `₹${numValue.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    if (value === null || value === undefined) return "₹0.00";
+    const numValue = parseFloat(value) || 0;
+    return `₹${numValue.toLocaleString("en-IN", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
   };
 
-  // Chart data for Recent Transaction
+  // Build chart and table data from company dashboard statistics
+  const services = companyDashboardStatisticsResponse?.data?.services;
+
+  const getService = (key) => services?.[key] || {};
+  const getVolume = (key) => getService(key).totalVolume || 0;
+
+  // Bar chart order: AEPS 1, AEPS 2, BBPS, Mobile, DTH, NSDL PAN, Payout
   const chartData = [
-    { name: "DMT", value: 2000 },
-    { name: "AEPS", value: 4000 },
-    { name: "BBPS", value: 7000 },
-    { name: "FastTag", value: 5000 },
-    { name: "CC", value: 1000 },
-    { name: "LIC", value: 4000 },
-    { name: "Recharge", value: 8000 },
-    { name: "UTI Pan", value: 7000 },
-    { name: "NSDL Pan", value: 2000 },
-    { name: "BIMA", value: 1000 },
-    { name: "GIBL", value: 7000 },
-  ];
-
-  // Transaction table data
-  const transactionData = [
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("aeps1").label || "AEPS 1",
+      value: getVolume("aeps1"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("aeps2").label || "AEPS 2",
+      value: getVolume("aeps2"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("bbps").label || "BBPS",
+      value: getVolume("bbps"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("mobile").label || "Mobile",
+      value: getVolume("mobile"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("dth").label || "DTH",
+      value: getVolume("dth"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("nsdlPan").label || "NSDL PAN",
+      value: getVolume("nsdlPan"),
     },
     {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
-    },
-    {
-      service: "Recharge",
-      volume: "3208",
-      count: "13",
-      success: "08",
-      failed: "02",
-      pending: "06",
+      name: getService("payout").label || "Payout",
+      value: getVolume("payout"),
     },
   ];
 
-  const kpiCards = [
-    {
-      title: "Master Distributor",
-      value: "238",
-      subtitle: "Today Member + 12",
-      icon: MasterDt,
-    },
-    {
-      title: "Distributor",
-      value: "138",
-      subtitle: "Today Member + 12",
-      icon: Distributor,
-    },
-    {
-      title: "Retailer",
-      value: "38",
-      subtitle: "Today Member + 12",
-      icon: Ratailer,
-    },
-  ];
+  const transactionData = chartData.map((item) => {
+    const serviceKeyMap = {
+      [getService("aeps1").label || "AEPS 1"]: "aeps1",
+      [getService("aeps2").label || "AEPS 2"]: "aeps2",
+      [getService("bbps").label || "BBPS"]: "bbps",
+      [getService("mobile").label || "Mobile"]: "mobile",
+      [getService("dth").label || "DTH"]: "dth",
+      [getService("nsdlPan").label || "NSDL PAN"]: "nsdlPan",
+      [getService("payout").label || "Payout"]: "payout",
+    };
+
+    const key = serviceKeyMap[item.name] || "";
+    const svc = getService(key);
+
+    return {
+      service: item.name,
+      volume: svc.totalVolume || 0,
+      count: svc.totalCount || 0,
+      success: svc.successCount || 0,
+      failed: svc.failedCount || 0,
+      pending: svc.pendingCount || 0,
+    };
+  });
+
+  // Total volume for header amount
+  const totalVolume = services
+    ? Object.values(services).reduce(
+        (sum, s) => sum + (s?.totalVolume || 0),
+        0,
+      )
+    : 0;
+
+  // Total commission for header amount
+  const totalCommission = companyDashboardStatisticsResponse?.data?.commissions?.totalCommission ?? 0;
+
+  const kpiCards = (() => {
+    const userStats = companyDashboardStatisticsResponse?.data?.userStats;
+    const total = userStats?.total;
+    const todayCreated = userStats?.todayCreated;
+
+    return [
+      {
+        title: "Master Distributor",
+        value: total?.masterDistributor ?? "0",
+        subtitle: `Today Member + ${todayCreated?.masterDistributor ?? 0}`,
+        icon: MasterDt,
+      },
+      {
+        title: "Distributor",
+        value: total?.distributor ?? "0",
+        subtitle: `Today Member + ${todayCreated?.distributor ?? 0}`,
+        icon: Distributor,
+      },
+      {
+        title: "Retailer",
+        value: total?.retailer ?? "0",
+        subtitle: `Today Member + ${todayCreated?.retailer ?? 0}`,
+        icon: Ratailer,
+      },
+    ];
+  })();
 
   const handlePayout = () => {
     setPayout(true);
@@ -434,11 +460,11 @@ const AdminDashboardHome = () => {
           <div className="mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
               <p className="text-lg sm:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                $4,21,40,238
+                {formatCurrency(totalCommission)}
               </p>
-              <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
+              {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
                 ▲ +0.24% Today
-              </span>
+              </span> */}
             </div>
           </div>
 
@@ -471,15 +497,15 @@ const AdminDashboardHome = () => {
                     tickLine={false}
                   />
                   <YAxis
-                    domain={[0, 8000]}
                     tick={{ fontSize: 12, fill: "#1B1717", fontWeight: 400 }}
-                    ticks={[0, 1000, 2000, 3000, 4000, 5000, 6000, 7000, 8000]}
+                    domain={[0, Math.max(1, Math.max(...chartData.map((d) => d.value || 0)) * 1.5)]}
                     width={40}
                     axisLine={false}
                     tickLine={false}
                   />
                   <Tooltip
                     cursor={false}
+                    formatter={(value) => [formatCurrency(value), "Volume"]}
                     contentStyle={{
                       backgroundColor: "#fff",
                       border: "1px solid #e5e7eb",

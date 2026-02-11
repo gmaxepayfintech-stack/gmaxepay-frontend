@@ -77,8 +77,8 @@ const BBPSPage1 = ({ onNext, onBack, formData, setFormData }) => {
       </div>
 
       {/* Content */}
-      <div className="bg-white rounded-xl border border-gray-200 p-6">
-        <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+      <div className="bg-white rounded-3xl border border-gray-200 p-6">
+        <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] mb-6">
           Information
         </div>
 
