@@ -3,6 +3,9 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
 import AepsCWHistory from "./AepsCWHistory";
 import { motion } from "framer-motion";
+import RechargeReport from "./Reports/RechargeReport";
+import DTHReport from "./Reports/DTHReport";
+import PanReport from "./Reports/PanReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -17,6 +20,9 @@ const TaxHistory = () => {
     viewHistory === "aeps-cw-history" ||
     viewHistory === "aeps-ms-history" ||
     viewHistory === "aeps-be-history";
+  const showRechargeHistory = viewHistory === "recharge-history";
+  const showDthHistory = viewHistory === "dth-history";
+  const showPanServiceHistory = viewHistory === "pan-service-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -149,6 +155,22 @@ const TaxHistory = () => {
       available: true,
       category: "Utility Payment",
     },
+    {
+      id: 29,
+      title: "Mobile Recharge History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history",
+      category: "Utility Payment",
+    },
+    {
+      id: 30,
+      title: "DTH Recharge History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history",
+      category: "Utility Payment",
+    },
 
     // E-Governance
     {
@@ -156,6 +178,7 @@ const TaxHistory = () => {
       title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
+      viewKey: "pan-service-history",
       category: "E-Governance",
     },
     {
@@ -285,6 +308,19 @@ const TaxHistory = () => {
         onBack={() => navigate("/distributerDashboard/tax-history")}
       />
     );
+  }
+  if (showRechargeHistory) {
+    return (
+      <RechargeReport onBack={() => navigate("/superDashboard/txn-history")} />
+    );
+  }
+
+  if (showDthHistory) {
+    return <DTHReport />;
+  }
+
+  if (showPanServiceHistory) {
+    return <PanReport />;
   }
 
   return (

@@ -70,6 +70,25 @@
   font-weight: 900;
   font-style: normal;
 }
+@font-face {
+  font-family: 'Grift-Medium';
+  src: url('/font/grift-medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Grift-Regular';
+  src: url('/font/grift-regular.otf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Grift-Bold';
+  src: url('/font/grift-bold.ttf') format('truetype');
+  font-weight: 600;
+  font-style: normal;
+}
 
 * {
   margin: 0;
