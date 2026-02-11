@@ -9,10 +9,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { rechargeReportsCompany } from "../../../redux/action/reportAction";
 
-const RechargeReport = ({ onBack }) => {
+const DTHReport = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -22,9 +22,9 @@ const RechargeReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (company transaction reports)
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.companyTransaction,
   );
   const apiData = rechargeReportResponse?.data || [];
   const paginator = rechargeReportResponse?.paginator || {};
@@ -46,10 +46,10 @@ const RechargeReport = ({ onBack }) => {
   const getSearchField = (query) => {
     const trimmedQuery = query.trim();
 
-    // Check if it's a mobile number (10 digits)
-    if (/^\d{10}$/.test(trimmedQuery)) {
-      // API expects mobileNumber
-      return { mobileNumber: trimmedQuery };
+    // Check if it's a DTH number (10-12 digits) or mobile number (10 digits)
+    if (/^\d{10,12}$/.test(trimmedQuery)) {
+      // API expects dthNumber for DTH service
+      return { dthNumber: trimmedQuery };
     }
 
     // Otherwise treat as transactionId (alphanumeric)
@@ -61,11 +61,11 @@ const RechargeReport = ({ onBack }) => {
     return {};
   };
 
-  // Fetch recharge reports
+  // Fetch DTH recharge reports
   useEffect(() => {
     const query = {
-      // API expects serviceType: "MobileRecharge"
-      serviceType: "MobileRecharge",
+      // API expects serviceType: "DTHRecharge"
+      serviceType: "DTHRecharge",
     };
 
     // Add date filters only if both dates are selected
@@ -91,7 +91,7 @@ const RechargeReport = ({ onBack }) => {
       },
     };
 
-    dispatch(rechargeReportsAdmin(payload));
+    dispatch(rechargeReportsCompany(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -124,6 +124,22 @@ const RechargeReport = ({ onBack }) => {
         }
       }
       
+      // Map operator from opcode or apiResponse
+      let operator = "N/A";
+      if (item.apiResponse?.operatorName) {
+        operator = item.apiResponse.operatorName;
+      } else if (item.opcode) {
+        // Map opcode to operator name if needed
+        const opcodeMap = {
+          "TTV": "Tata Sky",
+          "ATV": "Airtel Digital TV",
+          "DTV": "Dish TV",
+          "STV": "Sun Direct",
+          "VTV": "Videocon D2H",
+        };
+        operator = opcodeMap[item.opcode] || item.opcode;
+      }
+      
       // Get API message from apiResponse or item
       const apiMessage = item.apiResponse?.message || item.message || item.apiResponse?.opid || item.opid || "N/A";
       
@@ -132,13 +148,13 @@ const RechargeReport = ({ onBack }) => {
       
       return {
         srNo,
-        id: item.id || `recharge-${index}`,
+        id: item.id || `dth-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
         orderId: item.orderid || "N/A",
         name: item.user?.name || "N/A",
         userId: item.user?.userId || "N/A",
-        mobileNo: item.mobileNumber || "N/A",
-        operator: item.apiResponse?.operatorName || "N/A",
+        mobileNo: item.dthNumber || item.mobileNumber || item.user?.mobileNo || "N/A",
+        operator: operator,
         opcode: item.opcode || "N/A",
         circle: item.circle || "N/A",
         amount: item.amount || 0,
@@ -239,10 +255,10 @@ const RechargeReport = ({ onBack }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                Mobile Recharge History
+                DTH Recharge History
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
-                Manage And Track All Recharge Transactions
+                Manage And Track All DTH Recharge Transactions
               </p>
             </div>
           </div>
@@ -269,7 +285,7 @@ const RechargeReport = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "MobileRecharge" };
+                const query = { serviceType: "DTHRecharge" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -284,7 +300,7 @@ const RechargeReport = ({ onBack }) => {
                   },
                 };
 
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(rechargeReportsCompany(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -307,7 +323,7 @@ const RechargeReport = ({ onBack }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Transaction ID, Mobile Number, Name"
+              placeholder="Search By Transaction ID, DTH Number"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
@@ -361,7 +377,7 @@ const RechargeReport = ({ onBack }) => {
                 <div className="flex flex-col items-center gap-4">
                   <ButtonLoader color="#039155" size={40} thickness={4} />
                   <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-                    Loading recharge reports...
+                    Loading DTH recharge reports...
                   </p>
                 </div>
               </div>
@@ -371,13 +387,13 @@ const RechargeReport = ({ onBack }) => {
             return (
               <div className="flex items-center justify-center py-20">
                 <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
-                  No recharge transactions found
+                  No DTH recharge transactions found
                 </p>
               </div>
             );
           }
           return (
-            <div className="w-full overflow-x-auto overscroll-x-contain">
+          <div className="w-full overflow-x-auto overscroll-x-contain">
             <table className="w-full border-collapse min-w-full">
               <thead className="bg-[#FFFFFF] border-b border-gray-200">
                 <tr>
@@ -397,7 +413,7 @@ const RechargeReport = ({ onBack }) => {
                     User ID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Mobile Number
+                    DTH Number
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Operator
@@ -520,7 +536,7 @@ const RechargeReport = ({ onBack }) => {
                 ))}
               </tbody>
             </table>
-            </div>
+          </div>
           );
         })()}
 
@@ -590,12 +606,16 @@ const RechargeReport = ({ onBack }) => {
   );
 };
 
-RechargeReport.propTypes = {
+DTHReport.propTypes = {
   onBack: PropTypes.func,
 };
 
-RechargeReport.defaultProps = {
+DTHReport.defaultProps = {
   onBack: null,
 };
 
-export default RechargeReport;
+export default DTHReport;
+
+
+
+

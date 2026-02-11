@@ -9,10 +9,11 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { rechargeReportsCompany } from "../../../redux/action/reportAction";
 
-const RechargeReport = ({ onBack }) => {
+
+const PanReport = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -22,9 +23,9 @@ const RechargeReport = ({ onBack }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get data from Redux
+  // Get data from Redux (company transaction reports)
   const rechargeReportResponse = useSelector(
-    (state) => state?.reports?.adminTransaction,
+    (state) => state?.reports?.companyTransaction,
   );
   const apiData = rechargeReportResponse?.data || [];
   const paginator = rechargeReportResponse?.paginator || {};
@@ -48,7 +49,7 @@ const RechargeReport = ({ onBack }) => {
 
     // Check if it's a mobile number (10 digits)
     if (/^\d{10}$/.test(trimmedQuery)) {
-      // API expects mobileNumber
+      // For PAN service, API might expect mobile_number
       return { mobileNumber: trimmedQuery };
     }
 
@@ -61,11 +62,11 @@ const RechargeReport = ({ onBack }) => {
     return {};
   };
 
-  // Fetch recharge reports
+  // Fetch PAN service reports
   useEffect(() => {
     const query = {
-      // API expects serviceType: "MobileRecharge"
-      serviceType: "MobileRecharge",
+      // API expects serviceType: "Pan"
+      serviceType: "Pan",
     };
 
     // Add date filters only if both dates are selected
@@ -91,7 +92,7 @@ const RechargeReport = ({ onBack }) => {
       },
     };
 
-    dispatch(rechargeReportsAdmin(payload));
+    dispatch(rechargeReportsCompany(payload));
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -124,32 +125,36 @@ const RechargeReport = ({ onBack }) => {
         }
       }
       
-      // Get API message from apiResponse or item
-      const apiMessage = item.apiResponse?.message || item.message || item.apiResponse?.opid || item.opid || "N/A";
+      // Get amount from apiResponse (as string) or fallback to item.amount
+      let amount = 0;
+      if (item.apiResponse?.amount) {
+        amount = Number.parseFloat(item.apiResponse.amount) || 0;
+      } else if (item.amount) {
+        amount = Number.parseFloat(item.amount) || 0;
+      }
       
-      // Get DR amount from apiResponse
-      const drAmount = item.apiResponse?.dr_amount || 0;
+      // Get API message from apiResponse
+      const apiMessage = item.apiResponse?.message || item.apiResponse?.opid || item.message || "N/A";
       
       return {
         srNo,
-        id: item.id || `recharge-${index}`,
+        id: item.id || `pan-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
         orderId: item.orderid || "N/A",
         name: item.user?.name || "N/A",
-        userId: item.user?.userId || "N/A",
-        mobileNo: item.mobileNumber || "N/A",
-        operator: item.apiResponse?.operatorName || "N/A",
-        opcode: item.opcode || "N/A",
-        circle: item.circle || "N/A",
-        amount: item.amount || 0,
-        drAmount: drAmount,
+        mobileNo: item.mobile_number || item.mobileNumber || item.user?.mobileNo || "N/A",
+        operator: "N/A", // Not applicable for PAN service
+        amount: amount,
         status: normalizedStatus,
         commission: item.retailerCom || 0,
-        txid: item.apiResponse?.txid || item.txid || "N/A",
-        opid: item.apiResponse?.opid || item.opid || "N/A",
-        apiMessage: apiMessage,
         date: item.createdAt || new Date().toISOString(),
-        updatedDate: item.updatedAt || null,
+        userId: item.user?.userId || "N/A",
+        circle: "N/A", // Not applicable for PAN service
+        action: item.action || "N/A",
+        redirectUrl: item.redirect_url || item.apiResponse?.url || "N/A",
+        apiMessage: apiMessage,
+        txid: item.apiResponse?.txid || item.txid || "N/A",
+        responseType: item.apiResponse?.response_type || "N/A",
       };
     });
   };
@@ -239,10 +244,10 @@ const RechargeReport = ({ onBack }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                Mobile Recharge History
+                PAN Service History
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
-                Manage And Track All Recharge Transactions
+                Manage And Track All PAN Service Transactions
               </p>
             </div>
           </div>
@@ -269,7 +274,7 @@ const RechargeReport = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "MobileRecharge" };
+                const query = { serviceType: "Pan" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -284,7 +289,7 @@ const RechargeReport = ({ onBack }) => {
                   },
                 };
 
-                dispatch(rechargeReportsAdmin(payload));
+                dispatch(rechargeReportsCompany(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -361,7 +366,7 @@ const RechargeReport = ({ onBack }) => {
                 <div className="flex flex-col items-center gap-4">
                   <ButtonLoader color="#039155" size={40} thickness={4} />
                   <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-                    Loading recharge reports...
+                    Loading PAN service reports...
                   </p>
                 </div>
               </div>
@@ -371,7 +376,7 @@ const RechargeReport = ({ onBack }) => {
             return (
               <div className="flex items-center justify-center py-20">
                 <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
-                  No recharge transactions found
+                  No PAN service transactions found
                 </p>
               </div>
             );
@@ -400,19 +405,10 @@ const RechargeReport = ({ onBack }) => {
                     Mobile Number
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Operator
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Opcode
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Circle
+                    Action
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Amount
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    DR Amount
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Commission
@@ -424,22 +420,16 @@ const RechargeReport = ({ onBack }) => {
                     TXID
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    OPID
+                    API Message
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    API Message
+                    Redirect URL
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                   <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                     Time
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Updated Date
-                  </th>
-                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                    Updated Time
                   </th>
                 </tr>
               </thead>
@@ -469,19 +459,12 @@ const RechargeReport = ({ onBack }) => {
                       {transaction.mobileNo}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.operator}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.opcode}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.circle}
+                      <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 capitalize">
+                        {transaction.action}
+                      </span>
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                       ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                      ₹{Number.parseFloat(transaction.drAmount || 0).toFixed(2)}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#039155]">
                       ₹{Number.parseFloat(transaction.commission || 0).toFixed(2)}
@@ -498,11 +481,25 @@ const RechargeReport = ({ onBack }) => {
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {transaction.txid}
                     </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.opid}
-                    </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717] max-w-xs truncate" title={transaction.apiMessage}>
                       {transaction.apiMessage}
+                    </td>
+                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+                      {transaction.redirectUrl !== "N/A" ? (
+                        <a
+                          href={transaction.redirectUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 underline truncate block max-w-xs"
+                          title={transaction.redirectUrl}
+                        >
+                          {transaction.redirectUrl.length > 30
+                            ? `${transaction.redirectUrl.substring(0, 30)}...`
+                            : transaction.redirectUrl}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
                     </td>
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatDate(transaction.date)}
@@ -510,17 +507,11 @@ const RechargeReport = ({ onBack }) => {
                     <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
                       {formatTime(transaction.date)}
                     </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.updatedDate ? formatDate(transaction.updatedDate) : "N/A"}
-                    </td>
-                    <td className="px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-                      {transaction.updatedDate ? formatTime(transaction.updatedDate) : "N/A"}
-                    </td>
                   </tr>
                 ))}
               </tbody>
             </table>
-            </div>
+          </div>
           );
         })()}
 
@@ -590,12 +581,16 @@ const RechargeReport = ({ onBack }) => {
   );
 };
 
-RechargeReport.propTypes = {
+PanReport.propTypes = {
   onBack: PropTypes.func,
 };
 
-RechargeReport.defaultProps = {
+PanReport.defaultProps = {
   onBack: null,
 };
 
-export default RechargeReport;
+export default PanReport;
+
+
+
+
