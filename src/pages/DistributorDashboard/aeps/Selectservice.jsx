@@ -6,6 +6,7 @@ import StartCapture from "../../../../public/img/StartCapture.svg";
 import { aepsBankList, aepsWithdrawl } from "../../../redux/action/aepsAction";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
+import { aepsResentBankList } from "../../../redux/action/aepsAction";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
