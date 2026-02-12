@@ -110,23 +110,23 @@ const DashboardLayout = ({ children }) => {
         // },
       ],
     },
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        { name: "Business Report", path: "/superDashboard/reports/business" },
-        { name: "Earning Report", path: "/superDashboard/reports/earning" },
-        {
-          name: "N/W Overview Report",
-          path: "/superDashboard/reports/nw-overview",
-        },
-        {
-          name: "User Performance",
-          path: "/superDashboard/reports/user-performance",
-        },
-      ],
-    },
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   dropdown: true,
+    //   children: [
+    //     { name: "Business Report", path: "/superDashboard/reports/business" },
+    //     { name: "Earning Report", path: "/superDashboard/reports/earning" },
+    //     {
+    //       name: "N/W Overview Report",
+    //       path: "/superDashboard/reports/nw-overview",
+    //     },
+    //     {
+    //       name: "User Performance",
+    //       path: "/superDashboard/reports/user-performance",
+    //     },
+    //   ],
+    // },
 
     {
       name: "Txn History",

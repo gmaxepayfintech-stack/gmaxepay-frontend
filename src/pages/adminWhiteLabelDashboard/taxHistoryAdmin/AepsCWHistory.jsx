@@ -3,9 +3,7 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
-  Download,
   Share,
-  User,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
