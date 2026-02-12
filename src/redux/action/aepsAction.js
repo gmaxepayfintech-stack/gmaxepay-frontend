@@ -291,10 +291,7 @@ export const getAepsCwHistory = (payload) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const requestPayload = {
-            query: {
-                aepsTxnType: "CW",
-                ...(payload?.query || {}),
-            },
+            query: payload?.query || {},
             customSearch: payload?.customSearch || {},
             options: {
                 page: payload?.options?.page || 1,
@@ -712,10 +709,7 @@ export const getAepsCwHistoryCompany = (payload) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const requestPayload = {
-            query: {
-                aepsTxnType: "CW",
-                ...(payload?.query || {}),
-            },
+            query: payload?.query || {},
             customSearch: payload?.customSearch || {},
             options: {
                 page: payload?.options?.page || 1,
