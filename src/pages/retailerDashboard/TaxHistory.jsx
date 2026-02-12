@@ -1,11 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { ChevronLeft, ChevronRight, Fingerprint } from "lucide-react";
-import AepsCWHistory from "./AepsCWHistory";
+import AepsCWHistory from "./aepshistory/AepsCWHistory";
 import { motion } from "framer-motion";
 import MobileRechargeHistory from "./mobileRechargeHistory";
 import DthRechargeHistory from "./dthRechargeHIstory";
 import PanServiceHistory from "./panServiceHistory";
+import Aeps2CWHistory from "./aepshistory/Aeps2CWHistory";
+import Aeps2BEHistory from "./aepshistory/Aeps2BEHistroy";
+import Aeps2MSHistory from "./aepshistory/Aeps2MSHistory";
+import AepsBEHistory from "./aepshistory/AepsBEHistory";
+import AepsMSHistory from "./aepshistory/AepsMSHistory";
+
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -16,16 +22,19 @@ const TaxHistory = () => {
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  const showAepsHistory =
-    viewHistory === "aeps-cw-history" ||
-    viewHistory === "aeps-ms-history" ||
-    viewHistory === "aeps-be-history";
 
-  const showMobileRechargeHistory = viewHistory === "mobile-recharge-history";
-
-  const showDthRechargeHistory = viewHistory === "dth-recharge-history";
-
-  const showPanServiceHistory = viewHistory === "pan-service-history";
+  // Configuration object for all history views
+  const historyViews = {
+    "aeps-cw-history": AepsCWHistory,
+    "aeps-ms-history": AepsMSHistory,
+    "aeps-be-history": AepsBEHistory,
+    "aeps2-cw-history": Aeps2CWHistory,
+    "aeps2-ms-history": Aeps2MSHistory,
+    "aeps2-be-history": Aeps2BEHistory,
+    "mobile-recharge-history": MobileRechargeHistory,
+    "dth-recharge-history": DthRechargeHistory,
+    "pan-service-history": PanServiceHistory,
+  };
 
   const tabs = [
     "Banking",
@@ -52,7 +61,7 @@ const TaxHistory = () => {
       title: "AEPS 2 CW History",
       subtitle: "Cash History",
       available: true,
-      viewKey: "aeps-cw-history",
+      viewKey: "aeps2-cw-history",
       category: "Banking",
     },
     {
@@ -68,7 +77,7 @@ const TaxHistory = () => {
       title: "AEPS 2 MS History",
       subtitle: "Mini Statement",
       available: true,
-      viewKey: "aeps-ms-history",
+      viewKey: "aeps2-ms-history",
       category: "Banking",
     },
     {
@@ -84,7 +93,7 @@ const TaxHistory = () => {
       title: "AEPS 2 BE History",
       subtitle: "Balance Enquiry",
       available: true,
-      viewKey: "aeps-be-history",
+      viewKey: "aeps2-be-history",
       category: "Banking",
     },
     {
@@ -270,7 +279,6 @@ const TaxHistory = () => {
       category: "Verification History",
     },
   ];
-
   // useEffect(() => {
   //   const activeIndex = tabs.indexOf(activeTab);
   //   const activeEl = tabRefs.current[activeIndex];
@@ -305,35 +313,13 @@ const TaxHistory = () => {
 
   const paginatedCards = filteredCards.slice(startIndex, endIndex);
 
-  // If AepsCWHistory should be shown, render it
-  if (showAepsHistory) {
-    return (
-      <AepsCWHistory
-        type={viewHistory} // optional: pass which AEPS history
-        onBack={() => navigate("/retailerDashboard/txn-history")}
-      />
-    );
-  }
+  // Check if we should render a history component
+  const HistoryComponent = historyViews[viewHistory];
 
-  if (showMobileRechargeHistory) {
+  if (HistoryComponent) {
     return (
-      <MobileRechargeHistory
-        onBack={() => navigate("/retailerDashboard/txn-history")}
-      />
-    );
-  }
-
-  if (showDthRechargeHistory) {
-    return (
-      <DthRechargeHistory
-        onBack={() => navigate("/retailerDashboard/txn-history")}
-      />
-    );
-  }
-
-  if (showPanServiceHistory) {
-    return (
-      <PanServiceHistory
+      <HistoryComponent
+        type={viewHistory}
         onBack={() => navigate("/retailerDashboard/txn-history")}
       />
     );

@@ -10,15 +10,16 @@ import {
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
-import TransactioDetails from "./TransactioDetails";
+import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
+import TransactioDetails from "../TransactioDetails";
 import {
   getAepsCwHistory,
   getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
-import { ButtonLoader } from "../../widgets/layout/loader";
+} from "../../../redux/action/aepsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
-const AepsCWHistory = ({ onBack }) => {
+const Aeps2CWHistory = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -330,9 +331,9 @@ const AepsCWHistory = ({ onBack }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                AEPS CW History
+                AEPS 2 CW History
               </h1>
-              <p className="text-xs sm:text-sm md:text-base text-[#1B1717] mt-1 font-['Gilroy-Regular']">
+              <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
               </p>
             </div>
@@ -713,12 +714,12 @@ const AepsCWHistory = ({ onBack }) => {
   );
 };
 
-AepsCWHistory.propTypes = {
+Aeps2CWHistory.propTypes = {
   onBack: PropTypes.func,
 };
 
-AepsCWHistory.defaultProps = {
+Aeps2CWHistory.defaultProps = {
   onBack: null,
 };
 
-export default AepsCWHistory;
+export default Aeps2CWHistory;
