@@ -195,7 +195,7 @@ export const aepsOnboardingBiometricVerification = (data) => async (dispatch) =>
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/useraeps1/bio-metric-verification`,
+            `${API_ROUTE}/api/v1/user/aeps1/bio-metric-verification`,
             data,
             {
                 headers: {
