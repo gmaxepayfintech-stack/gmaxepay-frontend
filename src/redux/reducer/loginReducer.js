@@ -19,6 +19,10 @@ import {
   SET_MPIN_FAILURE,
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
+  FORGET_MPIN_SUCCESS,
+  VERIFY_MPIN_OTP_SUCCESS,
+  FORGET_MPIN_FAILURE,
+  VERIFY_MPIN_OTP_FAILURE,
 } from "../actionType/loginActionType";
 
 const initialState = {
@@ -45,6 +49,9 @@ const initialState = {
   setMPINError: null,
   logoutError: null,
   logoutResponse: null,
+  forgotMpinResponse: null,
+  verifyMpinOTPResponse: null,
+  ForgetError: null,
 };
 
 const loginReducer = (state = initialState, action) => {
@@ -227,6 +234,36 @@ const loginReducer = (state = initialState, action) => {
         logoutError: typeof action.payload === "object" ? action.payload : action.payload,
         logoutResponse: null,
       };
+
+      case FORGET_MPIN_SUCCESS:
+        return{
+          loading: false,
+          error: null,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
+          forgotMpinResponse: action?.payload,
+        };
+        case FORGET_MPIN_FAILURE:
+          return{
+            loading: false,
+            ForgetError: typeof action.payload === "object" ? action.payload : action.payload,
+            
+            forgotMpinResponse: null,
+          };
+        case VERIFY_MPIN_OTP_SUCCESS:
+          return{
+            loading: false,
+            error: null,
+            success: action?.payload?.status,
+            message: action?.payload?.message,
+            verifyMpinOTPResponse: action?.payload,
+          };
+        case VERIFY_MPIN_OTP_FAILURE:
+          return{
+            loading: false,
+            error: typeof action.payload === "object" ? action.payload : action.payload,
+            verifyMpinOTPResponse: null,
+          };
     default:
       return state;
   }

@@ -1,52 +1,35 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useCompany } from "../../../context/CompanyContext";
 import { useSelector } from "react-redux";
 import { ButtonLoader } from "../../../widgets/layout/loader.jsx";
-import ForgotMpin from "./ForgotMpin";
-
-const VerifyMPINView = ({
-  mpin,
-  onMpinChange,
-  onMpinKeyDown,
-  onMpinPaste,
+const VerifyMpinOtp = ({
+  otp,
+  otpTimer,
+  onOtpChange,
+  onOtpKeyDown,
+  onOtpPaste,
   onSubmit,
-  mpinInputRefs,
-  onForgotMpinSubmit,
+  onResend,
+  submittedPhone,
+  otpInputRefs,
 }) => {
   const { company } = useCompany();
   const isLoading = useSelector((state) => state?.loading?.isLoading);
-  const [localLoading, setLocalLoading] = useState(false);
-  const [showForgotMpin, setShowForgotMpin] = useState(false);
-  const loading = localLoading || isLoading;
 
   useEffect(() => {
-    if (!showForgotMpin && mpinInputRefs.current[0]) {
-      mpinInputRefs.current[0].focus();
+    if (otpInputRefs.current[0]) {
+      otpInputRefs.current[0].focus();
     }
-  }, [showForgotMpin]);
+  }, []);
 
-  const handleSubmit = () => {
-    if (showForgotMpin) return;
-    if (loading) return;
-    setLocalLoading(true);
-
-    Promise.resolve(onSubmit?.())
-      .catch(() => {
-        // Errors are handled elsewhere; we just ensure the loader hides
-      })
-      .finally(() => {
-        setLocalLoading(false);
-      });
+  const formatTimer = (t) => {
+    const minutes = Math.floor(t / 60);
+    const seconds = t % 60;
+    if (t >= 60) {
+      return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+    }
+    return `${seconds}s`;
   };
-
-  if (showForgotMpin) {
-    return (
-      <ForgotMpin
-        onSubmit={onForgotMpinSubmit}
-        onBack={() => setShowForgotMpin(false)}
-      />
-    );
-  }
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-6 sm:py-10 overflow-y-auto">
@@ -60,23 +43,25 @@ const VerifyMPINView = ({
         </div>
 
         <h1 className="text-1B1717 text-[36px] font-semibold text-center mb-4">
-          Enter MPIN
+          Enter Verification Code
         </h1>
-        <p className="text-1B1717 opacity-70 text-center text-[24px] mb-10">
-          Please enter your MPIN to continue
+        <p className="text-1B1717 opacity-70 text-center text-[24px] mb-4">
+          We've sent a 6-digit code to
+        </p>
+        <p className="text-gray-900 font-md text-center mb-10 text-[24px]">
+          +91 {submittedPhone}
         </p>
 
         <div className="flex gap-6 sm:gap-6 mb-8 justify-center">
-          {mpin.map((digit, index) => (
+          {otp.map((digit, index) => (
             <input
               key={index}
-              ref={(ref) => (mpinInputRefs.current[index] = ref)}
-              type="password"
+              ref={(ref) => (otpInputRefs.current[index] = ref)}
               maxLength="1"
               value={digit}
-              onChange={(e) => onMpinChange(e.target.value, index, mpinInputRefs)}
-              onKeyDown={(e) => onMpinKeyDown(e, index, mpinInputRefs)}
-              onPaste={index === 0 ? (e) => onMpinPaste(e, mpinInputRefs) : undefined}
+              onChange={(e) => onOtpChange(e.target.value, index, otpInputRefs)}
+              onKeyDown={(e) => onOtpKeyDown(e, index, otpInputRefs)}
+              onPaste={index === 0 ? (e) => onOtpPaste(e, otpInputRefs) : undefined}
               className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
               style={{
                 border: digit
@@ -87,32 +72,40 @@ const VerifyMPINView = ({
           ))}
         </div>
 
+        <p className="text-sm text-[24px] text-gray-500 text-center mb-1">
+          Didn't receive code?
+        </p>
         <button
-          onClick={handleSubmit}
-          disabled={loading}
+          disabled={otpTimer !== 0}
+          onClick={onResend}
+          className={`text-sm font-semibold w-full text-center text-[18px] mt-6 ${
+            otpTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
+          }`}
+        >
+          {otpTimer === 0 ? "Resend Now" : `Resend in ${formatTimer(otpTimer)}`}
+        </button>
+
+        <button
+          onClick={!isLoading ? onSubmit : undefined}
+          disabled={isLoading}
           className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-medium mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
-          {loading ? (
+          {isLoading ? (
             <span className="flex items-center gap-2">
               <ButtonLoader color="#ffffff" />
               <span className="text-white">Loading...</span>
             </span>
           ) : (
-            "Verify MPIN"
+            "Submit"
           )}
-        </button>
-
-        <button
-          type="button"
-          onClick={() => setShowForgotMpin(true)}
-          className="mt-1 w-full lg:w-[534px] mx-auto text-right text-sm sm:text-base font-['Gilroy-Medium'] text-[#000000] text-opacity-50 hover:underline"
-        >
-          Forgot MPIN?
         </button>
       </div>
     </div>
   );
 };
 
-export default VerifyMPINView;
+export default VerifyMpinOtp;
+
+
+
