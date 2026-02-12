@@ -2230,13 +2230,15 @@ const Selectservice = () => {
               <div className="flex gap-3 overflow-x-auto pb-2">
                 {recentBanks.map((bank) => (
                   <button
-                    key={bank.id}
+                    key={bank.bankIIN || bank.id}
                     type="button"
                     onClick={() => {
                       handleBankSelection(bank);
                     }}
                     className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
-                      selectedBank?.id === bank.id
+                      selectedBank &&
+                      (selectedBank.bankIIN === bank.bankIIN ||
+                        selectedBank.id === bank.id)
                         ? "bg-[#E5FFF4] border-[#039155]"
                         : "bg-white border-gray-200"
                     }`}
@@ -2318,17 +2320,21 @@ const Selectservice = () => {
               </div>
 
               {/* Bank Dropdown List */}
-              {showBankDropdown && filteredBanks.length > 0 && (
+                  {showBankDropdown && filteredBanks.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
                   {filteredBanks.map((bank) => (
                     <button
-                      key={bank.id}
+                      key={bank.bankIIN || bank.id}
                       type="button"
                       onClick={() => {
                         handleBankSelection(bank);
                       }}
                       className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
-                        selectedBank?.id === bank.id ? "bg-[#E5FFF4]" : ""
+                        selectedBank &&
+                        (selectedBank.bankIIN === bank.bankIIN ||
+                          selectedBank.id === bank.id)
+                          ? "bg-[#E5FFF4]"
+                          : ""
                       }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
