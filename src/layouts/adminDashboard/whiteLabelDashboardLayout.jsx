@@ -238,12 +238,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         // },
       ],
     },
-    {
-      name: "Tnx History",
-      icon: MaskGroup4,
-      path: "/adminDashboard/txn-history",
-      dropdown: false,
-    },
+    
     {
       name: "Reports",
       icon: MaskGroup5,
@@ -252,6 +247,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         { name: "Daily Reports", path: "/adminDashboard/reports/daily" },
         { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
       ],
+    },
+    {
+      name: "Tnx History",
+      icon: MaskGroup4,
+      path: "/adminDashboard/txn-history",
+      dropdown: false,
     },
     {
       name: "Settings",
