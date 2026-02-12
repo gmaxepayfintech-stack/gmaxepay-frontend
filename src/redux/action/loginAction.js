@@ -21,6 +21,10 @@ import {
   SET_MPIN_FAILURE,
   LOGOUT_SUCCESS,
   LOGOUT_FAILURE,
+  FORGET_MPIN_SUCCESS,
+  FORGET_MPIN_FAILURE,
+  VERIFY_MPIN_OTP_SUCCESS,
+  VERIFY_MPIN_OTP_FAILURE,
 } from "../actionType/loginActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1164,6 +1168,156 @@ export const logOut = (credentials, companyId) => async (dispatch) => {
         type: LOGOUT_FAILURE,
         payload:
           error?.response?.data?.message ?? error.message ?? commonError,
+      });
+    }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const forgotMpinOTP = (credentials, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/forget-mpin-otp`,
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+          "x-company-id": companyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === "SUCCESS" || status === 200) {
+      const token = data?.data?.token || data?.token;
+      if (token) {
+        secureLocalStorage.setItem("loginToken", token);
+      }
+
+      dispatch({
+        type: FORGET_MPIN_SUCCESS,
+        payload: data,
+        status,
+      });
+    } else {
+      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        dispatch({
+          type: FORGET_MPIN_FAILURE,
+          payload: {
+            message: data?.message || "Data token has expired! Please request a new one.",
+            isTokenExpired: true,
+          },
+        });
+      } else {
+        const errorMessage = data?.message || (status && status !== "SUCCESS" && status !== 200 ? `Error: ${status}` : commonError);
+        dispatch({
+          type: FORGET_MPIN_FAILURE,
+          payload: errorMessage,
+        });
+      }
+    }
+  } catch (error) {
+    if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      dispatch({
+        type: FORGET_MPIN_FAILURE,
+        payload: {
+          message: error?.response?.data?.message || "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: FORGET_MPIN_FAILURE,
+        payload: error?.response?.data?.message ?? error.message,
+      });
+    }
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const verifyMpinOTP = (credentials, companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  const authToken = secureLocalStorage.getItem("loginToken");
+
+  try {
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/auth/verify-forget-mpin-otp`,
+      credentials,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          token: `${authToken}`,
+          "x-company-id": companyId,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === "SUCCESS" || status === 200) {
+      const token = data?.data?.token || data?.token;
+      if (token) {
+        secureLocalStorage.setItem("loginToken", token);
+      }
+
+      dispatch({
+        type: VERIFY_MPIN_OTP_SUCCESS,
+        payload: data,
+        status,
+      });
+    } else {
+      if (status === "BAD_REQUEST" && data?.message?.toLowerCase().includes("token has expired")) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        dispatch({
+          type: VERIFY_MPIN_OTP_FAILURE,
+          payload: {
+            message: data?.message || "Data token has expired! Please request a new one.",
+            isTokenExpired: true,
+          },
+        });
+      } else {
+        const errorMessage = data?.message || (status && status !== "SUCCESS" && status !== 200 ? `Error: ${status}` : commonError);
+        dispatch({
+          type: VERIFY_MPIN_OTP_FAILURE,
+          payload: errorMessage,
+        });
+      }
+    }
+  } catch (error) {
+    if (isTokenExpiredError(error)) {
+      secureLocalStorage.removeItem("loginToken");
+      secureLocalStorage.removeItem("userToken");
+      secureLocalStorage.removeItem("refreshToken");
+      dispatch({
+        type: VERIFY_MPIN_OTP_FAILURE,
+        payload: {
+          message: error?.response?.data?.message || "Data token has expired! Please request a new one.",
+          isTokenExpired: true,
+        },
+      });
+    } else {
+      dispatch({
+        type: VERIFY_MPIN_OTP_FAILURE,
+        payload: error?.response?.data?.message ?? error.message,
       });
     }
   } finally {
