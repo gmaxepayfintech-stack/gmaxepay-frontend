@@ -239,7 +239,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       ],
     },
     {
-      name: "Tax History",
+      name: "Tnx History",
       icon: MaskGroup4,
       path: "/adminDashboard/txn-history",
       dropdown: false,

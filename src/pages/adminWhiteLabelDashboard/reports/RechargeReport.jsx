@@ -127,8 +127,6 @@ const RechargeReport = ({ onBack }) => {
       const apiMessage =
         item.apiResponse?.message ||
         item.message ||
-        item.apiResponse?.opid ||
-        item.opid ||
         "N/A";
 
       // Get DR amount from apiResponse
@@ -440,9 +438,6 @@ const RechargeReport = ({ onBack }) => {
                       API Message
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
-                      Date
-                    </th>
-                    <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                       Updated Date
                     </th>
                     <th className="px-4 sm:px-6 py-3 sm:py-4  text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
@@ -457,11 +452,8 @@ const RechargeReport = ({ onBack }) => {
                       key={transaction.id}
                       className="hover:bg-gray-50 transition-colors"
                     >
-                      {/* Default Cell Style Applied Everywhere */}
-                      {/* You can reuse this class for cleaner code */}
-
                       <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {transaction.srNo}
+                        {transaction.id}
                       </td>
 
                       <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
@@ -552,10 +544,6 @@ const RechargeReport = ({ onBack }) => {
                         title={transaction.apiMessage}
                       >
                         {transaction.apiMessage}
-                      </td>
-
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {formatDate(transaction.date)}
                       </td>
 
                       <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
