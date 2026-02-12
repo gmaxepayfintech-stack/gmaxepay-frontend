@@ -12,10 +12,10 @@ const PhoneIconFilled = "/img/PhoneCall2.png";
 const phoneValidationSchema = Yup.object({
   phoneNumber: Yup.string()
     .matches(/^\d{10}$/, "Phone number must be 10 digits")
-    .required(), 
+    .required(), // keep required to block submit; suppress message in UI
 });
 
-const ForgotPasswordView = ({ onSubmit, onBack }) => {
+const ForgotMpin = ({ onSubmit, onBack }) => {
   const { company } = useCompany();
   const isLoading = useSelector((state) => state?.loading?.isLoading);
 
@@ -42,7 +42,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
         </div>
 
         <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[gilroy-semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
-          Forgot Password
+          Forgot MPIN
         </h1>
         <p className="text-[#1B1717] font-[gilroy-medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
           Reset Access in Just One Step
@@ -117,7 +117,7 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
                     }}
                   </ErrorMessage>
                 </div>
-              </div>           
+              </div>
 
               <div className="w-full flex justify-center">
                 <button
@@ -186,4 +186,6 @@ const ForgotPasswordView = ({ onSubmit, onBack }) => {
   );
 };
 
-export default ForgotPasswordView;
+export default ForgotMpin;
+
+

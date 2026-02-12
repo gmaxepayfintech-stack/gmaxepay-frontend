@@ -15,6 +15,8 @@ import {
   verifyForgetPassword,
   verifyMPIN,
   setMPIN,
+  forgotMpinOTP,
+  verifyMpinOTP
 } from "../../redux/action/loginAction";
 import { loginSuccess } from "../../redux/action/authAction";
 import LeftSideSlider from "./pages/LeftSideSlider";
@@ -27,6 +29,7 @@ import Auth2FAView from "./pages/Auth2FAView";
 import ResetPasswordView from "./pages/ResetPasswordView";
 import VerifyMPINView from "./pages/VerifyMPINView";
 import SetMPINView from "./pages/SetMPINView";
+import VerifyMpinOtp from "./pages/VerifyMpinOtp";
 
 // View types
 const VIEWS = {
@@ -39,6 +42,7 @@ const VIEWS = {
   RESET_PASSWORD: "resetPassword",
   VERIFY_MPIN: "verifyMPIN",
   SET_MPIN: "setMPIN",
+  FORGOT_MPIN_OTP: "forgotMpinOtp",
 };
 
 const LoginDesign1 = () => {
@@ -106,6 +110,15 @@ const LoginDesign1 = () => {
   const verifyMPINError = useSelector((state) => state?.login?.verifyMPINError);
   const setMPINResponse = useSelector((state) => state?.login?.setMPINResponse);
   const setMPINError = useSelector((state) => state?.login?.setMPINError);
+  const verifyMpinOTPResponse = useSelector(
+    (state) => state?.login?.verifyMpinOTPResponse
+  );
+  const forgotMpinResponse = useSelector(
+    (state) => state?.login?.forgotMpinResponse
+  );
+  const forgetMpinError = useSelector(
+    (state) => state?.login?.ForgetError
+  );
 
   // Image slider effect
   useEffect(() => {
@@ -122,9 +135,13 @@ const LoginDesign1 = () => {
     }
   }, [company?.sliderImages]);
 
-  // OTP Timer (only for login OTP verify, not for forgot password)
+  // OTP Timer (for login OTP verify and forgot MPIN OTP)
   useEffect(() => {
-    if (otpTimer > 0 && currentView === VIEWS.OTP_VERIFY) {
+    if (
+      otpTimer > 0 &&
+      (currentView === VIEWS.OTP_VERIFY ||
+        currentView === VIEWS.FORGOT_MPIN_OTP)
+    ) {
       const interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
       return () => clearInterval(interval);
     }
@@ -896,6 +913,75 @@ const LoginDesign1 = () => {
     }
   }, [setMPINError, currentView, showNotification]);
 
+  // Handle forgot MPIN OTP response (send OTP)
+  useEffect(() => {
+    if (forgotMpinResponse?.status === "SUCCESS") {
+      // Show success notification from API
+      showNotification({
+        type: "success",
+        message: forgotMpinResponse?.message || "OTP sent successfully!",
+        duration: 4000,
+        clearExisting: true,
+      });
+
+      setOtp(Array(6).fill(""));
+      setCurrentView(VIEWS.FORGOT_MPIN_OTP);
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 100);
+    }
+  }, [forgotMpinResponse, showNotification]);
+
+  // Handle forgot MPIN OTP errors (send OTP failure)
+  useEffect(() => {
+    if (forgetMpinError) {
+      const errorMessage =
+        typeof forgetMpinError === "object"
+          ? forgetMpinError.message
+          : forgetMpinError;
+      const isTokenExpired =
+        typeof forgetMpinError === "object" && forgetMpinError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [forgetMpinError, showNotification]);
+
+  // Handle verify forgot MPIN OTP success - go back to Login view
+  useEffect(() => {
+    if (
+      currentView === VIEWS.FORGOT_MPIN_OTP &&
+      verifyMpinOTPResponse?.status === "SUCCESS"
+    ) {
+      // Show success notification from API
+      showNotification({
+        type: "success",
+        message:
+          verifyMpinOTPResponse?.message ||
+          "MPIN OTP verified successfully. Please login again.",
+        duration: 4000,
+        clearExisting: true,
+      });
+
+      setOtp(Array(6).fill(""));
+      setSubmittedPhone("");
+      setCurrentView(VIEWS.LOGIN);
+    }
+  }, [currentView, verifyMpinOTPResponse, showNotification]);
+
   // Login form submission
   const handleLoginSubmit = async (values, { setSubmitting }) => {
     try {
@@ -928,6 +1014,20 @@ const LoginDesign1 = () => {
         type: "error",
         message: error.response?.data?.message || "Login failed. Please try again.",
       });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Forgot MPIN submission
+  const handleForgotMpinSubmit = (values, { setSubmitting }) => {
+    try {
+      const companyId = company?._id || company?.id || company?.companyId;
+      const payload = {
+        mobileNo: values.phoneNumber,
+      };
+      setSubmittedPhone(values.phoneNumber);
+      dispatch(forgotMpinOTP(payload, companyId));
     } finally {
       setSubmitting(false);
     }
@@ -989,12 +1089,15 @@ const LoginDesign1 = () => {
       return;
     }
     const companyId = company?._id || company?.id || company?.companyId;
-    
-    // If we're in VERIFICATION_CODE view (forgot password flow), use verifyForgetPassword
-    if (currentView === VIEWS.VERIFICATION_CODE) {
+
+    if (currentView === VIEWS.FORGOT_MPIN_OTP) {
+      // Forgot MPIN OTP verification
+      dispatch(verifyMpinOTP({ otp: finalOtp }, companyId));
+    } else if (currentView === VIEWS.VERIFICATION_CODE) {
+      // Forgot password OTP verification
       dispatch(verifyForgetPassword({ otp: finalOtp }, companyId));
     } else {
-      // Otherwise, use regular verificationStatus (for login flow)
+      // Login OTP verification
       dispatch(verificationStatus({ otp: finalOtp }, companyId));
     }
   };
@@ -1378,6 +1481,30 @@ const LoginDesign1 = () => {
           onMpinPaste={handleMpinPaste}
           onSubmit={handleVerifyMpinSubmit}
           mpinInputRefs={mpinInputRefs}
+        onForgotMpinSubmit={handleForgotMpinSubmit}
+        />
+      )}
+
+      {currentView === VIEWS.FORGOT_MPIN_OTP && (
+        <VerifyMpinOtp
+          otp={otp}
+          otpTimer={otpTimer}
+          onOtpChange={handleOtpChange}
+          onOtpKeyDown={handleOtpKeyDown}
+          onOtpPaste={handleOtpPaste}
+          onSubmit={handleOtpSubmit}
+          onResend={() => {
+            const companyId =
+              company?._id || company?.id || company?.companyId;
+            if (!submittedPhone) return;
+            dispatch(
+              forgotMpinOTP({ mobileNo: submittedPhone }, companyId)
+            );
+            setOtpTimer(180);
+            setOtp(Array(6).fill(""));
+          }}
+          submittedPhone={submittedPhone}
+          otpInputRefs={otpInputRefs}
         />
       )}
 

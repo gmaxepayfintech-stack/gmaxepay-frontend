@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_RESENT_BANK_LIST_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -756,6 +756,67 @@ export const getAepsCwHistoryCompany = (payload) => async (dispatch) => {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_CW_HISTORY_COMPANY_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        throw error;
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const aepsResentBankList = (data) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/user/aeps/recent-banks`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const responseData = response?.data ?? {};
+        const resentBankList = responseData?.data ?? [];
+        const message = responseData?.message ?? "All bank details retrieved successfully";
+        const total = responseData?.total ?? 0;
+        const paginator = responseData?.paginator ?? null;
+
+        // If data array exists, treat as success
+        if (Array.isArray(resentBankList) && bankList.length >= 0) {
+            const payload = {
+                resentBankList,
+                status: "SUCCESS",
+                message,
+                total,
+                paginator,
+            };
+            dispatch({
+                type: AEPS_RESENT_BANK_LIST_SUCCESS,
+                payload,
+            });
+            return payload;
+        } else {
+            dispatch({
+                type: AEPS_RESENT_BANK_LIST_FAILURE,
+                payload: {
+                    status: "FAILURE",
+                    message: message || commonError,
+                },
+            });
+            return { status: "FAILURE", message: message || commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_RESENT_BANK_LIST_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: errorMessage,
