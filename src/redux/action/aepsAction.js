@@ -790,7 +790,7 @@ export const aepsResentBankList = (data) => async (dispatch) => {
         const paginator = responseData?.paginator ?? null;
 
         // If data array exists, treat as success
-        if (Array.isArray(resentBankList) && bankList.length >= 0) {
+        if (Array.isArray(resentBankList)) {
             const payload = {
                 resentBankList,
                 status: "SUCCESS",
