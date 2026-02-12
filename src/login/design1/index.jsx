@@ -29,7 +29,7 @@ import Auth2FAView from "./pages/Auth2FAView";
 import ResetPasswordView from "./pages/ResetPasswordView";
 import VerifyMPINView from "./pages/VerifyMPINView";
 import SetMPINView from "./pages/SetMPINView";
-import VerifyMpinOtp from "./pages/verifyMpinOtp";
+import VerifyMpinOtp from "./pages/VerifyMpinOtp";
 
 // View types
 const VIEWS = {
