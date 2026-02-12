@@ -10,7 +10,6 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
     const roleMap = {
-      1: "Super Admin",
       2: "White Label Partner",
       3: "Master Distributor",
       4: "Distributor",
@@ -19,32 +18,12 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     return roleMap[roleNumber] || `Role ${roleNumber}`;
   };
 
-  // Calculate commission data from transaction - Always show all 5 roles
+  // Calculate commission data from transaction - Show 4 roles (no Super Admin)
   const calculateCommissionData = () => {
     if (!transactionData?.transaction) return [];
 
     const transaction = transactionData.transaction;
     const commissionData = [];
-
-    // Super Admin Commission - Always show, use 0 if null
-    const superadminComm =
-      transaction.superadminComm !== null &&
-      transaction.superadminComm !== undefined
-        ? parseFloat(transaction.superadminComm) || 0
-        : 0;
-    const superadminCommTDS =
-      transaction.superadminCommTDS !== null &&
-      transaction.superadminCommTDS !== undefined
-        ? parseFloat(transaction.superadminCommTDS) || 0
-        : 0;
-    const superadminNet = superadminComm - superadminCommTDS;
-    commissionData.push({
-      name: "Super Admin",
-      userId: "N/A",
-      commissions: `₹${superadminComm.toFixed(2)}`,
-      tds: `₹${superadminCommTDS.toFixed(2)}`,
-      net: `₹${superadminNet.toFixed(2)}`,
-    });
 
     // White Label Commission - Always show, use 0 if null
     const whitelabelComm =
@@ -195,7 +174,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg  hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
@@ -203,7 +182,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button>
+          </button> */}
         </div>
       </div>
 

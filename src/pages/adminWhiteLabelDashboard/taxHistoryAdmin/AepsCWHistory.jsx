@@ -376,8 +376,8 @@ const AepsCWHistory = ({ onBack }) => {
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
-                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
                   }`}
               >
                 {status}
@@ -516,10 +516,10 @@ const AepsCWHistory = ({ onBack }) => {
                   Status
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                TDS & Comm
+                  Created At
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Created At
+                  TDS & Comm
                 </th>
               </tr>
             </thead>
@@ -536,8 +536,8 @@ const AepsCWHistory = ({ onBack }) => {
                       <tr
                         key={transaction.id}
                         className={`transition-colors ${index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
+                          ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
+                          : "bg-white hover:bg-gray-50"
                           }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -577,9 +577,9 @@ const AepsCWHistory = ({ onBack }) => {
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
-                        <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                        {transaction.merchantLoginId}
-                        </span>
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.merchantLoginId}
+                          </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
@@ -615,10 +615,10 @@ const AepsCWHistory = ({ onBack }) => {
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
                             className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium ${transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
+                              ? "bg-[#039155] text-white"
+                              : transaction.status === "Pending"
+                                ? "bg-orange-500/80 text-white"
+                                : "bg-red-500/80 text-white"
                               }`}
                           >
                             {transaction.status}
@@ -681,8 +681,8 @@ const AepsCWHistory = ({ onBack }) => {
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                  ? "bg-[#039155] text-white"
+                  : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
                   }`}
               >
                 {page}
