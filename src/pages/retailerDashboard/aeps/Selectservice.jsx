@@ -3,7 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import StartCapture from "../../../../public/img/StartCapture.svg";
-import { aepsBankList, aepsWithdrawl } from "../../../redux/action/aepsAction";
+import {
+  aepsBankList,
+  aepsWithdrawl,
+  aepsResentBankList,
+} from "../../../redux/action/aepsAction";
 import { getUserProfile } from "../../../redux/action/userProfileAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
 
@@ -11,9 +15,13 @@ const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
+
 const Selectservice = () => {
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aeps?.bankList);
+  const resentBankListState = useSelector(
+    (state) => state.aeps?.resentBankList,
+  );
 
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
@@ -99,6 +107,10 @@ const Selectservice = () => {
   // bankList structure: { bankList: [...], status: "SUCCESS", message: "..." }
   const banks = bankList?.bankList || [];
 
+  // Banks returned from recent banks API (aepsResentBankList)
+  const resentBanksFromApi =
+    resentBankListState?.resentBankList || resentBankListState?.data || [];
+
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
@@ -116,30 +128,36 @@ const Selectservice = () => {
 
     // Update recent banks list - add selected bank to the front
     setRecentBanksList((prev) => {
-      // Remove the bank if it already exists in the list
-      const filtered = prev.filter((b) => b.id !== bank.id);
+      // Remove the bank if it already exists in the list (use bankIIN as unique key)
+      const filtered = prev.filter((b) => b.bankIIN !== bank.bankIIN);
       // Add selected bank to the front, limit to 4 banks total
       return [bank, ...filtered].slice(0, 4);
     });
   };
 
-  // Get recent banks - selected bank first, then other recent banks, then fallback to first 4 from API
+  // Get recent banks - selected bank first, then other recent banks
   const recentBanks = (() => {
     if (selectedBank) {
       // If a bank is selected, show it first
       const otherRecent = recentBanksList.filter(
-        (b) => b.id !== selectedBank.id,
+        (b) => b.bankIIN !== selectedBank.bankIIN,
       );
       const result = [selectedBank, ...otherRecent].slice(0, 4);
       return result;
     } else if (recentBanksList.length > 0) {
       // If no bank is selected but we have recent banks, show them
       return recentBanksList.slice(0, 4);
-    } else {
-      // Fallback to first 4 from API
-      return banks.slice(0, 4);
     }
+    // If no recent banks available, return empty array (don't show section)
+    return [];
   })();
+
+  // Seed recent banks list from API response when available
+  useEffect(() => {
+    if (Array.isArray(resentBanksFromApi) && resentBanksFromApi.length > 0) {
+      setRecentBanksList(resentBanksFromApi);
+    }
+  }, [resentBanksFromApi]);
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -454,6 +472,17 @@ const Selectservice = () => {
       })
       .catch((error) => {
         console.error("Bank list error:", error);
+      });
+  }, [dispatch]);
+
+  // Fetch recent banks on component mount
+  useEffect(() => {
+    dispatch(aepsResentBankList({}))
+      .then((response) => {
+        console.log("Recent bank list response:", response);
+      })
+      .catch((error) => {
+        console.error("Recent bank list error:", error);
       });
   }, [dispatch]);
 

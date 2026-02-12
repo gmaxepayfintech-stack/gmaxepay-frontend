@@ -18,6 +18,8 @@ import {
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_FAILURE,
   AEPSTWO_RESEND_OTP_SUCCESS,
+  AEPSTWO_RESENT_BANK_LIST_FAILURE,
+  AEPSTWO_RESENT_BANK_LIST_SUCCESS,
   AEPSTWO_SEND_OTP_FAILURE,
   AEPSTWO_SEND_OTP_SUCCESS,
   AEPSTWO_STATUS_CHECK_FAILURE,
@@ -27,6 +29,7 @@ import {
   AEPSTWO_TWO_FA_VERIFICATION_FAILURE,
   AEPSTWO_TWO_FA_VERIFICATION_SUCCESS,
 } from "../actionType/aepsTwoActionType";
+import { AEPS_RESENT_BANK_LIST_SUCCESS } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -573,6 +576,56 @@ export const aepsTwoBankList = (values) => async (dispatch) => {
       : error.message;
     dispatch({
       type: AEPSTWO_BANKLIST_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const aepsTwoRecentBankList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/aeps2/recent-banks`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: bankRecentList, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: AEPSTWO_RESENT_BANK_LIST_SUCCESS,
+        payload: { bankRecentList, status, message },
+      });
+      return { bankRecentList, status, message };
+    } else {
+      dispatch({
+        type: AEPSTWO_RESENT_BANK_LIST_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: AEPSTWO_RESENT_BANK_LIST_FAILURE,
       payload: errorMessage,
     });
     throw error;
