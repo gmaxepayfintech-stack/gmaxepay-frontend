@@ -11,6 +11,7 @@ import {
   aepsTwoMiniStatement,
   aepsTwoBankList,
 } from "../../../redux/action/aepsTwoAction";
+import { aepsResentBankList } from "../../../redux/action/aepsAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -18,6 +19,9 @@ const EyeIcon = "/img/Eye.svg";
 const SelectserviceTwo = () => {
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aepsTwo?.bankList);
+  const resentBankListState = useSelector(
+    (state) => state.aeps?.resentBankList,
+  );
 
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
   const [biometricMethod, setBiometricMethod] = useState("thumb");
@@ -31,7 +35,7 @@ const SelectserviceTwo = () => {
   const [showBankDropdown, setShowBankDropdown] = useState(false);
   const bankDropdownRef = useRef(null);
 
-  // Recent banks state - tracks recently selected banks
+  // Recent banks state - tracks recently used banks (from API + local updates)
   const [recentBanksList, setRecentBanksList] = useState([]);
 
   // RD Service states
@@ -101,6 +105,10 @@ const SelectserviceTwo = () => {
 
   const banks = bankList?.bankList || [];
 
+  // Banks returned from recent banks API
+  const resentBanksFromApi =
+    resentBankListState?.resentBankList || resentBankListState?.data || [];
+
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
@@ -125,7 +133,7 @@ const SelectserviceTwo = () => {
     });
   };
 
-  // Get recent banks - selected bank first, then other recent banks, then fallback to first 4 from API
+  // Get recent banks - selected bank first, then other recent banks
   const recentBanks = (() => {
     if (selectedBank) {
       // If a bank is selected, show it first
@@ -137,11 +145,17 @@ const SelectserviceTwo = () => {
     } else if (recentBanksList.length > 0) {
       // If no bank is selected but we have recent banks, show them
       return recentBanksList.slice(0, 4);
-    } else {
-      // Fallback to first 4 from API
-      return banks.slice(0, 4);
     }
+    // If no recent banks available, return empty array (don't show section)
+    return [];
   })();
+
+  // Seed recent banks list from API response when available
+  useEffect(() => {
+    if (Array.isArray(resentBanksFromApi) && resentBanksFromApi.length > 0) {
+      setRecentBanksList(resentBanksFromApi);
+    }
+  }, [resentBanksFromApi]);
 
   /* -------------------------------
       STEP 1 → Discover RD SERVICE
@@ -446,6 +460,17 @@ const SelectserviceTwo = () => {
       })
       .catch((error) => {
         console.error("Bank list error:", error);
+      });
+  }, [dispatch]);
+
+  // Fetch recent banks on component mount
+  useEffect(() => {
+    dispatch(aepsResentBankList({}))
+      .then((response) => {
+        console.log("Recent bank list response:", response);
+      })
+      .catch((error) => {
+        console.error("Recent bank list error:", error);
       });
   }, [dispatch]);
 
