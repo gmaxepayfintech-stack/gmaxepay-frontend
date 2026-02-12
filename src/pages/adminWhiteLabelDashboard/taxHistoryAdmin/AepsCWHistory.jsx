@@ -15,6 +15,7 @@ import {
   getAepsCwHistoryCompany,
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import TransactioDetails from "./TransactioDetails";
 
 const AepsCWHistory = ({ onBack }) => {
   const dispatch = useDispatch();
@@ -25,6 +26,8 @@ const AepsCWHistory = ({ onBack }) => {
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
   // Get data from Redux (company AEPS CW history)
   const aepsCwHistoryResponse = useSelector(
@@ -263,6 +266,84 @@ const AepsCWHistory = ({ onBack }) => {
     setCurrentPage(1);
   }, [statusFilter]);
 
+  // Transform API response to match TransactioDetails expected format
+  const transformTransactionData = (apiItem) => {
+    if (!apiItem) return null;
+
+    // Extract bank name from bankiin or responsePayload
+    const bankName =
+      apiItem.responsePayload?.data?.bankName ||
+      apiItem.bankName ||
+      apiItem.bankiin ||
+      "N/A";
+
+    // Extract aadhar number
+    const aadharNumber =
+      apiItem.consumerAadhaarNumber ||
+      apiItem.requestPayload?.consumerAadhaarNumber ||
+      apiItem.requestPayload?.aadhaarNo ||
+      null;
+
+    // Calculate commission (credit field)
+    const commission = apiItem.credit || 0;
+
+    return {
+      transaction: {
+        superadminComm: apiItem.superadminComm,
+        superadminCommTDS: apiItem.superadminCommTDS,
+        whitelabelComm: apiItem.whitelabelComm,
+        whitelabelCommTDS: apiItem.whitelabelCommTDS,
+        masterDistributorCom: apiItem.masterDistributorCom,
+        masterDistributorComTDS: apiItem.masterDistributorComTDS,
+        distributorCom: apiItem.distributorCom,
+        distributorComTDS: apiItem.distributorComTDS,
+        retailerCom: apiItem.retailerCom,
+        retailerComTDS: apiItem.retailerComTDS,
+      },
+      userDetails: {
+        name: apiItem.name || apiItem.consumerNumber || "N/A",
+        userRole: apiItem.userRole || null,
+        userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
+        mobileNo: apiItem.consumerNumber || apiItem.requestPayload?.mobile || "N/A",
+      },
+      reportingUserDetails: {
+        companyName: apiItem.companyName || apiItem.operator || "N/A",
+        parentName: "N/A",
+        parentRole: null,
+        parentUserId: apiItem.companyId?.toString() || "N/A",
+      },
+      transactionDetails: {
+        bankName: bankName,
+        aadharNumber: aadharNumber,
+        amount: apiItem.amount || 0,
+        commission: commission,
+      },
+    };
+  };
+
+  // Handle view button click
+  const handleViewClick = (transaction) => {
+    const originalItem = transaction.originalItem;
+    if (originalItem) {
+      const transformedData = transformTransactionData(originalItem);
+      setSelectedTransaction(transformedData);
+      setShowTransactionDetails(true);
+    }
+  };
+
+  // If showing transaction details, render TransactioDetails
+  if (showTransactionDetails && selectedTransaction) {
+    return (
+      <TransactioDetails
+        transactionData={selectedTransaction}
+        onBack={() => {
+          setShowTransactionDetails(false);
+          setSelectedTransaction(null);
+        }}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
       {/* Header Section */}
@@ -435,6 +516,9 @@ const AepsCWHistory = ({ onBack }) => {
                   Status
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                TDS & Comm
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
               </tr>
@@ -546,12 +630,21 @@ const AepsCWHistory = ({ onBack }) => {
                             {transaction.createdAt}
                           </span>
                         </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleViewClick(transaction)}
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#039155] text-white text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg hover:bg-green-700 transition shadow-sm whitespace-nowrap"
+                          >
+                            View
+                          </button>
+                        </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
