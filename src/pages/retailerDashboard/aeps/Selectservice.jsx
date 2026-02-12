@@ -421,9 +421,7 @@ const Selectservice = () => {
         // Only complete to 100% on successful capture (thumb was on device)
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
-        // Store pidData
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -2236,9 +2234,9 @@ const Selectservice = () => {
                       handleBankSelection(bank);
                     }}
                     className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
-                      selectedBank &&
-                      (selectedBank.bankIIN === bank.bankIIN ||
-                        selectedBank.id === bank.id)
+                      selectedBank?.bankIIN &&
+                      bank.bankIIN &&
+                      selectedBank.bankIIN === bank.bankIIN
                         ? "bg-[#E5FFF4] border-[#039155]"
                         : "bg-white border-gray-200"
                     }`}
@@ -2320,7 +2318,7 @@ const Selectservice = () => {
               </div>
 
               {/* Bank Dropdown List */}
-                  {showBankDropdown && filteredBanks.length > 0 && (
+              {showBankDropdown && filteredBanks.length > 0 && (
                 <div className="absolute z-50 w-full mt-1 bg-white border border-gray-300 rounded-lg shadow-lg max-h-[300px] overflow-y-auto">
                   {filteredBanks.map((bank) => (
                     <button
@@ -2330,9 +2328,9 @@ const Selectservice = () => {
                         handleBankSelection(bank);
                       }}
                       className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
-                        selectedBank &&
-                        (selectedBank.bankIIN === bank.bankIIN ||
-                          selectedBank.id === bank.id)
+                        selectedBank?.bankIIN &&
+                        bank.bankIIN &&
+                        selectedBank.bankIIN === bank.bankIIN
                           ? "bg-[#E5FFF4]"
                           : ""
                       }`}
