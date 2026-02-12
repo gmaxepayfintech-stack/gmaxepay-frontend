@@ -13,7 +13,7 @@ export const aepsTermsConditionOtp = () => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/onboarding`,
+            `${API_ROUTE}/api/v1/user/aeps1/onboarding`,
             {},
             {
                 headers: {
@@ -56,7 +56,7 @@ export const aepsStatusCheck = () => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
-        const apiUrl = `${API_ROUTE}/api/v1/user/aeps/onboarding-status`;
+        const apiUrl = `${API_ROUTE}/api/v1/user/aeps1/onboarding-status`;
 
         const response = await axios.post(
             apiUrl,
@@ -105,7 +105,7 @@ export const aepsRescendOTP = () => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/resend-otp`,
+            `${API_ROUTE}/api/v1/user/aeps1/resend-otp`,
             {},
             {
                 headers: {
@@ -150,7 +150,7 @@ export const aepsSubmitOTP = (values) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/validate-otp`,
+            `${API_ROUTE}/api/v1/user/aeps1/validate-otp`,
             values, // Send values directly, not wrapped in {values}
             {
                 headers: {
@@ -195,7 +195,7 @@ export const aepsOnboardingBiometricVerification = (data) => async (dispatch) =>
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/bio-metric-verification`,
+            `${API_ROUTE}/api/v1/user/aeps1/bio-metric-verification`,
             data,
             {
                 headers: {
@@ -243,7 +243,7 @@ export const aepsOnboardingFAVerification = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/2fa-authentication`,
+            `${API_ROUTE}/api/v1/user/aeps1/2fa-authentication`,
             data,
             {
                 headers: {
@@ -304,7 +304,7 @@ export const getAepsCwHistory = (payload) => async (dispatch) => {
         };
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps`,
+            `${API_ROUTE}/api/v1/admin/reports/aeps1Reports`,
             requestPayload,
             {
                 headers: {
@@ -352,7 +352,7 @@ export const aepsBankList = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/get-all-banks`,
+            `${API_ROUTE}/api/v1/user/aeps1/get-all-banks`,
             data,
             {
                 headers: {
@@ -418,7 +418,7 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
         console.log("🔑 Auth token exists:", !!authToken);
 
-        const apiUrl = `${API_ROUTE}/api/v1/user/aeps/transaction`;
+        const apiUrl = `${API_ROUTE}/api/v1/user/aeps1/transaction`;
         console.log("🌐 Making API call to:", apiUrl);
         console.log("📦 Request payload:", {
             ...data,
@@ -508,7 +508,7 @@ export const getAepsTransactionDetails = (transactionId) => async (dispatch) => 
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps/transactionDetails/${transactionId}`,
+            `${API_ROUTE}/api/v1/admin/reports/aeps1/transactionDetails/${transactionId}`,
             {},
             {
                 headers: {
@@ -559,7 +559,7 @@ export const aepsBankOtp = (payload = {}) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-send-otp`,
+            `${API_ROUTE}/api/v1/user/aeps1/bank-kyc-send-otp`,
             payload,
             {
                 headers: {
@@ -610,7 +610,7 @@ export const aepsSubmitBankOtp = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-validate-otp`,
+            `${API_ROUTE}/api/v1/user/aeps1/bank-kyc-validate-otp`,
             data || {},
             {
                 headers: {
@@ -661,7 +661,7 @@ export const aepsSubmitBiomatric = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/bank-kyc-biometric-validate`,
+            `${API_ROUTE}/api/v1/user/aeps1/bank-kyc-biometric-validate`,
             data || {},
             {
                 headers: {
@@ -725,7 +725,7 @@ export const getAepsCwHistoryCompany = (payload) => async (dispatch) => {
         };
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/company/reports/aeps`,
+            `${API_ROUTE}/api/v1/company/reports/aeps1Reports`,
             requestPayload,
             {
                 headers: {
@@ -773,7 +773,7 @@ export const aepsResentBankList = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/recent-banks`,
+            `${API_ROUTE}/api/v1/user/aeps1/recent-banks`,
             data,
             {
                 headers: {
