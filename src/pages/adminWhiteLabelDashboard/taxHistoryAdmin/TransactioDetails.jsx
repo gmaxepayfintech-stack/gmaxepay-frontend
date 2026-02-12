@@ -1,28 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import MainWalletStatement from "./MainWalletStatement";
-import { getAepsTransactionDetails } from "../../../redux/action/aepsAction";
-import { ButtonLoader } from "../../../widgets/layout/loader";
 
-const TransactioDetails = ({ transactionId, onBack }) => {
-  const dispatch = useDispatch();
+const TransactioDetails = ({ transactionData, onBack }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
-
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
-  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionData = transactionDetailsResponse?.data || null;
-
-  // Fetch transaction details when component mounts or transactionId changes
-  useEffect(() => {
-    if (transactionId) {
-      dispatch(getAepsTransactionDetails(transactionId));
-    }
-  }, [dispatch, transactionId]);
 
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
@@ -159,22 +142,8 @@ const TransactioDetails = ({ transactionId, onBack }) => {
   const commissionData = calculateCommissionData();
   const totalCommission = calculateTotalCommission();
 
-  // Show loader while fetching data
-  if (isLoading && !transactionData) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Show error or no data message
-  if (!isLoading && !transactionData) {
+  if (!transactionData) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
         <div className="mb-4 sm:mb-6">
@@ -492,12 +461,11 @@ const TransactioDetails = ({ transactionId, onBack }) => {
 };
 
 TransactioDetails.propTypes = {
-  transactionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  transactionData: PropTypes.object.isRequired,
   onBack: PropTypes.func,
 };
 
 TransactioDetails.defaultProps = {
-  transactionId: null,
   onBack: null,
 };
 
