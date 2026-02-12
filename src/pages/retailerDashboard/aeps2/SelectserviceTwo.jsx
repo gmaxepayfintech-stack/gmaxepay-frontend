@@ -10,8 +10,8 @@ import {
   aepsTwoBalanceEnquiry,
   aepsTwoMiniStatement,
   aepsTwoBankList,
+  aepsTwoRecentBankList,
 } from "../../../redux/action/aepsTwoAction";
-import { aepsResentBankList } from "../../../redux/action/aepsAction";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -20,7 +20,7 @@ const SelectserviceTwo = () => {
   const dispatch = useDispatch();
   const bankList = useSelector((state) => state.aepsTwo?.bankList);
   const resentBankListState = useSelector(
-    (state) => state.aeps?.resentBankList,
+    (state) => state.aepsTwo?.bankRecentList,
   );
 
   const [activeTab, setActiveTab] = useState("cashWithdrawal");
@@ -105,9 +105,8 @@ const SelectserviceTwo = () => {
 
   const banks = bankList?.bankList || [];
 
-  // Banks returned from recent banks API
-  const resentBanksFromApi =
-    resentBankListState?.resentBankList || resentBankListState?.data || [];
+  // Banks returned from recent banks API (aepsTwoRecentBankList)
+  const resentBanksFromApi = resentBankListState?.bankRecentList || [];
 
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
@@ -465,7 +464,7 @@ const SelectserviceTwo = () => {
 
   // Fetch recent banks on component mount
   useEffect(() => {
-    dispatch(aepsResentBankList({}))
+    dispatch(aepsTwoRecentBankList({}))
       .then((response) => {
         console.log("Recent bank list response:", response);
       })

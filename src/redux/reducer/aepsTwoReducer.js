@@ -6,6 +6,7 @@ import {
   AEPSTWO_MINI_STATEMENT_SUCCESS,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_SUCCESS,
+  AEPSTWO_RESENT_BANK_LIST_SUCCESS,
   AEPSTWO_SEND_OTP_SUCCESS,
   AEPSTWO_STATUS_CHECK_SUCCESS,
   AEPSTWO_SUBMIT_OTP_SUCCESS,
@@ -27,6 +28,7 @@ const initialState = {
   balanceEnquiry:null,
   miniStatement: null,
   bankList:null,
+  bankRecentList: null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -135,6 +137,15 @@ const aepsTwoReducer = (state = initialState, action) => {
             success: action?.payload?.status,
             message: action?.payload?.message,
           }
+          case AEPSTWO_RESENT_BANK_LIST_SUCCESS:
+            return{
+              ...state,
+              loading: false,
+              error: null,
+              bankRecentList: action?.payload,
+              success: action?.payload?.status,
+              message: action?.payload?.message,
+            }
     default:
       return state;
   }

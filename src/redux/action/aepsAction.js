@@ -773,7 +773,7 @@ export const aepsResentBankList = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps/recent-banks`,
+            `${API_ROUTE}/api/v1/user/aeps1/recent-banks`,
             data,
             {
                 headers: {
