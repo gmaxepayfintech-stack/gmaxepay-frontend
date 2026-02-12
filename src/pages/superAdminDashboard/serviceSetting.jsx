@@ -1,4 +1,11 @@
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Search,
+  Pencil,
+  Trash2,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -13,6 +20,7 @@ const ServiceSetting = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
+  const [currentPage, setCurrentPage] = useState(1);
 
   const [formData, setFormData] = useState({
     id: "",
@@ -28,13 +36,25 @@ const ServiceSetting = () => {
       isActive: formData.active,
     };
 
-    if (isEditMode && editingId) {
-      // 🔁 UPDATE
-      dispatch(updateService(editingId, payload));
-    } else {
-      // ➕ CREATE
-      dispatch(createService(payload));
-    }
+    const action =
+      isEditMode && editingId
+        ? updateService(editingId, payload)
+        : createService(payload);
+
+    dispatch(action).then(() => {
+      setCurrentPage(1);
+
+      dispatch(
+        listServices({
+          query: {},
+          customSearch: searchQuery ? { serviceName: searchQuery } : {},
+          options: {
+            page: 1,
+            paginate: 10,
+          },
+        }),
+      );
+    });
 
     setIsOpen(false);
     setIsEditMode(false);
@@ -62,13 +82,35 @@ const ServiceSetting = () => {
   // };
 
   const dispatch = useDispatch();
-  const { serviceList } = useSelector((state) => state.services);
+  // const { serviceList } = useSelector((state) => state.services);
   const isLoading = useSelector((state) => state.loading.isLoading);
-  const services = serviceList || [];
+  // const services = serviceList || [];
+
+  const serviceList = useSelector((state) => state.services.serviceList);
+
+  const services = serviceList?.data || [];
+  const paginator = serviceList?.paginator || {};
+  const totalPages = paginator?.pageCount || 1;
+  const apiCurrentPage =
+    typeof paginator?.currentPage === "number"
+      ? paginator.currentPage
+      : currentPage;
+  // useEffect(() => {
+  //   dispatch(listServices(searchQuery, 1));
+  // }, [dispatch, searchQuery]);
 
   useEffect(() => {
-    dispatch(listServices(searchQuery, 1));
-  }, [dispatch, searchQuery]);
+    dispatch(
+      listServices({
+        query: {},
+        customSearch: searchQuery ? { serviceName: searchQuery } : {},
+        options: {
+          page: currentPage,
+          paginate: 10,
+        },
+      }),
+    );
+  }, [dispatch, searchQuery, currentPage]);
 
   return (
     <div className="py-4 px-1">
@@ -164,10 +206,7 @@ const ServiceSetting = () => {
               </tr>
             ) : services.length > 0 ? (
               services.map((service) => (
-                <tr
-                  key={service.id}
-                  className="border-b border-[#1B1717]/20 last:border-none"
-                >
+                <tr key={service.id} className="border-b border-[#1B1717]/20  ">
                   {/* <td className="py-3 px-2 text-xs font-[gilroy-">
                     {service.slno}
                   </td> */}
@@ -228,6 +267,50 @@ const ServiceSetting = () => {
             )}
           </tbody>
         </table>
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 py-4">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={apiCurrentPage === 1 || isLoading}
+              className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let page;
+              if (totalPages <= 5) page = i + 1;
+              else if (apiCurrentPage <= 3) page = i + 1;
+              else if (apiCurrentPage >= totalPages - 2)
+                page = totalPages - 4 + i;
+              else page = apiCurrentPage - 2 + i;
+
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                    apiCurrentPage === page
+                      ? "bg-[#039155] text-white"
+                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={apiCurrentPage === totalPages || isLoading}
+              className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {isOpen && (

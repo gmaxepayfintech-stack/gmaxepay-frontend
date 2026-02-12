@@ -8,50 +8,74 @@ import {
 } from "../actionType/serviceActionType";
 
 const initialState = {
-  serviceList: [],
+  serviceList: null, // holds data + paginator
+  loading: false,
   success: null,
   message: null,
   error: null,
-  updateResponse: null, // ✅ added
 };
 
 const serviceReducer = (state = initialState, action) => {
   switch (action.type) {
+    /* =======================
+       LIST SERVICES
+    ======================= */
     case SERVICE_LIST_SUCCESS:
       return {
         ...state,
-        serviceList: action.payload?.services || [],
-        success: action.payload?.status || true,
-        message: action.payload?.message || null,
-        error: null,
-      };
-
-    case SERVICE_CREATE_SUCCESS:
-      return {
-        ...state,
-        success: action.payload?.status || true,
-        message: action.payload?.message || "Service created successfully",
-        error: null,
-      };
-
-    case SERVICE_UPDATE_SUCCESS:
-      return {
-        ...state,
-        updateResponse: action.payload,
-        success: true,
-        message: action.payload?.message || "Service updated successfully",
+        serviceList: action.payload,
+        loading: false,
+        success: action.payload?.status,
+        message: action.payload?.message,
         error: null,
       };
 
     case SERVICE_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        success: false,
+        error: action.payload,
+      };
+
+    /* =======================
+       CREATE SERVICE
+    ======================= */
+    case SERVICE_CREATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action.payload?.status,
+        message: action.payload?.message,
+        error: null,
+      };
+
     case SERVICE_CREATE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        success: false,
+        error: action.payload,
+      };
+
+    /* =======================
+       UPDATE SERVICE
+    ======================= */
+    case SERVICE_UPDATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action.payload?.status,
+        message: action.payload?.message,
+        error: null,
+      };
+
     case SERVICE_UPDATE_FAILURE:
       return {
         ...state,
-        error: action.payload,
+        loading: false,
         success: false,
-        message:
-          action.payload?.message || action.payload || "Something went wrong",
+        error: action.payload,
       };
 
     default:
