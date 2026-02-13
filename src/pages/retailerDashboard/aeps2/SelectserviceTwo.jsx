@@ -1660,10 +1660,10 @@ const SelectserviceTwo = () => {
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
           <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
             {/* Notches */}
-            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
-            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full"></div>
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full"></div>
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-r-full"></div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-l-full"></div>
 
             <div className="relative z-10 pt-12 pb-12 px-12">
               {/* Success Header */}
