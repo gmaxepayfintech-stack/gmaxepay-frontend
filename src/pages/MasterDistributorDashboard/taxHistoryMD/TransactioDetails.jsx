@@ -9,7 +9,6 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
     const roleMap = {
-      2: "White Label Partner",
       3: "Master Distributor",
       4: "Distributor",
       5: "Retailer",
@@ -17,32 +16,12 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     return roleMap[roleNumber] || `Role ${roleNumber}`;
   };
 
-  // Calculate commission data from transaction - Show 4 roles (no Super Admin)
+  // Calculate commission data from transaction - Show 3 roles (no Super Admin, no White Label)
   const calculateCommissionData = () => {
     if (!transactionData?.transaction) return [];
 
     const transaction = transactionData.transaction;
     const commissionData = [];
-
-    // White Label Commission - Always show, use 0 if null
-    const whitelabelComm =
-      transaction.whitelabelComm !== null &&
-      transaction.whitelabelComm !== undefined
-        ? parseFloat(transaction.whitelabelComm) || 0
-        : 0;
-    const whitelabelCommTDS =
-      transaction.whitelabelCommTDS !== null &&
-      transaction.whitelabelCommTDS !== undefined
-        ? parseFloat(transaction.whitelabelCommTDS) || 0
-        : 0;
-    const whitelabelNet = whitelabelComm - whitelabelCommTDS;
-    commissionData.push({
-      name: "White Label Partner",
-      userId: transactionData.reportingUserDetails?.parentUserId || "N/A",
-      commissions: `₹${whitelabelComm.toFixed(2)}`,
-      tds: `₹${whitelabelCommTDS.toFixed(2)}`,
-      net: `₹${whitelabelNet.toFixed(2)}`,
-    });
 
     // Master Distributor Commission - Always show, use 0 if null
     const masterDistributorComm =

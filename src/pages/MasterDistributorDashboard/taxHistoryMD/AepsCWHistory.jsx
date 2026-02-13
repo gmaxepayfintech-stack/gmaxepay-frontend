@@ -300,25 +300,64 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const transformTransactionData = (apiItem) => {
     if (!apiItem) return null;
 
-    // Extract bank name from bankiin or responsePayload
-    const bankName =
-      apiItem.responsePayload?.data?.bankName ||
-      apiItem.bankName ||
-      apiItem.bankiin ||
-      "N/A";
+    // Handle both AEPS 1 and AEPS 2 response structures
+    const isAeps2 = apiType === "aeps2";
 
-    // Extract aadhar number
-    const aadharNumber =
-      apiItem.consumerAadhaarNumber ||
-      apiItem.requestPayload?.consumerAadhaarNumber ||
-      apiItem.requestPayload?.aadhaarNo ||
-      null;
+    // Extract bank name - handle both structures
+    const bankName = isAeps2
+      ? apiItem.responsePayload?.result?.bankName ||
+        apiItem.responsePayload?.data?.bankName ||
+        apiItem.bankName ||
+        apiItem.bankIin ||
+        "N/A"
+      : apiItem.responsePayload?.data?.bankName ||
+        apiItem.bankName ||
+        apiItem.bankiin ||
+        "N/A";
 
-    // Calculate commission (credit field)
+    // Extract aadhar number - handle both structures
+    const aadharNumber = isAeps2
+      ? apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.adhaarNumber ||
+        null
+      : apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.consumerAadhaarNumber ||
+        apiItem.requestPayload?.aadhaarNo ||
+        null;
+
+    // Calculate commission (credit field) - AEPS 2 might not have commission fields
     const commission = apiItem.credit || 0;
 
     // Extract user details from API response
     const userDetails = apiItem.userDetails || {};
+
+    // Extract amount - handle both structures
+    const amount = isAeps2
+      ? apiItem.transactionAmount || 0
+      : apiItem.amount || 0;
+
+    // Extract mobile number - handle both structures
+    const mobileNo = isAeps2
+      ? apiItem.mobileNumber ||
+        apiItem.requestPayload?.mobileNumber ||
+        userDetails.mobileNo ||
+        "N/A"
+      : apiItem.consumerNumber ||
+        apiItem.requestPayload?.mobile ||
+        apiItem.requestPayload?.consumerNumber ||
+        userDetails.mobileNo ||
+        "N/A";
+
+    // Extract user name/identifier
+    const userName = isAeps2
+      ? apiItem.mobileNumber ||
+        userDetails.name ||
+        apiItem.name ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`
+      : apiItem.consumerNumber ||
+        userDetails.name ||
+        apiItem.name ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
 
     return {
       transaction: {
@@ -334,20 +373,13 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         retailerComTDS: apiItem.retailerComTDS,
       },
       userDetails: {
-        name: apiItem.consumerNumber ||
-          userDetails.name ||
-          apiItem.name ||
-          `User ${apiItem.refId || apiItem.addedBy || "N/A"}`,
+        name: userName,
         userRole: userDetails.userRole || apiItem.userRole || null,
         userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
-        mobileNo: apiItem.consumerNumber ||
-          apiItem.requestPayload?.mobile ||
-          apiItem.requestPayload?.consumerNumber ||
-          userDetails.mobileNo ||
-          "N/A",
+        mobileNo: mobileNo,
       },
       reportingUserDetails: {
-        companyName: apiItem.companyName || apiItem.operator || "N/A",
+        companyName: apiItem.companyName || apiItem.merchantLoginId || apiItem.operator || "N/A",
         parentName: "N/A",
         parentRole: null,
         parentUserId: apiItem.companyId?.toString() || "N/A",
@@ -355,7 +387,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       transactionDetails: {
         bankName: bankName,
         aadharNumber: aadharNumber,
-        amount: apiItem.amount || 0,
+        amount: amount,
         commission: commission,
       },
     };
