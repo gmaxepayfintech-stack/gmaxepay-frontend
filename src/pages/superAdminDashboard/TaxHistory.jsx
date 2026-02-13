@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import RechargeReport from "./reports/RechargeReport";
 import PanReport from "./reports/PanReport";
 import DTHReport from "./reports/DTHReport";
-
+import PayoutHistory from "./payoutHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -23,6 +23,7 @@ const TaxHistory = () => {
     viewHistory === "aeps2-cw-history" ||
     viewHistory === "aeps2-ms-history" ||
     viewHistory === "aeps2-be-history";
+  const showPayoutHistory = viewHistory === "payout-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
@@ -72,7 +73,6 @@ const TaxHistory = () => {
       category: "Banking",
     },
     {
-      
       id: 5,
       title: "AEPS 1 BE History",
       subtitle: "Balance Enquiry",
@@ -86,6 +86,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "aeps2-be-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "Payout History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "payout-history",
       category: "Banking",
     },
     // {
@@ -176,7 +184,7 @@ const TaxHistory = () => {
       viewKey: "dth-history",
       category: "Utility Payment",
     },
-    
+
     // E-Governance
     {
       id: 17,
@@ -272,7 +280,6 @@ const TaxHistory = () => {
     //   available: true,
     //   category: "Verification History",
     // },
-    
   ];
 
   useEffect(() => {
@@ -303,11 +310,18 @@ const TaxHistory = () => {
     );
   }
 
-  if (showRechargeHistory) {
+  if (showPayoutHistory) {
     return (
-      <RechargeReport
+      <PayoutHistory
+        type={viewHistory}
         onBack={() => navigate("/superDashboard/txn-history")}
       />
+    );
+  }
+
+  if (showRechargeHistory) {
+    return (
+      <RechargeReport onBack={() => navigate("/superDashboard/txn-history")} />
     );
   }
 

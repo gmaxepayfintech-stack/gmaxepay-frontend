@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import RechargeReport from "../reports/RechargeReport";
 import PanReport from "../reports/PanReport";
 import DTHReport from "../reports/DTHReport";
+import PayoutHistory from "./payoutHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -17,12 +18,12 @@ const TaxHistory = () => {
   // This will automatically update when location.search changes
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  
+
   // Parse viewHistory to extract apiType and transactionType
   // Format: aeps1-cw-history, aeps2-ms-history, etc.
   let apiType = null;
   let transactionType = null;
-  
+
   if (viewHistory) {
     // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps1-be-history
     const match = viewHistory.match(/^aeps([12])-(cw|ms|be)-history$/);
@@ -31,11 +32,12 @@ const TaxHistory = () => {
       transactionType = match[2].toUpperCase(); // Convert "cw" to "CW", "ms" to "MS", "be" to "BE"
     }
   }
-  
+
   const showAepsHistory = apiType && transactionType;
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDTHHistory = viewHistory === "dth-history";
   const showPANHistory = viewHistory === "pan-service-history";
+  const showPayoutHistory = viewHistory === "payout-history";
 
   // Debug: Log when view parameter changes
   useEffect(() => {
@@ -102,6 +104,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "aeps2-be-history",
+      category: "Banking",
+    },
+    {
+      id: 29,
+      title: "Payout History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "payout-history",
       category: "Banking",
     },
     {
@@ -192,7 +202,7 @@ const TaxHistory = () => {
       viewKey: "dth-history",
       category: "Utility Payment",
     },
-    
+
     // E-Governance
     {
       id: 17,
@@ -285,10 +295,8 @@ const TaxHistory = () => {
       available: true,
       category: "Verification History",
     },
-    
   ];
 
- 
   useEffect(() => {
     setCurrentPage(1);
   }, [activeTab]);
@@ -318,18 +326,23 @@ const TaxHistory = () => {
     );
   }
 
-  if (showRechargeHistory) {
+  if (showPayoutHistory) {
     return (
-      <RechargeReport
+      <PayoutHistory
+        type={viewHistory}
         onBack={() => navigate("/adminDashboard/txn-history")}
       />
     );
   }
 
-  if (showDTHHistory) {
+  if (showRechargeHistory) {
     return (
-      <DTHReport onBack={() => navigate("/adminDashboard/txn-history")} />
+      <RechargeReport onBack={() => navigate("/adminDashboard/txn-history")} />
     );
+  }
+
+  if (showDTHHistory) {
+    return <DTHReport onBack={() => navigate("/adminDashboard/txn-history")} />;
   }
 
   if (showPANHistory) {
@@ -440,7 +453,9 @@ const TaxHistory = () => {
                 <button
                   onClick={() => {
                     if (card.viewKey) {
-                      navigate(`/adminDashboard/txn-history?view=${card.viewKey}`);
+                      navigate(
+                        `/adminDashboard/txn-history?view=${card.viewKey}`,
+                      );
                     }
                   }}
                   className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-xl font-[Gilroy-Semibold] hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto"
