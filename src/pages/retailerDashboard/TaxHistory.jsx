@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import MobileRechargeHistory from "./mobileRechargeHistory";
 import DthRechargeHistory from "./dthRechargeHIstory";
 import PanServiceHistory from "./panServiceHistory";
+import PayoutHistory from "./payoutHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -22,6 +23,8 @@ const TaxHistory = () => {
     viewHistory === "aeps2-cw-history" ||
     viewHistory === "aeps2-ms-history" ||
     viewHistory === "aeps2-be-history";
+
+  const showPayoutHistory = viewHistory === "payout-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
@@ -84,6 +87,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "aeps2-be-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "Payout History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "payout-history",
       category: "Banking",
     },
     // {
@@ -295,6 +306,15 @@ const TaxHistory = () => {
     return (
       <AepsCWHistory
         type={viewHistory} // optional: pass which AEPS history
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showPayoutHistory) {
+    return (
+      <PayoutHistory
+        type={viewHistory} // optional: pass which payout history
         onBack={() => navigate("/retailerDashboard/txn-history")}
       />
     );
