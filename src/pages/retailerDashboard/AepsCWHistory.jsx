@@ -12,8 +12,8 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
-import { getAepsCwHistory } from "../../redux/action/aepsAction";
-import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
+import { getAepsCwHistoryUser } from "../../redux/action/aepsAction";
+import { getAeps2CwHistoryUsers } from "../../redux/action/aepsTwoAction";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -27,22 +27,16 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
-  // Determine whether this is AEPS2 history based on apiType
-  const isAeps2 = apiType === "aeps2";
-
-  // Get data from Redux (AEPS1 or AEPS2 based on apiType)
-  const aeps1HistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
-  );
-  const aeps2HistoryResponse = useSelector(
-    (state) => state?.aepsTwo?.aeps2CwHistory,
-  );
-  const aepsHistoryResponse = isAeps2
-    ? aeps2HistoryResponse
-    : aeps1HistoryResponse;
-  const apiData = aepsHistoryResponse?.data || [];
-  const paginator = aepsHistoryResponse?.paginator || {};
-  const totalCount = aepsHistoryResponse?.total || 0;
+  // Determine which Redux state to use based on apiType
+  const aepsCwHistoryResponse = useSelector((state) => {
+    if (apiType === "aeps2") {
+      return state?.aepsTwo?.aeps2CwHistoryUsers;
+    }
+    return state?.aeps?.aepsCwHistoryUser;
+  });
+  const apiData = aepsCwHistoryResponse?.data || [];
+  const paginator = aepsCwHistoryResponse?.paginator || {};
+  const totalCount = aepsCwHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -322,10 +316,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       },
     };
 
-    if (isAeps2) {
-      dispatch(getAeps2CwHistory(payload));
+    // Dispatch the appropriate API call based on apiType
+    if (apiType === "aeps2") {
+      dispatch(getAeps2CwHistoryUsers(payload));
     } else {
-      dispatch(getAepsCwHistory(payload));
+      dispatch(getAepsCwHistoryUser(payload));
     }
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
 
@@ -548,9 +543,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
                 // Dispatch the appropriate API call based on apiType
                 if (apiType === "aeps2") {
-                  dispatch(getAeps2CwHistory(payload));
+                  dispatch(getAeps2CwHistoryUsers(payload));
                 } else {
-                  dispatch(getAepsCwHistory(payload));
+                  dispatch(getAepsCwHistoryUser(payload));
                 }
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
