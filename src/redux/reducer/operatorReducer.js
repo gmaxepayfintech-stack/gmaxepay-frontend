@@ -9,12 +9,14 @@ import {
 } from "../actionType/operatorActionType";
 
 const initialState = {
-  operatorList: [],
-  success: null,
+  loading: false,
   error: null,
+  success: null,
   message: null,
-  commTotal: null,
+
+  operatorList: null, // full paginated response
   adminList: [],
+  commTotal: null,
 };
 
 const operatorReducer = (state = initialState, action) => {
@@ -22,38 +24,65 @@ const operatorReducer = (state = initialState, action) => {
     case OPERATOR_LIST_SUCCESS:
       return {
         ...state,
-        operatorList: action.payload,
+        loading: false,
         error: null,
-      };
-
-    case OPERATOR_CREATE_SUCCESS:
-    case OPERATOR_UPDATE_SUCCESS:
-      return {
-        ...state,
-        success: true,
-        message: action.payload?.message,
-        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        operatorList: action?.payload,
       };
 
     case OPERATOR_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        success: false,
+      };
+
+    case OPERATOR_CREATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      };
+
     case OPERATOR_CREATE_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        success: false,
+      };
+
+    case OPERATOR_UPDATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      };
+
     case OPERATOR_UPDATE_FAILURE:
       return {
         ...state,
+        loading: false,
         error: action.payload,
         success: false,
       };
 
     case ADMIN_UPGRADE_LIST_SUCCESS:
-      return{
+      return {
         ...state,
-        loading:false,
+        loading: false,
         error: null,
-        adminList: action?.payload?.data || [],
-        message: action?.payload?.message,
         success: action?.payload?.status,
-        commTotal: action.payload?.total || 0,
-      }
+        message: action?.payload?.message,
+        adminList: action?.payload?.data || [],
+        commTotal: action?.payload?.total || 0,
+      };
 
     default:
       return state;

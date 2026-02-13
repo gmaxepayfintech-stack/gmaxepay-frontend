@@ -1,4 +1,4 @@
-import { Pencil, Plus, Search } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil, Plus, Search } from "lucide-react";
 import { FiChevronDown } from "react-icons/fi";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -16,10 +16,9 @@ const OperatorSetting = () => {
   const isLoading = useSelector((state) => state.loading.isLoading);
 
   // always extract the ARRAY safely
-  const services = Array.isArray(operatorList?.operators)
-    ? operatorList.operators
-    : [];
+  const services = Array.isArray(operatorList?.data) ? operatorList.data : [];
 
+  const [currentPage, setCurrentPage] = useState(1);
   const [editId, setEditId] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
@@ -38,30 +37,51 @@ const OperatorSetting = () => {
   });
 
   useEffect(() => {
-    dispatch(listOperators(searchQuery, 1));
-  }, [dispatch, searchQuery]);
+    dispatch(
+      listOperators({
+        query: selectedType !== "all" ? { operatorType: selectedType } : {},
+        customSearch: searchQuery
+          ? { operatorName: searchQuery, operatorCode: searchQuery }
+          : {},
+        options: {
+          page: currentPage,
+          paginate: 10,
+          sort: { createdAt: 1 },
+        },
+      }),
+    );
+  }, [dispatch, searchQuery, selectedType, currentPage]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedType]);
 
   const operatorTypes = Array.from(
     new Set(services.map((op) => op.operatorType).filter(Boolean)),
   );
 
-  // 🔍 Search filter
-  const searchFilteredServices = services.filter(
-    (service) =>
-      service.operatorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      service.operatorCode?.toLowerCase().includes(searchQuery.toLowerCase()),
-  );
+  // // 🔍 Search filter
+  // const searchFilteredServices = services.filter(
+  //   (service) =>
+  //     service.operatorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     service.operatorCode?.toLowerCase().includes(searchQuery.toLowerCase()),
+  // );
 
-  const typeFilteredServices =
-    selectedType === "all"
-      ? searchFilteredServices
-      : searchFilteredServices.filter(
-          (service) => service.operatorType === selectedType,
-        );
+  // const typeFilteredServices =
+  //   selectedType === "all"
+  //     ? searchFilteredServices
+  //     : searchFilteredServices.filter(
+  //         (service) => service.operatorType === selectedType,
+  //       );
 
-  const sortedServices = [...typeFilteredServices].sort((a, b) =>
-    (a.operatorName || "").localeCompare(b.operatorName || ""),
-  );
+  // const sortedServices = [...typeFilteredServices].sort((a, b) =>
+  //   (a.operatorName || "").localeCompare(b.operatorName || ""),
+  // );
+  const displayedServices = services;
+
+  const paginator = operatorList?.paginator || {};
+  const totalPages = paginator?.pageCount || 1;
+  const apiCurrentPage = paginator?.currentPage || currentPage;
 
   const handleSubmitOperator = () => {
     if (
@@ -107,7 +127,22 @@ const OperatorSetting = () => {
         isTakeCustomerNum: true,
       };
 
-      dispatch(updateOperator(editId, updatePayload));
+      dispatch(updateOperator(editId, updatePayload)).then(() => {
+        setCurrentPage(1);
+        dispatch(
+          listOperators({
+            query: selectedType !== "all" ? { operatorType: selectedType } : {},
+            customSearch: searchQuery
+              ? { operatorName: searchQuery, operatorCode: searchQuery }
+              : {},
+            options: {
+              page: currentPage,
+              paginate: 10,
+              sort: { createdAt: 1 },
+            },
+          }),
+        );
+      });
     } else {
       // ✅ CREATE PAYLOAD
       const createPayload = {
@@ -134,7 +169,22 @@ const OperatorSetting = () => {
         isTakeCustomerNum: true,
       };
 
-      dispatch(createOperator(createPayload));
+      dispatch(createOperator(createPayload)).then(() => {
+        setCurrentPage(1);
+        dispatch(
+          listOperators({
+            query: selectedType !== "all" ? { operatorType: selectedType } : {},
+            customSearch: searchQuery
+              ? { operatorName: searchQuery, operatorCode: searchQuery }
+              : {},
+            options: {
+              page: currentPage,
+              paginate: 10,
+              sort: { createdAt: 1 },
+            },
+          }),
+        );
+      });
     }
 
     resetForm();
@@ -260,12 +310,9 @@ const OperatorSetting = () => {
                   <ButtonLoader />
                 </td>
               </tr>
-            ) : sortedServices.length ? (
-              sortedServices.map((service) => (
-                <tr
-                  key={service.id}
-                  className="border-b border-[#1B1717]/30 last:border-b-0 "
-                >
+            ) : displayedServices.length ? (
+              displayedServices.map((service) => (
+                <tr key={service.id} className="border-b border-[#1B1717]/30  ">
                   <td className="py-4 px-3">{service.id}</td>
                   <td>{service.operatorName}</td>
                   <td>{service.operatorCode}</td>
@@ -303,6 +350,50 @@ const OperatorSetting = () => {
             )}
           </tbody>
         </table>
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 py-4 ">
+            <button
+              onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+              disabled={apiCurrentPage === 1 || isLoading}
+              className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let page;
+              if (totalPages <= 5) page = i + 1;
+              else if (apiCurrentPage <= 3) page = i + 1;
+              else if (apiCurrentPage >= totalPages - 2)
+                page = totalPages - 4 + i;
+              else page = apiCurrentPage - 2 + i;
+
+              return (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
+                    apiCurrentPage === page
+                      ? "bg-[#039155] text-white"
+                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                  }`}
+                >
+                  {page}
+                </button>
+              );
+            })}
+
+            <button
+              onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+              disabled={apiCurrentPage === totalPages || isLoading}
+              className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Next page"
+            >
+              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+            </button>
+          </div>
+        )}
       </div>
 
       {isOpen && (
