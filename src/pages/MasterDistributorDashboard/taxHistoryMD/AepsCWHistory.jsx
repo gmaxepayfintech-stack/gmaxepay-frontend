@@ -17,8 +17,9 @@ import {
   getAepsTransactionDetails,
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { getAeps2CwHistory } from "../../../redux/action/aepsTwoAction";
 
-const AepsCWHistory = ({ onBack }) => {
+const AepsCWHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -32,13 +33,25 @@ const AepsCWHistory = ({ onBack }) => {
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
     useState(false);
 
-  // Get data from Redux
-  const aepsCwHistoryResponse = useSelector(
+  // Determine whether this is AEPS2 history based on type
+  const isAeps2 =
+    type === "aeps2-cw-history" ||
+    type === "aeps2-ms-history" ||
+    type === "aeps2-be-history";
+
+  // Get data from Redux (AEPS1 or AEPS2 based on type)
+  const aeps1HistoryResponse = useSelector(
     (state) => state?.aeps?.aepsCwHistory,
   );
-  const apiData = aepsCwHistoryResponse?.data || [];
-  const paginator = aepsCwHistoryResponse?.paginator || {};
-  const totalCount = aepsCwHistoryResponse?.total || 0;
+  const aeps2HistoryResponse = useSelector(
+    (state) => state?.aepsTwo?.aeps2CwHistory,
+  );
+  const aepsHistoryResponse = isAeps2
+    ? aeps2HistoryResponse
+    : aeps1HistoryResponse;
+  const apiData = aepsHistoryResponse?.data || [];
+  const paginator = aepsHistoryResponse?.paginator || {};
+  const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector(
     (state) => state?.aeps?.transactionDetails,
@@ -69,8 +82,8 @@ const AepsCWHistory = ({ onBack }) => {
 
       // Map status from API to display format
       const getStatusDisplay = (status) => {
-        if (!status) return "Pending";
-        const statusUpper = status.toUpperCase();
+        if (status === null || status === undefined) return "Pending";
+        const statusUpper = String(status).toUpperCase();
         if (statusUpper === "SUCCESS") return "Success";
         if (statusUpper === "FAILED" || statusUpper === "FAILURE")
           return "Failed";
@@ -186,6 +199,13 @@ const AepsCWHistory = ({ onBack }) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // Determine AEPS transaction type (CW, MS, BE) based on view type
+  const aepsTxnType = (() => {
+    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
+    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
+    return "CW"; // default
+  })();
+
   // Fetch data from API
   useEffect(() => {
     // Only make API call if both dates are selected OR both are null
@@ -197,9 +217,7 @@ const AepsCWHistory = ({ onBack }) => {
       return;
     }
 
-    const query = {
-      aepsTxnType: "CW",
-    };
+    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -214,8 +232,8 @@ const AepsCWHistory = ({ onBack }) => {
       : {};
 
     const payload = {
-      query: query,
-      customSearch: customSearch,
+      query,
+      customSearch,
       options: {
         page: currentPage,
         paginate: 10,
@@ -223,8 +241,20 @@ const AepsCWHistory = ({ onBack }) => {
       },
     };
 
-    dispatch(getAepsCwHistory(payload));
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
+    if (isAeps2) {
+      dispatch(getAeps2CwHistory(payload));
+    } else {
+      dispatch(getAepsCwHistory(payload));
+    }
+  }, [
+    dispatch,
+    currentPage,
+    debouncedSearchQuery,
+    fromDate,
+    toDate,
+    aepsTxnType,
+    isAeps2,
+  ]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -330,7 +360,7 @@ const AepsCWHistory = ({ onBack }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                AEPS CW History
+                {type.toUpperCase()}
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
@@ -360,7 +390,9 @@ const AepsCWHistory = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { aepsTxnType: "CW" };
+                const query = isAeps2
+                  ? { transactionType: aepsTxnType }
+                  : { aepsTxnType };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -375,7 +407,11 @@ const AepsCWHistory = ({ onBack }) => {
                   },
                 };
 
-                dispatch(getAepsCwHistory(payload));
+                if (isAeps2) {
+                  dispatch(getAeps2CwHistory(payload));
+                } else {
+                  dispatch(getAepsCwHistory(payload));
+                }
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -715,10 +751,12 @@ const AepsCWHistory = ({ onBack }) => {
 
 AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
+  type: PropTypes.string,
 };
 
 AepsCWHistory.defaultProps = {
   onBack: null,
+  type: "aeps-cw-history",
 };
 
 export default AepsCWHistory;
