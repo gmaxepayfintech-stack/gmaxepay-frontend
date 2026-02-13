@@ -1628,16 +1628,17 @@ const Selectservice = () => {
         case "error":
           return (
             <svg
-              className="w-6 h-6"
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-8 w-8 text-white"
               fill="none"
-              stroke="currentColor"
               viewBox="0 0 24 24"
+              stroke="currentColor"
+              strokeWidth={3}
             >
               <path
                 strokeLinecap="round"
                 strokeLinejoin="round"
-                strokeWidth={2}
-                d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"
+                d="M6 18L18 6M6 6l12 12"
               />
             </svg>
           );
@@ -1676,6 +1677,205 @@ const Selectservice = () => {
       }
     };
 
+    // For success type, use PaymentSuccessScreen style
+    if (type === "success") {
+      return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
+          <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+            {/* Notches */}
+            <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
+            <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-r-full"></div>
+            <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-l-full"></div>
+
+            <div className="relative z-10 pt-12 pb-12 px-12">
+              {/* Success Header */}
+              <div className="text-center mb-6">
+                <div className="flex justify-center mb-3">
+                  <div className="w-14 h-14 rounded-full bg-[#039155] flex items-center justify-center">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-8 w-8 text-white"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={3}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M5 13l4 4L19 7"
+                      />
+                    </svg>
+                  </div>
+                </div>
+
+                <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                  {title}
+                </h2>
+                <p className="text-[12px] text-[#1B1717]/80">
+                  {message}
+                </p>
+              </div>
+
+              {/* Transaction/Response Details */}
+              {transactionData && (
+                <div className="mb-20">
+                  {/* Amount Display - Highlighted Box */}
+                  {transactionData.amount !== undefined && (
+                    <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
+                      <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                        ₹{transactionData.amount}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-6">
+                    {transactionData.transactionId && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Transaction ID
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#1B1717]">
+                          {transactionData.transactionId}
+                        </div>
+                      </div>
+                    )}
+                    {transactionData.referenceId && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Reference ID
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#1B1717]">
+                          {transactionData.referenceId}
+                        </div>
+                      </div>
+                    )}
+                    {transactionData.remainingBalance !== undefined && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Remaining Balance
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#039155]">
+                          ₹{transactionData.remainingBalance}
+                        </div>
+                      </div>
+                    )}
+                    {transactionData.bankName && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Bank
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#1B1717]">
+                          {transactionData.bankName}
+                        </div>
+                      </div>
+                    )}
+                    {transactionData.transactionDate && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Date
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#1B1717]">
+                          {transactionData.transactionDate}
+                        </div>
+                      </div>
+                    )}
+                    {transactionData.transactionTime && (
+                      <div>
+                        <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                          Time
+                        </div>
+                        <div className="font-['Gilroy-Medium'] text-sm text-[#1B1717]">
+                          {transactionData.transactionTime}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Mini Statement - Only for Statement transactions */}
+                  {transactionData.miniStatement && Array.isArray(transactionData.miniStatement) && transactionData.miniStatement.length > 0 && (
+                    <div className="mt-6 pt-6 border-t border-gray-200">
+                      <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
+                        Mini Statement
+                      </div>
+                      <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                        {/* Table Header */}
+                        <div className="grid grid-cols-4 gap-2 bg-gray-100 px-3 py-2 border-b border-gray-200">
+                          <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
+                            Date
+                          </div>
+                          <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
+                            Type
+                          </div>
+                          <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
+                            Amount
+                          </div>
+                          <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
+                            Narration
+                          </div>
+                        </div>
+                        {/* Table Body */}
+                        <div className="max-h-60 overflow-y-auto">
+                          {transactionData.miniStatement.map((statement, index) => (
+                            <div
+                              key={index}
+                              className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start"
+                            >
+                              <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717]">
+                                {statement.date}
+                              </div>
+                              <div
+                                className={`text-xs font-['Gilroy-SemiBold'] ${statement.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
+                              >
+                                {statement.txnType}
+                              </div>
+                              <div
+                                className={`text-xs font-['Gilroy-SemiBold'] ${statement.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
+                              >
+                                ₹ {parseFloat(statement.amount || 0).toLocaleString('en-IN', {
+                                  minimumFractionDigits: 2,
+                                  maximumFractionDigits: 2
+                                })}
+                              </div>
+                              <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717] break-words whitespace-normal">
+                                {statement.narration?.trim() || "N/A"}
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Buttons */}
+              <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-20 justify-center items-center">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-28 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+                >
+                  Close
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-28 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+                >
+                  OK
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // For error and other types, use the original modal style
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
         <div
@@ -1706,132 +1906,7 @@ const Selectservice = () => {
                       : "bg-red-50 border-red-200"
                   }`}
                 >
-                  <div className="space-y-3">
-                    {/* Success Transaction Details */}
-                    {type === "success" && (
-                      <>
-                        {transactionData.transactionId && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Transaction ID:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              {transactionData.transactionId}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.referenceId && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Reference ID:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              {transactionData.referenceId}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.amount !== undefined && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Amount:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              ₹ {transactionData.amount}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.remainingBalance !== undefined && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Remaining Balance:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-green-600">
-                              ₹ {transactionData.remainingBalance}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.bankName && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Bank:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              {transactionData.bankName}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.transactionDate && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Date:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              {transactionData.transactionDate}
-                            </span>
-                          </div>
-                        )}
-                        {transactionData.transactionTime && (
-                          <div className="flex justify-between items-center">
-                            <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
-                              Time:
-                            </span>
-                            <span className="text-xs font-['Gilroy-SemiBold'] text-gray-900">
-                              {transactionData.transactionTime}
-                            </span>
-                          </div>
-                        )}
-                        {/* Mini Stateme - Only for Statement transactions */}
-                        {transactionData.miniStatement && Array.isArray(transactionData.miniStatement) && transactionData.miniStatement.length > 0 && (
-                          <div className="mt-4 pt-4 border-t border-gray-200">
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-gray-700 mb-3">
-                              Mini Statement
-                            </div>
-                            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-                              {transactionData.miniStatement.map((statement, index) => (
-                                <div
-                                  key={index}
-                                  className="flex items-start justify-between p-3 bg-gray-50 rounded-lg border border-gray-200 hover:bg-gray-100 transition"
-                                >
-                                  <div className="flex-1 min-w-0">
-                                    <div className="flex items-center gap-2 mb-2">
-                                      <span className="text-xs font-['Gilroy-SemiBold'] text-gray-700">
-                                        {statement.date}
-                                      </span>
-                                      <span
-                                        className={`text-[10px] font-['Gilroy-SemiBold'] px-2 py-0.5 rounded ${
-                                          statement.txnType === "Cr"
-                                            ? "bg-green-100 text-green-700"
-                                            : "bg-red-100 text-red-700"
-                                        }`}
-                                      >
-                                        {statement.txnType}
-                                      </span>
-                                    </div>
-                                    <div className="text-xs font-['Gilroy-Regular'] text-gray-600 break-words">
-                                      {statement.narration?.trim() || "N/A"}
-                                    </div>
-                                  </div>
-                                  <div
-                                    className={`text-sm font-['Gilroy-SemiBold'] ml-4 flex-shrink-0 ${
-                                      statement.txnType === "Cr"
-                                        ? "text-green-600"
-                                        : "text-red-600"
-                                    }`}
-                                  >
-                                    {statement.txnType === "Cr" ? "+" : "-"}₹{" "}
-                                    {parseFloat(statement.amount || 0).toLocaleString('en-IN', {
-                                      minimumFractionDigits: 2,
-                                      maximumFractionDigits: 2
-                                    })}
-                                  </div>
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-
+                  <div>
                     {/* Error/Failure Details */}
                     {type === "error" && (
                       <>
