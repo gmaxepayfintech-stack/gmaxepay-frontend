@@ -58,25 +58,50 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           .replaceAll("/", "-");
       }
 
-      // Format amount with currency symbol
-      const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+      // Determine if this is AEPS 2 response structure
+      const isAeps2 = apiType === "aeps2";
 
-      // Map status from API to display format
-      const getStatusDisplay = (status) => {
-        if (!status) return "Pending";
-        // Ensure status is a string before calling toUpperCase
-        const statusStr = String(status);
-        const statusUpper = statusStr.toUpperCase();
-        if (statusUpper === "SUCCESS") return "Success";
-        if (statusUpper === "FAILED" || statusUpper === "FAILURE")
-          return "Failed";
+      // Format amount with currency symbol - handle both AEPS 1 and AEPS 2
+      const amountValue = isAeps2 
+        ? (item.transactionAmount || 0)
+        : (item.amount || 0);
+      const formattedAmount = `₹${amountValue}`;
+
+      // Map status from API to display format - handle both structures
+      const getStatusDisplay = (status, transactionStatus) => {
+        // For AEPS 2, prefer transactionStatus field
+        if (isAeps2 && transactionStatus) {
+          const statusStr = String(transactionStatus).toLowerCase();
+          if (statusStr === "successful" || statusStr === "success") return "Success";
+          if (statusStr === "failed" || statusStr === "failure") return "Failed";
+          return "Pending";
+        }
+        
+        // For AEPS 1 or fallback, use status field
+        if (status !== undefined && status !== null) {
+          if (typeof status === "boolean") {
+            return status ? "Success" : "Failed";
+          }
+          const statusStr = String(status);
+          const statusUpper = statusStr.toUpperCase();
+          if (statusUpper === "SUCCESS" || statusUpper === "TRUE") return "Success";
+          if (statusUpper === "FAILED" || statusUpper === "FAILURE" || statusUpper === "FALSE") return "Failed";
+        }
         return "Pending";
       };
 
       // Map capture type to display format
-      const getViaDisplay = (captureType) => {
+      const getViaDisplay = (captureType, device) => {
+        // For AEPS 2, device might indicate capture type
+        if (isAeps2 && device) {
+          const deviceStr = String(device).toUpperCase();
+          if (deviceStr.includes("FINGER") || deviceStr.includes("MANTRA") || deviceStr.includes("STARTEK")) {
+            return "FINGER";
+          }
+          if (deviceStr.includes("IRIS")) return "IRIS";
+        }
+        
         if (!captureType) return "APP";
-        // Ensure captureType is a string before calling toUpperCase
         const typeStr = String(captureType);
         const typeUpper = typeStr.toUpperCase();
         if (typeUpper === "FINGER") return "FINGER";
@@ -91,28 +116,37 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           if (userRole === 4) return "Distributor";
           return `Role ${userRole}`;
         }
-        // If it's already a string, return as is
         return userRole || "N/A";
       };
 
       // Extract user details from item (company response usually has none)
       const userDetails = item.userDetails || {};
 
-      // Extract bank name from responsePayload if available, otherwise use bankiin
-      const bankName =
-        item.responsePayload?.data?.bankName ||
-        item.bankName ||
-        item.bankiin ||
-        "N/A";
+      // Extract bank name - handle both AEPS 1 and AEPS 2 structures
+      const bankName = isAeps2
+        ? (item.responsePayload?.result?.bankName ||
+           item.responsePayload?.data?.bankName ||
+           item.bankName ||
+           item.bankIin ||
+           "N/A")
+        : (item.responsePayload?.data?.bankName ||
+           item.bankName ||
+           item.bankiin ||
+           "N/A");
 
       // Prefer consumerNumber as a readable identifier, then fall back
-      const userName =
-        item.consumerNumber ||
-        item.requestPayload?.consumerNumber ||
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        `User ${item.refId || item.addedBy || index + 1}`;
+      const userName = isAeps2
+        ? (item.mobileNumber ||
+           userDetails.name ||
+           item.name ||
+           item.userName ||
+           `User ${item.refId || item.addedBy || index + 1}`)
+        : (item.consumerNumber ||
+           item.requestPayload?.consumerNumber ||
+           userDetails.name ||
+           item.name ||
+           item.userName ||
+           `User ${item.refId || item.addedBy || index + 1}`);
 
       const userRoleValue =
         userDetails.userRole !== undefined
@@ -123,28 +157,54 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
       const profileImage = userDetails.profileImage || null;
 
-      // Mobile number from consumerNumber or requestPayload
-      const mobileNo =
-        item.consumerNumber ||
-        item.requestPayload?.mobile ||
-        item.requestPayload?.consumerNumber ||
-        userDetails.mobileNo ||
-        item.mobileNo ||
-        item.mobile ||
-        "N/A";
+      // Mobile number - handle both structures
+      const mobileNo = isAeps2
+        ? (item.mobileNumber ||
+           item.requestPayload?.mobileNumber ||
+           userDetails.mobileNo ||
+           item.mobileNo ||
+           item.mobile ||
+           "N/A")
+        : (item.consumerNumber ||
+           item.requestPayload?.mobile ||
+           item.requestPayload?.consumerNumber ||
+           userDetails.mobileNo ||
+           item.mobileNo ||
+           item.mobile ||
+           "N/A");
 
-      const consumerNumber =
-        item.consumerNumber ||
-        item.requestPayload?.consumerNumber ||
-        item.consumerAadhaarNumber ||
-        item.requestPayload?.consumerAadhaarNumber ||
-        "N/A";
+      // Consumer/Aadhaar number - handle both structures
+      const consumerNumber = isAeps2
+        ? (item.consumerAadhaarNumber ||
+           item.requestPayload?.adhaarNumber ||
+           item.requestPayload?.consumerAadhaarNumber ||
+           "N/A")
+        : (item.consumerNumber ||
+           item.requestPayload?.consumerNumber ||
+           item.consumerAadhaarNumber ||
+           item.requestPayload?.consumerAadhaarNumber ||
+           item.requestPayload?.aadhaarNo ||
+           "N/A");
 
-      // Extract merchant login ID from requestPayload
-      const merchantLoginId =
-        item.requestPayload?.merchantLoginId ||
-        item.merchantTransactionId ||
-        "N/A";
+      // Extract merchant login ID - handle both structures
+      const merchantLoginId = isAeps2
+        ? (item.merchantLoginId ||
+           item.requestPayload?.merchantLoginId ||
+           item.merchantTransactionId ||
+           "N/A")
+        : (item.requestPayload?.merchantLoginId ||
+           item.merchantTransactionId ||
+           "N/A");
+
+      // Extract bank RRN - handle both structures
+      const bankRRN = isAeps2
+        ? (item.bankRRN ||
+           item.responsePayload?.result?.bankRRN ||
+           item.responsePayload?.data?.bankRRN ||
+           "N/A")
+        : (item.bankRRN ||
+           item.responsePayload?.data?.bankRRN ||
+           "N/A");
 
       return {
         id: item.id,
@@ -156,15 +216,15 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         consumerNumber: consumerNumber,
         companyId: item.companyId ?? "N/A",
         // Company response doesn't include companyName/logo; use operator as a friendly name
-        companyName: item.companyName || item.operator || "N/A",
+        companyName: item.companyName || item.operator || item.merchantLoginId || "N/A",
         merchantLoginId: merchantLoginId,
         bankName: bankName,
-        taxId: item.transactionId || "N/A",
+        taxId: item.transactionId || item.partnerTxnid || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || item.responsePayload?.data?.bankRRN || "N/A",
+        bankRRN: bankRRN,
         amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
-        status: getStatusDisplay(item.status),
+        via: getViaDisplay(item.captureType, item.device),
+        status: getStatusDisplay(item.status, item.transactionStatus),
         createdAt: formattedDate,
         originalItem: item,
       };
