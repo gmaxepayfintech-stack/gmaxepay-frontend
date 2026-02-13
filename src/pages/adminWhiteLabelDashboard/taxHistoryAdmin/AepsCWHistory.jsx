@@ -14,8 +14,10 @@ import {
 } from "../../../redux/action/aepsAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
+import { getAeps2CwHistoryCompany } from "../../../redux/action/aepsTwoAction";
 
-const AepsCWHistory = ({ onBack }) => {
+
+const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -27,13 +29,15 @@ const AepsCWHistory = ({ onBack }) => {
   const [selectedTransaction, setSelectedTransaction] = useState(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
-  // Get data from Redux (company AEPS CW history)
-  const aepsCwHistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistoryCompany,
-  );
+  // Determine which Redux state to use based on apiType
+  const aepsCwHistoryResponse = useSelector((state) => {
+    if (apiType === "aeps2") {
+      return state?.aepsTwo?.aeps2CwHistoryCompany;
+    }
+    return state?.aeps?.aepsCwHistoryCompany;
+  });
   const apiData = aepsCwHistoryResponse?.data || [];
   const paginator = aepsCwHistoryResponse?.paginator || {};
-  const totalCount = aepsCwHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -53,7 +57,7 @@ const AepsCWHistory = ({ onBack }) => {
             month: "2-digit",
             year: "2-digit",
           })
-          .replace(/\//g, "-");
+          .replaceAll("/", "-");
       }
 
       // Format amount with currency symbol
@@ -92,9 +96,17 @@ const AepsCWHistory = ({ onBack }) => {
       // Extract user details from item (company response usually has none)
       const userDetails = item.userDetails || {};
 
+      // Extract bank name from responsePayload if available, otherwise use bankiin
+      const bankName =
+        item.responsePayload?.data?.bankName ||
+        item.bankName ||
+        item.bankiin ||
+        "N/A";
+
       // Prefer consumerNumber as a readable identifier, then fall back
       const userName =
         item.consumerNumber ||
+        item.requestPayload?.consumerNumber ||
         userDetails.name ||
         item.name ||
         item.userName ||
@@ -109,15 +121,28 @@ const AepsCWHistory = ({ onBack }) => {
 
       const profileImage = userDetails.profileImage || null;
 
+      // Mobile number from consumerNumber or requestPayload
       const mobileNo =
+        item.consumerNumber ||
+        item.requestPayload?.mobile ||
+        item.requestPayload?.consumerNumber ||
         userDetails.mobileNo ||
         item.mobileNo ||
         item.mobile ||
-        item.consumerNumber ||
         "N/A";
 
       const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+        item.consumerNumber ||
+        item.requestPayload?.consumerNumber ||
+        item.consumerAadhaarNumber ||
+        item.requestPayload?.consumerAadhaarNumber ||
+        "N/A";
+
+      // Extract merchant login ID from requestPayload
+      const merchantLoginId =
+        item.requestPayload?.merchantLoginId ||
+        item.merchantTransactionId ||
+        "N/A";
 
       return {
         id: item.id,
@@ -130,12 +155,11 @@ const AepsCWHistory = ({ onBack }) => {
         companyId: item.companyId ?? "N/A",
         // Company response doesn't include companyName/logo; use operator as a friendly name
         companyName: item.companyName || item.operator || "N/A",
-        merchantLoginId:
-          item.requestPayload?.merchantLoginId || item.merchantTransactionId || "N/A",
-        bankName: item.bankName || item.bankiin || "N/A",
+        merchantLoginId: merchantLoginId,
+        bankName: bankName,
         taxId: item.transactionId || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A",
+        bankRRN: item.bankRRN || item.responsePayload?.data?.bankRRN || "N/A",
         amount: formattedAmount,
         via: getViaDisplay(item.captureType),
         status: getStatusDisplay(item.status),
@@ -203,15 +227,21 @@ const AepsCWHistory = ({ onBack }) => {
       return;
     }
 
-    const query = {
-      aepsTxnType: "CW",
-    };
+    // Build query based on API type
+    const query = {};
+    if (apiType === "aeps1") {
+      // For AEPS 1, use aepsTxnType
+      query.aepsTxnType = transactionType;
+    } else if (apiType === "aeps2") {
+      // For AEPS 2, use transactionType
+      query.transactionType = transactionType;
+    }
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
       // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
-      query.startDate = fromDate.replace(/-/g, "/");
-      query.endDate = toDate.replace(/-/g, "/");
+      query.startDate = fromDate.replaceAll("-", "/");
+      query.endDate = toDate.replaceAll("-", "/");
     }
 
     // Get the appropriate search field based on input pattern
@@ -229,8 +259,13 @@ const AepsCWHistory = ({ onBack }) => {
       },
     };
 
-    dispatch(getAepsCwHistoryCompany(payload));
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
+    // Dispatch the appropriate API call based on apiType
+    if (apiType === "aeps2") {
+      dispatch(getAeps2CwHistoryCompany(payload));
+    } else {
+      dispatch(getAepsCwHistoryCompany(payload));
+    }
+  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -285,6 +320,9 @@ const AepsCWHistory = ({ onBack }) => {
     // Calculate commission (credit field)
     const commission = apiItem.credit || 0;
 
+    // Extract user details from API response
+    const userDetails = apiItem.userDetails || {};
+
     return {
       transaction: {
         superadminComm: apiItem.superadminComm,
@@ -299,10 +337,17 @@ const AepsCWHistory = ({ onBack }) => {
         retailerComTDS: apiItem.retailerComTDS,
       },
       userDetails: {
-        name: apiItem.name || apiItem.consumerNumber || "N/A",
-        userRole: apiItem.userRole || null,
+        name: apiItem.consumerNumber ||
+          userDetails.name ||
+          apiItem.name ||
+          `User ${apiItem.refId || apiItem.addedBy || "N/A"}`,
+        userRole: userDetails.userRole || apiItem.userRole || null,
         userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
-        mobileNo: apiItem.consumerNumber || apiItem.requestPayload?.mobile || "N/A",
+        mobileNo: apiItem.consumerNumber ||
+          apiItem.requestPayload?.mobile ||
+          apiItem.requestPayload?.consumerNumber ||
+          userDetails.mobileNo ||
+          "N/A",
       },
       reportingUserDetails: {
         companyName: apiItem.companyName || apiItem.operator || "N/A",
@@ -359,7 +404,7 @@ const AepsCWHistory = ({ onBack }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                AEPS CW History
+                {apiType === "aeps2" ? "AEPS 2" : "AEPS 1"} {transactionType === "CW" ? "CW" : transactionType === "MS" ? "MS" : "BE"} History
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
@@ -388,7 +433,14 @@ const AepsCWHistory = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { aepsTxnType: "CW" };
+                // Build query based on API type
+                const query = {};
+                if (apiType === "aeps1") {
+                  query.aepsTxnType = transactionType;
+                } else if (apiType === "aeps2") {
+                  query.transactionType = transactionType;
+                }
+
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -403,7 +455,12 @@ const AepsCWHistory = ({ onBack }) => {
                   },
                 };
 
-                dispatch(getAepsCwHistoryCompany(payload));
+                // Dispatch the appropriate API call based on apiType
+                if (apiType === "aeps2") {
+                  dispatch(getAeps2CwHistoryCompany(payload));
+                } else {
+                  dispatch(getAepsCwHistoryCompany(payload));
+                }
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -705,10 +762,14 @@ const AepsCWHistory = ({ onBack }) => {
 
 AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
+  apiType: PropTypes.string,
+  transactionType: PropTypes.string,
 };
 
 AepsCWHistory.defaultProps = {
   onBack: null,
+  apiType: "aeps1",
+  transactionType: "CW",
 };
 
 export default AepsCWHistory;
