@@ -1,33 +1,14 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { useDispatch, useSelector } from "react-redux";
-import { FileText } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import MainWalletStatement from '../MainWalletStatement'
-import { getAepsTransactionDetails } from "../../../redux/action/aepsAction";
-import { ButtonLoader } from "../../../widgets/layout/loader";
+// import MainWalletStatement from "./MainWalletStatement";
 
-const TransactioDetails = ({ transactionId, onBack }) => {
-  const dispatch = useDispatch();
+const TransactioDetails = ({ transactionData, onBack }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
-
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
-  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionData = transactionDetailsResponse?.data || null;
-
-  // Fetch transaction details when component mounts or transactionId changes
-  useEffect(() => {
-    if (transactionId) {
-      dispatch(getAepsTransactionDetails(transactionId));
-    }
-  }, [dispatch, transactionId]);
 
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
     const roleMap = {
-      1: "Super Admin",
       2: "White Label Partner",
       3: "Master Distributor",
       4: "Distributor",
@@ -36,32 +17,12 @@ const TransactioDetails = ({ transactionId, onBack }) => {
     return roleMap[roleNumber] || `Role ${roleNumber}`;
   };
 
-  // Calculate commission data from transaction - Always show all 5 roles
+  // Calculate commission data from transaction - Show 4 roles (no Super Admin)
   const calculateCommissionData = () => {
     if (!transactionData?.transaction) return [];
 
     const transaction = transactionData.transaction;
     const commissionData = [];
-
-    // Super Admin Commission - Always show, use 0 if null
-    const superadminComm =
-      transaction.superadminComm !== null &&
-      transaction.superadminComm !== undefined
-        ? parseFloat(transaction.superadminComm) || 0
-        : 0;
-    const superadminCommTDS =
-      transaction.superadminCommTDS !== null &&
-      transaction.superadminCommTDS !== undefined
-        ? parseFloat(transaction.superadminCommTDS) || 0
-        : 0;
-    const superadminNet = superadminComm - superadminCommTDS;
-    commissionData.push({
-      name: "Super Admin",
-      userId: "N/A",
-      commissions: `₹${superadminComm.toFixed(2)}`,
-      tds: `₹${superadminCommTDS.toFixed(2)}`,
-      net: `₹${superadminNet.toFixed(2)}`,
-    });
 
     // White Label Commission - Always show, use 0 if null
     const whitelabelComm =
@@ -159,22 +120,8 @@ const TransactioDetails = ({ transactionId, onBack }) => {
   const commissionData = calculateCommissionData();
   const totalCommission = calculateTotalCommission();
 
-  // Show loader while fetching data
-  if (isLoading && !transactionData) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
   // Show error or no data message
-  if (!isLoading && !transactionData) {
+  if (!transactionData) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
         <div className="mb-4 sm:mb-6">
@@ -197,11 +144,11 @@ const TransactioDetails = ({ transactionId, onBack }) => {
   }
 
   // If MainWalletStatement should be shown, render it
-  if (showMainWalletStatement) {
-    return (
-      <MainWalletStatement onBack={() => setShowMainWalletStatement(false)} />
-    );
-  }
+  // if (showMainWalletStatement) {
+  //   return (
+  //     <MainWalletStatement onBack={() => setShowMainWalletStatement(false)} />
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] px-3 py-2 text-[#1B1717]">
@@ -226,7 +173,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg  hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
@@ -234,7 +181,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -492,12 +439,11 @@ const TransactioDetails = ({ transactionId, onBack }) => {
 };
 
 TransactioDetails.propTypes = {
-  transactionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
+  transactionData: PropTypes.object.isRequired,
   onBack: PropTypes.func,
 };
 
 TransactioDetails.defaultProps = {
-  transactionId: null,
   onBack: null,
 };
 
