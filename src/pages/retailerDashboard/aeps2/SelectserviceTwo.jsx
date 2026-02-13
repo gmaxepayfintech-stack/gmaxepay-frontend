@@ -1860,7 +1860,7 @@ const SelectserviceTwo = () => {
                             </span>
                           </div>
                         )}
-                        {transactionData.url && (
+                        {/* {transactionData.url && (
                           <div className="flex justify-between items-center">
                             <span className="text-xs font-['Gilroy-Medium'] text-gray-600">
                               Receipt URL:
@@ -1874,7 +1874,7 @@ const SelectserviceTwo = () => {
                               View Receipt
                             </a>
                           </div>
-                        )}
+                        )} */}
                       </>
                     )}
 
