@@ -19,7 +19,7 @@ import {
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 
-const AepsCWHistory = ({ onBack, type }) => {
+const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -33,13 +33,10 @@ const AepsCWHistory = ({ onBack, type }) => {
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
     useState(false);
 
-  // Determine whether this is AEPS2 history based on type
-  const isAeps2 =
-    type === "aeps2-cw-history" ||
-    type === "aeps2-ms-history" ||
-    type === "aeps2-be-history";
+  // Determine whether this is AEPS2 history based on apiType
+  const isAeps2 = apiType === "aeps2";
 
-  // Get data from Redux (AEPS1 or AEPS2 based on type)
+  // Get data from Redux (AEPS1 or AEPS2 based on apiType)
   const aeps1HistoryResponse = useSelector(
     (state) => state?.aeps?.aepsCwHistory,
   );
@@ -77,26 +74,55 @@ const AepsCWHistory = ({ onBack, type }) => {
           .replace(/\//g, "-");
       }
 
-      // Format amount with currency symbol
-      const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+      // Determine if this is AEPS 2 response structure
+      const isAeps2 = apiType === "aeps2";
 
-      // Map status from API to display format
-      const getStatusDisplay = (status) => {
-        if (status === null || status === undefined) return "Pending";
-        const statusUpper = String(status).toUpperCase();
-        if (statusUpper === "SUCCESS") return "Success";
-        if (statusUpper === "FAILED" || statusUpper === "FAILURE")
-          return "Failed";
+      // Format amount with currency symbol - handle both AEPS 1 and AEPS 2
+      const amountValue = isAeps2 
+        ? (item.transactionAmount || 0)
+        : (item.amount || 0);
+      const formattedAmount = `₹${amountValue}`;
+
+      // Map status from API to display format - handle both structures
+      const getStatusDisplay = (status, transactionStatus) => {
+        // For AEPS 2, prefer transactionStatus field
+        if (isAeps2 && transactionStatus) {
+          const statusStr = String(transactionStatus).toLowerCase();
+          if (statusStr === "successful" || statusStr === "success") return "Success";
+          if (statusStr === "failed" || statusStr === "failure") return "Failed";
+          return "Pending";
+        }
+        
+        // For AEPS 1 or fallback, use status field
+        if (status !== undefined && status !== null) {
+          if (typeof status === "boolean") {
+            return status ? "Success" : "Failed";
+          }
+          const statusStr = String(status);
+          const statusUpper = statusStr.toUpperCase();
+          if (statusUpper === "SUCCESS" || statusUpper === "TRUE") return "Success";
+          if (statusUpper === "FAILED" || statusUpper === "FAILURE" || statusUpper === "FALSE") return "Failed";
+        }
         return "Pending";
       };
 
       // Map capture type to display format
-      const getViaDisplay = (captureType) => {
+      const getViaDisplay = (captureType, device) => {
+        // For AEPS 2, device might indicate capture type
+        if (isAeps2 && device) {
+          const deviceStr = String(device).toUpperCase();
+          if (deviceStr.includes("FINGER") || deviceStr.includes("MANTRA") || deviceStr.includes("STARTEK")) {
+            return "FINGER";
+          }
+          if (deviceStr.includes("IRIS")) return "IRIS";
+        }
+        
         if (!captureType) return "APP";
-        const typeUpper = captureType.toUpperCase();
+        const typeStr = String(captureType);
+        const typeUpper = typeStr.toUpperCase();
         if (typeUpper === "FINGER") return "FINGER";
         if (typeUpper === "IRIS") return "IRIS";
-        return captureType;
+        return typeStr;
       };
 
       // Map user role number to text
@@ -112,22 +138,90 @@ const AepsCWHistory = ({ onBack, type }) => {
 
       // Extract user details from item
       const userDetails = item.userDetails || {};
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        `User ${item.refId || item.addedBy || index + 1}`;
+
+      // Extract bank name - handle both AEPS 1 and AEPS 2 structures
+      const bankName = isAeps2
+        ? (item.responsePayload?.result?.bankName ||
+           item.responsePayload?.data?.bankName ||
+           item.bankName ||
+           item.bankIin ||
+           "N/A")
+        : (item.responsePayload?.data?.bankName ||
+           item.bankName ||
+           item.bankiin ||
+           "N/A");
+
+      // Prefer consumerNumber as a readable identifier, then fall back
+      const userName = isAeps2
+        ? (item.mobileNumber ||
+           userDetails.name ||
+           item.name ||
+           item.userName ||
+           `User ${item.refId || item.addedBy || index + 1}`)
+        : (item.consumerNumber ||
+           item.requestPayload?.consumerNumber ||
+           userDetails.name ||
+           item.name ||
+           item.userName ||
+           `User ${item.refId || item.addedBy || index + 1}`);
+
       const userRoleValue =
         userDetails.userRole !== undefined
           ? userDetails.userRole
           : item.userRole !== undefined
             ? item.userRole
             : null;
+
       const profileImage = userDetails.profileImage || null;
-      const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
-      const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+
+      // Mobile number - handle both structures
+      const mobileNo = isAeps2
+        ? (item.mobileNumber ||
+           item.requestPayload?.mobileNumber ||
+           userDetails.mobileNo ||
+           item.mobileNo ||
+           item.mobile ||
+           "N/A")
+        : (item.consumerNumber ||
+           item.requestPayload?.mobile ||
+           item.requestPayload?.consumerNumber ||
+           userDetails.mobileNo ||
+           item.mobileNo ||
+           item.mobile ||
+           "N/A");
+
+      // Consumer/Aadhaar number - handle both structures
+      const consumerNumber = isAeps2
+        ? (item.consumerAadhaarNumber ||
+           item.requestPayload?.adhaarNumber ||
+           item.requestPayload?.consumerAadhaarNumber ||
+           "N/A")
+        : (item.consumerNumber ||
+           item.requestPayload?.consumerNumber ||
+           item.consumerAadhaarNumber ||
+           item.requestPayload?.consumerAadhaarNumber ||
+           item.requestPayload?.aadhaarNo ||
+           "N/A");
+
+      // Extract merchant login ID - handle both structures
+      const merchantLoginId = isAeps2
+        ? (item.merchantLoginId ||
+           item.requestPayload?.merchantLoginId ||
+           item.merchantTransactionId ||
+           "N/A")
+        : (item.requestPayload?.merchantLoginId ||
+           item.merchantTransactionId ||
+           "N/A");
+
+      // Extract bank RRN - handle both structures
+      const bankRRN = isAeps2
+        ? (item.bankRRN ||
+           item.responsePayload?.result?.bankRRN ||
+           item.responsePayload?.data?.bankRRN ||
+           "N/A")
+        : (item.bankRRN ||
+           item.responsePayload?.data?.bankRRN ||
+           "N/A");
 
       return {
         id: item.id,
@@ -139,13 +233,13 @@ const AepsCWHistory = ({ onBack, type }) => {
         consumerNumber: consumerNumber,
         companyName: item.companyName || "N/A",
         companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
-        taxId: item.transactionId || "N/A",
+        bankName: bankName,
+        taxId: item.transactionId || item.partnerTxnid || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
+        bankRRN: bankRRN,
         amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
-        status: getStatusDisplay(item.status),
+        via: getViaDisplay(item.captureType, item.device),
+        status: getStatusDisplay(item.status, item.transactionStatus),
         createdAt: formattedDate,
         originalItem: item, // Store full item for details
       };
@@ -199,13 +293,6 @@ const AepsCWHistory = ({ onBack, type }) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Determine AEPS transaction type (CW, MS, BE) based on view type
-  const aepsTxnType = (() => {
-    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
-    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
-    return "CW"; // default
-  })();
-
   // Fetch data from API
   useEffect(() => {
     // Only make API call if both dates are selected OR both are null
@@ -217,13 +304,16 @@ const AepsCWHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
+    // Build query based on API type
+    const query = {};
+    // Use transactionType for both AEPS 1 and AEPS 2
+    query.transactionType = transactionType;
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
       // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
-      query.startDate = fromDate.replace(/-/g, "/");
-      query.endDate = toDate.replace(/-/g, "/");
+      query.startDate = fromDate.replaceAll("-", "/");
+      query.endDate = toDate.replaceAll("-", "/");
     }
 
     // Get the appropriate search field based on input pattern
@@ -246,15 +336,7 @@ const AepsCWHistory = ({ onBack, type }) => {
     } else {
       dispatch(getAepsCwHistory(payload));
     }
-  }, [
-    dispatch,
-    currentPage,
-    debouncedSearchQuery,
-    fromDate,
-    toDate,
-    aepsTxnType,
-    isAeps2,
-  ]);
+  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -360,7 +442,7 @@ const AepsCWHistory = ({ onBack, type }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                {type.toUpperCase()}
+                {apiType === "aeps2" ? "AEPS 2" : "AEPS 1"} {transactionType === "CW" ? "CW" : transactionType === "MS" ? "MS" : "BE"} History
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions
@@ -390,9 +472,10 @@ const AepsCWHistory = ({ onBack, type }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = isAeps2
-                  ? { transactionType: aepsTxnType }
-                  : { aepsTxnType };
+                // Build query - use transactionType for both AEPS 1 and AEPS 2
+                const query = {};
+                query.transactionType = transactionType;
+
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -407,7 +490,8 @@ const AepsCWHistory = ({ onBack, type }) => {
                   },
                 };
 
-                if (isAeps2) {
+                // Dispatch the appropriate API call based on apiType
+                if (apiType === "aeps2") {
                   dispatch(getAeps2CwHistory(payload));
                 } else {
                   dispatch(getAepsCwHistory(payload));
@@ -751,12 +835,14 @@ const AepsCWHistory = ({ onBack, type }) => {
 
 AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
-  type: PropTypes.string,
+  apiType: PropTypes.string,
+  transactionType: PropTypes.string,
 };
 
 AepsCWHistory.defaultProps = {
   onBack: null,
-  type: "aeps-cw-history",
+  apiType: "aeps1",
+  transactionType: "CW",
 };
 
 export default AepsCWHistory;

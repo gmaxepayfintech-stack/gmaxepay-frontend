@@ -16,13 +16,23 @@ const TaxHistory = () => {
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  const showAepsHistory =
-    viewHistory === "aeps-cw-history" ||
-    viewHistory === "aeps-ms-history" ||
-    viewHistory === "aeps-be-history" ||
-    viewHistory === "aeps2-cw-history" ||
-    viewHistory === "aeps2-ms-history" ||
-    viewHistory === "aeps2-be-history";
+  
+  // Parse viewHistory to extract apiType and transactionType
+  // Format: aeps1-cw-history, aeps2-ms-history, etc.
+  let apiType = null;
+  let transactionType = null;
+  
+  if (viewHistory) {
+    // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps-be-history
+    const regex = /^aeps([12])?-(cw|ms|be)-history$/;
+    const match = regex.exec(viewHistory);
+    if (match) {
+      apiType = match[1] === "2" ? "aeps2" : "aeps1"; // Default to aeps1 if no number
+      transactionType = match[2].toUpperCase(); // Convert "cw" to "CW", "ms" to "MS", "be" to "BE"
+    }
+  }
+  
+  const showAepsHistory = apiType && transactionType;
   const showPayoutHistory = viewHistory === "payout-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
@@ -45,7 +55,7 @@ const TaxHistory = () => {
       title: "AEPS 1 CW History",
       subtitle: "Cash History",
       available: true,
-      viewKey: "aeps-cw-history",
+      viewKey: "aeps1-cw-history",
       category: "Banking",
     },
     {
@@ -61,7 +71,7 @@ const TaxHistory = () => {
       title: "AEPS 1 MS History",
       subtitle: "Mini Statement",
       available: true,
-      viewKey: "aeps-ms-history",
+      viewKey: "aeps1-ms-history",
       category: "Banking",
     },
     {
@@ -77,7 +87,7 @@ const TaxHistory = () => {
       title: "AEPS 1 BE History",
       subtitle: "Balance Enquiry",
       available: true,
-      viewKey: "aeps-be-history",
+      viewKey: "aeps1-be-history",
       category: "Banking",
     },
     {
@@ -304,7 +314,8 @@ const TaxHistory = () => {
   if (showAepsHistory) {
     return (
       <AepsCWHistory
-        type={viewHistory} // optional: pass which AEPS history
+        apiType={apiType}
+        transactionType={transactionType}
         onBack={() => navigate("/distributerDashboard/tax-history")}
       />
     );
