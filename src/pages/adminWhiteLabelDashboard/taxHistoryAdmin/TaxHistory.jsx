@@ -17,9 +17,22 @@ const TaxHistory = () => {
   // This will automatically update when location.search changes
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  const apiType = searchParams.get("apiType"); // "aeps1" or "aeps2"
-  const transactionType = searchParams.get("transactionType"); // "CW", "MS", or "BE"
-  const showAepsHistory = viewHistory === "aeps-history";
+  
+  // Parse viewHistory to extract apiType and transactionType
+  // Format: aeps1-cw-history, aeps2-ms-history, etc.
+  let apiType = null;
+  let transactionType = null;
+  
+  if (viewHistory) {
+    // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps1-be-history
+    const match = viewHistory.match(/^aeps([12])-(cw|ms|be)-history$/);
+    if (match) {
+      apiType = match[1] === "1" ? "aeps1" : "aeps2";
+      transactionType = match[2].toUpperCase(); // Convert "cw" to "CW", "ms" to "MS", "be" to "BE"
+    }
+  }
+  
+  const showAepsHistory = apiType && transactionType;
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDTHHistory = viewHistory === "dth-history";
   const showPANHistory = viewHistory === "pan-service-history";
@@ -48,9 +61,7 @@ const TaxHistory = () => {
       title: "AEPS 1 CW History",
       subtitle: "Cash History",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps1", // AEPS 1
-      transactionType: "CW", // Cash Withdrawal
+      viewKey: "aeps1-cw-history",
       category: "Banking",
     },
     {
@@ -58,9 +69,7 @@ const TaxHistory = () => {
       title: "AEPS 2 CW History",
       subtitle: "Cash History",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps2", // AEPS 2
-      transactionType: "CW", // Cash Withdrawal
+      viewKey: "aeps2-cw-history",
       category: "Banking",
     },
     {
@@ -68,9 +77,7 @@ const TaxHistory = () => {
       title: "AEPS 1 MS History",
       subtitle: "Mini Statement",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps1", // AEPS 1
-      transactionType: "MS", // Mini Statement
+      viewKey: "aeps1-ms-history",
       category: "Banking",
     },
     {
@@ -78,9 +85,7 @@ const TaxHistory = () => {
       title: "AEPS 2 MS History",
       subtitle: "Mini Statement",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps2", // AEPS 2
-      transactionType: "MS", // Mini Statement
+      viewKey: "aeps2-ms-history",
       category: "Banking",
     },
     {
@@ -88,9 +93,7 @@ const TaxHistory = () => {
       title: "AEPS 1 BE History",
       subtitle: "Balance Enquiry",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps1", // AEPS 1
-      transactionType: "BE", // Balance Enquiry
+      viewKey: "aeps1-be-history",
       category: "Banking",
     },
     {
@@ -98,9 +101,7 @@ const TaxHistory = () => {
       title: "AEPS 2 BE History",
       subtitle: "Balance Enquiry",
       available: true,
-      viewKey: "aeps-history",
-      apiType: "aeps2", // AEPS 2
-      transactionType: "BE", // Balance Enquiry
+      viewKey: "aeps2-be-history",
       category: "Banking",
     },
     {
@@ -439,17 +440,7 @@ const TaxHistory = () => {
                 <button
                   onClick={() => {
                     if (card.viewKey) {
-                      // Build URL with all necessary parameters
-                      const params = new URLSearchParams({
-                        view: card.viewKey,
-                      });
-                      if (card.apiType) {
-                        params.append("apiType", card.apiType);
-                      }
-                      if (card.transactionType) {
-                        params.append("transactionType", card.transactionType);
-                      }
-                      navigate(`/adminDashboard/txn-history?${params.toString()}`);
+                      navigate(`/adminDashboard/txn-history?view=${card.viewKey}`);
                     }
                   }}
                   className="w-full bg-[#039155] text-white py-2 sm:py-2.5 md:py-3 rounded-xl font-[Gilroy-Semibold] hover:bg-green-700 transition text-xs sm:text-sm md:text-base mt-auto"
