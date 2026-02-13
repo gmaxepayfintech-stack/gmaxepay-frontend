@@ -251,7 +251,7 @@ const TaxHistory = () => {
 
     // Verification History
 
-    // {
+    // {+75.
     //   id: 26,
     //   title: "KYC Verification History",
     //   subtitle: "Customer KYC Logs",
