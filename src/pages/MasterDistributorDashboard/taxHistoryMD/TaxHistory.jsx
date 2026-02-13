@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import RechargeReport from "../Reports/RechargeReport";
 import DTHReport from "../Reports/DTHReport";
 import PanReport from "../Reports/PanReport";
-import PayoutHistory from "../../superAdminDashboard/payoutHistory";
+import PayoutHistory from "./payoutHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
