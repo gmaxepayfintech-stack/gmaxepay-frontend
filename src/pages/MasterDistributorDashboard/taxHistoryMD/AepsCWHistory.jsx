@@ -30,7 +30,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   // Determine which Redux state to use based on apiType
   const aepsCwHistoryResponse = useSelector((state) => {
     if (apiType === "aeps2") {
-      return state?.aepsTwo?.getAeps2CwHistoryUsers;
+      return state?.aepsTwo?.aeps2CwHistoryUsers;
     }
     return state?.aeps?.aepsCwHistoryUser;
   });
@@ -231,13 +231,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
     // Build query based on API type
     const query = {};
-    if (apiType === "aeps1") {
-      // For AEPS 1, use aepsTxnType
-      query.aepsTxnType = transactionType;
-    } else if (apiType === "aeps2") {
-      // For AEPS 2, use transactionType
-      query.transactionType = transactionType;
-    }
+    // Use transactionType for both AEPS 1 and AEPS 2
+    query.transactionType = transactionType;
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -435,13 +430,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 setToDate("");
                 setIsReloading(true);
 
-                // Build query based on API type
+                // Build query - use transactionType for both AEPS 1 and AEPS 2
                 const query = {};
-                if (apiType === "aeps1") {
-                  query.aepsTxnType = transactionType;
-                } else if (apiType === "aeps2") {
-                  query.transactionType = transactionType;
-                }
+                query.transactionType = transactionType;
 
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
