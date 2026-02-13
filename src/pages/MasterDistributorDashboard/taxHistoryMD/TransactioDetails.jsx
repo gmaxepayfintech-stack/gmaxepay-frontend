@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { HiArrowLeft } from "react-icons/hi2";
-import MainWalletStatement from "./MainWalletStatement";
+// import MainWalletStatement from "./MainWalletStatement";
 
 const TransactioDetails = ({ transactionData, onBack }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
@@ -144,11 +144,11 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   }
 
   // If MainWalletStatement should be shown, render it
-  if (showMainWalletStatement) {
-    return (
-      <MainWalletStatement onBack={() => setShowMainWalletStatement(false)} />
-    );
-  }
+  // if (showMainWalletStatement) {
+  //   return (
+  //     <MainWalletStatement onBack={() => setShowMainWalletStatement(false)} />
+  //   );
+  // }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] px-3 py-2 text-[#1B1717]">
