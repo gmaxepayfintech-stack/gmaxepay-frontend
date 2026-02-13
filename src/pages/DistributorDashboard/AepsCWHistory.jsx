@@ -11,12 +11,9 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import TransactioDetails from "./TransactioDetails";
-import {
-  getAepsCwHistory,
-  getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import TransactioDetails from "./TransactioDetails";
+import { getAepsCwHistory } from "../../redux/action/aepsAction";
 import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
@@ -25,13 +22,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
   // Determine whether this is AEPS2 history based on apiType
   const isAeps2 = apiType === "aeps2";
@@ -50,9 +45,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const paginator = aepsHistoryResponse?.paginator || {};
   const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -71,7 +63,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             month: "2-digit",
             year: "2-digit",
           })
-          .replace(/\//g, "-");
+          .replaceAll("/", "-");
       }
 
       // Determine if this is AEPS 2 response structure
@@ -370,56 +362,121 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     setCurrentPage(1);
   }, [statusFilter]);
 
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
+  // Transform API response to match TransactioDetails expected format
+  const transformTransactionData = (apiItem) => {
+    if (!apiItem) return null;
 
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
+    // Handle both AEPS 1 and AEPS 2 response structures
+    const isAeps2 = apiType === "aeps2";
 
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
+    // Extract bank name - handle both structures
+    const bankName = isAeps2
+      ? apiItem.responsePayload?.result?.bankName ||
+        apiItem.responsePayload?.data?.bankName ||
+        apiItem.bankName ||
+        apiItem.bankIin ||
+        "N/A"
+      : apiItem.responsePayload?.data?.bankName ||
+        apiItem.bankName ||
+        apiItem.bankiin ||
+        "N/A";
 
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
+    // Extract aadhar number - handle both structures
+    const aadharNumber = isAeps2
+      ? apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.adhaarNumber ||
+        null
+      : apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.consumerAadhaarNumber ||
+        apiItem.requestPayload?.aadhaarNo ||
+        null;
 
-    // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
+    // Calculate commission (credit field) - AEPS 2 might not have commission fields
+    const commission = apiItem.credit || 0;
+
+    // Extract user details from API response
+    const userDetails = apiItem.userDetails || {};
+
+    // Extract amount - handle both structures
+    const amount = isAeps2
+      ? apiItem.transactionAmount || 0
+      : apiItem.amount || 0;
+
+    // Extract mobile number - handle both structures
+    const mobileNo = isAeps2
+      ? apiItem.mobileNumber ||
+        apiItem.requestPayload?.mobileNumber ||
+        userDetails.mobileNo ||
+        "N/A"
+      : apiItem.consumerNumber ||
+        apiItem.requestPayload?.mobile ||
+        apiItem.requestPayload?.consumerNumber ||
+        userDetails.mobileNo ||
+        "N/A";
+
+    // Extract user name/identifier
+    const userName = isAeps2
+      ? apiItem.mobileNumber ||
+        userDetails.name ||
+        apiItem.name ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`
+      : apiItem.consumerNumber ||
+        userDetails.name ||
+        apiItem.name ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
+
+    return {
+      transaction: {
+        superadminComm: apiItem.superadminComm,
+        superadminCommTDS: apiItem.superadminCommTDS,
+        whitelabelComm: apiItem.whitelabelComm,
+        whitelabelCommTDS: apiItem.whitelabelCommTDS,
+        masterDistributorCom: apiItem.masterDistributorCom,
+        masterDistributorComTDS: apiItem.masterDistributorComTDS,
+        distributorCom: apiItem.distributorCom,
+        distributorComTDS: apiItem.distributorComTDS,
+        retailerCom: apiItem.retailerCom,
+        retailerComTDS: apiItem.retailerComTDS,
+      },
+      userDetails: {
+        name: userName,
+        userRole: userDetails.userRole || apiItem.userRole || null,
+        userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
+        mobileNo: mobileNo,
+      },
+      reportingUserDetails: {
+        companyName: apiItem.companyName || apiItem.merchantLoginId || apiItem.operator || "N/A",
+        parentName: "N/A",
+        parentRole: null,
+        parentUserId: apiItem.companyId?.toString() || "N/A",
+      },
+      transactionDetails: {
+        bankName: bankName,
+        aadharNumber: aadharNumber,
+        amount: amount,
+        commission: commission,
+      },
+    };
   };
 
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Handle view button click
+  const handleViewClick = (transaction) => {
+    const originalItem = transaction.originalItem;
+    if (originalItem) {
+      const transformedData = transformTransactionData(originalItem);
+      setSelectedTransaction(transformedData);
+      setShowTransactionDetails(true);
+    }
+  };
 
-  // If TransactionDetails should be shown, render it
-  if (showTransactionDetails) {
+  // If showing transaction details, render TransactioDetails
+  if (showTransactionDetails && selectedTransaction) {
     return (
       <TransactioDetails
-        transactionId={selectedTransactionId}
+        transactionData={selectedTransaction}
         onBack={() => {
           setShowTransactionDetails(false);
-          setSelectedTransactionId(null);
-          setIsLoadingTransactionDetails(false);
+          setSelectedTransaction(null);
         }}
       />
     );
@@ -612,6 +669,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  TDS & Comm
+                </th>
               </tr>
             </thead>
             {!isLoading && (
@@ -639,35 +699,29 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleProfileClick(transaction.id)}
-                            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
-                          >
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                              {transaction.profileImage ? (
-                                <>
-                                  <img
-                                    src={transaction.profileImage}
-                                    alt={transaction.name || "Profile"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      if (e.target.nextElementSibling) {
-                                        e.target.nextElementSibling.style.display =
-                                          "flex";
-                                      }
-                                    }}
-                                  />
-                                  <div className="w-full h-full hidden items-center justify-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                  </div>
-                                </>
-                              ) : (
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                              )}
-                            </div>
-                          </button>
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
+                            {transaction.profileImage ? (
+                              <>
+                                <img
+                                  src={transaction.profileImage}
+                                  alt={transaction.name || "Profile"}
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => {
+                                    e.target.style.display = "none";
+                                    if (e.target.nextElementSibling) {
+                                      e.target.nextElementSibling.style.display =
+                                        "flex";
+                                    }
+                                  }}
+                                />
+                                <div className="w-full h-full hidden items-center justify-center">
+                                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                                </div>
+                              </>
+                            ) : (
+                              <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -766,12 +820,21 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                             {transaction.createdAt}
                           </span>
                         </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <button
+                            onClick={() => handleViewClick(transaction)}
+                            className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#039155] text-white text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg hover:bg-green-700 transition shadow-sm whitespace-nowrap"
+                          >
+                            View
+                          </button>
+                        </td>
                       </tr>
                     );
                   })
                 ) : (
                   <tr>
-                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
