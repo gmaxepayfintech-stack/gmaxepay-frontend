@@ -132,7 +132,7 @@ const RetailerDashboard = () => {
       value: getVolume("aeps2"),
     },
     {
-      name: getService("bbps")?.label || "BBPS",
+      name: getService("bbps")?.label?.toUpperCase() || "BBPS",
       value: getVolume("bbps"),
     },
     {
@@ -157,9 +157,17 @@ const RetailerDashboard = () => {
   const serviceKeys = ["aeps1", "aeps2", "bbps", "mobile", "dth", "nsdlPan", "payout"];
   const transactionData = serviceKeys.map((key) => {
     const svc = getService(key);
+    
+    // Special handling for BBPS to ensure it's always uppercase
+    let serviceLabel = svc.label;
+    if (key === "bbps") {
+      serviceLabel = serviceLabel?.toUpperCase() || "BBPS";
+    } else {
+      serviceLabel = serviceLabel || key.charAt(0).toUpperCase() + key.slice(1);
+    }
 
     return {
-      service: svc.label || key.charAt(0).toUpperCase() + key.slice(1),
+      service: serviceLabel,
       volume: svc.totalVolume || 0,
       count: svc.totalCount || 0,
       success: svc.successCount || 0,
@@ -187,7 +195,7 @@ const RetailerDashboard = () => {
       key: "aeps2",
     },
     {
-      name: getService("bbps")?.label || "BBPS",
+      name: getService("bbps")?.label?.toUpperCase() || "BBPS",
       icon: "/img/BBPS.svg",
       amount: formatCurrency(getVolume("bbps")),
       key: "bbps",
