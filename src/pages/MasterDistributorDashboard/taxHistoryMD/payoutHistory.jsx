@@ -24,7 +24,7 @@ const PayoutHistory = ({ onBack, type }) => {
 
   // Get payout history from Redux
   const payoutHistoryResponse = useSelector(
-    (state) => state?.payout?.payoutHistory,
+    (state) => state?.payout?.payoutHistoryUser,
   );
   const apiData = payoutHistoryResponse?.data || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
