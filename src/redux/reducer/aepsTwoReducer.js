@@ -5,6 +5,7 @@ import {
   AEPSTWO_CASH_WITHDRAWL_SUCCESS,
   AEPSTWO_CW_HISTORY_COMPANY_SUCCESS,
   AEPSTWO_CW_HISTORY_SUCCESS,
+  AEPSTWO_CW_HISTORY_USERS_SUCCESS,
   AEPSTWO_MINI_STATEMENT_SUCCESS,
   AEPSTWO_ONBOARDING_SUCCESS,
   AEPSTWO_RESEND_OTP_SUCCESS,
@@ -33,6 +34,7 @@ const initialState = {
   bankRecentList: null,
   aeps2CwHistory: null,
   aeps2CwHistoryCompany: null,
+  aeps2CwHistoryUsers: null,
 };
 
 const aepsTwoReducer = (state = initialState, action) => {
@@ -168,6 +170,15 @@ const aepsTwoReducer = (state = initialState, action) => {
                 success: action?.payload?.status,
                 message: action?.payload?.message,
               }
+              case AEPSTWO_CW_HISTORY_USERS_SUCCESS:
+                return{
+                  ...state,
+                  loading: false,
+                  error: null,
+                  aeps2CwHistoryUsers: action?.payload,
+                  success: action?.payload?.status,
+                  message: action?.payload?.message,
+                }
     default:
       return state;
   }
