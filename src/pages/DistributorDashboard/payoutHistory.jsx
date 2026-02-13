@@ -3,21 +3,14 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
-  Download,
   Share,
-  User,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import TransactioDetails from "./TransactioDetails";
-import {
-  getAepsCwHistory,
-  getAepsTransactionDetails,
-} from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
+import { getPayoutHistoryUser } from "../../redux/action/payoutAction";
 
 const PayoutHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -25,37 +18,16 @@ const PayoutHistory = ({ onBack, type }) => {
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
-  const [showTransactionDetails, setShowTransactionDetails] = useState(false);
-  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
 
-  // Determine whether this is AEPS2 history based on type
-  const isAeps2 =
-    type === "aeps2-cw-history" ||
-    type === "aeps2-ms-history" ||
-    type === "aeps2-be-history";
-
-  // Get data from Redux (AEPS1 or AEPS2 based on type)
-  const aeps1HistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistory,
+  // Get payout history from Redux
+  const payoutHistoryResponse = useSelector(
+    (state) => state?.payout?.payoutHistory,
   );
-  const aeps2HistoryResponse = useSelector(
-    (state) => state?.aepsTwo?.aeps2CwHistory,
-  );
-  const aepsHistoryResponse = isAeps2
-    ? aeps2HistoryResponse
-    : aeps1HistoryResponse;
-  const apiData = aepsHistoryResponse?.data || [];
-  const paginator = aepsHistoryResponse?.paginator || {};
-  const totalCount = aepsHistoryResponse?.total || 0;
+  const apiData = payoutHistoryResponse?.data || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -63,7 +35,7 @@ const PayoutHistory = ({ onBack, type }) => {
       return [];
     }
 
-    return dataArray.map((item, index) => {
+    return dataArray.map((item) => {
       // Format date from API
       let formattedDate = "N/A";
       if (item.createdAt) {
@@ -90,103 +62,34 @@ const PayoutHistory = ({ onBack, type }) => {
         return "Pending";
       };
 
-      // Map capture type to display format
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeUpper = captureType.toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return captureType;
+      // Get AEPS type
+      const getAepsType = (apiResponse) => {
+        if (!apiResponse) return "Internal";
+        if (apiResponse.aepsType === "AEPS1") return "AEPS 1";
+        if (apiResponse.aepsType === "AEPS2") return "AEPS 2";
+        return "Internal";
       };
-
-      // Map user role number to text
-      const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        // If it's already a string, return as is
-        return userRole || "N/A";
-      };
-
-      // Extract user details from item
-      const userDetails = item.userDetails || {};
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
-      const profileImage = userDetails.profileImage || null;
-      const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
-      const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
 
       return {
         id: item.id,
-        refId: item.refId || item.addedBy || "N/A",
-        name: userName,
-        userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
-        mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
-        companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
-        taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
+        transactionID: item.transactionID || "N/A",
+        refId: item.refId || "N/A",
+        mobileNo: item.mobile || "N/A",
+        accountNumber: item.accountNumber || "N/A",
+        ifscCode: item.ifscCode || "N/A",
+        bankName: item.bankName || "N/A",
+        beneficiaryName: item.beneficiaryName || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
         status: getStatusDisplay(item.status),
+        type: item.type || "N/A",
+        walletType: item.walletType || "N/A",
+        aepsType: getAepsType(item.apiResponse),
+        openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
+        closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
         createdAt: formattedDate,
-        originalItem: item, // Store full item for details
+        originalItem: item,
       };
     });
-  };
-
-  // Function to determine search field based on input pattern
-  const getSearchField = (searchValue) => {
-    const trimmedValue = searchValue.trim();
-    if (!trimmedValue) return null;
-
-    // Check if it starts with "CW" (FP Transaction ID pattern)
-    if (/^CW/i.test(trimmedValue)) {
-      return { fpTransactionId: trimmedValue };
-    }
-
-    // Check if it's a 10-digit phone number
-    if (/^\d{10}$/.test(trimmedValue)) {
-      return { mobileNo: trimmedValue };
-    }
-
-    // Check if it's 11-20 digits (Bank RRN pattern)
-    if (/^\d{11,20}$/.test(trimmedValue)) {
-      return { bankRRN: trimmedValue };
-    }
-
-    // Check if it's all letters and spaces with no numbers (Name pattern)
-    // Must be checked before transaction ID to avoid false matches
-    if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
-      return { name: trimmedValue };
-    }
-
-    // Check if it matches transaction ID pattern (3-4 capital letters at start, then alphanumeric with numbers)
-    // Pattern: 3-4 capital letters at start, followed by alphanumeric that includes numbers
-    // Example: ZPAY2512191006CEEFB5 (ZPAY = 4 caps, then has numbers)
-    if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
-      return { transactionId: trimmedValue };
-    }
-
-    // Default: if pattern doesn't match, try as transactionId
-    return { transactionId: trimmedValue };
   };
 
   // Debounce search query
@@ -199,17 +102,9 @@ const PayoutHistory = ({ onBack, type }) => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Determine AEPS transaction type (CW, MS, BE) based on view type
-  const aepsTxnType = (() => {
-    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
-    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
-    return "CW"; // default
-  })();
-
   // Fetch data from API
   useEffect(() => {
     // Only make API call if both dates are selected OR both are null
-    // Don't call if only one date is selected
     const bothDatesSelected = fromDate && toDate;
     const bothDatesNull = !fromDate && !toDate;
 
@@ -217,44 +112,28 @@ const PayoutHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
+    const query = {
+      type: "internal",
+    };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
-      // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
       query.startDate = fromDate.replace(/-/g, "/");
       query.endDate = toDate.replace(/-/g, "/");
     }
 
-    // Get the appropriate search field based on input pattern
-    const customSearch = debouncedSearchQuery.trim()
-      ? getSearchField(debouncedSearchQuery)
-      : {};
-
     const payload = {
       query,
-      customSearch,
+      customSearch: {},
       options: {
-        page: currentPage,
-        paginate: 10,
-        sort: { createdAt: -1 },
+        page: 1,
+        paginate: 1000, // Get all records since API doesn't support pagination
+        sort: { id: 1 },
       },
     };
 
-    if (isAeps2) {
-      dispatch(getAeps2CwHistory(payload));
-    } else {
-      dispatch(getAepsCwHistory(payload));
-    }
-  }, [
-    dispatch,
-    currentPage,
-    debouncedSearchQuery,
-    fromDate,
-    toDate,
-    aepsTxnType,
-    isAeps2,
-  ]);
+    dispatch(getPayoutHistoryUser(payload));
+  }, [dispatch, fromDate, toDate]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -268,80 +147,39 @@ const PayoutHistory = ({ onBack, type }) => {
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on selected status (search is handled by API)
+  // Filter transactions based on status and search query (CLIENT-SIDE)
   const filteredTransactions = transactions.filter((transaction) => {
     const matchesStatus =
       statusFilter === "All" || transaction.status === statusFilter;
-    return matchesStatus;
+
+    // Search in multiple fields
+    const searchLower = debouncedSearchQuery.toLowerCase();
+    const matchesSearch =
+      !debouncedSearchQuery ||
+      transaction.transactionID.toLowerCase().includes(searchLower) ||
+      transaction.refId.toString().includes(searchLower) ||
+      transaction.mobileNo.includes(searchLower) ||
+      transaction.beneficiaryName.toLowerCase().includes(searchLower);
+
+    return matchesStatus && matchesSearch;
   });
 
-  // Pagination settings - Use API pagination data
-  const itemsPerPage = paginator.perPage || 10;
-  // Since API handles pagination, we use the filtered transactions directly
-  const paginatedTransactions = filteredTransactions;
-  // Use pagination info from API response
-  const totalPages = paginator.pageCount || 1;
-  const apiCurrentPage = paginator.currentPage || currentPage;
+  // CLIENT-SIDE Pagination
+  const itemsPerPage = 10;
+  const totalCount = filteredTransactions.length;
+  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(
+    startIndex,
+    endIndex,
+  );
 
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
-
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
-  };
-
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // If TransactionDetails should be shown, render it
-  if (showTransactionDetails) {
-    return (
-      <TransactioDetails
-        transactionId={selectedTransactionId}
-        onBack={() => {
-          setShowTransactionDetails(false);
-          setSelectedTransactionId(null);
-          setIsLoadingTransactionDetails(false);
-        }}
-      />
-    );
-  }
+  }, [statusFilter, debouncedSearchQuery]);
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
@@ -360,10 +198,10 @@ const PayoutHistory = ({ onBack, type }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                {type.toUpperCase()}
+                PAYOUT HISTORY
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
-                Manage And Track All Your Transactions
+                Manage And Track All Your Payout Transactions
               </p>
             </div>
           </div>
@@ -388,30 +226,20 @@ const PayoutHistory = ({ onBack, type }) => {
               onClick={() => {
                 setFromDate("");
                 setToDate("");
+                setSearchQuery("");
                 setIsReloading(true);
 
-                const query = isAeps2
-                  ? { transactionType: aepsTxnType }
-                  : { aepsTxnType };
-                const customSearch = debouncedSearchQuery.trim()
-                  ? getSearchField(debouncedSearchQuery)
-                  : {};
-
                 const payload = {
-                  query,
-                  customSearch,
+                  query: { type: "internal" },
+                  customSearch: {},
                   options: {
-                    page: currentPage,
-                    paginate: 10,
-                    sort: { createdAt: -1 },
+                    page: 1,
+                    paginate: 1000,
+                    sort: { id: 1 },
                   },
                 };
 
-                if (isAeps2) {
-                  dispatch(getAeps2CwHistory(payload));
-                } else {
-                  dispatch(getAepsCwHistory(payload));
-                }
+                dispatch(getPayoutHistoryUser(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -434,7 +262,7 @@ const PayoutHistory = ({ onBack, type }) => {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
               type="text"
-              placeholder="Search By Reference,ID"
+              placeholder="Search By Transaction ID, User ID, Mobile, Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
@@ -487,40 +315,40 @@ const PayoutHistory = ({ onBack, type }) => {
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Profile
+                  Transaction ID
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Name
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  User Role
+                  User ID
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Mobile
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Consumer Number
+                  Beneficiary
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Name
+                  Account Number
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Logo
+                  IFSC Code
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Tax ID
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Bank RRN
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Amount
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  VIA
+                  Opening Bal
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Closing Bal
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Type
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  AEPS Type
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Status
@@ -534,8 +362,7 @@ const PayoutHistory = ({ onBack, type }) => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition =
-                      (apiCurrentPage - 1) * itemsPerPage + index + 1;
+                    const currentPosition = startIndex + index + 1;
                     const reverseSrNo = totalCount - currentPosition + 1;
                     const srNo = String(reverseSrNo).padStart(2, "0");
 
@@ -550,51 +377,19 @@ const PayoutHistory = ({ onBack, type }) => {
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {srNo}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <button
-                            onClick={() => handleProfileClick(transaction.id)}
-                            className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
-                          >
-                            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                              {transaction.profileImage ? (
-                                <>
-                                  <img
-                                    src={transaction.profileImage}
-                                    alt={transaction.name || "Profile"}
-                                    className="w-full h-full object-cover"
-                                    onError={(e) => {
-                                      e.target.style.display = "none";
-                                      if (e.target.nextElementSibling) {
-                                        e.target.nextElementSibling.style.display =
-                                          "flex";
-                                      }
-                                    }}
-                                  />
-                                  <div className="w-full h-full hidden items-center justify-center">
-                                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                  </div>
-                                </>
-                              ) : (
-                                <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                              )}
-                            </div>
-                          </button>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.name}
+                            {transaction.id}
                           </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.userRole}
+                            {transaction.transactionID}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.refId}
                           </span>
                         </td>
 
@@ -606,48 +401,25 @@ const PayoutHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.consumerNumber}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.companyName}
+                            {transaction.beneficiaryName}
                           </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {transaction.companyLogo ? (
-                              <img
-                                src={transaction.companyLogo}
-                                alt={transaction.companyName}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-                            )}
-                          </div>
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.accountNumber}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.ifscCode}
+                          </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.bankName}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.taxId}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.bankRRN}
                           </span>
                         </td>
 
@@ -659,7 +431,25 @@ const PayoutHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.via}
+                            {transaction.openingBalance}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.closingBalance}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] uppercase">
+                            {transaction.type}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.aepsType}
                           </span>
                         </td>
 
@@ -700,7 +490,7 @@ const PayoutHistory = ({ onBack, type }) => {
         </div>
       </div>
 
-      {/* Loading / Pagination (unchanged) */}
+      {/* Loading / Pagination */}
       {isLoading ? (
         <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
           <ButtonLoader color="#039155" size={24} thickness={3} />
@@ -709,7 +499,7 @@ const PayoutHistory = ({ onBack, type }) => {
           </p>
         </div>
       ) : (
-        totalPages > 0 && (
+        totalPages > 1 && (
           <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
@@ -719,19 +509,32 @@ const PayoutHistory = ({ onBack, type }) => {
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${
-                  currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-medium transition text-sm sm:text-base ${
+                    currentPage === pageNum
+                      ? "bg-[#039155] text-white"
+                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
 
             <button
               onClick={() =>
@@ -752,11 +555,6 @@ const PayoutHistory = ({ onBack, type }) => {
 PayoutHistory.propTypes = {
   onBack: PropTypes.func,
   type: PropTypes.string,
-};
-
-PayoutHistory.defaultProps = {
-  onBack: null,
-  type: "aeps-cw-history",
 };
 
 export default PayoutHistory;
