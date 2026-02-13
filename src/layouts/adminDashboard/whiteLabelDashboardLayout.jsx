@@ -16,6 +16,7 @@ const MaskGroup2 = "/img/Maskgroup2.png";
 const MaskGroup3 = "/img/Maskgroup3.png";
 const MaskGroup4 = "/img/Maskgroup4.png";
 const MaskGroup5 = "/img/Maskgroup5.png";
+const MaskGroup6 = "/img/settings1.png";
 const NotificationIcon = "/img/NotificationIcon.png";
 const defaultProfileImage = "/img/defaultProfilelogo.png";
 const companyLogo = "/img/gmaxepay.png";
@@ -238,16 +239,16 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         // },
       ],
     },
-    
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        { name: "Daily Reports", path: "/adminDashboard/reports/daily" },
-        { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
-      ],
-    },
+
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   dropdown: true,
+    //   children: [
+    //     { name: "Daily Reports", path: "/adminDashboard/reports/daily" },
+    //     { name: "Monthly Reports", path: "/adminDashboard/reports/monthly" },
+    //   ],
+    // },
     {
       name: "Tnx History",
       icon: MaskGroup4,
@@ -256,7 +257,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
     },
     {
       name: "Settings",
-      icon: MaskGroup4,
+      icon: MaskGroup6,
       path: "/adminDashboard/settings",
       dropdown: false,
     },

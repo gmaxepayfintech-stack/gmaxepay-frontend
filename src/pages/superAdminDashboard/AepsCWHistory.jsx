@@ -217,9 +217,7 @@ const AepsCWHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = isAeps2
-      ? { transactionType: aepsTxnType }
-      : { aepsTxnType };
+    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -362,7 +360,7 @@ const AepsCWHistory = ({ onBack, type }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                AEPS CW History
+                {type.toUpperCase()}
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Transactions

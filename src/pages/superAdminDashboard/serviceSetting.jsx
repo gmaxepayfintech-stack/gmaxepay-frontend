@@ -107,6 +107,7 @@ const ServiceSetting = () => {
         options: {
           page: currentPage,
           paginate: 10,
+          sort: { createdAt: 1 },
         },
       }),
     );
