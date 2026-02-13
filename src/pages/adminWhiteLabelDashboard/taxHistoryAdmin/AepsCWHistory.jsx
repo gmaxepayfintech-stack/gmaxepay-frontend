@@ -66,7 +66,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       // Map status from API to display format
       const getStatusDisplay = (status) => {
         if (!status) return "Pending";
-        const statusUpper = status.toUpperCase();
+        // Ensure status is a string before calling toUpperCase
+        const statusStr = String(status);
+        const statusUpper = statusStr.toUpperCase();
         if (statusUpper === "SUCCESS") return "Success";
         if (statusUpper === "FAILED" || statusUpper === "FAILURE")
           return "Failed";
@@ -76,10 +78,12 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       // Map capture type to display format
       const getViaDisplay = (captureType) => {
         if (!captureType) return "APP";
-        const typeUpper = captureType.toUpperCase();
+        // Ensure captureType is a string before calling toUpperCase
+        const typeStr = String(captureType);
+        const typeUpper = typeStr.toUpperCase();
         if (typeUpper === "FINGER") return "FINGER";
         if (typeUpper === "IRIS") return "IRIS";
-        return captureType;
+        return typeStr;
       };
 
       // Map user role number to text
