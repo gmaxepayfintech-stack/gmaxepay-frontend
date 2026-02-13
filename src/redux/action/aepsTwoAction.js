@@ -772,7 +772,7 @@ export const getAeps2CwHistoryUsers = (payload) => async (dispatch) => {
       };
 
       const response = await axios.post(
-          `${API_ROUTE}/api/v1/user/aeps1/transaction-history`,
+          `${API_ROUTE}/api/v1/user/aeps2/transaction-history`,
           requestPayload,
           {
               headers: {
