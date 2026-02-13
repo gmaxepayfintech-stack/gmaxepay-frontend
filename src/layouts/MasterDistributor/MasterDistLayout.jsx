@@ -26,7 +26,7 @@ const MasterDistLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error, loading } = useSelector(
+  const { email, name, unauthorized, error, loading, profile } = useSelector(
     (state) => state.userProfile,
   );
 
@@ -446,12 +446,12 @@ const MasterDistLayout = ({ children }) => {
                 aria-label="Profile menu"
               >
                 <img
-                  src={defaultProfileImage}
+                  src={profile?.profileImage || defaultProfileImage}
                   alt="Profile"
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = companyLogo;
+                    e.target.src = defaultProfileImage;
                   }}
                 />
               </button>
