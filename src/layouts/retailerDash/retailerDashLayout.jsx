@@ -26,7 +26,7 @@ const RetailerDashLayout = ({ children }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
-  const { email, name, unauthorized, error, loading } = useSelector(
+  const { email, name, unauthorized, error, loading ,profile} = useSelector(
     (state) => state.userProfile,
   );
 
@@ -68,7 +68,10 @@ const RetailerDashLayout = ({ children }) => {
       icon: MaskGroup3,
       dropdown: true,
       children: [
-        { name: "Subscription", path: "/retailerDashboard/resources/subscription" },
+        {
+          name: "Subscription",
+          path: "/retailerDashboard/resources/subscription",
+        },
       ],
     },
 
@@ -394,30 +397,32 @@ const RetailerDashLayout = ({ children }) => {
                   <div className="h-6 w-32 bg-gray-200 rounded animate-pulse"></div>
                   <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
                 </div>
-              ) : (() => {
-                const greeting = getGreeting();
-                return (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
-                        {greeting.text}!
-                      </h1>
-                      <img
-                        src={greeting.image}
-                        alt={greeting.text}
-                        className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
-                        onError={(e) => {
-                          e.target.onerror = null;
-                          e.target.src = "/img/gmaxepay.png";
-                        }}
-                      />
-                    </div>
-                    <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
-                      {name || email || "Admin"}
-                    </p>
-                  </>
-                );
-              })()}
+              ) : (
+                (() => {
+                  const greeting = getGreeting();
+                  return (
+                    <>
+                      <div className="flex items-center gap-2">
+                        <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                          {greeting.text}!
+                        </h1>
+                        <img
+                          src={greeting.image}
+                          alt={greeting.text}
+                          className="w-6 h-6 sm:w-8 sm:h-8 object-contain"
+                          onError={(e) => {
+                            e.target.onerror = null;
+                            e.target.src = "/img/gmaxepay.png";
+                          }}
+                        />
+                      </div>
+                      <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                        {name || email || "Admin"}
+                      </p>
+                    </>
+                  );
+                })()
+              )}
             </div>
           </div>
 
@@ -444,12 +449,12 @@ const RetailerDashLayout = ({ children }) => {
                 aria-label="Profile menu"
               >
                 <img
-                  src={defaultProfileImage}
+                  src={profile?.profileImage || defaultProfileImage}
                   alt="Profile"
                   className="w-9 h-9 sm:w-10 sm:h-10 rounded-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = companyLogo;
+                    e.target.src = defaultProfileImage;
                   }}
                 />
               </button>
