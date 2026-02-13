@@ -17,6 +17,7 @@ import {
   PAYOUT_HISTORY_COMPANY_FAILURE,
   PAYOUT_HISTORY_USER_SUCCESS,
   PAYOUT_HISTORY_USER_FAILURE,
+  PAYOUT_HISTORY_COMPANY_SUCCESS,
 } from "../actionType/payOutType";
 const commonError = "Something went wrong!";
 
