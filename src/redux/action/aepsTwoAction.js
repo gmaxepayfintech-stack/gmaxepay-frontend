@@ -16,6 +16,8 @@ import {
   AEPSTWO_CW_HISTORY_COMPANY_SUCCESS,
   AEPSTWO_CW_HISTORY_FAILURE,
   AEPSTWO_CW_HISTORY_SUCCESS,
+  AEPSTWO_CW_HISTORY_USERS_FAILURE,
+  AEPSTWO_CW_HISTORY_USERS_SUCCESS,
   AEPSTWO_MINI_STATEMENT_FAILURE,
   AEPSTWO_MINI_STATEMENT_SUCCESS,
   AEPSTWO_ONBOARDING_FAILURE,
@@ -743,6 +745,64 @@ export const getAeps2CwHistoryCompany = (payload) => async (dispatch) => {
       const errorMessage = error.response ? error.response.data.message : error.message;
       dispatch({
           type: AEPSTWO_CW_HISTORY_COMPANY_FAILURE,
+          payload: {
+              status: "FAILURE",
+              message: errorMessage,
+          },
+      });
+      throw error;
+  } finally {
+      dispatch({ type: LOADING_END });
+  }
+};
+
+export const getAeps2CwHistoryUsers = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+      const authToken = secureLocalStorage.getItem("userToken");
+
+      const requestPayload = {
+          query: payload?.query || {},
+          customSearch: payload?.customSearch || {},
+          options: {
+              page: payload?.options?.page || 1,
+              paginate: payload?.options?.paginate || 10,
+              sort: payload?.options?.sort || { createdAt: -1 },
+          },
+      };
+
+      const response = await axios.post(
+          `${API_ROUTE}/api/v1/user/aeps2/transaction-history`,
+          requestPayload,
+          {
+              headers: {
+                  "Content-Type": "application/json",
+                  Authorization: `Bearer ${authToken}`,
+              },
+          }
+      );
+
+      const { data: aeps2CwHistoryUsers, status, message, total, count, paginator } = response?.data ?? {};
+      if (status === "SUCCESS") {
+          dispatch({
+              type: AEPSTWO_CW_HISTORY_USERS_SUCCESS,
+              payload: { data: aeps2CwHistoryUsers, status, message, total, count, paginator },
+          });
+          return { data: aeps2CwHistoryUsers, status, message, total, count, paginator };
+      } else {
+          dispatch({
+              type: AEPSTWO_CW_HISTORY_USERS_FAILURE,
+              payload: {
+                  status: response?.data?.status ?? "FAILURE",
+                  message: response?.data?.message ?? commonError,
+              },
+          });
+          return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+      }
+  } catch (error) {
+      const errorMessage = error.response ? error.response.data.message : error.message;
+      dispatch({
+          type: AEPSTWO_CW_HISTORY_USERS_FAILURE,
           payload: {
               status: "FAILURE",
               message: errorMessage,
