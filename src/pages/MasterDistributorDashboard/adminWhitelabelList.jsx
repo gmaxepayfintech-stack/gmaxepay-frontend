@@ -525,10 +525,10 @@ const AdminWhitelabelList = ({
                               : "bg-green-500 text-white cursor-not-allowed opacity-75"
                           }`}
                           title={
-                            isLocked ? "Click to unlock" : "Already unlocked"
+                            isLocked ? "Click to enable access for this account" : "Account access is enabled"
                           }
                         >
-                          {isLocked ? "Locked" : "Unlocked"}
+                          {isLocked ? "Enable Access" : "Access Enabled"}
                         </button>
                       );
                     })()}
@@ -806,10 +806,10 @@ const AdminWhitelabelList = ({
                                 : "bg-green-500 text-white cursor-not-allowed opacity-75"
                             }`}
                             title={
-                              isLocked ? "Click to unlock" : "Already unlocked"
+                              isLocked ? "Click to enable access for this account" : "Account access is enabled"
                             }
                           >
-                            {isLocked ? "Locked" : "Unlocked"}
+                            {isLocked ? "Enable Access" : "Access Enabled"}
                           </button>
                         );
                       })()}
