@@ -285,7 +285,7 @@ export const kycData = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/admin/users/${id}/kyc/complete`,
+      `${API_ROUTE}/api/v1/admin/users/kyc/complete/${id}`,
       {},
       {
         headers: {
@@ -412,7 +412,7 @@ export const kycUnlock = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/admin/users/${id}/unlock`,
+      `${API_ROUTE}/api/v1/admin/users/unlock/${id}`,
       {},
       {
         headers: {
@@ -454,7 +454,7 @@ export const kycRevert = (id, body = {}) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/admin/users/${id}/kyc/revert`,
+      `${API_ROUTE}/api/v1/admin/users/kyc/revert/${id}`,
       body,
       {
         headers: {

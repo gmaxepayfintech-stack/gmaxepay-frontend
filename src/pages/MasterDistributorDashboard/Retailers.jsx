@@ -74,6 +74,11 @@ const Retailers = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get kycLockStatus success state to refresh table after unlock
+  const kycLockStatusResponse = useSelector(
+    (state) => state?.whitelabel?.kycLockStatus,
+  );
+
   // Get data from Redux (Master Distributor role-based list - flat array)
   const responseForTable = useSelector((state) => {
     const roleData = state?.roles?.roleDataMD?.roleDataMD;
@@ -253,6 +258,29 @@ const Retailers = ({
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
+          : {},
+      };
+      dispatch(roleDataMasterDistributorUser(payload));
+    }
+  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Export to Excel function
   const handleExportToExcel = () => {
@@ -649,10 +677,15 @@ const Retailers = ({
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
                           const lockValue =
-                            row?.originalItem?.lock ||
-                            row.isLocked ||
-                            row.lockStatus;
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
@@ -668,28 +701,9 @@ const Retailers = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
+                                  // The useEffect hook will automatically refresh the table
+                                  // when kycLockStatusResponse status becomes "SUCCESS"
                                   dispatch(kycUnlock(userId));
-
-                                  // Refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                            mobileNo: debouncedSearchTerm.trim(),
-                                            name: debouncedSearchTerm.trim(),
-                                          }
-                                        : {},
-                                    };
-                                    dispatch(roleDataMasterDistributorUser(payload));
-                                  }, 500);
                                 }
                               }}
                               disabled={!isLocked}
@@ -1112,17 +1126,15 @@ const Retailers = ({
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
                           const lockValue =
-                            row?.originalItem?.lock ||
-                            row.isLocked ||
-                            row.lockStatus;
-                          console.log("Lock value check:", {
-                            lockValue,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            isLocked: row?.isLocked,
-                            lockStatus: row?.lockStatus,
-                          });
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
@@ -1138,28 +1150,9 @@ const Retailers = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
+                                  // The useEffect hook will automatically refresh the table
+                                  // when kycLockStatusResponse status becomes "SUCCESS"
                                   dispatch(kycUnlock(userId));
-
-                                  // Refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                            mobileNo: debouncedSearchTerm.trim(),
-                                            name: debouncedSearchTerm.trim(),
-                                          }
-                                        : {},
-                                    };
-                                    dispatch(roleDataMasterDistributorUser(payload));
-                                  }, 500);
                                 }
                               }}
                               disabled={!isLocked}

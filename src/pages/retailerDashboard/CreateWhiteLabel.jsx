@@ -117,6 +117,11 @@ const CreateWhiteLabel = () => {
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get kycLockStatus success state to refresh table after unlock
+  const kycLockStatusResponse = useSelector(
+    (state) => state?.whitelabel?.kycLockStatus,
+  );
+
   // Calculate total pages based on total count (10 records per page)
   const totalPages = Math.ceil(totalCount / 10) || 1;
 
@@ -218,6 +223,39 @@ const CreateWhiteLabel = () => {
     }
   }, [
     kycStatusCheckResponse,
+    activeNav,
+    currentPage,
+    showOnboardingList,
+    debouncedSearchTerm,
+    dispatch,
+  ]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      const userRole = getRoleNumber(activeNav);
+      const query = {
+        userRole: userRole,
+        ...(showOnboardingList && { kycStatus: "pending" }),
+      };
+      const customSearch = {};
+      if (debouncedSearchTerm.trim()) {
+        customSearch.mobileNo = debouncedSearchTerm.trim();
+        customSearch.name = debouncedSearchTerm.trim();
+      }
+      const payload = {
+        query: query,
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
+      };
+      dispatch(useList(payload));
+    }
+  }, [
+    kycLockStatusResponse,
     activeNav,
     currentPage,
     showOnboardingList,
@@ -1099,47 +1137,47 @@ const CreateWhiteLabel = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
+                              // Check multiple possible formats for lock status
+                              // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                              const getLockValue = () => {
+                                // First priority: row.lock (direct property)
+                                if (row?.lock !== undefined && row?.lock !== null) {
+                                  return row.lock;
+                                }
+                                // Second priority: row.originalItem.lock
+                                if (row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null) {
+                                  return row.originalItem.lock;
+                                }
+                                // Third priority: row.isLocked
+                                if (row?.isLocked !== undefined && row?.isLocked !== null) {
+                                  return row.isLocked;
+                                }
+                                // Fourth priority: row.lockStatus
+                                if (row?.lockStatus !== undefined) {
+                                  return row.lockStatus;
+                                }
+                                return undefined;
+                              };
+                              
+                              const lockValue = getLockValue();
+                              
+                              // More robust check for lock status - handles true, "true", 1, and string "true"
                               const isLocked =
-                                row.lock === true || row.lock === "true";
+                                lockValue !== undefined &&
+                                lockValue !== null &&
+                                (lockValue === true ||
+                                  lockValue === "true" ||
+                                  lockValue === 1 ||
+                                  String(lockValue).toLowerCase() === "true");
                               return (
                                 <button
                                   onClick={() => {
                                     // Only trigger API when button is in "Locked" state
                                     if (userId && isLocked) {
                                       // Dispatch unlock action with the row ID
+                                      // The useEffect hook will automatically refresh the table
+                                      // when kycLockStatusResponse status becomes "SUCCESS"
                                       dispatch(kycUnlock(userId));
-
-                                      // Refresh table data after dispatching
-                                      setTimeout(() => {
-                                        const userRole =
-                                          getRoleNumber(activeNav);
-                                        const query = {
-                                          userRole: userRole,
-                                          ...(showOnboardingList && {
-                                            kycStatus: "pending",
-                                          }),
-                                        };
-                                        const customSearch = {};
-                                        if (debouncedSearchTerm.trim()) {
-                                          customSearch.mobileNo =
-                                            debouncedSearchTerm.trim();
-                                          customSearch.name =
-                                            debouncedSearchTerm.trim();
-                                        }
-                                        const payload = {
-                                          query: query,
-                                          options: {
-                                            sort: { id: -1 },
-                                            page: currentPage,
-                                            paginate: 10,
-                                          },
-                                          customSearch:
-                                            Object.keys(customSearch).length > 0
-                                              ? customSearch
-                                              : {},
-                                        };
-                                        dispatch(useList(payload));
-                                      }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}
                                   disabled={!isLocked}

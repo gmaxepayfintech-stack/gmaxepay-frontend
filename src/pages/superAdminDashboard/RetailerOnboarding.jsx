@@ -65,6 +65,11 @@ const RetailerOnboarding = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
+  // Get kycLockStatus success state to refresh table after unlock
+  const kycLockStatusResponse = useSelector(
+    (state) => state?.whitelabel?.kycLockStatus,
+  );
+
   // Use prop data from API - no dummy data
   const allTableData =
     Array.isArray(propTableData) && propTableData.length > 0
@@ -192,6 +197,30 @@ const RetailerOnboarding = ({
       }
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+              mobileNo: debouncedSearchTerm.trim(),
+              name: debouncedSearchTerm.trim(),
+            }
+          : {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -608,43 +637,33 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                          const lockValue =
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
+                          // More robust check for lock status
                           const isLocked =
-                            row?.originalItem?.lock === true ||
-                            row?.originalItem?.lock === "true";
-                          console.log("Lock status check:", {
-                            userId,
-                            isLocked,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            row,
-                          });
+                            lockValue !== undefined &&
+                            lockValue !== null &&
+                            (lockValue === true ||
+                              lockValue === "true" ||
+                              lockValue === 1 ||
+                              String(lockValue).toLowerCase() === "true");
                           return (
                             <button
                               onClick={() => {
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
+                                  // The useEffect hook will automatically refresh the table
+                                  // when kycLockStatusResponse status becomes "SUCCESS"
                                   dispatch(kycUnlock(userId));
-
-                                  // Refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
-                                    };
-                                    dispatch(useListAction(payload));
-                                  }, 500);
                                 }
                               }}
                               disabled={!isLocked}
@@ -1058,35 +1077,33 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                          const lockValue =
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
+                          // More robust check for lock status
                           const isLocked =
-                            row.lock === true || row.lock === "true";
+                            lockValue !== undefined &&
+                            lockValue !== null &&
+                            (lockValue === true ||
+                              lockValue === "true" ||
+                              lockValue === 1 ||
+                              String(lockValue).toLowerCase() === "true");
                           return (
                             <button
                               onClick={() => {
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
+                                  // The useEffect hook will automatically refresh the table
+                                  // when kycLockStatusResponse status becomes "SUCCESS"
                                   dispatch(kycUnlock(userId));
-
-                                  // Refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
-                                      },
-                                    };
-                                    dispatch(useListAction(payload));
-                                  }, 500);
                                 }
                               }}
                               disabled={!isLocked}
