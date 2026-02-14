@@ -40,6 +40,7 @@ import {
   getAdminProfileDetails,
   setSelectedUserRole,
 } from "../redux/action/userProfileAction";
+import { useLocation, useSearchParams } from "react-router-dom";
 
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
@@ -80,11 +81,22 @@ const generateTableData = (type, count = 12) => {
 
 const CreateWhiteLabel = () => {
   const dispatch = useDispatch();
+  const location = useLocation();
 
   const [showWhiteLabel, setShowWhiteLabel] = useState(false);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
   const [showOnboardingList, setShowOnboardingList] = useState(false);
-  const [activeNav, setActiveNav] = useState("Whitelabel");
+  const [searchParams] = useSearchParams(); // Add this line before state declarations
+
+  const [activeNav, setActiveNav] = useState(() => {
+    // Check URL parameter first
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl) {
+      return tabFromUrl;
+    }
+    // Default to Whitelabel
+    return "Whitelabel";
+  });
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
@@ -168,6 +180,16 @@ const CreateWhiteLabel = () => {
   const kycRetrieved = kycDetailsState?.data || null;
   // Use status as a key to detect when data is refreshed
   const kycDetailsStatus = kycDetailsState?.status;
+
+  // Handle tab changes from URL parameter
+  useEffect(() => {
+    const tabFromUrl = searchParams.get("tab");
+    if (tabFromUrl) {
+      setActiveNav(tabFromUrl);
+      setShowOnboardingList(false);
+      setCurrentPage(1);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -1311,7 +1333,9 @@ const CreateWhiteLabel = () => {
                                       : "Account access is enabled"
                                   }
                                 >
-                                  {isLocked ? "Enable Access" : "Access Enabled"}
+                                  {isLocked
+                                    ? "Enable Access"
+                                    : "Access Enabled"}
                                 </button>
                               );
                             })()}

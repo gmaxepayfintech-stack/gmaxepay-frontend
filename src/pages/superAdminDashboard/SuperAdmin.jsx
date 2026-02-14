@@ -24,6 +24,8 @@ import { useNotification } from "../../context/NotificationContext";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { FiChevronDown } from "react-icons/fi";
 import { motion } from "framer-motion";
+import { useNavigate } from "react-router-dom";
+
 const MasterDt = "/img/MasterDt.png";
 const Distributor = "/img/Distributor.png";
 const Ratailer = "/img/Retailer.png";
@@ -44,8 +46,9 @@ const TotalRevenue = "/img/TotalRevenue.png";
 
 const SuperAdmin = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const todayIndex = new Date().getDay(); 
+  const todayIndex = new Date().getDay();
   const [selectedDay, setSelectedDay] = useState(days[todayIndex] || "Sun");
   const [alsOpeningBalance, setAlsOpeningBalance] = useState(null);
   const [ekycHubBalance, setEkycHubBalance] = useState(null);
@@ -328,6 +331,10 @@ const SuperAdmin = () => {
     setPayout(true);
   };
 
+  const handleQuickAction = (tabName, roleNumber) => {
+    navigate(`/superDashboard/members/user?tab=${tabName}`);
+  };
+
   // Build chart data from dashboard statistics modules (fallback to static data if not available)
   const buildChartData = () => {
     const modules = dashboardStatisticsResponse?.data?.modules;
@@ -379,7 +386,9 @@ const SuperAdmin = () => {
   // Dynamic Y-axis max: highest value * 2 (gives more headroom at the peak)
   const maxChartValue =
     data && data.length
-      ? Math.max(...data.map((d) => (typeof d.value === "number" ? d.value : 0)))
+      ? Math.max(
+          ...data.map((d) => (typeof d.value === "number" ? d.value : 0)),
+        )
       : 0;
   const yAxisMax = maxChartValue > 0 ? maxChartValue * 2 : 100;
   const yAxisStep = yAxisMax / 5 || 1;
@@ -609,27 +618,34 @@ const SuperAdmin = () => {
                   ticks={yAxisTicks}
                 />
 
-            {/* Tooltip to show amount on hover */}
-            <Tooltip
-              cursor={{ stroke: "#10b981", strokeWidth: 1, strokeDasharray: "3 3" }}
-              content={({ active, payload, label }) => {
-                if (active && payload && payload.length) {
-                  const mainPoint =
-                    payload.find((p) => p.dataKey === "value") || payload[0];
-                  const amount =
-                    mainPoint && typeof mainPoint.value === "number"
-                      ? formatCurrency(mainPoint.value)
-                      : mainPoint?.value;
-                  return (
-                    <div className="bg-white border border-[#E5E7EB] rounded-md px-3 py-2 shadow-sm text-xs text-[#1B1717]">
-                      <div className="font-[gilroy-medium] mb-1">{label}</div>
-                      <div className="font-[gilroy-semibold]">{amount}</div>
-                    </div>
-                  );
-                }
-                return null;
-              }}
-            />
+                {/* Tooltip to show amount on hover */}
+                <Tooltip
+                  cursor={{
+                    stroke: "#10b981",
+                    strokeWidth: 1,
+                    strokeDasharray: "3 3",
+                  }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      const mainPoint =
+                        payload.find((p) => p.dataKey === "value") ||
+                        payload[0];
+                      const amount =
+                        mainPoint && typeof mainPoint.value === "number"
+                          ? formatCurrency(mainPoint.value)
+                          : mainPoint?.value;
+                      return (
+                        <div className="bg-white border border-[#E5E7EB] rounded-md px-3 py-2 shadow-sm text-xs text-[#1B1717]">
+                          <div className="font-[gilroy-medium] mb-1">
+                            {label}
+                          </div>
+                          <div className="font-[gilroy-semibold]">{amount}</div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
+                />
 
                 {/* BG area slightly higher */}
                 <Area
@@ -918,14 +934,52 @@ const SuperAdmin = () => {
           </h3>
           <div className="grid grid-cols-3 sm:grid-cols-3 gap-6 text-center">
             {[
-              { type: "icon", icon: Users, label: "Employee" },
-              { type: "icon", icon: Tag, label: "Whitelabel" },
-              { type: "img", src: MasterDt, label: "Master DT" },
-              { type: "img", src: Distributor, label: "Distributor" },
-              { type: "img", src: Ratailer, label: "Retailer" },
+              {
+                type: "icon",
+                icon: Users,
+                label: "Employee",
+                tabName: "Employee",
+                roleNumber: 6,
+                disabled: true,
+              },
+              {
+                type: "icon",
+                icon: Tag,
+                label: "Whitelabel",
+                tabName: "Whitelabel",
+                roleNumber: 2,
+              },
+              {
+                type: "img",
+                src: MasterDt,
+                label: "Master DT",
+                tabName: "Master Distributor",
+                roleNumber: 3,
+              },
+              {
+                type: "img",
+                src: Distributor,
+                label: "Distributor",
+                tabName: "Distributor",
+                roleNumber: 4,
+              },
+              {
+                type: "img",
+                src: Ratailer,
+                label: "Retailer",
+                tabName: "Retailers",
+                roleNumber: 5,
+              },
             ].map((item, i) => (
               <div key={i} className="flex flex-col items-center space-y-4">
-                <div className="bg-[#039155] w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-md hover:scale-105 transition-transform duration-200">
+                <button
+                  onClick={() =>
+                    !item.disabled &&
+                    handleQuickAction(item.tabName, item.roleNumber)
+                  }
+                  className="bg-[#039155] w-12 h-12 sm:w-14 sm:h-14 rounded-full flex items-center justify-center shadow-md hover:scale-105 hover:bg-[#027a47] transition-all duration-200 cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#039155] focus:ring-offset-2"
+                  aria-label={`Go to ${item.label}`}
+                >
                   {item.type === "icon" ? (
                     <item.icon className="text-white w-6 h-6" />
                   ) : (
@@ -935,7 +989,7 @@ const SuperAdmin = () => {
                       className="w-96 h-6 object-contain"
                     />
                   )}
-                </div>
+                </button>
                 <span className="text-sm font-[gilroy-semibold] text-[#1B1717]">
                   {item.label}
                 </span>
@@ -1382,8 +1436,8 @@ const SuperAdmin = () => {
                           selectedAepsWallet === "aeps1"
                             ? "AEPS1"
                             : selectedAepsWallet === "aeps2"
-                            ? "AEPS2"
-                            : undefined;
+                              ? "AEPS2"
+                              : undefined;
 
                         if (walletType === "wallet") {
                           // Get location data
@@ -1469,7 +1523,7 @@ const SuperAdmin = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1484,7 +1538,7 @@ const SuperAdmin = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1494,7 +1548,7 @@ const SuperAdmin = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
