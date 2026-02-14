@@ -112,9 +112,7 @@ const PayoutHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = {
-      type: "internal",
-    };
+    const query = {};
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -128,7 +126,7 @@ const PayoutHistory = ({ onBack, type }) => {
       options: {
         page: 1,
         paginate: 1000, // Get all records since API doesn't support pagination
-        sort: { id: 1 },
+        sort: { id: -1 },
       },
     };
 
@@ -230,12 +228,12 @@ const PayoutHistory = ({ onBack, type }) => {
                 setIsReloading(true);
 
                 const payload = {
-                  query: { type: "internal" },
+                  query: {},
                   customSearch: {},
                   options: {
                     page: 1,
                     paginate: 1000,
-                    sort: { id: 1 },
+                    sort: { id: -1 },
                   },
                 };
 
@@ -265,7 +263,7 @@ const PayoutHistory = ({ onBack, type }) => {
               placeholder="Search By Transaction ID, User ID, Mobile, Name"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base"
             />
           </div>
 
@@ -309,57 +307,57 @@ const PayoutHistory = ({ onBack, type }) => {
       <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden">
         <div className="w-full overflow-x-auto overscroll-x-contain">
           <table className="w-full border-collapse min-w-full">
-            <thead className="bg-[#FFFFFF] border-b border-gray-200">
+            <thead className="bg-[#FFFFFF] border-b border-gray-200 text-center">
               <tr>
-                <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   SR No
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   User ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Mobile
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Beneficiary
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Account Number
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   IFSC Code
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Amount
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Opening Bal
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Closing Bal
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Type
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   AEPS Type
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Status
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
               </tr>
             </thead>
             {!isLoading && (
-              <tbody className="bg-white divide-y divide-gray-200">
+              <tbody className="bg-white divide-y divide-gray-200 text-center">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
                     const currentPosition = startIndex + index + 1;
@@ -381,7 +379,7 @@ const PayoutHistory = ({ onBack, type }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.transactionID}
                           </span>
@@ -399,26 +397,26 @@ const PayoutHistory = ({ onBack, type }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
                             {transaction.beneficiaryName}
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.accountNumber}
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.ifscCode}
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
                             {transaction.bankName}
                           </span>
                         </td>

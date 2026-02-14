@@ -7,6 +7,7 @@ import RechargeReport from "./reports/RechargeReport";
 import PanReport from "./reports/PanReport";
 import DTHReport from "./reports/DTHReport";
 import PayoutHistory from "./payoutHistory";
+import WalletHistory from "./walletHistroy";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -24,6 +25,7 @@ const TaxHistory = () => {
     viewHistory === "aeps2-ms-history" ||
     viewHistory === "aeps2-be-history";
   const showPayoutHistory = viewHistory === "payout-history";
+  const showWalletHistory = viewHistory === "wallet-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
@@ -94,6 +96,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 8,
+      title: "Wallet History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "wallet-history",
       category: "Banking",
     },
     // {
@@ -313,6 +323,15 @@ const TaxHistory = () => {
   if (showPayoutHistory) {
     return (
       <PayoutHistory
+        type={viewHistory}
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showWalletHistory) {
+    return (
+      <WalletHistory
         type={viewHistory}
         onBack={() => navigate("/superDashboard/txn-history")}
       />
