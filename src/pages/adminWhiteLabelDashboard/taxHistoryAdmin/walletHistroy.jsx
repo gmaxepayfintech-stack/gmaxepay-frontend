@@ -9,10 +9,10 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { ButtonLoader } from "../../widgets/layout/loader";
-import { getPayoutHistoryUser } from "../../redux/action/payoutAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
+import { getPayoutHistory } from "../../../redux/action/payoutAction";
 
-const PayoutHistory = ({ onBack, type }) => {
+const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -24,7 +24,7 @@ const PayoutHistory = ({ onBack, type }) => {
 
   // Get payout history from Redux
   const payoutHistoryResponse = useSelector(
-    (state) => state?.payout?.payoutHistoryUser,
+    (state) => state?.payout?.payoutHistory,
   );
   const apiData = payoutHistoryResponse?.data || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
@@ -130,7 +130,7 @@ const PayoutHistory = ({ onBack, type }) => {
       },
     };
 
-    dispatch(getPayoutHistoryUser(payload));
+    dispatch(getPayoutHistory(payload));
   }, [dispatch, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -196,7 +196,7 @@ const PayoutHistory = ({ onBack, type }) => {
 
             <div>
               <h1 className="text-lg sm:text-xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
-                PAYOUT HISTORY
+                WALLET HISTORY
               </h1>
               <p className="text-xs sm:text-sm md:text-base text-[#1B1717] font-['Gilroy-Regular']">
                 Manage And Track All Your Payout Transactions
@@ -237,7 +237,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   },
                 };
 
-                dispatch(getPayoutHistoryUser(payload));
+                dispatch(getPayoutHistory(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
@@ -550,9 +550,9 @@ const PayoutHistory = ({ onBack, type }) => {
   );
 };
 
-PayoutHistory.propTypes = {
+WalletHistory.propTypes = {
   onBack: PropTypes.func,
   type: PropTypes.string,
 };
 
-export default PayoutHistory;
+export default WalletHistory;

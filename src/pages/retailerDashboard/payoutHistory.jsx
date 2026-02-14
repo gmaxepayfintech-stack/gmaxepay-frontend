@@ -126,7 +126,7 @@ const PayoutHistory = ({ onBack, type }) => {
       options: {
         page: 1,
         paginate: 1000, // Get all records since API doesn't support pagination
-        sort: { id: 1 },
+        sort: { id: -1 },
       },
     };
 
@@ -233,7 +233,7 @@ const PayoutHistory = ({ onBack, type }) => {
                   options: {
                     page: 1,
                     paginate: 1000,
-                    sort: { id: 1 },
+                    sort: { id: -1 },
                   },
                 };
 
