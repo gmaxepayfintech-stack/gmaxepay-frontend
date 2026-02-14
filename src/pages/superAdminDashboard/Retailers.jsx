@@ -668,10 +668,15 @@ const Retailers = ({
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
                           const lockValue =
-                            row?.originalItem?.lock ||
-                            row.isLocked ||
-                            row.lockStatus;
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&
@@ -1112,17 +1117,15 @@ const Retailers = ({
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
                           const lockValue =
-                            row?.originalItem?.lock ||
-                            row.isLocked ||
-                            row.lockStatus;
-                          console.log("Lock value check:", {
-                            lockValue,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            isLocked: row?.isLocked,
-                            lockStatus: row?.lockStatus,
-                          });
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
                           // More robust check for lock status
                           const isLocked =
                             lockValue !== undefined &&

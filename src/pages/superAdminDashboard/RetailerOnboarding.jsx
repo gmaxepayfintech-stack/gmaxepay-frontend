@@ -637,16 +637,24 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                          const lockValue =
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
+                          // More robust check for lock status
                           const isLocked =
-                            row?.originalItem?.lock === true ||
-                            row?.originalItem?.lock === "true";
-                          console.log("Lock status check:", {
-                            userId,
-                            isLocked,
-                            rowLock: row?.lock,
-                            originalItemLock: row?.originalItem?.lock,
-                            row,
-                          });
+                            lockValue !== undefined &&
+                            lockValue !== null &&
+                            (lockValue === true ||
+                              lockValue === "true" ||
+                              lockValue === 1 ||
+                              String(lockValue).toLowerCase() === "true");
                           return (
                             <button
                               onClick={() => {
@@ -1069,8 +1077,24 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          // Check multiple possible formats for lock status
+                          // Priority: row.lock (direct property) > originalItem.lock > isLocked > lockStatus
+                          const lockValue =
+                            row?.lock !== undefined && row?.lock !== null
+                              ? row.lock
+                              : row?.originalItem?.lock !== undefined && row?.originalItem?.lock !== null
+                              ? row.originalItem.lock
+                              : row?.isLocked !== undefined && row?.isLocked !== null
+                              ? row.isLocked
+                              : row?.lockStatus;
+                          // More robust check for lock status
                           const isLocked =
-                            row.lock === true || row.lock === "true";
+                            lockValue !== undefined &&
+                            lockValue !== null &&
+                            (lockValue === true ||
+                              lockValue === "true" ||
+                              lockValue === 1 ||
+                              String(lockValue).toLowerCase() === "true");
                           return (
                             <button
                               onClick={() => {
