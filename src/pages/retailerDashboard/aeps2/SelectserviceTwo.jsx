@@ -1719,9 +1719,9 @@ const SelectserviceTwo = () => {
                     if (transactionDetails.fpTransactionId) {
                       fieldsToShow.push({ label: "FP Transaction ID", value: transactionDetails.fpTransactionId });
                     }
-                    if (transactionDetails.merchantTransactionId) {
-                      fieldsToShow.push({ label: "Merchant Transaction ID", value: transactionDetails.merchantTransactionId });
-                    }
+                    // if (transactionDetails.merchantTransactionId) {
+                    //   fieldsToShow.push({ label: "Merchant Transaction ID", value: transactionDetails.merchantTransactionId });
+                    // }
                     if (transactionDetails.bankRRN) {
                       fieldsToShow.push({ label: "Bank RRN", value: transactionDetails.bankRRN });
                     }

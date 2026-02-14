@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
   Share,
-  User,
   ChevronLeft,
   ChevronRight,
   RefreshCw,
@@ -14,8 +13,6 @@ import { ButtonLoader } from "../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
 import { getAepsCwHistoryUser } from "../../redux/action/aepsAction";
 import { getAeps2CwHistoryUsers } from "../../redux/action/aepsTwoAction";
-
-
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -38,7 +35,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   });
   const apiData = aepsCwHistoryResponse?.data || [];
   const paginator = aepsCwHistoryResponse?.paginator || {};
-  const totalCount = aepsCwHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -159,8 +155,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             ? item.userRole
             : null;
 
-      const profileImage = userDetails.profileImage || null;
-
       // Mobile number - handle both structures
       const mobileNo = isAeps2
         ? (item.mobileNumber ||
@@ -175,19 +169,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
            userDetails.mobileNo ||
            item.mobileNo ||
            item.mobile ||
-           "N/A");
-
-      // Consumer/Aadhaar number - handle both structures
-      const consumerNumber = isAeps2
-        ? (item.consumerAadhaarNumber ||
-           item.requestPayload?.adhaarNumber ||
-           item.requestPayload?.consumerAadhaarNumber ||
-           "N/A")
-        : (item.consumerNumber ||
-           item.requestPayload?.consumerNumber ||
-           item.consumerAadhaarNumber ||
-           item.requestPayload?.consumerAadhaarNumber ||
-           item.requestPayload?.aadhaarNo ||
            "N/A");
 
       // Extract merchant login ID - handle both structures
@@ -215,11 +196,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
         userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
         mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
-        companyLogo: item.companyLogo || null,
+        companyId: item.companyId ?? "N/A",
+        // Company response doesn't include companyName/logo; use operator as a friendly name
+        companyName: item.companyName || item.operator || item.merchantLoginId || "N/A",
+        merchantLoginId: merchantLoginId,
         bankName: bankName,
         taxId: item.transactionId || item.partnerTxnid || "N/A",
         refID: item.refId || item.addedBy || "N/A",
@@ -228,7 +209,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         via: getViaDisplay(item.captureType, item.device),
         status: getStatusDisplay(item.status, item.transactionStatus),
         createdAt: formattedDate,
-        originalItem: item, // Store full item for details
+        originalItem: item,
       };
     });
   };
@@ -624,9 +605,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   SR No
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Profile
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
@@ -636,13 +614,13 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   Mobile
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Consumer Number
+                  Company Id
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Logo
+                  Merchant Id
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
@@ -674,50 +652,23 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    const currentPosition =
+                    // Show API 'id' if present; otherwise fall back to simple ascending SR no
+                    const fallbackSrNo =
                       (apiCurrentPage - 1) * itemsPerPage + index + 1;
-                    const reverseSrNo = totalCount - currentPosition + 1;
-                    const srNo = String(reverseSrNo).padStart(2, "0");
+                    const srNo = transaction.id ?? fallbackSrNo;
 
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
-                        }`}
+                        className={`transition-colors ${index % 2 === 0
+                          ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
+                          : "bg-white hover:bg-gray-50"
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {srNo}
                           </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
-                            {transaction.profileImage ? (
-                              <>
-                                <img
-                                  src={transaction.profileImage}
-                                  alt={transaction.name || "Profile"}
-                                  className="w-full h-full object-cover"
-                                  onError={(e) => {
-                                    e.target.style.display = "none";
-                                    if (e.target.nextElementSibling) {
-                                      e.target.nextElementSibling.style.display =
-                                        "flex";
-                                    }
-                                  }}
-                                />
-                                <div className="w-full h-full hidden items-center justify-center">
-                                  <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                                </div>
-                              </>
-                            ) : (
-                              <User className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-                            )}
-                          </div>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
@@ -740,7 +691,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.consumerNumber}
+                            {transaction.companyId}
                           </span>
                         </td>
 
@@ -750,21 +701,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded bg-gray-100 flex items-center justify-center overflow-hidden">
-                            {transaction.companyLogo ? (
-                              <img
-                                src={transaction.companyLogo}
-                                alt={transaction.companyName}
-                                className="w-full h-full object-contain"
-                                onError={(e) => {
-                                  e.target.style.display = "none";
-                                }}
-                              />
-                            ) : (
-                              <User className="w-5 h-5 sm:w-6 sm:h-6 text-gray-400" />
-                            )}
-                          </div>
+                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.merchantLoginId}
+                          </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
@@ -830,7 +770,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   })
                 ) : (
                   <tr>
-                    <td colSpan={16} className="px-4 sm:px-6 py-8 text-center">
+                    <td colSpan={15} className="px-4 sm:px-6 py-8 text-center">
                       <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
                         No transactions found
                       </p>
