@@ -655,11 +655,11 @@ const RetailerOnboarding = ({
                               }`}
                               title={
                                 isLocked
-                                  ? "Click to unlock"
-                                  : "Already unlocked"
+                                  ? "Click to enable access for this account"
+                                  : "Account access is enabled"
                               }
                             >
-                              {isLocked ? "Locked" : "Unlocked"}
+                              {isLocked ? "Enable Access" : "Access Enabled"}
                             </button>
                           );
                         })()}
@@ -1097,11 +1097,11 @@ const RetailerOnboarding = ({
                               }`}
                               title={
                                 isLocked
-                                  ? "Click to unlock"
-                                  : "Already unlocked"
+                                  ? "Click to enable access for this account"
+                                  : "Account access is enabled"
                               }
                             >
-                              {isLocked ? "Locked" : "Unlocked"}
+                              {isLocked ? "Enable Access" : "Access Enabled"}
                             </button>
                           );
                         })()}
