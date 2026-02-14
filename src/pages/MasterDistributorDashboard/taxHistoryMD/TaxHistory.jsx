@@ -7,6 +7,7 @@ import RechargeReport from "../Reports/RechargeReport";
 import DTHReport from "../Reports/DTHReport";
 import PanReport from "../Reports/PanReport";
 import PayoutHistory from "./payoutHistory";
+import WalletHistory from "./walletHistroy";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -16,12 +17,12 @@ const TaxHistory = () => {
   // Check if we're viewing a specific history (from URL search params)
   const searchParams = new URLSearchParams(location.search);
   const viewHistory = searchParams.get("view");
-  
+
   // Parse viewHistory to extract apiType and transactionType
   // Format: aeps-cw-history, aeps2-ms-history, etc.
   let apiType = null;
   let transactionType = null;
-  
+
   if (viewHistory) {
     // Match patterns like: aeps-cw-history, aeps2-ms-history, aeps-be-history
     const match = viewHistory.match(/^aeps([12])?-(cw|ms|be)-history$/);
@@ -30,12 +31,14 @@ const TaxHistory = () => {
       transactionType = match[2].toUpperCase(); // Convert "cw" to "CW", "ms" to "MS", "be" to "BE"
     }
   }
-  
+
   const showAepsHistory = apiType && transactionType;
   const showPayoutHistory = viewHistory === "payout-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
+  const showWalletHistory = viewHistory === "wallet-history";
+
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -103,6 +106,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 8,
+      title: "Wallet History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "wallet-history",
       category: "Banking",
     },
     // {
@@ -323,6 +334,15 @@ const TaxHistory = () => {
   if (showPayoutHistory) {
     return (
       <PayoutHistory
+        type={viewHistory}
+        onBack={() => navigate("/masterDistributerDashboard/tax-history")}
+      />
+    );
+  }
+
+  if (showWalletHistory) {
+    return (
+      <WalletHistory
         type={viewHistory}
         onBack={() => navigate("/masterDistributerDashboard/tax-history")}
       />

@@ -7,6 +7,7 @@ import RechargeReport from "../reports/RechargeReport";
 import PanReport from "../reports/PanReport";
 import DTHReport from "../reports/DTHReport";
 import PayoutHistory from "./payoutHistory";
+import WalletHistory from "./walletHistroy";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ const TaxHistory = () => {
   const showDTHHistory = viewHistory === "dth-history";
   const showPANHistory = viewHistory === "pan-service-history";
   const showPayoutHistory = viewHistory === "payout-history";
+  const showWalletHistory = viewHistory === "wallet-history";
 
   // Debug: Log when view parameter changes
   useEffect(() => {
@@ -112,6 +114,14 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 30,
+      title: "Wallet History",
+      subtitle: "Balance Enquiry",
+      available: true,
+      viewKey: "wallet-history",
       category: "Banking",
     },
     {
@@ -329,6 +339,15 @@ const TaxHistory = () => {
   if (showPayoutHistory) {
     return (
       <PayoutHistory
+        type={viewHistory}
+        onBack={() => navigate("/adminDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showWalletHistory) {
+    return (
+      <WalletHistory
         type={viewHistory}
         onBack={() => navigate("/adminDashboard/txn-history")}
       />
