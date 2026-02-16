@@ -162,7 +162,7 @@ const MainWalletStatement = ({ onBack }) => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                     {/* Date Range */}
                     <div>
-                        <label htmlFor="dateRange" className="block text-xs sm:text-sm font-medium text-[#1B1717] mb-2">
+                        <label htmlFor="dateRange" className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                             Date Range
                         </label>
                         <select
@@ -181,7 +181,7 @@ const MainWalletStatement = ({ onBack }) => {
 
                     {/* Transaction Type */}
                     <div>
-                        <label htmlFor="transactionType" className="block text-xs sm:text-sm font-medium text-[#1B1717] mb-2">
+                        <label htmlFor="transactionType" className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                             Transaction Type
                         </label>
                         <select
@@ -199,7 +199,7 @@ const MainWalletStatement = ({ onBack }) => {
 
                     {/* Status */}
                     <div>
-                        <label htmlFor="status" className="block text-xs sm:text-sm font-medium text-[#1B1717] mb-2">
+                        <label htmlFor="status" className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                             Status
                         </label>
                         <select
@@ -217,7 +217,7 @@ const MainWalletStatement = ({ onBack }) => {
 
                     {/* Search Bar */}
                     <div>
-                        <label htmlFor="search" className="block text-xs sm:text-sm font-medium text-[#1B1717] mb-2">
+                        <label htmlFor="search" className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                             Search
                         </label>
                         <div className="relative">
@@ -323,7 +323,7 @@ const MainWalletStatement = ({ onBack }) => {
                                         </span>
                                     </td>
                                     <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#039155] text-white">
+                                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] bg-[#039155] text-white">
                                             {transaction.status}
                                         </span>
                                     </td>

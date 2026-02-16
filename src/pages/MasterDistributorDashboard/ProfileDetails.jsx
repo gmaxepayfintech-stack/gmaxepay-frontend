@@ -412,25 +412,25 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 sm:mb-6">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Name</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Aadhar Number</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.aadhaarNumber || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     14-05-2022
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#039155] text-white">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] bg-[#039155] text-white">
                     Active
                   </span>
                 </div>
@@ -497,25 +497,25 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 sm:mb-6">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Name</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Pan Number</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {companyDetails?.compnyPan || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Upload Date</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     14-05-2022
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium bg-[#039155] text-white">
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] bg-[#039155] text-white">
                     Active
                   </span>
                 </div>
@@ -582,13 +582,13 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4 sm:mb-6">
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Shop Name</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {outletDetails?.shopName || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Shop Address</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {outletDetails?.shopAddress || "N/A"}
                   </p>
                 </div>
@@ -697,37 +697,37 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 {/* Company Information */}
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Company Name</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {companyDetails?.companyName || data?.name || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Mobile Number</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.mobileNo || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Email Id</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.email || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Agent Code</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.agentCode || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">GST Number</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {companyDetails?.compnyGst || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">User ID</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.id || "N/A"}
                   </p>
                 </div>
@@ -735,19 +735,19 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 {/* Location and Profile Information */}
                 <div>
                   <p className="text-xs text-gray-500 mb-1">State</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.state || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">City</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.city || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Pin Code</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.pinCode || "N/A"}
                   </p>
                 </div>
@@ -755,7 +755,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                   <p className="text-xs text-gray-500 mb-1">
                     Profile Expiry Date
                   </p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.createdAt
                       ? new Date(data.createdAt).toLocaleDateString()
                       : "N/A"}
@@ -763,14 +763,14 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Login URL</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {companyDetails?.companyDomain || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-medium text-white ${
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${
                       (data?.status || "Active").toLowerCase() === "inactive"
                         ? "bg-red-500"
                         : "bg-[#039155]"
@@ -783,19 +783,19 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 {/* Address and Coordinates */}
                 <div className="sm:col-span-2 lg:col-span-3">
                   <p className="text-xs text-gray-500 mb-1">Address</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.address || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Latitude</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.latitude || "N/A"}
                   </p>
                 </div>
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Longitude</p>
-                  <p className="text-sm sm:text-base font-medium text-[#1B1717]">
+                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     {data?.longitude || "N/A"}
                   </p>
                 </div>
@@ -823,7 +823,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* Bank Name */}
                     <div className="flex flex-col w-1/5">
                       <p className="text-xs text-gray-500">Bank Name</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
+                      <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
                         {bank.bankName || "N/A"}
                       </p>
                     </div>
@@ -831,7 +831,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* Created On */}
                     <div className="flex flex-col w-1/5">
                       <p className="text-xs text-gray-500">City</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
+                      <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
                         {bank.city || "N/A"}
                       </p>
                     </div>
@@ -839,7 +839,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* Account Number */}
                     <div className="flex flex-col w-1/6">
                       <p className="text-xs text-gray-500">Account Number</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
+                      <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
                         {bank.accountNumber || "N/A"}
                       </p>
                     </div>
@@ -847,7 +847,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* IFSC Code */}
                     <div className="flex flex-col w-1/6">
                       <p className="text-xs text-gray-500">IFSC Code</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
+                      <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
                         {bank.ifsc || "N/A"}
                       </p>
                     </div>
@@ -855,7 +855,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* Branch */}
                     <div className="flex flex-col w-1/6">
                       <p className="text-xs text-gray-500">Branch</p>
-                      <p className="text-sm text-[#1B1717] font-medium">
+                      <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
                         {bank.branch || "N/A"}
                       </p>
                     </div>
@@ -863,7 +863,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                     {/* Status */}
                     <div className="flex flex-col w-20">
                       <p className="text-xs text-gray-500">Status</p>
-                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#039155] text-white">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-[Gilroy-Medium] bg-[#039155] text-white">
                         Active
                       </span>
                     </div>

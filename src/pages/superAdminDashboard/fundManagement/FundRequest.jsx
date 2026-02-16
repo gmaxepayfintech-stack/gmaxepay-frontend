@@ -274,7 +274,7 @@ const FundRequest = () => {
             <div className="flex gap-3">
               <button
                 onClick={handleExport}
-                className="flex-1 flex items-center justify-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-medium hover:bg-green-700 transition shadow-md"
+                className="flex-1 flex items-center justify-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md"
               >
                 <span>Export</span>
                 <svg
@@ -366,7 +366,7 @@ const FundRequest = () => {
             <div className="flex items-end">
               <button
                 onClick={handleExport}
-                className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-medium hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
               >
                 <span>Export</span>
                 <svg

@@ -75,7 +75,7 @@ const RecentRechargeCard = ({ recharge }) => {
               className="w-12 h-12"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
               {recharge.operator.charAt(0)}
             </div>
           )}
@@ -1131,7 +1131,7 @@ const MobileRecharge = ({ onBack }) => {
                           className="w-12 h-12"
                         />
                       ) : (
-                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-bold text-sm">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
                           {operator.operator.charAt(0)}
                         </div>
                       )}

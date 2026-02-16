@@ -290,7 +290,7 @@ const DistributorLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${
                     isActiveParent
                       ? "bg-[#039155] text-white shadow-md"
                       : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"

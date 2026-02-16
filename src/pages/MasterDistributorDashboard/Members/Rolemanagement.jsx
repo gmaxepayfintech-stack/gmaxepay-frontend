@@ -216,7 +216,7 @@ const Rolemanagement = () => {
           <div className="relative" ref={dropdownRef}>
             <button
               onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717] font-medium hover:bg-gray-100 transition"
+              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg bg-gray-50 text-[#1B1717] font-[Gilroy-Medium] hover:bg-gray-100 transition"
             >
               <span>{selectedRole}</span>
               <ChevronDown
@@ -235,7 +235,7 @@ const Rolemanagement = () => {
                         setIsDropdownOpen(false);
                       }}
                       className={`w-full text-left px-4 py-2 text-sm hover:bg-gray-100 transition ${
-                        selectedRole === role ? "bg-gray-100 font-medium" : ""
+                        selectedRole === role ? "bg-gray-100 font-[Gilroy-Medium]" : ""
                       }`}
                     >
                       {role}
@@ -364,7 +364,7 @@ const Rolemanagement = () => {
                             }`}
                           />
                         </button>
-                        <span className="text-sm font-medium text-blue-500">
+                        <span className="text-sm font-[Gilroy-Medium] text-blue-500">
                           Read
                         </span>
 
@@ -405,7 +405,7 @@ const Rolemanagement = () => {
                             }`}
                           />
                         </button>
-                        <span className="text-sm font-medium text-green-500">
+                        <span className="text-sm font-[Gilroy-Medium] text-green-500">
                           Write
                         </span>
                       </div>

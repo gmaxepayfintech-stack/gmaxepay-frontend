@@ -173,7 +173,7 @@ const OtpVerify = () => {
 
           <button
             onClick={handleSubmit}
-            className="w-[500px] text-white text-[28px] font-medium mt-10 rounded-xl h-12 sm:h-14 -ml-12 flex items-center justify-center"
+            className="w-[500px] text-white text-[28px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-14 -ml-12 flex items-center justify-center"
             style={{ backgroundColor: company?.primaryColor || "#039155" }}
           >
             Submit

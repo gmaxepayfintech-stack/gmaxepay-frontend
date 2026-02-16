@@ -328,7 +328,7 @@ const ServiceSetting = () => {
               <span
                 className="w-6 h-6 flex items-center justify-center
                            rounded-full border-2 border-white
-                           text-white text-sm font-bold"
+                           text-white text-sm font-[Gilroy-Semibold]"
               >
                 ✕
               </span>

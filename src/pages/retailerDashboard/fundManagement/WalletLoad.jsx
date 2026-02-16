@@ -468,7 +468,7 @@ const WalletLoad = () => {
                       {/* Bank Details */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between mb-[2px]">
-                          <p className="text-[13px] font-medium text-gray-900 leading-tight">
+                          <p className="text-[13px] font-[Gilroy-Medium] text-gray-900 leading-tight">
                             Bank Name: {bank.bankName}
                           </p>
 

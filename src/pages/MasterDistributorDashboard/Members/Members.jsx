@@ -78,11 +78,11 @@ const Members = () => (
           {/* Left Section: Label, Value, Change */}
           <div className="flex flex-col justify-start">
             {/* Label */}
-            <div className="text-[#1B1717] text-base font-medium mb-1">
+            <div className="text-[#1B1717] text-base font-[Gilroy-Medium] mb-1">
               {item.label}
             </div>
             {/* Value */}
-            <div className="text-2xl font-bold text-[#1B1717] leading-none">
+            <div className="text-2xl font-[Gilroy-Semibold] text-[#1B1717] leading-none">
               {item.value}
             </div>
             {/* Change Percentage */}
@@ -110,7 +110,7 @@ const Members = () => (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       {/* Most Active Members */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="font-medium text-lg mb-5">Most Active Members</h3>
+        <h3 className="font-[Gilroy-Medium] text-lg mb-5">Most Active Members</h3>
         {activeMembers.map((member, idx) => (
           <div key={idx} className="mb-4 last:mb-0">
             <div className="flex items-center justify-between mb-2">
@@ -120,10 +120,10 @@ const Members = () => (
                   alt={member.name}
                   className="w-10 h-10 rounded-full object-cover border"
                 />
-                <div className="font-medium text-[#1B1717]">{member.name}</div>
+                <div className="font-[Gilroy-Medium] text-[#1B1717]">{member.name}</div>
               </div>
               <span
-                className={`text-sm font-medium ${
+                className={`text-sm font-[Gilroy-Medium] ${
                   member.status === "Online"
                     ? "text-green-500"
                     : "text-gray-400"
@@ -148,12 +148,12 @@ const Members = () => (
 
       {/* Recent Onboard Members */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="font-medium text-lg mb-5">Recent Onboard Members</h3>
+        <h3 className="font-[Gilroy-Medium] text-lg mb-5">Recent Onboard Members</h3>
         {onboardMembers.map((member, idx) => (
           <div key={idx} className="mb-4 last:mb-0">
             <div className="flex items-center">
-              <span className="text-green-500 font-bold mr-2">●</span>
-              <span className="font-medium text-[#1B1717]">{member.name}</span>
+              <span className="text-green-500 font-[Gilroy-Semibold] mr-2">●</span>
+              <span className="font-[Gilroy-Medium] text-[#1B1717]">{member.name}</span>
             </div>
             <div className="text-sm text-gray-500 mt-0.5 ml-4">
               {member.company}
@@ -169,20 +169,20 @@ const Members = () => (
 
       {/* Onboard Pending */}
       <div className="bg-white rounded-xl shadow-lg p-6">
-        <h3 className="font-medium text-lg mb-5">Onboard Pending</h3>
+        <h3 className="font-[Gilroy-Medium] text-lg mb-5">Onboard Pending</h3>
         {onboardMembers.map((member, idx) => (
           <div key={idx} className="mb-4 last:mb-0">
             <div className="flex items-center justify-between mb-2">
               <div>
-                <span className="text-red-500 font-bold mr-2">●</span>
-                <span className="font-medium text-[#1B1717]">
+                <span className="text-red-500 font-[Gilroy-Semibold] mr-2">●</span>
+                <span className="font-[Gilroy-Medium] text-[#1B1717]">
                   {member.name}
                 </span>
                 <div className="text-sm text-gray-500 mt-0.5 ml-4">
                   {member.company}
                 </div>
               </div>
-              <span className="bg-[#FFF4F3] text-red-500 px-3 py-1 rounded-lg text-xs font-medium border border-red-300">
+              <span className="bg-[#FFF4F3] text-red-500 px-3 py-1 rounded-lg text-xs font-[Gilroy-Medium] border border-red-300">
                 Pending
               </span>
             </div>

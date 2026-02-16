@@ -309,7 +309,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-medium ${
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${
                     isActiveParent
                       ? "bg-[#039155] text-white shadow-md"
                       : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
@@ -401,7 +401,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         <div className="px-4 py-4  flex-shrink-0">
           <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
             <div className="flex items-center justify-between gap-2 mb-2">
-              <p className="text-sm font-medium text-[#1B1717]">
+              <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
                 Referral Code
               </p>
               <button
@@ -420,7 +420,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                 />
               </button>
             </div>
-            <p className="text-sm font-medium text-[#1B1717]">
+            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
               {referralCodeValue}
             </p>
           </div>

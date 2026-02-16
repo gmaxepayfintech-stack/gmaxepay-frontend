@@ -920,7 +920,7 @@ const WhiteLabel = ({ onBack }) => {
               {/* Submit button */}
               <button
                 type="submit"
-                className="mt-6 bg-[#039155] text-white px-6 py-3 rounded-lg font-bold text-base sm:text-lg w-full"
+                className="mt-6 bg-[#039155] text-white px-6 py-3 rounded-lg font-[Gilroy-Semibold] text-base sm:text-lg w-full"
               >
                 Create Profile
               </button>

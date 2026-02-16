@@ -12,7 +12,7 @@ const NotFound = () => {
           alt="Page Not Found" 
           className="mx-auto mb-6 max-w-xs md:max-w-md"
         />
-        <h2 className="text-3xl font-bold text-gray-800 mt-4">Page Not Found</h2>
+        <h2 className="text-3xl font-[Gilroy-Semibold] text-gray-800 mt-4">Page Not Found</h2>
         <p className="text-gray-600 mt-4">The page you're looking for doesn't exist.</p>
         {!loading && (
           <Link
