@@ -121,7 +121,7 @@ const LoginDesign2 = () => {
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
               </svg>
             </div>
-            <h1 className="text-white mb-2 text-3xl sm:text-4xl font-bold" style={{ fontFamily: 'Gilroy-SemiBold', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
+            <h1 className="text-white mb-2 text-3xl sm:text-4xl font-[Gilroy-Semibold]" style={{ fontFamily: 'Gilroy-SemiBold', textShadow: '0 2px 10px rgba(0,0,0,0.3)' }}>
               Welcome Back
             </h1>
             <p className="text-white/90 text-lg" style={{ fontFamily: 'Gilroy-Medium', textShadow: '0 1px 5px rgba(0,0,0,0.2)', marginTop: '8px' }}>
@@ -196,7 +196,7 @@ const LoginDesign2 = () => {
             <div className="flex justify-end" style={{ marginTop: '28px', marginBottom: '38px' }}>
               <button
                 type="button"
-                className="text-teal-600 hover:text-teal-700 transition-colors text-sm font-medium"
+                className="text-teal-600 hover:text-teal-700 transition-colors text-sm font-[Gilroy-Medium]"
                 style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize' }}
               >
                 Forgot Password?

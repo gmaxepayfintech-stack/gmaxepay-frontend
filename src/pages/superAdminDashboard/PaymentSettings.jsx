@@ -531,7 +531,7 @@ const PaymentSettings = () => {
               key={page}
               onClick={() => setCurrentPage(page)}
               disabled={loading}
-              className={`px-4 py-1.5 rounded font-medium transition-colors ${
+              className={`px-4 py-1.5 rounded font-[Gilroy-Medium] transition-colors ${
                 currentPage === page
                   ? "bg-[#039155] text-white"
                   : "border border-gray-300 hover:bg-gray-50"

@@ -261,7 +261,7 @@ const MasterDistributionOnboarding = ({
           <div
             className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? "py-4 mb-0" : "mb-6"}`}
           >
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-medium text-[#1B1717]">
+            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
               Master Distributor Onboarding List
             </h1>
 
@@ -1019,7 +1019,7 @@ const MasterDistributionOnboarding = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -1037,7 +1037,7 @@ const MasterDistributionOnboarding = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-medium transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               Send
                             </button>
@@ -1074,7 +1074,7 @@ const MasterDistributionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-medium transition ${
+                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
                       page === currentPage
                         ? "bg-[#039155] text-white"
                         : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
@@ -1145,7 +1145,7 @@ const MasterDistributionOnboarding = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1156,7 +1156,7 @@ const MasterDistributionOnboarding = ({
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1166,7 +1166,7 @@ const MasterDistributionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1176,7 +1176,7 @@ const MasterDistributionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1186,7 +1186,7 @@ const MasterDistributionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1196,7 +1196,7 @@ const MasterDistributionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-medium transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1237,7 +1237,7 @@ const MasterDistributionOnboarding = ({
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-medium text-gray-700">
+                            <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                               Progress
                             </span>
                             <span className="text-sm font-semibold text-gray-800">
@@ -1270,7 +1270,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1278,7 +1278,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1286,7 +1286,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1294,7 +1294,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
@@ -1340,7 +1340,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
@@ -1348,7 +1348,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 UID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
@@ -1356,7 +1356,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
@@ -1453,7 +1453,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
@@ -1461,7 +1461,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
@@ -1469,7 +1469,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
@@ -1566,7 +1566,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopName ||
                                   "N/A"}
                               </span>
@@ -1576,7 +1576,7 @@ const MasterDistributionOnboarding = ({
                                 <span className="text-xs text-gray-500 mb-1">
                                   GST No
                                 </span>
-                                <span className="text-sm font-medium text-gray-800">
+                                <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
@@ -1585,7 +1585,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Address
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopAddress ||
                                   "N/A"}
                               </span>
@@ -1634,7 +1634,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Account Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .accountNumber || "N/A"}
                               </span>
@@ -1643,7 +1643,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 IFSC
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.ifsc ||
                                   "N/A"}
                               </span>
@@ -1652,7 +1652,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Bank Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.bankName ||
                                   "N/A"}
                               </span>
@@ -1661,7 +1661,7 @@ const MasterDistributionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Beneficiary Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .beneficiaryName || "N/A"}
                               </span>
@@ -1699,7 +1699,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Mobile
                               </span>
                             </div>
@@ -1730,7 +1730,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Email
                               </span>
                             </div>
@@ -1761,7 +1761,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Aadhar
                               </span>
                             </div>
@@ -1792,7 +1792,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 PAN
                               </span>
                             </div>
@@ -1823,7 +1823,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Shop Details
                               </span>
                             </div>
@@ -1854,7 +1854,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Image
                               </span>
                             </div>
@@ -1887,7 +1887,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Profile with Shop
                               </span>
                             </div>
@@ -1920,7 +1920,7 @@ const MasterDistributionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Bank Details
                               </span>
                             </div>
@@ -1957,7 +1957,7 @@ const MasterDistributionOnboarding = ({
                   setActiveTab("overview");
                   setZoomedImage(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>

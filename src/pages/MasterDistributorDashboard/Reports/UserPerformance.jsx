@@ -84,7 +84,7 @@ const UserPerformance = ({ embedded = false }) => {
                     </h3>
                     <div className="flex flex-row gap-4 w-full items-start">
                         <div className="relative flex-1 min-w-0">
-                            <label htmlFor="fromDate" className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2">
+                            <label htmlFor="fromDate" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                 From Date
                             </label>
                             <div className="relative">
@@ -99,7 +99,7 @@ const UserPerformance = ({ embedded = false }) => {
                             </div>
                         </div>
                         <div className="relative flex-1 min-w-0">
-                            <label htmlFor="toDate" className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2">
+                            <label htmlFor="toDate" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                 To Date
                             </label>
                             <div className="relative">
@@ -114,7 +114,7 @@ const UserPerformance = ({ embedded = false }) => {
                             </div>
                         </div>
                         <div className="relative flex-1 min-w-0">
-                            <label htmlFor="role" className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2">
+                            <label htmlFor="role" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                 Role
                             </label>
                             <div className="relative">
@@ -129,7 +129,7 @@ const UserPerformance = ({ embedded = false }) => {
                             </div>
                         </div>
                         <div className="relative flex-1 min-w-0">
-                            <label htmlFor="client" className="block text-xs sm:text-sm md:text-base font-medium text-[#1B1717] mb-2">
+                            <label htmlFor="client" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                 Client
                             </label>
                             <div className="relative">

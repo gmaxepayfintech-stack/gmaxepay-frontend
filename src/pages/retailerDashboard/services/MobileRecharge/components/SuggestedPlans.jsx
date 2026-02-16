@@ -27,7 +27,7 @@ const SuggestedPlans = ({ displaySuggestedPlans, setSelectedPlanForRecharge }) =
                     className="w-8 h-8"
                   />
                 ) : (
-                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-xs">
+                  <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-[Gilroy-Semibold] text-xs">
                     {plan.operator.charAt(0)}
                   </div>
                 )}

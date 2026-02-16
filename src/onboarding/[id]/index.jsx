@@ -253,7 +253,7 @@ function OnboardingById() {
             {errorInfo.title}
           </h2>
           <p
-            className="text-gray-700 text-2xl mb-4 font-medium break-words"
+            className="text-gray-700 text-2xl mb-4 font-[Gilroy-Medium] break-words"
             style={{ fontFamily: "Gilroy-Medium, sans-serif" }}
           >
             {errorInfo.message}

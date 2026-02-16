@@ -22,7 +22,7 @@ const PlanConfirmationCard = ({
               className="w-12 h-12"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-bold text-lg">
+            <div className="w-10 h-10 rounded-full bg-red-600 flex items-center justify-center text-white font-[Gilroy-Semibold] text-lg">
               {selectedOperator.name.charAt(0)}
             </div>
           )}

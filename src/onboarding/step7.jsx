@@ -254,7 +254,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
                     }
                     startCamera();
                   }}
-                  className="bg-[#039155] text-white px-4 py-1.5 rounded-lg text-sm font-medium hover:bg-green-700 transition shadow-md"
+                  className="bg-[#039155] text-white px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md"
                 >
                   Retake
                 </button>
@@ -265,7 +265,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-medium transition shadow-md ${
+                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${
                     isCameraActive
                       ? "bg-[#039155] text-white hover:bg-green-700"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"

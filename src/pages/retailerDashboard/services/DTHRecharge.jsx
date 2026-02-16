@@ -220,7 +220,7 @@ const RecentRechargeCard = ({ recharge }) => {
               className="w-12 h-12 object-contain"
             />
           ) : (
-            <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-12 h-12 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
               {recharge.operator.charAt(0)}
             </div>
           )}
@@ -264,7 +264,7 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
               className="w-12 h-12 object-contain"
             />
           ) : (
-            <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
+            <div className="w-12 h-12 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
               {operator.name.charAt(0)}
             </div>
           )}
@@ -851,7 +851,7 @@ const DTHRecharge = ({ onBack }) => {
                         className="w-12 h-12 object-contain"
                       />
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 h-12 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
                         {selectedOperator.name.charAt(0)}
                       </div>
                     )}
@@ -1271,7 +1271,7 @@ const DTHRecharge = ({ onBack }) => {
                         className="w-12 h-12 object-contain"
                       />
                     ) : (
-                      <div className="w-12 h-12 flex items-center justify-center text-white font-bold text-sm">
+                      <div className="w-12 h-12 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
                         {selectedOperator.name.charAt(0)}
                       </div>
                     )}

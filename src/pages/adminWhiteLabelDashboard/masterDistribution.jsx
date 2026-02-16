@@ -379,7 +379,7 @@ const MasterDistribution = ({
 
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-medium hover:bg-green-700 shadow-md text-sm sm:text-base"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
                 Export <FaUpload className="text-xs" />
               </button>
@@ -1460,7 +1460,7 @@ const MasterDistribution = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1471,7 +1471,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
@@ -1479,7 +1479,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 UID
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
@@ -1487,7 +1487,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
@@ -1591,7 +1591,7 @@ const MasterDistribution = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1602,7 +1602,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
@@ -1610,7 +1610,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
@@ -1618,7 +1618,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
@@ -1722,7 +1722,7 @@ const MasterDistribution = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1733,7 +1733,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopName ||
                                   "N/A"}
                               </span>
@@ -1743,7 +1743,7 @@ const MasterDistribution = ({
                                 <span className="text-xs text-gray-500 mb-1">
                                   GST No
                                 </span>
-                                <span className="text-sm font-medium text-gray-800">
+                                <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
@@ -1752,7 +1752,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Address
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopAddress ||
                                   "N/A"}
                               </span>
@@ -1808,7 +1808,7 @@ const MasterDistribution = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-medium"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1819,7 +1819,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Account Number
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .accountNumber || "N/A"}
                               </span>
@@ -1828,7 +1828,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 IFSC
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.ifsc ||
                                   "N/A"}
                               </span>
@@ -1837,7 +1837,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Bank Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.bankName ||
                                   "N/A"}
                               </span>
@@ -1846,7 +1846,7 @@ const MasterDistribution = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Beneficiary Name
                               </span>
-                              <span className="text-sm font-medium text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .beneficiaryName || "N/A"}
                               </span>
@@ -1884,7 +1884,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Mobile
                               </span>
                             </div>
@@ -1915,7 +1915,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Email
                               </span>
                             </div>
@@ -1946,7 +1946,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Aadhar
                               </span>
                             </div>
@@ -1977,7 +1977,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 PAN
                               </span>
                             </div>
@@ -2008,7 +2008,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Shop Details
                               </span>
                             </div>
@@ -2039,7 +2039,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Image
                               </span>
                             </div>
@@ -2072,7 +2072,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Profile with Shop
                               </span>
                             </div>
@@ -2105,7 +2105,7 @@ const MasterDistribution = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-medium text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Bank Details
                               </span>
                             </div>
@@ -2142,7 +2142,7 @@ const MasterDistribution = ({
                   setActiveTab("overview");
                   setZoomedImage(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-medium shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>

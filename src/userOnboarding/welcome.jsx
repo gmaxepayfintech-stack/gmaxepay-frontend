@@ -262,7 +262,7 @@ const Welcome = () => {
         <div className={pageWrapper}>
           <div className={cardWrapper}>
             {/* Title */}
-            <h1 className="text-center font-bold text-lg sm:text-xl md:text-2xl text-gray-800 mb-2">
+            <h1 className="text-center font-[Gilroy-Semibold] text-lg sm:text-xl md:text-2xl text-gray-800 mb-2">
               Welcome
             </h1>
 
@@ -296,7 +296,7 @@ const Welcome = () => {
                 {/* Label */}
                 <label
                   htmlFor="referral-code-welcome"
-                  className="block text-xs md:text-sm font-medium text-gray-800 mb-2"
+                  className="block text-xs md:text-sm font-[Gilroy-Medium] text-gray-800 mb-2"
                 >
                   Enter Referral Code
                 </label>
