@@ -398,7 +398,7 @@ const RetailerDashLayout = ({ children }) => {
                   return (
                     <>
                       <div className="flex items-center gap-2">
-                        <h1 className="text-sm sm:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                        <h1 className="text-sm sm:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
                           {greeting.text}!
                         </h1>
                         <img
@@ -411,7 +411,7 @@ const RetailerDashLayout = ({ children }) => {
                           }}
                         />
                       </div>
-                      <p className="text-xs sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                      <p className="text-xs sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                         {name || email || "Admin"}
                       </p>
                     </>
@@ -435,7 +435,7 @@ const RetailerDashLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
-              <span className="hidden text-lg font-[gilroy-semibold] text-[#1B1717] sm:inline">
+              <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
                 {name || email || "Retailer Dashboard"}
               </span>
               <button

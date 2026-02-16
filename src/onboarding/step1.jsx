@@ -110,10 +110,10 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
   return (
     <div className="w-full h-full flex justify-center items-center  p-1 sm:p-2 md:p-2 lg:p-3 xl:p-4 overflow-hidden ">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] mx-auto">
-        <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-center text-[#1B1717]">
+        <h3 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-center text-[#1B1717]">
           Mobile Verification
         </h3>
-        <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4 mt-2">
+        <p className="text-[#1B1717]/80 font-[Gilroy-Medium] text-xs sm:text-xs md:text-sm text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4 mt-2">
           Enter Your Mobile Number To Receive OTP
         </p>
 
@@ -121,7 +121,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="phone"
-            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             Mobile Number
           </label>
@@ -147,7 +147,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
                 value={formData.phone}
                 onChange={handleChange}
                 placeholder="Enter Your Number"
-                className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0 font-[gilroy-medium]
+                className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0 font-[Gilroy-Medium]
                   ${formik.errors.phone ? "border-red-500" : "border-[#1B1717]/80"}
                   rounded-l-lg
                   pl-10 md:pl-12 lg:pl-14
@@ -177,7 +177,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         border-l-0
         ${formik.errors.phone ? "border-red-500" : "border-[#039155]"}
         rounded-r-lg
-        font-[gilroy-semibold]
+        font-[Gilroy-Semibold]
         text-xs md:text-sm
         whitespace-nowrap
         shadow-md
@@ -208,7 +208,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="otp"
-            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             Enter OTP
           </label>
@@ -234,7 +234,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
               onChange={handleChange}
               placeholder="Enter Mobile OTP"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-        font-[gilroy-medium]
+        font-[Gilroy-Medium]
         ${
           formik.errors.otp && formik.touched.otp
             ? "border-red-500"
@@ -267,7 +267,7 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
     bg-[#039155]
     text-white
     rounded-lg md:rounded-xl
-    font-[gilroy-semibold]
+    font-[Gilroy-Semibold]
     text-sm md:text-base
     hover:bg-green-700
     transition

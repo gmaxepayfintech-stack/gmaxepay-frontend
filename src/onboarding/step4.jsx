@@ -234,7 +234,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
           <div className="">
             {/* Header */}
             <div className="text-center mb-7">
-              <h1 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-[#1B1717]">
                 PAN Card Verification
               </h1>
               <p className="text-xs sm:text-xs md:text-sm  text-[#1B1717]/80 font-[gilroy-regular] mt-2 max-w-[90%] mx-auto">
@@ -252,7 +252,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 />
 
                 <div>
-                  <h3 className="text-sm sm:text-base font-[gilroy-medium] text-[#1B1717]">
+                  <h3 className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     PAN Via DigiLocker
                   </h3>
                   <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
@@ -266,7 +266,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
                     ${
                       isConnectDone && showTickMark
                         ? "bg-green-600  cursor-not-allowed"
@@ -285,7 +285,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleDownload}
                   disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md 
 
                     ${
                       !isConnectDone || isDownloadDone
@@ -318,7 +318,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
               </svg>
 
               <div>
-                <h4 className="font-[gilroy-semibold] text-[#08378D] text-xs">
+                <h4 className="font-[Gilroy-Semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
                 <p className="text-xs text-[#0059FF] font-[gilroy-regular]  ">
@@ -345,10 +345,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
           <div className="space-y-2.5 sm:space-y-3 md:space-y-4 lg:space-y-4 xl:space-y-5 bg-white p-3 sm:p-4 md:p-5 lg:p-5 xl:p-6">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-base sm:text-lg font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-base sm:text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                 PAN Card Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm font-[gilroy-medium] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -418,7 +418,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
             <button
               onClick={handleSubmitImage}
               disabled={!panImage || uploading}
-              className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center 
+              className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center 
                 ${
                   panImage && !uploading
                     ? "bg-[#039155] text-white hover:bg-green-700"
@@ -440,10 +440,10 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-xl font-[gilroy-semibold] text-[#1B1717] mb-2">
+                    <h3 className="text-xl font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                       Auto Verifying
                     </h3>
-                    <p className="text-[#1B1717]/80 font-[gilroy-medium] text-sm">
+                    <p className="text-[#1B1717]/80 font-[Gilroy-Medium] text-sm">
                       We are auto verifying your PAN details based on eKYC
                     </p>
                   </div>

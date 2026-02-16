@@ -488,7 +488,7 @@ const Welcome = () => {
           <button
             type="submit"
             disabled={loading || !referralCode.trim()}
-            className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md ${
+            className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md ${
               loading || !referralCode.trim()
                 ? "bg-gray-400 cursor-not-allowed opacity-70"
                 : "hover:bg-[#039155] text-white "

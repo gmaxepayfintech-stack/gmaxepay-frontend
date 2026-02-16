@@ -253,13 +253,13 @@ const OperatorSetting = () => {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[gilroy-medium] focus:outline-none appearance-none"
+              className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[Gilroy-Medium] focus:outline-none appearance-none"
             >
               <option value="all">All</option>
 
               {operatorTypes.map((type) => (
                 <option
-                  className="font-[gilroy-medium]"
+                  className="font-[Gilroy-Medium]"
                   key={type}
                   value={type}
                 >
@@ -285,7 +285,7 @@ const OperatorSetting = () => {
       <div className="bg-white rounded-3xl shadow overflow-x-auto">
         <table className="min-w-[1400px]">
           <thead className="">
-            <tr className="border-b border-[#1B1717]/70 text-center font-[gilroy-semibold] text-[#1B1717] text-sm ">
+            <tr className="border-b border-[#1B1717]/70 text-center font-[Gilroy-Semibold] text-[#1B1717] text-sm ">
               <th className="p-3 ">ID</th>
               <th>Operator Name</th>
               <th>Operator Code</th>
@@ -300,7 +300,7 @@ const OperatorSetting = () => {
               <th>Action</th>
             </tr>
           </thead>
-          <tbody className="text-center font-[gilroy-medium] text-[#1B1717] text-xs">
+          <tbody className="text-center font-[Gilroy-Medium] text-[#1B1717] text-xs">
             {isLoading ? (
               <tr>
                 <td
@@ -417,7 +417,7 @@ const OperatorSetting = () => {
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-[gilroy-medium] text-[#1B1717] text-center">
+            <h2 className="text-2xl font-[Gilroy-Medium] text-[#1B1717] text-center">
               {editId ? "Update Operator" : "Add New Operator"}
             </h2>
             <p className="text-base text-[#1B1717]/80 font-[gilroy-regular] text-center mb-6">
@@ -426,14 +426,14 @@ const OperatorSetting = () => {
 
             {/* Form */}
             <div className="space-y-3">
-              <h3 className="font-[gilroy-semibold] text-[#1B1717] text-lg">
+              <h3 className="font-[Gilroy-Semibold] text-[#1B1717] text-lg">
                 New Operator
               </h3>
 
               {/* Inputs */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Type
                   </label>
 
@@ -455,7 +455,7 @@ const OperatorSetting = () => {
                 </div>
 
                 {/* <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Name
                   </label>
                   <input
@@ -471,7 +471,7 @@ const OperatorSetting = () => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Code
                   </label>
                   <input
@@ -489,7 +489,7 @@ const OperatorSetting = () => {
                 </div>
 
                 {/* <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Type
                   </label>
                   <input
@@ -499,7 +499,7 @@ const OperatorSetting = () => {
                   />
                 </div> */}
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Name
                   </label>
                   <input
@@ -515,7 +515,7 @@ const OperatorSetting = () => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Min Value
                   </label>
                   <input
@@ -530,7 +530,7 @@ const OperatorSetting = () => {
                 </div>
 
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Max Value
                   </label>
                   <input
@@ -546,7 +546,7 @@ const OperatorSetting = () => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Commission
                   </label>
                   <input
@@ -561,7 +561,7 @@ const OperatorSetting = () => {
                 </div>
 
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Commission Type
                   </label>
                   <select
@@ -578,7 +578,7 @@ const OperatorSetting = () => {
               </div>
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Amount Type
                   </label>
                   <select
@@ -595,7 +595,7 @@ const OperatorSetting = () => {
                 </div>
 
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     HSN Code
                   </label>
                   <input
@@ -611,7 +611,7 @@ const OperatorSetting = () => {
               </div>
 
               <div>
-                <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                   Remarks
                 </label>
                 <textarea
@@ -629,14 +629,14 @@ const OperatorSetting = () => {
             <div className="flex justify-between gap-3 mt-6">
               <button
                 onClick={resetForm}
-                className="w-1/2 border border-[#1B1717]/80 text-[#1B1717]/80 font-[gilroy-medium] rounded-xl py-3 text-sm"
+                className="w-1/2 border border-[#1B1717]/80 text-[#1B1717]/80 font-[Gilroy-Medium] rounded-xl py-3 text-sm"
               >
                 Cancel
               </button>
 
               <button
                 onClick={handleSubmitOperator}
-                className="w-1/2 bg-[#039155] text-white rounded-xl font-[gilroy-semibold] py-3 text-sm"
+                className="w-1/2 bg-[#039155] text-white rounded-xl font-[Gilroy-Semibold] py-3 text-sm"
               >
                 {editId ? "Update Operator" : "Add Operator"}
               </button>

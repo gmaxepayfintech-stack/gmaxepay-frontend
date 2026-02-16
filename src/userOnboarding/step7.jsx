@@ -388,7 +388,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
             bg-[#039155]
             text-white
             rounded-lg md:rounded-xl
-            font-[gilroy-semibold]
+            font-[Gilroy-Semibold]
             text-sm md:text-base
             transition
             shadow-lg

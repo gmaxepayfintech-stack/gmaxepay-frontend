@@ -41,10 +41,10 @@ const ForgotMpin = ({ onSubmit, onBack }) => {
           />
         </div>
 
-        <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[gilroy-semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
+        <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[Gilroy-Semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
           Forgot MPIN
         </h1>
-        <p className="text-[#1B1717] font-[gilroy-medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
+        <p className="text-[#1B1717] font-[Gilroy-Medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
           Reset Access in Just One Step
         </p>
 

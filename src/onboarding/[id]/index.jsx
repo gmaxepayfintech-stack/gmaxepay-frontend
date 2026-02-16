@@ -318,10 +318,10 @@ function OnboardingById() {
       >
         {/* Header and description */}
         <div className="p-8">
-          <h1 className="text-2xl font-[gilroy-semibold] mb-2 text-center text-[#1B1717]">
+          <h1 className="text-2xl font-[Gilroy-Semibold] mb-2 text-center text-[#1B1717]">
             Complete Your KYC
           </h1>
-          <p className="text-sm sm:text-base text-[#1B1717] mb-6 text-center font-[gilroy-medium]">
+          <p className="text-sm sm:text-base text-[#1B1717] mb-6 text-center font-[Gilroy-Medium]">
             Secure Your Account And Unlock All Features By Completing Our Quick
             Verification Process.
           </p>
@@ -334,20 +334,20 @@ function OnboardingById() {
                 alt="Status"
                 className="w-[50px] h-[50px] mt-4"
               />
-              <h2 className="text-xl font-[gilroy-semibold] mt[-12px] text-[#1B1717]">
+              <h2 className="text-xl font-[Gilroy-Semibold] mt[-12px] text-[#1B1717]">
                 Complete Your KYC
               </h2>
               {onboardingState.name && (
-                <p className="text-sm font-[gilroy-medium] text-[#1B1717]/80 mt-1">
+                <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/80 mt-1">
                   Welcome, {onboardingState.name}
                 </p>
               )}
             </div>
-            <p className="text-lg font-[gilroy-medium] text-[#1B1717] mt-[-24px] ml-16">
+            <p className="text-lg font-[Gilroy-Medium] text-[#1B1717] mt-[-24px] ml-16">
               Onboarding Token Captured. Please Complete The Steps Below.
             </p>
             <div className="text-[#1B1717] w-[1265px] mt-4 ml-16">
-              <h3 className="text-base  font-[gilroy-medium]">
+              <h3 className="text-base  font-[Gilroy-Medium]">
                 Steps To Complete
               </h3>
               <div className="flex items-center gap-4 mt-4  pb-2 justify-center">

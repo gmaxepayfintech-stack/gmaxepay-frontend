@@ -349,11 +349,11 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               </button>
             )}
 
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
               Shop Details
             </h3>
 
-            <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[gilroy-medium] mt-1 max-w-[90%] mx-auto">
+            <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[Gilroy-Medium] mt-1 max-w-[90%] mx-auto">
               Enter Shop Name And Capture Shop Photo To Complete Your KYC
             </p>
           </div>
@@ -381,7 +381,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               onBlur={formik.handleBlur}
               placeholder="Enter Shop Name"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-              font-[gilroy-medium]
+              font-[Gilroy-Medium]
               ${
                 formik.errors.shopName && formik.touched.shopName
                   ? "border-red-500"

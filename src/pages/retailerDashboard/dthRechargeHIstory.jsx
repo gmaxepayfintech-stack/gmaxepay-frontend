@@ -322,7 +322,7 @@ const DthRechargeHIstory = ({ onBack }) => {
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
             <label
               htmlFor="fromDate"
-              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]"
             >
               From Date
             </label>
@@ -339,7 +339,7 @@ const DthRechargeHIstory = ({ onBack }) => {
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
             <label
               htmlFor="toDate"
-              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]"
+              className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]"
             >
               To Date
             </label>

@@ -396,11 +396,11 @@ const ProfileDetails = ({ onBack = null }) => {
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-[#1B1717]/80">
                   <MapPin className="w-4 h-4 text-[#1B1717]/80" />
-                  <span className="font-[gilroy-medium]">
+                  <span className="font-[Gilroy-Medium]">
                     {data?.state || "N/A"}
                   </span>
                 </div>
-                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
+                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
                   {getUserTypeLabel()}
                 </span>
               </div>
@@ -526,7 +526,7 @@ const ProfileDetails = ({ onBack = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[gilroy-medium] whitespace-nowrap transition-colors ${activeTab === key
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
                     ? "text-white"
                     : "text-[#1B1717]/80 hover:text-[#039155]"
                     }`}
@@ -1020,7 +1020,7 @@ const ProfileDetails = ({ onBack = null }) => {
                   <button
                     type="button"
                     onClick={() => setIsAddingBank(true)}
-                    className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[gilroy-medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
+                    className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[Gilroy-Medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
                   >
                     <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-md">
                       +
@@ -1037,7 +1037,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6">
                   {/* Account Number */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                    <label className="text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717]">
                       Account Number <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1053,7 +1053,7 @@ const ProfileDetails = ({ onBack = null }) => {
 
                   {/* IFSC Code */}
                   <div className="flex flex-col gap-1">
-                    <label className="text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717]">
+                    <label className="text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717]">
                       IFSC Code <span className="text-red-500">*</span>
                     </label>
                     <input
@@ -1074,7 +1074,7 @@ const ProfileDetails = ({ onBack = null }) => {
                       setBankAccountNumber("");
                       setBankIfsc("");
                     }}
-                    className="w-full sm:w-40 h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg text-sm font-[gilroy-medium] text-[#111827] hover:bg-gray-50 transition"
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] border border-[#D1D5DB] rounded-lg text-sm font-[Gilroy-Medium] text-[#111827] hover:bg-gray-50 transition"
                   >
                     Cancel
                   </button>
@@ -1121,7 +1121,7 @@ const ProfileDetails = ({ onBack = null }) => {
                         });
                       }
                     }}
-                    className="w-full sm:w-40 h-[40px] sm:h-[44px] rounded-lg bg-[#039155] text-white text-sm font-[gilroy-semibold] hover:bg-green-700 transition"
+                    className="w-full sm:w-40 h-[40px] sm:h-[44px] rounded-lg bg-[#039155] text-white text-sm font-[Gilroy-Semibold] hover:bg-green-700 transition"
                   >
                     Save
                   </button>

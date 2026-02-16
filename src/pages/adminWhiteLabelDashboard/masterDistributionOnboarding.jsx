@@ -302,68 +302,68 @@ const MasterDistributionOnboarding = ({
             <table className="min-w-[1200px] sm:min-w-full divide-y">
               <thead className="bg-white text-center">
                 <tr>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User
                   </th>
 
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -375,7 +375,7 @@ const MasterDistributionOnboarding = ({
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                      <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
                     </td>
@@ -448,7 +448,7 @@ const MasterDistributionOnboarding = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                            "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -478,7 +478,7 @@ const MasterDistributionOnboarding = ({
                       {/* Status */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
                             row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
@@ -498,7 +498,7 @@ const MasterDistributionOnboarding = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
                         >
                           KYC Details
                         </button>
@@ -595,7 +595,7 @@ const MasterDistributionOnboarding = ({
                                   dispatch(rescendOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               Re-send
                             </button>
@@ -613,7 +613,7 @@ const MasterDistributionOnboarding = ({
                                   dispatch(deActiveOnboarding(userId));
                                 }
                               }}
-                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               Send
                             </button>
@@ -650,7 +650,7 @@ const MasterDistributionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
+                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
                       page === currentPage
                         ? "bg-[#039155] text-white"
                         : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
@@ -680,7 +680,7 @@ const MasterDistributionOnboarding = ({
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
           {/* Header Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
+            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
               Master Distributor Onboarding List
             </h1>
 
@@ -726,69 +726,69 @@ const MasterDistributionOnboarding = ({
             <table className="min-w-[1200px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User
                   </th>
 
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Token Expire
                   </th>
 
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -800,7 +800,7 @@ const MasterDistributionOnboarding = ({
                 ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                      <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
                     </td>
@@ -872,7 +872,7 @@ const MasterDistributionOnboarding = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                            "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -902,7 +902,7 @@ const MasterDistributionOnboarding = ({
                       {/* Status */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
                             row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
@@ -922,7 +922,7 @@ const MasterDistributionOnboarding = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
                         >
                           KYC Details
                         </button>

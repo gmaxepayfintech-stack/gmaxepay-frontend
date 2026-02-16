@@ -782,7 +782,7 @@ const CreateCompanyUser = () => {
                         {/* Text */}
                         <span
                           className={`relative z-10 text-sm sm:text-base lg:text-lg
-                font-[gilroy-medium] whitespace-nowrap
+                font-[Gilroy-Medium] whitespace-nowrap
                 ${
                   activeNav === item
                     ? "text-white"
@@ -881,7 +881,7 @@ const CreateCompanyUser = () => {
           return (
             <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
-                <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-gray-800">
+                <h2 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-gray-800">
                   {(() => {
                     // if (activeNav === "Whitelabel")
                     //   return "Whitelabel All Lists";

@@ -412,7 +412,7 @@ const WhiteLabel = ({ onBack }) => {
               <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
             </div>
             <div className="flex flex-col">
-              <h1 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717]">
+              <h1 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
                 Create Whitelabel
               </h1>
               <p className="text-[#1B1717] font-[gilroy-regular] text-sm sm:text-base lg:text-lg">

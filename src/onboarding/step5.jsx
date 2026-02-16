@@ -217,16 +217,16 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] mx-auto ">
-        <h3 className="text-base text-center sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
+        <h3 className="text-base text-center sm:text-lg  font-[Gilroy-Semibold] text-[#1B1717]">
           Shop Details
         </h3>
-        <p className="text-xs text-center sm:text-sm md:text-sm  text-[#1B1717]/80 font-[gilroy-medium] mt-2 max-w-[90%] mx-auto">
+        <p className="text-xs text-center sm:text-sm md:text-sm  text-[#1B1717]/80 font-[Gilroy-Medium] mt-2 max-w-[90%] mx-auto">
           Tell Us About Your Business
         </p>
 
         {/* Shop Name Section - Separate */}
         <div className="w-full max-w-[534px] mx-auto mb-6 mt-5">
-          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
+          <label className="block text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2">
             Shop Name
           </label>
 
@@ -250,7 +250,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
               onChange={handleChange}
               placeholder="Enter Shop Name"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-              font-[gilroy-medium]
+              font-[Gilroy-Medium]
              
               rounded-lg
               pl-10 md:pl-12 lg:pl-14
@@ -266,7 +266,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 
         {/* Picture Upload Section Label - Separate */}
         <div className="w-full max-w-[534px] mx-auto mb-4">
-          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717]">
+          <label className="block text-lg font-[Gilroy-Semibold] text-[#1B1717]">
             Click Your Picture With Shop
           </label>
         </div>
@@ -329,7 +329,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
                     }
                     startCamera();
                   }}
-                  className="border border-[#039155] text-[#039155] bg-white px-4 py-1.5 rounded-lg text-sm font-[gilroy-medium] hover:bg-green-50 transition shadow-md"
+                  className="border border-[#039155] text-[#039155] bg-white px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] hover:bg-green-50 transition shadow-md"
                 >
                   Retake
                 </button>
@@ -340,7 +340,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-[gilroy-medium] transition shadow-md ${
+                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${
                     isCameraActive
                       ? "bg-[#039155] text-white hover:bg-green-700"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
@@ -356,7 +356,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 
         {/* Image Upload Guidelines */}
         <div className="mt-4">
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4 font-[gilroy-medium]">
+          <div className="bg-green-50 border border-green-200 rounded-lg p-4 font-[Gilroy-Medium]">
             <ul className="space-y-2">
               <li className="flex items-start gap-2">
                 <div className="w-2 h-2 rounded-full bg-[#039155] mt-2 flex-shrink-0" />

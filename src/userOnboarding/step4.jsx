@@ -510,7 +510,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
                       isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
@@ -529,7 +529,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
                       isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
@@ -670,7 +670,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                 type="button"
                 onClick={handleSubmitImage}
                 disabled={!panImage || isUploading}
-                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
+                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
                   panImage && !isUploading
                     ? "bg-[#039155] hover:bg-green-700 active:scale-95"
                     : "bg-gray-400 cursor-not-allowed"

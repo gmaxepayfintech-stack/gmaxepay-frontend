@@ -468,7 +468,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
               <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin" />
             </div>
             <div className="text-center">
-              <h3 className="text-lg sm:text-xl font-[gilroy-semibold] text-[#1B1717]">
+              <h3 className="text-lg sm:text-xl font-[Gilroy-Semibold] text-[#1B1717]">
                 Uploading
               </h3>
               <p className="text-xs sm:text-sm text-gray-600">
@@ -502,7 +502,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                 )}
 
                 {/* Title */}
-                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
                   Aadhaar Verification
                 </h1>
 
@@ -521,7 +521,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                     className="h-14 sm:h-16 flex-shrink-0"
                   />
                   <div>
-                    <h3 className="text-sm sm:text-base md:text-lg font-[gilroy-semibold] text-[#1B1717]">
+                    <h3 className="text-sm sm:text-base md:text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                       Aadhaar Via DigiLocker
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-600">
@@ -536,7 +536,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base border transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base border transition shadow-md ${
                       isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
@@ -551,7 +551,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md ${
                       isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
@@ -593,7 +593,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                 <button
                   type="button"
                   onClick={() => setShowImageUpload(true)}
-                  className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
+                  className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
                 >
                   Next
                 </button>
@@ -620,12 +620,12 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                 )}
 
                 {/* Title */}
-                <h1 className="text-base sm:text-sm md:text-lg lg:text-xl font-[gilroy-semibold] text-[#1B1717]">
+                <h1 className="text-base sm:text-sm md:text-lg lg:text-xl font-[Gilroy-Semibold] text-[#1B1717]">
                   Aadhaar Verification
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-medium] text-[#1B1717]/70 mt-1 max-w-[90%] mx-auto">
+                <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[Gilroy-Medium] text-[#1B1717]/70 mt-1 max-w-[90%] mx-auto">
                   Connect Your DigiLocker For Instant Document Verification
                 </p>
               </div>
@@ -794,7 +794,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                 className={`w-full
         h-9 sm:h-10 md:h-10 lg:h-11 xl:h-12
         rounded-lg sm:rounded-xl
-        font-[gilroy-semibold]
+        font-[Gilroy-Semibold]
         text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
         shadow-md transition-all
         flex items-center justify-center

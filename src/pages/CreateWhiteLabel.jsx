@@ -834,7 +834,7 @@ const CreateWhiteLabel = () => {
         <div className="flex flex-wrap gap-3 mb-6">
           <button
             onClick={() => setShowOnboardingList(false)}
-            className={`px-4 py-2 rounded-2xl font-[gilroy-medium] shadow-md text-sm sm:text-base ${
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${
               showOnboardingList
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 : "bg-[#039155] text-white"
@@ -844,7 +844,7 @@ const CreateWhiteLabel = () => {
           </button>
           <button
             onClick={() => setShowOnboardingList(true)}
-            className={`px-4 py-2 rounded-2xl font-[gilroy-medium] text-sm sm:text-base ${
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${
               showOnboardingList
                 ? "bg-[#039155] text-white shadow-md"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
@@ -963,7 +963,7 @@ const CreateWhiteLabel = () => {
                   <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                     <button
                       onClick={() => setShowWhiteLabel(true)}
-                      className="flex items-center justify-center gap-3 bg-[#039155] text-white px-4 py-3 rounded-xl font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
+                      className="flex items-center justify-center gap-3 bg-[#039155] text-white px-4 py-3 rounded-xl font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
                     >
                       <span>Create New</span>
                       <div className="w-6 h-6 rounded-full border border-white flex items-center justify-center">
@@ -973,7 +973,7 @@ const CreateWhiteLabel = () => {
 
                     <button
                       onClick={handleExportToExcel}
-                      className="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-4 py-3 rounded-lg font-[gilroy-medium] hover:bg-gray-100 text-sm sm:text-base"
+                      className="flex items-center justify-center bg-white text-gray-700 border border-gray-300 px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-100 text-sm sm:text-base"
                     >
                       Export <FaUpload className="ml-2 text-xs" />
                     </button>
@@ -1024,7 +1024,7 @@ const CreateWhiteLabel = () => {
                       {tableHeaders.map((header) => (
                         <th
                           key={header}
-                          className="px-3 py-4 font-[gilroy-medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap text-center"
+                          className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap text-center"
                         >
                           {header}
                         </th>
@@ -1041,7 +1041,7 @@ const CreateWhiteLabel = () => {
                           colSpan={tableHeaders.length}
                           className="py-12 text-center"
                         >
-                          <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                          <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                             No data available
                           </p>
                         </td>
@@ -1106,7 +1106,7 @@ const CreateWhiteLabel = () => {
                           {/* Slab Name */}
                           <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             {row.slabName ? (
-                              <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-[gilroy-medium] bg-[#FFF7E0] text-[#B7791F] border border-[#F6E0A3]">
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-[Gilroy-Medium] bg-[#FFF7E0] text-[#B7791F] border border-[#F6E0A3]">
                                 {row.slabName}
                               </span>
                             ) : (
@@ -1132,7 +1132,7 @@ const CreateWhiteLabel = () => {
                             {(() => {
                               const status = row.kycStatus?.toLowerCase();
                               let className =
-                                "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                                "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
                               if (
                                 status === "completed" ||
                                 status === "full_kyc"
@@ -1169,7 +1169,7 @@ const CreateWhiteLabel = () => {
                           {/* Status */}
                           <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
                             <span
-                              className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                              className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
                                 row.status?.toLowerCase() === "active"
                                   ? "bg-green-600"
                                   : "bg-red-600"
@@ -1190,7 +1190,7 @@ const CreateWhiteLabel = () => {
                                   setShowKycModal(true);
                                 }
                               }}
-                              className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium] transition-colors"
+                              className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
                             >
                               KYC Details
                             </button>
@@ -1351,7 +1351,7 @@ const CreateWhiteLabel = () => {
                                       dispatch(rescendOnboarding(userId));
                                     }
                                   }}
-                                  className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
+                                  className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
                                 >
                                   Re-send
                                 </button>
@@ -1369,7 +1369,7 @@ const CreateWhiteLabel = () => {
                                       dispatch(deActiveOnboarding(userId));
                                     }
                                   }}
-                                  className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
+                                  className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
                                 >
                                   Send
                                 </button>
@@ -1406,7 +1406,7 @@ const CreateWhiteLabel = () => {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`w-8 h-8 rounded-lg text-sm font-[gilroy-medium] transition ${
+                        className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${
                           page === currentPage
                             ? "bg-green-600 text-white"
                             : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
@@ -1479,7 +1479,7 @@ const CreateWhiteLabel = () => {
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1490,7 +1490,7 @@ const CreateWhiteLabel = () => {
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1500,7 +1500,7 @@ const CreateWhiteLabel = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1510,7 +1510,7 @@ const CreateWhiteLabel = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1520,7 +1520,7 @@ const CreateWhiteLabel = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1530,7 +1530,7 @@ const CreateWhiteLabel = () => {
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1575,7 +1575,7 @@ const CreateWhiteLabel = () => {
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-[gilroy-medium] text-gray-700">
+                            <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                               Progress
                             </span>
                             <span className="text-sm font-[Gilroy-Semibold] text-gray-800">
@@ -1608,7 +1608,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1616,7 +1616,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1624,7 +1624,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1632,7 +1632,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
@@ -1685,7 +1685,7 @@ const CreateWhiteLabel = () => {
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1696,7 +1696,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
@@ -1704,7 +1704,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 UID
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
@@ -1712,7 +1712,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
@@ -1816,7 +1816,7 @@ const CreateWhiteLabel = () => {
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1827,7 +1827,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Number
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
@@ -1835,7 +1835,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
@@ -1843,7 +1843,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
@@ -1947,7 +1947,7 @@ const CreateWhiteLabel = () => {
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1958,7 +1958,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopName ||
                                   "N/A"}
                               </span>
@@ -1968,7 +1968,7 @@ const CreateWhiteLabel = () => {
                                 <span className="text-xs text-gray-500 mb-1">
                                   GST No
                                 </span>
-                                <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
@@ -1977,7 +1977,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Address
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopAddress ||
                                   "N/A"}
                               </span>
@@ -2033,7 +2033,7 @@ const CreateWhiteLabel = () => {
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -2044,7 +2044,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Account Number
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .accountNumber || "N/A"}
                               </span>
@@ -2053,7 +2053,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 IFSC
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.ifsc ||
                                   "N/A"}
                               </span>
@@ -2062,7 +2062,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Bank Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.bankName ||
                                   "N/A"}
                               </span>
@@ -2071,7 +2071,7 @@ const CreateWhiteLabel = () => {
                               <span className="text-xs text-gray-500 mb-1">
                                 Beneficiary Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .beneficiaryName || "N/A"}
                               </span>
@@ -2109,7 +2109,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Mobile
                               </span>
                             </div>
@@ -2140,7 +2140,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Email
                               </span>
                             </div>
@@ -2171,7 +2171,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Aadhar
                               </span>
                             </div>
@@ -2202,7 +2202,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 PAN
                               </span>
                             </div>
@@ -2233,7 +2233,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Shop Details
                               </span>
                             </div>
@@ -2264,7 +2264,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Image
                               </span>
                             </div>
@@ -2297,7 +2297,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Profile with Shop
                               </span>
                             </div>
@@ -2330,7 +2330,7 @@ const CreateWhiteLabel = () => {
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Bank Details
                               </span>
                             </div>
@@ -2367,7 +2367,7 @@ const CreateWhiteLabel = () => {
                   setZoomedImage(null);
                   setSelectedUserId(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[gilroy-medium] shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>

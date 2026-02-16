@@ -260,10 +260,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
           <>
             {/* Header */}
             <div className="text-center mb-7">
-              <h1 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-[#1B1717]">
                 Aadhaar Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm  font-[gilroy-medium] text-[#1B1717]/80 mt-2 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  font-[Gilroy-Medium] text-[#1B1717]/80 mt-2 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -277,7 +277,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   className="h-8 sm:h-10 md:h-11 lg:h-12 xl:h-14 flex-shrink-0"
                 />
                 <div>
-                  <h3 className="text-sm sm:text-base  font-[gilroy-medium] text-[#1B1717]">
+                  <h3 className="text-sm sm:text-base  font-[Gilroy-Medium] text-[#1B1717]">
                     Aadhaar Via DigiLocker
                   </h3>
                   <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
@@ -291,7 +291,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-md 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md 
                     ${
                       isConnectDone && showTickMark
                         ? "bg-green-600 text-white cursor-not-allowed"
@@ -309,7 +309,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 <button
                   onClick={handleDownload}
                   disabled={!isConnectDone || isDownloadDone}
-                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base border transition shadow-md 
+                  className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base border transition shadow-md 
 
                     ${
                       !isConnectDone || isDownloadDone
@@ -342,7 +342,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               </svg>
 
               <div>
-                <h4 className="font-[gilroy-semibold] text-[#08378D] text-xs">
+                <h4 className="font-[Gilroy-Semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
                 <p className="text-xs text-[#0059FF] font-[gilroy-regular]">
@@ -355,7 +355,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             {/* NEXT */}
             <button
               onClick={() => setShowImageUpload(true)}
-              className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[gilroy-semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
+              className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
             >
               Next
             </button>
@@ -369,10 +369,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
           <div className="space-y-3 md:space-y-4">
             {/* Header */}
             <div className="text-center">
-              <h1 className="text-base sm:text-sm md:text-lg font-[gilroy-semibold] text-[#1B1717]">
+              <h1 className="text-base sm:text-sm md:text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                 Aadhar Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm  font-[gilroy-medium] text-[#1B1717]/70 mt-2 mb-6 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  font-[Gilroy-Medium] text-[#1B1717]/70 mt-2 mb-6 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -535,7 +535,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               className={`w-full
         h-9 sm:h-10 md:h-10 lg:h-11 xl:h-12
         rounded-lg sm:rounded-xl 
-        font-[gilroy-semibold]
+        font-[Gilroy-Semibold]
         text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
         shadow-md transition-all
         flex items-center justify-center                ${
@@ -559,7 +559,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
                   {/* Verification Message */}
                   <div className="text-center">
-                    <h3 className="text-xl font-[gilroy-semibold] text-[#1B1717] mb-2">
+                    <h3 className="text-xl font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                       Auto Verifying
                     </h3>
                     <p className="text-[#1B1717]/80 text-sm">

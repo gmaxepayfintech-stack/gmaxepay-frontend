@@ -249,11 +249,11 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 </div>
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-[#1B1717]/80">
                   <MapPin className="w-4 h-4 text-[#1B1717]/80" />
-                  <span className="font-[gilroy-medium]">
+                  <span className="font-[Gilroy-Medium]">
                     {data?.state || "N/A"}
                   </span>
                 </div>
-                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[gilroy-medium]">
+                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
                   {(() => {
                     const code = (userRole || data?.userRole || "").toUpperCase();
                     if (code === "DI") return "Distributor";
@@ -386,7 +386,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[gilroy-medium] whitespace-nowrap transition-colors ${
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${
                     activeTab === key
                       ? "text-white"
                       : "text-[#1B1717]/80 hover:text-[#039155]"

@@ -79,7 +79,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
       sendEmailOtp();
     }
   };
-  
+
   const [verifyError, setVerifyError] = useState(null);
   const [emailFocused, setEmailFocused] = useState(false);
   const [otpFocused, setOtpFocused] = useState(false);
@@ -130,17 +130,17 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
       <div className="w-full h-full flex justify-center items-center p-2 sm:p-3 md:p-4 lg:p-4 xl:p-5 overflow-hidden ">
         <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
-          <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-center text-[#1B1717]">
+          <h3 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-center text-[#1B1717]">
             Email Id Verification
           </h3>
-          <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm  text-center mb-4 mt-2">
+          <p className="text-[#1B1717]/80 font-[Gilroy-Medium] text-xs sm:text-xs md:text-sm  text-center mb-4 mt-2">
             Enter Your Email to Receive OTP
           </p>
 
           <div className="space-y-6">
             {/* Email Input */}
             <div>
-              <label className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <label className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                 Email Id
               </label>
               <div className="flex flex-row gap-0">
@@ -189,7 +189,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                 border-[0.5px] border-l-0
                 ${verifyError ? "border-red-500" : "border-[#039155]"}
                 rounded-r-lg
-                font-[gilroy-semibold]
+                font-[Gilroy-Semibold]
                 text-xs md:text-sm
                 whitespace-nowrap
                 shadow-md
@@ -212,7 +212,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
             {/* OTP Input */}
             <div>
-              <label className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <label className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                 Enter OTP
               </label>
               <div className="relative">
@@ -263,7 +263,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
             bg-[#039155]
             text-white
             rounded-lg md:rounded-xl
-            font-[gilroy-semibold]
+            font-[Gilroy-Semibold]
             text-sm md:text-base
             hover:bg-green-700
             transition
