@@ -55,7 +55,6 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   const verifySuccess = useSelector(
     (state) => state?.onboarding?.emailOtpSent?.status,
   );
-  console.log("verifySuccess", verifySuccess);
 
   // Submit OTP verification
   const submitEmailOtp = () => {
@@ -80,10 +79,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
       sendEmailOtp();
     }
   };
-
-  const verifyfailure = useSelector((state) => state?.error?.status);
-  console.log("verifyfailure", verifyfailure);
-
+  
   const [verifyError, setVerifyError] = useState(null);
   const [emailFocused, setEmailFocused] = useState(false);
   const [otpFocused, setOtpFocused] = useState(false);
@@ -116,7 +112,6 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     (state) => state?.onboarding?.emailOtpVerify?.status,
   );
 
-  console.log("emailVerifyStatus", emailVerifyStatus);
 
   useEffect(() => {
     if (emailVerifyStatus === "SUCCESS") {

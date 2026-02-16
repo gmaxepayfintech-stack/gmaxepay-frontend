@@ -69,7 +69,6 @@ const AdminDashboardHome = () => {
   );
 
   const aeps = useSelector((state) => state);
-  console.log(aeps, "aeps");
 
   // Fetch wallet balance + company dashboard statistics on component mount
   useEffect(() => {
@@ -1046,7 +1045,6 @@ const AdminDashboardHome = () => {
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
-                          console.log("Wallet - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1055,12 +1053,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                          console.log(
-                            "Wallet - Latitude:",
-                            latitude,
-                            "Longitude:",
-                            longitude,
-                          );
+                         
 
                           // Map selected AEPS wallet to API aepsType
                           const aepsType =
@@ -1079,7 +1072,6 @@ const AdminDashboardHome = () => {
                           };
                         } else if (walletType === "bank") {
                           const locationInfo = await getLocationAndIP();
-                          console.log("Bank - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1088,12 +1080,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                          console.log(
-                            "Bank - Latitude:",
-                            latitude,
-                            "Longitude:",
-                            longitude,
-                          );
+                         
                           payload = {
                             amount: amount.toString(),
                             mode: "bank",
@@ -1119,17 +1106,12 @@ const AdminDashboardHome = () => {
                           return;
                         }
 
-                        console.log(
-                          "Processing transfer with payload:",
-                          payload,
-                        );
 
                         const response = await dispatch(
                           payoutCompanyTransaction(payload),
                         );
 
                         if (response?.status === "SUCCESS") {
-                          console.log("Transfer successful:", response);
                           showNotification({
                             type: "success",
                             message:
