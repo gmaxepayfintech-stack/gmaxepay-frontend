@@ -163,7 +163,12 @@ const DistributorLayout = ({ children }) => {
       path: "/distributerDashboard/home",
       dropdown: false,
     },
-
+    {
+      name: "Services",
+      icon: MaskGroup5,
+      path: "/distributerDashboard/services",
+      dropdown: false,
+    },
     {
       name: "Fund Manage",
       icon: MaskGroup4,
@@ -222,12 +227,7 @@ const DistributorLayout = ({ children }) => {
         },
       ],
     },
-    {
-      name: "Services",
-      icon: MaskGroup5,
-      path: "/distributerDashboard/services",
-      dropdown: false,
-    },
+  
     {
       name: "Txn History",
       icon: MaskGroup5,
