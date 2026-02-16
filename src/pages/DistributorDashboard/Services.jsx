@@ -53,7 +53,7 @@ const servicesData = [
     status: "subscribed",
     logo: "/img/AEPS.svg",
   },
-  { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
+  // { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
   { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
