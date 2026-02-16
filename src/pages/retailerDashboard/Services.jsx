@@ -49,7 +49,7 @@ const servicesData = [
   { id: "dmt", title: "DMT", status: "available", logo: "/img/DMT.svg" },
   { id: "dmt-11", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
   {
-    id: "pan-card",
+    id: "pan",
     title: "Pan Card Creation",
     status: "subscribed",
     logo: "/img/PanCorrection.svg",
@@ -60,14 +60,14 @@ const servicesData = [
     status: "subscribed",
     logo: "/img/AEPS.svg",
   },
+  // {
+  //   id: "indo-nepal-dmt",
+  //   title: "Indo-Nepal DMT",
+  //   status: "subscribed",
+  //   logo: "/img/DMT.svg",
+  // },
   {
-    id: "indo-nepal-dmt",
-    title: "Indo-Nepal DMT",
-    status: "subscribed",
-    logo: "/img/DMT.svg",
-  },
-  {
-    id: "toto-play",
+    id: "dth-recharge",
     title: "Tata Play Connection",
     status: "subscribed",
     logo: "/img/TataPlay.svg",

@@ -274,9 +274,14 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
     // Build query based on API type
     const query = {};
-    // Use transactionType for both AEPS 1 and AEPS 2
-    query.transactionType = transactionType;
-
+    if (apiType === "aeps1") {
+      // For AEPS 1, use aepsTxnType
+      query.aepsTxnType = transactionType;
+    }
+    else if (apiType === "aeps2") {
+      // For AEPS 2, use transactionType
+      query.transactionType = transactionType;
+    }
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
       // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
@@ -508,8 +513,13 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
                 // Build query - use transactionType for both AEPS 1 and AEPS 2
                 const query = {};
-                query.transactionType = transactionType;
-
+                if (apiType === "aeps1") {
+                  // For AEPS 1, use aepsTxnType
+                  query.aepsTxnType = transactionType;
+                } else if (apiType === "aeps2") {
+                  // For AEPS 2, use transactionType
+                  query.transactionType = transactionType;
+                }
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
