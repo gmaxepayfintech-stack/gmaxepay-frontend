@@ -30,7 +30,6 @@ function OnboardingById() {
   const dispatch = useDispatch();
   const onboardingState = useSelector((state) => state.onboarding);
   const [currentStep, setCurrentStep] = useState(1);
-  console.log("onboardingState", onboardingState);
 
   const [formData, setFormData] = useState({
     // Step 1
