@@ -548,9 +548,9 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          const lockValue = row.lock ?? row.originalItem?.lock;
                           const isLocked =
-                            row?.originalItem?.lock === true ||
-                            row?.originalItem?.lock === "true";
+                            lockValue === true || lockValue === "true";
                           return (
                             <button
                               onClick={() => {
@@ -958,9 +958,9 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
+                          const lockValue = row.lock ?? row.originalItem?.lock;
                           const isLocked =
-                            row?.originalItem?.lock === true ||
-                            row?.originalItem?.lock === "true";
+                            lockValue === true || lockValue === "true";
                           return (
                             <button
                               onClick={() => {
