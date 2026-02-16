@@ -35,7 +35,7 @@ const OperatorCard = ({ operator, onEditClick, onToggleChange }) => {
             {operator.name}
           </span>
         </div>
-        <span className={`text-xs text-center px-2.5 py-1 rounded-full font-medium flex items-center gap-1 ${
+        <span className={`text-xs text-center px-2.5 py-1 rounded-full font-[Gilroy-Medium] flex items-center gap-1 ${
           active 
             ? "bg-[#008D1E] text-[#FFFFFF]" 
             : "bg-red-500 text-[#FFFFFF]"

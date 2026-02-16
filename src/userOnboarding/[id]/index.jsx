@@ -728,7 +728,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                     />
                   </svg>
                 </div>
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold text-green-700 mb-2">
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-[Gilroy-Semibold] text-green-700 mb-2">
                   KYC Completed
                 </h2>
                 <p className="text-gray-600 mt-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg px-4">

@@ -122,7 +122,7 @@ const EarningReport = ({ embedded = false }) => {
           <div className="inline-flex bg-[#FFFFFF] w-[527px] h-[68px] rounded-xl px-[18px] py-[14px] gap-[146px]">
             <button
               onClick={() => setActiveTab("myEarning")}
-              className={`w-[148px] h-[40px] py-[10px] px-[14px] rounded-2xl font-medium transition-all flex items-center justify-center gap-2.5 ${
+              className={`w-[148px] h-[40px] py-[10px] px-[14px] rounded-2xl font-[Gilroy-Medium] transition-all flex items-center justify-center gap-2.5 ${
                 activeTab === "myEarning"
                   ? "text-white bg-[#039155] shadow-sm"
                   : "text-gray-700 hover:text-gray-900"
@@ -132,7 +132,7 @@ const EarningReport = ({ embedded = false }) => {
             </button>
             <button
               onClick={() => setActiveTab("membersEarning")}
-              className={`w-[197px] h-[39px] py-[10px] px-[14px] rounded-2xl font-medium transition-all flex items-center justify-center gap-2.5 ${
+              className={`w-[197px] h-[39px] py-[10px] px-[14px] rounded-2xl font-[Gilroy-Medium] transition-all flex items-center justify-center gap-2.5 ${
                 activeTab === "membersEarning"
                   ? "text-white bg-[#039155] shadow-sm"
                   : "text-gray-700 hover:text-gray-900"
@@ -157,7 +157,7 @@ const EarningReport = ({ embedded = false }) => {
                   <div className="relative flex-1">
                     <label
                       htmlFor="fromDate"
-                      className="block text-xs sm:text-sm md:text-base font-medium text-[#12126] mb-2"
+                      className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#12126] mb-2"
                     >
                       From Date
                     </label>
@@ -175,7 +175,7 @@ const EarningReport = ({ embedded = false }) => {
                   <div className="relative flex-1">
                     <label
                       htmlFor="toDate"
-                      className="block text-xs sm:text-sm md:text-base font-medium text-[#12126] mb-2"
+                      className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#12126] mb-2"
                     >
                       To Date
                     </label>

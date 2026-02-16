@@ -180,7 +180,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
 
                           {/* My Deal */}
                           <div className="flex items-center justify-center gap-2 text-xs">
-                            <div className="flex items-center justify-center text-[#121216] font-medium">
+                            <div className="flex items-center justify-center text-[#121216] font-[Gilroy-Medium]">
                               {comm.commAmt}
                             </div>
                             <div className="flex items-center justify-center">

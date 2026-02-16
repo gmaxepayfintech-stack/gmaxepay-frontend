@@ -44,7 +44,7 @@ const SetMPINView = ({
         </p>
 
         <div className="mb-8">
-          <label className="block text-1B1717 text-[18px] font-medium mb-3">
+          <label className="block text-1B1717 text-[18px] font-[Gilroy-Medium] mb-3">
             New MPIN
           </label>
           <div className="flex gap-6 sm:gap-6 justify-center">
@@ -70,7 +70,7 @@ const SetMPINView = ({
         </div>
 
         <div className="mb-8">
-          <label className="block text-1B1717 text-[18px] font-medium mb-3">
+          <label className="block text-1B1717 text-[18px] font-[Gilroy-Medium] mb-3">
             Confirm MPIN
           </label>
           <div className="flex gap-6 sm:gap-6 justify-center">
@@ -98,7 +98,7 @@ const SetMPINView = ({
         <button
           onClick={!isLoading ? onSubmit : undefined}
           disabled={isLoading}
-          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-medium mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full lg:w-[534px] mx-auto text-white text-[24px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {isLoading ? (

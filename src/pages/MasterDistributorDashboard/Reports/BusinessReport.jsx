@@ -93,7 +93,7 @@ const BusinessReport = ({ embedded = false }) => {
                     <div className="inline-flex bg-[#FFFFFF] w-[527px] h-[68px] rounded-xl px-[18px] py-[14px] gap-[146px]">
                         <button
                             onClick={() => setActiveTab("myPerformance")}
-                            className={`w-[148px] h-[40px] py-[10px] px-[14px] rounded-2xl font-medium transition-all flex items-center justify-center gap-2.5 ${activeTab === "myPerformance"
+                            className={`w-[148px] h-[40px] py-[10px] px-[14px] rounded-2xl font-[Gilroy-Medium] transition-all flex items-center justify-center gap-2.5 ${activeTab === "myPerformance"
                                     ? "text-white bg-[#039155] shadow-sm"
                                     : "text-gray-700 hover:text-gray-900"
                                 }`}
@@ -102,7 +102,7 @@ const BusinessReport = ({ embedded = false }) => {
                         </button>
                         <button
                             onClick={() => setActiveTab("userBusinessStats")}
-                            className={`w-[197px] h-[39px] py-[10px] px-[14px] rounded-2xl font-medium transition-all flex items-center justify-center gap-2.5 ${activeTab === "userBusinessStats"
+                            className={`w-[197px] h-[39px] py-[10px] px-[14px] rounded-2xl font-[Gilroy-Medium] transition-all flex items-center justify-center gap-2.5 ${activeTab === "userBusinessStats"
                                     ? "text-white bg-[#039155] shadow-sm"
                                     : "text-gray-700 hover:text-gray-900"
                                 }`}
@@ -124,7 +124,7 @@ const BusinessReport = ({ embedded = false }) => {
                                 </h3>
                                 <div className="flex flex-row gap-4 flex-1">
                                     <div className="relative flex-1">
-                                        <label htmlFor="fromDate" className="block text-xs sm:text-sm md:text-base font-medium text-[#12126] mb-2">
+                                        <label htmlFor="fromDate" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#12126] mb-2">
                                             From Date
                                         </label>
                                         <div className="relative">
@@ -139,7 +139,7 @@ const BusinessReport = ({ embedded = false }) => {
                                         </div>
                                     </div>
                                     <div className="relative flex-1">
-                                        <label htmlFor="toDate" className="block text-xs sm:text-sm md:text-base font-medium text-[#12126] mb-2">
+                                        <label htmlFor="toDate" className="block text-xs sm:text-sm md:text-base font-[Gilroy-Medium] text-[#12126] mb-2">
                                             To Date
                                         </label>
                                         <div className="relative">

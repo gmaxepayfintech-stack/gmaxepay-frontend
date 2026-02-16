@@ -270,58 +270,58 @@ const RoleUpgradeWhiteLabel = () => {
                 <table className="min-w-max w-full divide-y">
                 <thead className="bg-white  divide-y-[#1B1717] border-opacity-50">
                     <tr>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             SR No
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Date
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Parent Name
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             User Name
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Mobile Number
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Email Id
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Current Role
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Upgrade Role
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             User ID
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Parent Role
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Company
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Company ID
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             KYC Status
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             KYC Steps
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Status
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Lock
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Main Wallet
                         </th>
-                        <th className="px-3 py-4 text-left font-medium text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                        <th className="px-3 py-4 text-left font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                             Apes Wallet
                         </th>
                     </tr>
@@ -364,7 +364,7 @@ const RoleUpgradeWhiteLabel = () => {
                                 <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                                     <button
                                         onClick={() => handleUpgradeClick(row)}
-                                        className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-medium"
+                                        className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-[Gilroy-Medium]"
                                     >
                                         Upgrade
                                     </button>
@@ -530,7 +530,7 @@ const RoleUpgradeWhiteLabel = () => {
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 text-[#1B1717]">
             {/* Header Section */}
             <div className="mb-6">
-                <h1 className="text-2xl sm:text-3xl font-medium text-[#1B1717] mb-4">
+                <h1 className="text-2xl sm:text-3xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
                     Role Upgradation List
                 </h1>
 
@@ -554,7 +554,7 @@ const RoleUpgradeWhiteLabel = () => {
                             <button
                                 key={filter}
                                 onClick={() => setActiveFilter(filter)}
-                                className={`px-4 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-medium transition ${activeFilter === filter
+                                className={`px-4 py-2 sm:py-3 rounded-xl text-sm sm:text-base font-[Gilroy-Medium] transition ${activeFilter === filter
                                     ? 'bg-[#039155] text-white shadow-md'
                                     : '  text-[#1B1717] hover:bg-gray-50'
                                     }`}
@@ -628,7 +628,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        <label className="block text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                             User Name
                                         </label>
                                         <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
@@ -636,7 +636,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        <label className="block text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                             Mobile Number
                                         </label>
                                         <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
@@ -644,7 +644,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         </div>
                                     </div>
                                     <div>
-                                        <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                        <label className="block text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                             Email Id
                                         </label>
                                         <div className="w-full text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
@@ -658,7 +658,7 @@ const RoleUpgradeWhiteLabel = () => {
                                 <div className="space-y-6">
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                         <div>
-                                            <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            <label className="block text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                                 Current Role
                                             </label>
                                             <input
@@ -672,7 +672,7 @@ const RoleUpgradeWhiteLabel = () => {
                                             />
                                         </div>
                                         <div>
-                                            <label className="block text-sm font-medium text-[#1B1717] mb-2">
+                                            <label className="block text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2">
                                                 Requested Role
                                             </label>
                                             <select
@@ -689,7 +689,7 @@ const RoleUpgradeWhiteLabel = () => {
                                                 ))}
                                             </select>
                                             {requestedRoleError && (
-                                                <p className="mt-1 text-sm text-red-500 font-medium">
+                                                <p className="mt-1 text-sm text-red-500 font-[Gilroy-Medium]">
                                                     {requestedRoleError}
                                                 </p>
                                             )}
@@ -700,7 +700,7 @@ const RoleUpgradeWhiteLabel = () => {
                                     <div className="flex items-center justify-between py-6 px-2 bg-[#FAFAFA] rounded-lg">
                                         <div className="flex items-center gap-3 w-[220px]">
                                             <User className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717] truncate">
+                                            <span className="font-[Gilroy-Medium] text-[#1B1717] truncate">
                                                 {formData.currentRole || ''}
                                             </span>
                                         </div>
@@ -721,7 +721,7 @@ const RoleUpgradeWhiteLabel = () => {
 
                                         <div className="flex items-center justify-end gap-3 w-[220px]">
                                             <Sparkles className="w-6 h-6 text-[#039155]" />
-                                            <span className="font-medium text-[#1B1717] inline-block w-48 truncate">
+                                            <span className="font-[Gilroy-Medium] text-[#1B1717] inline-block w-48 truncate">
                                                 {requestedRoleOptions.find((opt) => String(opt.id) === String(formData.requestedRole))?.label || ''}
                                             </span>
                                         </div>
@@ -732,7 +732,7 @@ const RoleUpgradeWhiteLabel = () => {
                             {activeTab === 'Status And Actions' && (
                                 <div className="space-y-6">
                                     <div>
-                                        <h3 className="text-lg font-medium text-[#1B1717] mb-4">Quick Actions</h3>
+                                        <h3 className="text-lg font-[Gilroy-Medium] text-[#1B1717] mb-4">Quick Actions</h3>
                                         <div className="flex gap-4">
                                             <button
                                                 onClick={() => {
@@ -740,13 +740,13 @@ const RoleUpgradeWhiteLabel = () => {
                                                     // TODO: Add reject API call
                                                     handleCloseModal();
                                                 }}
-                                                className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-medium hover:bg-red-100 transition"
+                                                className="px-6 py-3 bg-red-50 text-red-600 rounded-lg font-[Gilroy-Medium] hover:bg-red-100 transition"
                                             >
                                                 Reject Request
                                             </button>
                                             <button
                                                 onClick={handleApproveRequest}
-                                                className="px-6 py-3 bg-[#039155] text-white rounded-lg font-medium hover:bg-[#027a45] transition"
+                                                className="px-6 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Medium] hover:bg-[#027a45] transition"
                                             >
                                                 Approve Request
                                             </button>

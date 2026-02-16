@@ -788,7 +788,7 @@ const RetailerDashboard = () => {
                   <span
                     className="w-6 h-6 flex items-center justify-center
                rounded-full border-2 border-white
-               text-white text-sm font-bold"
+               text-white text-sm font-[Gilroy-Semibold]"
                   >
                     ✕
                   </span>
@@ -1033,7 +1033,7 @@ const RetailerDashboard = () => {
                   rounded-xl py-4 flex items-center justify-center gap-2
                   hover:border-[#039155]  transition"
                     >
-                      <div className="w-6 h-6 rounded-full border-[#180404] border-2 border-current flex items-center justify-center text-[24px] text-[#180404] font-medium leading-none">
+                      <div className="w-6 h-6 rounded-full border-[#180404] border-2 border-current flex items-center justify-center text-[24px] text-[#180404] font-[Gilroy-Medium] leading-none">
                         +
                       </div>
                       <span className="font-['Gilroy-Medium'] text-lg text-[#1B1717]">

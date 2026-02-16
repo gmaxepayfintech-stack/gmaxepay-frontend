@@ -548,7 +548,7 @@ const BillerCard = ({
                         {biller.name}
                     </span>
                 </div>
-                <span className="text-xs bg-[#008D1E] text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-medium flex items-center gap-1">
+                <span className="text-xs bg-[#008D1E] text-center text-[#FFFFFF] px-2.5 py-1 rounded-full font-[Gilroy-Medium] flex items-center gap-1">
                     <span className="w-[8px] h-[8px] bg-white text-[#FFFFFF] rounded-full"></span>
                     Active
                 </span>
@@ -976,7 +976,7 @@ const BillerSettings = () => {
                                         setIsDropdownOpen(false);
                                     }}
                                     className={`px-4 py-2 hover:bg-gray-50 cursor-pointer text-sm ${selectedCategory === category
-                                            ? "bg-gray-100 font-medium"
+                                            ? "bg-gray-100 font-[Gilroy-Medium]"
                                             : "text-[#1B1717]"
                                         }`}
                                 >
@@ -1038,7 +1038,7 @@ const BillerSettings = () => {
                             key={page}
                             onClick={() => setCurrentPage(page)}
                             disabled={loading}
-                            className={`px-4 py-1.5 rounded font-medium transition-colors ${currentPage === page
+                            className={`px-4 py-1.5 rounded font-[Gilroy-Medium] transition-colors ${currentPage === page
                                     ? "bg-[#039155] text-white"
                                     : "border border-gray-300 hover:bg-gray-50"
                                 } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}

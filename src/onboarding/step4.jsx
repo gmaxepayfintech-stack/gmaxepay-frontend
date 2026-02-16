@@ -468,7 +468,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                       d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
                     />
                   </svg>
-                  <p className="flex-1 text-sm font-medium">{errorMessage}</p>
+                  <p className="flex-1 text-sm font-[Gilroy-Medium]">{errorMessage}</p>
                   <button
                     onClick={() => setErrorMessage(null)}
                     className="flex-shrink-0 hover:bg-red-600 rounded p-1 transition"

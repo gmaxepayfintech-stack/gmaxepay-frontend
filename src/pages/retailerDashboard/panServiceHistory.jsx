@@ -348,7 +348,7 @@ const PanServiceHistory = ({ onBack }) => {
 
           {/* Export */}
           <div className="flex items-end">
-            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-medium hover:bg-green-700 transition shadow-md whitespace-nowrap">
+            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
               <span>Export</span>
               <Share className="w-4 h-4" />
             </button>
