@@ -122,7 +122,7 @@ const IdentityVerification = ({ onBack }) => {
     try {
       // Submit OTP in the required format
       const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
-      console.log("aepsSubmitOTP response:", response);
+      //console.log("aepsSubmitOTP response:", response);
 
       // Check status regardless of success or failure
       try {
@@ -165,7 +165,7 @@ const IdentityVerification = ({ onBack }) => {
 
     try {
       const response = await dispatch(aepsRescendOTP());
-      console.log("aepsRescendOTP response:", response);
+      //console.log("aepsRescendOTP response:", response);
 
       if (response?.status === "SUCCESS") {
         // Start 3-minute countdown (180 seconds)

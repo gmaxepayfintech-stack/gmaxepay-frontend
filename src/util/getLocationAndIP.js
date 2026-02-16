@@ -8,7 +8,7 @@ export const getLocationAndIP = async () => {
     const ipResponse = await fetch('https://api.ipify.org?format=json');
     const ipData = await ipResponse.json();
     const ipAddress = ipData.ip;
-    console.log('IP Address:', ipAddress);
+   // console.log('IP Address:', ipAddress);
 
     // Get location
     let locationData = {
@@ -18,7 +18,7 @@ export const getLocationAndIP = async () => {
 
     // Check if geolocation is supported
     if (navigator.geolocation) {
-      console.log('Requesting geolocation...');
+     // console.log('Requesting geolocation...');
       return new Promise((resolve) => {
         navigator.geolocation.getCurrentPosition(
           (position) => {
@@ -26,7 +26,7 @@ export const getLocationAndIP = async () => {
               latitude: position.coords.latitude,
               longitude: position.coords.longitude,
             };
-            console.log('Location granted:', locationData);
+           // console.log('Location granted:', locationData);
             resolve({
               ipAddress,
               location: locationData,

@@ -129,25 +129,25 @@ const Services = () => {
   // Handle AEPS-1 card click - always navigate to services/aeps1/onboarding route
   // The OnBoardingAeps component will handle all status checks and component rendering
   const handleAepsClick = () => {
-    console.log(
-      "🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding",
-    );
+    // console.log(
+    //   "🖱️ AEPS-1 card clicked, navigating to services/aeps1/onboarding",
+    // );
     // Always navigate to services/aeps1/onboarding - let that component handle everything
     navigate("/retailerDashboard/services/aeps1/onboarding");
   };
 
   // Handle BBPS card click - show BBPS services component
   const handleBBPSClick = () => {
-    console.log("🖱️ BBPS card clicked, navigating to BBPS");
+   // console.log("🖱️ BBPS card clicked, navigating to BBPS");
     navigate("/retailerDashboard/services/bbps-services");
     setShowBBPSServices(true);
   };
 
   // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
   const handleAepsTwoClick = () => {
-    console.log(
-      "🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding",
-    );
+    // console.log(
+    //   "🖱️ AEPS-2 card clicked, navigating to services/aeps2/onboarding",
+    // );
     navigate("/retailerDashboard/services/aeps2/onboarding");
   };
 
@@ -162,7 +162,7 @@ const Services = () => {
 
   // Handle PAN card click - navigate to pan-service route
   const handlePANClick = () => {
-    console.log("🖱️ PAN card clicked, navigating to pan-service");
+    //console.log("🖱️ PAN card clicked, navigating to pan-service");
     navigate("/retailerDashboard/services/pan-service");
   };
 

@@ -249,15 +249,15 @@ const Settings = ({ onBack }) => {
   };
 
   const uploadLogoAPI = () => {
-    console.log("Upload logo API call");
+    //console.log("Upload logo API call");
   };
 
   const uploadFaviconAPI = () => {
-    console.log("Upload favicon API call");
+   // console.log("Upload favicon API call");
   };
 
   const uploadSliderAPI = (index) => {
-    console.log("Upload slider API call for index:", index);
+    //console.log("Upload slider API call for index:", index);
   };
 
   return (

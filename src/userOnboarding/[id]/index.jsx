@@ -158,13 +158,13 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
         const companyId = getCompanyId();
         const companyDomain = getCompanyDomain();
 
-        console.log("fetchPendingOnMount - companyData:", companyData);
-        console.log("fetchPendingOnMount - companyId:", companyId);
-        console.log("fetchPendingOnMount - companyDomain:", companyDomain);
-        console.log(
-          "fetchPendingOnMount - token:",
-          token ? "present" : "missing",
-        );
+        // console.log("fetchPendingOnMount - companyData:", companyData);
+        // console.log("fetchPendingOnMount - companyId:", companyId);
+        // console.log("fetchPendingOnMount - companyDomain:", companyDomain);
+        // console.log(
+        //   "fetchPendingOnMount - token:",
+        //   token ? "present" : "missing",
+        // );
 
         if (
           token &&
@@ -221,12 +221,12 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           mobileOtpResponse?.OTPResponse?.data?.status === "verified" ||
           mobileOtpResponse?.status === "SUCCESS";
 
-        console.log(
-          "checkAndFetchPending - isMobileVerified:",
-          isMobileVerified,
-        );
-        console.log("checkAndFetchPending - companyId:", companyId);
-        console.log("checkAndFetchPending - companyDomain:", companyDomain);
+        // console.log(
+        //   "checkAndFetchPending - isMobileVerified:",
+        //   isMobileVerified,
+        // );
+        // console.log("checkAndFetchPending - companyId:", companyId);
+        // console.log("checkAndFetchPending - companyDomain:", companyDomain);
 
         if (
           token &&

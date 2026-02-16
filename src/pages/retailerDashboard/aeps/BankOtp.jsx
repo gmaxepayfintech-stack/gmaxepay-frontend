@@ -112,7 +112,7 @@ const BankOtp = ({ onBack }) => {
       };
 
       const response = await dispatch(aepsBankOtp(payload));
-      console.log("aepsBankOtp resend response:", response);
+      //console.log("aepsBankOtp resend response:", response);
       if (response?.status === "SUCCESS") {
         // Start cooldown for 3 minutes (180 seconds)
         setResendCooldown(180);
@@ -155,15 +155,15 @@ const BankOtp = ({ onBack }) => {
     try {
       // Submit Bank OTP in the required format
       const response = await dispatch(aepsSubmitBankOtp({ otp: otpValue }));
-      console.log("aepsSubmitBankOtp response:", response);
+      //console.log("aepsSubmitBankOtp response:", response);
 
       // Check status regardless of success or failure
       try {
         const statusResponse = await dispatch(aepsStatusCheck());
-        console.log(
-          "aepsStatusCheck response after Bank OTP submit:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsStatusCheck response after Bank OTP submit:",
+        //   statusResponse,
+        // );
       } catch (statusError) {
         console.error(
           "aepsStatusCheck error after Bank OTP submit:",
@@ -180,10 +180,10 @@ const BankOtp = ({ onBack }) => {
       // Check status even on error
       try {
         const statusResponse = await dispatch(aepsStatusCheck());
-        console.log(
-          "aepsStatusCheck response after Bank OTP submit error:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsStatusCheck response after Bank OTP submit error:",
+        //   statusResponse,
+        // );
       } catch (statusError) {
         console.error(
           "aepsStatusCheck error after Bank OTP submit error:",

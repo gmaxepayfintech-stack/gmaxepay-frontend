@@ -99,7 +99,7 @@ const errorReducer = (state = initialState, action) => {
     case PAYOUT_TRANSACTION_FAILURE:
     case PAYOUT_BANK_LIST_FAILURE:
 
-      console.log("actionssssssssssssss", action?.payload);
+      //console.log("actionssssssssssssss", action?.payload);
 
       return {
         ...state,

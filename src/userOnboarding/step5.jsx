@@ -206,18 +206,18 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
     }
 
     // Log companyData and token for debugging
-    console.log("postShopDetails - companyData:", companyData);
-    console.log("postShopDetails - token:", token ? "present" : "missing");
-    console.log("postShopDetails - Headers will include:", {
-      "x-company-id":
-        companyData?.companyId ||
-        companyData?._id ||
-        companyData?.id ||
-        "not set",
-      "x-company-domain":
-        companyData?.domain || companyData?.companyDomain || "not set",
-      token: token ? "present" : "missing",
-    });
+   // console.log("postShopDetails - companyData:", companyData);
+    //console.log("postShopDetails - token:", token ? "present" : "missing");
+    // console.log("postShopDetails - Headers will include:", {
+    //   "x-company-id":
+    //     companyData?.companyId ||
+    //     companyData?._id ||
+    //     companyData?.id ||
+    //     "not set",
+    //   "x-company-domain":
+    //     companyData?.domain || companyData?.companyDomain || "not set",
+    //   token: token ? "present" : "missing",
+    // });
 
     try {
       // Get location and IP address
@@ -261,7 +261,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
           timestamp: new Date().toISOString(),
         };
         localStorage.setItem("onboardingSteps", JSON.stringify(stepsData));
-        console.log("Steps saved to localStorage:", stepsData);
+       // console.log("Steps saved to localStorage:", stepsData);
       } catch (error) {
         console.error("Error saving steps to localStorage:", error);
       }

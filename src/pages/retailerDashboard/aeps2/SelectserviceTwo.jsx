@@ -232,8 +232,8 @@ const SelectserviceTwo = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -419,8 +419,8 @@ const SelectserviceTwo = () => {
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        //console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -540,7 +540,7 @@ const SelectserviceTwo = () => {
 
   // Handle withdrawal - validates, captures fingerprint, gets location/IP, then calls API
   const handleWithdrawal = async (values) => {
-    console.log("🚀 handleWithdrawal called with values:", values);
+    //console.log("🚀 handleWithdrawal called with values:", values);
     const {
       selectedBank: bank,
       selectedAmount: amount,
@@ -737,7 +737,7 @@ const SelectserviceTwo = () => {
         let locationAndIP;
         try {
           locationAndIP = await getLocationAndIP();
-          console.log("📍 Location and IP retrieved:", locationAndIP);
+          //console.log("📍 Location and IP retrieved:", locationAndIP);
         } catch (locationError) {
           console.warn(
             "⚠️ Failed to get location/IP, using empty values:",
@@ -782,14 +782,14 @@ const SelectserviceTwo = () => {
         setDeviceMessage("Processing withdrawal...");
         try {
           const response = await dispatch(aepsCashWithdrawl(payload));
-          console.log("📥 Withdrawal API response:", response);
+          //console.log("📥 Withdrawal API response:", response);
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Withdrawal successful!");
-            console.log(
-              "📊 Transaction data:",
-              response?.data || response?.cashWithdrawl,
-            );
+            //console.log("✅ Withdrawal successful!");
+            // console.log(
+            //   "📊 Transaction data:",
+            //   response?.data || response?.cashWithdrawl,
+            // );
 
             // Show success modal with transaction details
             // The action returns { cashWithdrawl, status, message } where cashWithdrawl is the data object
@@ -1116,11 +1116,11 @@ const SelectserviceTwo = () => {
           const response = await dispatch(aepsTwoBalanceEnquiry(payload));
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Balance enquiry successful!");
-            console.log(
-              "📊 Transaction data:",
-              response?.data || response?.balanceEnquiry,
-            );
+            //console.log("✅ Balance enquiry successful!");
+            // console.log(
+            //   "📊 Transaction data:",
+            //   response?.data || response?.balanceEnquiry,
+            // );
             setModal({
               isOpen: true,
               title: "Balance Enquiry Successful",
@@ -1432,11 +1432,11 @@ const SelectserviceTwo = () => {
           const response = await dispatch(aepsTwoMiniStatement(payload));
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Statement enquiry successful!");
-            console.log(
-              "📊 Transaction data:",
-              response?.data || response?.miniStatement,
-            );
+            // console.log("✅ Statement enquiry successful!");
+            // console.log(
+            //   "📊 Transaction data:",
+            //   response?.data || response?.miniStatement,
+            // );
             setModal({
               isOpen: true,
               title: "Statement Enquiry Successful",

@@ -97,7 +97,7 @@ const AepsAcceptance = () => {
     setIsLoading(true);
     try {
       const response = await dispatch(aepsTermsConditionOtp());
-      console.log("aepsTermsConditionOtp response:", response);
+      //console.log("aepsTermsConditionOtp response:", response);
       // After successful OTP, show identity verification
       if (response?.status === "SUCCESS") {
         setShowIdentityVerification(true);

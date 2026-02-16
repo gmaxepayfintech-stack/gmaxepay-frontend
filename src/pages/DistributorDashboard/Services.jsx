@@ -112,12 +112,10 @@ const Services = () => {
   // Handle AEPS card click - always navigate to onboarding-aeps route
   // The OnBoardingAeps component will handle all status checks and component rendering
   const handleAepsClick = () => {
-    console.log("🖱️ AEPS card clicked, navigating to onboarding-aeps");
     // Always navigate to onboarding-aeps - let that component handle everything
     navigate("/retailerDashboard/onboarding-aeps");
   };
   const handleBbpsClick = () => {
-    console.log("🖱️ BBPS card clicked, navigating to BBPS");
     navigate("/distributerDashboard/services/bbps-services");
   };
 
@@ -135,7 +133,6 @@ const Services = () => {
 
   // Handle PAN card click - navigate to pan-service route
   const handlePANClick = () => {
-    console.log("🖱️ PAN card clicked, navigating to pan-service");
     navigate("/distributerDashboard/services/pan-service");
   };
 

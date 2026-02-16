@@ -104,9 +104,9 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
       email: formData.email.trim(),
     };
 
-    console.log("Resending Email OTP:", requestBody);
-    console.log("Using companyData:", companyData);
-    console.log("Using token from secureLocalStorage:", token);
+    // console.log("Resending Email OTP:", requestBody);
+    // console.log("Using companyData:", companyData);
+    // console.log("Using token from secureLocalStorage:", token);
 
     // Dispatch the emailRescendOTP action (calls sendEmailOtp endpoint)
     try {
@@ -137,9 +137,9 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
       otp: formData.emailOtp.trim(),
     };
 
-    console.log("Submitting Email OTP:", requestBody);
-    console.log("Using companyData:", companyData);
-    console.log("Using token from secureLocalStorage:", token);
+    // console.log("Submitting Email OTP:", requestBody);
+    // console.log("Using companyData:", companyData);
+    // console.log("Using token from secureLocalStorage:", token);
 
     // Dispatch the submitEmail action (calls verifyEmailOtp endpoint)
     try {
@@ -216,7 +216,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
         emailSubmitResponse?.data ||
         emailSubmitResponse;
 
-      console.log("Email verification submit response data:", responseData);
+      //console.log("Email verification submit response data:", responseData);
 
       if (responseData) {
         // Store userToken as onboardingToken if provided
@@ -226,10 +226,10 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
               "onboardingToken",
               responseData.userToken,
             );
-            console.log(
-              "Stored onboardingToken from email verification successfully:",
-              responseData.userToken,
-            );
+            // console.log(
+            //   "Stored onboardingToken from email verification successfully:",
+            //   responseData.userToken,
+            // );
           } catch (e) {
             console.error(
               "Error storing onboardingToken from email verification:",

@@ -33,16 +33,16 @@ const AepsAcceptanceTwo = () => {
     try {
       // First call AEPS onboarding for AEPS-2
       const onboardResp = await dispatch(aepsOnboarding());
-      console.log("aepsOnboarding response:", onboardResp);
+     // console.log("aepsOnboarding response:", onboardResp);
 
       // If onboarding succeeded, check status first
       if (onboardResp?.status === "SUCCESS") {
         // Check status to determine next step
         const statusResponse = await dispatch(aepsTwoStatusCheck());
-        console.log(
-          "aepsTwoStatusCheck response after onboarding:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsTwoStatusCheck response after onboarding:",
+        //   statusResponse,
+        // );
 
         if (statusResponse?.status === "SUCCESS") {
           const statusData = statusResponse?.aepsStatus;
@@ -59,7 +59,7 @@ const AepsAcceptanceTwo = () => {
             ) {
               // Send OTP for AEPS-2
               const otpResp = await dispatch(aepsTwoOtp());
-              console.log("aepsTwoOtp response:", otpResp);
+              //console.log("aepsTwoOtp response:", otpResp);
 
               if (otpResp?.status === "SUCCESS") {
                 // Navigate to identity verification
@@ -78,9 +78,9 @@ const AepsAcceptanceTwo = () => {
                   ekycBiometric.isCompleted === false)
               ) {
                 // Navigate to biometric verification
-                console.log(
-                  "ekycOtp completed, navigating to biometric verification",
-                );
+                // console.log(
+                //   "ekycOtp completed, navigating to biometric verification",
+                // );
                 setShowBiometricVerification(true);
               }
               // Check if 2FA is next
@@ -92,9 +92,9 @@ const AepsAcceptanceTwo = () => {
                     daily2FAAuthentication.isCompleted === false))
               ) {
                 // Navigate to 2FA verification
-                console.log(
-                  "ekycBiometric completed, navigating to 2FA verification",
-                );
+                // console.log(
+                //   "ekycBiometric completed, navigating to 2FA verification",
+                // );
                 setShowFAVerification(true);
               }
               // Check if all completed
@@ -105,7 +105,7 @@ const AepsAcceptanceTwo = () => {
                 daily2FAAuthentication?.isCompleted === true
               ) {
                 // All steps completed, show access confirm
-                console.log("All steps completed, showing access confirm");
+                //console.log("All steps completed, showing access confirm");
                 setShowAccessConfirm(true);
               }
             }

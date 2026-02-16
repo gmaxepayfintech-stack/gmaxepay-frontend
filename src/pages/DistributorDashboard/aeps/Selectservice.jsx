@@ -234,8 +234,8 @@ const Selectservice = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -550,7 +550,7 @@ const Selectservice = () => {
 
   // Handle withdrawal - validates, captures fingerprint, gets location/IP, then calls API
   const handleWithdrawal = async (values) => {
-    console.log("🚀 handleWithdrawal called with values:", values);
+    //console.log("🚀 handleWithdrawal called with values:", values);
     const {
       selectedBank: bank,
       selectedAmount: amount,
@@ -747,7 +747,6 @@ const Selectservice = () => {
         let locationAndIP;
         try {
           locationAndIP = await getLocationAndIP();
-          console.log("📍 Location and IP retrieved:", locationAndIP);
         } catch (locationError) {
           console.warn(
             "⚠️ Failed to get location/IP, using empty values:",
@@ -793,10 +792,10 @@ const Selectservice = () => {
         setDeviceMessage("Processing withdrawal...");
         try {
           const response = await dispatch(aepsWithdrawl(payload));
-          console.log("📥 Withdrawal API response:", response);
+          //console.log("📥 Withdrawal API response:", response);
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Withdrawal successful!");
+            ///console.log("✅ Withdrawal successful!");
             console.log(
               "📊 Transaction data:",
               response?.data || response?.withdrawal,
@@ -1124,7 +1123,7 @@ const Selectservice = () => {
           const response = await dispatch(aepsWithdrawl(payload));
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Balance enquiry successful!");
+            //console.log("✅ Balance enquiry successful!");
             console.log(
               "📊 Transaction data:",
               response?.data || response?.withdrawal,
@@ -1437,12 +1436,12 @@ const Selectservice = () => {
           const response = await dispatch(aepsWithdrawl(payload));
 
           if (response?.status === "SUCCESS") {
-            console.log("✅ Statement enquiry successful!");
-            console.log("📊 Full response:", response);
-            console.log(
-              "📊 Transaction data:",
-              response?.withdrawal || response?.data,
-            );
+            //console.log("✅ Statement enquiry successful!");
+            //console.log("📊 Full response:", response);
+            // console.log(
+            //   "📊 Transaction data:",
+            //   response?.withdrawal || response?.data,
+            // );
             // Extract transaction data - handle nested data structure
             // API response structure: { status: "SUCCESS", message: "...", data: { transactionId, miniStatement, ... } }
             // Action returns: { withdrawal: data, status, message } where withdrawal = response.data.data

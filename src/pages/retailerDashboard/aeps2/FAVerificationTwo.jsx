@@ -112,8 +112,8 @@ const FAVerificationTwo = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -290,8 +290,8 @@ const FAVerificationTwo = () => {
       if (errCode === "0") {
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        //console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -328,7 +328,7 @@ const FAVerificationTwo = () => {
     );
 
     if (!pidData) {
-      console.log("⚠️ pidData is empty, resetting ref");
+      //console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
@@ -336,13 +336,13 @@ const FAVerificationTwo = () => {
 
     // Prevent duplicate API calls for the same pidData
     if (pidDataProcessedRef.current && lastPidDataRef.current === pidData) {
-      console.log("⚠️ Already processed this pidData, skipping");
+      //console.log("⚠️ Already processed this pidData, skipping");
       return;
     }
 
-    console.log(
-      "✅ Processing new pidData, fetching location and dispatching API call...",
-    );
+    // console.log(
+    //   "✅ Processing new pidData, fetching location and dispatching API call...",
+    // );
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
@@ -354,17 +354,17 @@ const FAVerificationTwo = () => {
         const latitude = locationData?.location?.latitude || "";
         const longitude = locationData?.location?.longitude || "";
 
-        console.log("📍 Location data:", { latitude, longitude });
+        //console.log("📍 Location data:", { latitude, longitude });
 
         // Convert pidData (XML string) to base64
         let base64PidData = "";
         try {
           // Convert the XML string to base64
           base64PidData = btoa(unescape(encodeURIComponent(pidData)));
-          console.log(
-            "✅ PidData converted to base64, length:",
-            base64PidData.length,
-          );
+          // console.log(
+          //   "✅ PidData converted to base64, length:",
+          //   base64PidData.length,
+          // );
         } catch (encodeError) {
           console.error("❌ Error encoding pidData to base64:", encodeError);
           pidDataProcessedRef.current = false;
@@ -385,14 +385,14 @@ const FAVerificationTwo = () => {
 
         dispatch(aepsTwoFAVerification(requestData))
           .then((response) => {
-            console.log("✅ FA Verification response:", response);
+            //console.log("✅ FA Verification response:", response);
 
             // Only check status after successful submission
             if (response?.status === "SUCCESS") {
               // Check status ONCE after successful 2FA verification
               dispatch(aepsTwoStatusCheck())
                 .then((statusResponse) => {
-                  console.log("✅ AEPS Status check response:", statusResponse);
+                  //console.log("✅ AEPS Status check response:", statusResponse);
 
                   // Check if 2FA is now completed
                   const statusData = statusResponse?.aepsStatus;
@@ -403,7 +403,7 @@ const FAVerificationTwo = () => {
                         "completed" &&
                       daily2FAAuthentication?.isCompleted === true
                     ) {
-                      console.log("2FA completed, showing confirm page");
+                      //console.log("2FA completed, showing confirm page");
                       setShowConfirm(true);
                     }
                   }

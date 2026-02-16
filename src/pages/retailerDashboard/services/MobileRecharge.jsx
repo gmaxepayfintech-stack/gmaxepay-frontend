@@ -921,10 +921,10 @@ const MobileRecharge = ({ onBack }) => {
         // The plan categories are in planData.data
         const plansData = planData?.data || {};
         
-        console.log("📊 Plan response:", planResponse);
-        console.log("📊 Plan data:", planData);
-        console.log("📊 Plans data (nested):", plansData);
-        console.log("📊 Plan categories:", Object.keys(plansData));
+        // console.log("📊 Plan response:", planResponse);
+        // console.log("📊 Plan data:", planData);
+        // console.log("📊 Plans data (nested):", plansData);
+        // console.log("📊 Plan categories:", Object.keys(plansData));
         
         // Store with the nested data structure: { data: { DATA: [...], STV: [...], ... } }
         setRechargePlans({ data: plansData });
@@ -938,9 +938,9 @@ const MobileRecharge = ({ onBack }) => {
         if (offersResponse?.mobileRechargeOffers) {
           const offersData = offersResponse.mobileRechargeOffers;
           // The offers array is in offersData.data
-          console.log("📊 Offers response:", offersResponse);
-          console.log("📊 Offers data:", offersData);
-          console.log("📊 Offers array:", offersData?.data);
+          // console.log("📊 Offers response:", offersResponse);
+          // console.log("📊 Offers data:", offersData);
+          // console.log("📊 Offers array:", offersData?.data);
           setRechargeOffers(offersData);
         }
 

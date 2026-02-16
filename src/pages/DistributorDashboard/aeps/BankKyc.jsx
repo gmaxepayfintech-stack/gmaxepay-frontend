@@ -117,8 +117,8 @@ const BankKyc = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -293,8 +293,8 @@ const BankKyc = () => {
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        //console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -363,7 +363,7 @@ const BankKyc = () => {
     );
 
     if (!pidData) {
-      console.log("⚠️ pidData is empty, resetting ref");
+      //console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
@@ -371,18 +371,18 @@ const BankKyc = () => {
 
     // Prevent duplicate API calls for the same pidData
     if (pidDataProcessedRef.current && lastPidDataRef.current === pidData) {
-      console.log("⚠️ Already processed this pidData, skipping");
+      //console.log("⚠️ Already processed this pidData, skipping");
       return;
     }
 
-    console.log("✅ Processing new pidData, dispatching API call...");
+    //console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
     // Get location and IP first
     getLocationAndIP()
       .then(async (locationAndIP) => {
-        console.log("📍 Location and IP retrieved:", locationAndIP);
+       // console.log("📍 Location and IP retrieved:", locationAndIP);
         const latitude = locationAndIP?.location?.latitude || "";
         const longitude = locationAndIP?.location?.longitude || "";
 
@@ -404,16 +404,16 @@ const BankKyc = () => {
         return dispatch(aepsSubmitBiomatric(requestData));
       })
       .then((response) => {
-        console.log("✅ Bank KYC biometric verification response:", response);
+        //console.log("✅ Bank KYC biometric verification response:", response);
 
         // Always call aepsStatusCheck after biometric verification dispatch
-        console.log(
-          "🔄 Calling aepsStatusCheck after bank KYC biometric verification...",
-        );
+        // console.log(
+        //   "🔄 Calling aepsStatusCheck after bank KYC biometric verification...",
+        // );
 
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
-            console.log("✅ AEPS Status check response:", statusResponse);
+            //console.log("✅ AEPS Status check response:", statusResponse);
 
             // Extract status data from response
             // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
@@ -425,17 +425,17 @@ const BankKyc = () => {
               const nextStep = getNextStep(aepsStatusData);
 
               if (nextStep === "faVerification") {
-                console.log(
-                  "✅ Bank KYC biometric completed, moving to 2FA verification",
-                );
+                // console.log(
+                //   "✅ Bank KYC biometric completed, moving to 2FA verification",
+                // );
                 setDeviceMessage("Bank KYC biometric verification successful");
                 setShow2FA(true);
               } else if (nextStep === "selectService") {
-                console.log("✅ 2FA completed, moving to SelectService");
+                //console.log("✅ 2FA completed, moving to SelectService");
                 setDeviceMessage("Bank KYC biometric verification successful");
                 setShowSelectService(true);
               } else {
-                console.log("📋 Staying on bank KYC biometric verification");
+                //console.log("📋 Staying on bank KYC biometric verification");
                 if (response?.status === "SUCCESS") {
                   setDeviceMessage(
                     "Bank KYC biometric verification successful",
@@ -536,7 +536,7 @@ const BankKyc = () => {
   --------------------------------------------*/
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.aepsStatus) {
-      console.log("AEPS Status updated from Redux:", aepsStatus);
+     // console.log("AEPS Status updated from Redux:", aepsStatus);
 
       // Extract status data from Redux state
       // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
@@ -547,12 +547,12 @@ const BankKyc = () => {
         const nextStep = getNextStep(aepsStatusData);
 
         if (nextStep === "faVerification" && !show2FA && !showSelectService) {
-          console.log(
-            "✅ Bank KYC biometric completed (from Redux), moving to 2FA verification",
-          );
+          // console.log(
+          //   "✅ Bank KYC biometric completed (from Redux), moving to 2FA verification",
+          // );
           setShow2FA(true);
         } else if (nextStep === "selectService" && !showSelectService) {
-          console.log("✅ 2FA completed (from Redux), moving to SelectService");
+          //console.log("✅ 2FA completed (from Redux), moving to SelectService");
           setShowSelectService(true);
         }
       }
