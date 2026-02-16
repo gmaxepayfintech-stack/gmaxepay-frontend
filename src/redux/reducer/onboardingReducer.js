@@ -191,7 +191,7 @@ const onboardingReducer = (state = initialState, action) => {
       return initialState;
 
     case MOBILE_OTP_SENT_SUCCESS:
-      console.log("otpstatus", action.payload);
+      //console.log("otpstatus", action.payload);
 
       return {
         ...state,
@@ -202,7 +202,7 @@ const onboardingReducer = (state = initialState, action) => {
       };
 
     case SMS_RESEND_OTP_SUCCESS:
-      console.log("resend", action.payload);
+      //console.log("resend", action.payload);
 
       return {
         ...state,
@@ -221,7 +221,7 @@ const onboardingReducer = (state = initialState, action) => {
       };
 
     case EMAIL_OTP_SENT_SUCCESS:
-      console.log("Email", action?.payload);
+      //console.log("Email", action?.payload);
 
       return {
         ...state,

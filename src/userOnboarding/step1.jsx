@@ -68,8 +68,8 @@ function Step1({
       // Get UserTokenToken from Redux state
       const token = UserTokenToken;
 
-      console.log("Submitting OTP:", requestBody);
-      console.log("Using token:", token);
+      // console.log("Submitting OTP:", requestBody);
+      // console.log("Using token:", token);
 
       if (!token) {
         console.error("Token is missing. Cannot submit OTP.");
@@ -87,7 +87,7 @@ function Step1({
       } catch (error) {
         console.error("Error submitting OTP:", error);
         // On error, proceed to next step
-        console.log("OTP submission error, proceeding to next step");
+        //console.log("OTP submission error, proceeding to next step");
         try {
           localStorage.setItem("step1Completed", "true");
           setFormData((d) => ({ ...d, otpVerified: true }));
@@ -165,7 +165,7 @@ function Step1({
         OTPSubmitResponseData?.data ||
         OTPSubmitResponseData;
 
-      console.log("Response data from verifySmsOtp:", responseData);
+     // console.log("Response data from verifySmsOtp:", responseData);
       if (responseData) {
         // Store userToken as onboardingToken
         if (responseData.userToken) {
@@ -174,10 +174,10 @@ function Step1({
               "onboardingToken",
               responseData.userToken,
             );
-            console.log(
-              "Stored onboardingToken from verifySmsOtp successfully:",
-              responseData.userToken,
-            );
+            // console.log(
+            //   "Stored onboardingToken from verifySmsOtp successfully:",
+            //   responseData.userToken,
+            // );
           } catch (e) {
             console.error(
               "Error storing onboardingToken from verifySmsOtp:",
@@ -296,17 +296,17 @@ function Step1({
       propReferralCode.trim() !== ""
     ) {
       referCode = propReferralCode.trim();
-      console.log("Using referral code from prop:", referCode);
+      //console.log("Using referral code from prop:", referCode);
     } else {
       // Second priority: localStorage (from URL)
       try {
         const storedFromUrl = localStorage.getItem("referralCodeFromUrl");
         if (storedFromUrl) {
           referCode = storedFromUrl.trim();
-          console.log(
-            "Retrieved referCode from localStorage (URL):",
-            referCode,
-          );
+          // console.log(
+          //   "Retrieved referCode from localStorage (URL):",
+          //   referCode,
+          // );
         }
       } catch (e) {
         console.error("Error reading referral code from localStorage:", e);
@@ -318,9 +318,9 @@ function Step1({
           const storedReferral = localStorage.getItem("referralCodeCompleted");
           if (storedReferral) {
             const parsed = JSON.parse(storedReferral);
-            console.log("Full localStorage data:", parsed);
+            //console.log("Full localStorage data:", parsed);
             referCode = parsed?.referCode || null;
-            console.log("Retrieved referCode from localStorage:", referCode);
+            //console.log("Retrieved referCode from localStorage:", referCode);
           }
         } catch (e) {
           console.error("Error reading referral code from localStorage:", e);
@@ -330,7 +330,7 @@ function Step1({
       // Fourth priority: Redux state
       if (!referCode) {
         referCode = retailerOnboardingState?.referalResponse?.referCode || null;
-        console.log("Retrieved referCode from Redux:", referCode);
+        //console.log("Retrieved referCode from Redux:", referCode);
       }
     }
 
@@ -341,7 +341,7 @@ function Step1({
     // Always add referral code if it exists and is not empty
     if (referCode && typeof referCode === "string" && referCode.trim() !== "") {
       requestBody.referCode = referCode.trim().toUpperCase();
-      console.log("Adding referCode to request:", requestBody.referCode);
+     // console.log("Adding referCode to request:", requestBody.referCode);
     } else {
       console.warn("referCode is missing or invalid:", referCode);
     }
@@ -402,7 +402,7 @@ function Step1({
       if (verifiedData.userToken) {
         try {
           secureLocalStorage.setItem("onboardingToken", verifiedData.userToken);
-          console.log("Stored onboardingToken successfully");
+         // console.log("Stored onboardingToken successfully");
         } catch (e) {
           console.error("Error storing onboardingToken:", e);
         }

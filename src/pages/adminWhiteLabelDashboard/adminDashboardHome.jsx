@@ -69,7 +69,7 @@ const AdminDashboardHome = () => {
   );
 
   const aeps = useSelector((state) => state);
-  console.log(aeps, "aeps");
+  //console.log(aeps, "aeps");
 
   // Fetch wallet balance + company dashboard statistics on component mount
   useEffect(() => {
@@ -1046,7 +1046,7 @@ const AdminDashboardHome = () => {
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
-                          console.log("Wallet - Location Info:", locationInfo);
+                          //console.log("Wallet - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1079,7 +1079,7 @@ const AdminDashboardHome = () => {
                           };
                         } else if (walletType === "bank") {
                           const locationInfo = await getLocationAndIP();
-                          console.log("Bank - Location Info:", locationInfo);
+                          //console.log("Bank - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()

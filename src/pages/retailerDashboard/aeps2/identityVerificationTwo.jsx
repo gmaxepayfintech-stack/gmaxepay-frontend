@@ -124,16 +124,16 @@ const IdentityVerificationTwo = ({ onBack }) => {
     try {
       // Submit OTP for AEPS-2
       const response = await dispatch(aepsTwoSubmitOTP({ otp: otpValue }));
-      console.log("aepsTwoSubmitOTP response:", response);
+      //console.log("aepsTwoSubmitOTP response:", response);
 
       // Only check status ONCE after successful OTP submission
       if (response?.status === "SUCCESS") {
         // Check status once to verify and then navigate
         const statusResponse = await dispatch(aepsTwoStatusCheck());
-        console.log(
-          "aepsTwoStatusCheck response after OTP submit:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsTwoStatusCheck response after OTP submit:",
+        //   statusResponse,
+        // );
 
         // Verify status and navigate to next step
         const statusData = statusResponse?.aepsStatus;
@@ -151,9 +151,9 @@ const IdentityVerificationTwo = ({ onBack }) => {
               (typeof ekycBiometric?.isCompleted === "boolean" &&
                 ekycBiometric.isCompleted === false)
             ) {
-              console.log(
-                "ekycOtp completed, moving to biometric verification",
-              );
+              // console.log(
+              //   "ekycOtp completed, moving to biometric verification",
+              // );
               setShowBiometric(true);
             }
           }
@@ -175,7 +175,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
 
     try {
       const response = await dispatch(aepsTwoRescendOTP());
-      console.log("aepsTwoRescendOTP response:", response);
+      //console.log("aepsTwoRescendOTP response:", response);
 
       if (response?.status === "SUCCESS") {
         // Start 3-minute countdown (180 seconds)

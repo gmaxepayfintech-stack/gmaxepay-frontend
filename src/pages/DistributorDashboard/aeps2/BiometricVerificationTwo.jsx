@@ -115,8 +115,8 @@ const BiometricVerificationTwo = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -294,8 +294,8 @@ const BiometricVerificationTwo = () => {
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        //console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -330,7 +330,7 @@ const BiometricVerificationTwo = () => {
     );
 
     if (!pidData) {
-      console.log("⚠️ pidData is empty, resetting ref");
+      //console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
@@ -342,7 +342,7 @@ const BiometricVerificationTwo = () => {
       return;
     }
 
-    console.log("✅ Processing new pidData, dispatching API call...");
+    //console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
@@ -373,20 +373,20 @@ const BiometricVerificationTwo = () => {
 
     dispatch(aepsTwoBiometricSubmit(requestData))
       .then((response) => {
-        console.log("✅ Biometric verification response:", response);
+        //console.log("✅ Biometric verification response:", response);
 
         // Only check status after successful submission
         if (response?.status === "SUCCESS") {
           setDeviceMessage("Biometric verification successful");
 
           // Check status ONCE after successful biometric verification
-          console.log(
-            "🔄 Calling aepsTwoStatusCheck after successful biometric verification...",
-          );
+          // console.log(
+          //   "🔄 Calling aepsTwoStatusCheck after successful biometric verification...",
+          // );
 
           dispatch(aepsTwoStatusCheck())
             .then((statusResponse) => {
-              console.log("✅ AEPS Status check response:", statusResponse);
+              //console.log("✅ AEPS Status check response:", statusResponse);
 
               // Extract status data from response
               const aepsStatusData = statusResponse?.aepsStatus;
@@ -407,9 +407,9 @@ const BiometricVerificationTwo = () => {
                     (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
                       daily2FAAuthentication.isCompleted === false)
                   ) {
-                    console.log(
-                      "✅ Biometric completed, moving to 2FA verification",
-                    );
+                    // console.log(
+                    //   "✅ Biometric completed, moving to 2FA verification",
+                    // );
                     setShow2FA(true);
                   }
                   // Check if all completed
@@ -418,9 +418,9 @@ const BiometricVerificationTwo = () => {
                       "completed" &&
                     daily2FAAuthentication?.isCompleted === true
                   ) {
-                    console.log(
-                      "✅ All AEPS status completed, showing confirm page",
-                    );
+                    // console.log(
+                    //   "✅ All AEPS status completed, showing confirm page",
+                    // );
                     setShowConfirm(true);
                   }
                 }

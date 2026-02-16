@@ -122,15 +122,15 @@ const IdentityVerification = ({ onBack }) => {
     try {
       // Submit OTP in the required format
       const response = await dispatch(aepsSubmitOTP({ otp: otpValue }));
-      console.log("aepsSubmitOTP response:", response);
+      //console.log("aepsSubmitOTP response:", response);
 
       // Check status regardless of success or failure
       try {
         const statusResponse = await dispatch(aepsStatusCheck());
-        console.log(
-          "aepsStatusCheck response after OTP submit:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsStatusCheck response after OTP submit:",
+        //   statusResponse,
+        // );
       } catch (statusError) {
         console.error("aepsStatusCheck error after OTP submit:", statusError);
       }
@@ -144,10 +144,10 @@ const IdentityVerification = ({ onBack }) => {
       // Check status even on error
       try {
         const statusResponse = await dispatch(aepsStatusCheck());
-        console.log(
-          "aepsStatusCheck response after OTP submit error:",
-          statusResponse,
-        );
+        // console.log(
+        //   "aepsStatusCheck response after OTP submit error:",
+        //   statusResponse,
+        // );
       } catch (statusError) {
         console.error(
           "aepsStatusCheck error after OTP submit error:",
@@ -165,7 +165,7 @@ const IdentityVerification = ({ onBack }) => {
 
     try {
       const response = await dispatch(aepsRescendOTP());
-      console.log("aepsRescendOTP response:", response);
+      //console.log("aepsRescendOTP response:", response);
 
       if (response?.status === "SUCCESS") {
         // Start 3-minute countdown (180 seconds)

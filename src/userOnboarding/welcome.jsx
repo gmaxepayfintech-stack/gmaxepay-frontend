@@ -28,7 +28,7 @@ const Welcome = () => {
   const responseRefer = useSelector(
     (state) => state?.retailerOnboarding?.Success
   );
-  console.log("responseRefer", responseRefer);
+  //console.log("responseRefer", responseRefer);
   const referralCodeResponse = useSelector(
     (state) => state?.retailerOnboarding?.referalResponse
   );
@@ -47,9 +47,9 @@ const Welcome = () => {
           if (stepsData?.allCompleted || stepsData?.kycStatus === "COMPLETED") {
             localStorage.removeItem("step1Completed");
             localStorage.removeItem("referralCodeFromUrl");
-            console.log(
-              "Cleared temporary onboarding storage - onboarding already complete"
-            );
+            // console.log(
+            //   "Cleared temporary onboarding storage - onboarding already complete"
+            // );
           }
         } catch (e) {
           console.error("Error parsing onboarding steps:", e);

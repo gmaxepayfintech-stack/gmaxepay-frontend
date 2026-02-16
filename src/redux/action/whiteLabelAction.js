@@ -213,7 +213,7 @@ export const createWhiteLabel = (formData) => async (dispatch) => {
         },
       }
     );
-    console.log("response for ip api", response?.data);
+    //console.log("response for ip api", response?.data);
 
     const { data: createResponse, status, message } = response?.data ?? {};
     if (status === "SUCCESS") {

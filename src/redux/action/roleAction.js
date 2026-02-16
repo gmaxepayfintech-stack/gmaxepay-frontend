@@ -11,8 +11,8 @@ export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
     dispatch({ type: LOADING_START });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
-        console.log('=== API Request (roleUpgradeCompanyUser) ===');
-        console.log('Payload:', values);
+        // console.log('=== API Request (roleUpgradeCompanyUser) ===');
+        // console.log('Payload:', values);
         const response = await axios.post(
             `${API_ROUTE}/api/v1/company/user/upgradeUser`,
             values,
@@ -32,8 +32,8 @@ export const roleUpgradeCompanyUser = (values) => async (dispatch) => {
             apiResponse?.data?.message ??
             apiResponse?.data?.msg ??
             commonError;
-        console.log('=== API Response (roleUpgradeCompanyUser) ===');
-        console.log('Response:', response?.data);
+        // console.log('=== API Response (roleUpgradeCompanyUser) ===');
+        // console.log('Response:', response?.data);
         if (status === "SUCCESS") {
             dispatch({
                 type: ROLE_UPGRADE_COMPANY_USER_SUCCESS,
@@ -208,7 +208,7 @@ export const roleDataCompanyUser = (values) => async (dispatch) => {
         const { data: roleDataComp, status, message } = response?.data ?? {};
         
         if (status === "SUCCESS") {
-            console.log('✅ SUCCESS - Dispatching ROLEDATA_COMPANY_USER_SUCCESS');
+            //console.log('✅ SUCCESS - Dispatching ROLEDATA_COMPANY_USER_SUCCESS');
             dispatch({
                 type: ROLEDATA_COMPANY_USER_SUCCESS,
                 payload: { roleDataComp, status, message },

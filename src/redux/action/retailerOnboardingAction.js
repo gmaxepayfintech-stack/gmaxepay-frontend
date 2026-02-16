@@ -42,9 +42,9 @@ export const referalCodeCheck = (values, companyData) => async (dispatch) => {
                     message,
                     timestamp: new Date().toISOString(),
                 };
-                console.log("Storing referral code in localStorage:", dataToStore);
+                //console.log("Storing referral code in localStorage:", dataToStore);
                 localStorage.setItem("referralCodeCompleted", JSON.stringify(dataToStore));
-                console.log("Successfully stored referral code:", values?.referCode);
+                //console.log("Successfully stored referral code:", values?.referCode);
             } catch (storageError) {
                 console.error("Error storing referral code response in localStorage:", storageError);
             }
@@ -88,8 +88,8 @@ export const mobileOtpResponse = (values, companyData) => async (dispatch) => {
         }
 
         // Log the request body to verify referCode is included
-        console.log("mobileOtpResponse - Request body:", JSON.stringify(values, null, 2));
-        console.log("mobileOtpResponse - Headers:", headers);
+        //console.log("mobileOtpResponse - Request body:", JSON.stringify(values, null, 2));
+        //console.log("mobileOtpResponse - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/sendSmsOtp`,
@@ -146,8 +146,8 @@ export const otpSubmitResponse = (values, companyData, token) => async (dispatch
         }
 
         // Log the request body and headers
-        console.log("otpSubmitResponse - Request body:", JSON.stringify(values, null, 2));
-        console.log("otpSubmitResponse - Headers:", headers);
+       // console.log("otpSubmitResponse - Request body:", JSON.stringify(values, null, 2));
+       // console.log("otpSubmitResponse - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/verifySmsOtp`,
@@ -201,8 +201,8 @@ export const emailOtpResponse = (values, companyData, token) => async (dispatch)
         }
 
         // Log the request body and headers
-        console.log("emailOtpResponse - Request body:", JSON.stringify(values, null, 2));
-        console.log("emailOtpResponse - Headers:", headers);
+        //console.log("emailOtpResponse - Request body:", JSON.stringify(values, null, 2));
+        //console.log("emailOtpResponse - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/sendEmailOtp`,
@@ -256,8 +256,8 @@ export const emailRescendOTP = (values, companyData, token) => async (dispatch) 
         }
 
         // Log the request body and headers
-        console.log("emailRescendOTP - Request body:", JSON.stringify(values, null, 2));
-        console.log("emailRescendOTP - Headers:", headers);
+       // console.log("emailRescendOTP - Request body:", JSON.stringify(values, null, 2));
+       // console.log("emailRescendOTP - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/sendEmailOtp`,
@@ -316,8 +316,8 @@ export const submitEmail = (values, companyData, token) => async (dispatch) => {
         }
 
         // Log the request body and headers
-        console.log("submitEmail - Request body:", JSON.stringify(values, null, 2));
-        console.log("submitEmail - Headers:", headers);
+        //console.log("submitEmail - Request body:", JSON.stringify(values, null, 2));
+        //console.log("submitEmail - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/verifyEmailOtp`,
@@ -405,14 +405,14 @@ export const postShopDetails = (values, companyData, token) => async (dispatch) 
         formData.append("latitude", latitude);
 
         // Log the request body and headers
-        console.log("postShopDetails - FormData values:", {
-            shopName: values.shopName,
-            ipAddress: values.ipAddress,
-            longitude: values.longitude,
-            latitude: values.latitude,
-            shopImage: values.shopImage ? "present" : "missing"
-        });
-        console.log("postShopDetails - Headers:", headers);
+        // console.log("postShopDetails - FormData values:", {
+        //     shopName: values.shopName,
+        //     ipAddress: values.ipAddress,
+        //     longitude: values.longitude,
+        //     latitude: values.latitude,
+        //     shopImage: values.shopImage ? "present" : "missing"
+        // });
+        // console.log("postShopDetails - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/postShopDetails`,
@@ -881,10 +881,10 @@ export const postProfile = (photoDataUrl, companyData, token) => async (dispatch
         }
 
         // Log the request body and headers
-        console.log("postProfile - FormData values:", {
-            photo: photoFile ? "present" : "missing"
-        });
-        console.log("postProfile - Headers:", headers);
+        // console.log("postProfile - FormData values:", {
+        //     photo: photoFile ? "present" : "missing"
+        // });
+        // console.log("postProfile - Headers:", headers);
 
         const response = await axios.post(
             `${API_ROUTE}/api/v1/user/onboarding/postProfile`,

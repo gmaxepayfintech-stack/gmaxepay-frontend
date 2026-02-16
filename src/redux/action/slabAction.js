@@ -102,9 +102,9 @@ export const createSlab = (slabData, companyId) => async (dispatch) => {
       ...(schemaType === 'premium' && { subscriptionAmount: subscriptionAmount }),
     };
 
-    console.log('Creating slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/admin/slabs`);
-    console.log('Company ID:', companyId);
+    // console.log('Creating slab with payload:', payload);
+    // console.log('API Route:', `${API_ROUTE}/api/v1/admin/slabs`);
+    // console.log('Company ID:', companyId);
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/admin/slabs`,
@@ -118,10 +118,10 @@ export const createSlab = (slabData, companyId) => async (dispatch) => {
       }
     );
 
-    console.log('API Response:', response);
+    //console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
+   // console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -248,10 +248,10 @@ export const updateSlab = (slabId, slabData, companyId) => async (dispatch) => {
       ...(schemaType === 'premium' && { subscriptionAmount: subscriptionAmount }),
     };
 
-    console.log('Updating slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/admin/slabs/update/${slabId}`);
-    console.log('Company ID:', companyId);
-    console.log('Slab ID:', slabId);
+    // console.log('Updating slab with payload:', payload);
+    // console.log('API Route:', `${API_ROUTE}/api/v1/admin/slabs/update/${slabId}`);
+    // console.log('Company ID:', companyId);
+    // console.log('Slab ID:', slabId);
 
     const response = await api.put(
       `${API_ROUTE}/api/v1/admin/slabs/update/${slabId}`,
@@ -265,10 +265,10 @@ export const updateSlab = (slabId, slabData, companyId) => async (dispatch) => {
       }
     );
 
-    console.log('API Response:', response);
+    //console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
+    //console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -428,7 +428,7 @@ export const getSlabCommissionList = (companyId, slabId, page = 1, paginate = 1)
     };
 
     const url = `${API_ROUTE}/api/v1/admin/slabs/slabcomm/${slabId}`;
-    console.log('Fetching slab commission list:', { url, payload, companyId });
+    //console.log('Fetching slab commission list:', { url, payload, companyId });
 
     const response = await api.post(
       url,
@@ -513,7 +513,7 @@ export const updateSlabCommission = (companyId, roleId, payload) => async (dispa
     dispatch({ type: SLAB_UPDATE_COMM_START, payload: { roleId } });
 
     const url = `${API_ROUTE}/api/v1/admin/slabs/updateSlabComm/${roleId}`;
-    console.log('Updating slab commission:', { url, payload, companyId });
+    //console.log('Updating slab commission:', { url, payload, companyId });
 
     const response = await api.put(
       url,
@@ -853,10 +853,10 @@ export const updateCompanySlab = (slabId, slabData, companyId) => async (dispatc
       views: slabData.views || [],
     };
 
-    console.log('Updating company slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`);
-    console.log('Company ID:', companyId);
-    console.log('Slab ID:', slabId);
+    // console.log('Updating company slab with payload:', payload);
+    // console.log('API Route:', `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`);
+    // console.log('Company ID:', companyId);
+    // console.log('Slab ID:', slabId);
 
     const response = await api.put(
       `${API_ROUTE}/api/v1/company/slabs/update/${slabId}`,
@@ -870,10 +870,10 @@ export const updateCompanySlab = (slabId, slabData, companyId) => async (dispatc
       }
     );
 
-    console.log('API Response:', response);
+    //console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
+   // console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -1106,7 +1106,7 @@ export const getCompanySlabCommissionList = (companyId, slabId, page = 1, pagina
     };
 
     const url = `${API_ROUTE}/api/v1/company/slabs/slabcomm/${slabId}`;
-    console.log('Fetching company slab commission list:', { url, payload, companyId });
+    //console.log('Fetching company slab commission list:', { url, payload, companyId });
 
     const response = await api.post(
       url,
@@ -1191,7 +1191,7 @@ export const updateCompanySlabCommission = (companyId, roleId, payload) => async
     dispatch({ type: SLAB_UPDATE_COMM_START, payload: { roleId } });
 
     const url = `${API_ROUTE}/api/v1/company/slabs/updateSlabComm/${roleId}`;
-    console.log('Updating company slab commission:', { url, payload, companyId });
+    //console.log('Updating company slab commission:', { url, payload, companyId });
 
     const response = await api.put(
       url,
@@ -1280,9 +1280,9 @@ export const createUserSlab = (slabData, companyId) => async (dispatch) => {
       views: slabData.views || [],
     };
 
-    console.log('Creating user slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/user/slab/create-slab`);
-    console.log('Company ID:', companyId);
+    // console.log('Creating user slab with payload:', payload);
+    // console.log('API Route:', `${API_ROUTE}/api/v1/user/slab/create-slab`);
+    // console.log('Company ID:', companyId);
 
     const response = await api.post(
       `${API_ROUTE}/api/v1/user/slab/create-slab`,
@@ -1296,10 +1296,10 @@ export const createUserSlab = (slabData, companyId) => async (dispatch) => {
       }
     );
 
-    console.log('API Response:', response);
+    //console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
-    console.log('Response status:', status);
+    //console.log('Response status:', status);
 
     if (status === 'SUCCESS' || status === 200) {
       dispatch({
@@ -1380,10 +1380,10 @@ export const updateUserSlab = (slabId, slabData, companyId) => async (dispatch) 
       views: slabData.views || [],
     };
 
-    console.log('Updating user slab with payload:', payload);
-    console.log('API Route:', `${API_ROUTE}/api/v1/user/slab/update/${slabId}`);
-    console.log('Company ID:', companyId);
-    console.log('Slab ID:', slabId);
+    // console.log('Updating user slab with payload:', payload);
+    // console.log('API Route:', `${API_ROUTE}/api/v1/user/slab/update/${slabId}`);
+    // console.log('Company ID:', companyId);
+    // console.log('Slab ID:', slabId);
 
     const response = await api.put(
       `${API_ROUTE}/api/v1/user/slab/update/${slabId}`,
@@ -1397,7 +1397,7 @@ export const updateUserSlab = (slabId, slabData, companyId) => async (dispatch) 
       }
     );
 
-    console.log('API Response:', response);
+    //console.log('API Response:', response);
     const data = response?.data;
     const { status } = data ?? {};
 
@@ -1559,7 +1559,7 @@ export const getUserSlabCommissionList = (companyId, slabId, page = 1, paginate 
     };
 
     const url = `${API_ROUTE}/api/v1/user/slab/slabcomm/${slabId}`;
-    console.log('Fetching user slab commission list:', { url, payload, companyId });
+    //console.log('Fetching user slab commission list:', { url, payload, companyId });
 
     const response = await api.post(
       url,
@@ -1644,7 +1644,7 @@ export const updateUserSlabCommission = (companyId, roleId, payload) => async (d
     dispatch({ type: SLAB_UPDATE_COMM_START, payload: { roleId } });
 
     const url = `${API_ROUTE}/api/v1/user/slab/updateSlabComm/${roleId}`;
-    console.log('Updating user slab commission:', { url, payload, companyId });
+    //console.log('Updating user slab commission:', { url, payload, companyId });
 
     const response = await api.put(
       url,

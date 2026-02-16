@@ -87,7 +87,7 @@ const initialState = getInitialState();
 const retailerOnboardingReducer = (state = initialState, action) => {
     switch (action.type) {
         case RETAILER_ONBOARDING_REFERAL_CODE_SUCCESS:
-            console.log("action.payload", action.payload);
+            //console.log("action.payload", action.payload);
             return {
                 ...state,
                 error: true,

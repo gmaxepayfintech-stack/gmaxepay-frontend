@@ -118,8 +118,8 @@ const Subscription = () => {
       return;
     }
     
-    console.log('Subscribe clicked - Plan data:', plan);
-    console.log('Subscription ID:', plan.originalData?.id || plan.id);
+    //console.log('Subscribe clicked - Plan data:', plan);
+    //console.log('Subscription ID:', plan.originalData?.id || plan.id);
     
     setSelectedPlan(plan);
     setShowConfirmModal(true);
@@ -186,7 +186,7 @@ const Subscription = () => {
    
     const companyId = getCompanyId();
     if (companyId && subscriptionId) {
-      console.log('Upgrading subscription with ID:', subscriptionId, 'Company ID:', companyId);
+     // console.log('Upgrading subscription with ID:', subscriptionId, 'Company ID:', companyId);
       await dispatch(userUpgradeSubscription(subscriptionId, companyId));
       // Error message from API will be shown via useEffect watching userUpgradeError
     } else {

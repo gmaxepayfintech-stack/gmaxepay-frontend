@@ -1068,7 +1068,7 @@ const MasterDistDashboard = () => {
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
-                          console.log("Wallet - Location Info:", locationInfo);
+                         // console.log("Wallet - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1101,7 +1101,7 @@ const MasterDistDashboard = () => {
                           };
                         } else if (walletType === "bank") {
                           const locationInfo = await getLocationAndIP();
-                          console.log("Bank - Location Info:", locationInfo);
+                          //console.log("Bank - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1151,7 +1151,7 @@ const MasterDistDashboard = () => {
                         );
 
                         if (response?.status === "SUCCESS") {
-                          console.log("Transfer successful:", response);
+                          //console.log("Transfer successful:", response);
                           showNotification({
                             type: "success",
                             message:

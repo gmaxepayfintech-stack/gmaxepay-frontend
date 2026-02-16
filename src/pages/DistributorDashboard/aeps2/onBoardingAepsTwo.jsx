@@ -21,7 +21,7 @@ const OnBoardingAepsTwo = () => {
       try {
         setIsLoading(true);
         const response = await dispatch(aepsTwoStatusCheck());
-        console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
+        //console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
 
         // Get status data from response or Redux state
         const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;

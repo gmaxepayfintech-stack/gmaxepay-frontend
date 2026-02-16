@@ -79,12 +79,12 @@ const RoleUpgradeWhiteLabel = () => {
         const roleState = state?.roles || state?.role;
         return roleState?.roleDataComp?.roleDataComp;
     });
-    console.log('roleDataResponse', roleDataResponse);
+    //console.log('roleDataResponse', roleDataResponse);
 
     // roleDataResponse is already the array of companies
     const roleDataComp = Array.isArray(roleDataResponse) ? roleDataResponse : [];
-    console.log('roleDataComp', roleDataComp);
-    console.log('roleDataComp length:', roleDataComp.length);
+    //console.log('roleDataComp', roleDataComp);
+    //console.log('roleDataComp length:', roleDataComp.length);
 
     const isLoading = useSelector((state) => {
         const roleState = state?.roles || state?.role;
@@ -93,10 +93,9 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Extract and flatten users from all companies
     const roleDataList = useMemo(() => {
-        console.log('=== Extracting users from roleDataComp ===');
-        console.log('roleDataComp:', roleDataComp);
-        console.log('roleDataComp is array:', Array.isArray(roleDataComp));
-        console.log('roleDataComp length:', roleDataComp?.length);
+       // console.log('roleDataComp:', roleDataComp);
+        //console.log('roleDataComp is array:', Array.isArray(roleDataComp));
+        //console.log('roleDataComp length:', roleDataComp?.length);
 
         if (!Array.isArray(roleDataComp) || roleDataComp.length === 0) {
             console.log('No companies found in roleDataComp');
@@ -115,7 +114,7 @@ const RoleUpgradeWhiteLabel = () => {
             }
         });
 
-        console.log('Total users extracted:', allUsers.length);
+        //console.log('Total users extracted:', allUsers.length);
         return allUsers;
     }, [roleDataComp]);
 
@@ -129,11 +128,10 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Log Redux response whenever it changes
     useEffect(() => {
-        console.log('=== Role Data Response from Redux ===');
-        console.log('Full roleDataResponse:', roleDataResponse);
-        console.log('roleDataComp (raw):', roleDataComp);
-        console.log('roleDataList (flattened users):', roleDataList);
-        console.log('roleDataList length:', roleDataList?.length);
+        //console.log('Full roleDataResponse:', roleDataResponse);
+       // console.log('roleDataComp (raw):', roleDataComp);
+        //console.log('roleDataList (flattened users):', roleDataList);
+        //console.log('roleDataList length:', roleDataList?.length);
         if (roleDataList && roleDataList.length > 0) {
             console.log('First user in roleDataList:', roleDataList[0]);
         }
@@ -158,20 +156,20 @@ const RoleUpgradeWhiteLabel = () => {
             } : {}
         };
 
-        console.log('=== Sending API Request ===');
-        console.log('Payload being sent:', JSON.stringify(payload, null, 2));
-        console.log('Active Filter:', activeFilter);
-        console.log('KYC Status:', kycStatus);
-        console.log('Search Query:', debouncedSearchQuery);
+        //console.log('=== Sending API Request ===');
+        //console.log('Payload being sent:', JSON.stringify(payload, null, 2));
+        //console.log('Active Filter:', activeFilter);
+        //console.log('KYC Status:', kycStatus);
+        //console.log('Search Query:', debouncedSearchQuery);
 
         dispatch(roleDataCompanyUser(payload));
     }, [activeFilter, debouncedSearchQuery, dispatch]);
 
     // Format table data from API response
     const formatTableData = () => {
-        console.log('=== Formatting Table Data ===');
-        console.log('roleDataList type:', Array.isArray(roleDataList) ? 'Array' : typeof roleDataList);
-        console.log('roleDataList length:', roleDataList?.length);
+        ///console.log('=== Formatting Table Data ===');
+        //console.log('roleDataList type:', Array.isArray(roleDataList) ? 'Array' : typeof roleDataList);
+        //console.log('roleDataList length:', roleDataList?.length);
 
         if (!Array.isArray(roleDataList) || roleDataList.length === 0) {
             console.log('No data to format - returning empty array');
@@ -240,7 +238,7 @@ const RoleUpgradeWhiteLabel = () => {
             return formattedItem;
         });
 
-        console.log('Total formatted items:', formatted.length);
+        //console.log('Total formatted items:', formatted.length);
         return formatted;
     };
 
@@ -248,8 +246,8 @@ const RoleUpgradeWhiteLabel = () => {
 
     // Log table data whenever it changes
     useEffect(() => {
-        console.log('=== Table Data ===');
-        console.log('tableData length:', tableData.length);
+        //console.log('=== Table Data ===');
+        //console.log('tableData length:', tableData.length);
         if (tableData.length > 0) {
             console.log('First table row:', tableData[0]);
         }
@@ -412,8 +410,8 @@ const RoleUpgradeWhiteLabel = () => {
         const user = row.fullUserData || row;
         const userId = user.id || row.id;
 
-        console.log('Upgrade clicked for user ID:', userId);
-        console.log('Full user data:', user);
+        //console.log('Upgrade clicked for user ID:', userId);
+        //console.log('Full user data:', user);
 
         // Map userRole codes to readable names
         const roleMap = {
@@ -483,8 +481,8 @@ const RoleUpgradeWhiteLabel = () => {
     };
 
     const handleSaveChanges = () => {
-        console.log('Saving changes for user:', selectedUser?.id);
-        console.log('Form data:', formData);
+        //console.log('Saving changes for user:', selectedUser?.id);
+        //console.log('Form data:', formData);
         // TODO: Add API call to save changes
         // Close modal after save
         handleCloseModal();
@@ -517,8 +515,8 @@ const RoleUpgradeWhiteLabel = () => {
 
         try {
             const response = await dispatch(roleUpgradeCompanyUser(payload));
-            console.log('=== roleUpgradeCompanyUser response (component) ===');
-            console.log(response);
+           // console.log('=== roleUpgradeCompanyUser response (component) ===');
+           // console.log(response);
             handleCloseModal();
         } catch (error) {
             console.log('=== roleUpgradeCompanyUser error (component) ===');
@@ -736,7 +734,7 @@ const RoleUpgradeWhiteLabel = () => {
                                         <div className="flex gap-4">
                                             <button
                                                 onClick={() => {
-                                                    console.log('Reject Request for user:', selectedUser?.id);
+                                                    //console.log('Reject Request for user:', selectedUser?.id);
                                                     // TODO: Add reject API call
                                                     handleCloseModal();
                                                 }}

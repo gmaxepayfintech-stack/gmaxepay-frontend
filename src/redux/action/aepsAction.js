@@ -413,14 +413,14 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
     });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
-        console.log("🔑 Auth token exists:", !!authToken);
+        //console.log("🔑 Auth token exists:", !!authToken);
 
         const apiUrl = `${API_ROUTE}/api/v1/user/aeps1/transaction`;
-        console.log("🌐 Making API call to:", apiUrl);
-        console.log("📦 Request payload:", {
-            ...data,
-            biometricData: data?.biometricData?.substring(0, 200) + "... (truncated)"
-        });
+        //console.log("🌐 Making API call to:", apiUrl);
+        // console.log("📦 Request payload:", {
+        //     ...data,
+        //     biometricData: data?.biometricData?.substring(0, 200) + "... (truncated)"
+        // });
         
         const response = await axios.post(
             apiUrl,

@@ -43,7 +43,7 @@ const FAVerification = () => {
   --------------------------------------------*/
   const checkIf2FACompleted = (statusData) => {
     if (!statusData) {
-      console.log("⚠️ No status data available");
+      ///console.log("⚠️ No status data available");
       return false;
     }
 
@@ -137,8 +137,8 @@ const FAVerification = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -312,8 +312,8 @@ const FAVerification = () => {
       if (errCode === "0") {
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+        //console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -350,7 +350,7 @@ const FAVerification = () => {
     );
 
     if (!pidData) {
-      console.log("⚠️ pidData is empty, resetting ref");
+      //console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
@@ -358,11 +358,11 @@ const FAVerification = () => {
 
     // Prevent duplicate API calls for the same pidData
     if (pidDataProcessedRef.current && lastPidDataRef.current === pidData) {
-      console.log("⚠️ Already processed this pidData, skipping");
+      //console.log("⚠️ Already processed this pidData, skipping");
       return;
     }
 
-    console.log("✅ Processing new pidData, dispatching API call...");
+    //console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
@@ -378,13 +378,13 @@ const FAVerification = () => {
 
     dispatch(aepsOnboardingFAVerification(requestData))
       .then((response) => {
-        console.log("✅ FA Verification response:", response);
+        //console.log("✅ FA Verification response:", response);
         if (response?.status === "SUCCESS") {
           setDeviceMessage("2FA verification successful");
           // Call aepsStatusCheck after successful verification
           dispatch(aepsStatusCheck())
             .then((statusResponse) => {
-              console.log("✅ AEPS Status check response:", statusResponse);
+              //console.log("✅ AEPS Status check response:", statusResponse);
 
               // Check if 2FA is completed
               // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
@@ -393,10 +393,10 @@ const FAVerification = () => {
               const is2FACompleted = checkIf2FACompleted(aepsStatusData);
 
               if (is2FACompleted) {
-                console.log("✅ 2FA completed, navigating to SelectService");
+                //console.log("✅ 2FA completed, navigating to SelectService");
                 setShowSelectService(true);
               } else {
-                console.log("⚠️ 2FA status not completed yet");
+                //console.log("⚠️ 2FA status not completed yet");
                 setDeviceMessage("Verification in progress. Please wait...");
               }
             })
@@ -434,7 +434,7 @@ const FAVerification = () => {
   --------------------------------------------*/
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.message) {
-      console.log("AEPS Status updated:", aepsStatus);
+     // console.log("AEPS Status updated:", aepsStatus);
 
       // Check if 2FA is completed from Redux state
       // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
@@ -442,7 +442,7 @@ const FAVerification = () => {
       const is2FACompleted = checkIf2FACompleted(aepsStatusData);
 
       if (is2FACompleted && !showSelectService) {
-        console.log("✅ 2FA completed from Redux, navigating to SelectService");
+        //console.log("✅ 2FA completed from Redux, navigating to SelectService");
         setShowSelectService(true);
       }
     }

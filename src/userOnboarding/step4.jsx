@@ -75,7 +75,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
       // First try secureLocalStorage
       const tokenFromStorage = secureLocalStorage.getItem("onboardingToken");
       if (tokenFromStorage) {
-        console.log("Token found in secureLocalStorage");
+        //console.log("Token found in secureLocalStorage");
         return tokenFromStorage;
       }
 
@@ -85,9 +85,9 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
         retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
 
       if (tokenFromRedux) {
-        console.log(
-          "Token found in Redux state, storing in secureLocalStorage",
-        );
+        // console.log(
+        //   "Token found in Redux state, storing in secureLocalStorage",
+        // );
         try {
           secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
           return tokenFromRedux;
@@ -131,7 +131,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
   // Handle Verify/Connect
   const handleVerify = async () => {
     const token = getToken();
-    console.log("handleVerify - Token check:", token ? "present" : "missing");
+    //console.log("handleVerify - Token check:", token ? "present" : "missing");
 
     if (!token) {
       console.error(
@@ -144,7 +144,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
         retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
 
       if (tokenFromRedux) {
-        console.log("handleVerify - Found token in Redux, storing it");
+       // console.log("handleVerify - Found token in Redux, storing it");
         try {
           secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
           // Retry with the token from Redux
@@ -170,10 +170,10 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
 
     setIsConnecting(true);
     const redirect_url = getRedirectUrl();
-    console.log(
-      "handleVerify - Calling connectPanVerification with redirect_url:",
-      redirect_url,
-    );
+    // console.log(
+    //   "handleVerify - Calling connectPanVerification with redirect_url:",
+    //   redirect_url,
+    // );
 
     try {
       // eslint-disable-next-line @typescript-eslint/await-thenable
@@ -201,7 +201,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
         localStorage.setItem("movePan", "true");
         localStorage.setItem("panConnected", "true");
         sessionStorage.setItem("redirectToPan", "true");
-        console.log("PAN flags set - will redirect back to step4");
+        //console.log("PAN flags set - will redirect back to step4");
       } catch (e) {
         console.error("Error storing pan connection status:", e);
       }
@@ -211,7 +211,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
 
       // Navigate to DigiLocker - when user returns, they'll come back to /unity/:referCode
       // and index.jsx will detect the flags and show step4 directly
-      console.log("Redirecting to DigiLocker:", response.data.url);
+     // console.log("Redirecting to DigiLocker:", response.data.url);
       window.location.href = response.data.url;
     } else if (
       response?.status === "SUCCESS" &&

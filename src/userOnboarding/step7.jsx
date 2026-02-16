@@ -179,10 +179,10 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
             "onboardingSteps",
             JSON.stringify(stepsData),
           );
-          console.log(
-            "Stored onboarding steps in secureLocalStorage:",
-            stepsData,
-          );
+          // console.log(
+          //   "Stored onboarding steps in secureLocalStorage:",
+          //   stepsData,
+          // );
         } catch (e) {
           console.error("Error storing steps data in secureLocalStorage:", e);
         }
@@ -198,7 +198,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
         localStorage.removeItem("step1Completed");
         localStorage.removeItem("referralCodeFromUrl");
         // Keep onboardingSteps and onboardingToken as they might be needed for authenticated session
-        console.log("Cleared temporary onboarding storage");
+       // console.log("Cleared temporary onboarding storage");
       } catch (e) {
         console.error("Error clearing onboarding storage:", e);
       }

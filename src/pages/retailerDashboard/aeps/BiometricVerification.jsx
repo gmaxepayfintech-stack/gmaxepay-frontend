@@ -116,8 +116,8 @@ const BiometricVerification = () => {
       const deviceName = deviceInfo?.getAttribute("mi") || "Unknown Device";
 
       setDeviceMessage(`Device Name: ${deviceName}`);
-      console.log("Device Info:", infoText);
-      console.log("Device Name:", deviceName);
+      //console.log("Device Info:", infoText);
+      //console.log("Device Name:", deviceName);
     } catch (err) {
       setDeviceMessage("Failed to read device info");
       console.error("Device info error:", err);
@@ -292,8 +292,8 @@ const BiometricVerification = () => {
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
         // Store pidData - this will trigger the API call via useEffect
-        console.log("✅ PID Data captured successfully, errCode:", errCode);
-        console.log("📦 Setting pidData, length:", captureText.length);
+       // console.log("✅ PID Data captured successfully, errCode:", errCode);
+        //console.log("📦 Setting pidData, length:", captureText.length);
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -376,7 +376,7 @@ const BiometricVerification = () => {
     );
 
     if (!pidData) {
-      console.log("⚠️ pidData is empty, resetting ref");
+     // console.log("⚠️ pidData is empty, resetting ref");
       pidDataProcessedRef.current = false;
       lastPidDataRef.current = "";
       return;
@@ -384,11 +384,11 @@ const BiometricVerification = () => {
 
     // Prevent duplicate API calls for the same pidData
     if (pidDataProcessedRef.current && lastPidDataRef.current === pidData) {
-      console.log("⚠️ Already processed this pidData, skipping");
+      //console.log("⚠️ Already processed this pidData, skipping");
       return;
     }
 
-    console.log("✅ Processing new pidData, dispatching API call...");
+    //console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
@@ -407,16 +407,16 @@ const BiometricVerification = () => {
 
     dispatch(aepsOnboardingBiometricVerification(requestData))
       .then((response) => {
-        console.log("✅ Biometric verification response:", response);
+        //console.log("✅ Biometric verification response:", response);
 
         // Always call aepsStatusCheck after biometric verification dispatch
-        console.log(
-          "🔄 Calling aepsStatusCheck after biometric verification...",
-        );
+        // console.log(
+        //   "🔄 Calling aepsStatusCheck after biometric verification...",
+        // );
 
         dispatch(aepsStatusCheck())
           .then((statusResponse) => {
-            console.log("✅ AEPS Status check response:", statusResponse);
+            //console.log("✅ AEPS Status check response:", statusResponse);
 
             // Extract status data from response
             // statusResponse from dispatch is { aepsStatus, status, message } where aepsStatus is the data
@@ -428,9 +428,9 @@ const BiometricVerification = () => {
               const nextStep = getNextStep(aepsStatusData);
 
               if (nextStep === "bankOtp" && response?.status === "SUCCESS") {
-                console.log(
-                  "✅ Biometric completed, calling aepsBankOtp and moving to BankOtp",
-                );
+                // console.log(
+                //   "✅ Biometric completed, calling aepsBankOtp and moving to BankOtp",
+                // );
                 setDeviceMessage("Biometric verification successful");
 
                 // Call aepsBankOtp API with location
@@ -450,7 +450,7 @@ const BiometricVerification = () => {
                     pidDataProcessedRef.current = false;
                   });
               } else {
-                console.log("📋 Staying on biometric verification");
+                // console.log("📋 Staying on biometric verification");
                 if (response?.status === "SUCCESS") {
                   setDeviceMessage("Biometric verification successful");
                 } else {
@@ -466,10 +466,10 @@ const BiometricVerification = () => {
                 // Still try to call aepsBankOtp with location
                 callAepsBankOtp()
                   .then((bankOtpResponse) => {
-                    console.log(
-                      "✅ Bank OTP sent successfully:",
-                      bankOtpResponse,
-                    );
+                    // console.log(
+                    //   "✅ Bank OTP sent successfully:",
+                    //   bankOtpResponse,
+                    // );
                     setShowBankOtp(true);
                   })
                   .catch((bankOtpError) => {
@@ -491,10 +491,10 @@ const BiometricVerification = () => {
               // Try to call aepsBankOtp with location
               callAepsBankOtp()
                 .then((bankOtpResponse) => {
-                  console.log(
-                    "✅ Bank OTP sent successfully:",
-                    bankOtpResponse,
-                  );
+                  // console.log(
+                  //   "✅ Bank OTP sent successfully:",
+                  //   bankOtpResponse,
+                  // );
                   setShowBankOtp(true);
                 })
                 .catch((bankOtpError) => {
@@ -548,7 +548,7 @@ const BiometricVerification = () => {
   --------------------------------------------*/
   useEffect(() => {
     if (aepsStatus?.status === "SUCCESS" && aepsStatus?.aepsStatus) {
-      console.log("AEPS Status updated from Redux:", aepsStatus);
+      //console.log("AEPS Status updated from Redux:", aepsStatus);
 
       // Extract status data from Redux state
       // aepsStatus from Redux is { aepsStatus, status, message } where aepsStatus is the data
@@ -559,10 +559,10 @@ const BiometricVerification = () => {
         const nextStep = getNextStep(aepsStatusData);
 
         if (nextStep === "bankOtp" && !showBankOtp) {
-          console.log("✅ Biometric completed (from Redux), moving to BankOtp");
+         // console.log("✅ Biometric completed (from Redux), moving to BankOtp");
           callAepsBankOtp()
             .then((bankOtpResponse) => {
-              console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
+              //console.log("✅ Bank OTP sent successfully:", bankOtpResponse);
               setShowBankOtp(true);
             })
             .catch((bankOtpError) => {
