@@ -53,6 +53,13 @@ const RetailerDashLayout = ({ children }) => {
       path: "/retailerDashboard/services",
       dropdown: false,
     },
+    
+    {
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/retailerDashboard/tax-history",
+      dropdown: false,
+    },
     {
       name: "Fund Manage",
       icon: MaskGroup4,
@@ -95,14 +102,6 @@ const RetailerDashLayout = ({ children }) => {
           path: "/retailerDashboard/reports/user-performance",
         },
       ],
-    },
-
-
-    {
-      name: "Txn History",
-      icon: MaskGroup5,
-      path: "/retailerDashboard/tax-history",
-      dropdown: false,
     },
     {
       name: "Help",
