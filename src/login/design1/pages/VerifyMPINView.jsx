@@ -75,8 +75,17 @@ const VerifyMPINView = ({
               maxLength="1"
               value={digit}
               onChange={(e) => onMpinChange(e.target.value, index, mpinInputRefs)}
-              onKeyDown={(e) => onMpinKeyDown(e, index, mpinInputRefs)}
-              onPaste={index === 0 ? (e) => onMpinPaste(e, mpinInputRefs) : undefined}
+              onKeyDown={(e) => {
+                onMpinKeyDown(e, index, mpinInputRefs);
+              
+                if (e.key === "Enter") {
+                  const isComplete = mpin.every((digit) => digit !== "");
+                  if (isComplete) {
+                    handleSubmit();
+                  }
+                }
+              }}
+                            onPaste={index === 0 ? (e) => onMpinPaste(e, mpinInputRefs) : undefined}
               className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
               style={{
                 border: digit
