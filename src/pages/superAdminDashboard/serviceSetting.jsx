@@ -158,7 +158,7 @@ const ServiceSetting = () => {
 
         text-sm
         
-        font-[gilroy-semibold]
+        font-[Gilroy-Semibold]
         flex
         items-center
         justify-center
@@ -179,17 +179,17 @@ const ServiceSetting = () => {
         <table className="w-full table-fixed border-collapse">
           <thead>
             <tr className="border-b border-[#1B1717]/50 ">
-              {/* <th className="py-3 px-2 text-sm font-[gilroy-medium]">SL No</th> */}
-              <th className="w-1/4 py-4 px-6 text-sm font-[gilroy-medium] text-left">
+              {/* <th className="py-3 px-2 text-sm font-[Gilroy-Medium]">SL No</th> */}
+              <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-left">
                 ID
               </th>
-              <th className="w-1/4 py-4 px-6 text-sm font-[gilroy-medium] text-center">
+              <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-center">
                 Service Name
               </th>
-              <th className="w-1/4 py-4 px-6 text-sm font-[gilroy-medium] text-right">
+              <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-right">
                 Active
               </th>
-              <th className="w-1/4 py-4 px-6 text-sm font-[gilroy-medium] text-right">
+              <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-right">
                 Actions
               </th>
             </tr>
@@ -211,10 +211,10 @@ const ServiceSetting = () => {
                   {/* <td className="py-3 px-2 text-xs font-[gilroy-">
                     {service.slno}
                   </td> */}
-                  <td className="w-1/4 py-4 px-6 text-xs font-[gilroy-medium] text-left">
+                  <td className="w-1/4 py-4 px-6 text-xs font-[Gilroy-Medium] text-left">
                     {service.id}
                   </td>
-                  <td className="w-1/4 py-4 px-6 text-xs font-[gilroy-medium] text-center">
+                  <td className="w-1/4 py-4 px-6 text-xs font-[Gilroy-Medium] text-center">
                     {service.serviceName}
                   </td>
                   <td className="w-1/4 py-4 px-6">
@@ -335,7 +335,7 @@ const ServiceSetting = () => {
             </button>
 
             {/* Title */}
-            <h2 className="text-2xl font-[gilroy-medium] text-[#1B1717] text-center">
+            <h2 className="text-2xl font-[Gilroy-Medium] text-[#1B1717] text-center">
               {isEditMode ? "Edit Service" : "Add New Service"}
             </h2>
 
@@ -345,7 +345,7 @@ const ServiceSetting = () => {
 
             {/* Form */}
             <div className="space-y-5">
-              <h3 className="font-[gilroy-semibold] text-[#1B1717] text-lg">
+              <h3 className="font-[Gilroy-Semibold] text-[#1B1717] text-lg">
                 Add Service
               </h3>
 
@@ -353,7 +353,7 @@ const ServiceSetting = () => {
               <div className="flex gap-4 items-end">
                 {/* Service Name */}
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Service Name
                   </label>
                   <input
@@ -363,18 +363,18 @@ const ServiceSetting = () => {
                       setFormData({ ...formData, servicename: e.target.value })
                     }
                     placeholder="Enter Service Name"
-                    className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-4 text-sm font-[gilroy-medium]"
+                    className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-4 text-sm font-[Gilroy-Medium]"
                   />
                 </div>
 
                 {/* Active Toggle */}
                 <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[gilroy-medium] text-sm text-[#121216]">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Active
                   </label>
 
                   <div className="border border-[#1B1717]/80 py-4 px-3 rounded-lg flex justify-between items-center">
-                    <span className="text-sm font-[gilroy-medium] text-[#1B1717]">
+                    <span className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
                       Activate Service
                     </span>
 
@@ -398,16 +398,16 @@ const ServiceSetting = () => {
 
               {/* Active toggle
               <div>
-                <h3 className="font-[gilroy-medium] text-sm text-[#121216] mb-1">
+                <h3 className="font-[Gilroy-Medium] text-sm text-[#121216] mb-1">
                   Active
                 </h3>
 
                 <div className="w-[48%] border border-[#1B1717]/80 py-1 px-1.5 rounded-lg flex justify-between items-center">
                   <div>
-                    <p className="text-xs font-[gilroy-medium] text-[#1B1717]">
+                    <p className="text-xs font-[Gilroy-Medium] text-[#1B1717]">
                       Active
                     </p>
-                    <span className="text-[10px] text-[#1B1717]/80 font-[gilroy-medium]">
+                    <span className="text-[10px] text-[#1B1717]/80 font-[Gilroy-Medium]">
                       Activate This Operator
                     </span>
                   </div>
@@ -434,7 +434,7 @@ const ServiceSetting = () => {
             <div className="flex justify-between gap-3 mt-6">
               <button
                 onClick={() => setIsOpen(false)}
-                className="w-1/2 border border-[#1B1717]/80 text-[#1B1717]/80 font-[gilroy-medium] rounded-xl py-3 text-sm"
+                className="w-1/2 border border-[#1B1717]/80 text-[#1B1717]/80 font-[Gilroy-Medium] rounded-xl py-3 text-sm"
               >
                 Cancel
               </button>
@@ -467,7 +467,7 @@ const ServiceSetting = () => {
                 //   setIsEditMode(false);
                 //   setEditingId(null);
                 // }}
-                className="w-1/2 bg-[#039155] text-white rounded-xl font-[gilroy-semibold] py-3 text-sm"
+                className="w-1/2 bg-[#039155] text-white rounded-xl font-[Gilroy-Semibold] py-3 text-sm"
               >
                 {isEditMode ? "Update Service" : "Add Service"}
               </button>

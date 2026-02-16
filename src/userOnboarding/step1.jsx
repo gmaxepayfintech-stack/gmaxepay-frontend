@@ -484,7 +484,7 @@ function Step1({
               <HiArrowLeft className="text-base sm:text-lg md:text-xl lg:text-xl xl:text-xl text-[#1B1717] opacity-80" />
             </button>
           )}
-          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+          <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl xl:text-2xl font-[Gilroy-Semibold] text-center text-[#1B1717]">
             Mobile Verification
           </h3>
         </div>
@@ -497,7 +497,7 @@ function Step1({
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="phone"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             Mobile Number
           </label>
@@ -536,7 +536,7 @@ function Step1({
                   }
                 }}
                 placeholder="Enter your number"
-                className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0 font-[gilroy-medium]
+                className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0 font-[Gilroy-Medium]
           ${formik.errors.phone ? "border-red-500" : "border-[#1B1717]/80"}
           rounded-l-lg
           pl-10 md:pl-12 lg:pl-14
@@ -560,7 +560,7 @@ function Step1({
         border-l-0
         ${formik.errors.phone ? "border-red-500" : "border-[#039155]"}
         rounded-r-lg
-        font-[gilroy-semibold]
+        font-[Gilroy-Semibold]
         text-xs md:text-sm
         whitespace-nowrap
         shadow-md
@@ -599,7 +599,7 @@ function Step1({
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="otp"
-            className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             Enter OTP
           </label>
@@ -637,7 +637,7 @@ function Step1({
               onBlur={formik.handleBlur}
               placeholder="Enter Mobile OTP"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-        font-[gilroy-medium]
+        font-[Gilroy-Medium]
         ${
           formik.errors.otp && formik.touched.otp
             ? "border-red-500"
@@ -671,7 +671,7 @@ function Step1({
     bg-[#039155]
     text-white
     rounded-lg md:rounded-xl
-    font-[gilroy-semibold]
+    font-[Gilroy-Semibold]
     text-sm md:text-base
     hover:bg-green-700
     transition

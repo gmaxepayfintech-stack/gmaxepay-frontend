@@ -248,7 +248,7 @@ const WhiteLabel = ({ onBack }) => {
   const inputStyle =
     "p-3 border border-[#1B1717]/80 rounded-lg w-full text-xs sm:text-sm placeholder-gray-500 ";
   const labelStyle =
-    "text-base sm:text-xl font-[gilroy-medium] text-[#1B1717] mb-1 flex items-center";
+    "text-base sm:text-xl font-[Gilroy-Medium] text-[#1B1717] mb-1 flex items-center";
 
   const ErrorMsg = ({ name }) => (
     <div className="min-h-[0px]">
@@ -416,7 +416,7 @@ const WhiteLabel = ({ onBack }) => {
                 </div>
               </button>
               <div className="flex flex-col">
-                <h1 className="text-lg sm:text-xl md::text-2xl font-[gilroy-medium] text-[#1B1717]">
+                <h1 className="text-lg sm:text-xl md::text-2xl font-[Gilroy-Medium] text-[#1B1717]">
                   Create Whitelabel
                 </h1>
                 <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-sm md:text-base lg:text-lg">
@@ -429,7 +429,7 @@ const WhiteLabel = ({ onBack }) => {
 
           <div className="flex flex-col lg:flex-row justify-center gap-6 lg:gap-8">
             <div className="bg-white w-full lg:max-w-[750px] p-4 sm:p-6 lg:p-8 rounded-xl shadow">
-              <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-4 pb-2">
+              <h2 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4 pb-2">
                 Business Information
               </h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
@@ -567,7 +567,7 @@ const WhiteLabel = ({ onBack }) => {
                   <label className={labelStyle}>Profile Photo</label>
                   <label
                     htmlFor="profilePhoto"
-                    className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[gilroy-medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${
+                    className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${
                       isImageUploading ? "opacity-75 cursor-not-allowed" : ""
                     }`}
                   >
@@ -794,7 +794,7 @@ const WhiteLabel = ({ onBack }) => {
             </div>
 
             <div className="bg-white w-full lg:max-w-[550px] p-4 sm:p-6 lg:p-8 rounded-xl shadow">
-              <h2 className="text-xl sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-4 pb-2">
+              <h2 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4 pb-2">
                 Profile Configuration
               </h2>
 
@@ -867,7 +867,7 @@ const WhiteLabel = ({ onBack }) => {
                   <div className="text-sm text-gray-700">
                     <label
                       htmlFor="defaultPermission"
-                      className="font-[gilroy-medium] flex items-center"
+                      className="font-[Gilroy-Medium] flex items-center"
                     >
                       Default Permission
                     </label>
@@ -904,7 +904,7 @@ const WhiteLabel = ({ onBack }) => {
                     <div className="w-11 h-6 bg-gray-200 rounded-full peer peer-checked:after:translate-x-full after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
                   </label>
                   <div className="ml-3 text-sm">
-                    <span className="font-[gilroy-medium] text-[#1B1717]">
+                    <span className="font-[Gilroy-Medium] text-[#1B1717]">
                       Client Consent
                     </span>
                     <p className="text-[14px] text-[#1B1717] text-opacity-80">

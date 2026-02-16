@@ -291,8 +291,13 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
     // Build query based on API type
     const query = {};
-    // Use transactionType for both AEPS 1 and AEPS 2
-    query.transactionType = transactionType;
+    if (apiType === "aeps1") {
+      // For AEPS 1, use aepsTxnType
+      query.aepsTxnType = transactionType;
+    } else if (apiType === "aeps2") {
+      // For AEPS 2, use transactionType
+      query.transactionType = transactionType;
+    }
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -522,9 +527,14 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 setToDate("");
                 setIsReloading(true);
 
-                // Build query - use transactionType for both AEPS 1 and AEPS 2
                 const query = {};
-                query.transactionType = transactionType;
+                if (apiType === "aeps1") {
+                  // For AEPS 1, use aepsTxnType
+                  query.aepsTxnType = transactionType;
+                } else if (apiType === "aeps2") {
+                  // For AEPS 2, use transactionType
+                  query.transactionType = transactionType;
+                }
 
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
@@ -576,7 +586,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               From Date
             </label>
             <input
@@ -589,7 +599,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               To Date
             </label>
             <input

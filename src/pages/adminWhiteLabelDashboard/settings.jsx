@@ -31,11 +31,11 @@ const UploadCard = ({ onFileSelect, recommendedSize }) => {
     >
       <Upload className="w-8 h-8 text-[#1B1717] mb-2" />
 
-      <p className="text-lg text-[#1B1717] font-[gilroy-medium] mb-1">
+      <p className="text-lg text-[#1B1717] font-[Gilroy-Medium] mb-1">
         Click To Upload
       </p>
 
-      <p className="text-sm text-[#1B1717]/80 font-[gilroy-medium]">
+      <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
         SVG, PNG Format <br />
         Recommended Size: {recommendedSize}
       </p>
@@ -83,7 +83,7 @@ const PreviewCard = ({ image, buttonLabel = "Upload", onUpload }) => (
     <button
       disabled={!image}
       onClick={onUpload}
-      className={`mx-auto mt-3 px-4 py-2 w-fit rounded-[4px] font-[gilroy-medium] text-sm
+      className={`mx-auto mt-3 px-4 py-2 w-fit rounded-[4px] font-[Gilroy-Medium] text-sm
     ${
       image
         ? "bg-[#C5DBFF] text-[#1B1717]"
@@ -110,7 +110,7 @@ const SliderPreviewCard = ({ image, onUpload }) => (
     <button
       disabled={!image}
       onClick={onUpload}
-      className={`mt-3 px-4 py-2 rounded-[4px] font-[gilroy-medium] text-sm
+      className={`mt-3 px-4 py-2 rounded-[4px] font-[Gilroy-Medium] text-sm
         ${
           image
             ? "bg-[#C5DBFF] text-[#1B1717]"
@@ -151,11 +151,11 @@ const SliderAddCard = ({ onFileSelect }) => {
     >
       <Plus className="w-10 h-10 text-[#1B1717] mb-2" />
 
-      <p className="text-lg font-[gilroy-medium] text-[#1B1717]">
+      <p className="text-lg font-[Gilroy-Medium] text-[#1B1717]">
         Add New Slider
       </p>
 
-      <p className="text-xs text-[#1B1717] font-[gilroy-medium] mt-1">
+      <p className="text-xs text-[#1B1717] font-[Gilroy-Medium] mt-1">
         SVG/PNG Format <br />
         Recommended Size: 768px × 674px
       </p>
@@ -279,7 +279,7 @@ const Settings = ({ onBack }) => {
       <div className="bg-white rounded-3xl shadow-sm p-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3">
+            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Upload Logo
             </h3>
             <UploadCard
@@ -289,7 +289,7 @@ const Settings = ({ onBack }) => {
           </div>
 
           <div>
-            <h3 className="text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3">
+            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Preview Logo
             </h3>
             <PreviewCard
@@ -305,7 +305,7 @@ const Settings = ({ onBack }) => {
       <div className="bg-white rounded-3xl shadow-sm p-5">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <h3 className="text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3">
+            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Upload Fevicons
             </h3>
             <UploadCard
@@ -315,7 +315,7 @@ const Settings = ({ onBack }) => {
           </div>
 
           <div>
-            <h3 className="text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3">
+            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Preview Fevicons
             </h3>
             <PreviewCard
@@ -329,7 +329,7 @@ const Settings = ({ onBack }) => {
 
       {/* Upload Sliders */}
       <div className="bg-white rounded-3xl shadow-sm p-5">
-        <h3 className="text-xl md:text-2xl font-[gilroy-medium] text-[#1B1717] mb-4">
+        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
           Upload Sliders
         </h3>
 

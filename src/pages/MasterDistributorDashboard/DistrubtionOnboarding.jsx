@@ -252,7 +252,7 @@ const DistrubtionOnboarding = ({
             <div
               className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? "py-4 mb-0" : "mb-6"}`}
             >
-              <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
+              <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
                 Distributor Onboarding List
               </h1>
 
@@ -294,7 +294,7 @@ const DistrubtionOnboarding = ({
                 {/* Export Button */}
                 <button
                   onClick={handleExportToExcel}
-                  className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
+                  className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
                 >
                   Export <FaUpload className="text-xs" />
                 </button>
@@ -306,68 +306,68 @@ const DistrubtionOnboarding = ({
               <table className="min-w-[1200px] sm:min-w-full divide-y">
                 <thead className="bg-white text-center">
                   <tr>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       ID
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       User
                     </th>
 
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       User ID
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Name
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       User Role
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Mobile No
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Email Id
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Parent Name
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Parent Role
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Company Name
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       KYC Status
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       KYC Steps
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Main Wallet
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       AEPS Wallet
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Status
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       KYC Details
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Action
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Lock Status
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Onboarding
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Token Expire
                     </th>
-                    <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Date
                     </th>
                   </tr>
@@ -377,7 +377,7 @@ const DistrubtionOnboarding = ({
                   {!tableData || tableData.length === 0 ? (
                     <tr>
                       <td colSpan={19} className="py-12 text-center">
-                        <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                        <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                           No data available
                         </p>
                       </td>
@@ -449,7 +449,7 @@ const DistrubtionOnboarding = ({
                           {(() => {
                             const status = row.kycStatus?.toLowerCase();
                             let className =
-                              "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                              "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
                             if (
                               status === "completed" ||
                               status === "full_kyc"
@@ -482,7 +482,7 @@ const DistrubtionOnboarding = ({
                         {/* Status */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           <span
-                            className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                            className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
                               row.status?.toLowerCase() === "active"
                                 ? "bg-green-600"
                                 : "bg-red-600"
@@ -504,7 +504,7 @@ const DistrubtionOnboarding = ({
                                 setShowKycModal(true);
                               }
                             }}
-                            className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                            className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
                           >
                             KYC Details
                           </button>
@@ -565,7 +565,7 @@ const DistrubtionOnboarding = ({
                                   }
                                 }}
                                 disabled={!isLocked}
-                                className={`px-4 py-2 rounded-lg text-xs font-[gilroy-semibold] transition-colors ${
+                                className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
                                   isLocked
                                     ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                     : "bg-green-500 text-white cursor-not-allowed opacity-75"
@@ -592,7 +592,7 @@ const DistrubtionOnboarding = ({
                                     dispatch(rescendOnboarding(userId));
                                   }
                                 }}
-                                className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[gilroy-medium] transition-colors"
+                                className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
                               >
                                 Re-send
                               </button>
@@ -610,7 +610,7 @@ const DistrubtionOnboarding = ({
                                     dispatch(deActiveOnboarding(userId));
                                   }
                                 }}
-                                className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[gilroy-medium] transition-colors"
+                                className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
                               >
                                 Send
                               </button>
@@ -646,7 +646,7 @@ const DistrubtionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
+                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
                       page === currentPage
                         ? "bg-[#039155] text-white"
                         : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
@@ -676,7 +676,7 @@ const DistrubtionOnboarding = ({
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6">
           {/* Header Section */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[gilroy-medium] text-[#1B1717]">
+            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
               Distributor Onboarding List
             </h1>
 
@@ -718,7 +718,7 @@ const DistrubtionOnboarding = ({
               {/* Export Button */}
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[gilroy-medium] hover:bg-green-700 shadow-md text-sm"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm"
               >
                 Export
               </button>
@@ -730,59 +730,59 @@ const DistrubtionOnboarding = ({
             <table className="min-w-[1200px] sm:min-w-full divide-y">
               <thead className="bg-white">
                 <tr>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User
                   </th>
 
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     User Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Company Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     AEPS Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Action
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Date
                   </th>
                 </tr>
@@ -792,7 +792,7 @@ const DistrubtionOnboarding = ({
                 {!tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={19} className="py-12 text-center">
-                      <p className="text-gray-500 text-lg font-[gilroy-medium]">
+                      <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
                         No data available
                       </p>
                     </td>
@@ -865,7 +865,7 @@ const DistrubtionOnboarding = ({
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
-                            "px-2 py-1 rounded text-xs font-[gilroy-medium] ";
+                            "px-2 py-1 rounded text-xs font-[Gilroy-Medium] ";
                           if (status === "completed" || status === "full_kyc") {
                             className += "bg-green-100 text-green-700";
                           } else if (status === "pending") {
@@ -895,7 +895,7 @@ const DistrubtionOnboarding = ({
                       {/* Status */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[gilroy-medium] ${
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
                             row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
@@ -917,7 +917,7 @@ const DistrubtionOnboarding = ({
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[gilroy-medium]"
+                          className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
                         >
                           KYC Details
                         </button>
@@ -971,7 +971,7 @@ const DistrubtionOnboarding = ({
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-10 h-10 rounded-lg font-[gilroy-medium] transition ${
+                className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
                   page === currentPage
                     ? "bg-[#039155] text-white"
                     : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
@@ -1011,7 +1011,7 @@ const DistrubtionOnboarding = ({
                   <FaIdCard className="text-green-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
+                  <h2 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                     KYC Details
                   </h2>
                   {selectedKycData?.userDetails?.name && (
@@ -1040,7 +1040,7 @@ const DistrubtionOnboarding = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1051,7 +1051,7 @@ const DistrubtionOnboarding = ({
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1061,7 +1061,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1071,7 +1071,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1081,7 +1081,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1091,7 +1091,7 @@ const DistrubtionOnboarding = ({
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-[gilroy-medium] transition-colors relative ${
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
                     activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
@@ -1112,12 +1112,12 @@ const DistrubtionOnboarding = ({
                       {/* KYC Status Card */}
                       <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                             <FaIdCard className="text-green-600" />
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${
                               selectedKycData.kycStatus === "FULL_KYC"
                                 ? "bg-green-100 text-green-700"
                                 : selectedKycData.kycStatus === "NO_KYC"
@@ -1132,10 +1132,10 @@ const DistrubtionOnboarding = ({
                         {/* Progress Bar */}
                         <div className="mt-4">
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-sm font-[gilroy-medium] text-gray-700">
+                            <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                               Progress
                             </span>
-                            <span className="text-sm font-semibold text-gray-800">
+                            <span className="text-sm font-[Gilroy-Semibold] text-gray-800">
                               {selectedKycData.completedSteps ||
                                 selectedKycData.kycSteps ||
                                 0}{" "}
@@ -1156,7 +1156,7 @@ const DistrubtionOnboarding = ({
                       {/* User Details Card */}
                       {selectedKycData.userDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
                             <FaUser className="text-green-600" />
                             User Details
                           </h3>
@@ -1165,7 +1165,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 User ID
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.userId || "N/A"}
                               </span>
                             </div>
@@ -1173,7 +1173,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.name || "N/A"}
                               </span>
                             </div>
@@ -1181,7 +1181,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Mobile No
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.mobileNo || "N/A"}
                               </span>
                             </div>
@@ -1189,7 +1189,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Email
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.userDetails.email || "N/A"}
                               </span>
                             </div>
@@ -1227,7 +1227,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.aadhaarDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaIdCard className="text-blue-600" />
                               Aadhaar Document
                             </h3>
@@ -1242,7 +1242,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1253,7 +1253,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.name || "N/A"}
                               </span>
                             </div>
@@ -1261,7 +1261,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 UID
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.uid || "N/A"}
                               </span>
                             </div>
@@ -1269,7 +1269,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.aadhaarDoc.dob || "N/A"}
                               </span>
                             </div>
@@ -1278,7 +1278,7 @@ const DistrubtionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
                                   selectedKycData.aadhaarDoc.status ===
                                   "Success"
                                     ? "bg-green-100 text-green-700"
@@ -1358,7 +1358,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.panDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaIdCard className="text-purple-600" />
                               PAN Document
                             </h3>
@@ -1373,7 +1373,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1384,7 +1384,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Number
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panNumber || "N/A"}
                               </span>
                             </div>
@@ -1392,7 +1392,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 PAN Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panName || "N/A"}
                               </span>
                             </div>
@@ -1400,7 +1400,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 DOB
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.panDoc.panDob || "N/A"}
                               </span>
                             </div>
@@ -1409,7 +1409,7 @@ const DistrubtionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
                                   selectedKycData.panDoc.status === "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
@@ -1489,7 +1489,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.outletDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaBuilding className="text-orange-600" />
                               Outlet Details
                             </h3>
@@ -1504,7 +1504,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1515,7 +1515,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopName ||
                                   "N/A"}
                               </span>
@@ -1525,7 +1525,7 @@ const DistrubtionOnboarding = ({
                                 <span className="text-xs text-gray-500 mb-1">
                                   GST No
                                 </span>
-                                <span className="text-sm font-[gilroy-medium] text-gray-800">
+                                <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                   {selectedKycData.outletDetails.gstNo}
                                 </span>
                               </div>
@@ -1534,7 +1534,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Shop Address
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.outletDetails.shopAddress ||
                                   "N/A"}
                               </span>
@@ -1575,7 +1575,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.customerBankDetails ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaUniversity className="text-indigo-600" />
                               Bank Details
                             </h3>
@@ -1590,7 +1590,7 @@ const DistrubtionOnboarding = ({
                                     );
                                   }
                                 }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[gilroy-medium]"
+                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
                               >
                                 Revert
                               </button>
@@ -1601,7 +1601,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Account Number
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .accountNumber || "N/A"}
                               </span>
@@ -1610,7 +1610,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 IFSC
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.ifsc ||
                                   "N/A"}
                               </span>
@@ -1619,7 +1619,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Bank Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails.bankName ||
                                   "N/A"}
                               </span>
@@ -1628,7 +1628,7 @@ const DistrubtionOnboarding = ({
                               <span className="text-xs text-gray-500 mb-1">
                                 Beneficiary Name
                               </span>
-                              <span className="text-sm font-[gilroy-medium] text-gray-800">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
                                 {selectedKycData.customerBankDetails
                                   .beneficiaryName || "N/A"}
                               </span>
@@ -1647,7 +1647,7 @@ const DistrubtionOnboarding = ({
                   {activeTab === "verification" &&
                     selectedKycData.userDetails && (
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
                           <FaCheckCircle className="text-green-600" />
                           Verification Status
                         </h3>
@@ -1666,12 +1666,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Mobile
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.mobileVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1697,12 +1697,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Email
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.emailVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1728,12 +1728,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Aadhar
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.aadharVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1759,12 +1759,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 PAN
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.panVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1790,12 +1790,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Shop Details
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.shopDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1821,12 +1821,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Image
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.imageVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1854,12 +1854,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Profile with Shop
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails
                                   .profileImageWithShopVerify
                                   ? "bg-green-100 text-green-700"
@@ -1887,12 +1887,12 @@ const DistrubtionOnboarding = ({
                               ) : (
                                 <FaTimesCircle className="text-red-600 text-xl" />
                               )}
-                              <span className="text-sm font-[gilroy-medium] text-gray-700">
+                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
                                 Bank Details
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.bankDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1924,7 +1924,7 @@ const DistrubtionOnboarding = ({
                   setActiveTab("overview");
                   setZoomedImage(null);
                 }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[gilroy-medium] shadow-md hover:shadow-lg"
+                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
               >
                 Close
               </button>

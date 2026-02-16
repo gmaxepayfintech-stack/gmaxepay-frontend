@@ -49,7 +49,7 @@ const servicesData = [
   { id: "dmt", title: "DMT", status: "available", logo: "/img/DMT.svg" },
   { id: "dmt-11", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
   {
-    id: "pan-card",
+    id: "pan",
     title: "Pan Card Creation",
     status: "subscribed",
     logo: "/img/PanCorrection.svg",
@@ -60,14 +60,14 @@ const servicesData = [
     status: "subscribed",
     logo: "/img/AEPS.svg",
   },
+  // {
+  //   id: "indo-nepal-dmt",
+  //   title: "Indo-Nepal DMT",
+  //   status: "subscribed",
+  //   logo: "/img/DMT.svg",
+  // },
   {
-    id: "indo-nepal-dmt",
-    title: "Indo-Nepal DMT",
-    status: "subscribed",
-    logo: "/img/DMT.svg",
-  },
-  {
-    id: "toto-play",
+    id: "dth-recharge",
     title: "Tata Play Connection",
     status: "subscribed",
     logo: "/img/TataPlay.svg",
@@ -196,7 +196,7 @@ const Services = () => {
             onClick={() => setActiveTab("Available")}
             className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Available"
-                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
+                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
           >
@@ -207,7 +207,7 @@ const Services = () => {
             onClick={() => setActiveTab("Subscribed")}
             className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Subscribed"
-                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
+                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
                 : "text-[#1B1717] hover:bg-gray-50"
             }`}
           >

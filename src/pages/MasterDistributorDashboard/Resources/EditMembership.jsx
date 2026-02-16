@@ -338,7 +338,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     ].map((h, i) => (
                       <div
                         key={i}
-                        className="text-[14px] font-[gilroy-medium] text-[#121216] text-center"
+                        className="text-[14px] font-[Gilroy-Medium] text-[#121216] text-center"
                       >
                         {h}
                       </div>
@@ -474,7 +474,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
                                         isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
@@ -505,7 +505,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[gilroy-medium] uppercase ${
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
                                         isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
@@ -538,12 +538,12 @@ const EditMembership = ({ scheme = null, onBack }) => {
                               <div className="flex items-center gap-1.5">
                                 <span>{commission.myDeal}</span>
                                 {commission.myDealCommType && (
-                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#039155]">
+                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#E8FFF4] text-[10px] font-[Gilroy-Medium] uppercase tracking-wide text-[#039155]">
                                     {commission.myDealCommType}
                                   </span>
                                 )}
                                 {commission.myDealType && (
-                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[gilroy-medium] uppercase tracking-wide text-[#4F7EF4]">
+                                  <span className="inline-flex px-1.5 py-0.5 rounded-full bg-[#EEF2FF] text-[10px] font-[Gilroy-Medium] uppercase tracking-wide text-[#4F7EF4]">
                                     {(commission.myDealType || "").toLowerCase() === "fix" ? "flat" : 
                                      (commission.myDealType || "").toLowerCase() === "per" ? "per" : 
                                      commission.myDealType}
@@ -622,7 +622,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Scheme Name - Left */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -639,7 +639,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
           {/* Scheme Mode - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
@@ -650,7 +650,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
+                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeMode}
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
@@ -664,7 +664,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
           {/* Scheme Type - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Type
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg bg-white">
@@ -675,7 +675,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
+                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeType}
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">

@@ -170,16 +170,16 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px]  mx-auto">
         {/* ================================================================= */}
-        <h3 className="text-base sm:text-lg   font-[gilroy-semibold] text-center text-[#1B1717]">
+        <h3 className="text-base sm:text-lg   font-[Gilroy-Semibold] text-center text-[#1B1717]">
           Bank Details
         </h3>
-        <p className="text-[#1B1717]/80 font-[gilroy-medium] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-4 xl:mb-5 mt-2">
+        <p className="text-[#1B1717]/80 font-[Gilroy-Medium] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-4 xl:mb-5 mt-2">
           Tell Us About Bank Details
         </p>
 
         {/* Account Number Section */}
         <div className="mb-3 md:mb-4">
-          <label className="block text-lg font-[gilroy-semibold] text-[#1B1717] mb-2">
+          <label className="block text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2">
             Account Number
           </label>
 
@@ -208,7 +208,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               maxLength={18}
               inputMode="numeric"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-              font-[gilroy-medium]
+              font-[Gilroy-Medium]
               ${
                 formik.errors.bankAccountNumber &&
                 formik.touched.bankAccountNumber
@@ -253,7 +253,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="ifscCode"
-            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             IFSC Code
           </label>
@@ -282,7 +282,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
                 onBlur={formik.handleBlur}
                 placeholder="Enter IFSC Code"
                 className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0
-                font-[gilroy-medium]
+                font-[Gilroy-Medium]
                 ${
                   formik.errors.ifscCode && formik.touched.ifscCode
                     ? "border-red-500"
@@ -314,7 +314,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               border-[0.5px] border-l-0
               ${formik.errors.ifscCode ? "border-red-500" : "border-[#039155]"}
               rounded-r-lg text-white
-              font-[gilroy-semibold]
+              font-[Gilroy-Semibold]
               text-xs md:text-sm
               whitespace-nowrap
               shadow-md
@@ -349,7 +349,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
         <div className="mb-3 md:mb-4">
           <label
             htmlFor="beneficiaryName"
-            className="block text-xs md:text-lg font-[gilroy-semibold] text-[#1B1717] mb-2"
+            className="block text-xs md:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-2"
           >
             Beneficiary Name
           </label>
@@ -377,7 +377,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               placeholder="Auto Fetch"
               readOnly={!formData.ifscVerified}
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-              font-[gilroy-medium]
+              font-[Gilroy-Medium]
               border-[#1B1717]/80
               rounded-lg
               pl-10 md:pl-12 lg:pl-14
@@ -399,7 +399,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           type="button"
           onClick={formik.handleSubmit}
           disabled={!isNextEnabled}
-          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[gilroy-semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${
+          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${
             !isNextEnabled
               ? "bg-[#039155] cursor-not-allowed opacity-70"
               : "bg-[#039155] hover:bg-green-700"

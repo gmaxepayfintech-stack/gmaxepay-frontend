@@ -178,7 +178,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg  hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
-            <span className="font-[gilroy-medium] text-white text-sm">
+            <span className="font-[Gilroy-Medium] text-white text-sm">
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
@@ -203,7 +203,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
           <div className="p-4 sm:p-6">
             <div className="space-y-3 sm:space-y-4">
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -211,7 +211,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -221,7 +221,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Agent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -229,7 +229,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   User Mobile
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -255,7 +255,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
           <div className="p-4 sm:p-6">
             <div className="space-y-3 sm:space-y-4">
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Company Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -263,7 +263,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Parent Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -271,7 +271,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Parent Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -283,7 +283,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Parent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -309,7 +309,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
           <div className="p-4 sm:p-6">
             <div className="space-y-3 sm:space-y-4">
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Bank Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -317,7 +317,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Aadhar Number
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -327,7 +327,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Amount
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
@@ -337,7 +337,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 </p>
               </div>
               <div>
-                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[gilroy-medium] mb-1">
+                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">

@@ -398,7 +398,7 @@ const Subscription = () => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
             <div className="p-6">
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">
+                <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                   {selectedPlan.originalData?.isSubscribed
                     ? "Confirm Slab Change"
                     : "Confirm Subscription Upgrade"}
@@ -417,7 +417,7 @@ const Subscription = () => {
                 {/* Wallet Balance Display */}
                 <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                   <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
-                  <p className="text-lg font-semibold text-[#1B1717]">
+                  <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                     {walletBalanceLoading ? (
                       <span className="text-gray-400">Loading...</span>
                     ) : userWalletBalance?.data?.mainWallet ? (
@@ -438,13 +438,13 @@ const Subscription = () => {
                 {selectedPlan && (
                   <p className="text-sm text-gray-600">
                     Plan:{" "}
-                    <span className="font-semibold">
+                    <span className="font-[Gilroy-Semibold]">
                       {selectedPlan.title} - ₹{selectedPlan.originalData?.subscriptionAmount || 0}
                     </span>
                   </p>
                 )}
                 {userUpgradeError && (
-                  <p className="text-sm text-red-600 mt-2 font-semibold bg-red-50 p-2 rounded border border-red-200">
+                  <p className="text-sm text-red-600 mt-2 font-[Gilroy-Semibold] bg-red-50 p-2 rounded border border-red-200">
                     {userUpgradeError}
                   </p>
                 )}

@@ -349,11 +349,11 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               </button>
             )}
 
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
               Shop Details
             </h3>
 
-            <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[gilroy-medium] mt-1 max-w-[90%] mx-auto">
+            <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717]/70 font-[Gilroy-Medium] mt-1 max-w-[90%] mx-auto">
               Enter Shop Name And Capture Shop Photo To Complete Your KYC
             </p>
           </div>
@@ -381,7 +381,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               onBlur={formik.handleBlur}
               placeholder="Enter Shop Name"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
-              font-[gilroy-medium]
+              font-[Gilroy-Medium]
               ${
                 formik.errors.shopName && formik.touched.shopName
                   ? "border-red-500"
@@ -449,7 +449,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                       startCamera();
                     }}
                     disabled={isCameraActive || !formData.shopPhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       isCameraActive || !formData.shopPhotoDataUrl
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"
@@ -462,7 +462,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                     type="button"
                     onClick={capturePhoto}
                     disabled={!isCameraActive || formData.shopPhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       !isCameraActive || formData.shopPhotoDataUrl
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"
@@ -501,7 +501,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               !formData.shopName ||
               !formData.shopPhotoDataUrl
             }
-            className={`w-full h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+            className={`w-full h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm text-white shadow-lg transition ${
               postShopDetailsLoading ||
               !formData.shopName ||
               !formData.shopPhotoDataUrl

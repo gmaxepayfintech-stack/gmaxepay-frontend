@@ -35,7 +35,7 @@ const RoleUpgrade = () => {
     <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-6">
-        <h1 className="text-lg sm:text-2xl font-[gilroy-medium] text-[#1B1717] mb-3 sm:mb-4">
+        <h1 className="text-lg sm:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3 sm:mb-4">
           Role Upgradation List
         </h1>
 
@@ -49,7 +49,7 @@ const RoleUpgrade = () => {
               placeholder="Search By Name, Mobile Number,"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-4 py-3 sm:py-4 border border-[#1B1717]/50 font-[gilroy-medium] text-[#1B1717]/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
+              className="w-full pl-9 sm:pl-10 pr-4 py-3 sm:py-4 border border-[#1B1717]/50 font-[Gilroy-Medium] text-[#1B1717]/60 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155]"
             />
           </div>
         </div>
@@ -60,28 +60,28 @@ const RoleUpgrade = () => {
         <table className="min-w-[900px] w-full divide-y">
           <thead className="bg-white border-b border-[#1B1717]/30">
             <tr>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 SR No
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Date
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Parent Name
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 User Name
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Mobile Number
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Email Id
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Current Role
               </th>
-              <th className="px-3 py-3 text-left font-[gilroy-medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
+              <th className="px-3 py-3 text-left font-[Gilroy-Medium] text-xs sm:text-sm text-[#1B1717] whitespace-nowrap">
                 Upgrade Role
               </th>
             </tr>

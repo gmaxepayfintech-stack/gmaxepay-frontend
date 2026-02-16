@@ -444,7 +444,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
 
             {/* Loading Message */}
             <div className="text-center">
-              <h3 className="text-base sm:text-lg md:text-xl font-semibold text-gray-900 mb-1">
+              <h3 className="text-base sm:text-lg md:text-xl font-[Gilroy-Semibold] text-gray-900 mb-1">
                 Uploading
               </h3>
               <p className="text-xs sm:text-sm md:text-base text-gray-600 px-2">
@@ -475,7 +475,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                   </button>
                 )}
 
-                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-gray-800">
                   PAN Card Verification
                 </h1>
 
@@ -494,7 +494,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                   />
 
                   <div>
-                    <h3 className="text-sm sm:text-base md:text-lg font-semibold text-gray-900">
+                    <h3 className="text-sm sm:text-base md:text-lg font-[Gilroy-Semibold] text-gray-900">
                       PAN Via DigiLocker
                     </h3>
                     <p className="text-xs sm:text-sm text-gray-600">
@@ -510,7 +510,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
                       isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
@@ -529,7 +529,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
                       isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
@@ -560,7 +560,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                   />
                 </svg>
                 <div>
-                  <h4 className="font-semibold text-blue-900 text-xs sm:text-sm">
+                  <h4 className="font-[Gilroy-Semibold] text-blue-900 text-xs sm:text-sm">
                     Secure Document Verification
                   </h4>
                   <p className="text-xs sm:text-sm text-blue-800">
@@ -575,7 +575,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                 <button
                   type="button"
                   onClick={() => setShowImageUpload(true)}
-                  className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-semibold text-sm md:text-base hover:bg-green-700 transition shadow-lg"
+                  className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
                 >
                   Next
                 </button>
@@ -598,7 +598,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                   </button>
                 )}
 
-                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800">
+                <h1 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-gray-800">
                   PAN Card Verification
                 </h1>
 
@@ -670,7 +670,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                 type="button"
                 onClick={handleSubmitImage}
                 disabled={!panImage || isUploading}
-                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[gilroy-semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
+                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
                   panImage && !isUploading
                     ? "bg-[#039155] hover:bg-green-700 active:scale-95"
                     : "bg-gray-400 cursor-not-allowed"

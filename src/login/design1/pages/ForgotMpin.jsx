@@ -41,10 +41,10 @@ const ForgotMpin = ({ onSubmit, onBack }) => {
           />
         </div>
 
-        <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[gilroy-semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
+        <h1 className=" text-2xl sm:text-3xl md:text-4xl font-[Gilroy-Semibold] text-[#1B1717] text-center mb-2 sm:mb-3 md:mb-4 lg:mb-4">
           Forgot MPIN
         </h1>
-        <p className="text-[#1B1717] font-[gilroy-medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
+        <p className="text-[#1B1717] font-[Gilroy-Medium] text-center sm:text-lg md:text-xl lg:text-2xl mb-4 sm:mb-5 md:mb-6 lg:mb-6 px-2 sm:px-0">
           Reset Access in Just One Step
         </p>
 
@@ -123,7 +123,7 @@ const ForgotMpin = ({ onSubmit, onBack }) => {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full lg:w-[534px] xl:w-[534px] text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg rounded-xl h-11 sm:h-12 md:h-14 lg:h-[60px] xl:h-[60px] font-semibold relative overflow-hidden disabled:opacity-70"
+                  className="w-full lg:w-[534px] xl:w-[534px] text-white transition-all duration-200 disabled:cursor-not-allowed flex items-center justify-center shadow-lg rounded-xl h-11 sm:h-12 md:h-14 lg:h-[60px] xl:h-[60px] font-[Gilroy-Semibold] relative overflow-hidden disabled:opacity-70"
                   style={{
                     backgroundColor: company?.primaryColor || "#039155",
                     boxShadow: "0 4px 14px 0",

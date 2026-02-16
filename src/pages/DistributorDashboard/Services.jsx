@@ -53,7 +53,7 @@ const servicesData = [
     status: "subscribed",
     logo: "/img/AEPS.svg",
   },
-  { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
+  // { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
   { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
@@ -156,7 +156,7 @@ const Services = () => {
             onClick={() => setActiveTab("Available")}
             className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Available"
-                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
+                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
                 : "text-gray-700 hover:bg-gray-50"
             }`}
           >
@@ -167,7 +167,7 @@ const Services = () => {
             onClick={() => setActiveTab("Subscribed")}
             className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
               activeTab === "Subscribed"
-                ? "bg-[#039155] text-white shadow-sm font-[gilroy-semibold]"
+                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
                 : "text-[#1B1717] hover:bg-gray-50"
             }`}
           >

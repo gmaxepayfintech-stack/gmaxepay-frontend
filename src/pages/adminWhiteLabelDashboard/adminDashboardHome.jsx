@@ -448,10 +448,10 @@ const AdminDashboardHome = () => {
         <div className="lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6 h-full flex flex-col">
           {/* Header */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-0 mb-4">
-            <h3 className="text-lg sm:text-xl lg:text-[24px] font-[gilroy-medium] text-[#1B1717]">
+            <h3 className="text-lg sm:text-xl lg:text-[24px] font-[Gilroy-Medium] text-[#1B1717]">
               Recent Transaction
             </h3>
-            <button className="px-3 py-1.5 text-[10px] sm:text-xs font-[gilroy-medium] rounded-2xl text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 transition w-full sm:w-auto">
+            <button className="px-3 py-1.5 text-[10px] sm:text-xs font-[Gilroy-Medium] rounded-2xl text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 transition w-full sm:w-auto">
               Today
             </button>
           </div>
@@ -459,10 +459,10 @@ const AdminDashboardHome = () => {
           {/* Amount */}
           <div className="mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
-              <p className="text-lg sm:text-xl lg:text-2xl font-[gilroy-semibold] text-[#1B1717]">
+              <p className="text-lg sm:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
                 {formatCurrency(totalCommission)}
               </p>
-              {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[gilroy-medium] flex items-center gap-1">
+              {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[Gilroy-Medium] flex items-center gap-1">
                 ▲ +0.24% Today
               </span> */}
             </div>
@@ -532,25 +532,25 @@ const AdminDashboardHome = () => {
           {/* Main Wallet */}
           <div className="bg-[#4FF2AD]/20 rounded-xl shadow-sm p-4 lg:p-5 flex-1 flex flex-col justify-between">
             <div>
-              <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717] mb-3">
+              <h4 className="text-[24px] font-[Gilroy-Medium] text-[#1B1717] mb-3">
                 Main Wallet
               </h4>
-              <p className="text-2xl lg:text-[28px] font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                 {formatCurrency(walletData.mainWallet)}
               </p>
-              <span className="text-[#039155] text-[10px] lg:text-xs font-[gilroy-semibold] flex items-center gap-1 mb-3">
+              <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
                 ▲ 0.45%
               </span>
-              <p className="text-[14px] lg:text-sm text-[#1B1717]/80 font-[gilroy-medium]">
+              <p className="text-[14px] lg:text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
                 Today's Commission
-                <strong className="text-[#1B1717] font-[gilroy-semibold]">
+                <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
                   ₹200
                 </strong>
               </p>
             </div>
 
-            <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm">
+            <button className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[Gilroy-Semibold] text-sm lg:text-base transition shadow-sm">
               Account Transfer
             </button>
           </div>
@@ -560,7 +560,7 @@ const AdminDashboardHome = () => {
             <div>
               {/* Header with Select */}
               <div className="flex items-center justify-between mb-3">
-                <h4 className="text-[24px] font-[gilroy-medium] text-[#1B1717]">
+                <h4 className="text-[24px] font-[Gilroy-Medium] text-[#1B1717]">
                   {AEPS_LABELS[selectedAepsWallet]}
                 </h4>
 
@@ -576,7 +576,7 @@ const AdminDashboardHome = () => {
                         pl-3 pr-8
                         py-1
                         text-xs
-                        font-[gilroy-semibold]
+                        font-[Gilroy-Semibold]
                         bg-[#4FF2AD]/10
                         text-[#1B1717]
                         focus:outline-none
@@ -603,17 +603,17 @@ const AdminDashboardHome = () => {
               </div>
 
               {/* Balance */}
-              <p className="text-2xl lg:text-[28px] font-[gilroy-semibold] text-[#1B1717] mb-2">
+              <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
                 {formatCurrency(walletData[selectedAepsWallet])}
               </p>
 
-              <span className="text-[#039155] text-[10px] lg:text-xs font-[gilroy-semibold] flex items-center gap-1 mb-3">
+              <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
                 ▲ 4.61%
               </span>
 
-              <p className="text-xs lg:text-sm text-[#1B1717]/80 font-[gilroy-medium]">
+              <p className="text-xs lg:text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
                 Today's Earning
-                <strong className="text-[#1B1717] font-[gilroy-semibold]">
+                <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
                   ₹200
                 </strong>
@@ -621,7 +621,7 @@ const AdminDashboardHome = () => {
             </div>
 
             <button
-              className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[gilroy-semibold] text-sm lg:text-base transition shadow-sm"
+              className="w-full bg-[#039155] hover:bg-[#027a47] text-white py-2 lg:py-2.5 rounded-xl font-[Gilroy-Semibold] text-sm lg:text-base transition shadow-sm"
               onClick={handlePayout}
             >
               Wallet Transfer
@@ -693,22 +693,22 @@ const AdminDashboardHome = () => {
             <table className="min-w-full">
               <thead>
                 <tr className="border-b bg-[#FAFAFA] border-gray-200 ">
-                  <th className="text-left py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap rounded-tl-xl">
+                  <th className="text-left py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap rounded-tl-xl">
                     Service
                   </th>
-                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Volume
                   </th>
-                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Count
                   </th>
-                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Success
                   </th>
-                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Failed
                   </th>
-                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[gilroy-medium] text-[#1B1717] whitespace-nowrap rounded-tr-xl">
+                  <th className="text-center py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap rounded-tr-xl">
                     Pending
                   </th>
                 </tr>
@@ -719,7 +719,7 @@ const AdminDashboardHome = () => {
                     key={index}
                     className="border-b border-gray-100 bg-white hover:bg-gray-50"
                   >
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] font-[gilroy-semibold] whitespace-nowrap">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] font-[Gilroy-Semibold] whitespace-nowrap">
                       {row.service}
                     </td>
                     <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular]">
@@ -728,13 +728,13 @@ const AdminDashboardHome = () => {
                     <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular ">
                       {row.count}
                     </td>
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#039155] font-[gilroy-semibold] whitespace-nowrap text-center">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#039155] font-[Gilroy-Semibold] whitespace-nowrap text-center">
                       {row.success}
                     </td>
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#D66000] font-[gilroy-semibold] whitespace-nowrap text-center">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#D66000] font-[Gilroy-Semibold] whitespace-nowrap text-center">
                       {row.failed}
                     </td>
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#E32424] font-[gilroy-semibold] whitespace-nowrap text-center">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#E32424] font-[Gilroy-Semibold] whitespace-nowrap text-center">
                       {row.pending}
                     </td>
                   </tr>
@@ -964,7 +964,7 @@ const AdminDashboardHome = () => {
                               {/* Bank Details */}
                               <div className="flex-1 min-w-0">
                                 <div className="flex items-center justify-between mb-1">
-                                  <p className="text-sm font-[gilroy-medium] text-[#1B1717]">
+                                  <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
                                     Bank Name: {bank.name}
                                   </p>
                                   {/* FIX: remove margin that increases card height and center the indicator */}
@@ -1055,12 +1055,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                          console.log(
-                            "Wallet - Latitude:",
-                            latitude,
-                            "Longitude:",
-                            longitude,
-                          );
+                         
 
                           // Map selected AEPS wallet to API aepsType
                           const aepsType =
@@ -1088,12 +1083,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                          console.log(
-                            "Bank - Latitude:",
-                            latitude,
-                            "Longitude:",
-                            longitude,
-                          );
+                         
                           payload = {
                             amount: amount.toString(),
                             mode: "bank",
@@ -1119,17 +1109,12 @@ const AdminDashboardHome = () => {
                           return;
                         }
 
-                        console.log(
-                          "Processing transfer with payload:",
-                          payload,
-                        );
 
                         const response = await dispatch(
                           payoutCompanyTransaction(payload),
                         );
 
                         if (response?.status === "SUCCESS") {
-                          console.log("Transfer successful:", response);
                           showNotification({
                             type: "success",
                             message:
@@ -1190,11 +1175,11 @@ const AdminDashboardHome = () => {
                 <div className="space-y-4">
                   {/* Account Number */}
                   <div>
-                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
+                    <label className="text-sm font-[Gilroy-Medium] text-[#121216] ">
                       Account Number *
                     </label>
                     <input
-                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-[#1B1717]/80 rounded-lg px-4"
+                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[Gilroy-Medium] text-[#1B1717]/80 rounded-lg px-4"
                       placeholder="Enter Account Number"
                       value={bankAccountNumber}
                       onChange={(e) =>
@@ -1205,11 +1190,11 @@ const AdminDashboardHome = () => {
 
                   {/* IFSC */}
                   <div>
-                    <label className="text-sm font-[gilroy-medium] text-[#121216] ">
+                    <label className="text-sm font-[Gilroy-Medium] text-[#121216] ">
                       IFSC Code *
                     </label>
                     <input
-                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[gilroy-medium] text-sm text-[#1B1717]/80 rounded-lg px-4"
+                      className="w-full h-[43px] mt-2 border-[0.5px] border-[#1B1717]/80 font-[Gilroy-Medium] text-sm text-[#1B1717]/80 rounded-lg px-4"
                       placeholder="Enter IFSC Code"
                       value={bankIfsc}
                       onChange={(e) =>
@@ -1222,7 +1207,7 @@ const AdminDashboardHome = () => {
                 {/* Buttons */}
                 <div className="flex gap-3 mt-6">
                   <button
-                    className="w-1/2 py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg font-[gilroy-medium] text-[#1B1717]/80"
+                    className="w-1/2 py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg font-[Gilroy-Medium] text-[#1B1717]/80"
                     onClick={() => {
                       setAddBankOpen(false);
                       setBankAccountNumber("");
@@ -1233,7 +1218,7 @@ const AdminDashboardHome = () => {
                   </button>
 
                   <button
-                    className="w-1/2 py-3 bg-[#039155] text-white rounded-lg font-[gilroy-semibold] text-sm hover:bg-[#027a47] transition disabled:opacity-50"
+                    className="w-1/2 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Semibold] text-sm hover:bg-[#027a47] transition disabled:opacity-50"
                     disabled={isAddBankLoading}
                     onClick={async () => {
                       if (!bankAccountNumber || !bankIfsc) {

@@ -96,11 +96,11 @@ const BusinessReport = ({ embedded = false }) => {
           <div className="flex bg-white w-[500px] h-[68px] rounded-3xl px-[18px] py-[14px]">
             <button
               onClick={() => setActiveTab("myPerformance")}
-              className={`flex-1 h-[40px] rounded-2xl font-[gilroy-medium]
+              className={`flex-1 h-[40px] rounded-2xl font-[Gilroy-Medium]
         transition-all flex items-center justify-center
         ${
           activeTab === "myPerformance"
-            ? "text-white bg-[#039155] shadow-sm font-[gilroy-semibold]"
+            ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
             : "text-gray-700 hover:text-gray-900"
         }`}
             >
@@ -109,11 +109,11 @@ const BusinessReport = ({ embedded = false }) => {
 
             <button
               onClick={() => setActiveTab("userBusinessStats")}
-              className={`flex-1 h-[40px] rounded-2xl font-[gilroy-medium]
+              className={`flex-1 h-[40px] rounded-2xl font-[Gilroy-Medium]
         transition-all flex items-center justify-center
         ${
           activeTab === "userBusinessStats"
-            ? "text-white bg-[#039155] shadow-sm font-[gilroy-semibold]"
+            ? "text-white bg-[#039155] shadow-sm font-[Gilroy-Semibold]"
             : "text-gray-700 hover:text-gray-900"
         }`}
             >
@@ -129,14 +129,14 @@ const BusinessReport = ({ embedded = false }) => {
             {/* Filter Section */}
             <div className="bg-white rounded-[24px] mb-6 sm:mb-8 shadow-sm  w-[529px] h-[164px] relative">
               <div className="absolute top-[24px] left-[18px] w-[408px] h-[117px] flex flex-col">
-                <h3 className="text-[16px] font-[gilroy-semibold] text-[#1B1717] mb-4">
+                <h3 className="text-[16px] font-[Gilroy-Semibold] text-[#1B1717] mb-4">
                   Add Filter
                 </h3>
                 <div className="flex flex-row gap-4 flex-1">
                   <div className="relative flex-1">
                     <label
                       htmlFor="fromDate"
-                      className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                      className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
                     >
                       From Date
                     </label>
@@ -154,7 +154,7 @@ const BusinessReport = ({ embedded = false }) => {
                   <div className="relative flex-1">
                     <label
                       htmlFor="toDate"
-                      className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                      className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
                     >
                       To Date
                     </label>
