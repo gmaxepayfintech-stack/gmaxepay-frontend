@@ -279,7 +279,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               </button>
             )}
 
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-1">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-gray-800 mb-1">
               Profile
             </h3>
             <p className="text-xs sm:text-sm md:text-sm lg:text-base text-[#1B1717] mb-2">
@@ -334,7 +334,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                       startCamera();
                     }}
                     disabled={isCameraActive || !formData.profilePhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       isCameraActive || !formData.profilePhotoDataUrl
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"
@@ -347,7 +347,7 @@ function Step7({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                     type="button"
                     onClick={capturePhoto}
                     disabled={!isCameraActive || formData.profilePhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       !isCameraActive || formData.profilePhotoDataUrl
                         ? "bg-gray-400 text-white cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"

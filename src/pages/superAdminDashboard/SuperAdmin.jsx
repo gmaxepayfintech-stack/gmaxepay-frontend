@@ -833,7 +833,7 @@ const SuperAdmin = () => {
                   <p className="font-[gilroy-medium] text-[#1B1717] text-base mb-1">
                     {walletName}
                   </p>
-                  <p className="text-[#1B1717] font-semibold text-sm sm:text-lg">
+                  <p className="text-[#1B1717] font-[Gilroy-Semibold] text-sm sm:text-lg">
                     {(isAslWalletRefreshing && isAslWallet) ||
                     (isEkycHubRefreshing && isEkycHubWallet) ||
                     (isInspayWalletRefreshing && isInspayWallet) ||

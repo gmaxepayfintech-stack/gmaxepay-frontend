@@ -327,7 +327,7 @@ const OperatorSetting = () => {
                   <td>
                     {/* <button
                       onClick={() => handleEdit(service)}
-                      className="text-[#039155] text-sm font-semibold hover:underline"
+                      className="text-[#039155] text-sm font-[Gilroy-Semibold] hover:underline"
                     >
                       Edit
                     </button> */}

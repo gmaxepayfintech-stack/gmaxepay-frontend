@@ -234,7 +234,7 @@ const PanService = () => {
           {/* Action Info */}
           <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
             <p className="text-sm text-blue-800">
-              <span className="font-semibold">Action:</span>{" "}
+              <span className="font-[Gilroy-Semibold]">Action:</span>{" "}
               {action === "new" ? "Creation" : "Correction"}
             </p>
             <p className="text-xs text-blue-600 mt-1">

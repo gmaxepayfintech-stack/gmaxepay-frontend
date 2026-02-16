@@ -957,7 +957,7 @@ const AdminProfile = ({ onBack = null }) => {
                     className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
                     aria-label="Back to Bank Details"
                   >
-                    <span className="text-sm font-semibold text-[#1B1717]">
+                    <span className="text-sm font-[Gilroy-Semibold] text-[#1B1717]">
                       ←
                     </span>
                   </button>
@@ -1167,7 +1167,7 @@ const AdminProfile = ({ onBack = null }) => {
       {showDeleteModal && (
         <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
-            <h3 className="text-lg font-semibold text-[#1B1717] mb-3">
+            <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-3">
               Delete Bank Account
             </h3>
 
@@ -1234,7 +1234,7 @@ const AdminProfile = ({ onBack = null }) => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
             <div className="p-6">
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">
+                <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                   {(() => {
                     const selectedSlab = slabList.find(
                       (s) => String(s.id) === selectedScheme,
@@ -1267,7 +1267,7 @@ const AdminProfile = ({ onBack = null }) => {
                         <p className="text-xs text-gray-500 mb-1">
                           Main Wallet Balance
                         </p>
-                        <p className="text-lg font-semibold text-[#1B1717]">
+                        <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
                           ) : companyWalletBalance?.data?.mainWallet ? (
@@ -1298,7 +1298,7 @@ const AdminProfile = ({ onBack = null }) => {
                 {selectedScheme && (
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
-                    <span className="font-semibold">
+                    <span className="font-[Gilroy-Semibold]">
                       {(() => {
                         const selectedSlab = slabList.find(
                           (s) => String(s.id) === selectedScheme,
@@ -1318,7 +1318,7 @@ const AdminProfile = ({ onBack = null }) => {
                   </p>
                 )}
                 {upgradeError && (
-                  <p className="text-sm text-red-600 mt-2 font-semibold bg-red-50 p-2 rounded border border-red-200">
+                  <p className="text-sm text-red-600 mt-2 font-[Gilroy-Semibold] bg-red-50 p-2 rounded border border-red-200">
                     {upgradeError}
                   </p>
                 )}

@@ -1003,7 +1003,7 @@ const ProfileDetails = ({ onBack = null }) => {
                     className="flex items-center justify-center w-8 h-8 rounded-full border border-gray-300 hover:bg-gray-50 transition-colors"
                     aria-label="Back to Bank Details"
                   >
-                    <span className="text-sm font-semibold text-[#1B1717]">
+                    <span className="text-sm font-[Gilroy-Semibold] text-[#1B1717]">
                       ←
                     </span>
                   </button>
@@ -1201,7 +1201,7 @@ const ProfileDetails = ({ onBack = null }) => {
           <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
             <div className="p-6">
               <div className="mb-4">
-                <h3 className="text-xl font-semibold text-gray-800">
+                <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                   {(() => {
                     const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                     const isSubscribed = selectedSlab?.isSubscribed || false;
@@ -1226,7 +1226,7 @@ const ProfileDetails = ({ onBack = null }) => {
                     return (
                       <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
                         <p className="text-xs text-gray-500 mb-1">Main Wallet Balance</p>
-                        <p className="text-lg font-semibold text-[#1B1717]">
+                        <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                           {walletBalanceLoading ? (
                             <span className="text-gray-400">Loading...</span>
                           ) : walletBalance?.data?.mainWallet ? (
@@ -1253,7 +1253,7 @@ const ProfileDetails = ({ onBack = null }) => {
                 {selectedScheme && (
                   <p className="text-sm text-gray-600">
                     New Slab:{" "}
-                    <span className="font-semibold">
+                    <span className="font-[Gilroy-Semibold]">
                       {(() => {
                         const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                         if (!selectedSlab) return "N/A";

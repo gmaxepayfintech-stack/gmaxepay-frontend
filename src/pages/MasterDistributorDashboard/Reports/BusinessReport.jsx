@@ -119,7 +119,7 @@ const BusinessReport = ({ embedded = false }) => {
                         {/* Filter Section */}
                         <div className="bg-white rounded-[24px] mb-6 sm:mb-8 shadow-sm border border-gray-200 w-[529px] h-[164px] relative">
                             <div className="absolute top-[24px] left-[18px] w-[408px] h-[117px] flex flex-col">
-                                <h3 className="text-[20px] font-semibold text-[#000000] mb-4">
+                                <h3 className="text-[20px] font-[Gilroy-Semibold] text-[#000000] mb-4">
                                     Add Filter
                                 </h3>
                                 <div className="flex flex-row gap-4 flex-1">

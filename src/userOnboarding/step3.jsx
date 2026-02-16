@@ -578,7 +578,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                   />
                 </svg>
                 <div>
-                  <h4 className="font-semibold text-blue-900 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base mb-0.5 sm:mb-1">
+                  <h4 className="font-[Gilroy-Semibold] text-blue-900 text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base mb-0.5 sm:mb-1">
                     Secure Document Verification
                   </h4>
                   <p className="text-xs sm:text-xs md:text-sm lg:text-sm xl:text-base text-blue-800">

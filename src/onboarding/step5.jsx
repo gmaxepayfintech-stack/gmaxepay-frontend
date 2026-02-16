@@ -403,7 +403,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
               !formData.shopName ||
               !formData.shopPhotoDataUrl
             }
-            className={`w-full h-10 sm:h-11 md:h-12 mt-6 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+            className={`w-full h-10 sm:h-11 md:h-12 mt-6 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm text-white shadow-lg transition ${
               postShopDetailsLoading ||
               !formData.shopName ||
               !formData.shopPhotoDataUrl

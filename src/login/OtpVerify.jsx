@@ -129,7 +129,7 @@ const OtpVerify = () => {
             />
           </div>
 
-          <h1 className="text-1B1717 text-[36px] font-semibold text-center mb-4">
+          <h1 className="text-1B1717 text-[36px] font-[Gilroy-Semibold] text-center mb-4">
             Enter Verification Code
           </h1>
           <p className="text-1B1717 opacity-70 text-center text-[24px] mb-4">
@@ -164,7 +164,7 @@ const OtpVerify = () => {
           <button
             disabled={timer !== 0}
             onClick={() => setTimer(30)}
-            className={`text-sm font-semibold w-full text-center text-[18px] mt-6 ${
+            className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${
               timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
             }`}
           >

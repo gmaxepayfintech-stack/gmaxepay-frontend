@@ -987,7 +987,7 @@ const DistrubtionOnboarding = ({
                   <FaIdCard className="text-green-600" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
+                  <h2 className="text-xl font-[Gilroy-Semibold] text-gray-800">
                     KYC Details
                   </h2>
                   {selectedKycData?.userDetails?.name && (
@@ -1088,12 +1088,12 @@ const DistrubtionOnboarding = ({
                       {/* KYC Status Card */}
                       <div className="bg-gradient-to-r from-green-50 to-blue-50 rounded-xl p-6 border border-green-100">
                         <div className="flex items-center justify-between mb-4">
-                          <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                             <FaIdCard className="text-green-600" />
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${
                               selectedKycData.kycStatus === "FULL_KYC"
                                 ? "bg-green-100 text-green-700"
                                 : selectedKycData.kycStatus === "NO_KYC"
@@ -1111,7 +1111,7 @@ const DistrubtionOnboarding = ({
                             <span className="text-sm font-[gilroy-medium] text-gray-700">
                               Progress
                             </span>
-                            <span className="text-sm font-semibold text-gray-800">
+                            <span className="text-sm font-[Gilroy-Semibold] text-gray-800">
                               {selectedKycData.completedSteps ||
                                 selectedKycData.kycSteps ||
                                 0}{" "}
@@ -1132,7 +1132,7 @@ const DistrubtionOnboarding = ({
                       {/* User Details Card */}
                       {selectedKycData.userDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
-                          <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                          <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
                             <FaUser className="text-green-600" />
                             User Details
                           </h3>
@@ -1203,7 +1203,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.aadhaarDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaIdCard className="text-blue-600" />
                               Aadhaar Document
                             </h3>
@@ -1254,7 +1254,7 @@ const DistrubtionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
                                   selectedKycData.aadhaarDoc.status ===
                                   "Success"
                                     ? "bg-green-100 text-green-700"
@@ -1334,7 +1334,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.panDoc ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaIdCard className="text-purple-600" />
                               PAN Document
                             </h3>
@@ -1385,7 +1385,7 @@ const DistrubtionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-semibold inline-block w-fit ${
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
                                   selectedKycData.panDoc.status === "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
@@ -1465,7 +1465,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.outletDetails && (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaBuilding className="text-orange-600" />
                               Outlet Details
                             </h3>
@@ -1551,7 +1551,7 @@ const DistrubtionOnboarding = ({
                       {selectedKycData.customerBankDetails ? (
                         <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
                           <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-semibold text-gray-800 flex items-center gap-2">
+                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
                               <FaUniversity className="text-indigo-600" />
                               Bank Details
                             </h3>
@@ -1623,7 +1623,7 @@ const DistrubtionOnboarding = ({
                   {activeTab === "verification" &&
                     selectedKycData.userDetails && (
                       <div className="space-y-4">
-                        <h3 className="text-lg font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
                           <FaCheckCircle className="text-green-600" />
                           Verification Status
                         </h3>
@@ -1647,7 +1647,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.mobileVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1678,7 +1678,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.emailVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1709,7 +1709,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.aadharVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1740,7 +1740,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.panVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1771,7 +1771,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.shopDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1802,7 +1802,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.imageVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
@@ -1835,7 +1835,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails
                                   .profileImageWithShopVerify
                                   ? "bg-green-100 text-green-700"
@@ -1868,7 +1868,7 @@ const DistrubtionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
                                 selectedKycData.userDetails.bankDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"

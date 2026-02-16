@@ -246,7 +246,7 @@ function OnboardingById() {
             />
           </div>
           <h2
-            className={`text-4xl font-semibold mt-6 mb-6 ${errorInfo.iconColor} break-words`}
+            className={`text-4xl font-[Gilroy-Semibold] mt-6 mb-6 ${errorInfo.iconColor} break-words`}
             style={{ fontFamily: "Gilroy-Medium, sans-serif" }}
           >
             {errorInfo.title}
@@ -294,7 +294,7 @@ function OnboardingById() {
               />
             </svg>
           </div>
-          <h2 className="text-2xl font-semibold text-[#1B1717] mb-2">
+          <h2 className="text-2xl font-[Gilroy-Semibold] text-[#1B1717] mb-2">
             KYC completed
           </h2>
           <p className="text-gray-600 text-lg">

@@ -449,7 +449,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                       startCamera();
                     }}
                     disabled={isCameraActive || !formData.shopPhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       isCameraActive || !formData.shopPhotoDataUrl
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"
@@ -462,7 +462,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
                     type="button"
                     onClick={capturePhoto}
                     disabled={!isCameraActive || formData.shopPhotoDataUrl}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold shadow ${
+                    className={`px-3 py-1.5 rounded-lg text-xs font-[Gilroy-Semibold] shadow ${
                       !isCameraActive || formData.shopPhotoDataUrl
                         ? "bg-gray-300 text-gray-500 cursor-not-allowed"
                         : "bg-[#039155] text-white hover:bg-green-700"
@@ -501,7 +501,7 @@ function Step5({ formData, setFormData, onComplete, onBack, onShowSteps }) {
               !formData.shopName ||
               !formData.shopPhotoDataUrl
             }
-            className={`w-full h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl font-semibold text-sm text-white shadow-lg transition ${
+            className={`w-full h-10 sm:h-11 md:h-12 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm text-white shadow-lg transition ${
               postShopDetailsLoading ||
               !formData.shopName ||
               !formData.shopPhotoDataUrl

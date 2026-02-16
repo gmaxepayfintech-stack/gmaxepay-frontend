@@ -275,7 +275,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleAutoStartWithReferral}
-              className="w-full h-10 md:h-11 rounded-lg md:rounded-xl font-semibold text-sm md:text-base shadow-md transition hover:bg-green-700 truncate whitespace-nowrap overflow-hidden text-ellipsis"
+              className="w-full h-10 md:h-11 rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base shadow-md transition hover:bg-green-700 truncate whitespace-nowrap overflow-hidden text-ellipsis"
               style={{
                 backgroundColor: primaryColor,
               }}
@@ -351,7 +351,7 @@ const Welcome = () => {
                 <button
                   type="submit"
                   disabled={loading || !referralCode.trim()}
-                  className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-semibold text-sm md:text-base shadow-md transition ${
+                  className={`w-full h-10 md:h-11 rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base shadow-md transition ${
                     loading || !referralCode.trim()
                       ? "bg-gray-400 cursor-not-allowed opacity-70"
                       : "hover:bg-green-700"
@@ -372,7 +372,7 @@ const Welcome = () => {
             <button
               type="button"
               onClick={handleSkip}
-              className="w-full h-10 md:h-11 bg-white border-2 border-gray-300 text-gray-800 rounded-lg md:rounded-xl font-semibold text-sm md:text-base hover:bg-gray-50 transition"
+              className="w-full h-10 md:h-11 bg-white border-2 border-gray-300 text-gray-800 rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base hover:bg-gray-50 transition"
             >
               Skip For Now
             </button>

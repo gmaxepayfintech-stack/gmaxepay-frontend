@@ -345,7 +345,7 @@ const DistributorLayout = ({ children }) => {
                             to={child.path}
                             className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
                               isChildPathActive
-                                ? "text-[#039155] font-semibold"
+                                ? "text-[#039155] font-[Gilroy-Semibold]"
                                 : "text-gray-700"
                             }`}
                           >

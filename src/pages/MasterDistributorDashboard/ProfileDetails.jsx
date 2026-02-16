@@ -667,7 +667,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 Membership Scheme
               </h3>
               <p className="text-sm text-gray-500 mb-1">Current Scheme</p>
-              <p className="text-base sm:text-lg font-semibold text-[#1B1717]">
+              <p className="text-base sm:text-lg font-[Gilroy-Semibold] text-[#1B1717]">
                 {(() => {
                   if (!Array.isArray(slabList) || slabList.length === 0) {
                     return "N/A";

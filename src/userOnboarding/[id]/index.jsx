@@ -562,7 +562,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                         </div>
 
                         {done ? (
-                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-semibold shadow-md flex-shrink-0">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-[Gilroy-Semibold] shadow-md flex-shrink-0">
                             ✓
                           </div>
                         ) : (
@@ -758,7 +758,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   px-6 sm:px-8 md:px-10 
                   py-3 sm:py-3.5 md:py-4 
                   rounded-lg sm:rounded-xl 
-                  font-semibold 
+                  font-[Gilroy-Semibold] 
                   text-base sm:text-lg md:text-xl 
                   hover:bg-green-700 
                   transition-all 

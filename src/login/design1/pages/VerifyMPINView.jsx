@@ -59,7 +59,7 @@ const VerifyMPINView = ({
           />
         </div>
 
-        <h1 className="text-1B1717 text-[36px] font-semibold text-center mb-4">
+        <h1 className="text-1B1717 text-[36px] font-[Gilroy-Semibold] text-center mb-4">
           Enter MPIN
         </h1>
         <p className="text-1B1717 opacity-70 text-center text-[24px] mb-10">
