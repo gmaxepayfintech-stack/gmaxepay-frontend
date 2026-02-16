@@ -19,115 +19,29 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     return roleMap[roleNumber] || `Role ${roleNumber}`;
   };
 
-  // Calculate commission data from transaction - Always show all 5 roles
   const calculateCommissionData = () => {
     if (!transactionData?.transaction) return [];
-
-    const transaction = transactionData.transaction;
-    const commissionData = [];
-
-    // Super Admin Commission - Always show, use 0 if null
-    const superadminComm =
-      transaction.superadminComm !== null &&
-      transaction.superadminComm !== undefined
-        ? parseFloat(transaction.superadminComm) || 0
-        : 0;
-    const superadminCommTDS =
-      transaction.superadminCommTDS !== null &&
-      transaction.superadminCommTDS !== undefined
-        ? parseFloat(transaction.superadminCommTDS) || 0
-        : 0;
-    const superadminNet = superadminComm - superadminCommTDS;
-    commissionData.push({
-      name: "Super Admin",
-      userId: "N/A",
-      commissions: `₹${superadminComm.toFixed(2)}`,
-      tds: `₹${superadminCommTDS.toFixed(2)}`,
-      net: `₹${superadminNet.toFixed(2)}`,
-    });
-
-    // White Label Commission - Always show, use 0 if null
-    const whitelabelComm =
-      transaction.whitelabelComm !== null &&
-      transaction.whitelabelComm !== undefined
-        ? parseFloat(transaction.whitelabelComm) || 0
-        : 0;
-    const whitelabelCommTDS =
-      transaction.whitelabelCommTDS !== null &&
-      transaction.whitelabelCommTDS !== undefined
-        ? parseFloat(transaction.whitelabelCommTDS) || 0
-        : 0;
-    const whitelabelNet = whitelabelComm - whitelabelCommTDS;
-    commissionData.push({
-      name: "White Label Partner",
-      userId: transactionData.reportingUserDetails?.parentUserId || "N/A",
-      commissions: `₹${whitelabelComm.toFixed(2)}`,
-      tds: `₹${whitelabelCommTDS.toFixed(2)}`,
-      net: `₹${whitelabelNet.toFixed(2)}`,
-    });
-
-    // Master Distributor Commission - Always show, use 0 if null
-    const masterDistributorComm =
-      transaction.masterDistributorCom !== null &&
-      transaction.masterDistributorCom !== undefined
-        ? parseFloat(transaction.masterDistributorCom) || 0
-        : 0;
-    const masterDistributorCommTDS =
-      transaction.masterDistributorComTDS !== null &&
-      transaction.masterDistributorComTDS !== undefined
-        ? parseFloat(transaction.masterDistributorComTDS) || 0
-        : 0;
-    const masterDistributorNet =
-      masterDistributorComm - masterDistributorCommTDS;
-    commissionData.push({
-      name: "Master Distributor",
-      userId: "N/A",
-      commissions: `₹${masterDistributorComm.toFixed(2)}`,
-      tds: `₹${masterDistributorCommTDS.toFixed(2)}`,
-      net: `₹${masterDistributorNet.toFixed(2)}`,
-    });
-
-    // Distributor Commission - Always show, use 0 if null
-    const distributorComm =
-      transaction.distributorCom !== null &&
-      transaction.distributorCom !== undefined
-        ? parseFloat(transaction.distributorCom) || 0
-        : 0;
-    const distributorCommTDS =
-      transaction.distributorComTDS !== null &&
-      transaction.distributorComTDS !== undefined
-        ? parseFloat(transaction.distributorComTDS) || 0
-        : 0;
-    const distributorNet = distributorComm - distributorCommTDS;
-    commissionData.push({
-      name: "Distributor",
-      userId: "N/A",
-      commissions: `₹${distributorComm.toFixed(2)}`,
-      tds: `₹${distributorCommTDS.toFixed(2)}`,
-      net: `₹${distributorNet.toFixed(2)}`,
-    });
-
-    // Retailer Commission - Always show, use 0 if null
-    const retailerComm =
-      transaction.retailerCom !== null && transaction.retailerCom !== undefined
-        ? parseFloat(transaction.retailerCom) || 0
-        : 0;
-    const retailerCommTDS =
-      transaction.retailerComTDS !== null &&
-      transaction.retailerComTDS !== undefined
-        ? parseFloat(transaction.retailerComTDS) || 0
-        : 0;
-    const retailerNet = retailerComm - retailerCommTDS;
-    commissionData.push({
-      name: "Retailer",
-      userId: transactionData.userDetails?.userId || "N/A",
-      commissions: `₹${retailerComm.toFixed(2)}`,
-      tds: `₹${retailerCommTDS.toFixed(2)}`,
-      net: `₹${retailerNet.toFixed(2)}`,
-    });
-
-    return commissionData;
+  
+    const {
+      retailerCom = 0,
+      retailerComTDS = 0,
+    } = transactionData.transaction;
+  
+    const commission = Number(retailerCom) || 0;
+    const tds = Number(retailerComTDS) || 0;
+    const net = commission - tds;
+  
+    return [
+      {
+        name: "Retailer",
+        commissions: `₹${commission.toFixed(2)}`,
+        tds: `₹${tds.toFixed(2)}`,
+        net: `₹${net.toFixed(2)}`,
+      },
+    ];
   };
+  
+  
 
   // Calculate total commission
   const calculateTotalCommission = () => {
