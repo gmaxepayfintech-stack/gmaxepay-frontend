@@ -87,7 +87,7 @@ const Members = () => (
             </div>
             {/* Change Percentage */}
             <div
-              className={`text-sm font-semibold mt-2 flex items-center ${item.textColorClass}`}
+              className={`text-sm font-[Gilroy-Semibold] mt-2 flex items-center ${item.textColorClass}`}
             >
               {item.change}
             </div>

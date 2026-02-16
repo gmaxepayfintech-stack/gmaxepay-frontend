@@ -192,10 +192,10 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
   return (
     <div className="w-full h-full flex justify-center items-center  p-2 sm:p-3 md:p-4 overflow-hidden">
       <div className="w-full max-w-[98%] sm:max-w-[480px] md:max-w-[520px] lg:max-w-[580px] xl:max-w-[600px] 2xl:max-w-[700px] text-center mx-auto">
-        <h3 className="text-base sm:text-lg  font-[gilroy-semibold] text-[#1B1717] mb-2">
+        <h3 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-[#1B1717] mb-2">
           Profile
         </h3>
-        <p className="text-xs sm:text-sm   font-[gilroy-medium] text-[#1B1717]/80 mb-6">
+        <p className="text-xs sm:text-sm   font-[Gilroy-Medium] text-[#1B1717]/80 mb-6">
           Profile Picture To Complete Your KYC
         </p>
 
@@ -328,7 +328,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
             bg-[#039155]
             text-white
             rounded-lg md:rounded-xl
-            font-[gilroy-semibold]
+            font-[Gilroy-Semibold]
             text-sm md:text-base
             transition
             shadow-lg

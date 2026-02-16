@@ -137,7 +137,7 @@ const LoginDesign2 = () => {
           <form onSubmit={handleSubmit} style={{ paddingTop: '18px' }}>
             {/* Phone Number Field */}
             <div style={{ marginBottom: '28px' }}>
-              <label htmlFor="phone" className="block text-gray-800 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
+              <label htmlFor="phone" className="block text-gray-800 text-sm font-[Gilroy-Semibold]" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Phone Number
               </label>
               <div className="relative group">
@@ -167,7 +167,7 @@ const LoginDesign2 = () => {
 
             {/* Password Field */}
             <div style={{ marginBottom: '0px' }}>
-              <label htmlFor="password" className="block text-gray-800 text-sm font-semibold" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
+              <label htmlFor="password" className="block text-gray-800 text-sm font-[Gilroy-Semibold]" style={{ fontFamily: 'Gilroy-Medium', fontWeight: 400, fontSize: '24px', lineHeight: '100%', textTransform: 'capitalize', marginBottom: '8px' }}>
                 Password
               </label>
               <div className="relative group">
@@ -207,7 +207,7 @@ const LoginDesign2 = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full text-white font-semibold py-4 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02]"
+              className="w-full text-white font-[Gilroy-Semibold] py-4 px-4 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 hover:scale-[1.02]"
               style={{ 
                 fontFamily: 'Gilroy-SemiBold', 
                 fontWeight: 400, 

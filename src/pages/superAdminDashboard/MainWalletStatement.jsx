@@ -165,7 +165,7 @@ const MainWalletStatement = ({ onBack }) => {
           <div>
             <label
               htmlFor="dateRange"
-              className="block text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717] mb-2"
+              className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2"
             >
               Date Range
             </label>
@@ -173,7 +173,7 @@ const MainWalletStatement = ({ onBack }) => {
               id="dateRange"
               value={dateRange}
               onChange={(e) => setDateRange(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[gilroy-medium]"
+              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[Gilroy-Medium]"
             >
               <option value="">Select</option>
               <option value="today">Today</option>
@@ -187,7 +187,7 @@ const MainWalletStatement = ({ onBack }) => {
           <div>
             <label
               htmlFor="transactionType"
-              className="block text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717] mb-2"
+              className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2"
             >
               Transaction Type
             </label>
@@ -195,7 +195,7 @@ const MainWalletStatement = ({ onBack }) => {
               id="transactionType"
               value={transactionType}
               onChange={(e) => setTransactionType(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[gilroy-medium]"
+              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[Gilroy-Medium]"
             >
               <option value="">Select</option>
               <option value="credit">Credit</option>
@@ -208,7 +208,7 @@ const MainWalletStatement = ({ onBack }) => {
           <div>
             <label
               htmlFor="status"
-              className="block text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717] mb-2"
+              className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2"
             >
               Status
             </label>
@@ -216,7 +216,7 @@ const MainWalletStatement = ({ onBack }) => {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[gilroy-medium]"
+              className="w-full px-4 py-2.5 sm:py-3 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[Gilroy-Medium]"
             >
               <option value="">Select</option>
               <option value="completed">Completed</option>
@@ -229,7 +229,7 @@ const MainWalletStatement = ({ onBack }) => {
           <div>
             <label
               htmlFor="search"
-              className="block text-xs sm:text-sm font-[gilroy-medium] text-[#1B1717] mb-2"
+              className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] mb-2"
             >
               Search
             </label>
@@ -241,7 +241,7 @@ const MainWalletStatement = ({ onBack }) => {
                 placeholder="Transaction Id, Amount"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[gilroy-medium]"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2 sm:py-2.5 border border-[#1B1717]/80 rounded-lg focus:outline-none  text-sm sm:text-base bg-white text-[#1B1717]/80 font-[Gilroy-Medium]"
               />
             </div>
           </div>
@@ -336,7 +336,7 @@ const MainWalletStatement = ({ onBack }) => {
                     </span>
                   </td>
                   <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] sm:text-xs font-[gilroy-medium] bg-[#039155] text-white">
+                    <span className="inline-flex items-center px-3 py-1 rounded-lg text-[10px] sm:text-xs font-[Gilroy-Medium] bg-[#039155] text-white">
                       {transaction.status}
                     </span>
                   </td>

@@ -105,7 +105,7 @@ const EditMembership = ({ scheme, onBack }) => {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 sm:gap-6">
           {/* Scheme Name - Left */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Name <span className="text-red-500">*</span>
             </label>
             <input
@@ -122,7 +122,7 @@ const EditMembership = ({ scheme, onBack }) => {
 
           {/* Scheme Mode - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Mode
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
@@ -149,7 +149,7 @@ const EditMembership = ({ scheme, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
+                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Global
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
@@ -161,7 +161,7 @@ const EditMembership = ({ scheme, onBack }) => {
 
           {/* Scheme Type - Right */}
           <div>
-            <label className="block text-xs sm:text-sm font-[gilroy-medium] text-[#121216] mb-2">
+            <label className="block text-xs sm:text-sm font-[Gilroy-Medium] text-[#121216] mb-2">
               Scheme Type
             </label>
             <label className="flex items-start gap-3 px-3 sm:px-4 py-2 sm:py-2.5 border border-gray-300 rounded-lg cursor-pointer transition-all bg-white hover:border-gray-400">
@@ -188,7 +188,7 @@ const EditMembership = ({ scheme, onBack }) => {
               </div>
 
               <div className="flex-1 min-w-0">
-                <span className="text-xs font-[gilroy-medium] block text-[#1B1717]/80">
+                <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Free
                 </span>
                 <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
@@ -230,7 +230,7 @@ const EditMembership = ({ scheme, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className={`text-[14px] font-[gilroy-medium] text-[#121216] ${
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
                         h === "Actions" ? "text-center" : "text-left"
                       }`}
                     >
@@ -297,7 +297,7 @@ const EditMembership = ({ scheme, onBack }) => {
 
             {/* Add New Operator Button */}
             <div className="flex justify-center mt-6 mb-6">
-              <button className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-[gilroy-medium] hover:bg-green-700 transition shadow-md">
+              <button className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md">
                 <div className="w-4 h-4 rounded-full border border-white flex items-center justify-center">
                   <Plus className="w-3 h-3 text-white" />
                 </div>

@@ -447,10 +447,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
             {/* Loading Message */}
             <div className="text-center">
-              <h3 className="text-lg sm:text-xl md:text-2xl font-[gilroy-semibold] text-gray-900 mb-1 sm:mb-2">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-[Gilroy-Semibold] text-gray-900 mb-1 sm:mb-2">
                 Loading
               </h3>
-              <p className="text-gray-600 text-xs font-[gilroy-medium] sm:text-sm md:text-base px-2">
+              <p className="text-gray-600 text-xs font-[Gilroy-Medium] sm:text-sm md:text-base px-2">
                 Please wait while we fetch your KYC progress...
               </p>
             </div>
@@ -476,7 +476,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
           >
             {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
               <>
-                <h1 className="text-xl sm:text-2xl md:text-2xl font-[gilroy-semibold] text-center text-[#1B1717] mb-2 md:mb-3">
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-[Gilroy-Semibold] text-center text-[#1B1717] mb-2 md:mb-3">
                   Complete Your KYC
                 </h1>
                 <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
@@ -536,16 +536,16 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
 
                         <div className="flex-1 min-w-0">
                           <div
-                            className={`font-[gilroy-semibold] text-sm sm:text-base md:text-xl truncate ${
+                            className={`font-[Gilroy-Semibold] text-sm sm:text-base md:text-xl truncate ${
                               done
-                                ? "text-green-700 font-[gilroy-semibold]"
+                                ? "text-green-700 font-[Gilroy-Semibold]"
                                 : "text-[#1B1717]"
                             }`}
                           >
                             {step.label}
                           </div>
                           <div
-                            className={`text-xs sm:text-sm font-[gilroy-medium] ${
+                            className={`text-xs sm:text-sm font-[Gilroy-Medium] ${
                               done
                                 ? "text-[#039155]" // ✅ Completed
                                 : active
@@ -562,7 +562,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                         </div>
 
                         {done ? (
-                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-semibold shadow-md flex-shrink-0">
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-[Gilroy-Semibold] shadow-md flex-shrink-0">
                             ✓
                           </div>
                         ) : (
@@ -584,14 +584,14 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                 </div> */}
                 {/* PROGRESS BAR */}
                 <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
-                  <p className="text-[12px] sm:text-[16px] font-[gilroy-medium] text-[#180404]/80">
+                  <p className="text-[12px] sm:text-[16px] font-[Gilroy-Medium] text-[#180404]/80">
                     Current Progress
                   </p>
                   <div className="flex justify-between items-center mb-2">
-                    <span className="font-[gilroy-semibold] text-[12px] sm:text-[16px] text-[#1B1717]">
+                    <span className="font-[Gilroy-Semibold] text-[12px] sm:text-[16px] text-[#1B1717]">
                       {progressPercent}% Completed
                     </span>
-                    <span className="text-[8px] sm:text-xs bg-[#039155] text-[#FBFBFB] px-3 py-1 rounded-lg font-[gilroy-medium] ">
+                    <span className="text-[8px] sm:text-xs bg-[#039155] text-[#FBFBFB] px-3 py-1 rounded-lg font-[Gilroy-Medium] ">
                       {totalSteps - completedSteps} of {totalSteps} Steps
                       Remaining
                     </span>
@@ -640,7 +640,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                       >
                         <div className="relative">
                           {/* STATUS (TOP RIGHT) */}
-                          <div className="absolute top-3 right-0 flex items-center gap-2 text-[10px] sm:text-sm font-[gilroy-medium]">
+                          <div className="absolute top-3 right-0 flex items-center gap-2 text-[10px] sm:text-sm font-[Gilroy-Medium]">
                             <span
                               className={`w-2 h-2 rounded-full
                               ${
@@ -682,7 +682,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           </div>
 
                           {/* TITLE */}
-                          <h3 className="text-sm sm:text-lg font-[gilroy-semibold] text-[#1B1717] mb-1">
+                          <h3 className="text-sm sm:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-1">
                             {step.label}
                           </h3>
 
@@ -758,7 +758,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                   px-6 sm:px-8 md:px-10 
                   py-3 sm:py-3.5 md:py-4 
                   rounded-lg sm:rounded-xl 
-                  font-semibold 
+                  font-[Gilroy-Semibold] 
                   text-base sm:text-lg md:text-xl 
                   hover:bg-green-700 
                   transition-all 

@@ -311,7 +311,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 <HiArrowLeft className="text-base sm:text-lg md:text-xl text-[#1B1717] opacity-80" />
               </button>
             )}
-            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[gilroy-semibold] text-center text-[#1B1717]">
+            <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-[Gilroy-Semibold] text-center text-[#1B1717]">
               Email Verification
             </h3>
           </div>
@@ -322,7 +322,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
           {/* EMAIL INPUT + VERIFY */}
           <div className="mb-3 md:mb-4">
-            <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+            <label className="block text-xs md:text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-2">
               Email ID
             </label>
 
@@ -376,7 +376,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 border-[0.5px] border-l-0
                 ${emailSubmitMessage ? "border-red-500" : "border-[#039155]"}
                 rounded-r-lg
-                font-[gilroy-semibold]
+                font-[Gilroy-Semibold]
                 text-xs md:text-sm
                 whitespace-nowrap
                 shadow-md
@@ -405,7 +405,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
 
           {/* EMAIL OTP */}
           <div className="mb-3 md:mb-4">
-            <label className="block text-xs md:text-sm font-[gilroy-semibold] text-[#1B1717] mb-2">
+            <label className="block text-xs md:text-sm font-[Gilroy-Semibold] text-[#1B1717] mb-2">
               Enter OTP
             </label>
 
@@ -458,7 +458,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
             bg-[#039155]
             text-white
             rounded-lg md:rounded-xl
-            font-[gilroy-semibold]
+            font-[Gilroy-Semibold]
             text-sm md:text-base
             hover:bg-green-700
             transition

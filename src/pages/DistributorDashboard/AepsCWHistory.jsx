@@ -571,7 +571,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
           {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               From Date
             </label>
             <input
@@ -584,7 +584,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
           {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               To Date
             </label>
             <input

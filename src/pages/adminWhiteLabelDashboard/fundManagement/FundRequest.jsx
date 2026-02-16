@@ -249,7 +249,7 @@ const FundRequest = () => {
             {/* Date filters */}
             <div className="flex gap-3 mb-4">
               <div className="relative flex-1">
-                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
                   From Date
                 </label>
                 <input
@@ -260,7 +260,7 @@ const FundRequest = () => {
                 />
               </div>
               <div className="relative flex-1">
-                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+                <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
                   To Date
                 </label>
                 <input
@@ -340,7 +340,7 @@ const FundRequest = () => {
 
             {/* Date filters */}
             <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
                 From Date
               </label>
               <input
@@ -352,7 +352,7 @@ const FundRequest = () => {
             </div>
 
             <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
-              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[gilroy-medium]">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
                 To Date
               </label>
               <input

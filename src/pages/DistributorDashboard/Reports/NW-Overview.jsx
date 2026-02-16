@@ -88,7 +88,7 @@ const NWoverview = ({ embedded = false }) => {
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="fromDate"
-                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
               >
                 From Date
               </label>
@@ -106,7 +106,7 @@ const NWoverview = ({ embedded = false }) => {
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="toDate"
-                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
               >
                 To Date
               </label>
@@ -124,7 +124,7 @@ const NWoverview = ({ embedded = false }) => {
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="role"
-                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
               >
                 Role
               </label>
@@ -142,7 +142,7 @@ const NWoverview = ({ embedded = false }) => {
             <div className="relative flex-1 min-w-0">
               <label
                 htmlFor="client"
-                className="block text-[10px] sm:text-xs md:text-sm font-[gilroy-medium] text-[#12126] mb-2"
+                className="block text-[10px] sm:text-xs md:text-sm font-[Gilroy-Medium] text-[#12126] mb-2"
               >
                 Client
               </label>

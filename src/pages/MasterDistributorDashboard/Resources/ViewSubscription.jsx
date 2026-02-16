@@ -117,7 +117,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className="text-[14px] font-[gilroy-medium] text-[#121216] text-center"
+                      className="text-[14px] font-[Gilroy-Medium] text-[#121216] text-center"
                     >
                       {h}
                     </div>
@@ -184,7 +184,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                               {comm.commAmt}
                             </div>
                             <div className="flex items-center justify-center">
-                              <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-[gilroy-medium] bg-[#E8FFF4] text-[#039155] uppercase tracking-wide whitespace-nowrap">
+                              <span className="inline-flex px-2 py-1 rounded-md text-[10px] font-[Gilroy-Medium] bg-[#E8FFF4] text-[#039155] uppercase tracking-wide whitespace-nowrap">
                                 {badgeText}
                               </span>
                             </div>

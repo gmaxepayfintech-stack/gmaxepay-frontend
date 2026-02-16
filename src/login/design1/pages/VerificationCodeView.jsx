@@ -44,13 +44,13 @@ const VerificationCodeView = ({
           />
         </div>
 
-        <h1 className="text-[#1B1717] text-4xl font-[gilroy-semibold] text-center mb-4">
+        <h1 className="text-[#1B1717] text-4xl font-[Gilroy-Semibold] text-center mb-4">
           Enter Verification Code
         </h1>
-        <p className="text-[#1B1717]/70 font-[gilroy-medium] text-center text-[24px] mb-4">
+        <p className="text-[#1B1717]/70 font-[Gilroy-Medium] text-center text-[24px] mb-4">
           We've Sent A 6-Digit Code To
         </p>
-        <p className=" text-center mb-10 text-2xl font-[gilroy-medium] text-[#1B1717]">
+        <p className=" text-center mb-10 text-2xl font-[Gilroy-Medium] text-[#1B1717]">
           +91 {phoneNumber}
         </p>
 
@@ -76,13 +76,13 @@ const VerificationCodeView = ({
           ))}
         </div>
 
-        <p className="text-sm sm:text-2xl text-[#1B1717]/70 font-[gilroy-medium] text-center mb-1">
+        <p className="text-sm sm:text-2xl text-[#1B1717]/70 font-[Gilroy-Medium] text-center mb-1">
           Didn't Receive The Code?
         </p>
         <button
           disabled={verificationTimer !== 0}
           onClick={onResend}
-          className={` font-[gilroy-semibold] w-full text-center text-xl mt-4 ${
+          className={` font-[Gilroy-Semibold] w-full text-center text-xl mt-4 ${
             verificationTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
           }`}
         >
@@ -94,7 +94,7 @@ const VerificationCodeView = ({
         <button
           onClick={!isLoading ? onSubmit : undefined}
           disabled={isLoading}
-          className="w-full max-w-md mx-auto text-white text-[24px] font-[gilroy-semibold] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
+          className="w-full max-w-md mx-auto text-white text-[24px] font-[Gilroy-Semibold] mt-10 rounded-xl h-12 sm:h-12 md:h-14 lg:h-[60px] flex items-center justify-center disabled:opacity-70 disabled:cursor-not-allowed"
           style={{ backgroundColor: company?.primaryColor || "#039155" }}
         >
           {isLoading ? (
