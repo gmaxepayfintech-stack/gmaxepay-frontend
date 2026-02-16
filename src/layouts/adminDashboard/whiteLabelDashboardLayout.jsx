@@ -46,21 +46,21 @@ const WhiteLabelDashboardLayout = ({ children }) => {
   }, [dispatch]);
 
   // Handle unauthorized token expiration - redirect to login
-  useEffect(() => {
-    if (unauthorized) {
-      const errorMessage = error || "Invalid token. Please login again.";
-      showNotification({
-        message: errorMessage,
-        type: "error",
-        duration: 3000,
-        isCritical: true, // Mark as critical so it shows on dashboard
-      });
-      // Redirect to login after a short delay to show notification
-      setTimeout(() => {
-        navigate("/auth/login", { replace: true });
-      }, 500);
-    }
-  }, [unauthorized, error, navigate, showNotification]);
+  // useEffect(() => {
+  //   if (unauthorized) {
+  //     const errorMessage = error || "Invalid token. Please login again.";
+  //     showNotification({
+  //       message: errorMessage,
+  //       type: "error",
+  //       duration: 3000,
+  //       isCritical: true, // Mark as critical so it shows on dashboard
+  //     });
+  //     // Redirect to login after a short delay to show notification
+  //     setTimeout(() => {
+  //       navigate("/auth/login", { replace: true });
+  //     }, 500);
+  //   }
+  // }, [unauthorized, error, navigate, showNotification]);
 
   useEffect(() => {
     setIsSidebarOpen(false);
@@ -489,7 +489,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                {name || email || "WhiteLabel Dashboard"}
+                { "WhiteLabel Dashboard"}
               </span>
               <button
                 onClick={toggleProfileDropdown}
