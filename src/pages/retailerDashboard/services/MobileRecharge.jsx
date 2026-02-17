@@ -84,6 +84,11 @@ const RecentRechargeCard = ({ recharge }) => {
           <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500 mt-1">
             {recharge.lastRecharge}
           </div>
+          {recharge.transactionId && (
+            <div className="text-[10px] text-gray-400 mt-1 truncate">
+              Txn ID: {recharge.transactionId}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -150,9 +155,13 @@ const MobileRecharge = ({ onBack }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (recentHistoryData?.recentHistory?.data) {
-      const mappedHistory = recentHistoryData.recentHistory.data.map((item) => {
-        // Format date
+    // Determine the array to map. 
+    // Based on user log: recentHistoryData = { recentHistory: [...], status: 'SUCCESS' }
+    const historyList = recentHistoryData?.recentHistory || [];
+
+    if (Array.isArray(historyList) && historyList.length > 0) {
+      const mappedHistory = historyList.map((item) => {
+        // Format date: "26 Dec 2025" format matching the sample
         const date = new Date(item.createdAt || Date.now());
         const formattedDate = date.toLocaleDateString("en-GB", {
           day: "2-digit",
@@ -160,22 +169,40 @@ const MobileRecharge = ({ onBack }) => {
           year: "numeric",
         });
 
-        // Determine logo based on operator code or name
-        // This is a simplified mapping, you might want a more robust one
+        // Determine operator details based on opcode
         let logo = "";
+        let operatorName = item.operator || "Unknown";
+
         const opcode = item.opcode || "";
-        if (opcode === "J" || opcode === "Jio") logo = "/img/Jio.svg";
-        else if (opcode === "A" || opcode === "Airtel") logo = "/img/Airtel.svg";
-        else if (opcode === "B" || opcode === "BSNL") logo = "/img/BSNL.svg";
-        else if (opcode === "V" || opcode === "VI") logo = "/img/VIPrepaid.svg";
+        // Map common opcodes
+        /* 
+           A -> Airtel
+           J -> Jio
+           B -> BSNL
+           V -> VI
+        */
+        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode.includes("Jio")) {
+          logo = "/img/Jio.svg";
+          operatorName = "Jio";
+        } else if (opcode === "A" || opcode === "Airtel" || opcode === "AIRTEL" || opcode.includes("Airtel")) {
+          logo = "/img/Airtel.svg";
+          operatorName = "Airtel";
+        } else if (opcode === "B" || opcode === "BSNL" || opcode === "BSNL" || opcode.includes("BSNL")) {
+          logo = "/img/BSNL.svg";
+          operatorName = "BSNL";
+        } else if (opcode === "V" || opcode === "VI" || opcode === "Vi" || opcode.includes("VI") || opcode.includes("Vi")) {
+          logo = "/img/VIPrepaid.svg";
+          operatorName = "VI";
+        }
 
         return {
-          id: item._id || item.transactionId,
-          operator: item.operator || (opcode === "A" ? "Airtel" : opcode), // Map opcode to name if needed
-          operatorType: `${item.operator || (opcode === "A" ? "Airtel" : opcode)} Prepaid`,
+          id: item._id || item.transactionId || Math.random(),
+          operator: operatorName,
+          operatorType: `${operatorName} Prepaid`,
           mobileNumber: item.mobileNumber || item.number || "",
           lastRecharge: `Last Recharge ₹${item.amount} On ${formattedDate}`,
           logo: logo,
+          transactionId: item.transactionId || ""
         };
       });
       setRecentRecharges(mappedHistory);
