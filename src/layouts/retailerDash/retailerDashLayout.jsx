@@ -53,7 +53,7 @@ const RetailerDashLayout = ({ children }) => {
       path: "/retailerDashboard/services",
       dropdown: false,
     },
-    
+
     {
       name: "Txn History",
       icon: MaskGroup5,
@@ -87,22 +87,23 @@ const RetailerDashLayout = ({ children }) => {
       ],
     },
 
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        {
-          name: "Business Report",
-          path: "/retailerDashboard/reports/business",
-        },
-        { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
-        {
-          name: "User Performance",
-          path: "/retailerDashboard/reports/user-performance",
-        },
-      ],
-    },
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Business Report",
+    //       path: "/retailerDashboard/reports/business",
+    //     },
+    //     { name: "Earning Report", path: "/retailerDashboard/reports/earning" },
+    //     {
+    //       name: "User Performance",
+    //       path: "/retailerDashboard/reports/user-performance",
+    //     },
+    //   ],
+    // },
+
     {
       name: "Help",
       icon: MaskGroup2,
@@ -289,8 +290,8 @@ const RetailerDashLayout = ({ children }) => {
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
                   className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${isActiveParent
-                      ? "bg-[#039155] text-white shadow-md"
-                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                    ? "bg-[#039155] text-white shadow-md"
+                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -341,8 +342,8 @@ const RetailerDashLayout = ({ children }) => {
                             key={child.name}
                             to={child.path}
                             className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                                ? "text-[#039155] font-[Gilroy-Semibold]"
-                                : "text-gray-700"
+                              ? "text-[#039155] font-[Gilroy-Semibold]"
+                              : "text-gray-700"
                               }`}
                           >
                             <svg

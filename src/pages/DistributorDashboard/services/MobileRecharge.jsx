@@ -19,6 +19,7 @@ import SuggestedPlans from "./MobileRecharge/components/SuggestedPlans";
 import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilters";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { recentHistory } from "../../../redux/action/rechargeAction";
 
 const recentRecharges = [
   {
@@ -1133,9 +1134,8 @@ const MobileRecharge = ({ onBack }) => {
                   }
                 }}
                 disabled={isLoadingPayment}
-                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
-                  isLoadingPayment ? "cursor-wait opacity-100" : ""
-                }`}
+                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${isLoadingPayment ? "cursor-wait opacity-100" : ""
+                  }`}
               >
                 {isLoadingPayment ? (
                   <>

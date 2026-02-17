@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useState, useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HiArrowLeft } from "react-icons/hi2";
 import { X } from "lucide-react";
@@ -17,9 +17,9 @@ import PlanConfirmationCard from "./MobileRecharge/components/PlanConfirmationCa
 import OperatorInfoCard from "./MobileRecharge/components/OperatorInfoCard";
 import SuggestedPlans from "./MobileRecharge/components/SuggestedPlans";
 import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilters";
-import { ButtonLoader } from "../../../widgets/layout/loader";
+import { recentHistory } from "../../../redux/action/rechargeAction";
 
-const recentRecharges = [
+const sampleRecentRecharges = [
   {
     id: 1,
     operator: "Jio",
@@ -51,14 +51,6 @@ const recentRecharges = [
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
     logo: "/img/VIPrepaid.svg",
-  },
-  {
-    id: 5,
-    operator: "Airtel",
-    operatorType: "Airtel Prepaid",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/Airtel.svg",
   },
 ];
 
@@ -105,6 +97,8 @@ RecentRechargeCard.propTypes = {
 const MobileRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const { recentHistory: recentHistoryData } = useSelector((state) => state.recharge);
+  const [recentRecharges, setRecentRecharges] = useState([]);
   const [mobileNumber, setMobileNumber] = useState("");
   const [step, setStep] = useState("input"); // "input" or "plans"
   const [selectedOperator, setSelectedOperator] = useState({
@@ -127,8 +121,70 @@ const MobileRecharge = ({ onBack }) => {
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [operatorData, setOperatorData] = useState(null);
 
-  // Get unique operators from recent recharges
-  const operators = recentRecharges.reduce((acc, recharge) => {
+  /* eslint-disable react-hooks/exhaustive-deps */
+  useEffect(() => {
+    const fetchRecentHistory = async () => {
+      const payload = {
+        query: {
+          serviceType: "MobileRecharge",
+        },
+        customSearch: {},
+        options: {
+          page: 1,
+          paginate: 10,
+          sort: {
+            id: -1,
+          },
+        },
+      };
+
+      try {
+        const response = await dispatch(recentHistory(payload));
+        console.log("Recent History Response:", response);
+      } catch (error) {
+        console.error("Error fetching recent history:", error);
+      }
+    };
+
+    fetchRecentHistory();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (recentHistoryData?.recentHistory?.data) {
+      const mappedHistory = recentHistoryData.recentHistory.data.map((item) => {
+        // Format date
+        const date = new Date(item.createdAt || Date.now());
+        const formattedDate = date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+
+        // Determine logo based on operator code or name
+        // This is a simplified mapping, you might want a more robust one
+        let logo = "";
+        const opcode = item.opcode || "";
+        if (opcode === "J" || opcode === "Jio") logo = "/img/Jio.svg";
+        else if (opcode === "A" || opcode === "Airtel") logo = "/img/Airtel.svg";
+        else if (opcode === "B" || opcode === "BSNL") logo = "/img/BSNL.svg";
+        else if (opcode === "V" || opcode === "VI") logo = "/img/VIPrepaid.svg";
+
+        return {
+          id: item._id || item.transactionId,
+          operator: item.operator || (opcode === "A" ? "Airtel" : opcode), // Map opcode to name if needed
+          operatorType: `${item.operator || (opcode === "A" ? "Airtel" : opcode)} Prepaid`,
+          mobileNumber: item.mobileNumber || item.number || "",
+          lastRecharge: `Last Recharge ₹${item.amount} On ${formattedDate}`,
+          logo: logo,
+        };
+      });
+      setRecentRecharges(mappedHistory);
+    }
+  }, [recentHistoryData]);
+
+  // Get unique operators from recent recharges (or sample if empty)
+  const sourceRecharges = recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges;
+  const operators = sourceRecharges.reduce((acc, recharge) => {
     if (!acc.find((op) => op.operator === recharge.operator)) {
       acc.push({
         operator: recharge.operator,
@@ -224,7 +280,7 @@ const MobileRecharge = ({ onBack }) => {
     if ((plan.Type === "Offer" || plan.originalOffer) && selectedOperator?.name?.toUpperCase().includes("AIRTEL")) {
       const offer = plan.originalOffer || plan;
       const offerText = offer.offer || "";
-      
+
       // Extract data from offer text - Look for patterns like "2GB/D", "2GB/day", "6GB data", "50GB data"
       let dataText = "N/A";
       const dataPatterns = [
@@ -235,7 +291,7 @@ const MobileRecharge = ({ onBack }) => {
         /=\s*(\d+(?:\.\d+)?\s*GB)/i, // "=2GB" (from after =)
         /(\d+(?:\.\d+)?\s*GB)/i, // Just "2GB", "12GB" anywhere (fallback)
       ];
-      
+
       for (const pattern of dataPatterns) {
         const match = offerText.match(pattern);
         if (match && match[1]) {
@@ -243,11 +299,11 @@ const MobileRecharge = ({ onBack }) => {
           break;
         }
       }
-      
-      
+
+
       // Extract validity from offer text - Look for "28D", "1M", "56D", "84 days", "1 month"
       let validityText = "N/A";
-      
+
       // Prioritize patterns after "=" as they're more accurate
       // Find all matches after "=" and take the LAST one (most accurate)
       const afterEquals = offerText.split("=")[1];
@@ -255,7 +311,7 @@ const MobileRecharge = ({ onBack }) => {
         // Match all D or M patterns after "="
         const allDMatches = afterEquals.match(/(\d+)\s*D\b/gi);
         const allMMatches = afterEquals.match(/(\d+)\s*M\b/gi);
-        
+
         // Take the last match (most accurate validity)
         if (allMMatches && allMMatches.length > 0) {
           const lastM = allMMatches[allMMatches.length - 1].trim();
@@ -265,7 +321,7 @@ const MobileRecharge = ({ onBack }) => {
           validityText = lastD.replace(/\s*D\b/i, " Day");
         }
       }
-      
+
       // If not found after "=", try other patterns
       if (validityText === "N/A") {
         const validityPatterns = [
@@ -274,7 +330,7 @@ const MobileRecharge = ({ onBack }) => {
           /(\d+)\s*D\b/i, // "28D", "56D", "84D" - word boundary to avoid matching "2GB/D"
           /(\d+)\s*M\b/i, // "1M", "6M" - word boundary
         ];
-        
+
         for (const pattern of validityPatterns) {
           const match = offerText.match(pattern);
           if (match && match[1]) {
@@ -291,8 +347,8 @@ const MobileRecharge = ({ onBack }) => {
           }
         }
       }
-      
-      
+
+
       // Extract calls/UL 5G information from offer text
       let callsText = "N/A";
       const callsPatterns = [
@@ -302,7 +358,7 @@ const MobileRecharge = ({ onBack }) => {
         /(Unlimited\s+calls)/i, // "Unlimited calls"
         /(ULCL)/i, // "ULCL"
       ];
-      
+
       for (const pattern of callsPatterns) {
         const match = offerText.match(pattern);
         if (match) {
@@ -310,7 +366,7 @@ const MobileRecharge = ({ onBack }) => {
           break;
         }
       }
-      
+
       return {
         id: plan.id || `offer-${index}`,
         price: plan.price || `₹${offer.amount}`,
@@ -324,12 +380,12 @@ const MobileRecharge = ({ onBack }) => {
         rs: offer.amount,
       };
     }
-    
+
     // Handle offers for non-Airtel operators (fallback to original logic)
     if (plan.Type === "Offer" || plan.originalOffer) {
       const offer = plan.originalOffer || plan;
       const offerText = offer.offer || "";
-      
+
       // Extract data from offer text
       let dataText = "N/A";
       const dataPatterns = [
@@ -338,7 +394,7 @@ const MobileRecharge = ({ onBack }) => {
         /=\s*(\d+(?:\.\d+)?\s*GB)/i,
         /(\d+(?:\.\d+)?\s*GB)/i,
       ];
-      
+
       for (const pattern of dataPatterns) {
         const match = offerText.match(pattern);
         if (match) {
@@ -346,7 +402,7 @@ const MobileRecharge = ({ onBack }) => {
           break;
         }
       }
-      
+
       // Extract validity from offer text
       let validityText = "N/A";
       const validityPatterns = [
@@ -355,7 +411,7 @@ const MobileRecharge = ({ onBack }) => {
         /(\d+)\s*D\b/i,
         /=\s*.*?(\d+\s*(?:day|days|Day|Days|month|Month|M|D))/i,
       ];
-      
+
       for (const pattern of validityPatterns) {
         const match = offerText.match(pattern);
         if (match) {
@@ -370,7 +426,7 @@ const MobileRecharge = ({ onBack }) => {
           break;
         }
       }
-      
+
       return {
         id: plan.id || `offer-${index}`,
         price: plan.price || `₹${offer.amount}`,
@@ -384,7 +440,7 @@ const MobileRecharge = ({ onBack }) => {
         rs: offer.amount,
       };
     }
-    
+
     // Extract data from desc field - handles multiple formats (Airtel and Jio)
     let dataText = "N/A";
 
@@ -683,16 +739,16 @@ const MobileRecharge = ({ onBack }) => {
     // Handle nested data structure: rechargePlans.data contains the plan categories
     // API structure: { data: { DATA: [...], STV: [...], FULLTT: [...], PlanVoucher: [...], TOPUP: [...] } }
     const plansData = rechargePlans?.data || rechargePlans || {};
-    
+
     // If plansData has a nested 'data' property, use that (for the nested structure)
     const actualPlansData = plansData.data || plansData;
-    
+
     if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return ["Recommended"];
     }
 
     // Get API category keys (DATA, STV, FULLTT, PlanVoucher, TOPUP)
-    const apiCategoryKeys = Object.keys(actualPlansData).filter(key => 
+    const apiCategoryKeys = Object.keys(actualPlansData).filter(key =>
       Array.isArray(actualPlansData[key]) && actualPlansData[key].length > 0
     );
 
@@ -711,7 +767,7 @@ const MobileRecharge = ({ onBack }) => {
     // Add categories that have matching API keys
     allowedCategories.forEach((category) => {
       if (category === "Recommended") return;
-      
+
       // Handle Offers category separately
       if (category === "Offers") {
         const offersArray = rechargeOffers?.data || [];
@@ -720,12 +776,12 @@ const MobileRecharge = ({ onBack }) => {
         }
         return;
       }
-      
+
       // Find matching API key for this category
       const matchingApiKey = Object.keys(categoryKeyMapping).find(
         apiKey => categoryKeyMapping[apiKey] === category
       );
-      
+
       if (matchingApiKey && apiCategoryKeys.includes(matchingApiKey)) {
         availableCategories.push(category);
       }
@@ -738,10 +794,10 @@ const MobileRecharge = ({ onBack }) => {
   const getPlansByCategory = () => {
     // Handle nested data structure: rechargePlans.data contains the plan categories
     const plansData = rechargePlans?.data || rechargePlans || {};
-    
+
     // If plansData has a nested 'data' property, use that (for the nested structure)
     const actualPlansData = plansData.data || plansData;
-    
+
     if (!actualPlansData || Object.keys(actualPlansData).length === 0) {
       return [];
     }
@@ -781,7 +837,7 @@ const MobileRecharge = ({ onBack }) => {
     } else {
       // Get the API category key for the selected UI category
       const apiCategoryKey = categoryKeyMapping[activeCategory];
-      
+
       if (apiCategoryKey && actualPlansData[apiCategoryKey]) {
         // Get plans from the specific API category
         selectedPlans = actualPlansData[apiCategoryKey] || [];
@@ -864,8 +920,8 @@ const MobileRecharge = ({ onBack }) => {
 
   // Get filtered plans for display (only show if API data is available, don't show default)
   // Include offers when "Offers" category is selected
-  const displayDetailedPlans = (rechargePlans || (activeCategory === "Offers" && rechargeOffers)) 
-    ? getFilteredPlans() 
+  const displayDetailedPlans = (rechargePlans || (activeCategory === "Offers" && rechargeOffers))
+    ? getFilteredPlans()
     : [];
 
   const handleProceed = async (number = null) => {
@@ -916,16 +972,16 @@ const MobileRecharge = ({ onBack }) => {
         // API response structure: { status, message, data: { status, Operator, message, data: { DATA: [...], STV: [...], ... } } }
         // Action extracts response.data.data and returns: { mobileRechargePlan: { status, Operator, message, data: { DATA: [...], STV: [...], ... }, txid }, status, message }
         const planData = planResponse.mobileRechargePlan;
-        
+
         // Extract the nested data object that contains the plan categories (DATA, STV, FULLTT, etc.)
         // The plan categories are in planData.data
         const plansData = planData?.data || {};
-        
+
         // console.log("📊 Plan response:", planResponse);
         // console.log("📊 Plan data:", planData);
         // console.log("📊 Plans data (nested):", plansData);
         // console.log("📊 Plan categories:", Object.keys(plansData));
-        
+
         // Store with the nested data structure: { data: { DATA: [...], STV: [...], ... } }
         setRechargePlans({ data: plansData });
 
@@ -1075,7 +1131,7 @@ const MobileRecharge = ({ onBack }) => {
           </div>
 
           <div className="max-h-[600px] overflow-y-auto">
-            {recentRecharges.map((recharge) => (
+            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges).map((recharge) => (
               <button
                 key={recharge.id}
                 type="button"
@@ -1393,9 +1449,8 @@ const MobileRecharge = ({ onBack }) => {
                   }
                 }}
                 disabled={isLoadingPayment}
-                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${
-                  isLoadingPayment ? "cursor-wait opacity-100" : ""
-                }`}
+                className={`flex-1 px-4 py-2 bg-[#039155] rounded-lg text-[18px] font-['Gilroy-Medium'] text-white hover:bg-[#027a44] transition flex items-center justify-center ${isLoadingPayment ? "cursor-wait opacity-100" : ""
+                  }`}
               >
                 {isLoadingPayment ? (
                   <>
