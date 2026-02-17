@@ -97,7 +97,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
           myDeal: item.marginCommAmt != null ? String(item.marginCommAmt) : "",
           myDealCommType: item.marginCommType || "",
           myDealType: item.marginAmtType || "",
-          // DI (Distributor) - ENT Margin
+          // DI (Distributor) - My Margin
           distributor: diRole.commAmt != null ? String(diRole.commAmt) : "",
           distributorCommType: diRole.commType || "",
           distributorType: diRole.amtType || "",
@@ -303,7 +303,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                       "Operator",
                       "Operator Type",
                       "My Deal",
-                      "ENT Margin",
+                      "My Margin",
                       "Retailer",
                       "Actions",
                     ].map((h, i) => (
@@ -509,8 +509,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
                               </div>
                             </div>
 
-                            {/* ENT Margin (DI) - shows Distributor commission */}
-                            {renderCommissionInput("distributor", "ENT Margin")}
+                            {/* My Margin (DI) - shows Distributor commission */}
+                            {renderCommissionInput("distributor", "My Margin")}
 
                             {/* Retailer (RE) */}
                             {renderCommissionInput("retailer", "Retailer")}
