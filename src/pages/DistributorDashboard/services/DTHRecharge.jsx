@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { Search, ChevronRight } from "lucide-react";
 import PropTypes from "prop-types";
 import { Formik, Form, Field } from "formik";
@@ -11,37 +11,14 @@ import {
 } from "../../../redux/action/rechargeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { recentHistory } from "../../../redux/action/rechargeAction";
 
-// Sample recent recharge data
-const recentDTHRecharges = [
+// Sample recent recharge data (fallback)
+const sampleRecentDTHRecharges = [
   {
     id: 1,
     operator: "Dish TV",
     operatorType: "Dish TV ",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "",
-  },
-  {
-    id: 2,
-    operator: "Tata Play",
-    operatorType: "Tata Play",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "",
-  },
-  {
-    id: 3,
-    operator: "Sun Direct",
-    operatorType: "Sun Direct",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "",
-  },
-  {
-    id: 4,
-    operator: "Videocon",
-    operatorType: "Videocon D2H",
     mobileNumber: "9740418524",
     lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
     logo: "",
@@ -187,11 +164,10 @@ const InlineSearchSelect = ({
                   e.preventDefault();
                   handleSelect(opt.value);
                 }}
-                className={`px-3 py-2 cursor-pointer text-xs transition ${
-                  opt.value === value
-                    ? "bg-[#039155] text-white"
-                    : "hover:bg-gray-100"
-                }`}
+                className={`px-3 py-2 cursor-pointer text-xs transition ${opt.value === value
+                  ? "bg-[#039155] text-white"
+                  : "hover:bg-gray-100"
+                  }`}
               >
                 {opt.label}
               </div>
@@ -251,9 +227,8 @@ const OperatorCard = ({ operator, onSelect, isLast }) => {
   return (
     <button
       onClick={() => onSelect(operator)}
-      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${
-        !isLast ? "border-b border-[#1B1717]/30" : ""
-      }`}
+      className={`bg-white w-full py-4 hover:shadow-sm transition cursor-pointer ${!isLast ? "border-b border-[#1B1717]/30" : ""
+        }`}
     >
       <div className="flex  gap-4">
         <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -314,6 +289,8 @@ const validationSchema = Yup.object().shape({
 
 const DTHRecharge = ({ onBack }) => {
   const dispatch = useDispatch();
+  const { recentHistory: recentHistoryData } = useSelector((state) => state.recharge);
+  const [recentRecharges, setRecentRecharges] = useState([]);
   const [step, setStep] = useState("operator"); // operator → input → plans
   const [selectedOperator, setSelectedOperator] = useState(null);
   const [opcode, setOpcode] = useState("");
@@ -333,6 +310,58 @@ const DTHRecharge = ({ onBack }) => {
   const [dthPlans, setDthPlans] = useState(null);
   const [filteredSuggestPlans, setFilteredSuggestPlans] = useState([]);
   const [paymentResponse, setPaymentResponse] = useState(null);
+
+  useEffect(() => {
+    const fetchRecentHistory = async () => {
+      const payload = {
+        query: {
+          serviceType: "DTHRecharge",
+        },
+        customSearch: {},
+        options: {
+          page: 1,
+          paginate: 10,
+          sort: {
+            id: -1,
+          },
+        },
+      };
+
+      try {
+        const response = await dispatch(recentHistory(payload));
+        console.log("Recent History Response:", response);
+      } catch (error) {
+        console.error("Error fetching recent history:", error);
+      }
+    };
+
+    fetchRecentHistory();
+  }, [dispatch]);
+
+  useEffect(() => {
+    if (recentHistoryData?.recentHistory?.data) {
+      const mappedHistory = recentHistoryData.recentHistory.data.map((item) => {
+        // Format date
+        const date = new Date(item.createdAt || Date.now());
+        const formattedDate = date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+
+        return {
+          id: item._id || item.id,
+          operator: item.operator_details?.name || item.operator || "Unknown",
+          operatorType: item.operator_details?.name || item.operator || "Prepaid DTH",
+          mobileNumber: item.number || item.dth_number || "",
+          lastRecharge: `Last Recharge ₹${item.amount} On ${formattedDate}`,
+          logo: item.operator_details?.logo || "",
+          circle: item.circle || "Karnataka", // Default circle
+        };
+      });
+      setRecentRecharges(mappedHistory);
+    }
+  }, [recentHistoryData]);
 
   const handleRecentRechargeClick = (recharge) => {
     setInputValue(recharge.mobileNumber); // works for subscriber ID or mobile
@@ -607,9 +636,8 @@ const DTHRecharge = ({ onBack }) => {
                   }
                 }}
                 disabled={isLoadingPayment}
-                className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
-                  isLoadingPayment ? "cursor-wait opacity-100" : ""
-                }`}
+                className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${isLoadingPayment ? "cursor-wait opacity-100" : ""
+                  }`}
               >
                 {isLoadingPayment ? (
                   <>
@@ -684,17 +712,17 @@ const DTHRecharge = ({ onBack }) => {
               {(activeLanguagePack ||
                 searchQuery ||
                 (language && activeFilter !== "All Packs")) && (
-                <li className="flex items-center">
-                  <span className="flex gap-2">
-                    <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
-                      •
+                  <li className="flex items-center">
+                    <span className="flex gap-2">
+                      <span className="text-[16px] text-[#1B1717]/80 relative top-[1px]">
+                        •
+                      </span>
+                      <p>
+                        Plan Name: {selectedPlan.planName || selectedPlan.bouquet}
+                      </p>
                     </span>
-                    <p>
-                      Plan Name: {selectedPlan.planName || selectedPlan.bouquet}
-                    </p>
-                  </span>
-                </li>
-              )}
+                  </li>
+                )}
 
               {/* First special line */}
               <li className="flex items-center -py-1">
@@ -827,7 +855,7 @@ const DTHRecharge = ({ onBack }) => {
                     <OperatorCard
                       operator={op}
                       isLast={index === selectDTHOperators.length - 1}
-                      onSelect={() => {}}
+                      onSelect={() => { }}
                     />
                   </button>
                 ))}
@@ -836,9 +864,8 @@ const DTHRecharge = ({ onBack }) => {
           )}
 
           <div
-            className={`${
-              step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
-            } lg:flex-[1.6] w-full lg:w-auto self-start`}
+            className={`${step === "input" ? "bg-white rounded-3xl  px-4 py-4" : ""
+              } lg:flex-[1.6] w-full lg:w-auto self-start`}
           >
             {step === "input" && (
               <>
@@ -958,11 +985,10 @@ const DTHRecharge = ({ onBack }) => {
                               }}
                               onBlur={handleBlur}
                               placeholder="Enter Subscriber ID or Mobile Number"
-                              className={`w-full px-4 py-4 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-[#1B1717]/80 font-['Gilroy-Medium'] text-xs ${
-                                errors.dthNumber && touched.dthNumber
-                                  ? "border-red-500"
-                                  : ""
-                              }`}
+                              className={`w-full px-4 py-4 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-[#1B1717]/80 font-['Gilroy-Medium'] text-xs ${errors.dthNumber && touched.dthNumber
+                                ? "border-red-500"
+                                : ""
+                                }`}
                             />
                           )}
                         </Field>
@@ -985,9 +1011,8 @@ const DTHRecharge = ({ onBack }) => {
                         <button
                           type="submit"
                           disabled={isLoadingContinue}
-                          className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${
-                            isLoadingContinue ? "cursor-wait opacity-100" : ""
-                          }`}
+                          className={`flex-1 h-[48px] bg-[#039155] hover:bg-[#027A47] text-white rounded-xl text-lg font-['Gilroy-semibold'] transition flex items-center justify-center ${isLoadingContinue ? "cursor-wait opacity-100" : ""
+                            }`}
                         >
                           {isLoadingContinue ? (
                             <>
@@ -1023,9 +1048,9 @@ const DTHRecharge = ({ onBack }) => {
                       options={
                         availableLanguages.length > 0
                           ? availableLanguages.map((lang) => ({
-                              value: lang,
-                              label: lang,
-                            }))
+                            value: lang,
+                            label: lang,
+                          }))
                           : languageOptions
                       }
                       value={language}
@@ -1105,11 +1130,10 @@ const DTHRecharge = ({ onBack }) => {
                           key={pack}
                           type="button"
                           onClick={() => setActiveLanguagePack(pack)}
-                          className={`px-3 py-1.5 rounded-lg text-sm truncate transition ${
-                            activeLanguagePack === pack
-                              ? "bg-[#039155] text-white font-['Gilroy-semibold']"
-                              : "text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 font-['Gilroy-medium']"
-                          }`}
+                          className={`px-3 py-1.5 rounded-lg text-sm truncate transition ${activeLanguagePack === pack
+                            ? "bg-[#039155] text-white font-['Gilroy-semibold']"
+                            : "text-[#1B1717]/80 border-[0.5px] border-[#1B1717]/80 font-['Gilroy-medium']"
+                            }`}
                         >
                           {pack}
                         </button>
@@ -1151,11 +1175,10 @@ const DTHRecharge = ({ onBack }) => {
                           }
                         }}
                         className={`relative pb-0.5 text-sm font-['Gilroy-Medium'] whitespace-nowrap transition
-                        ${
-                          isActive
+                        ${isActive
                             ? "text-[#039155]"
                             : "text-[#1B1717]/80 hover:text-[#039155]"
-                        }
+                          }
                       `}
                       >
                         {filter}
@@ -1370,7 +1393,7 @@ const DTHRecharge = ({ onBack }) => {
 
                     {/* Other features */}
                     {selectedPlan.features &&
-                    selectedPlan.features.length > 0 ? (
+                      selectedPlan.features.length > 0 ? (
                       selectedPlan.features.map((item, index) => (
                         <li key={index} className="flex gap-2">
                           <span className="text-[16px] relative top-[1px]">
@@ -1416,158 +1439,158 @@ const DTHRecharge = ({ onBack }) => {
             const iconBgColor = isPending ? "bg-yellow-500" : "bg-[#039155]";
             const titleText = isPending ? "Payment Pending" : "Payment Successful";
             const subtitleText = isPending ? "Your Payment Is Being Processed" : "Your Payment Has Been Completed";
-            
+
             return (
-            <div className={`${bgColor} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
-              {/* Notches */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
-              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
-              <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full"></div>
-              <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full"></div>
+              <div className={`${bgColor} rounded-xl relative overflow-hidden max-w-md mx-auto`}>
+                {/* Notches */}
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-b-full"></div>
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#FAFAFA] rounded-t-full"></div>
+                <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-r-full"></div>
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#FAFAFA] rounded-l-full"></div>
 
-              <div className="relative z-10 pt-12 pb-12 px-12">
-                {/* Success Header */}
-                <div className="text-center mb-6">
-                  <div className="flex justify-center mb-3">
-                    <div className={`w-14 h-14 rounded-full ${iconBgColor} flex items-center justify-center`}>
-                      {isPending ? (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                          />
-                        </svg>
-                      ) : (
-                        <svg
-                          xmlns="http://www.w3.org/2000/svg"
-                          className="h-8 w-8 text-white"
-                          fill="none"
-                          viewBox="0 0 24 24"
-                          stroke="currentColor"
-                          strokeWidth={3}
-                        >
-                          <path
-                            strokeLinecap="round"
-                            strokeLinejoin="round"
-                            d="M5 13l4 4L19 7"
-                          />
-                        </svg>
-                      )}
+                <div className="relative z-10 pt-12 pb-12 px-12">
+                  {/* Success Header */}
+                  <div className="text-center mb-6">
+                    <div className="flex justify-center mb-3">
+                      <div className={`w-14 h-14 rounded-full ${iconBgColor} flex items-center justify-center`}>
+                        {isPending ? (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+                            />
+                          </svg>
+                        ) : (
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-8 w-8 text-white"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={3}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M5 13l4 4L19 7"
+                            />
+                          </svg>
+                        )}
+                      </div>
+                    </div>
+
+                    <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      {titleText}
+                    </h2>
+                    <p className="text-[12px] text-[#1B1717]/80">
+                      {subtitleText}
+                    </p>
+                  </div>
+
+                  {/* Amount */}
+                  <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
+                    <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+                      {paymentResponse?.data?.apiResponse?.amount
+                        ? `₹${paymentResponse.data.apiResponse.amount}`
+                        : selectedPlan?.price || "N/A"}
                     </div>
                   </div>
 
-                  <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    {titleText}
-                  </h2>
-                  <p className="text-[12px] text-[#1B1717]/80">
-                    {subtitleText}
-                  </p>
-                </div>
+                  {/* Details Grid */}
+                  <div className="grid grid-cols-2 gap-4 mb-20">
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Transaction ID
+                      </div>
+                      <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
+                        {paymentResponse?.data?.apiResponse?.txid || "N/A"}
+                      </div>
+                    </div>
 
-                {/* Amount */}
-                <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
-                  <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                    {paymentResponse?.data?.apiResponse?.amount
-                      ? `₹${paymentResponse.data.apiResponse.amount}`
-                      : selectedPlan?.price || "N/A"}
-                  </div>
-                </div>
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        {paymentResponse?.data?.apiResponse?.number?.length === 10
+                          ? "Mobile Number"
+                          : "Subscriber ID"}
+                      </div>
+                      <div className="font-['Gilroy-Medium'] text-sm">
+                        {paymentResponse?.data?.apiResponse?.number || inputValue}
+                      </div>
+                    </div>
 
-                {/* Details Grid */}
-                <div className="grid grid-cols-2 gap-4 mb-20">
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Transaction ID
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Operator
+                      </div>
+                      <div className="font-['Gilroy-Medium']">
+                        {selectedOperator?.name || "N/A"}
+                      </div>
                     </div>
-                    <div className="font-['Gilroy-Medium'] text-[#1B1717] text-sm">
-                      {paymentResponse?.data?.apiResponse?.txid || "N/A"}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      {paymentResponse?.data?.apiResponse?.number?.length === 10
-                        ? "Mobile Number"
-                        : "Subscriber ID"}
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Validity
+                      </div>
+                      <div className="font-['Gilroy-Medium']">
+                        {selectedPlan?.validity || "N/A"}
+                      </div>
                     </div>
-                    <div className="font-['Gilroy-Medium'] text-sm">
-                      {paymentResponse?.data?.apiResponse?.number || inputValue}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Operator
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Bouquet
+                      </div>
+                      <div className="font-['Gilroy-Medium']">
+                        {selectedPlan?.bouquet || "N/A"}
+                      </div>
                     </div>
-                    <div className="font-['Gilroy-Medium']">
-                      {selectedOperator?.name || "N/A"}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Validity
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Channels
+                      </div>
+                      <div className="font-['Gilroy-Medium']">
+                        {selectedPlan?.channels || "N/A"}
+                      </div>
                     </div>
-                    <div className="font-['Gilroy-Medium']">
-                      {selectedPlan?.validity || "N/A"}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Bouquet
+                    <div>
+                      <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
+                        Order ID
+                      </div>
+                      <div className="font-['Gilroy-Medium']">
+                        {paymentResponse?.data?.orderid || "N/A"}
+                      </div>
                     </div>
-                    <div className="font-['Gilroy-Medium']">
-                      {selectedPlan?.bouquet || "N/A"}
-                    </div>
-                  </div>
 
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Channels
-                    </div>
-                    <div className="font-['Gilroy-Medium']">
-                      {selectedPlan?.channels || "N/A"}
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                      Order ID
-                    </div>
-                    <div className="font-['Gilroy-Medium']">
-                      {paymentResponse?.data?.orderid || "N/A"}
+                    <div>
+                      <div className="text-[#1B1717]/80 text-[11px]">Date</div>
+                      <div className="font-['Gilroy-Medium']">
+                        {new Date().toLocaleString()}
+                      </div>
                     </div>
                   </div>
 
-                  <div>
-                    <div className="text-[#1B1717]/80 text-[11px]">Date</div>
-                    <div className="font-['Gilroy-Medium']">
-                      {new Date().toLocaleString()}
-                    </div>
+                  {/* Buttons */}
+                  <div className="absolute left-5 right-5 bottom-2 flex gap-28">
+                    <button className="flex-1  border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium']">
+                      Share
+                    </button>
+
+                    <button className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold']">
+                      Download Receipt
+                    </button>
                   </div>
-                </div>
-
-                {/* Buttons */}
-                <div className="absolute left-5 right-5 bottom-2 flex gap-28">
-                  <button className="flex-1  border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium']">
-                    Share
-                  </button>
-
-                  <button className="flex-1 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold']">
-                    Download Receipt
-                  </button>
                 </div>
               </div>
-            </div>
             );
           })()}
         </div>
@@ -1579,7 +1602,7 @@ const DTHRecharge = ({ onBack }) => {
           </div>
 
           <div className="max-h-[600px] overflow-y-auto">
-            {recentDTHRecharges.map((recharge) => (
+            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentDTHRecharges).map((recharge) => (
               <button
                 key={recharge.id}
                 type="button"
