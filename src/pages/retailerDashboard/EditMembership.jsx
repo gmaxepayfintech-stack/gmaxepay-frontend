@@ -224,7 +224,7 @@ const EditMembership = ({ scheme, onBack }) => {
                     "Operator",
                     "Operator Type",
                     "My Deal",
-                    "ENT Margin",
+                    "My Margin",
                     "Whitelabel",
                     "Actions",
                   ].map((h, i) => (
