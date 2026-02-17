@@ -197,7 +197,7 @@ const RecentRechargeCard = ({ recharge }) => {
             />
           ) : (
             <div className="w-12 h-12 flex items-center justify-center text-white font-[Gilroy-Semibold] text-sm">
-              {recharge.operator.charAt(0)}
+              {recharge.operator ? recharge.operator.charAt(0) : "D"}
             </div>
           )}
         </div>
@@ -213,6 +213,11 @@ const RecentRechargeCard = ({ recharge }) => {
           <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500 mt-1">
             {recharge.lastRecharge}
           </div>
+          {recharge.transactionId && (
+            <div className="text-[10px] text-gray-400 mt-1 truncate">
+              Txn ID: {recharge.transactionId}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -339,8 +344,12 @@ const DTHRecharge = ({ onBack }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (recentHistoryData?.recentHistory?.data) {
-      const mappedHistory = recentHistoryData.recentHistory.data.map((item) => {
+    // Determine the array to map. 
+    // Based on format: recentHistoryData = { recentHistory: [...], status: 'SUCCESS' }
+    const historyList = recentHistoryData?.recentHistory || [];
+
+    if (Array.isArray(historyList) && historyList.length > 0) {
+      const mappedHistory = historyList.map((item) => {
         // Format date
         const date = new Date(item.createdAt || Date.now());
         const formattedDate = date.toLocaleDateString("en-GB", {
@@ -349,13 +358,43 @@ const DTHRecharge = ({ onBack }) => {
           year: "numeric",
         });
 
+        // Determine operator details based on opcode
+        let operatorName = item.operator || "Unknown";
+        let logo = "";
+
+        const opcode = item.opcode || "";
+
+        // Map DTH opcodes
+        /* 
+           ATV: Airtel DTH
+           DTV: Dish TV
+           STV: Sun Direct
+           TTV: Tata Play (Tata Sky)
+           VTV: Videocon D2H
+        */
+        if (opcode === "ATV" || opcode.includes("Airtel")) {
+          operatorName = "Airtel DTH";
+        } else if (opcode === "DTV" || opcode.includes("Dish")) {
+          operatorName = "Dish TV";
+        } else if (opcode === "STV" || opcode.includes("Sun")) {
+          operatorName = "Sun Direct";
+        } else if (opcode === "TTV" || opcode.includes("Tata")) {
+          operatorName = "Tata Play";
+        } else if (opcode === "VTV" || opcode.includes("Videocon")) {
+          operatorName = "Videocon D2H";
+        }
+
+        // Try to get logo from helper if name is resolved
+        logo = getOperatorLogo(operatorName);
+
         return {
-          id: item._id || item.id,
-          operator: item.operator_details?.name || item.operator || "Unknown",
-          operatorType: item.operator_details?.name || item.operator || "Prepaid DTH",
-          mobileNumber: item.number || item.dth_number || "",
+          id: item._id || item.transactionId || Math.random(),
+          operator: operatorName,
+          operatorType: operatorName,
+          mobileNumber: item.dthNumber || item.number || item.mobileNumber || "",
           lastRecharge: `Last Recharge ₹${item.amount} On ${formattedDate}`,
-          logo: item.operator_details?.logo || "",
+          logo: logo,
+          transactionId: item.transactionId || "",
           circle: item.circle || "Karnataka", // Default circle
         };
       });
@@ -1601,17 +1640,19 @@ const DTHRecharge = ({ onBack }) => {
             Recent DTH recharge
           </div>
 
-          <div className="max-h-[600px] overflow-y-auto">
-            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentDTHRecharges).map((recharge) => (
-              <button
-                key={recharge.id}
-                type="button"
-                onClick={() => handleRecentRechargeClick(recharge)}
-                className="w-full text-left"
-              >
-                <RecentRechargeCard recharge={recharge} />
-              </button>
-            ))}
+          <div>
+            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentDTHRecharges)
+              .slice(0, 5)
+              .map((recharge) => (
+                <button
+                  key={recharge.id}
+                  type="button"
+                  onClick={() => handleRecentRechargeClick(recharge)}
+                  className="w-full text-left"
+                >
+                  <RecentRechargeCard recharge={recharge} />
+                </button>
+              ))}
           </div>
         </div>
       </div>

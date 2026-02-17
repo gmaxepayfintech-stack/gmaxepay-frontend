@@ -1152,7 +1152,7 @@ const MobileRecharge = ({ onBack }) => {
         </div>
 
         {/* Right Side - Recent Recharge */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1]">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1] h-fit">
           <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
             Recent Recharge
           </div>
