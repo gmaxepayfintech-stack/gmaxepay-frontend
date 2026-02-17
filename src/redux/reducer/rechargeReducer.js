@@ -1,4 +1,4 @@
-import { DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS } from "../actionType/rechargeActionType";
+import { DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
 
 const initialState = {
     loading: false,
@@ -10,6 +10,7 @@ const initialState = {
     mobileRechargePlan: null,
     mobileRechargeOffers: null,
     mobileRechargePay: null,
+    recentHistory: null,
 };
 
 const rechargeReducer = (state = initialState, action) => {
@@ -73,6 +74,14 @@ const rechargeReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
                 success: action?.payload?.status,
                 dthRecharge: action?.payload,
+            }
+        case RECENT_HISTORY_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                recentHistory: action?.payload,
             }
         default:
             return state;
