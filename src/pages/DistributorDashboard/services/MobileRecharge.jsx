@@ -908,8 +908,8 @@ const MobileRecharge = ({ onBack }) => {
           </div>
 
           <div className="overflow-y-auto flex-1">
-            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges)
-              .map((recharge) => (
+            {recentRecharges.length > 0 ? (
+              recentRecharges.map((recharge) => (
                 <button
                   key={recharge.id}
                   type="button"
@@ -918,7 +918,12 @@ const MobileRecharge = ({ onBack }) => {
                 >
                   <RecentRechargeCard recharge={recharge} />
                 </button>
-              ))}
+              ))
+            ) : (
+              <div className="flex items-center justify-center h-full text-gray-500 font-['Gilroy-Medium']">
+                No recent recharges found
+              </div>
+            )}
           </div>
         </div>
       </div>
