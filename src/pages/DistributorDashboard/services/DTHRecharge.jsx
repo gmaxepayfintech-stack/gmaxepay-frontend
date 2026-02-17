@@ -1641,16 +1641,20 @@ const DTHRecharge = ({ onBack }) => {
           </div>
 
           <div>
-            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentDTHRecharges)
-              .slice(0, 5)
-              .map((recharge) => (
+            {recentRecharges.length > 0 ? (
+              recentRecharges.slice(0, 5).map((recharge) => (
                 <div
                   key={recharge.id}
                   className="w-full text-left"
                 >
                   <RecentRechargeCard recharge={recharge} />
                 </div>
-              ))}
+              ))
+            ) : (
+              <div className="text-center py-10 text-gray-500 font-['Gilroy-Medium']">
+                No recent recharges found
+              </div>
+            )}
           </div>
         </div>
       </div>
