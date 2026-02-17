@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useDispatch } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { HiOutlineArrowNarrowLeft } from "react-icons/hi";
 import { X } from "lucide-react";
@@ -21,7 +21,7 @@ import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 import { recentHistory } from "../../../redux/action/rechargeAction";
 
-const recentRecharges = [
+const sampleRecentRecharges = [
   {
     id: 1,
     operator: "Jio",
@@ -94,6 +94,11 @@ const RecentRechargeCard = ({ recharge }) => {
           <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500 mt-1">
             {recharge.lastRecharge}
           </div>
+          {recharge.transactionId && (
+            <div className="text-[10px] text-gray-400 mt-1 truncate">
+              Txn ID: {recharge.transactionId}
+            </div>
+          )}
         </div>
       </div>
     </div>
@@ -129,8 +134,95 @@ const MobileRecharge = ({ onBack }) => {
   const [isLoadingPayment, setIsLoadingPayment] = useState(false);
   const [operatorData, setOperatorData] = useState(null);
 
+  /* eslint-disable react-hooks/exhaustive-deps */
+  const { recentHistory: recentHistoryData } = useSelector((state) => state.recharge);
+  const [recentRecharges, setRecentRecharges] = useState([]);
+
+  useEffect(() => {
+    const fetchRecentHistory = async () => {
+      const payload = {
+        query: {
+          serviceType: "MobileRecharge",
+        },
+        customSearch: {},
+        options: {
+          page: 1,
+          paginate: 10,
+          sort: {
+            id: -1,
+          },
+        },
+      };
+
+      try {
+        const response = await dispatch(recentHistory(payload));
+        console.log("Recent History Response:", response);
+      } catch (error) {
+        console.error("Error fetching recent history:", error);
+      }
+    };
+
+    fetchRecentHistory();
+  }, [dispatch]);
+
+  useEffect(() => {
+    // Determine the array to map. 
+    // Based on user log: recentHistoryData = { recentHistory: [...], status: 'SUCCESS' }
+    const historyList = recentHistoryData?.recentHistory || [];
+
+    if (Array.isArray(historyList) && historyList.length > 0) {
+      const mappedHistory = historyList.map((item) => {
+        // Format date: "26 Dec 2025" format matching the sample
+        const date = new Date(item.createdAt || Date.now());
+        const formattedDate = date.toLocaleDateString("en-GB", {
+          day: "2-digit",
+          month: "short",
+          year: "numeric",
+        });
+
+        // Determine operator details based on opcode
+        let logo = "";
+        let operatorName = item.operator || "Unknown";
+
+        const opcode = item.opcode || "";
+        // Map common opcodes
+        /* 
+           A -> Airtel
+           J -> Jio
+           B -> BSNL
+           V -> VI
+        */
+        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode.includes("Jio")) {
+          logo = "/img/Jio.svg";
+          operatorName = "Jio";
+        } else if (opcode === "A" || opcode === "Airtel" || opcode === "AIRTEL" || opcode.includes("Airtel")) {
+          logo = "/img/Airtel.svg";
+          operatorName = "Airtel";
+        } else if (opcode === "B" || opcode === "BSNL" || opcode === "BSNL" || opcode.includes("BSNL")) {
+          logo = "/img/BSNL.svg";
+          operatorName = "BSNL";
+        } else if (opcode === "V" || opcode === "VI" || opcode === "Vi" || opcode.includes("VI") || opcode.includes("Vi")) {
+          logo = "/img/VIPrepaid.svg";
+          operatorName = "VI";
+        }
+
+        return {
+          id: item._id || item.transactionId || Math.random(),
+          operator: operatorName,
+          operatorType: `${operatorName} Prepaid`,
+          mobileNumber: item.mobileNumber || item.number || "",
+          lastRecharge: `Last Recharge ₹${item.amount} On ${formattedDate}`,
+          logo: logo,
+          transactionId: item.transactionId || ""
+        };
+      });
+      setRecentRecharges(mappedHistory);
+    }
+  }, [recentHistoryData]);
+
   // Get unique operators from recent recharges
-  const operators = recentRecharges.reduce((acc, recharge) => {
+  const sourceRecharges = recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges;
+  const operators = sourceRecharges.reduce((acc, recharge) => {
     if (!acc.find((op) => op.operator === recharge.operator)) {
       acc.push({
         operator: recharge.operator,
@@ -815,17 +907,19 @@ const MobileRecharge = ({ onBack }) => {
             Recent Recharge
           </div>
 
-          <div className="max-h-[600px] overflow-y-auto">
-            {recentRecharges.map((recharge) => (
-              <button
-                key={recharge.id}
-                type="button"
-                onClick={() => handleRecentRechargeClick(recharge)}
-                className="w-full text-left"
-              >
-                <RecentRechargeCard recharge={recharge} />
-              </button>
-            ))}
+          <div>
+            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges)
+              .slice(0, 5)
+              .map((recharge) => (
+                <button
+                  key={recharge.id}
+                  type="button"
+                  onClick={() => handleRecentRechargeClick(recharge)}
+                  className="w-full text-left"
+                >
+                  <RecentRechargeCard recharge={recharge} />
+                </button>
+              ))}
           </div>
         </div>
       </div>
