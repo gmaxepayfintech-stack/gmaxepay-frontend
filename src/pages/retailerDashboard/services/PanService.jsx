@@ -26,12 +26,17 @@ const RecentPanRequestCard = ({ request }) => {
           <div className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mt-1">
             {request.mobileNumber}
           </div>
+          {request.transactionId && (
+            <div className="text-[10px] text-gray-400 mt-1 truncate font-['Gilroy-Medium']">
+              Txn ID: {request.transactionId}
+            </div>
+          )}
           <div className="text-[12px] font-['Gilroy-Regular'] text-gray-500 mt-1">
             {request.lastRecharge}
           </div>
           {request.status && (
             <div className={`text-[10px] mt-1 font-medium ${request.status.toLowerCase() === 'success' ? 'text-green-600' :
-                request.status.toLowerCase() === 'failure' ? 'text-red-600' : 'text-yellow-600'
+              request.status.toLowerCase() === 'failure' ? 'text-red-600' : 'text-yellow-600'
               }`}>
               {request.status}
             </div>
@@ -87,7 +92,7 @@ const PanService = () => {
 
   // Process Recent History Data
   useEffect(() => {
-    const historyList = recentHistoryData?.recentHistory || [];
+    const historyList = recentHistoryData?.data || recentHistoryData?.recentHistory || [];
 
     if (Array.isArray(historyList) && historyList.length > 0) {
       const mappedHistory = historyList.map((item) => {
@@ -98,9 +103,15 @@ const PanService = () => {
           year: "numeric",
         });
 
-        // Determine action type from opcode or other field if available, fallback to generic
-        const type = item.opcode === "PAN_NEW" ? "PAN Creation" :
-          item.opcode === "PAN_CR" ? "PAN Correction" : "PAN Service";
+        // Determine action type
+        let type = "PAN Service";
+        if (item.action) {
+          type = item.action === "new" ? "PAN Creation" :
+            item.action === "correction" ? "PAN Correction" : item.action;
+        } else if (item.opcode) {
+          type = item.opcode === "PAN_NEW" ? "PAN Creation" :
+            item.opcode === "PAN_CR" ? "PAN Correction" : "PAN Service";
+        }
 
         return {
           id: item._id || item.transactionId || Math.random(),
@@ -108,7 +119,8 @@ const PanService = () => {
           mobileNumber: item.mobileNumber || item.number || "",
           lastRecharge: `Request on ${formattedDate}`,
           status: item.status || "Pending",
-          amount: item.amount
+          amount: item.amount,
+          transactionId: item.transactionId
         };
       });
       setRecentRequests(mappedHistory);
@@ -304,8 +316,8 @@ const PanService = () => {
                 placeholder="Enter 10-digit mobile number"
                 maxLength={10}
                 className={`w-full px-4 h-[48px] border rounded-lg focus:outline-none transition-colors ${errors.mobileNumber
-                    ? "border-red-400 focus:border-red-500"
-                    : "border-[#1B1717] border-opacity-50 focus:border-[#039155]"
+                  ? "border-red-400 focus:border-red-500"
+                  : "border-[#1B1717] border-opacity-50 focus:border-[#039155]"
                   }`}
               />
               {errors.mobileNumber && (
