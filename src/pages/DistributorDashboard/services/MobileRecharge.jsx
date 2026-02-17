@@ -192,7 +192,7 @@ const MobileRecharge = ({ onBack }) => {
            B -> BSNL
            V -> VI
         */
-        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode.includes("Jio")) {
+        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode === "RC" || opcode.includes("Jio")) {
           logo = "/img/Jio.svg";
           operatorName = "Jio";
         } else if (opcode === "A" || opcode === "Airtel" || opcode === "AIRTEL" || opcode.includes("Airtel")) {
@@ -902,14 +902,13 @@ const MobileRecharge = ({ onBack }) => {
         </div>
 
         {/* Right Side - Recent Recharge */}
-        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1] h-fit">
-          <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 lg:flex-[1] h-[calc(100vh-120px)] flex flex-col">
+          <div className="text-[20px] font-['Gilroy-Medium'] text-[#1B1717] mb-6 flex-shrink-0">
             Recent Recharge
           </div>
 
-          <div>
+          <div className="overflow-y-auto flex-1">
             {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges)
-              .slice(0, 5)
               .map((recharge) => (
                 <button
                   key={recharge.id}

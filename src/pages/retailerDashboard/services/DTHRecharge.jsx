@@ -185,7 +185,7 @@ const RecentRechargeCard = ({ recharge }) => {
   const operatorLogo = getOperatorLogo(recharge.operator) || recharge.logo;
 
   return (
-    <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4 hover:shadow-sm transition cursor-pointer">
+    <div className="bg-white rounded-xl border border-gray-200 p-4 mb-4">
       <div className="flex items-start gap-3">
         {/* Operator Logo */}
         <div className="w-12 h-12 flex items-center justify-center flex-shrink-0">
@@ -1644,14 +1644,12 @@ const DTHRecharge = ({ onBack }) => {
             {(recentRecharges.length > 0 ? recentRecharges : sampleRecentDTHRecharges)
               .slice(0, 5)
               .map((recharge) => (
-                <button
+                <div
                   key={recharge.id}
-                  type="button"
-                  onClick={() => handleRecentRechargeClick(recharge)}
                   className="w-full text-left"
                 >
                   <RecentRechargeCard recharge={recharge} />
-                </button>
+                </div>
               ))}
           </div>
         </div>
