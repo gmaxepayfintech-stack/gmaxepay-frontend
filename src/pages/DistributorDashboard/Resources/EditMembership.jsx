@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import PropTypes from "prop-types";
-import { Check, Plus, ChevronDown, ChevronUp } from "lucide-react";
+import { Check, ChevronDown, ChevronUp } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
@@ -390,7 +390,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                       const isDirty = isDiChanged || isReChanged;
                       const isSaving = !!savingRows[commission.id];
 
-                      const renderCommissionInput = (fieldPrefix, label) => {
+                      const renderCommissionInput = (fieldPrefix) => {
                         const value = commission[fieldPrefix] || "";
                         const commType = commission[`${fieldPrefix}CommType`] || "";
                         const amtType = commission[`${fieldPrefix}Type`] || "";
