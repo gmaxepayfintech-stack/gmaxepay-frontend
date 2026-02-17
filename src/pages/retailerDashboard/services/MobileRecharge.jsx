@@ -1157,17 +1157,19 @@ const MobileRecharge = ({ onBack }) => {
             Recent Recharge
           </div>
 
-          <div className="max-h-[600px] overflow-y-auto">
-            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges).map((recharge) => (
-              <button
-                key={recharge.id}
-                type="button"
-                onClick={() => handleRecentRechargeClick(recharge)}
-                className="w-full text-left"
-              >
-                <RecentRechargeCard recharge={recharge} />
-              </button>
-            ))}
+          <div>
+            {(recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges)
+              .slice(0, 5)
+              .map((recharge) => (
+                <button
+                  key={recharge.id}
+                  type="button"
+                  onClick={() => handleRecentRechargeClick(recharge)}
+                  className="w-full text-left"
+                >
+                  <RecentRechargeCard recharge={recharge} />
+                </button>
+              ))}
           </div>
         </div>
       </div>
