@@ -192,7 +192,7 @@ const MobileRecharge = ({ onBack }) => {
            B -> BSNL
            V -> VI
         */
-        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode.includes("Jio")) {
+        if (opcode === "J" || opcode === "Jio" || opcode === "JIO" || opcode === "RC" || opcode.includes("Jio")) {
           logo = "/img/Jio.svg";
           operatorName = "Jio";
         } else if (opcode === "A" || opcode === "Airtel" || opcode === "AIRTEL" || opcode.includes("Airtel")) {
