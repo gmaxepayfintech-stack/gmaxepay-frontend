@@ -5,7 +5,7 @@ import React, { useRef, useState } from "react";
 import { uploadFeviicon } from "../../redux/action/walletAction";
 import { useDispatch } from "react-redux";
 import { useNotification } from "../../context/NotificationContext";
-
+import { useCompany } from "../../context/CompanyContext";
 const UploadCard = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
@@ -184,6 +184,7 @@ const SliderPreview = () => (
 const Settings = ({ onBack }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
+  const { refreshCompany } = useCompany();
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
@@ -235,6 +236,7 @@ const Settings = ({ onBack }) => {
         });
         setLogoPreview(null);
         setLogoFile(null);
+        refreshCompany();
       } else {
         showNotification({
           type: "error",
@@ -271,6 +273,7 @@ const Settings = ({ onBack }) => {
         });
         setFaviconPreview(null);
         setFaviconFile(null);
+        refreshCompany();
       } else {
         showNotification({
           type: "error",
