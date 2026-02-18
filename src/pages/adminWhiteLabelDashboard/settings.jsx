@@ -2,6 +2,9 @@ import { Upload, Plus } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import PropTypes from "prop-types";
 import React, { useRef, useState } from "react";
+import { uploadFeviicon } from "../../redux/action/walletAction";
+import { useDispatch } from "react-redux";
+import { useNotification } from "../../context/NotificationContext";
 
 const UploadCard = ({ onFileSelect }) => {
   const inputRef = useRef(null);
@@ -179,8 +182,12 @@ const SliderPreview = () => (
 );
 
 const Settings = ({ onBack }) => {
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
+  const [faviconFile, setFaviconFile] = useState(null);
+  const [logoFile, setLogoFile] = useState(null);
   const [sliderPreviews, setSliderPreviews] = useState([]);
 
   const handleLogoUpload = (file) => {
@@ -189,6 +196,7 @@ const Settings = ({ onBack }) => {
       if (prev) URL.revokeObjectURL(prev);
       return url;
     });
+    setLogoFile(file);
   };
 
   const handleFaviconUpload = (file) => {
@@ -197,6 +205,7 @@ const Settings = ({ onBack }) => {
       if (prev) URL.revokeObjectURL(prev);
       return url;
     });
+    setFaviconFile(file);
   };
 
   const handleSliderSelect = (file) => {
@@ -207,12 +216,76 @@ const Settings = ({ onBack }) => {
     });
   };
 
-  const uploadLogoAPI = () => {
-    //console.log("Upload logo API call");
+  const uploadLogoAPI = async () => {
+    if (!logoFile) return;
+
+    const formData = new FormData();
+    formData.append("image", logoFile);
+    formData.append("name", logoFile.name);
+    formData.append("type", "signature");
+    formData.append("subtype", "logo");
+
+    try {
+      const response = await dispatch(uploadFeviicon(formData));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response.message || "Logo uploaded successfully!",
+          isCritical: false,
+        });
+        setLogoPreview(null);
+        setLogoFile(null);
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to upload logo.",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      showNotification({
+        type: "error",
+        message: "An unexpected error occurred while uploading.",
+        isCritical: true,
+      });
+    }
   };
 
-  const uploadFaviconAPI = () => {
-    // console.log("Upload favicon API call");
+  const uploadFaviconAPI = async () => {
+    if (!faviconFile) return;
+
+    const formData = new FormData();
+    formData.append("image", faviconFile);
+    formData.append("name", faviconFile.name);
+    formData.append("type", "signature");
+    formData.append("subtype", "favicon");
+
+    try {
+      const response = await dispatch(uploadFeviicon(formData));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response.message || "Favicon uploaded successfully!",
+          isCritical: false,
+        });
+        setFaviconPreview(null);
+        setFaviconFile(null);
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to upload favicon.",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
+      console.error("Upload error:", error);
+      showNotification({
+        type: "error",
+        message: "An unexpected error occurred while uploading.",
+        isCritical: true,
+      });
+    }
   };
 
   const uploadSliderAPI = (index) => {
