@@ -212,176 +212,188 @@ const Settings = ({ onBack }) => {
   const handleSliderSelect = (file) => {
     const url = URL.createObjectURL(file);
     setSliderPreviews((prev) => {
-      if (prev.length === 3) URL.revokeObjectURL(prev[0]);
-      return [...prev, url].slice(0, 3);
+      const newPreviews = [...prev];
+      // Only keep up to 3 previews and always append to end or fill empty slot if we were tracking slots
+      // For now, simpler to just append
+      if (newPreviews.length < 3) {
+        return [...newPreviews, { file, url }];
+      }
+      return newPreviews;
     });
   };
+}
+  };
 
-  const uploadLogoAPI = async () => {
-    if (!logoFile) return;
+const uploadFaviconAPI = async () => {
+  if (!faviconFile) return;
 
-    const formData = new FormData();
-    formData.append("image", logoFile);
-    formData.append("name", logoFile.name);
-    formData.append("type", "signature");
-    formData.append("subtype", "logo");
+  const formData = new FormData();
+  formData.append("image", faviconFile);
+  formData.append("name", faviconFile.name);
+  formData.append("type", "signature");
+  formData.append("subtype", "favicon");
 
-    try {
-      const response = await dispatch(uploadFeviicon(formData));
-      if (response?.status === "SUCCESS") {
-        showNotification({
-          type: "success",
-          message: response.message || "Logo uploaded successfully!",
-          isCritical: false,
-        });
-        setLogoPreview(null);
-        setLogoFile(null);
-        refreshCompany();
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.message || "Failed to upload logo.",
-          isCritical: true,
-        });
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
+  try {
+    const response = await dispatch(uploadFeviicon(formData));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response.message || "Favicon uploaded successfully!",
+        isCritical: false,
+      });
+      setFaviconPreview(null);
+      setFaviconFile(null);
+      refreshCompany();
+    } else {
       showNotification({
         type: "error",
-        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading company details.",
+        message: response?.message || "Failed to upload favicon.",
         isCritical: true,
       });
     }
-  };
+  } catch (error) {
+    console.error("Upload error:", error);
+    showNotification({
+      type: "error",
+      message:
+        error?.response?.data?.message ||
+        error?.message ||
+        "An unexpected error occurred while uploading company details.",
+      isCritical: true,
+    });
+  }
+};
 
-  const uploadFaviconAPI = async () => {
-    if (!faviconFile) return;
+const uploadSliderAPI = async (index) => {
+  const sliderItem = sliderPreviews[index];
+  if (!sliderItem?.file) return;
 
-    const formData = new FormData();
-    formData.append("image", faviconFile);
-    formData.append("name", faviconFile.name);
-    formData.append("type", "signature");
-    formData.append("subtype", "favicon");
+  const formData = new FormData();
+  formData.append("image", sliderItem.file);
+  formData.append("name", sliderItem.file.name);
+  // As per request: type: loginSlider
+  formData.append("type", "loginSlider");
+  // subtype might not be needed for slider if type is loginSlider, but keeping consistency if needed or omitting if strictly following "send attributes name, type: loginSlider, image"
+  // The user request said: "send the attributes name, type: loginSlider, image"
 
-    try {
-      const response = await dispatch(uploadFeviicon(formData));
-      if (response?.status === "SUCCESS") {
-        showNotification({
-          type: "success",
-          message: response.message || "Favicon uploaded successfully!",
-          isCritical: false,
-        });
-        setFaviconPreview(null);
-        setFaviconFile(null);
-        refreshCompany();
-      } else {
-        showNotification({
-          type: "error",
-          message: response?.message || "Failed to upload favicon.",
-          isCritical: true,
-        });
-      }
-    } catch (error) {
-      console.error("Upload error:", error);
+  try {
+    const response = await dispatch(uploadFeviicon(formData));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response.message || "Slider uploaded successfully!",
+        isCritical: false,
+      });
+
+      // Remove the uploaded slider from preview list or update its status? 
+      // For now, let's remove it to allow new uploads
+      setSliderPreviews(prev => prev.filter((_, i) => i !== index));
+
+      refreshCompany();
+    } else {
       showNotification({
         type: "error",
-        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading company details.",
+        message: response?.message || "Failed to upload slider.",
         isCritical: true,
       });
     }
+  } catch (error) {
+    console.error("Upload error:", error);
+    showNotification({
+      type: "error",
+      message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading slider.",
+      isCritical: true,
+    });
+  }
+};
 
+return (
+  <div className="px-1 py-4 space-y-6">
+    {/* Header */}
+    <div className="flex items-start gap-4">
+      <button
+        onClick={onBack || (() => globalThis.history?.back())}
+        className="rounded-full p-2 bg-white border border-gray-400"
+      >
+        <HiArrowLeft className="text-xl text-gray-600" />
+      </button>
+      <h1 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
+        Settings
+      </h1>
+    </div>
 
-  };
-
-  const uploadSliderAPI = (index) => {
-    //console.log("Upload slider API call for index:", index);
-  };
-
-  return (
-    <div className="px-1 py-4 space-y-6">
-      {/* Header */}
-      <div className="flex items-start gap-4">
-        <button
-          onClick={onBack || (() => globalThis.history?.back())}
-          className="rounded-full p-2 bg-white border border-gray-400"
-        >
-          <HiArrowLeft className="text-xl text-gray-600" />
-        </button>
-        <h1 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-          Settings
-        </h1>
-      </div>
-
-      {/* Upload Logo */}
-      <div className="bg-white rounded-3xl shadow-sm p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Upload Logo
-            </h3>
-            <UploadCard onFileSelect={handleLogoUpload} />
-          </div>
-
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Preview Logo
-            </h3>
-            <PreviewCard
-              image={logoPreview}
-              buttonLabel="Change Logo"
-              onUpload={uploadLogoAPI}
-            />
-          </div>
+    {/* Upload Logo */}
+    <div className="bg-white rounded-3xl shadow-sm p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+            Upload Logo
+          </h3>
+          <UploadCard onFileSelect={handleLogoUpload} />
         </div>
-      </div>
 
-      {/* Upload Favicon */}
-      <div className="bg-white rounded-3xl shadow-sm p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Upload Fevicons
-            </h3>
-            <UploadCard onFileSelect={handleFaviconUpload} />
-          </div>
-
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Preview Fevicons
-            </h3>
-            <PreviewCard
-              image={faviconPreview}
-              buttonLabel="Change Favicon"
-              onUpload={uploadFaviconAPI}
-            />
-          </div>
-        </div>
-      </div>
-
-      {/* Upload Sliders */}
-      <div className="bg-white rounded-3xl shadow-sm p-5">
-        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
-          Upload Sliders
-        </h3>
-
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-          {/* Select new slider */}
-          <SliderAddCard onFileSelect={handleSliderSelect} />
-
-          {/* Preview sliders */}
-          {[0, 1, 2].map((i) => (
-            <SliderPreviewCard
-              key={i}
-              image={sliderPreviews[i]}
-              onUpload={() => uploadSliderAPI(i)}
-            />
-          ))}
+        <div>
+          <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+            Preview Logo
+          </h3>
+          <PreviewCard
+            image={logoPreview}
+            buttonLabel="Change Logo"
+            onUpload={uploadLogoAPI}
+          />
         </div>
       </div>
     </div>
-  );
-};
 
+    {/* Upload Favicon */}
+    <div className="bg-white rounded-3xl shadow-sm p-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+          <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+            Upload Fevicons
+          </h3>
+          <UploadCard onFileSelect={handleFaviconUpload} />
+        </div>
+
+        <div>
+          <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+            Preview Fevicons
+          </h3>
+          <PreviewCard
+            image={faviconPreview}
+            buttonLabel="Change Favicon"
+            onUpload={uploadFaviconAPI}
+          />
+        </div>
+      </div>
+    </div>
+
+    {/* Upload Sliders */}
+    <div className="bg-white rounded-3xl shadow-sm p-5">
+      <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
+        Upload Sliders
+      </h3>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
+        {/* Select new slider */}
+        <SliderAddCard onFileSelect={handleSliderSelect} />
+
+        {/* Preview sliders */}
+        {sliderPreviews.map((preview, i) => (
+          <SliderPreviewCard
+            key={preview.url}
+            image={preview.url}
+            onUpload={() => uploadSliderAPI(i)}
+          />
+        ))}
+      </div>
+    </div>
+  </div>
+);
+
+
+
+};
 
 Settings.propTypes = {
   onBack: PropTypes.func,
