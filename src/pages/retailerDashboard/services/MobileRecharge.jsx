@@ -20,40 +20,7 @@ import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilte
 import { recentHistory } from "../../../redux/action/rechargeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
-const sampleRecentRecharges = [
-  {
-    id: 1,
-    operator: "Jio",
-    operatorType: "Jio Prepaid",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/Jio.svg",
-  },
-  {
-    id: 2,
-    operator: "Airtel",
-    operatorType: "Airtel Prepaid",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/Airtel.svg",
-  },
-  {
-    id: 3,
-    operator: "BSNL",
-    operatorType: "BSNL Prepaid",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/BSNL.svg",
-  },
-  {
-    id: 4,
-    operator: "VI",
-    operatorType: "VI Prepaid",
-    mobileNumber: "9740418524",
-    lastRecharge: "Last Recharge ₹26 On 26 Dec 2025",
-    logo: "/img/VIPrepaid.svg",
-  },
-];
+
 
 const RecentRechargeCard = ({ recharge }) => {
   return (
@@ -210,8 +177,8 @@ const MobileRecharge = ({ onBack }) => {
     }
   }, [recentHistoryData]);
 
-  // Get unique operators from recent recharges (or sample if empty)
-  const sourceRecharges = recentRecharges.length > 0 ? recentRecharges : sampleRecentRecharges;
+  // Get unique operators from recent recharges
+  const sourceRecharges = recentRecharges;
   const operators = sourceRecharges.reduce((acc, recharge) => {
     if (!acc.find((op) => op.operator === recharge.operator)) {
       acc.push({
