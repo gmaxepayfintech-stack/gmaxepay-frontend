@@ -285,10 +285,12 @@ const Settings = ({ onBack }) => {
       console.error("Upload error:", error);
       showNotification({
         type: "error",
-        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading.",
+        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading company details.",
         isCritical: true,
       });
     }
+
+
   };
 
   const uploadSliderAPI = (index) => {
@@ -379,6 +381,7 @@ const Settings = ({ onBack }) => {
     </div>
   );
 };
+
 
 Settings.propTypes = {
   onBack: PropTypes.func,
