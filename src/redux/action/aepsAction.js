@@ -413,14 +413,9 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
     });
     try {
         const authToken = secureLocalStorage.getItem("userToken");
-        //console.log("🔑 Auth token exists:", !!authToken);
 
         const apiUrl = `${API_ROUTE}/api/v1/user/aeps1/transaction`;
-        //console.log("🌐 Making API call to:", apiUrl);
-        // console.log("📦 Request payload:", {
-        //     ...data,
-        //     biometricData: data?.biometricData?.substring(0, 200) + "... (truncated)"
-        // });
+       
         
         const response = await axios.post(
             apiUrl,
@@ -460,11 +455,10 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                 status: response?.data?.status ?? "FAILURE", 
                 message: response?.data?.message ?? commonError,
                 data: failureData,
-                withdrawal: failureData, // Also include as withdrawal for consistency
+                withdrawal: failureData,
             };
         }
     } catch (error) {
-        console.error("❌ aepsWithdrawl API error:", error);
         console.error("❌ Error details:", {
             message: error?.message,
             response: error?.response,
@@ -474,9 +468,7 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
             request: error?.request,
         });
         
-        const errorMessage = error.response ? error.response.data.message : error.message;
-        console.error("❌ Error message to dispatch:", errorMessage);
-        
+        const errorMessage = error.response ? error.response.data.message : error.message;        
         dispatch({
             type: AEPS_WITHDRAWAL_FAILURE,
             payload: {
@@ -485,14 +477,12 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
             },
         });
         
-        // Return error response instead of throwing to allow component to handle it
-        // Try to extract data from error response if available
         const errorData = error?.response?.data?.data || null;
         return {
             status: "FAILURE",
             message: errorMessage,
             data: errorData,
-            withdrawal: errorData, // Also include as withdrawal for consistency
+            withdrawal: errorData, 
         };
     } finally {
         dispatch({ type: LOADING_END });

@@ -187,7 +187,7 @@ const MobileRecharge = ({ onBack }) => {
         } else if (opcode === "A" || opcode === "Airtel" || opcode === "AIRTEL" || opcode.includes("Airtel")) {
           logo = "/img/Airtel.svg";
           operatorName = "Airtel";
-        } else if (opcode === "B" || opcode === "BSNL" || opcode === "BSNL" || opcode.includes("BSNL")) {
+        } else if (opcode === "B" || opcode === "BT" || opcode === "BR" || opcode === "BSNL" || opcode === "BSNL" || opcode.includes("BSNL")) {
           logo = "/img/BSNL.svg";
           operatorName = "BSNL";
         } else if (opcode === "V" || opcode === "VI" || opcode === "Vi" || opcode.includes("VI") || opcode.includes("Vi")) {
