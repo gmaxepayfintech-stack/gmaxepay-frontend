@@ -45,6 +45,7 @@ const AdminDashboardHome = () => {
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
   const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const [isBankLoading, setIsBankLoading] = useState(false);
   const { showNotification } = useNotification();
 
   const [bankAccountNumber, setBankAccountNumber] = useState("");
@@ -194,9 +195,9 @@ const AdminDashboardHome = () => {
   // Total volume for header amount
   const totalVolume = services
     ? Object.values(services).reduce(
-        (sum, s) => sum + (s?.totalVolume || 0),
-        0,
-      )
+      (sum, s) => sum + (s?.totalVolume || 0),
+      0,
+    )
     : 0;
 
   // Total commission for header amount
@@ -236,21 +237,28 @@ const AdminDashboardHome = () => {
   useEffect(() => {
     if (payoutOpen) {
       const fetchBanks = async () => {
-        const response = await dispatch(payoutCompanyBankList({}));
-        if (response?.status === "SUCCESS" && response?.data?.banks) {
-          // Transform API data to match component format
-          const transformedBanks = response.data.banks.map((bank, index) => ({
-            id: bank.id?.toString() || index.toString(),
-            name: bank.bankName || "",
-            logo: bank.bankLogo,
-            accountNumber: bank.accountNumber || "",
-            ifscCode: bank.ifscCode || "",
-          }));
-          setBanks(transformedBanks);
-          // Set first bank as selected if available
-          if (transformedBanks.length > 0 && !selectedBank) {
-            setSelectedBank(transformedBanks[0].id);
+        setIsBankLoading(true);
+        try {
+          const response = await dispatch(payoutCompanyBankList({}));
+          if (response?.status === "SUCCESS" && response?.data?.banks) {
+            // Transform API data to match component format
+            const transformedBanks = response.data.banks.map((bank, index) => ({
+              id: bank.id?.toString() || index.toString(),
+              name: bank.bankName || "",
+              logo: bank.bankLogo,
+              accountNumber: bank.accountNumber || "",
+              ifscCode: bank.ifscCode || "",
+            }));
+            setBanks(transformedBanks);
+            // Set first bank as selected if available
+            if (transformedBanks.length > 0 && !selectedBank) {
+              setSelectedBank(transformedBanks[0].id);
+            }
           }
+        } catch (error) {
+          console.error("Failed to fetch banks:", error);
+        } finally {
+          setIsBankLoading(false);
         }
       };
       fetchBanks();
@@ -747,7 +755,12 @@ const AdminDashboardHome = () => {
       {payoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9CC]">
           <div className="bg-white rounded-3xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
-            {!addBankOpen && (
+            {isBankLoading && (
+              <div className="flex h-[300px] items-center justify-center">
+                <ButtonLoader color="#039155" size={40} />
+              </div>
+            )}
+            {!isBankLoading && !addBankOpen && (
               <>
                 <h2 className="text-2xl font-['Gilroy-Medium'] mb-[20px] text-[#1B1717]">
                   Transferring Amount
@@ -936,8 +949,8 @@ const AdminDashboardHome = () => {
                               }
                             }}
                             className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
-                                ? "border-[#039155] bg-green-50"
-                                : "border-[#1B1717] border-opacity-80"
+                              ? "border-[#039155] bg-green-50"
+                              : "border-[#1B1717] border-opacity-80"
                               }`}
                           >
                             <div className="flex items-start gap-4">
@@ -1055,7 +1068,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                         
+
 
                           // Map selected AEPS wallet to API aepsType
                           const aepsType =
@@ -1083,7 +1096,7 @@ const AdminDashboardHome = () => {
                             locationInfo?.location?.longitude != null
                               ? locationInfo.location.longitude.toString()
                               : "";
-                         
+
                           payload = {
                             amount: amount.toString(),
                             mode: "bank",
@@ -1166,7 +1179,7 @@ const AdminDashboardHome = () => {
             )}
 
             {/* ================= STEP 2: ADD BANK CARD ================= */}
-            {addBankOpen && (
+            {!isBankLoading && addBankOpen && (
               <>
                 <h2 className="text-2xl font-['Gilroy-Medium'] text-[#1B1717] mb-6">
                   Enter Your Bank Details

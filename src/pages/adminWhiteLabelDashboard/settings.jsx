@@ -3,7 +3,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 import PropTypes from "prop-types";
 import React, { useRef, useState } from "react";
 
-const UploadCard = ({ onFileSelect, recommendedSize }) => {
+const UploadCard = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
   const openFilePicker = () => {
@@ -36,8 +36,7 @@ const UploadCard = ({ onFileSelect, recommendedSize }) => {
       </p>
 
       <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
-        SVG, PNG Format <br />
-        Recommended Size: {recommendedSize}
+        SVG, PNG Format
       </p>
 
       <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
@@ -61,7 +60,6 @@ const UploadCard = ({ onFileSelect, recommendedSize }) => {
 
 UploadCard.propTypes = {
   onFileSelect: PropTypes.func,
-  recommendedSize: PropTypes.string.isRequired,
 };
 
 const PreviewCard = ({ image, buttonLabel = "Upload", onUpload }) => (
@@ -84,11 +82,10 @@ const PreviewCard = ({ image, buttonLabel = "Upload", onUpload }) => (
       disabled={!image}
       onClick={onUpload}
       className={`mx-auto mt-3 px-4 py-2 w-fit rounded-[4px] font-[Gilroy-Medium] text-sm
-    ${
-      image
-        ? "bg-[#C5DBFF] text-[#1B1717]"
-        : "bg-gray-200 text-gray-400 cursor-not-allowed"
-    }`}
+    ${image
+          ? "bg-[#C5DBFF] text-[#1B1717]"
+          : "bg-gray-200 text-gray-400 cursor-not-allowed"
+        }`}
     >
       {buttonLabel}
     </button>
@@ -111,10 +108,9 @@ const SliderPreviewCard = ({ image, onUpload }) => (
       disabled={!image}
       onClick={onUpload}
       className={`mt-3 px-4 py-2 rounded-[4px] font-[Gilroy-Medium] text-sm
-        ${
-          image
-            ? "bg-[#C5DBFF] text-[#1B1717]"
-            : "bg-gray-200 text-gray-400 cursor-not-allowed"
+        ${image
+          ? "bg-[#C5DBFF] text-[#1B1717]"
+          : "bg-gray-200 text-gray-400 cursor-not-allowed"
         }`}
     >
       Change Slider
@@ -156,8 +152,7 @@ const SliderAddCard = ({ onFileSelect }) => {
       </p>
 
       <p className="text-xs text-[#1B1717] font-[Gilroy-Medium] mt-1">
-        SVG/PNG Format <br />
-        Recommended Size: 768px × 674px
+        SVG/PNG Format
       </p>
 
       <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
@@ -190,62 +185,26 @@ const Settings = ({ onBack }) => {
 
   const handleLogoUpload = (file) => {
     const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      if (img.width !== 32 || img.height !== 32) {
-        alert("Logo must be exactly 32 × 32 pixels");
-        URL.revokeObjectURL(url);
-        return;
-      }
-
-      setLogoPreview((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return url;
-      });
-    };
-
-    img.src = url;
+    setLogoPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return url;
+    });
   };
 
   const handleFaviconUpload = (file) => {
     const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      if (img.width !== 16 || img.height !== 16) {
-        alert("Favicon must be exactly 16 × 16 pixels");
-        URL.revokeObjectURL(url);
-        return;
-      }
-
-      setFaviconPreview((prev) => {
-        if (prev) URL.revokeObjectURL(prev);
-        return url;
-      });
-    };
-
-    img.src = url;
+    setFaviconPreview((prev) => {
+      if (prev) URL.revokeObjectURL(prev);
+      return url;
+    });
   };
 
   const handleSliderSelect = (file) => {
     const url = URL.createObjectURL(file);
-    const img = new Image();
-
-    img.onload = () => {
-      if (img.width !== 768 || img.height !== 674) {
-        alert("Slider image must be exactly 768 × 674 pixels");
-        URL.revokeObjectURL(url);
-        return;
-      }
-
-      setSliderPreviews((prev) => {
-        if (prev.length === 3) URL.revokeObjectURL(prev[0]);
-        return [...prev, url].slice(0, 3);
-      });
-    };
-
-    img.src = url;
+    setSliderPreviews((prev) => {
+      if (prev.length === 3) URL.revokeObjectURL(prev[0]);
+      return [...prev, url].slice(0, 3);
+    });
   };
 
   const uploadLogoAPI = () => {
@@ -253,7 +212,7 @@ const Settings = ({ onBack }) => {
   };
 
   const uploadFaviconAPI = () => {
-   // console.log("Upload favicon API call");
+    // console.log("Upload favicon API call");
   };
 
   const uploadSliderAPI = (index) => {
@@ -282,10 +241,7 @@ const Settings = ({ onBack }) => {
             <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Upload Logo
             </h3>
-            <UploadCard
-              onFileSelect={handleLogoUpload}
-              recommendedSize="32px × 32px"
-            />
+            <UploadCard onFileSelect={handleLogoUpload} />
           </div>
 
           <div>
@@ -308,10 +264,7 @@ const Settings = ({ onBack }) => {
             <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
               Upload Fevicons
             </h3>
-            <UploadCard
-              onFileSelect={handleFaviconUpload}
-              recommendedSize="16px × 16px"
-            />
+            <UploadCard onFileSelect={handleFaviconUpload} />
           </div>
 
           <div>

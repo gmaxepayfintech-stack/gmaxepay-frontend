@@ -40,6 +40,7 @@ const RetailerDashboard = () => {
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
   const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const [isBankLoading, setIsBankLoading] = useState(false);
   const { showNotification } = useNotification();
 
   const AEPS_LABELS = {
@@ -157,7 +158,7 @@ const RetailerDashboard = () => {
   const serviceKeys = ["aeps1", "aeps2", "bbps", "mobile", "dth", "nsdlPan", "payout"];
   const transactionData = serviceKeys.map((key) => {
     const svc = getService(key);
-    
+
     // Special handling for BBPS to ensure it's always uppercase
     let serviceLabel = svc.label;
     if (key === "bbps") {
@@ -234,21 +235,28 @@ const RetailerDashboard = () => {
   useEffect(() => {
     if (payoutOpen) {
       const fetchBanks = async () => {
-        const response = await dispatch(payoutBankList({}));
-        if (response?.status === "SUCCESS" && response?.data?.banks) {
-          // Transform API data to match component format
-          const transformedBanks = response.data.banks.map((bank, index) => ({
-            id: bank.id?.toString() || index.toString(),
-            name: bank.bankName || "",
-            logo: bank.bankLogo, 
-            accountNumber: bank.accountNumber || "",
-            ifscCode: bank.ifscCode || "",
-          }));
-          setBanks(transformedBanks);
-          // Set first bank as selected if available
-          if (transformedBanks.length > 0 && !selectedBank) {
-            setSelectedBank(transformedBanks[0].id);
+        setIsBankLoading(true);
+        try {
+          const response = await dispatch(payoutBankList({}));
+          if (response?.status === "SUCCESS" && response?.data?.banks) {
+            // Transform API data to match component format
+            const transformedBanks = response.data.banks.map((bank, index) => ({
+              id: bank.id?.toString() || index.toString(),
+              name: bank.bankName || "",
+              logo: bank.bankLogo,
+              accountNumber: bank.accountNumber || "",
+              ifscCode: bank.ifscCode || "",
+            }));
+            setBanks(transformedBanks);
+            // Set first bank as selected if available
+            if (transformedBanks.length > 0 && !selectedBank) {
+              setSelectedBank(transformedBanks[0].id);
+            }
           }
+        } catch (error) {
+          console.error("Failed to fetch banks:", error);
+        } finally {
+          setIsBankLoading(false);
         }
       };
       fetchBanks();
@@ -773,7 +781,12 @@ const RetailerDashboard = () => {
       {payoutOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#D9D9D9CC]">
           <div className="bg-white rounded-3xl w-[90%] max-w-2xl max-h-[90vh] overflow-y-auto p-6 relative m-4">
-            {!addBankOpen && (
+            {isBankLoading && (
+              <div className="flex h-[300px] items-center justify-center">
+                <ButtonLoader color="#039155" size={40} />
+              </div>
+            )}
+            {!isBankLoading && !addBankOpen && (
               <>
                 <h2 className="text-2xl font-['Gilroy-Medium'] mb-[20px] text-[#1B1717]">
                   Transferring Amount
@@ -881,11 +894,10 @@ const RetailerDashboard = () => {
       focus:outline-none
       appearance-none
       bg-white
-      ${
-        walletType === "wallet"
-          ? "bg-gray-100 cursor-not-allowed opacity-60"
-          : "cursor-pointer"
-      }
+      ${walletType === "wallet"
+                              ? "bg-gray-100 cursor-not-allowed opacity-60"
+                              : "cursor-pointer"
+                            }
     `}
                         >
                           <option value="">Select</option>
@@ -962,11 +974,10 @@ const RetailerDashboard = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
-                              selectedBank === bank.id
-                                ? "border-[#039155] bg-green-50"
-                                : "border-[#1B1717] border-opacity-80"
-                            }`}
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
+                              ? "border-[#039155] bg-green-50"
+                              : "border-[#1B1717] border-opacity-80"
+                              }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
@@ -1068,13 +1079,13 @@ const RetailerDashboard = () => {
                           selectedAepsWallet === "aeps1"
                             ? "AEPS1"
                             : selectedAepsWallet === "aeps2"
-                            ? "AEPS2"
-                            : undefined;
+                              ? "AEPS2"
+                              : undefined;
 
                         if (walletType === "wallet") {
                           // Get location data
                           const locationInfo = await getLocationAndIP();
-                         // console.log("Wallet - Location Info:", locationInfo);
+                          // console.log("Wallet - Location Info:", locationInfo);
                           const latitude =
                             locationInfo?.location?.latitude != null
                               ? locationInfo.location.latitude.toString()
@@ -1155,7 +1166,7 @@ const RetailerDashboard = () => {
                             message:
                               response?.message ||
                               "Transfer completed successfully.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                           setPayout(false);
                           // Reset form
@@ -1170,7 +1181,7 @@ const RetailerDashboard = () => {
                             message:
                               response?.message ||
                               "Failed to process transfer. Please try again.",
-                              isCritical: true,
+                            isCritical: true,
                           });
                         }
                       } catch (error) {
@@ -1180,7 +1191,7 @@ const RetailerDashboard = () => {
                           message:
                             error?.message ||
                             "An unexpected error occurred while processing the transfer.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                       } finally {
                         setIsTransferLoading(false);
@@ -1201,7 +1212,7 @@ const RetailerDashboard = () => {
             )}
 
             {/* ================= STEP 2: ADD BANK CARD ================= */}
-            {addBankOpen && (
+            {!isBankLoading && addBankOpen && (
               <>
                 <h2 className="text-2xl font-['Gilroy-Medium'] text-[#1B1717] mb-6">
                   Enter Your Bank Details
