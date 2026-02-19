@@ -12,6 +12,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 
 import { walletHistoryCompany } from "../../../redux/action/walletAction";
+import { useNotification } from "../../../context/NotificationContext";
 
 const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -131,8 +132,14 @@ const WalletHistory = ({ onBack, type }) => {
       },
     };
 
-    dispatch(walletHistoryCompany(payload));
-  }, [dispatch, fromDate, toDate]);
+    dispatch(walletHistoryCompany(payload)).then((res) => {
+      if (res?.status === "SUCCESS") {
+        showNotification("Wallet history fetched successfully", "success");
+      } else {
+        showNotification(res?.message || "Failed to fetch wallet history", "error");
+      }
+    });
+  }, [dispatch, fromDate, toDate, showNotification]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -237,7 +244,13 @@ const WalletHistory = ({ onBack, type }) => {
                   },
                 };
 
-                dispatch(walletHistoryCompany(payload));
+                dispatch(walletHistoryCompany(payload)).then((res) => {
+                  if (res?.status === "SUCCESS") {
+                    showNotification("Wallet history refreshed successfully", "success");
+                  } else {
+                    showNotification(res?.message || "Failed to refresh wallet history", "error");
+                  }
+                });
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
