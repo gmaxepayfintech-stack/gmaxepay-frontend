@@ -4,7 +4,7 @@ import { API_ROUTE } from "../../data/env";
 import { clearAllStorage, isTokenExpiredError } from "../../utils/clearStorage";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, UPLOAD_FEVICON_FAILURE, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_COMPANY_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, UPLOAD_FEVICON_FAILURE, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_COMPANY_FAILURE, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_ADMIN_FAILURE, WALLET_HISTORY_USER_SUCCESS, WALLET_HISTORY_USER_FAILURE } from "../actionType/walletActionType";
 
 const commonError = "Something went wrong!";
 
@@ -658,6 +658,112 @@ export const walletHistoryCompany = (payload) => async (dispatch) => {
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: WALLET_HISTORY_COMPANY_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const walletHistoryAdmin = (payload) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/wallet/walletHistory`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: WALLET_HISTORY_ADMIN_SUCCESS,
+                payload: { data, status, message },
+            });
+            return { data, status, message };
+        } else {
+            dispatch({
+                type: WALLET_HISTORY_ADMIN_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        if (isTokenExpiredError(error)) {
+            clearAllStorage();
+        }
+
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: WALLET_HISTORY_ADMIN_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const walletHistoryUsers = (payload) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/users/wallet/walletHistory`,
+            payload,
+            {
+                headers: {
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: WALLET_HISTORY_USER_SUCCESS,
+                payload: { data, status, message },
+            });
+            return { data, status, message };
+        } else {
+            dispatch({
+                type: WALLET_HISTORY_USER_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        if (isTokenExpiredError(error)) {
+            clearAllStorage();
+        }
+
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: WALLET_HISTORY_USER_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: errorMessage,
