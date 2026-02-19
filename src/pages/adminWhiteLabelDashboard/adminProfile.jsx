@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
-import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
+import { MapPin, FileText, Camera, ChevronDown, X, Edit, Trash2 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
 import { getUserDetails } from "../../redux/action/whiteLabelAction";
@@ -22,7 +22,7 @@ import {
   addBankCompanyDetails,
   deleteCompanyBank,
 } from "../../redux/action/userProfileAction";
-import { Trash2 } from "lucide-react";
+
 
 const AdminProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -37,7 +37,10 @@ const AdminProfile = ({ onBack = null }) => {
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false); // Edit Modal State
   const [selectedBank, setSelectedBank] = useState(null);
+  const [enablePayout, setEnablePayout] = useState(true); // Toggle State
+  const [enableWalletLoad, setEnableWalletLoad] = useState(false); // Toggle State
 
   // Get company from context
   const { company } = useCompany();
@@ -361,8 +364,8 @@ const AdminProfile = ({ onBack = null }) => {
             {/* Active Status */}
             <div
               className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
-                  ? "bg-red-500"
-                  : "bg-[#008D1E]"
+                ? "bg-red-500"
+                : "bg-[#008D1E]"
                 }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
@@ -479,8 +482,8 @@ const AdminProfile = ({ onBack = null }) => {
                 {/* Text */}
                 <span
                   className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
-                      ? "text-white"
-                      : "text-[#1B1717]/80 hover:text-[#039155]"
+                    ? "text-white"
+                    : "text-[#1B1717]/80 hover:text-[#039155]"
                     }`}
                 >
                   {label}
@@ -896,8 +899,8 @@ const AdminProfile = ({ onBack = null }) => {
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
-                        ? "bg-red-500"
-                        : "bg-[#039155]"
+                      ? "bg-red-500"
+                      : "bg-[#039155]"
                       }`}
                   >
                     {data?.status || "Active"}
@@ -1135,17 +1138,33 @@ const AdminProfile = ({ onBack = null }) => {
 
                       <div className="flex flex-col w-20">
                         <p className="text-xs text-gray-500">Action</p>
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setSelectedBank(bank);
-                            setShowDeleteModal(true);
-                          }}
-                          className="text-red-500 hover:text-red-700 transition"
-                          title="Delete bank account"
-                        >
-                          <Trash2 size={18} />
-                        </button>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBank(bank);
+                              // Set initial values usually from bank data
+                              setEnablePayout(true);
+                              setEnableWalletLoad(false);
+                              setShowEditModal(true);
+                            }}
+                            className="text-gray-500 hover:text-[#039155] transition"
+                            title="Edit bank account"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBank(bank);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-500 hover:text-red-700 transition"
+                            title="Delete bank account"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))
@@ -1159,6 +1178,104 @@ const AdminProfile = ({ onBack = null }) => {
           </div>
         )}
       </div>
+
+      {/* Edit Bank Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-[24px] shadow-xl w-full max-w-sm p-6 relative">
+
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-[Gilroy-SemiBold] text-[#1B1717]">
+                Use Account For
+              </h3>
+              <span className="bg-[#EBE9FE] text-[#6941C6] text-[10px] sm:text-xs px-2 py-1 rounded-md font-[Gilroy-Medium]">
+                Multi-Selected Enabled
+              </span>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              {/* Payout Option */}
+              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                  </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
+                  <div>
+                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Payout</h4>
+                    <p className="text-xs text-gray-500">Use This Account For Payouts</p>
+                  </div>
+                </div>
+
+                {/* Toggle Switch */}
+                <button
+                  onClick={() => setEnablePayout(!enablePayout)}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enablePayout ? 'bg-[#039155]' : 'bg-gray-200'}`}
+                >
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enablePayout ? 'translate-x-[26px]' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {/* Wallet Load Option */}
+              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                    </svg>
+                  </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
+                  <div>
+                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Wallet Load</h4>
+                    <p className="text-xs text-gray-500">Transfer Funds To Agent Wallet</p>
+                  </div>
+                </div>
+
+                {/* Toggle Switch */}
+                <button
+                  onClick={() => setEnableWalletLoad(!enableWalletLoad)}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enableWalletLoad ? 'bg-[#039155]' : 'bg-gray-200'}`}
+                >
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enableWalletLoad ? 'translate-x-[26px]' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedBank(null);
+                }}
+                className="flex-1 py-3 border border-gray-300 rounded-xl text-sm font-[Gilroy-Medium] text-[#1B1717] hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={() => {
+                  // Here you would dispatch an action to update the bank preferences
+                  showNotification({
+                    type: "success",
+                    message: "Bank preferences updated",
+                    isCritical: true,
+                  });
+                  setShowEditModal(false);
+                  setSelectedBank(null);
+                }}
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47]"
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Delete Bank Confirmation Modal */}
       {showDeleteModal && (
