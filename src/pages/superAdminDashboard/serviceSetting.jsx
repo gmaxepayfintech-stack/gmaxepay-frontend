@@ -221,14 +221,12 @@ const ServiceSetting = () => {
                     <div className="flex justify-end">
                       <button
                         // onClick={() => toggleStatus(service.id)}
-                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${
-                          service.isActive ? "bg-[#039155]" : "bg-gray-300"
-                        }`}
+                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${service.isActive ? "bg-[#039155]" : "bg-gray-300"
+                          }`}
                       >
                         <div
-                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${
-                            service.isActive ? "translate-x-6" : "translate-x-0"
-                          }`}
+                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${service.isActive ? "translate-x-6" : "translate-x-0"
+                            }`}
                         />
                       </button>
                     </div>
@@ -291,11 +289,10 @@ const ServiceSetting = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                    apiCurrentPage === page
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                  }`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === page
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                    }`}
                 >
                   {page}
                 </button>
@@ -382,14 +379,12 @@ const ServiceSetting = () => {
                       onClick={() =>
                         setFormData({ ...formData, active: !formData.active })
                       }
-                      className={`w-10 h-5 rounded-full p-1 transition-colors ${
-                        formData.active ? "bg-[#039155]" : "bg-gray-300"
-                      }`}
+                      className={`w-10 h-5 rounded-full p-1 transition-colors ${formData.active ? "bg-[#039155]" : "bg-gray-300"
+                        }`}
                     >
                       <div
-                        className={`w-3 h-3 bg-white rounded-full transition-transform ${
-                          formData.active ? "translate-x-5" : "translate-x-0"
-                        }`}
+                        className={`w-3 h-3 bg-white rounded-full transition-transform ${formData.active ? "translate-x-5" : "translate-x-0"
+                          }`}
                       />
                     </button>
                   </div>

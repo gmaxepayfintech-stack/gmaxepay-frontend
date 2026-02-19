@@ -6,6 +6,7 @@ import {
   createOperator,
   updateOperator,
 } from "../../redux/action/operatorActions";
+import { listServices } from "../../redux/action/serviceActions";
 import React, { useState, useEffect } from "react";
 import { ButtonLoader } from "../../widgets/layout/loader";
 
@@ -13,10 +14,12 @@ const OperatorSetting = () => {
   // const [services, setServices] = useState(initialServices);
   const dispatch = useDispatch();
   const { operatorList } = useSelector((state) => state.operators);
+  const { serviceList } = useSelector((state) => state.services);
   const isLoading = useSelector((state) => state.loading.isLoading);
 
   // always extract the ARRAY safely
   const services = Array.isArray(operatorList?.data) ? operatorList.data : [];
+  const serviceData = Array.isArray(serviceList?.data) ? serviceList.data : [];
 
   const [currentPage, setCurrentPage] = useState(1);
   const [editId, setEditId] = useState(null);
@@ -32,7 +35,7 @@ const OperatorSetting = () => {
     comm: "",
     commType: "",
     amtType: "",
-    hsnCode: "",
+    hsnCode: "HSN1234",
     remarks: "",
   });
 
@@ -51,6 +54,19 @@ const OperatorSetting = () => {
       }),
     );
   }, [dispatch, searchQuery, selectedType, currentPage]);
+
+  useEffect(() => {
+    dispatch(
+      listServices({
+        query: {},
+        options: {
+          page: 1,
+          paginate: 100, // Fetch enough services
+          sort: { createdAt: 1 },
+        },
+      })
+    );
+  }, [dispatch]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -83,7 +99,7 @@ const OperatorSetting = () => {
   const totalPages = paginator?.pageCount || 1;
   const apiCurrentPage = paginator?.currentPage || currentPage;
 
-  const handleSubmitOperator = () => {
+  const handleSubmitOperator = async () => {
     if (
       !formData.operatorName ||
       !formData.operatorCode ||
@@ -94,100 +110,87 @@ const OperatorSetting = () => {
       return;
     }
 
-    // 🔒 extra safety
     if (Number(formData.minValue) > Number(formData.maxValue)) {
-      alert("Min Value cannot be greater than Max Value");
       return;
     }
 
-    if (editId) {
-      // ✅ UPDATE PAYLOAD (ONLY editable fields)
-      const updatePayload = {
-        operatorName: formData.operatorName,
+    try {
+      if (editId) {
+        const updatePayload = {
+          operatorName: formData.operatorName,
+          operatorCode: formData.operatorCode,
+          operatorType: formData.operatorType,
 
-        minValue: Number(formData.minValue),
-        maxValue: Number(formData.maxValue),
+          minValue: Number(formData.minValue),
+          maxValue: Number(formData.maxValue),
 
-        comm: Number(formData.comm),
-        commType: formData.commType,
-        amtType: formData.amtType,
+          comm: Number(formData.comm),
+          commType: formData.commType,
+          amtType: formData.amtType,
 
-        hsnCode: formData.hsnCode,
-        accountRemark: formData.remarks,
+          hsnCode: formData.hsnCode,
+          accountRemark: formData.remarks,
 
-        // 🔴 REQUIRED STATIC FIELDS (ADD THESE)
-        commSettingType: "percentage",
-        allowedChannel: "WEB,MOBILE",
-        businessModel: "B2B",
-        isAccountNumeric: true,
-        isBBPS: false,
-        isBillingAllowed: true,
-        exactness: "exact",
-        inSlab: true,
-        isTakeCustomerNum: true,
-      };
+          commSettingType: "percentage",
+          allowedChannel: "WEB,MOBILE",
+          businessModel: "B2B",
+          isAccountNumeric: true,
+          isBBPS: false,
+          isBillingAllowed: true,
+          exactness: "exact",
+          inSlab: true,
+          isTakeCustomerNum: true,
+        };
 
-      dispatch(updateOperator(editId, updatePayload)).then(() => {
-        setCurrentPage(1);
-        dispatch(
-          listOperators({
-            query: selectedType !== "all" ? { operatorType: selectedType } : {},
-            customSearch: searchQuery
-              ? { operatorName: searchQuery, operatorCode: searchQuery }
-              : {},
-            options: {
-              page: currentPage,
-              paginate: 10,
-              sort: { createdAt: 1 },
-            },
-          }),
-        );
-      });
-    } else {
-      // ✅ CREATE PAYLOAD
-      const createPayload = {
-        operatorName: formData.operatorName,
-        operatorCode: formData.operatorCode,
-        operatorType: formData.operatorType,
-        minValue: Number(formData.minValue),
-        maxValue: Number(formData.maxValue),
-        comm: Number(formData.comm),
-        commType: formData.commType,
-        amtType: formData.amtType,
-        hsnCode: formData.hsnCode,
-        accountRemark: formData.remarks,
+        await dispatch(updateOperator(editId, updatePayload));
+      } else {
+        // ✅ CREATE PAYLOAD
+        const createPayload = {
+          operatorName: formData.operatorName,
+          operatorCode: formData.operatorCode,
+          operatorType: formData.operatorType,
+          minValue: Number(formData.minValue),
+          maxValue: Number(formData.maxValue),
+          comm: Number(formData.comm),
+          commType: formData.commType,
+          amtType: formData.amtType,
+          hsnCode: formData.hsnCode,
+          accountRemark: formData.remarks,
 
-        // create-only fields
-        commSettingType: "percentage",
-        allowedChannel: "WEB,MOBILE",
-        businessModel: "B2B",
-        isAccountNumeric: true,
-        isBBPS: false,
-        isBillingAllowed: true,
-        exactness: "exact",
-        inSlab: true,
-        isTakeCustomerNum: true,
-      };
+          // create-only fields
+          commSettingType: "percentage",
+          allowedChannel: "WEB,MOBILE",
+          businessModel: "B2B",
+          isAccountNumeric: true,
+          isBBPS: false,
+          isBillingAllowed: true,
+          exactness: "exact",
+          inSlab: true,
+          isTakeCustomerNum: true,
+        };
 
-      dispatch(createOperator(createPayload)).then(() => {
-        setCurrentPage(1);
-        dispatch(
-          listOperators({
-            query: selectedType !== "all" ? { operatorType: selectedType } : {},
-            customSearch: searchQuery
-              ? { operatorName: searchQuery, operatorCode: searchQuery }
-              : {},
-            options: {
-              page: currentPage,
-              paginate: 10,
-              sort: { createdAt: 1 },
-            },
-          }),
-        );
-      });
+        await dispatch(createOperator(createPayload));
+      }
+
+      // Refresh list
+      dispatch(
+        listOperators({
+          query: selectedType !== "all" ? { operatorType: selectedType } : {},
+          customSearch: searchQuery
+            ? { operatorName: searchQuery, operatorCode: searchQuery }
+            : {},
+          options: {
+            page: currentPage,
+            paginate: 10,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
+
+      resetForm();
+    } catch (error) {
+      console.error("Error submitting operator:", error);
     }
-
-    resetForm();
   };
 
   const resetForm = () => {
@@ -200,7 +203,7 @@ const OperatorSetting = () => {
       comm: "",
       commType: "",
       amtType: "",
-      hsnCode: "",
+      hsnCode: "HSN1234",
       remarks: "",
     });
 
@@ -224,7 +227,7 @@ const OperatorSetting = () => {
       comm: service.comm || "",
       commType: service.commType || "",
       amtType: service.amtType || "",
-      hsnCode: service.hsnCode || "",
+      hsnCode: service.hsnCode || "HSN1234",
       remarks: service.accountRemark || "",
     });
 
@@ -373,11 +376,10 @@ const OperatorSetting = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                    apiCurrentPage === page
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                  }`}
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === page
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                    }`}
                 >
                   {page}
                 </button>
@@ -430,8 +432,23 @@ const OperatorSetting = () => {
                 New Operator
               </h3>
 
-              {/* Inputs */}
+              {/* Row 1: Operator Name & Operator Type */}
               <div className="flex gap-4">
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
+                    Operator Name
+                  </label>
+                  <input
+                    type="text"
+                    value={formData.operatorName}
+                    onChange={(e) =>
+                      setFormData({ ...formData, operatorName: e.target.value })
+                    }
+                    placeholder="Enter Operator Name"
+                    className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
+                  />
+                </div>
+
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     Operator Type
@@ -446,29 +463,16 @@ const OperatorSetting = () => {
                   >
                     <option value="">Select Operator Type</option>
 
-                    {operatorTypes.map((type) => (
-                      <option key={type} value={type}>
-                        {type}
+                    {serviceData.map((service) => (
+                      <option key={service.id} value={service.serviceName}>
+                        {service.serviceName}
                       </option>
                     ))}
                   </select>
                 </div>
-
-                {/* <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
-                    Operator Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.operatorName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, operatorName: e.target.value })
-                    }
-                    placeholder="Enter Operator Name"
-                    className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
-                  />
-                </div> */}
               </div>
+
+              {/* Row 2: Operator Code & Amount Type */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
@@ -480,39 +484,30 @@ const OperatorSetting = () => {
                     onChange={(e) =>
                       setFormData({ ...formData, operatorCode: e.target.value })
                     }
-                    disabled={!!editId}
                     placeholder="Operator Code"
-                    className={`w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs
-                        ${editId ? "bg-gray-100 cursor-not-allowed" : ""}
-                      `}
-                  />
-                </div>
-
-                {/* <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
-                    Operator Type
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Enter Operator Type"
-                    className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-2 text-xs focus:outline-none"
-                  />
-                </div> */}
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
-                    Operator Name
-                  </label>
-                  <input
-                    type="text"
-                    value={formData.operatorName}
-                    onChange={(e) =>
-                      setFormData({ ...formData, operatorName: e.target.value })
-                    }
-                    placeholder="Enter Operator Name"
                     className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
                   />
                 </div>
+
+                <div className="flex flex-col gap-1 w-1/2">
+                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
+                    Amount Type
+                  </label>
+                  <select
+                    value={formData.amtType}
+                    onChange={(e) =>
+                      setFormData({ ...formData, amtType: e.target.value })
+                    }
+                    className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
+                  >
+                    <option value="">Select</option>
+                    <option value="per">Percentage</option>
+                    <option value="fix">Fixed</option>
+                  </select>
+                </div>
               </div>
+
+              {/* Row 3: Min Value & Max Value */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
@@ -544,6 +539,8 @@ const OperatorSetting = () => {
                   />
                 </div>
               </div>
+
+              {/* Row 4: Commission & Commission Type */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
@@ -573,40 +570,8 @@ const OperatorSetting = () => {
                   >
                     <option value="">Select</option>
                     <option value="com">Commission</option>
+                    <option value="sur">Surcharge</option>
                   </select>
-                </div>
-              </div>
-              <div className="flex gap-4">
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
-                    Amount Type
-                  </label>
-                  <select
-                    value={formData.amtType}
-                    onChange={(e) =>
-                      setFormData({ ...formData, amtType: e.target.value })
-                    }
-                    className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
-                  >
-                    <option value="">Select</option>
-                    <option value="per">Percentage</option>
-                    <option value="fix">Fixed</option>
-                  </select>
-                </div>
-
-                <div className="flex flex-col gap-1 w-1/2">
-                  <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
-                    HSN Code
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="HSN Code"
-                    value={formData.hsnCode}
-                    onChange={(e) =>
-                      setFormData({ ...formData, hsnCode: e.target.value })
-                    }
-                    className="w-full border border-[#1B1717]/80 focus:outline-none rounded-lg px-3 py-2 text-xs"
-                  />
                 </div>
               </div>
 
