@@ -14,10 +14,10 @@ import { walletHistoryUsers } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 
 const WalletHistory = ({ onBack, type }) => {
-  const { showNotification } = useNotification();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const { showNotification } = useNotification();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -51,8 +51,10 @@ const WalletHistory = ({ onBack, type }) => {
           .replace(/\//g, "-");
       }
 
-      // Format amount with currency symbol
+      // Format amounts with currency symbol
       const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+      const formattedSurcharge = item.surcharge ? `₹${item.surcharge}` : "₹0";
+      const formattedDebit = item.debit ? `₹${item.debit}` : "₹0";
 
       // Map status from API to display format
       const getStatusDisplay = (status) => {
@@ -74,20 +76,21 @@ const WalletHistory = ({ onBack, type }) => {
 
       return {
         id: item.id,
-        transactionID: item.transactionId || "N/A",
+        transactionId: item.transactionId || "N/A",
         refId: item.refId || "N/A",
+        userName: item.user?.name || "N/A",
         mobileNo: item.user?.mobileNo || item.mobile || "N/A",
-        accountNumber: item.beneficiaryAccountNumber || item.accountNumber || "N/A",
-        ifscCode: item.beneficiaryIfsc || item.ifscCode || "N/A",
-        bankName: item.beneficiaryBankName || item.bankName || "N/A",
-        beneficiaryName: item.beneficiaryName || "N/A",
-        amount: formattedAmount,
-        status: getStatusDisplay(item.paymentStatus || item.status),
-        type: item.operator || item.type || "N/A",
+        companyName: item.company?.companyName || "N/A",
+        companyId: item.companyId || "N/A",
         walletType: item.walletType || "N/A",
+        amount: formattedAmount,
+        surcharge: formattedSurcharge,
+        debit: formattedDebit,
+        status: getStatusDisplay(item.paymentStatus || item.status),
+        type: item.operator || item.paymentMode || item.type || "N/A",
         aepsType: getAepsType(item.aepsTxnType),
-        openingBalance: item.openingAmt ? `₹${item.openingAmt}` : "N/A",
-        closingBalance: item.closingAmt ? `₹${item.closingAmt}` : "N/A",
+        openingAmt: item.openingAmt ? `₹${item.openingAmt}` : "N/A",
+        closingAmt: item.closingAmt ? `₹${item.closingAmt}` : "N/A",
         createdAt: formattedDate,
         originalItem: item,
       };
@@ -127,7 +130,7 @@ const WalletHistory = ({ onBack, type }) => {
       customSearch: {},
       options: {
         page: 1,
-        paginate: 1000, // Get all records since API doesn't support pagination
+        paginate: 1000,
         sort: { id: -1 },
       },
     };
@@ -162,10 +165,11 @@ const WalletHistory = ({ onBack, type }) => {
     const searchLower = debouncedSearchQuery.toLowerCase();
     const matchesSearch =
       !debouncedSearchQuery ||
-      transaction.transactionID.toLowerCase().includes(searchLower) ||
+      transaction.transactionId.toLowerCase().includes(searchLower) ||
       transaction.refId.toString().includes(searchLower) ||
       transaction.mobileNo.includes(searchLower) ||
-      transaction.beneficiaryName.toLowerCase().includes(searchLower);
+      transaction.userName.toLowerCase().includes(searchLower) ||
+      transaction.companyName.toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
@@ -322,7 +326,7 @@ const WalletHistory = ({ onBack, type }) => {
             <thead className="bg-[#FFFFFF] border-b border-gray-200 text-center">
               <tr>
                 <th className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  SR No
+                  Id
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
@@ -334,19 +338,25 @@ const WalletHistory = ({ onBack, type }) => {
                   Mobile
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Beneficiary
+                  User Name
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Account Number
+                  Company Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  IFSC Code
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Company ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Bank Name
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Wallet Type
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Amount
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Surcharge
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Debit
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Opening Bal
@@ -392,7 +402,7 @@ const WalletHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.transactionID}
+                            {transaction.transactionId}
                           </span>
                         </td>
 
@@ -408,27 +418,27 @@ const WalletHistory = ({ onBack, type }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.beneficiaryName}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.accountNumber}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap text-left">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.ifscCode}
+                            {transaction.userName}
                           </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.bankName}
+                            {transaction.companyName}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.companyId}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.walletType}
                           </span>
                         </td>
 
@@ -439,14 +449,26 @@ const WalletHistory = ({ onBack, type }) => {
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.openingBalance}
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
+                            {transaction.surcharge}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
+                            {transaction.debit}
                           </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.closingBalance}
+                            {transaction.openingAmt}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.closingAmt}
                           </span>
                         </td>
 
