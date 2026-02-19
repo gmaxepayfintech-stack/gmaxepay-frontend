@@ -992,7 +992,7 @@ const DistributerProfile = ({ onBack = null }) => {
                     onClick={() => setIsAddingBank(true)}
                     className="inline-flex items-center gap-2 px-5 py-2 sm:px-6 sm:py-2.5 rounded-xl border border-[#4B4B4B] text-xs sm:text-sm font-[Gilroy-Medium] text-[#4B4B4B] bg-white hover:bg-gray-50 transition"
                   >
-                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-md">
+                    <span className="flex items-center justify-center w-6 h-6 rounded-full border border-[#4B4B4B] text-[#4B4B4B] text-xl">
                       +
                     </span>
                     <span>Add New Account</span>

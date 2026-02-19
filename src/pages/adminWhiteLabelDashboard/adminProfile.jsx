@@ -297,7 +297,7 @@ const AdminProfile = ({ onBack = null }) => {
             {(data?.profileImage ||
               outletDetails?.shopImage ||
               companyDetails?.compnyLogo) &&
-            !imageError ? (
+              !imageError ? (
               <img
                 src={
                   data?.profileImage ||
@@ -360,11 +360,10 @@ const AdminProfile = ({ onBack = null }) => {
 
             {/* Active Status */}
             <div
-              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-                (data?.status || "Active").toLowerCase() === "inactive"
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
                   ? "bg-red-500"
                   : "bg-[#008D1E]"
-              }`}
+                }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
@@ -479,11 +478,10 @@ const AdminProfile = ({ onBack = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${
-                    activeTab === key
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
                       ? "text-white"
                       : "text-[#1B1717]/80 hover:text-[#039155]"
-                  }`}
+                    }`}
                 >
                   {label}
                 </span>
@@ -897,11 +895,10 @@ const AdminProfile = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${
-                      (data?.status || "Active").toLowerCase() === "inactive"
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
                         ? "bg-red-500"
                         : "bg-[#039155]"
-                    }`}
+                      }`}
                   >
                     {data?.status || "Active"}
                   </span>
@@ -1306,7 +1303,7 @@ const AdminProfile = ({ onBack = null }) => {
                         if (!selectedSlab) return "N/A";
                         const amountDisplay =
                           selectedSlab.slabAmount === "free" ||
-                          selectedSlab.slabAmount === 0
+                            selectedSlab.slabAmount === 0
                             ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
                         const subscriptionStatus = selectedSlab.isSubscribed

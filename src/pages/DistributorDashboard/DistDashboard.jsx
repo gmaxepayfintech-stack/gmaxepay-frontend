@@ -25,7 +25,6 @@ import { ButtonLoader } from "../../widgets/layout/loader";
 import { FiChevronDown } from "react-icons/fi";
 
 const Distributor = "/img/DistributorM.png";
-const Ratailer = "/img/Retailer.png";
 const Earning = "/img/Earning.png";
 
 const DistDashboard = () => {

@@ -60,6 +60,7 @@ const SurCharges = ({ onBack, type }) => {
                 refId: item.refId || "N/A",
                 companyId: item.companyId || "N/A",
                 service: item.service || "N/A",
+                operatorType: item.operatorType || "N/A",
                 amount: formattedAmount,
                 createdAt: formattedDate,
                 originalItem: item,
@@ -295,6 +296,9 @@ const SurCharges = ({ onBack, type }) => {
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                                     Service
                                 </th>
+                                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                                    Operator Type
+                                </th>
                                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                                     Amount
                                 </th>
@@ -342,6 +346,11 @@ const SurCharges = ({ onBack, type }) => {
                                                 <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                                                     <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate max-w-[200px]" title={transaction.service}>
                                                         {transaction.service}
+                                                    </span>
+                                                </td>
+                                                <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                                                    <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate max-w-[200px]" title={transaction.service}>
+                                                        {transaction.operatorType}
                                                     </span>
                                                 </td>
 
