@@ -3,6 +3,7 @@ import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { MapPin, FileText, Camera, ChevronDown, X, Edit, Trash2 } from "lucide-react";
+import { ButtonLoader } from "../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 import { getAllCompanySlabVisibility } from "../../redux/action/slabAction";
 import { getUserDetails } from "../../redux/action/whiteLabelAction";
@@ -1258,6 +1259,7 @@ const AdminProfile = ({ onBack = null }) => {
               </button>
 
               <button
+                disabled={isLoading}
                 onClick={async () => {
                   const payload = {
                     isPayout: enablePayout,
@@ -1265,21 +1267,23 @@ const AdminProfile = ({ onBack = null }) => {
                   };
 
                   if (selectedBank?.id) {
-                    await dispatch(updateBankDetails(payload, selectedBank.id));
+                    const response = await dispatch(updateBankDetails(payload, selectedBank.id));
                     await dispatch(getUserDetails());
 
-                    showNotification({
-                      type: "success",
-                      message: "Bank preferences updated",
-                      isCritical: true,
-                    });
+                    if (response?.status === "SUCCESS") {
+                      showNotification({
+                        type: "success",
+                        message: response?.message || "Bank preferences updated",
+                        isCritical: true,
+                      });
+                    }
                   }
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}
-                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47]"
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47] flex items-center justify-center"
               >
-                Save
+                {isLoading ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>
