@@ -124,78 +124,78 @@ const TaxHistory = () => {
       viewKey: "wallet-history",
       category: "Banking",
     },
-    {
-      id: 7,
-      title: "DMT",
-      subtitle: "Direct Money Transfer",
-      available: true,
-      category: "Banking",
-    },
-    {
-      id: 8,
-      title: "CMS",
-      subtitle: "Cash History",
-      available: true,
-      category: "Banking",
-    },
-    {
-      id: 9,
-      title: "F-CMS",
-      subtitle: "Cash Histroy",
-      available: true,
-      category: "Banking",
-    },
-    {
-      id: 10,
-      title: "F-CMS",
-      subtitle: "Cash History",
-      available: true,
-      category: "Banking",
-    },
-    {
-      id: 11,
-      title: "F-CMS",
-      subtitle: "Cash History",
-      available: true,
-      category: "Banking",
-    },
-    {
-      id: 12,
-      title: "F-CMS",
-      subtitle: "Cash History",
-      available: true,
-      category: "Banking",
-    },
+    // {
+    //   id: 7,
+    //   title: "DMT",
+    //   subtitle: "Direct Money Transfer",
+    //   available: true,
+    //   category: "Banking",
+    // },
+    // {
+    //   id: 8,
+    //   title: "CMS",
+    //   subtitle: "Cash History",
+    //   available: true,
+    //   category: "Banking",
+    // },
+    // {
+    //   id: 9,
+    //   title: "F-CMS",
+    //   subtitle: "Cash Histroy",
+    //   available: true,
+    //   category: "Banking",
+    // },
+    // {
+    //   id: 10,
+    //   title: "F-CMS",
+    //   subtitle: "Cash History",
+    //   available: true,
+    //   category: "Banking",
+    // },
+    // {
+    //   id: 11,
+    //   title: "F-CMS",
+    //   subtitle: "Cash History",
+    //   available: true,
+    //   category: "Banking",
+    // },
+    // {
+    //   id: 12,
+    //   title: "F-CMS",
+    //   subtitle: "Cash History",
+    //   available: true,
+    //   category: "Banking",
+    // },
 
     // Utility Payment
-    {
-      id: 13,
-      title: "Electricity Bill History",
-      subtitle: "Electricity Payments",
-      available: true,
-      category: "Utility Payment",
-    },
-    {
-      id: 14,
-      title: "Water Bill History",
-      subtitle: "Water Bill Payments",
-      available: true,
-      category: "Utility Payment",
-    },
-    {
-      id: 15,
-      title: "Gas Bill History",
-      subtitle: "Gas Utility Payments",
-      available: true,
-      category: "Utility Payment",
-    },
-    {
-      id: 16,
-      title: "Broadband History",
-      subtitle: "Internet & Broadband",
-      available: true,
-      category: "Utility Payment",
-    },
+    // {
+    //   id: 13,
+    //   title: "Electricity Bill History",
+    //   subtitle: "Electricity Payments",
+    //   available: true,
+    //   category: "Utility Payment",
+    // },
+    // {
+    //   id: 14,
+    //   title: "Water Bill History",
+    //   subtitle: "Water Bill Payments",
+    //   available: true,
+    //   category: "Utility Payment",
+    // },
+    // {
+    //   id: 15,
+    //   title: "Gas Bill History",
+    //   subtitle: "Gas Utility Payments",
+    //   available: true,
+    //   category: "Utility Payment",
+    // },
+    // {
+    //   id: 16,
+    //   title: "Broadband History",
+    //   subtitle: "Internet & Broadband",
+    //   available: true,
+    //   category: "Utility Payment",
+    // },
     {
       id: 29,
       title: "Mobile Recharge History",
@@ -222,89 +222,89 @@ const TaxHistory = () => {
       viewKey: "pan-service-history",
       category: "E-Governance",
     },
-    {
-      id: 18,
-      title: "Aadhaar KYC History",
-      subtitle: "Aadhaar e-KYC",
-      available: true,
-      category: "E-Governance",
-    },
-    {
-      id: 19,
-      title: "GST Payment History",
-      subtitle: "GST & Tax Payments",
-      available: true,
-      category: "E-Governance",
-    },
+    // {
+    //   id: 18,
+    //   title: "Aadhaar KYC History",
+    //   subtitle: "Aadhaar e-KYC",
+    //   available: true,
+    //   category: "E-Governance",
+    // },
+    // {
+    //   id: 19,
+    //   title: "GST Payment History",
+    //   subtitle: "GST & Tax Payments",
+    //   available: true,
+    //   category: "E-Governance",
+    // },
 
     // Insurance
-    {
-      id: 20,
-      title: "Life Insurance History",
-      subtitle: "Life Policy Payments",
-      available: true,
-      category: "Insurance",
-    },
-    {
-      id: 21,
-      title: "Health Insurance History",
-      subtitle: "Health Policy Payments",
-      available: true,
-      category: "Insurance",
-    },
-    {
-      id: 22,
-      title: "Vehicle Insurance History",
-      subtitle: "Motor Policy Payments",
-      available: true,
-      category: "Insurance",
-    },
+    // {
+    //   id: 20,
+    //   title: "Life Insurance History",
+    //   subtitle: "Life Policy Payments",
+    //   available: true,
+    //   category: "Insurance",
+    // },
+    // {
+    //   id: 21,
+    //   title: "Health Insurance History",
+    //   subtitle: "Health Policy Payments",
+    //   available: true,
+    //   category: "Insurance",
+    // },
+    // {
+    //   id: 22,
+    //   title: "Vehicle Insurance History",
+    //   subtitle: "Motor Policy Payments",
+    //   available: true,
+    //   category: "Insurance",
+    // },
 
     // Travel
-    {
-      id: 23,
-      title: "Flight Booking History",
-      subtitle: "Flight Tickets",
-      available: true,
-      category: "Travel",
-    },
-    {
-      id: 24,
-      title: "Bus Booking History",
-      subtitle: "Bus Tickets",
-      available: true,
-      category: "Travel",
-    },
-    {
-      id: 25,
-      title: "Train Booking History",
-      subtitle: "Railway Tickets",
-      available: true,
-      category: "Travel",
-    },
+    // {
+    //   id: 23,
+    //   title: "Flight Booking History",
+    //   subtitle: "Flight Tickets",
+    //   available: true,
+    //   category: "Travel",
+    // },
+    // {
+    //   id: 24,
+    //   title: "Bus Booking History",
+    //   subtitle: "Bus Tickets",
+    //   available: true,
+    //   category: "Travel",
+    // },
+    // {
+    //   id: 25,
+    //   title: "Train Booking History",
+    //   subtitle: "Railway Tickets",
+    //   available: true,
+    //   category: "Travel",
+    // },
 
     // Verification History
-    {
-      id: 26,
-      title: "KYC Verification History",
-      subtitle: "Customer KYC Logs",
-      available: true,
-      category: "Verification History",
-    },
-    {
-      id: 27,
-      title: "Aadhaar Verification History",
-      subtitle: "Aadhaar Verification Logs",
-      available: true,
-      category: "Verification History",
-    },
-    {
-      id: 28,
-      title: "PAN Verification History",
-      subtitle: "PAN Verification Logs",
-      available: true,
-      category: "Verification History",
-    },
+    // {
+    //   id: 26,
+    //   title: "KYC Verification History",
+    //   subtitle: "Customer KYC Logs",
+    //   available: true,
+    //   category: "Verification History",
+    // },
+    // {
+    //   id: 27,
+    //   title: "Aadhaar Verification History",
+    //   subtitle: "Aadhaar Verification Logs",
+    //   available: true,
+    //   category: "Verification History",
+    // },
+    // {
+    //   id: 28,
+    //   title: "PAN Verification History",
+    //   subtitle: "PAN Verification Logs",
+    //   available: true,
+    //   category: "Verification History",
+    // },
   ];
 
   useEffect(() => {
@@ -408,11 +408,10 @@ const TaxHistory = () => {
                 <span
                   className={`relative z-10 text-xs sm:text-sm md:text-base
               font-[Gilroy-Semibold] whitespace-nowrap
-              ${
-                activeTab === tab
-                  ? "text-white"
-                  : "text-[#1B1717] hover:text-[#039155]"
-              }`}
+              ${activeTab === tab
+                      ? "text-white"
+                      : "text-[#1B1717] hover:text-[#039155]"
+                    }`}
                 >
                   {tab}
                 </span>
@@ -500,11 +499,10 @@ const TaxHistory = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${
-                currentPage === page
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
                   ? "bg-[#039155] text-white"
                   : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-              }`}
+                }`}
             >
               {page}
             </button>
