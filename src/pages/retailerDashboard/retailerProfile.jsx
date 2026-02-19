@@ -1397,7 +1397,7 @@ const RetailerProfile = ({ onBack = null }) => {
                 {/* Toggle Switch */}
                 <button
                   onClick={() => setEnablePayout(!enablePayout)}
-                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enablePayout ? 'bg-[#53389E]' : 'bg-gray-200'}`}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enablePayout ? 'bg-[#039155]' : 'bg-gray-200'}`}
                 >
                   <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enablePayout ? 'translate-x-[26px]' : 'translate-x-1'}`} />
                 </button>
@@ -1422,7 +1422,7 @@ const RetailerProfile = ({ onBack = null }) => {
                 {/* Toggle Switch */}
                 <button
                   onClick={() => setEnableWalletLoad(!enableWalletLoad)}
-                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enableWalletLoad ? 'bg-[#53389E]' : 'bg-gray-200'}`}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enableWalletLoad ? 'bg-[#039155]' : 'bg-gray-200'}`}
                 >
                   <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enableWalletLoad ? 'translate-x-[26px]' : 'translate-x-1'}`} />
                 </button>
@@ -1451,7 +1451,7 @@ const RetailerProfile = ({ onBack = null }) => {
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}
-                className="flex-1 py-3 bg-[#53389E] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#422d7e]"
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47]"
               >
                 Save
               </button>
