@@ -730,7 +730,7 @@ export const walletHistoryUsers = (payload) => async (dispatch) => {
     try {
         const authToken = secureLocalStorage.getItem("userToken");
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/users/wallet/walletHistory`,
+            `${API_ROUTE}/api/v1/user/wallet/walletHistory`,
             payload,
             {
                 headers: {
