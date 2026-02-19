@@ -380,8 +380,8 @@ const DistributerProfile = ({ onBack = null }) => {
             {/* Active Status */}
             <div
               className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
-                  ? "bg-red-500"
-                  : "bg-[#008D1E]"
+                ? "bg-red-500"
+                : "bg-[#008D1E]"
                 }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
@@ -498,8 +498,8 @@ const DistributerProfile = ({ onBack = null }) => {
                 {/* Text */}
                 <span
                   className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
-                      ? "text-white"
-                      : "text-[#1B1717]/80 hover:text-[#039155]"
+                    ? "text-white"
+                    : "text-[#1B1717]/80 hover:text-[#039155]"
                     }`}
                 >
                   {label}
@@ -915,8 +915,8 @@ const DistributerProfile = ({ onBack = null }) => {
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
                     className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
-                        ? "bg-red-500"
-                        : "bg-[#039155]"
+                      ? "bg-red-500"
+                      : "bg-[#039155]"
                       }`}
                   >
                     {data?.status || "Active"}
@@ -1220,8 +1220,7 @@ const DistributerProfile = ({ onBack = null }) => {
                       <line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
                   </div>
-                                    <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
-
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
                   <div>
                     <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Payout</h4>
                     <p className="text-xs text-gray-500">Use This Account For Payouts</p>
@@ -1247,6 +1246,7 @@ const DistributerProfile = ({ onBack = null }) => {
                       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
                     </svg>
                   </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
                   <div>
                     <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Wallet Load</h4>
                     <p className="text-xs text-gray-500">Transfer Funds To Agent Wallet</p>

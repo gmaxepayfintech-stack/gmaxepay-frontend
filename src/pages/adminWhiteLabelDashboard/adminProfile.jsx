@@ -21,6 +21,7 @@ import { motion } from "framer-motion";
 import {
   addBankCompanyDetails,
   deleteCompanyBank,
+  updateBankDetails,
 } from "../../redux/action/userProfileAction";
 
 
@@ -1258,13 +1259,22 @@ const AdminProfile = ({ onBack = null }) => {
               </button>
 
               <button
-                onClick={() => {
-                  // Here you would dispatch an action to update the bank preferences
-                  showNotification({
-                    type: "success",
-                    message: "Bank preferences updated",
-                    isCritical: true,
-                  });
+                onClick={async () => {
+                  const payload = {
+                    isPayout: enablePayout,
+                    isFundTransfer: enableWalletLoad,
+                  };
+
+                  if (selectedBank?.id) {
+                    await dispatch(updateBankDetails(payload, selectedBank.id));
+                    await dispatch(getUserDetails());
+
+                    showNotification({
+                      type: "success",
+                      message: "Bank preferences updated",
+                      isCritical: true,
+                    });
+                  }
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}
@@ -1275,235 +1285,242 @@ const AdminProfile = ({ onBack = null }) => {
             </div>
           </div>
         </div>
-      )}
+      )
+      }
 
       {/* Delete Bank Confirmation Modal */}
-      {showDeleteModal && (
-        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
-            <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-3">
-              Delete Bank Account
-            </h3>
+      {
+        showDeleteModal && (
+          <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+            <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+              <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-3">
+                Delete Bank Account
+              </h3>
 
-            <p className="text-sm text-gray-600 mb-6">
-              Are you sure you want to delete this bank account?
-              <br />
-              <span className="font-[Gilroy-Medium] text-gray-800">
-                Account No: {selectedBank?.accountNumber}
-              </span>
-            </p>
+              <p className="text-sm text-gray-600 mb-6">
+                Are you sure you want to delete this bank account?
+                <br />
+                <span className="font-[Gilroy-Medium] text-gray-800">
+                  Account No: {selectedBank?.accountNumber}
+                </span>
+              </p>
 
-            <div className="flex justify-end gap-3">
-              <button
-                onClick={() => {
-                  setShowDeleteModal(false);
-                  setSelectedBank(null);
-                }}
-                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 font-[Gilroy-Medium]"
-              >
-                Cancel
-              </button>
-
-              <button
-                className="px-4 py-2 bg-[#039155] text-white rounded-lg text-sm hover:bg-green-700 font-[Gilroy-Semibold]"
-                onClick={async () => {
-                  const bankId = selectedBank?.id;
-
-                  if (!bankId) {
-                    showNotification({
-                      type: "error",
-                      message: "Bank ID not found",
-                    });
-                    return;
-                  }
-
-                  try {
-                    await dispatch(deleteCompanyBank(bankId));
-
-                    showNotification({
-                      type: "success",
-                      message: "Bank deleted successfully",
-                    });
-                  } catch {
-                    showNotification({
-                      type: "error",
-                      message: "Failed to delete bank",
-                    });
-                  } finally {
-                    setShowDeleteModal(false);
-                    setSelectedBank(null);
-                  }
-                }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Confirmation Modal */}
-      {showConfirmModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
-          <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
-            <div className="p-6">
-              <div className="mb-4">
-                <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
-                  {(() => {
-                    const selectedSlab = slabList.find(
-                      (s) => String(s.id) === selectedScheme,
-                    );
-                    const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed
-                      ? "Confirm Slab Change"
-                      : "Confirm Slab Upgrade";
-                  })()}
-                </h3>
-              </div>
-              <button
-                onClick={() => setShowConfirmModal(false)}
-                className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
-              >
-                <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
-              </button>
-              <div className="mb-6">
-                {/* Wallet Balance Display - Only show if NOT subscribed */}
-                {(() => {
-                  const selectedSlab = slabList.find(
-                    (s) => String(s.id) === selectedScheme,
-                  );
-                  const isSubscribed = selectedSlab?.isSubscribed || false;
-
-                  // Only show wallet balance if NOT subscribed (for upgrade)
-                  if (!isSubscribed) {
-                    return (
-                      <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                        <p className="text-xs text-gray-500 mb-1">
-                          Main Wallet Balance
-                        </p>
-                        <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
-                          {walletBalanceLoading ? (
-                            <span className="text-gray-400">Loading...</span>
-                          ) : companyWalletBalance?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.mainWallet}`
-                          ) : companyWalletBalance?.data?.data?.mainWallet ? (
-                            `₹${companyWalletBalance.data.data.mainWallet}`
-                          ) : (
-                            <span className="text-gray-400">N/A</span>
-                          )}
-                        </p>
-                      </div>
-                    );
-                  }
-                  return null;
-                })()}
-
-                <p className="text-gray-700 mb-2">
-                  {(() => {
-                    const selectedSlab = slabList.find(
-                      (s) => String(s.id) === selectedScheme,
-                    );
-                    const isSubscribed = selectedSlab?.isSubscribed || false;
-                    return isSubscribed
-                      ? "Are you sure you want to change the membership scheme?"
-                      : "Are you sure you want to upgrade the membership scheme?";
-                  })()}
-                </p>
-                {selectedScheme && (
-                  <p className="text-sm text-gray-600">
-                    New Slab:{" "}
-                    <span className="font-[Gilroy-Semibold]">
-                      {(() => {
-                        const selectedSlab = slabList.find(
-                          (s) => String(s.id) === selectedScheme,
-                        );
-                        if (!selectedSlab) return "N/A";
-                        const amountDisplay =
-                          selectedSlab.slabAmount === "free" ||
-                            selectedSlab.slabAmount === 0
-                            ? "Free"
-                            : `₹${selectedSlab.slabAmount}`;
-                        const subscriptionStatus = selectedSlab.isSubscribed
-                          ? "Subscribed"
-                          : "Unsubscribed";
-                        return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
-                      })()}
-                    </span>
-                  </p>
-                )}
-                {upgradeError && (
-                  <p className="text-sm text-red-600 mt-2 font-[Gilroy-Semibold] bg-red-50 p-2 rounded border border-red-200">
-                    {upgradeError}
-                  </p>
-                )}
-              </div>
               <div className="flex justify-end gap-3">
                 <button
-                  onClick={() => setShowConfirmModal(false)}
-                  className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
-                  disabled={upgradeLoading}
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setSelectedBank(null);
+                  }}
+                  className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50 font-[Gilroy-Medium]"
                 >
                   Cancel
                 </button>
+
                 <button
+                  className="px-4 py-2 bg-[#039155] text-white rounded-lg text-sm hover:bg-green-700 font-[Gilroy-Semibold]"
                   onClick={async () => {
-                    const companyId = companyDetails?.companyId || data?.id;
-                    if (selectedScheme && companyId) {
-                      await dispatch(
-                        upgradeOrChangeSlab(selectedScheme, companyId),
-                      );
-                      // Error message from API will be shown via useEffect watching upgradeError
+                    const bankId = selectedBank?.id;
+
+                    if (!bankId) {
+                      showNotification({
+                        type: "error",
+                        message: "Bank ID not found",
+                      });
+                      return;
+                    }
+
+                    try {
+                      await dispatch(deleteCompanyBank(bankId));
+
+                      showNotification({
+                        type: "success",
+                        message: "Bank deleted successfully",
+                      });
+                    } catch {
+                      showNotification({
+                        type: "error",
+                        message: "Failed to delete bank",
+                      });
+                    } finally {
+                      setShowDeleteModal(false);
+                      setSelectedBank(null);
                     }
                   }}
-                  disabled={upgradeLoading}
-                  className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
                 >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )
+      }
+
+      {/* Confirmation Modal */}
+      {
+        showConfirmModal && (
+          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 animate-fadeIn">
+            <div className="bg-white rounded-xl shadow-2xl w-full max-w-md mx-4 animate-slideUp relative">
+              <div className="p-6">
+                <div className="mb-4">
+                  <h3 className="text-xl font-[Gilroy-Semibold] text-gray-800">
+                    {(() => {
+                      const selectedSlab = slabList.find(
+                        (s) => String(s.id) === selectedScheme,
+                      );
+                      const isSubscribed = selectedSlab?.isSubscribed || false;
+                      return isSubscribed
+                        ? "Confirm Slab Change"
+                        : "Confirm Slab Upgrade";
+                    })()}
+                  </h3>
+                </div>
+                <button
+                  onClick={() => setShowConfirmModal(false)}
+                  className="absolute right-3 top-3 w-10 h-10 flex items-center justify-center rounded-xl bg-[#039155] hover:opacity-90 transition"
+                >
+                  <X className="w-6 h-6 text-[#FFFFFF] rounded-full border-[2.5px] border-[#FFFFFF] p-0.5" />
+                </button>
+                <div className="mb-6">
+                  {/* Wallet Balance Display - Only show if NOT subscribed */}
                   {(() => {
                     const selectedSlab = slabList.find(
                       (s) => String(s.id) === selectedScheme,
                     );
                     const isSubscribed = selectedSlab?.isSubscribed || false;
-                    if (upgradeLoading) {
-                      return isSubscribed ? "Changing..." : "Upgrading...";
+
+                    // Only show wallet balance if NOT subscribed (for upgrade)
+                    if (!isSubscribed) {
+                      return (
+                        <div className="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                          <p className="text-xs text-gray-500 mb-1">
+                            Main Wallet Balance
+                          </p>
+                          <p className="text-lg font-[Gilroy-Semibold] text-[#1B1717]">
+                            {walletBalanceLoading ? (
+                              <span className="text-gray-400">Loading...</span>
+                            ) : companyWalletBalance?.data?.mainWallet ? (
+                              `₹${companyWalletBalance.data.mainWallet}`
+                            ) : companyWalletBalance?.data?.data?.mainWallet ? (
+                              `₹${companyWalletBalance.data.data.mainWallet}`
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </p>
+                        </div>
+                      );
                     }
-                    return isSubscribed ? "Confirm Change" : "Confirm Upgrade";
+                    return null;
                   })()}
-                </button>
+
+                  <p className="text-gray-700 mb-2">
+                    {(() => {
+                      const selectedSlab = slabList.find(
+                        (s) => String(s.id) === selectedScheme,
+                      );
+                      const isSubscribed = selectedSlab?.isSubscribed || false;
+                      return isSubscribed
+                        ? "Are you sure you want to change the membership scheme?"
+                        : "Are you sure you want to upgrade the membership scheme?";
+                    })()}
+                  </p>
+                  {selectedScheme && (
+                    <p className="text-sm text-gray-600">
+                      New Slab:{" "}
+                      <span className="font-[Gilroy-Semibold]">
+                        {(() => {
+                          const selectedSlab = slabList.find(
+                            (s) => String(s.id) === selectedScheme,
+                          );
+                          if (!selectedSlab) return "N/A";
+                          const amountDisplay =
+                            selectedSlab.slabAmount === "free" ||
+                              selectedSlab.slabAmount === 0
+                              ? "Free"
+                              : `₹${selectedSlab.slabAmount}`;
+                          const subscriptionStatus = selectedSlab.isSubscribed
+                            ? "Subscribed"
+                            : "Unsubscribed";
+                          return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
+                        })()}
+                      </span>
+                    </p>
+                  )}
+                  {upgradeError && (
+                    <p className="text-sm text-red-600 mt-2 font-[Gilroy-Semibold] bg-red-50 p-2 rounded border border-red-200">
+                      {upgradeError}
+                    </p>
+                  )}
+                </div>
+                <div className="flex justify-end gap-3">
+                  <button
+                    onClick={() => setShowConfirmModal(false)}
+                    className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+                    disabled={upgradeLoading}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={async () => {
+                      const companyId = companyDetails?.companyId || data?.id;
+                      if (selectedScheme && companyId) {
+                        await dispatch(
+                          upgradeOrChangeSlab(selectedScheme, companyId),
+                        );
+                        // Error message from API will be shown via useEffect watching upgradeError
+                      }
+                    }}
+                    disabled={upgradeLoading}
+                    className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-green-700 transition-colors disabled:bg-gray-300 disabled:cursor-not-allowed"
+                  >
+                    {(() => {
+                      const selectedSlab = slabList.find(
+                        (s) => String(s.id) === selectedScheme,
+                      );
+                      const isSubscribed = selectedSlab?.isSubscribed || false;
+                      if (upgradeLoading) {
+                        return isSubscribed ? "Changing..." : "Upgrading...";
+                      }
+                      return isSubscribed ? "Confirm Change" : "Confirm Upgrade";
+                    })()}
+                  </button>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      )}
+        )
+      }
 
       {/* Image Popup Modal */}
-      {showImageModal && outletDetails?.shopImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn"
-          onClick={() => setShowImageModal(false)}
-        >
+      {
+        showImageModal && outletDetails?.shopImage && (
           <div
-            className="relative max-w-7xl max-h-[90vh] mx-4 animate-slideUp"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 animate-fadeIn"
+            onClick={() => setShowImageModal(false)}
           >
-            {/* Close Button */}
-            <button
-              onClick={() => setShowImageModal(false)}
-              className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
-              aria-label="Close"
+            <div
+              className="relative max-w-7xl max-h-[90vh] mx-4 animate-slideUp"
+              onClick={(e) => e.stopPropagation()}
             >
-              <X className="w-6 h-6 text-gray-800" />
-            </button>
+              {/* Close Button */}
+              <button
+                onClick={() => setShowImageModal(false)}
+                className="absolute top-4 right-4 z-10 bg-white rounded-full p-2 shadow-lg hover:bg-gray-100 transition-colors"
+                aria-label="Close"
+              >
+                <X className="w-6 h-6 text-gray-800" />
+              </button>
 
-            {/* Full Image */}
-            <img
-              src={outletDetails.shopImage}
-              alt="Shop - Full View"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-            />
+              {/* Full Image */}
+              <img
+                src={outletDetails.shopImage}
+                alt="Shop - Full View"
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              />
+            </div>
           </div>
-        </div>
-      )}
-    </div>
+        )
+      }
+    </div >
   );
 };
 
