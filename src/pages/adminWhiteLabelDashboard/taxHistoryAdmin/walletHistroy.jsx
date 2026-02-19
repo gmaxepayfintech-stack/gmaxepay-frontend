@@ -341,9 +341,7 @@ const WalletHistory = ({ onBack, type }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   User Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Name
-                </th>
+
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company ID
                 </th>
@@ -424,13 +422,6 @@ const WalletHistory = ({ onBack, type }) => {
                             {transaction.userName}
                           </span>
                         </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.companyName}
-                          </span>
-                        </td>
-
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.companyId}
