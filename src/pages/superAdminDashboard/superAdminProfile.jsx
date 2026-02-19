@@ -183,76 +183,76 @@ const SuperAdminProfile = ({ onBack = null }) => {
 
   // Show skeleton while loading user details or slab visibility
 
-    if (isUserDetailsLoading || visibilityLoading || !profileData) {
-      return (
-        <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
-          {/* Cover Picture Section Skeleton */}
-          <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
-            <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
-              <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
-                <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
-              </div>
-            </div>
-          </div>
-
-          {/* Profile Section Skeleton */}
-          <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
-            <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
-              <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
-              <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
-                <div className="flex-1">
-                  <SkeletonLoader className="h-6 w-48 mb-4" />
-                  <div className="flex flex-wrap items-center gap-4 mb-4">
-                    <SkeletonLoader className="h-4 w-24" />
-                    <SkeletonLoader className="h-4 w-32" />
-                    <SkeletonLoader className="h-4 w-20" />
-                    <SkeletonLoader className="h-6 w-20 rounded-full" />
-                  </div>
-                </div>
-                <SkeletonLoader className="h-8 w-20 rounded-3xl" />
-              </div>
-            </div>
-
-            {/* Info Cards Skeleton */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
-              {[1, 2, 3, 4].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
-                >
-                  <SkeletonLoader className="w-12 h-12 rounded" />
-                  <div className="flex-1">
-                    <SkeletonLoader className="h-5 w-16 mb-2" />
-                    <SkeletonLoader className="h-4 w-20" />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Content Skeleton */}
-          <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
-            <div className="flex justify-center gap-4">
-              {[1, 2, 3].map((i) => (
-                <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
-              ))}
-            </div>
-          </div>
-
-          <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
-            <SkeletonLoader className="h-6 w-32 mb-4" />
-            <div className="space-y-4">
-              {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="flex justify-between items-center">
-                  <SkeletonLoader className="h-4 w-32" />
-                  <SkeletonLoader className="h-4 w-24" />
-                </div>
-              ))}
+  if (isUserDetailsLoading || visibilityLoading || !profileData) {
+    return (
+      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+        {/* Cover Picture Section Skeleton */}
+        <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
+          <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
+            <div className="w-32 h-36 sm:w-40 sm:h-48 rounded-2xl bg-white flex items-center justify-center border-4 border-white shadow-lg">
+              <SkeletonLoader className="w-16 h-16 sm:w-20 sm:h-20 rounded-full" />
             </div>
           </div>
         </div>
-      );
-    }
+
+        {/* Profile Section Skeleton */}
+        <div className="bg-white px-6 sm:px-6 md:px-8 pb-6 sm:pb-8 pt-4 sm:pt-6 rounded-b-3xl shadow-sm">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6">
+            <div className="w-32 h-32 sm:w-40 sm:h-40 sm:hidden flex-shrink-0"></div>
+            <div className="flex-1 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:ml-[11rem]">
+              <div className="flex-1">
+                <SkeletonLoader className="h-6 w-48 mb-4" />
+                <div className="flex flex-wrap items-center gap-4 mb-4">
+                  <SkeletonLoader className="h-4 w-24" />
+                  <SkeletonLoader className="h-4 w-32" />
+                  <SkeletonLoader className="h-4 w-20" />
+                  <SkeletonLoader className="h-6 w-20 rounded-full" />
+                </div>
+              </div>
+              <SkeletonLoader className="h-8 w-20 rounded-3xl" />
+            </div>
+          </div>
+
+          {/* Info Cards Skeleton */}
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mt-6 sm:mt-8">
+            {[1, 2, 3, 4].map((i) => (
+              <div
+                key={i}
+                className="bg-white border border-gray-200 rounded-3xl p-3 sm:p-4 flex items-center gap-3"
+              >
+                <SkeletonLoader className="w-12 h-12 rounded" />
+                <div className="flex-1">
+                  <SkeletonLoader className="h-5 w-16 mb-2" />
+                  <SkeletonLoader className="h-4 w-20" />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Content Skeleton */}
+        <div className="bg-white rounded-3xl shadow-sm px-4 sm:px-6 md:px-8 py-4 mt-4 sm:mt-6">
+          <div className="flex justify-center gap-4">
+            {[1, 2, 3].map((i) => (
+              <SkeletonLoader key={i} className="h-10 w-40 rounded-lg" />
+            ))}
+          </div>
+        </div>
+
+        <div className="bg-white rounded-xl p-4 sm:p-6 shadow-sm mt-6">
+          <SkeletonLoader className="h-6 w-32 mb-4" />
+          <div className="space-y-4">
+            {[1, 2, 3, 4].map((i) => (
+              <div key={i} className="flex justify-between items-center">
+                <SkeletonLoader className="h-4 w-32" />
+                <SkeletonLoader className="h-4 w-24" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
@@ -294,7 +294,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
             {(data?.profileImage ||
               outletDetails?.shopImage ||
               companyDetails?.compnyLogo) &&
-            !imageError ? (
+              !imageError ? (
               <img
                 src={
                   data?.profileImage ||
@@ -350,18 +350,17 @@ const SuperAdminProfile = ({ onBack = null }) => {
                   </span>
                 </div>
                 <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
-                  Admin 
+                  Admin
                 </span>
               </div>
             </div>
 
             {/* Active Status */}
             <div
-              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-                (data?.status || "Active").toLowerCase() === "inactive"
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
                   ? "bg-red-500"
                   : "bg-[#008D1E]"
-              }`}
+                }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
@@ -476,11 +475,10 @@ const SuperAdminProfile = ({ onBack = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${
-                    activeTab === key
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
                       ? "text-white"
                       : "text-[#1B1717]/80 hover:text-[#039155]"
-                  }`}
+                    }`}
                 >
                   {label}
                 </span>
@@ -894,11 +892,10 @@ const SuperAdminProfile = ({ onBack = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${
-                      (data?.status || "Active").toLowerCase() === "inactive"
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
                         ? "bg-red-500"
                         : "bg-[#039155]"
-                    }`}
+                      }`}
                   >
                     {data?.status || "Active"}
                   </span>
@@ -1053,7 +1050,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
-                            isCritical: true,
+                          isCritical: true,
 
                         });
                       }
@@ -1082,9 +1079,9 @@ const SuperAdminProfile = ({ onBack = null }) => {
 
                       {/* City */}
                       <div className="flex flex-col w-1/5">
-                        <p className="text-xs text-gray-500">City</p>
+                        <p className="text-xs text-gray-500">Beneficiary Name</p>
                         <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
-                          {bank.city || "N/A"}
+                          {bank.beneficiaryName || "N/A"}
                         </p>
                       </div>
 
@@ -1210,7 +1207,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
                         if (!selectedSlab) return "N/A";
                         const amountDisplay =
                           selectedSlab.slabAmount === "free" ||
-                          selectedSlab.slabAmount === 0
+                            selectedSlab.slabAmount === 0
                             ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
                         const subscriptionStatus = selectedSlab.isSubscribed
@@ -1294,7 +1291,7 @@ const SuperAdminProfile = ({ onBack = null }) => {
         </div>
       )}
 
-      
+
     </div>
   );
 };

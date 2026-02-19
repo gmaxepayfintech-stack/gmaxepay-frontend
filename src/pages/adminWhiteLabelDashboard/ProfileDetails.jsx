@@ -323,7 +323,7 @@ const ProfileDetails = ({
             {(data?.profileImage ||
               outletDetails?.shopImage ||
               companyDetails?.compnyLogo) &&
-            !imageError ? (
+              !imageError ? (
               <img
                 src={
                   data?.profileImage ||
@@ -355,7 +355,7 @@ const ProfileDetails = ({
               <h2 className="text-[16px] sm:text-lg md:text-xl font-['Gilroy-SemiBold'] text-[#1B1717] mb-3 sm:mb-4">
                 {companyDetails?.companyName || data?.name || "N/A"}
               </h2>
-            <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
+              <div className="flex flex-wrap items-center gap-[20px] sm:gap-4 mb-3 sm:mb-4">
                 <div className="flex items-center gap-[8px] text-xs sm:text-sm text-[#1B1717]/80 font-['Gilroy-Medium']">
                   <img
                     src={PhoneIcon}
@@ -378,52 +378,51 @@ const ProfileDetails = ({
                     {data?.state || "N/A"}
                   </span>
                 </div>
-              <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
-                {(() => {
-                  // Prefer explicit userRole prop from parent components
-                  const roleSource = userRole || data?.userRole || data?.userType;
-                  const normalized =
-                    typeof roleSource === "string"
-                      ? roleSource.toLowerCase()
-                      : "";
+                <span className="px-3 py-1 bg-[#158ACD] text-[#FFFFFF] rounded-full text-sm sm:text-base font-[Gilroy-Medium]">
+                  {(() => {
+                    // Prefer explicit userRole prop from parent components
+                    const roleSource = userRole || data?.userRole || data?.userType;
+                    const normalized =
+                      typeof roleSource === "string"
+                        ? roleSource.toLowerCase()
+                        : "";
 
-                  if (
-                    normalized === "md" ||
-                    normalized === "master distributor" ||
-                    normalized === "master_distributor"
-                  ) {
-                    return "Master Distributor";
-                  }
+                    if (
+                      normalized === "md" ||
+                      normalized === "master distributor" ||
+                      normalized === "master_distributor"
+                    ) {
+                      return "Master Distributor";
+                    }
 
-                  if (
-                    normalized === "di" ||
-                    normalized === "ds" ||
-                    normalized === "distributor"
-                  ) {
-                    return "Distributor";
-                  }
+                    if (
+                      normalized === "di" ||
+                      normalized === "ds" ||
+                      normalized === "distributor"
+                    ) {
+                      return "Distributor";
+                    }
 
-                  if (
-                    normalized === "re" ||
-                    normalized === "retailer"
-                  ) {
-                    return "Retailer";
-                  }
+                    if (
+                      normalized === "re" ||
+                      normalized === "retailer"
+                    ) {
+                      return "Retailer";
+                    }
 
-                  // Default / enterprise / whitelabel level
-                  return "Whitelabel";
-                })()}
-              </span>
+                    // Default / enterprise / whitelabel level
+                    return "Whitelabel";
+                  })()}
+                </span>
               </div>
             </div>
 
             {/* Active Status */}
             <div
-              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-                (data?.status || "Active").toLowerCase() === "inactive"
-                  ? "bg-red-500"
-                  : "bg-[#008D1E]"
-              }`}
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
+                ? "bg-red-500"
+                : "bg-[#008D1E]"
+                }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
@@ -538,11 +537,10 @@ const ProfileDetails = ({
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${
-                    activeTab === key
-                      ? "text-white"
-                      : "text-[#1B1717]/80 hover:text-[#039155]"
-                  }`}
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
+                    ? "text-white"
+                    : "text-[#1B1717]/80 hover:text-[#039155]"
+                    }`}
                 >
                   {label}
                 </span>
@@ -910,11 +908,10 @@ const ProfileDetails = ({
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${
-                      (data?.status || "Active").toLowerCase() === "inactive"
-                        ? "bg-red-500"
-                        : "bg-[#039155]"
-                    }`}
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
+                      ? "bg-red-500"
+                      : "bg-[#039155]"
+                      }`}
                   >
                     {data?.status || "Active"}
                   </span>
@@ -1051,7 +1048,7 @@ const ProfileDetails = ({
                           type: "error",
                           message:
                             "Please enter account number and IFSC code.",
-                            isCritical: true,
+                          isCritical: true,
                         });
                         return;
                       }
@@ -1083,7 +1080,7 @@ const ProfileDetails = ({
                           message:
                             error?.message ||
                             "Failed to add bank details. Please try again.",
-                            isCritical: true,
+                          isCritical: true,
 
                         });
                       }
@@ -1112,9 +1109,9 @@ const ProfileDetails = ({
 
                       {/* Created On */}
                       <div className="flex flex-col w-1/5">
-                        <p className="text-xs text-gray-500">City</p>
+                        <p className="text-xs text-gray-500">Beneficiary Name</p>
                         <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
-                          {bank.city || "N/A"}
+                          {bank.beneficiaryName || "N/A"}
                         </p>
                       </div>
 
@@ -1187,7 +1184,7 @@ const ProfileDetails = ({
                 {(() => {
                   const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                   const isSubscribed = selectedSlab?.isSubscribed || false;
-                  
+
                   // Only show wallet balance if NOT subscribed (for upgrade)
                   if (!isSubscribed) {
                     return (
@@ -1226,9 +1223,9 @@ const ProfileDetails = ({
                       {(() => {
                         const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
                         if (!selectedSlab) return "N/A";
-                        const amountDisplay = 
-                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0 
-                            ? "Free" 
+                        const amountDisplay =
+                          selectedSlab.slabAmount === "free" || selectedSlab.slabAmount === 0
+                            ? "Free"
                             : `₹${selectedSlab.slabAmount}`;
                         const subscriptionStatus = selectedSlab.isSubscribed ? "Subscribed" : "Unsubscribed";
                         return `${selectedSlab.slabName} (${amountDisplay}) - ${subscriptionStatus}`;
