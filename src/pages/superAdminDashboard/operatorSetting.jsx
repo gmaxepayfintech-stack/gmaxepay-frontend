@@ -540,7 +540,6 @@ const OperatorSetting = () => {
                 </div>
               </div>
 
-              {/* Row 4: Commission & Commission Type */}
               <div className="flex gap-4">
                 <div className="flex flex-col gap-1 w-1/2">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
