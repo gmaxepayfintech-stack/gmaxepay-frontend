@@ -32,6 +32,7 @@ import {
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
 import { logout } from "./authAction";
+import { UPDATE_BANK_DETAILS_FAILURE, UPDATE_BANK_DETAILS_SUCCESS } from "../actionType/walletActionType";
 
 const commonError = "Something went wrong!";
 
@@ -589,6 +590,52 @@ export const updateBankDetails = (payload, id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: UPDATE_BANK_USER_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const updateBankDetailsUser = (payload, id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.put(
+      `${API_ROUTE}/api/v1/user/bank/update/${id}`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+
+
+    const { data: bankUpdateResponseUser, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPDATE_BANK_DETAILS_SUCCESS,
+        payload: { bankUpdateResponseUser, message, status },
+      });
+      return { status, message, bankUpdateResponseUser };
+    } else {
+      dispatch({
+        type: UPDATE_BANK_DETAILS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+      return { status, message, errorData: response?.data };
+    }
+  } catch (error) {
+    dispatch({
+      type: UPDATE_BANK_DETAILS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
