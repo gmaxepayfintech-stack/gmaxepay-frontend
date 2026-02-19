@@ -29,7 +29,7 @@ const WalletHistory = ({ onBack, type }) => {
   const walletHistoryResponse = useSelector(
     (state) => state?.wallet?.walletHistoryCompany,
   );
-  const apiData = walletHistoryResponse?.data || [];
+  const apiData = walletHistoryResponse?.data?.docs || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -57,7 +57,7 @@ const WalletHistory = ({ onBack, type }) => {
 
       // Map status from API to display format
       const getStatusDisplay = (status) => {
-        if (status === null || status === undefined) return "Pending";
+        if (!status) return "Pending";
         const statusUpper = String(status).toUpperCase();
         if (statusUpper === "SUCCESS") return "Success";
         if (statusUpper === "FAILED" || statusUpper === "FAILURE")
@@ -66,29 +66,29 @@ const WalletHistory = ({ onBack, type }) => {
       };
 
       // Get AEPS type
-      const getAepsType = (apiResponse) => {
-        if (!apiResponse) return "Internal";
-        if (apiResponse.aepsType === "AEPS1") return "AEPS 1";
-        if (apiResponse.aepsType === "AEPS2") return "AEPS 2";
+      const getAepsType = (type) => {
+        if (!type) return "Internal";
+        if (type === "AEPS1") return "AEPS 1";
+        if (type === "AEPS2") return "AEPS 2";
         return "Internal";
       };
 
       return {
         id: item.id,
-        transactionID: item.transactionID || "N/A",
+        transactionID: item.transactionId || "N/A",
         refId: item.refId || "N/A",
-        mobileNo: item.mobile || "N/A",
-        accountNumber: item.accountNumber || "N/A",
-        ifscCode: item.ifscCode || "N/A",
-        bankName: item.bankName || "N/A",
+        mobileNo: item.user?.mobileNo || item.mobile || "N/A",
+        accountNumber: item.beneficiaryAccountNumber || item.accountNumber || "N/A",
+        ifscCode: item.beneficiaryIfsc || item.ifscCode || "N/A",
+        bankName: item.beneficiaryBankName || item.bankName || "N/A",
         beneficiaryName: item.beneficiaryName || "N/A",
         amount: formattedAmount,
-        status: getStatusDisplay(item.status),
-        type: item.type || "N/A",
+        status: getStatusDisplay(item.paymentStatus || item.status),
+        type: item.operator || item.type || "N/A",
         walletType: item.walletType || "N/A",
-        aepsType: getAepsType(item.apiResponse),
-        openingBalance: item.openingBalance ? `₹${item.openingBalance}` : "N/A",
-        closingBalance: item.closingBalance ? `₹${item.closingBalance}` : "N/A",
+        aepsType: getAepsType(item.aepsTxnType),
+        openingBalance: item.openingAmt ? `₹${item.openingAmt}` : "N/A",
+        closingBalance: item.closingAmt ? `₹${item.closingAmt}` : "N/A",
         createdAt: formattedDate,
         originalItem: item,
       };
