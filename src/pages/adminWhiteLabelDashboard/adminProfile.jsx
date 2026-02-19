@@ -1203,6 +1203,7 @@ const AdminProfile = ({ onBack = null }) => {
                       <line x1="2" y1="10" x2="22" y2="10" />
                     </svg>
                   </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
                   <div>
                     <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Payout</h4>
                     <p className="text-xs text-gray-500">Use This Account For Payouts</p>
@@ -1228,6 +1229,7 @@ const AdminProfile = ({ onBack = null }) => {
                       <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
                     </svg>
                   </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
                   <div>
                     <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Wallet Load</h4>
                     <p className="text-xs text-gray-500">Transfer Funds To Agent Wallet</p>
