@@ -1144,9 +1144,8 @@ const AdminProfile = ({ onBack = null }) => {
                             type="button"
                             onClick={() => {
                               setSelectedBank(bank);
-                              // Set initial values usually from bank data
-                              setEnablePayout(true);
-                              setEnableWalletLoad(false);
+                              setEnablePayout(bank.isPayout || false);
+                              setEnableWalletLoad(bank.isFundTransfer || false);
                               setShowEditModal(true);
                             }}
                             className="text-gray-500 hover:text-[#039155] transition"
