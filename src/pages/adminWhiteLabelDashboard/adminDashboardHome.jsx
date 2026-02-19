@@ -1135,6 +1135,7 @@ const AdminDashboardHome = () => {
                               "Transfer completed successfully.",
                             isCritical: true,
                           });
+                          await dispatch(getCompanyWalletBalance());
                           setPayout(false);
                           // Reset form
                           setWalletType("bank");

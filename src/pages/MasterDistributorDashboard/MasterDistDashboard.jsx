@@ -1172,6 +1172,7 @@ const MasterDistDashboard = () => {
                               "Transfer completed successfully.",
                             isCritical: true,
                           });
+                          await dispatch(getUserWalletBalance());
                           setPayout(false);
                           // Reset form
                           setWalletType("bank");

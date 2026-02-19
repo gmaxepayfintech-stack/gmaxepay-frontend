@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Wallet, Users, CreditCard, Tag } from "lucide-react";
+import { Users, Tag } from "lucide-react";
 import {
   getAlsWallet,
   getWalletBalance,
@@ -19,7 +19,6 @@ import {
   Area,
 } from "recharts";
 import { getLocationAndIP } from "../../util/getLocationAndIP";
-import { getUserWalletBalance } from "../../redux/action/walletAction";
 import { useNotification } from "../../context/NotificationContext";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { FiChevronDown } from "react-icons/fi";
@@ -30,19 +29,10 @@ const MasterDt = "/img/MasterDt.png";
 const Distributor = "/img/Distributor.png";
 const Ratailer = "/img/Retailer.png";
 const Comission = "/img/Comission.png";
-const TotalCharges = "/img/TotalCharges.png";
-const Revenue = "/img/Revenue.png";
 const FailedTransactions = "/img/FailedTransactions.svg";
 const PendingTransactions = "/img/PendingTransactions.svg";
 const Transactions = "/img/Transactions.png";
-const OpeningBalance = "/img/OpeningBalance.png";
-const FundTransfer = "/img/FundTransfer.png";
-const ExpectedAmount = "/img/ExpectedAmount.png";
-const Refund = "/img/Refund.png";
-const FundDetected = "/img/FundDetected.png";
-const Subcharges = "/img/Subcharges.png";
-const OtherCharges = "/img/OtherCharges.png";
-const TotalRevenue = "/img/TotalRevenue.png";
+
 
 const SuperAdmin = () => {
   const dispatch = useDispatch();
@@ -373,9 +363,9 @@ const SuperAdmin = () => {
         name: modules.inspay?.total?.label || "Inspay",
         value: toNumber(
           modules.inspay?.total?.totalAmountSuccess ??
-            modules.inspay?.mobile?.totalAmountSuccess ??
-            modules.inspay?.pan?.totalAmountSuccess ??
-            modules.inspay?.dth?.totalAmountSuccess,
+          modules.inspay?.mobile?.totalAmountSuccess ??
+          modules.inspay?.pan?.totalAmountSuccess ??
+          modules.inspay?.dth?.totalAmountSuccess,
         ),
       },
     ];
@@ -387,8 +377,8 @@ const SuperAdmin = () => {
   const maxChartValue =
     data && data.length
       ? Math.max(
-          ...data.map((d) => (typeof d.value === "number" ? d.value : 0)),
-        )
+        ...data.map((d) => (typeof d.value === "number" ? d.value : 0)),
+      )
       : 0;
   const yAxisMax = maxChartValue > 0 ? maxChartValue * 2 : 100;
   const yAxisStep = yAxisMax / 5 || 1;
@@ -835,9 +825,9 @@ const SuperAdmin = () => {
                   </p>
                   <p className="text-[#1B1717] font-[Gilroy-Semibold] text-sm sm:text-lg">
                     {(isAslWalletRefreshing && isAslWallet) ||
-                    (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet) ||
-                    (isBbpsWalletRefreshing && isBbpsWallet)
+                      (isEkycHubRefreshing && isEkycHubWallet) ||
+                      (isInspayWalletRefreshing && isInspayWallet) ||
+                      (isBbpsWalletRefreshing && isBbpsWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -915,9 +905,9 @@ const SuperAdmin = () => {
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
-                    (isEkycHubRefreshing && isEkycHubWallet) ||
-                    (isInspayWalletRefreshing && isInspayWallet) ||
-                    (isBbpsWalletRefreshing && isBbpsWallet)
+                      (isEkycHubRefreshing && isEkycHubWallet) ||
+                      (isInspayWalletRefreshing && isInspayWallet) ||
+                      (isBbpsWalletRefreshing && isBbpsWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>
@@ -1038,11 +1028,10 @@ const SuperAdmin = () => {
 
                     {/* Text */}
                     <span
-                      className={`relative z-10 text-xs font-[Gilroy-Medium] transition-colors ${
-                        activeFilter === label
-                          ? "text-white font-[Gilroy-Semibold]"
-                          : "text-[#1B1717] hover:text-[#039155]"
-                      }`}
+                      className={`relative z-10 text-xs font-[Gilroy-Medium] transition-colors ${activeFilter === label
+                        ? "text-white font-[Gilroy-Semibold]"
+                        : "text-[#1B1717] hover:text-[#039155]"
+                        }`}
                     >
                       {label}
                     </span>
@@ -1067,11 +1056,10 @@ const SuperAdmin = () => {
                   className="w-10 h-10 mb-2 "
                 />
                 <span
-                  className={`text-xs font-[Gilroy-Semibold] mb-6 ${
-                    item.change.startsWith("▲")
-                      ? "text-[#039155]"
-                      : "text-[#F60509]"
-                  }`}
+                  className={`text-xs font-[Gilroy-Semibold] mb-6 ${item.change.startsWith("▲")
+                    ? "text-[#039155]"
+                    : "text-[#F60509]"
+                    }`}
                 >
                   {item.change}
                 </span>
@@ -1251,11 +1239,10 @@ const SuperAdmin = () => {
       focus:outline-none
       appearance-none
       bg-white
-      ${
-        walletType === "wallet"
-          ? "bg-gray-100 cursor-not-allowed opacity-60"
-          : "cursor-pointer"
-      }
+      ${walletType === "wallet"
+                              ? "bg-gray-100 cursor-not-allowed opacity-60"
+                              : "cursor-pointer"
+                            }
     `}
                         >
                           <option value="">Select</option>
@@ -1332,11 +1319,10 @@ const SuperAdmin = () => {
                                 setSelectedBank(bank.id);
                               }
                             }}
-                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${
-                              selectedBank === bank.id
-                                ? "border-[#039155] bg-green-50"
-                                : "border-[#1B1717] border-opacity-80"
-                            }`}
+                            className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
+                              ? "border-[#039155] bg-green-50"
+                              : "border-[#1B1717] border-opacity-80"
+                              }`}
                           >
                             <div className="flex items-start gap-4">
                               {/* Bank Logo */}
