@@ -14,10 +14,10 @@ import { walletHistoryUsers } from "../../../redux/action/walletAction";
 import { useNotification } from "../../../context/NotificationContext";
 
 const WalletHistory = ({ onBack, type }) => {
-  const { showNotification } = useNotification();
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const { showNotification } = useNotification();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -78,9 +78,8 @@ const WalletHistory = ({ onBack, type }) => {
         id: item.id,
         transactionId: item.transactionId || "N/A",
         refId: item.refId || "N/A",
-        userName: item.user?.name || "N/A",
-        mobileNo: item.user?.mobileNo || item.mobile || "N/A",
-        companyName: item.company?.companyName || "N/A",
+        userName: item.beneficiaryName || "N/A",
+        paymentMode: item.paymentMode || "N/A",
         companyId: item.companyId || "N/A",
         walletType: item.walletType || "N/A",
         amount: formattedAmount,
@@ -167,9 +166,8 @@ const WalletHistory = ({ onBack, type }) => {
       !debouncedSearchQuery ||
       transaction.transactionId.toLowerCase().includes(searchLower) ||
       transaction.refId.toString().includes(searchLower) ||
-      transaction.mobileNo.includes(searchLower) ||
       transaction.userName.toLowerCase().includes(searchLower) ||
-      transaction.companyName.toLowerCase().includes(searchLower);
+      transaction.paymentMode.toLowerCase().includes(searchLower);
 
     return matchesStatus && matchesSearch;
   });
@@ -334,17 +332,16 @@ const WalletHistory = ({ onBack, type }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   User ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Mobile
-                </th>
+
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   User Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Name
-                </th>
+
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company ID
+                </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Payment Mode
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Wallet Type
@@ -412,11 +409,7 @@ const WalletHistory = ({ onBack, type }) => {
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.mobileNo}
-                          </span>
-                        </td>
+
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
@@ -424,15 +417,16 @@ const WalletHistory = ({ onBack, type }) => {
                           </span>
                         </td>
 
+
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
-                            {transaction.companyName}
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
+                            {transaction.companyId}
                           </span>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.companyId}
+                            {transaction.paymentMode}
                           </span>
                         </td>
 
@@ -453,6 +447,7 @@ const WalletHistory = ({ onBack, type }) => {
                             {transaction.surcharge}
                           </span>
                         </td>
+
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
                             {transaction.debit}
