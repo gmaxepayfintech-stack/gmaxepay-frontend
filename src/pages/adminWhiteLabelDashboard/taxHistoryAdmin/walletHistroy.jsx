@@ -10,7 +10,8 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { getPayoutHistory } from "../../../redux/action/payoutAction";
+
+import { walletHistoryCompany } from "../../../redux/action/walletAction";
 
 const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -22,11 +23,11 @@ const WalletHistory = ({ onBack, type }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get payout history from Redux
-  const payoutHistoryResponse = useSelector(
-    (state) => state?.payout?.payoutHistory,
+  // Get wallet history from Redux
+  const walletHistoryResponse = useSelector(
+    (state) => state?.wallet?.walletHistoryCompany,
   );
-  const apiData = payoutHistoryResponse?.data || [];
+  const apiData = walletHistoryResponse?.data || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -116,8 +117,8 @@ const WalletHistory = ({ onBack, type }) => {
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
-      query.startDate = fromDate.replace(/-/g, "/");
-      query.endDate = toDate.replace(/-/g, "/");
+      query.startDate = fromDate;
+      query.endDate = toDate;
     }
 
     const payload = {
@@ -126,11 +127,11 @@ const WalletHistory = ({ onBack, type }) => {
       options: {
         page: 1,
         paginate: 1000, // Get all records since API doesn't support pagination
-        sort: { id: -1 },
+        sort: { createdAt: -1 },
       },
     };
 
-    dispatch(getPayoutHistory(payload));
+    dispatch(walletHistoryCompany(payload));
   }, [dispatch, fromDate, toDate]);
 
   // Reset isReloading when loading completes
@@ -210,11 +211,10 @@ const WalletHistory = ({ onBack, type }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
-                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
+                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                  }`}
               >
                 {status}
               </button>
@@ -233,19 +233,18 @@ const WalletHistory = ({ onBack, type }) => {
                   options: {
                     page: 1,
                     paginate: 1000,
-                    sort: { id: -1 },
+                    sort: { createdAt: -1 },
                   },
                 };
 
-                dispatch(getPayoutHistory(payload));
+                dispatch(walletHistoryCompany(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -367,11 +366,10 @@ const WalletHistory = ({ onBack, type }) => {
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
-                        }`}
+                        className={`transition-colors ${index % 2 === 0
+                          ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
+                          : "bg-white hover:bg-gray-50"
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
@@ -453,13 +451,12 @@ const WalletHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${
-                              transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
-                            }`}
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
+                              ? "bg-[#039155] text-white"
+                              : transaction.status === "Pending"
+                                ? "bg-orange-500/80 text-white"
+                                : "bg-red-500/80 text-white"
+                              }`}
                           >
                             {transaction.status}
                           </span>
@@ -523,11 +520,10 @@ const WalletHistory = ({ onBack, type }) => {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${
-                    currentPage === pageNum
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                  }`}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === pageNum
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    }`}
                 >
                   {pageNum}
                 </button>

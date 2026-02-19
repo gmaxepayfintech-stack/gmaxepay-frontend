@@ -101,6 +101,9 @@ const IdentityVerificationTwo = ({ onBack }) => {
   };
 
   const handleKeyDown = (idx, e) => {
+    if (e.key === "Enter" && idx === OTP_LENGTH - 1) {
+      handleSubmit(e);
+    }
     if (e.key === "Backspace" && !otp[idx] && idx > 0) {
       focusIndex(idx - 1);
     }
@@ -256,11 +259,10 @@ const IdentityVerificationTwo = ({ onBack }) => {
                     maxLength={OTP_LENGTH}
                     onChange={(e) => handleChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
-                    className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${
-                      showError
+                    className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${showError
                         ? "border-red-500 focus:ring-red-200 focus:border-red-500"
                         : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"
-                    }`}
+                      }`}
                   />
                 );
               })(),
@@ -275,11 +277,10 @@ const IdentityVerificationTwo = ({ onBack }) => {
               type="button"
               onClick={handleResendOTP}
               disabled={resendTimer > 0}
-              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
-                resendTimer > 0
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${resendTimer > 0
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-[#039155] hover:text-[#027A47] cursor-pointer"
-              }`}
+                }`}
             >
               {resendTimer > 0
                 ? `Resend In ${formatTimer(resendTimer)}`

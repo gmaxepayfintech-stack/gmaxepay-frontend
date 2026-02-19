@@ -62,7 +62,12 @@ const VerificationCodeView = ({
               maxLength="1"
               value={digit}
               onChange={(e) => onOtpChange(e.target.value, index, otpInputRefs)}
-              onKeyDown={(e) => onOtpKeyDown(e, index, otpInputRefs)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && index === 5) {
+                  onSubmit();
+                }
+                onOtpKeyDown(e, index, otpInputRefs);
+              }}
               onPaste={
                 index === 0 ? (e) => onOtpPaste(e, otpInputRefs) : undefined
               }
@@ -82,9 +87,8 @@ const VerificationCodeView = ({
         <button
           disabled={verificationTimer !== 0}
           onClick={onResend}
-          className={` font-[Gilroy-Semibold] w-full text-center text-xl mt-4 ${
-            verificationTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
-          }`}
+          className={` font-[Gilroy-Semibold] w-full text-center text-xl mt-4 ${verificationTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
+            }`}
         >
           {verificationTimer === 0
             ? "Resend Now"

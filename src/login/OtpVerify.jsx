@@ -51,6 +51,9 @@ const OtpVerify = () => {
   };
 
   const handleKeyDown = (e, index) => {
+    if (e.key === "Enter" && index === 5) {
+      handleSubmit();
+    }
     if (e.key === "Backspace" && !otp[index] && index > 0) {
       inputRefs.current[index - 1].focus();
     }
@@ -110,9 +113,8 @@ const OtpVerify = () => {
           <img
             key={index}
             src={src}
-            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ${
-              index === currentIndex ? "opacity-100" : "opacity-0"
-            }`}
+            className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-[1200ms] ${index === currentIndex ? "opacity-100" : "opacity-0"
+              }`}
           />
         ))}
         <div className="absolute inset-0 bg-gradient-to-br from-green-900/40 via-green-800/30 to-transparent"></div>
@@ -164,9 +166,8 @@ const OtpVerify = () => {
           <button
             disabled={timer !== 0}
             onClick={() => setTimer(30)}
-            className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${
-              timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
-            }`}
+            className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
+              }`}
           >
             {timer === 0 ? "Resend Now" : `Resend in ${formatTimer(timer)}`}
           </button>
