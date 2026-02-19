@@ -18,6 +18,7 @@ import {
   DELETE_BANK_ADMIN_SUCCESS,
   DELETE_BANK_ADMIN_FAILURE,
   SET_SELECTED_USER_ROLE,
+  UPDATE_BANK_USER_SUCCESS,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -40,6 +41,7 @@ const initialState = {
   adminDetailsResponse: null,
   adminProfileResponse: null,
   selectedUserRole: null,
+  bankUpdateResponse: null,
 };
 
 const userProfileReducer = (state = initialState, action) => {
@@ -221,6 +223,15 @@ const userProfileReducer = (state = initialState, action) => {
         ...state,
         selectedUserRole: action.payload ?? null,
       };
+      case UPDATE_BANK_USER_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          success: action?.payload?.status,
+          message: action?.payload?.message,
+          error: null,
+          bankUpdateResponse: action?.payload,
+        }
     default:
       return state;
   }

@@ -43,3 +43,6 @@ export const GET_ADMIN_PROFILE_FAILURE = 'GET_ADMIN_PROFILE_FAILURE';
 
 // Selected user role for ProfileDetails (set from list screens like CreateWhiteLabel)
 export const SET_SELECTED_USER_ROLE = 'SET_SELECTED_USER_ROLE';
+
+export const UPDATE_BANK_USER_SUCCESS = 'UPDATE_BANK_USER_SUCCESS';
+export const UPDATE_BANK_USER_FAILURE = 'UPDATE_BANK_USER_FAILURE';

@@ -26,6 +26,8 @@ import {
   DELETE_BANK_USER_FAILURE,
   DELETE_BANK_USER_SUCCESS,
   SET_SELECTED_USER_ROLE,
+  UPDATE_BANK_USER_SUCCESS,
+  UPDATE_BANK_USER_FAILURE,
 } from "../actionType/userProfileActionType";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -551,3 +553,44 @@ export const deleteAdminBank = (bankId) => async (dispatch) => {
   }
 };
 
+export const updateBankDetails = (payload, id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}api/v1/user/bank/update/${id}`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const { data: bankUpdateResponse, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: UPDATE_BANK_USER_SUCCESS,
+        payload: { bankUpdateResponse, message, status },
+      });
+    } else {
+      dispatch({
+        type: UPDATE_BANK_USER_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: UPDATE_BANK_USER_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
