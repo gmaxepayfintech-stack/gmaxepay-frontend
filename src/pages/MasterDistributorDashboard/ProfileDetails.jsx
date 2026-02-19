@@ -830,9 +830,9 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
 
                     {/* Created On */}
                     <div className="flex flex-col w-1/5">
-                      <p className="text-xs text-gray-500">City</p>
+                      <p className="text-xs text-gray-500">Beneficiary Name</p>
                       <p className="text-sm text-[#1B1717] font-[Gilroy-Medium]">
-                        {bank.city || "N/A"}
+                        {bank.beneficiaryName || "N/A"}
                       </p>
                     </div>
 
