@@ -60,7 +60,12 @@ const VerifyMpinOtp = ({
               maxLength="1"
               value={digit}
               onChange={(e) => onOtpChange(e.target.value, index, otpInputRefs)}
-              onKeyDown={(e) => onOtpKeyDown(e, index, otpInputRefs)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && index === 5) {
+                  onSubmit();
+                }
+                onOtpKeyDown(e, index, otpInputRefs);
+              }}
               onPaste={index === 0 ? (e) => onOtpPaste(e, otpInputRefs) : undefined}
               className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
               style={{
@@ -78,9 +83,8 @@ const VerifyMpinOtp = ({
         <button
           disabled={otpTimer !== 0}
           onClick={onResend}
-          className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${
-            otpTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
-          }`}
+          className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${otpTimer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
+            }`}
         >
           {otpTimer === 0 ? "Resend Now" : `Resend in ${formatTimer(otpTimer)}`}
         </button>

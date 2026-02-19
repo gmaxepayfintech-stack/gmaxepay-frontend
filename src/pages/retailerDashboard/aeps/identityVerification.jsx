@@ -99,6 +99,9 @@ const IdentityVerification = ({ onBack }) => {
   };
 
   const handleKeyDown = (idx, e) => {
+    if (e.key === "Enter" && idx === OTP_LENGTH - 1) {
+      handleSubmit(e);
+    }
     if (e.key === "Backspace" && !otp[idx] && idx > 0) {
       focusIndex(idx - 1);
     }
@@ -261,11 +264,10 @@ const IdentityVerification = ({ onBack }) => {
               type="button"
               onClick={handleResendOTP}
               disabled={resendTimer > 0}
-              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${
-                resendTimer > 0
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${resendTimer > 0
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-[#039155] hover:text-[#027A47] cursor-pointer"
-              }`}
+                }`}
             >
               {resendTimer > 0
                 ? `Resend In ${formatTimer(resendTimer)}`
