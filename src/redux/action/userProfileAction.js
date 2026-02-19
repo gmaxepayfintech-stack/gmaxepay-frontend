@@ -578,11 +578,13 @@ export const updateBankDetails = (payload, id) => async (dispatch) => {
         type: UPDATE_BANK_USER_SUCCESS,
         payload: { bankUpdateResponse, message, status },
       });
+      return { status, message, bankUpdateResponse };
     } else {
       dispatch({
         type: UPDATE_BANK_USER_FAILURE,
         payload: { message, status, errorData: response?.data },
       });
+      return { status, message, errorData: response?.data };
     }
   } catch (error) {
     dispatch({
