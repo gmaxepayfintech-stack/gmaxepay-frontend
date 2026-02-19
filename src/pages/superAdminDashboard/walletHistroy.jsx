@@ -15,9 +15,9 @@ import { useNotification } from "../../context/NotificationContext";
 
 const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
-  const { showNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
+  const [showNotification] = useNotification();
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
