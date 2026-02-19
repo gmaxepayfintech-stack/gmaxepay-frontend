@@ -558,7 +558,7 @@ export const updateBankDetails = (payload, id) => async (dispatch) => {
 
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    const response = await axios.post(
+    const response = await axios.put(
       `${API_ROUTE}api/v1/user/bank/update/${id}`,
       payload,
       {
