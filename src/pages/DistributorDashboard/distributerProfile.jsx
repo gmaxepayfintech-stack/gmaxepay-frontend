@@ -21,8 +21,9 @@ import { getMDDetails } from "../../redux/action/whiteLabelAction";
 import {
   addBankDetails,
   deleteUserBank,
+  updateBankDetailsUser,
 } from "../../redux/action/userProfileAction";
-
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 const DistributerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -53,6 +54,7 @@ const DistributerProfile = ({ onBack = null }) => {
 
   // Use mdDetailsData from getMDDetails API
   const profileData = mdDetailsData || null;
+  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Get slab list from Redux (using getMDSlabList API - contains isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.userList || []);
@@ -1160,9 +1162,8 @@ const DistributerProfile = ({ onBack = null }) => {
                             type="button"
                             onClick={() => {
                               setSelectedBank(bank);
-                              // Set initial values usually from bank data
-                              setEnablePayout(true);
-                              setEnableWalletLoad(false);
+                              setEnablePayout(bank.isPayout || false);
+                              setEnableWalletLoad(bank.isFundTransfer || false);
                               setShowEditModal(true);
                             }}
                             className="text-gray-500 hover:text-[#039155] transition"
@@ -1275,19 +1276,31 @@ const DistributerProfile = ({ onBack = null }) => {
               </button>
 
               <button
-                onClick={() => {
-                  // Here you would dispatch an action to update the bank preferences
-                  showNotification({
-                    type: "success",
-                    message: "Bank preferences updated",
-                    isCritical: true,
-                  });
+                disabled={isLoading}
+                onClick={async () => {
+                  const payload = {
+                    isPayout: enablePayout,
+                    isFundTransfer: enableWalletLoad,
+                  };
+
+                  if (selectedBank?.id) {
+                    const response = await dispatch(updateBankDetailsUser(payload, selectedBank.id));
+                    await dispatch(getMDDetails());
+
+                    if (response?.status === "SUCCESS") {
+                      showNotification({
+                        type: "success",
+                        message: response?.message || "Bank preferences updated",
+                        isCritical: true,
+                      });
+                    }
+                  }
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}
-                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47]"
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47] flex items-center justify-center"
               >
-                Save
+                {isLoading ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>

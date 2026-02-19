@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -23,7 +23,7 @@ const initialState = {
     userDashboardStatisticsError: null,
     success: null,
     message: null,
-    uploadFevicon: null,    
+    uploadFevicon: null,
     uploadFeviconError: null,
     walletHistoryCompany: null,
     walletHistoryCompanyError: null,
@@ -33,6 +33,8 @@ const initialState = {
     walletHistoryUserError: null,
     surchargesHistory: null,
     surchargesHistoryError: null,
+    bankUpdateResponseUser: null,
+    bankUpdateResponseUserError: null,
 };
 
 const walletReducer = (state = initialState, action) => {
@@ -235,7 +237,7 @@ const walletReducer = (state = initialState, action) => {
                 message: action?.payload?.message || action?.payload,
             };
         case UPLOAD_FEVICON_SUCCESS:
-            return{
+            return {
                 ...state,
                 uploadFevicon: action?.payload,
                 uploadFeviconError: null,
@@ -255,7 +257,7 @@ const walletReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
         case WALLET_HISTORY_ADMIN_SUCCESS:
-            return{
+            return {
                 ...state,
                 walletHistoryAdmin: action?.payload,
                 walletHistoryAdminError: null,
@@ -265,7 +267,7 @@ const walletReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
         case WALLET_HISTORY_USER_SUCCESS:
-            return{
+            return {
                 ...state,
                 walletHistoryUser: action?.payload,
                 walletHistoryUserError: null,
@@ -275,10 +277,21 @@ const walletReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
         case SURCHARGES_HISTORY_SUCCESS:
-            return{
+            return {
                 ...state,
                 surchargesHistory: action?.payload,
                 surchargesHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
+        case UPDATE_BANK_DETAILS_SUCCESS:
+            return {
+                ...state,
+                bankUpdateResponseUser: action?.payload,
+                updateBankDetailsError: null,
                 loading: false,
                 error: null,
                 success: action?.payload?.status,
