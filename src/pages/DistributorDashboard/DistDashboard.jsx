@@ -979,8 +979,8 @@ const DistDashboard = () => {
                               }
                             }}
                             className={`p-4 border-[0.5px] rounded-[14px] cursor-pointer transition-all ${selectedBank === bank.id
-                                ? "border-[#039155] bg-green-50"
-                                : "border-[#1B1717] border-opacity-80"
+                              ? "border-[#039155] bg-green-50"
+                              : "border-[#1B1717] border-opacity-80"
                               }`}
                           >
                             <div className="flex items-start gap-4">
@@ -1074,6 +1074,7 @@ const DistDashboard = () => {
                      hover:bg-[#027a47] transition"
                     onClick={async () => {
                       try {
+                        setIsTransferLoading(true);
                         let payload = {};
 
                         // Map selected AEPS wallet to API aepsType (used for both wallet and bank transfers)
@@ -1162,7 +1163,7 @@ const DistDashboard = () => {
                         );
 
                         if (response?.status === "SUCCESS") {
-                          //console.log("Transfer successful:", response);
+                          // Refund logic is handled in action
                           showNotification({
                             type: "success",
                             message:
@@ -1170,6 +1171,7 @@ const DistDashboard = () => {
                               "Transfer completed successfully.",
                             isCritical: true,
                           });
+                          await dispatch(getUserWalletBalance());
                           setPayout(false);
                           // Reset form
                           setWalletType("bank");
