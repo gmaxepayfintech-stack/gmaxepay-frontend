@@ -333,9 +333,8 @@ const MasterDistributionOnboarding = ({
                   tableData.map((row, index) => (
                     <tr
                       key={index}
-                      className={`border-b border-gray-100 ${
-                        index % 2 === 0 ? "bg-green-50" : "bg-white"
-                      }`}
+                      className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-green-50" : "bg-white"
+                        }`}
                     >
                       {/* ID */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
@@ -435,11 +434,10 @@ const MasterDistributionOnboarding = ({
                       {/* Status */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
-                            row.status?.toLowerCase() === "active"
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
-                          }`}
+                            }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -491,16 +489,14 @@ const MasterDistributionOnboarding = ({
                                   // Refresh will be handled by useEffect watching kycStatusCheckResponse
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                                isActive ? "bg-green-600" : "bg-gray-300"
-                              }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  isActive ? "translate-x-6" : "translate-x-1"
-                                }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                  }`}
                               />
                             </button>
                           );
@@ -525,11 +521,10 @@ const MasterDistributionOnboarding = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
-                                isLocked
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
                                   ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                   : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                              }`}
+                                }`}
                               title={
                                 isLocked
                                   ? "Click to enable access for this account"
@@ -594,11 +589,10 @@ const MasterDistributionOnboarding = ({
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-lg border border-gray-300 transition ${
-                  currentPage === 1
+                className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
                     : "bg-white text-[#1B1717] hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -607,11 +601,10 @@ const MasterDistributionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
-                      page === currentPage
+                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                         ? "bg-[#039155] text-white"
                         : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -622,11 +615,10 @@ const MasterDistributionOnboarding = ({
                   setCurrentPage(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-lg border border-gray-300 transition ${
-                  currentPage === totalPages
+                className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
                     : "bg-white text-[#1B1717] hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -766,9 +758,8 @@ const MasterDistributionOnboarding = ({
                   tableData.map((row, index) => (
                     <tr
                       key={index}
-                      className={`border-b border-gray-100 ${
-                        index % 2 === 0 ? "bg-white" : "bg-green-50"
-                      }`}
+                      className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50"
+                        }`}
                     >
                       {/* ID */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
@@ -868,11 +859,10 @@ const MasterDistributionOnboarding = ({
                       {/* Status */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
-                            row.status?.toLowerCase() === "active"
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
-                          }`}
+                            }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -924,16 +914,14 @@ const MasterDistributionOnboarding = ({
                                   // Refresh will be handled by useEffect watching kycStatusCheckResponse
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                                isActive ? "bg-green-600" : "bg-gray-300"
-                              }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  isActive ? "translate-x-6" : "translate-x-1"
-                                }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                  }`}
                               />
                             </button>
                           );
@@ -958,11 +946,10 @@ const MasterDistributionOnboarding = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
-                                isLocked
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
                                   ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                   : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                              }`}
+                                }`}
                               title={
                                 isLocked
                                   ? "Click to enable access for this account"
@@ -1027,11 +1014,10 @@ const MasterDistributionOnboarding = ({
               <button
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
-                className={`p-2 rounded-lg border border-gray-300 transition ${
-                  currentPage === 1
+                className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
                     : "bg-white text-[#1B1717] hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
@@ -1040,11 +1026,10 @@ const MasterDistributionOnboarding = ({
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${
-                      page === currentPage
+                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
                         ? "bg-[#039155] text-white"
                         : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {page}
                   </button>
@@ -1055,11 +1040,10 @@ const MasterDistributionOnboarding = ({
                   setCurrentPage(Math.min(totalPages, currentPage + 1))
                 }
                 disabled={currentPage === totalPages}
-                className={`p-2 rounded-lg border border-gray-300 transition ${
-                  currentPage === totalPages
+                className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
                     ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
                     : "bg-white text-[#1B1717] hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 <ChevronRight className="w-5 h-5" />
               </button>
@@ -1111,62 +1095,56 @@ const MasterDistributionOnboarding = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "overview"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Overview
                 </button>
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "aadhar"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Aadhar Document
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "pan"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   PAN Document
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "details"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Outlet Details
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "bankDetails"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Bank Details
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "verification"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Verification
                 </button>
@@ -1188,13 +1166,12 @@ const MasterDistributionOnboarding = ({
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${
-                              selectedKycData.kycStatus === "FULL_KYC"
+                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
                                 ? "bg-green-100 text-green-700"
                                 : selectedKycData.kycStatus === "NO_KYC"
                                   ? "bg-red-100 text-red-700"
                                   : "bg-yellow-100 text-yellow-700"
-                            }`}
+                              }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
                           </span>
@@ -1331,12 +1308,11 @@ const MasterDistributionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
-                                  selectedKycData.aadhaarDoc.status ===
-                                  "Success"
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
+                                    "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
-                                }`}
+                                  }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
                               </span>
@@ -1444,11 +1420,10 @@ const MasterDistributionOnboarding = ({
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
-                                  selectedKycData.panDoc.status === "Success"
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
                                     ? "bg-green-100 text-green-700"
                                     : "bg-red-100 text-red-700"
-                                }`}
+                                  }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
                               </span>
@@ -1653,11 +1628,10 @@ const MasterDistributionOnboarding = ({
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Mobile Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.mobileVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.mobileVerify ? (
@@ -1670,11 +1644,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.mobileVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
                                 ? "Verified"
@@ -1684,11 +1657,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* Email Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.emailVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.emailVerify ? (
@@ -1701,11 +1673,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.emailVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.emailVerify
                                 ? "Verified"
@@ -1715,11 +1686,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* Aadhar Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.aadharVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.aadharVerify ? (
@@ -1732,11 +1702,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.aadharVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
                                 ? "Verified"
@@ -1746,11 +1715,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* PAN Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.panVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.panVerify ? (
@@ -1763,11 +1731,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.panVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.panVerify
                                 ? "Verified"
@@ -1777,11 +1744,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* Shop Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.shopDetailsVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.shopDetailsVerify ? (
@@ -1794,11 +1760,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.shopDetailsVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
                                 ? "Verified"
@@ -1808,11 +1773,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* Image Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.imageVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.imageVerify ? (
@@ -1825,11 +1789,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.imageVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.imageVerify
                                 ? "Verified"
@@ -1839,12 +1802,11 @@ const MasterDistributionOnboarding = ({
 
                           {/* Profile Image with Shop Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
                                 .profileImageWithShopVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails
@@ -1858,12 +1820,11 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
                                   .profileImageWithShopVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails
                                 .profileImageWithShopVerify
@@ -1874,11 +1835,10 @@ const MasterDistributionOnboarding = ({
 
                           {/* Bank Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.bankDetailsVerify
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
                                 ? "bg-green-50 border-green-200"
                                 : "bg-red-50 border-red-200"
-                            }`}
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.bankDetailsVerify ? (
@@ -1891,11 +1851,10 @@ const MasterDistributionOnboarding = ({
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.bankDetailsVerify
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
                                   ? "bg-green-100 text-green-700"
                                   : "bg-red-100 text-red-700"
-                              }`}
+                                }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify
                                 ? "Verified"
