@@ -21,6 +21,7 @@ import {
   GET_MD_DETAILS_SUCCESS,
   GET_REPORT_TO_DOWNLINE_SUCCESS,
   GET_USER_ADMIN_SUCCESS,
+  FETCH_KYC_DETAILS_COMPANY_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -31,22 +32,23 @@ const initialState = {
   Success: null,
   message: null,
   pincodeByCity: null,
-  panData:null,
-  createResponse:null,
+  panData: null,
+  createResponse: null,
   whitelabelList: null,
-  kycDetails:null,
-  kycStatusClick:null,
-  kycStatusCheck:null,
-  kycLockStatus:null,
-  kycRevert:null,
-  resendOnboardingLink:null,
-  deactivateOnboardingLink:null,
-  companyAdmin:null,
-  userDetails:null,
-  reportToUserList:null,
+  kycDetails: null,
+  kycStatusClick: null,
+  kycStatusCheck: null,
+  kycLockStatus: null,
+  kycRevert: null,
+  resendOnboardingLink: null,
+  deactivateOnboardingLink: null,
+  companyAdmin: null,
+  userDetails: null,
+  reportToUserList: null,
   mdDetails: null,
   reportToDownlineList: null,
   userAdminDetails: null,
+  kycDetailsCompany: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -57,7 +59,7 @@ const whiteLabelReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
         createResponse: action.payload,
-         Success: action.payload.status,
+        Success: action.payload.status,
         message: action.payload.message,
       };
     case GET_IP_CHECK_SUCCESS:
@@ -66,7 +68,7 @@ const whiteLabelReducer = (state = initialState, action) => {
         loading: false,
         error: action.payload,
         ipResponse: action.payload,
-         Success: action.payload.status,
+        Success: action.payload.status,
         message: action.payload.message,
       };
 
@@ -80,7 +82,7 @@ const whiteLabelReducer = (state = initialState, action) => {
         Success: action.payload.status,
         message: action.payload.message,
       };
-      
+
     case GET_PINCODE_BY_CITY_SUCCESS:
       return {
         ...state,
@@ -101,7 +103,7 @@ const whiteLabelReducer = (state = initialState, action) => {
       };
 
     case GET_WHITELABEL_LIST_SUCCESS:
-      return{
+      return {
         ...state,
         loading: false,
         whitelabelList: action.payload,
@@ -109,7 +111,7 @@ const whiteLabelReducer = (state = initialState, action) => {
         message: action.payload.message,
       }
     case FETCH_KYC_DETAILS_SUCCESS:
-      return{
+      return {
         ...state,
         loading: false,
         kycDetails: action.payload,
@@ -118,7 +120,7 @@ const whiteLabelReducer = (state = initialState, action) => {
       }
 
     case GET_KYCSTATUS_SUCCESS:
-      return{
+      return {
         ...state,
         loading: false,
         kycStatusClick: action.payload,
@@ -127,124 +129,123 @@ const whiteLabelReducer = (state = initialState, action) => {
       }
 
     case UPDATE_KYCSTATUS_SUCCESS:
-      return{
+      return {
         ...state,
         loading: false,
-        kycStatusClick: action.payload,
+        error: action.payload,
+        message: action.payload.message,
+        Success: action.payload.status,
+        kycStatusCheck: action.payload,
+      }
+    case KYC_LOCK_STATUS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        kycLockStatus: action.payload,
         Success: action.payload.status,
         message: action.payload.message,
-      } 
-      case UPDATE_KYCSTATUS_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          error: action.payload,
-          message: action.payload.message,
-          Success: action.payload.status,
-          kycStatusCheck: action.payload,
-        }
-      case KYC_LOCK_STATUS_SUCCESS:
-        return{
-             ...state,
-             loading: false,
-             kycLockStatus: action.payload,   
-             Success: action.payload.status,
-             message: action.payload.message,
-        }
-      case REVERT_KYC_DETAILS_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          kycRevert: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case RESEND_ONBOARDING_LINK_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          resendOnboardingLink: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case DEACTIVATE_ONBOARDING_LINK_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          deactivateOnboardingLink: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_COMPANY_ADMIN_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          companyAdmin: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_COMPANY_ADMIN_FAILURE:
-        return{
-          ...state,
-          loading: false,
-          error: action.payload,
-          message: action.payload?.message,
-        }
-      case GET_USER_DETAILS_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          userDetails: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_USER_DETAILS_FAILURE:
-        return{
-          ...state,
-          loading: false,
-          error: action.payload,
-          message: action.payload?.message,
-        }
-      case GET_REPORT_TO_USER_LIST_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          reportToUserList: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_REPORT_TO_USER_LIST_FAILURE:
-        return{
-          ...state,
-          loading: false,
-          error: action.payload,
-          message: action.payload?.message,
-        }
-      case GET_MD_DETAILS_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          mdDetails: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_REPORT_TO_DOWNLINE_SUCCESS:
-        return {
-          ...state,
-          loading: false,
-          reportToDownlineList: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-      case GET_USER_ADMIN_SUCCESS:
-        return{
-          ...state,
-          loading: false,
-          userAdminDetails: action.payload,
-          Success: action.payload.status,
-          message: action.payload.message,
-        }
-        
+      }
+    case REVERT_KYC_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        kycRevert: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case RESEND_ONBOARDING_LINK_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        resendOnboardingLink: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case DEACTIVATE_ONBOARDING_LINK_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        deactivateOnboardingLink: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_COMPANY_ADMIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        companyAdmin: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_COMPANY_ADMIN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        message: action.payload?.message,
+      }
+    case GET_USER_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userDetails: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_USER_DETAILS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        message: action.payload?.message,
+      }
+    case GET_REPORT_TO_USER_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        reportToUserList: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_REPORT_TO_USER_LIST_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        message: action.payload?.message,
+      }
+    case GET_MD_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        mdDetails: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_REPORT_TO_DOWNLINE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        reportToDownlineList: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case GET_USER_ADMIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        userAdminDetails: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case FETCH_KYC_DETAILS_COMPANY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        kycDetailsCompany: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
     default:
       return state;
   }
