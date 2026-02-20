@@ -41,6 +41,8 @@ import {
   GET_USER_ADMIN_FAILURE,
   FETCH_KYC_DETAILS_COMPANY_SUCCESS,
   FETCH_KYC_DETAILS_COMPANY_FAILURE,
+  FETCH_KYC_DETAILS_USER_SUCCESS,
+  FETCH_KYC_DETAILS_USER_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -941,3 +943,44 @@ export const kycDataCompany = (id) => async (dispatch) => {
   }
 };
 
+export const kycDataUser = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/userDetails/kyc/complete/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: FETCH_KYC_DETAILS_USER_SUCCESS,
+        payload: { data, message, status },
+      });
+    } else {
+      dispatch({
+        type: FETCH_KYC_DETAILS_USER_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: FETCH_KYC_DETAILS_USER_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};

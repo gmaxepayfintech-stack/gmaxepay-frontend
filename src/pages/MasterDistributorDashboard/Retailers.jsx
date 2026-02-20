@@ -15,7 +15,6 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  kycData as kycDataAction,
   kycStatusData,
   kycStatusCheck,
   kycUnlock,
@@ -23,10 +22,12 @@ import {
   rescendOnboarding,
   deActiveOnboarding,
   getUserMDDetails,
+  kycDataUser
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
 import { roleDataMasterDistributorUser } from "../../redux/action/roleAction";
+
 
 const Retailers = ({
   embedded = false,
@@ -93,7 +94,7 @@ const Retailers = ({
   }, [roleDataResponse, responseForTable]);
 
   // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get lockCheck from Redux state
@@ -205,7 +206,7 @@ const Retailers = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(kycDataUser(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -583,8 +584,8 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {safeString(row.status, "Active")}
@@ -597,7 +598,7 @@ const Retailers = ({
                             if (userId) {
                               setSelectedUserId(userId);
                               setIsKycModalLoading(true);
-                              dispatch(kycDataAction(userId));
+                              dispatch(kycDataUser(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -705,8 +706,8 @@ const Retailers = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -771,8 +772,8 @@ const Retailers = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -784,8 +785,8 @@ const Retailers = ({
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -803,8 +804,8 @@ const Retailers = ({
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -1026,8 +1027,8 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {safeString(row.status, "Active")}
@@ -1147,8 +1148,8 @@ const Retailers = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -1213,8 +1214,8 @@ const Retailers = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -1226,8 +1227,8 @@ const Retailers = ({
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -1245,8 +1246,8 @@ const Retailers = ({
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -1299,8 +1300,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
@@ -1309,8 +1310,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("aadhar")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Aadhar Document
@@ -1318,8 +1319,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("pan")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   PAN Document
@@ -1327,8 +1328,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Outlet Details
@@ -1336,8 +1337,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("bankDetails")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Bank Details
@@ -1345,8 +1346,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("verification")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Verification
@@ -1374,10 +1375,10 @@ const Retailers = ({
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -1534,9 +1535,9 @@ const Retailers = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
-                                    "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1664,8 +1665,8 @@ const Retailers = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
@@ -1908,8 +1909,8 @@ const Retailers = ({
                           {/* Mobile Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1924,8 +1925,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
@@ -1937,8 +1938,8 @@ const Retailers = ({
                           {/* Email Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1953,8 +1954,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.emailVerify
@@ -1966,8 +1967,8 @@ const Retailers = ({
                           {/* Aadhar Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1982,8 +1983,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
@@ -1995,8 +1996,8 @@ const Retailers = ({
                           {/* PAN Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2011,8 +2012,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.panVerify
@@ -2024,8 +2025,8 @@ const Retailers = ({
                           {/* Shop Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2040,8 +2041,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
@@ -2053,8 +2054,8 @@ const Retailers = ({
                           {/* Image Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2069,8 +2070,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.imageVerify
@@ -2082,9 +2083,9 @@ const Retailers = ({
                           {/* Profile Image with Shop Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2100,9 +2101,9 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails
@@ -2115,8 +2116,8 @@ const Retailers = ({
                           {/* Bank Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2131,8 +2132,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify
