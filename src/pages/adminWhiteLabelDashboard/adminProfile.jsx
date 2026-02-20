@@ -1154,17 +1154,19 @@ const AdminProfile = ({ onBack = null }) => {
                           >
                             <Edit size={18} />
                           </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedBank(bank);
-                              setShowDeleteModal(true);
-                            }}
-                            className="text-red-500 hover:text-red-700 transition"
-                            title="Delete bank account"
-                          >
-                            <Trash2 size={18} />
-                          </button>
+                          {!bank.isPrimary && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSelectedBank(bank);
+                                setShowDeleteModal(true);
+                              }}
+                              className="text-red-500 hover:text-red-700 transition"
+                              title="Delete bank account"
+                            >
+                              <Trash2 size={18} />
+                            </button>
+                          )}
                         </div>
                       </div>
                     </div>
