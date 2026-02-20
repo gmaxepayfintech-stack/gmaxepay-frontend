@@ -129,11 +129,11 @@ const MasterDistLayout = ({ children }) => {
         await logoutPromise;
       }
       // Navigate to login after logout completes
-      navigate("/auth/login", { replace: true });
+      window.location.href = "/auth/login";
     } catch (error) {
       console.error("Logout error:", error);
       // Even if logout fails, redirect to login (storage is cleared by logOut function)
-      navigate("/auth/login", { replace: true });
+      window.location.href = "/auth/login";
     }
   };
 
@@ -258,9 +258,8 @@ const MasterDistLayout = ({ children }) => {
       )}
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
-        }`}
+        className={`fixed inset-y-0 left-0 z-30 w-[260px] max-w-[85%] bg-white lg:bg-[#0391550D] flex flex-col shadow-2xl rounded-r-xl transform transition-transform duration-300 lg:w-[277px] lg:translate-x-0 lg:shadow-lg lg:rounded-r-2xl ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
         style={{ backgroundColor: isSidebarOpen ? "#FFFFFF" : undefined }}
       >
         {/* Logo */}
@@ -287,19 +286,17 @@ const MasterDistLayout = ({ children }) => {
                 {/* Main Menu Item */}
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
-                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${
-                    isActiveParent
+                  className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${isActiveParent
                       ? "bg-[#039155] text-white shadow-md"
                       : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
-                  }`}
+                    }`}
                 >
                   <div className="flex items-center gap-3">
                     <img
                       src={icon}
                       alt={name}
-                      className={`w-5 h-5 object-contain ${
-                        isActiveParent ? "filter brightness-0 invert" : ""
-                      }`}
+                      className={`w-5 h-5 object-contain ${isActiveParent ? "filter brightness-0 invert" : ""
+                        }`}
                       onError={(e) => {
                         e.target.onerror = null;
                         e.target.src = "/img/gmaxepay.png";
@@ -341,11 +338,10 @@ const MasterDistLayout = ({ children }) => {
                           <Link
                             key={child.name}
                             to={child.path}
-                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${
-                              isChildPathActive
+                            className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
                                 ? "text-[#039155] font-[Gilroy-Semibold]"
                                 : "text-gray-700"
-                            }`}
+                              }`}
                           >
                             <svg
                               xmlns="http://www.w3.org/2000/svg"
@@ -438,7 +434,7 @@ const MasterDistLayout = ({ children }) => {
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                { "MasterDis Dashboard"}
+                {"MasterDis Dashboard"}
               </span>
               <button
                 onClick={toggleProfileDropdown}
