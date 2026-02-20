@@ -1,7 +1,7 @@
 import { useRef } from "react";
 import PropTypes from "prop-types";
 import jsPDF from "jspdf";
-import { useCompany } from "../../../../context/CompanyContext";
+import { useCompany } from "../../../../../context/CompanyContext";
 
 const PaymentSuccessScreen = ({
   transactionDetails,
