@@ -22,6 +22,7 @@ import {
   GET_REPORT_TO_DOWNLINE_SUCCESS,
   GET_USER_ADMIN_SUCCESS,
   FETCH_KYC_DETAILS_COMPANY_SUCCESS,
+  FETCH_KYC_DETAILS_USER_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -49,6 +50,7 @@ const initialState = {
   reportToDownlineList: null,
   userAdminDetails: null,
   kycDetailsCompany: null,
+  kycDetailsUser: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -243,6 +245,14 @@ const whiteLabelReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         kycDetailsCompany: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case FETCH_KYC_DETAILS_USER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        kycDetailsUser: action.payload,
         Success: action.payload.status,
         message: action.payload.message,
       }
