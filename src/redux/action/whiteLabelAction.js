@@ -580,7 +580,7 @@ export const getCompanyAdmin = (userId) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/company/user/profile/${userId}`,
+      `${API_ROUTE}/api/v1/admin/user/profile/${userId}`,
       {},
       {
         headers: {
@@ -715,14 +715,14 @@ export const getReportToUserList = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const companyId = payload?.companyId || null;
-    
+
     if (!companyId) {
       throw new Error("Company ID is required");
     }
 
     // Remove companyId from payload before sending
     const { companyId: _, ...requestPayload } = payload;
-    
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/user/reportToUserList`,
       requestPayload,
@@ -737,12 +737,12 @@ export const getReportToUserList = (payload) => async (dispatch) => {
 
     const responseData = response?.data ?? {};
     const { data: userList, message, status, totalCount, total } = responseData;
-    
+
     // Handle different response structures
-    const users = Array.isArray(userList) 
-      ? userList 
-      : Array.isArray(responseData?.data?.docs) 
-        ? responseData.data.docs 
+    const users = Array.isArray(userList)
+      ? userList
+      : Array.isArray(responseData?.data?.docs)
+        ? responseData.data.docs
         : Array.isArray(responseData?.data?.data)
           ? responseData.data.data
           : Array.isArray(responseData?.docs)
@@ -752,9 +752,9 @@ export const getReportToUserList = (payload) => async (dispatch) => {
     if (status === "SUCCESS") {
       dispatch({
         type: GET_REPORT_TO_USER_LIST_SUCCESS,
-        payload: { 
-          userList: users, 
-          message, 
+        payload: {
+          userList: users,
+          message,
           status,
           totalCount: totalCount || total || users.length,
         },
@@ -788,14 +788,14 @@ export const getReportToDownline = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const companyId = payload?.companyId || null;
-    
+
     if (!companyId) {
       throw new Error("Company ID is required");
     }
 
     // Remove companyId from payload before sending
     const { companyId: _, ...requestPayload } = payload;
-    
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/user/userDetails/reportToUsersList`,
       requestPayload,
@@ -810,12 +810,12 @@ export const getReportToDownline = (payload) => async (dispatch) => {
 
     const responseData = response?.data ?? {};
     const { data: reportToDownlineList, message, status, totalCount, total } = responseData;
-    
+
     // Handle different response structures
-    const users = Array.isArray(reportToDownlineList) 
-      ? reportToDownlineList 
-      : Array.isArray(responseData?.data?.docs) 
-        ? responseData.data.docs 
+    const users = Array.isArray(reportToDownlineList)
+      ? reportToDownlineList
+      : Array.isArray(responseData?.data?.docs)
+        ? responseData.data.docs
         : Array.isArray(responseData?.data?.data)
           ? responseData.data.data
           : Array.isArray(responseData?.docs)
@@ -825,9 +825,9 @@ export const getReportToDownline = (payload) => async (dispatch) => {
     if (status === "SUCCESS") {
       dispatch({
         type: GET_REPORT_TO_DOWNLINE_SUCCESS,
-        payload: { 
-          reportToDownlineList: users, 
-          message, 
+        payload: {
+          reportToDownlineList: users,
+          message,
           status,
           totalCount: totalCount || total || users.length,
         },

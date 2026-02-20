@@ -21,7 +21,9 @@ import { getMDDetails } from "../../redux/action/whiteLabelAction";
 import {
   addBankDetails,
   deleteUserBank,
+  updateBankDetailsUser,
 } from "../../redux/action/userProfileAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 
 const MasterDistributerProfile = ({ onBack = null }) => {
@@ -58,6 +60,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
 
   // Use mdDetailsData from   getMDDetails API
   const profileData = mdDetailsData || null;
+  const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Get slab list from Redux (using getMDSlabList API - contains isSubscribed field)
   const slabList = useSelector((state) => state?.slab?.userList || []);
@@ -958,12 +961,7 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                     {data?.reportingToManagerMobile || "N/A"}
                   </p>
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 mb-1">Reporting Email </p>
-                  <p className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                    {data?.reportingToManagerMobile || "N/A"}
-                  </p>
-                </div>
+
               </div>
             </div>
           </div>
@@ -1076,12 +1074,12 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                       };
 
                       try {
-                        await dispatch(addBankDetails(payload));
+                        const response = await dispatch(addBankDetails(payload));
                         await dispatch(getMDDetails());
 
                         showNotification({
                           type: "success",
-                          message: "Bank details added successfully.",
+                          message: response?.message || "Bank details added successfully.",
                           isCritical: true,
                         });
 
@@ -1167,9 +1165,8 @@ const MasterDistributerProfile = ({ onBack = null }) => {
                             type="button"
                             onClick={() => {
                               setSelectedBank(bank);
-                              // Set initial values based on bank data if needed in future
-                              setEnablePayout(true);
-                              setEnableWalletLoad(false);
+                              setEnablePayout(bank.isPayout || false);
+                              setEnableWalletLoad(bank.isFundTransfer || false);
                               setShowEditModal(true);
                             }}
                             className="text-gray-500 hover:text-[#039155] transition"
@@ -1282,19 +1279,31 @@ const MasterDistributerProfile = ({ onBack = null }) => {
               </button>
 
               <button
-                onClick={() => {
-                  // Here you would dispatch an action to update the bank preferences
-                  showNotification({
-                    type: "success",
-                    message: "Bank preferences updated",
-                    isCritical: true,
-                  });
+                disabled={isLoading}
+                onClick={async () => {
+                  const payload = {
+                    isPayout: enablePayout,
+                    isFundTransfer: enableWalletLoad,
+                  };
+
+                  if (selectedBank?.id) {
+                    const response = await dispatch(updateBankDetailsUser(payload, selectedBank.id));
+                    await dispatch(getMDDetails());
+
+                    if (response?.status === "SUCCESS") {
+                      showNotification({
+                        type: "success",
+                        message: response?.message || "Bank preferences updated",
+                        isCritical: true,
+                      });
+                    }
+                  }
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}
-                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47]"
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47] flex items-center justify-center"
               >
-                Save
+                {isLoading ? <ButtonLoader /> : "Save"}
               </button>
             </div>
           </div>

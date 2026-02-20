@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import PropTypes from "prop-types";
 import { useSelector, useDispatch } from "react-redux";
-import { MapPin, FileText, Camera, ChevronDown, X } from "lucide-react";
+import { MapPin, FileText, Camera, ChevronDown, X, Edit, Trash2 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import {
   getSlabVisibility,
@@ -13,6 +13,8 @@ import { useNotification } from "../../context/NotificationContext";
 import {
   addBankCompanyDetails,
   getAdminProfileDetails,
+  updateBankDetails,
+  deleteCompanyBank,
 } from "../../redux/action/userProfileAction";
 import PhoneIcon from "../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../public/img/Emailicon.png";
@@ -34,6 +36,11 @@ const ProfileDetails = ({ onBack = null }) => {
   const [isAddingBank, setIsAddingBank] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");
+  const [showEditModal, setShowEditModal] = useState(false); // Edit Modal State
+  const [showDeleteModal, setShowDeleteModal] = useState(false); // Delete Confirmation Modal State
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [enablePayout, setEnablePayout] = useState(true); // Toggle State
+  const [enableWalletLoad, setEnableWalletLoad] = useState(false); // Toggle State
 
   // Get company admin data from Redux
   const companyAdminState = useSelector(
@@ -75,7 +82,7 @@ const ProfileDetails = ({ onBack = null }) => {
     (state) => state?.loading?.isLoading || false,
   );
 
-  
+
 
   // Extract data from companyAdminData if available, otherwise fall back to adminProfileData.
   // Both responses share a similar structure (id, name, companyDetails, outletDetails, bankDetails, etc.)
@@ -232,6 +239,31 @@ const ProfileDetails = ({ onBack = null }) => {
   );
 
   const hasProfileData = !!(companyAdminData || adminProfileData);
+
+  const handleDeleteBank = async () => {
+    if (!selectedBank?.id) return;
+
+    try {
+      await dispatch(deleteCompanyBank(selectedBank.id));
+      if (data?.id) {
+        await dispatch(getCompanyAdmin(data.id));
+      }
+      showNotification({
+        type: "success",
+        message: "Bank account deleted successfully",
+        isCritical: true,
+      });
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: "Failed to delete bank account",
+        isCritical: true,
+      });
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedBank(null);
+    }
+  };
 
   // Show skeleton while loading or until we have either companyAdminData or adminProfileData
   if (isLoading || !hasProfileData) {
@@ -1182,6 +1214,36 @@ const ProfileDetails = ({ onBack = null }) => {
                           Active
                         </span>
                       </div>
+
+                      <div className="flex flex-col w-20">
+                        <p className="text-xs text-gray-500">Action</p>
+                        <div className="flex items-center gap-3">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBank(bank);
+                              setEnablePayout(bank.isPayout || false);
+                              setEnableWalletLoad(bank.isFundTransfer || false);
+                              setShowEditModal(true);
+                            }}
+                            className="text-gray-500 hover:text-[#039155] transition"
+                            title="Edit bank account"
+                          >
+                            <Edit size={18} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedBank(bank);
+                              setShowDeleteModal(true);
+                            }}
+                            className="text-red-500 hover:text-red-700 transition"
+                            title="Delete bank account"
+                          >
+                            <Trash2 size={18} />
+                          </button>
+                        </div>
+                      </div>
                     </div>
                   ))
                 ) : (
@@ -1301,6 +1363,155 @@ const ProfileDetails = ({ onBack = null }) => {
                   })()}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Bank Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-[24px] shadow-xl w-full max-w-sm p-6 relative">
+
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-lg font-[Gilroy-SemiBold] text-[#1B1717]">
+                Use Account For
+              </h3>
+              <span className="bg-[#EBE9FE] text-[#6941C6] text-[10px] sm:text-xs px-2 py-1 rounded-md font-[Gilroy-Medium]">
+                Multi-Selected Enabled
+              </span>
+            </div>
+
+            <div className="space-y-4 mb-8">
+              {/* Payout Option */}
+              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="5" width="20" height="14" rx="2" />
+                      <line x1="2" y1="10" x2="22" y2="10" />
+                    </svg>
+                  </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
+                  <div>
+                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Payout</h4>
+                    <p className="text-xs text-gray-500">Use This Account For Payouts</p>
+                  </div>
+                </div>
+
+                {/* Toggle Switch */}
+                <button
+                  onClick={() => setEnablePayout(!enablePayout)}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enablePayout ? 'bg-[#039155]' : 'bg-gray-200'}`}
+                >
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enablePayout ? 'translate-x-[26px]' : 'translate-x-1'}`} />
+                </button>
+              </div>
+
+              {/* Wallet Load Option */}
+              <div className="border border-gray-200 rounded-xl p-4 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-gray-500">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4" />
+                      <path d="M3 5v14a2 2 0 0 0 2 2h16v-5" />
+                      <path d="M18 12a2 2 0 0 0 0 4h4v-4Z" />
+                    </svg>
+                  </div>
+                  <div className="w-[1px] h-8 bg-[#E5E7EB]"></div>
+                  <div>
+                    <h4 className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Enable For Wallet Load</h4>
+                    <p className="text-xs text-gray-500">Transfer Funds To Agent Wallet</p>
+                  </div>
+                </div>
+
+                {/* Toggle Switch */}
+                <button
+                  onClick={() => setEnableWalletLoad(!enableWalletLoad)}
+                  className={`w-11 h-6 flex items-center rounded-full transition-colors duration-300 ${enableWalletLoad ? 'bg-[#039155]' : 'bg-gray-200'}`}
+                >
+                  <div className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300 ${enableWalletLoad ? 'translate-x-[26px]' : 'translate-x-1'}`} />
+                </button>
+              </div>
+            </div>
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => {
+                  setShowEditModal(false);
+                  setSelectedBank(null);
+                }}
+                className="flex-1 py-3 border border-gray-300 rounded-xl text-sm font-[Gilroy-Medium] text-[#1B1717] hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                disabled={isLoading}
+                onClick={async () => {
+                  const payload = {
+                    isPayout: enablePayout,
+                    isFundTransfer: enableWalletLoad,
+                  };
+
+                  if (selectedBank?.id) {
+                    const response = await dispatch(updateBankDetails(payload, selectedBank.id));
+                    if (data?.id) {
+                      await dispatch(getCompanyAdmin(data.id));
+                    }
+                    if (response?.status === "SUCCESS") {
+                      showNotification({
+                        type: "success",
+                        message: response?.message || "Bank preferences updated",
+                        isCritical: true,
+                      });
+                    }
+                  }
+                  setShowEditModal(false);
+                  setSelectedBank(null);
+                }}
+                className="flex-1 py-3 bg-[#039155] text-white rounded-xl text-sm font-[Gilroy-SemiBold] hover:bg-[#027a47] flex items-center justify-center"
+              >
+                {isLoading ? <span className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></span> : "Save"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Delete Bank Confirmation Modal */}
+      {showDeleteModal && (
+        <div className="fixed inset-0 bg-[#D9D9D9CC] flex items-center justify-center z-50">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm p-6 relative">
+            <h3 className="text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-3">
+              Delete Bank Account
+            </h3>
+
+            <p className="text-sm text-gray-600 mb-6">
+              Are you sure you want to delete this bank account?
+              <br />
+              <span className="font-[Gilroy-Medium] text-gray-800">
+                Account No: {selectedBank?.accountNumber}
+              </span>
+            </p>
+
+            <div className="flex justify-end gap-3">
+              <button
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setSelectedBank(null);
+                }}
+                className="px-4 py-2 border border-gray-300 rounded-lg text-sm hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleDeleteBank}
+                className="px-4 py-2 bg-red-600 text-white rounded-lg text-sm hover:bg-red-700"
+              >
+                Delete
+              </button>
             </div>
           </div>
         </div>
