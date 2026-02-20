@@ -223,11 +223,11 @@ const RetailerDashLayout = ({ children }) => {
         await logoutPromise;
       }
       // Navigate to login after logout completes
-      navigate("/auth/login", { replace: true });
+      window.location.href = "/auth/login";
     } catch (error) {
       console.error("Logout error:", error);
       // Even if logout fails, redirect to login (storage is cleared by logOut function)
-      navigate("/auth/login", { replace: true });
+      window.location.href = "/auth/login";
     }
   };
 
