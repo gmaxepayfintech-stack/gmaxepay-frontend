@@ -22,6 +22,7 @@ import {
   addBankDetails,
   deleteUserBank,
 } from "../../redux/action/userProfileAction";
+import { updateBankDetails } from "../../redux/action/userProfileAction";
 
 const RetailerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -1158,8 +1159,8 @@ const RetailerProfile = ({ onBack = null }) => {
                             onClick={() => {
                               setSelectedBank(bank);
                               // Set initial values based on bank data if available, or default
-                              setEnablePayout(true);
-                              setEnableWalletLoad(false);
+                              setEnablePayout(bank.isPayout || false);
+                              setEnableWalletLoad(bank.isFundTransfer || false);
                               setShowEditModal(true);
                             }}
                             className="text-gray-500 hover:text-[#039155] transition"
@@ -1443,13 +1444,31 @@ const RetailerProfile = ({ onBack = null }) => {
               </button>
 
               <button
-                onClick={() => {
-                  // Here you would dispatch an action to update the bank preferences
-                  showNotification({
-                    type: "success",
-                    message: "Bank preferences updated",
-                    isCritical: true, // using existing prop
-                  });
+                onClick={async () => {
+                  const payload = {
+                    isPayout: enablePayout,
+                    isFundTransfer: enableWalletLoad,
+                  };
+
+                  if (selectedBank?.id) {
+                    try {
+                      const response = await dispatch(
+                        updateBankDetails(payload, selectedBank.id)
+                      );
+                      await dispatch(getMDDetails());
+
+                      if (response?.status === "SUCCESS") {
+                        showNotification({
+                          type: "success",
+                          message:
+                            response?.message || "Bank preferences updated",
+                          isCritical: true,
+                        });
+                      }
+                    } catch (error) {
+                      console.error("Update failed", error);
+                    }
+                  }
                   setShowEditModal(false);
                   setSelectedBank(null);
                 }}

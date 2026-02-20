@@ -314,11 +314,13 @@ export const addBankCompanyDetails = (payload) => async (dispatch) => {
         type: ADD_BANK_COMPANY_SUCCESS,
         payload: { bankCompanyResponse, message, status },
       });
+      return { status, message, bankCompanyResponse };
     } else {
       dispatch({
         type: ADD_BANK_COMPANY_FAILURE,
         payload: { message, status, errorData: response?.data },
       });
+      return { status, message, errorData: response?.data };
     }
   } catch (error) {
     dispatch({

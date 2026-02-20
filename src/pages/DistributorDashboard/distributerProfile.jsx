@@ -1070,13 +1070,13 @@ const DistributerProfile = ({ onBack = null }) => {
                       };
 
                       try {
-                        await dispatch(addBankDetails(payload));
+                        const response = await dispatch(addBankDetails(payload));
                         // Refresh profile/bank details
                         await dispatch(getMDDetails());
 
                         showNotification({
                           type: "success",
-                          message: "Bank details added successfully.",
+                          message: response?.message || "Bank details added successfully.",
                           isCritical: true,
                         });
 
