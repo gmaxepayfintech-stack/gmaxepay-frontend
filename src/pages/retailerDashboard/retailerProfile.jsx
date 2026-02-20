@@ -22,7 +22,7 @@ import {
   addBankDetails,
   deleteUserBank,
 } from "../../redux/action/userProfileAction";
-import { updateBankDetails } from "../../redux/action/userProfileAction";
+import { updateBankDetailsUser } from "../../redux/action/userProfileAction";
 
 const RetailerProfile = ({ onBack = null }) => {
   const dispatch = useDispatch();
@@ -1455,7 +1455,7 @@ const RetailerProfile = ({ onBack = null }) => {
                   if (selectedBank?.id) {
                     try {
                       const response = await dispatch(
-                        updateBankDetails(payload, selectedBank.id)
+                        updateBankDetailsUser(payload, selectedBank.id)
                       );
                       await dispatch(getMDDetails());
 
