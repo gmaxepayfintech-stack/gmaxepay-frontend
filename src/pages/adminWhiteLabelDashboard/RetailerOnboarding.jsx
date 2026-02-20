@@ -14,7 +14,7 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  kycDataCompany,
+  kycDataUser,
   kycStatusCheck,
   kycUnlock,
   kycRevert,
@@ -49,7 +49,7 @@ const RetailerOnboarding = ({
   const kycModalRef = useRef(null);
 
   // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycStatusCheck success state to refresh table after update
@@ -174,7 +174,7 @@ const RetailerOnboarding = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataCompany(selectedUserId));
+        dispatch(kycDataUser(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -564,7 +564,7 @@ const RetailerOnboarding = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(kycDataCompany(userId));
+                              dispatch(kycDataUser(userId));
                               setShowKycModal(true);
                             }
                           }}
