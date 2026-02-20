@@ -4,6 +4,7 @@ import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import { aepsStatusCheck } from "../../redux/action/aepsAction";
 import DTHRecharge from "./services/DTHRecharge";
+import MobileRecharge from "./services/MobileRecharge";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -99,6 +100,7 @@ ServiceCard.propTypes = {
 const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showDTHRecharge, setShowDTHRecharge] = useState(false);
+  const [showMobileRecharge, setShowMobileRecharge] = useState(false);
 
   const navigate = useNavigate();
 
@@ -120,8 +122,9 @@ const Services = () => {
   };
 
   const handleMobileRechargeClick = () => {
-    navigate("/retailerDashboard/services/recharge");
+    setShowMobileRecharge(true);
   };
+
 
   const handleDTHRechargeClick = () => {
     setShowDTHRecharge(true);
@@ -131,7 +134,11 @@ const Services = () => {
     return <DTHRecharge onBack={() => setShowDTHRecharge(false)} />;
   }
 
-  // Handle PAN card click - navigate to pan-service route
+  if (showMobileRecharge) {
+    return <MobileRecharge onBack={() => setShowMobileRecharge(false)} />;
+  }
+
+    // Handle PAN card click - navigate to pan-service route
   const handlePANClick = () => {
     navigate("/distributerDashboard/services/pan-service");
   };
