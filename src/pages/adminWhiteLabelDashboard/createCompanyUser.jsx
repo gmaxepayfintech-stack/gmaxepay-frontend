@@ -23,13 +23,13 @@ import Retailers from "./Retailers";
 import RetailerOnboarding from "./RetailerOnboarding";
 import ProfileDetails from "./ProfileDetails";
 import {
-  kycData,
   kycStatusCheck,
   kycUnlock,
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
 } from "../../redux/action/whiteLabelAction";
+import { kycDataCompany } from "../../redux/action/whiteLabelAction";
 import { getSlabList } from "../../redux/action/slabAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { motion } from "framer-motion";
@@ -348,7 +348,7 @@ const CreateCompanyUser = () => {
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycData(selectedUserId));
+        dispatch(kycDataCompany(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -1145,7 +1145,7 @@ const CreateCompanyUser = () => {
                                 if (userId) {
                                   setSelectedUserId(userId);
                                   setIsKycModalLoading(true);
-                                  dispatch(kycData(userId));
+                                  dispatch(kycDataCompany(userId));
                                   setShowKycModal(true);
                                 }
                               }}
