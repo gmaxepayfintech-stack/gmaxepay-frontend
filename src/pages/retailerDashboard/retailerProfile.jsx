@@ -1168,7 +1168,7 @@ const RetailerProfile = ({ onBack = null }) => {
                           >
                             <Edit size={18} />
                           </button>
-                          {!bank.isPrimary && (
+                          {bank.isPrimary !== true && bank.isPrimary !== "true" && bank.isPrimary !== 1 && (
                             <button
                               type="button"
                               onClick={() => {
