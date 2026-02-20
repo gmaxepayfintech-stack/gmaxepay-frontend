@@ -342,9 +342,8 @@ const Distribution = ({
                   tableData.map((row, index) => (
                     <tr
                       key={index}
-                      className={`text-sm ${
-                        index % 2 === 0 ? "bg-green-50" : "bg-white"
-                      }`}
+                      className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
+                        }`}
                     >
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.id || "N/A"}
@@ -433,11 +432,10 @@ const Distribution = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
-                            row.status?.toLowerCase() === "active"
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
-                          }`}
+                            }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -486,16 +484,14 @@ const Distribution = ({
                                   }
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                                isActive ? "bg-green-600" : "bg-gray-300"
-                              }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  isActive ? "translate-x-6" : "translate-x-1"
-                                }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                  }`}
                               />
                             </button>
                           );
@@ -516,11 +512,10 @@ const Distribution = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
-                                isLocked
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
                                   ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                   : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                              }`}
+                                }`}
                               title={
                                 isLocked
                                   ? "Click to enable access for this account"
@@ -583,11 +578,10 @@ const Distribution = ({
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`p-2 border border-gray-300 rounded-lg transition ${
-                currentPage === 1
+              className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <IoIosArrowBack />
             </button>
@@ -595,11 +589,10 @@ const Distribution = ({
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${
-                  page === currentPage
+                className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
                     ? "bg-green-600 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -609,11 +602,10 @@ const Distribution = ({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className={`p-2 border border-gray-300 rounded-lg transition ${
-                currentPage === totalPages
+              className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <IoIosArrowForward />
             </button>
@@ -846,11 +838,10 @@ const Distribution = ({
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         <span
-                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
-                            row.status?.toLowerCase() === "active"
+                          className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
                               : "bg-red-600"
-                          }`}
+                            }`}
                         >
                           {row.status || "Active"}
                         </span>
@@ -899,16 +890,14 @@ const Distribution = ({
                                   }
                                 }
                               }}
-                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${
-                                isActive ? "bg-green-600" : "bg-gray-300"
-                              }`}
+                              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                }`}
                               role="switch"
                               aria-checked={isActive}
                             >
                               <span
-                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                  isActive ? "translate-x-6" : "translate-x-1"
-                                }`}
+                                className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive ? "translate-x-6" : "translate-x-1"
+                                  }`}
                               />
                             </button>
                           );
@@ -929,11 +918,10 @@ const Distribution = ({
                                 }
                               }}
                               disabled={!isLocked}
-                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
-                                isLocked
+                              className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
                                   ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
                                   : "bg-green-500 text-white cursor-not-allowed opacity-75"
-                              }`}
+                                }`}
                               title={
                                 isLocked
                                   ? "Click to enable access for this account"
@@ -961,11 +949,10 @@ const Distribution = ({
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
-              className={`p-2 border border-gray-300 rounded-lg transition ${
-                currentPage === 1
+              className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <IoIosArrowBack />
             </button>
@@ -973,11 +960,10 @@ const Distribution = ({
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${
-                  page === currentPage
+                className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
                     ? "bg-green-600 text-white"
                     : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                }`}
+                  }`}
               >
                 {page}
               </button>
@@ -987,11 +973,10 @@ const Distribution = ({
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
               disabled={currentPage === totalPages}
-              className={`p-2 border border-gray-300 rounded-lg transition ${
-                currentPage === totalPages
+              className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
                   ? "text-gray-400 cursor-not-allowed"
                   : "text-gray-500 hover:bg-gray-100"
-              }`}
+                }`}
             >
               <IoIosArrowForward />
             </button>
@@ -1042,62 +1027,56 @@ const Distribution = ({
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "overview"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Overview
                 </button>
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "aadhar"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Aadhar Document
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "pan"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   PAN Document
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "details"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Outlet Details
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "bankDetails"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Bank Details
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "verification"
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
                       ? "text-green-600 border-b-2 border-green-600"
                       : "text-gray-600 hover:text-gray-800"
-                  }`}
+                    }`}
                 >
                   Verification
                 </button>
@@ -1123,13 +1102,12 @@ const Distribution = ({
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${
-                              selectedKycData.kycStatus === "FULL_KYC"
+                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
                                 ? "bg-green-100 text-green-700"
                                 : selectedKycData.kycStatus === "NO_KYC"
                                   ? "bg-red-100 text-red-700"
                                   : "bg-yellow-100 text-yellow-700"
-                            }`}
+                              }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
                           </span>
@@ -1152,13 +1130,12 @@ const Distribution = ({
                             <div
                               className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
                               style={{
-                                width: `${
-                                  ((selectedKycData.completedSteps ||
+                                width: `${((selectedKycData.completedSteps ||
                                     selectedKycData.kycSteps ||
                                     0) /
                                     (selectedKycData.totalSteps || 7)) *
                                   100
-                                }%`,
+                                  }%`,
                               }}
                             />
                           </div>
@@ -1292,9 +1269,9 @@ const Distribution = ({
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
                                   selectedKycData.aadhaarDoc.status ===
-                                  "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  uccess"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                 }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1356,620 +1333,606 @@ const Distribution = ({
                             )}
                           </div>
                         </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500">
-                          <p>No Aadhaar Document available</p>
-                        </div>
+                  ) : (
+                  <div className="text-center py-8 text-gray-500">
+                    <p>No Aadhaar Document available</p>
+                  </div>
                       )}
-                    </div>
-                  )}
-
-                  {/* PAN Document Tab */}
-                  {activeTab === "pan" && (
-                    <div className="space-y-6">
-                      {selectedKycData.panDoc ? (
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
-                              <FaIdCard className="text-purple-600" />
-                              PAN Document
-                            </h3>
-                            {selectedUserId && (
-                              <button
-                                onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
-                                  }
-                                }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
-                              >
-                                Revert
-                              </button>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                PAN Number
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.panDoc.panNumber || "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                PAN Name
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.panDoc.panName || "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                DOB
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.panDoc.panDob || "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Status
-                              </span>
-                              <span
-                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
-                                  selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
-                              >
-                                {selectedKycData.panDoc.status || "N/A"}
-                              </span>
-                            </div>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            {selectedKycData.userDetails?.panCardFrontImage && (
-                              <div>
-                                <span className="text-xs text-gray-500 mb-2 block">
-                                  PAN Front
-                                </span>
-                                <div className="relative group">
-                                  <img
-                                    src={
-                                      selectedKycData.userDetails
-                                        .panCardFrontImage
-                                    }
-                                    alt="PAN Front"
-                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
-                                    onClick={() =>
-                                      setZoomedImage(
-                                        selectedKycData.userDetails
-                                          .panCardFrontImage,
-                                      )
-                                    }
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
-                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                            {selectedKycData.userDetails?.panCardBackImage && (
-                              <div>
-                                <span className="text-xs text-gray-500 mb-2 block">
-                                  PAN Back
-                                </span>
-                                <div className="relative group">
-                                  <img
-                                    src={
-                                      selectedKycData.userDetails
-                                        .panCardBackImage
-                                    }
-                                    alt="PAN Back"
-                                    className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
-                                    onClick={() =>
-                                      setZoomedImage(
-                                        selectedKycData.userDetails
-                                          .panCardBackImage,
-                                      )
-                                    }
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
-                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500">
-                          <p>No PAN Document available</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Additional Details Tab */}
-                  {activeTab === "details" && (
-                    <div className="space-y-6">
-                      {/* Outlet Details */}
-                      {selectedKycData.outletDetails && (
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
-                              <FaBuilding className="text-orange-600" />
-                              Outlet Details
-                            </h3>
-                            {selectedUserId && (
-                              <button
-                                onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        shopImage: "true",
-                                      }),
-                                    );
-                                  }
-                                }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
-                              >
-                                Revert
-                              </button>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Shop Name
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.outletDetails.shopName ||
-                                  "N/A"}
-                              </span>
-                            </div>
-                            {selectedKycData.outletDetails.gstNo && (
-                              <div className="flex flex-col">
-                                <span className="text-xs text-gray-500 mb-1">
-                                  GST No
-                                </span>
-                                <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                  {selectedKycData.outletDetails.gstNo}
-                                </span>
-                              </div>
-                            )}
-                            <div className="flex flex-col md:col-span-2">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Shop Address
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.outletDetails.shopAddress ||
-                                  "N/A"}
-                              </span>
-                            </div>
-                            {selectedKycData.outletDetails.shopImage && (
-                              <div className="md:col-span-2">
-                                <span className="text-xs text-gray-500 mb-2 block">
-                                  Shop Image
-                                </span>
-                                <div className="relative group">
-                                  <img
-                                    src={
-                                      selectedKycData.outletDetails.shopImage
-                                    }
-                                    alt="Shop"
-                                    className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
-                                    onClick={() =>
-                                      setZoomedImage(
-                                        selectedKycData.outletDetails.shopImage,
-                                      )
-                                    }
-                                  />
-                                  <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
-                                    <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
-                                  </div>
-                                </div>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Bank Details Tab */}
-                  {activeTab === "bankDetails" && (
-                    <div className="space-y-6">
-                      {selectedKycData.customerBankDetails ? (
-                        <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
-                          <div className="flex items-center justify-between mb-4">
-                            <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
-                              <FaUniversity className="text-indigo-600" />
-                              Bank Details
-                            </h3>
-                            {selectedUserId && (
-                              <button
-                                onClick={() => {
-                                  if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
-                                  }
-                                }}
-                                className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
-                              >
-                                Revert
-                              </button>
-                            )}
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Account Number
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.customerBankDetails
-                                  .accountNumber || "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                IFSC
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.customerBankDetails.ifsc ||
-                                  "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Bank Name
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.customerBankDetails.bankName ||
-                                  "N/A"}
-                              </span>
-                            </div>
-                            <div className="flex flex-col">
-                              <span className="text-xs text-gray-500 mb-1">
-                                Beneficiary Name
-                              </span>
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-800">
-                                {selectedKycData.customerBankDetails
-                                  .beneficiaryName || "N/A"}
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="text-center py-8 text-gray-500">
-                          <p>No Bank Details available</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
-
-                  {/* Verification Tab */}
-                  {activeTab === "verification" &&
-                    selectedKycData.userDetails && (
-                      <div className="space-y-4">
-                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
-                          <FaCheckCircle className="text-green-600" />
-                          Verification Status
-                        </h3>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          {/* Mobile Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.mobileVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Mobile
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.mobileVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Email Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.emailVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Email
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.emailVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Aadhar Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.aadharVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Aadhar
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.aadharVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* PAN Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.panVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                PAN
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.panVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Shop Details Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.shopDetailsVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Shop Details
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.shopDetailsVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Image Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.imageVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Image
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.imageVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Profile Image with Shop Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails
-                                .profileImageWithShopVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Profile with Shop
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-
-                          {/* Bank Details Verify */}
-                          <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
-                          >
-                            <div className="flex items-center gap-3">
-                              {selectedKycData.userDetails.bankDetailsVerify ? (
-                                <FaCheckCircle className="text-green-600 text-xl" />
-                              ) : (
-                                <FaTimesCircle className="text-red-600 text-xl" />
-                              )}
-                              <span className="text-sm font-[Gilroy-Medium] text-gray-700">
-                                Bank Details
-                              </span>
-                            </div>
-                            <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
-                            >
-                              {selectedKycData.userDetails.bankDetailsVerify
-                                ? "Verified"
-                                : "Pending"}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p>No KYC details available</p>
                 </div>
               )}
-            </div>
 
-            {/* Modal Footer */}
-            <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
-              <button
-                onClick={() => {
-                  setShowKycModal(false);
-                  setSelectedKycData(null);
-                  setSelectedUserId(null);
-                  setActiveTab("overview");
-                  setZoomedImage(null);
-                }}
-                className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
-              >
-                Close
-              </button>
+              {/* PAN Document Tab */}
+              {activeTab === "pan" && (
+                <div className="space-y-6">
+                  {selectedKycData.panDoc ? (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                          <FaIdCard className="text-purple-600" />
+                          PAN Document
+                        </h3>
+                        {selectedUserId && (
+                          <button
+                            onClick={() => {
+                              if (selectedUserId) {
+                                dispatch(
+                                  kycRevert(selectedUserId, {
+                                    pan: "true",
+                                  }),
+                                );
+                              }
+                            }}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                          >
+                            Revert
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            PAN Number
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.panDoc.panNumber || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            PAN Name
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.panDoc.panName || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            DOB
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.panDoc.panDob || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Status
+                          </span>
+                          <span
+                            className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                              }`}
+                          >
+                            {selectedKycData.panDoc.status || "N/A"}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {selectedKycData.userDetails?.panCardFrontImage && (
+                          <div>
+                            <span className="text-xs text-gray-500 mb-2 block">
+                              PAN Front
+                            </span>
+                            <div className="relative group">
+                              <img
+                                src={
+                                  selectedKycData.userDetails
+                                    .panCardFrontImage
+                                }
+                                alt="PAN Front"
+                                className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                onClick={() =>
+                                  setZoomedImage(
+                                    selectedKycData.userDetails
+                                      .panCardFrontImage,
+                                  )
+                                }
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                        {selectedKycData.userDetails?.panCardBackImage && (
+                          <div>
+                            <span className="text-xs text-gray-500 mb-2 block">
+                              PAN Back
+                            </span>
+                            <div className="relative group">
+                              <img
+                                src={
+                                  selectedKycData.userDetails
+                                    .panCardBackImage
+                                }
+                                alt="PAN Back"
+                                className="w-full h-48 object-contain rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                onClick={() =>
+                                  setZoomedImage(
+                                    selectedKycData.userDetails
+                                      .panCardBackImage,
+                                  )
+                                }
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No PAN Document available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Additional Details Tab */}
+              {activeTab === "details" && (
+                <div className="space-y-6">
+                  {/* Outlet Details */}
+                  {selectedKycData.outletDetails && (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                          <FaBuilding className="text-orange-600" />
+                          Outlet Details
+                        </h3>
+                        {selectedUserId && (
+                          <button
+                            onClick={() => {
+                              if (selectedUserId) {
+                                dispatch(
+                                  kycRevert(selectedUserId, {
+                                    shopImage: "true",
+                                  }),
+                                );
+                              }
+                            }}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                          >
+                            Revert
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Shop Name
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.outletDetails.shopName ||
+                              "N/A"}
+                          </span>
+                        </div>
+                        {selectedKycData.outletDetails.gstNo && (
+                          <div className="flex flex-col">
+                            <span className="text-xs text-gray-500 mb-1">
+                              GST No
+                            </span>
+                            <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                              {selectedKycData.outletDetails.gstNo}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex flex-col md:col-span-2">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Shop Address
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.outletDetails.shopAddress ||
+                              "N/A"}
+                          </span>
+                        </div>
+                        {selectedKycData.outletDetails.shopImage && (
+                          <div className="md:col-span-2">
+                            <span className="text-xs text-gray-500 mb-2 block">
+                              Shop Image
+                            </span>
+                            <div className="relative group">
+                              <img
+                                src={
+                                  selectedKycData.outletDetails.shopImage
+                                }
+                                alt="Shop"
+                                className="w-full max-w-md h-64 object-cover rounded-lg border-2 border-gray-200 cursor-pointer hover:border-green-500 transition-colors"
+                                onClick={() =>
+                                  setZoomedImage(
+                                    selectedKycData.outletDetails.shopImage,
+                                  )
+                                }
+                              />
+                              <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 rounded-lg flex items-center justify-center transition-opacity">
+                                <ZoomIn className="text-white opacity-0 group-hover:opacity-100 transition-opacity w-8 h-8" />
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Bank Details Tab */}
+              {activeTab === "bankDetails" && (
+                <div className="space-y-6">
+                  {selectedKycData.customerBankDetails ? (
+                    <div className="bg-white rounded-xl p-6 border border-gray-200 shadow-sm">
+                      <div className="flex items-center justify-between mb-4">
+                        <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 flex items-center gap-2">
+                          <FaUniversity className="text-indigo-600" />
+                          Bank Details
+                        </h3>
+                        {selectedUserId && (
+                          <button
+                            onClick={() => {
+                              if (selectedUserId) {
+                                dispatch(
+                                  kycRevert(selectedUserId, {
+                                    bankVerification: "true",
+                                  }),
+                                );
+                              }
+                            }}
+                            className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
+                          >
+                            Revert
+                          </button>
+                        )}
+                      </div>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Account Number
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.customerBankDetails
+                              .accountNumber || "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            IFSC
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.customerBankDetails.ifsc ||
+                              "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Bank Name
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.customerBankDetails.bankName ||
+                              "N/A"}
+                          </span>
+                        </div>
+                        <div className="flex flex-col">
+                          <span className="text-xs text-gray-500 mb-1">
+                            Beneficiary Name
+                          </span>
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-800">
+                            {selectedKycData.customerBankDetails
+                              .beneficiaryName || "N/A"}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 text-gray-500">
+                      <p>No Bank Details available</p>
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Verification Tab */}
+              {activeTab === "verification" &&
+                selectedKycData.userDetails && (
+                  <div className="space-y-4">
+                    <h3 className="text-lg font-[Gilroy-Semibold] text-gray-800 mb-4 flex items-center gap-2">
+                      <FaCheckCircle className="text-green-600" />
+                      Verification Status
+                    </h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Mobile Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.mobileVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Mobile
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.mobileVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Email Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.emailVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Email
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.emailVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Aadhar Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.aadharVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Aadhar
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.aadharVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* PAN Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.panVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            PAN
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.panVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Shop Details Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.shopDetailsVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Shop Details
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.shopDetailsVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Image Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.imageVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Image
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.imageVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Profile Image with Shop Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
+                            .profileImageWithShopVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails
+                            .profileImageWithShopVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Profile with Shop
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
+                              .profileImageWithShopVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails
+                            .profileImageWithShopVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+
+                      {/* Bank Details Verify */}
+                      <div
+                        className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
+                            ? "bg-green-50 border-green-200"
+                            : "bg-red-50 border-red-200"
+                          }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          {selectedKycData.userDetails.bankDetailsVerify ? (
+                            <FaCheckCircle className="text-green-600 text-xl" />
+                          ) : (
+                            <FaTimesCircle className="text-red-600 text-xl" />
+                          )}
+                          <span className="text-sm font-[Gilroy-Medium] text-gray-700">
+                            Bank Details
+                          </span>
+                        </div>
+                        <span
+                          className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
+                              ? "bg-green-100 text-green-700"
+                              : "bg-red-100 text-red-700"
+                            }`}
+                        >
+                          {selectedKycData.userDetails.bankDetailsVerify
+                            ? "Verified"
+                            : "Pending"}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
             </div>
+            ) : (
+            <div className="text-center py-8 text-gray-500">
+              <p>No KYC details available</p>
+            </div>
+              )}
           </div>
-        </div>
-      )}
 
-      {/* Image Zoom Modal */}
-      {zoomedImage && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] animate-fadeIn"
-          onClick={() => setZoomedImage(null)}
-        >
-          <div className="relative max-w-7xl max-h-[90vh] p-4">
+          {/* Modal Footer */}
+          <div className="flex justify-end p-6 border-t border-gray-200 bg-gray-50">
             <button
-              onClick={() => setZoomedImage(null)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2 z-10"
+              onClick={() => {
+                setShowKycModal(false);
+                setSelectedKycData(null);
+                setSelectedUserId(null);
+                setActiveTab("overview");
+                setZoomedImage(null);
+              }}
+              className="px-6 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-all font-[Gilroy-Medium] shadow-md hover:shadow-lg"
             >
-              <X className="w-6 h-6" />
+              Close
             </button>
-            <img
-              src={zoomedImage}
-              alt="Zoomed"
-              className="max-w-full max-h-[90vh] object-contain rounded-lg"
-              onClick={(e) => e.stopPropagation()}
-            />
           </div>
         </div>
-      )}
+        </div>
+  )
+}
 
-      {/* Add CSS animations */}
-      <style>{`
+{/* Image Zoom Modal */ }
+{
+  zoomedImage && (
+    <div
+      className="fixed inset-0 bg-black bg-opacity-90 flex items-center justify-center z-[60] animate-fadeIn"
+      onClick={() => setZoomedImage(null)}
+    >
+      <div className="relative max-w-7xl max-h-[90vh] p-4">
+        <button
+          onClick={() => setZoomedImage(null)}
+          className="absolute top-4 right-4 text-white hover:text-gray-300 transition-colors bg-black bg-opacity-50 rounded-full p-2 z-10"
+        >
+          <X className="w-6 h-6" />
+        </button>
+        <img
+          src={zoomedImage}
+          alt="Zoomed"
+          className="max-w-full max-h-[90vh] object-contain rounded-lg"
+          onClick={(e) => e.stopPropagation()}
+        />
+      </div>
+    </div>
+  )
+}
+
+{/* Add CSS animations */ }
+<style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
           to { opacity: 1; }
@@ -1985,7 +1948,7 @@ const Distribution = ({
           animation: slideUp 0.3s ease-out;
         }
       `}</style>
-    </div>
+    </div >
   );
 };
 
