@@ -230,7 +230,7 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg  hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
@@ -238,7 +238,7 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button>
+          </button> */}
         </div>
       </div>
 
