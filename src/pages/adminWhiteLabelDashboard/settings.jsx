@@ -7,6 +7,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
 import { deleteCompanySettingSlider } from "../../redux/action/walletAction";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 const UploadCard = ({ onFileSelect, image, label, isUploading }) => {
   const inputRef = useRef(null);
@@ -95,7 +96,7 @@ UploadCard.propTypes = {
 };
 
 const PreviewCard = ({ image, label }) => (
-  <div className="border border-gray-200 rounded-2xl p-4 h-[249px] flex flex-col bg-gray-50/30">
+  <div className="border-2 border-dashed border-[#1B1717]/80 rounded-2xl p-4 h-[249px] flex flex-col bg-gray-50/10">
     <p className="text-sm text-[#1B1717]/60 font-[Gilroy-Medium] mb-2">{label}</p>
     <div className="flex-1 flex items-center justify-center overflow-hidden">
       {image ? (
@@ -116,11 +117,11 @@ PreviewCard.propTypes = {
   label: PropTypes.string,
 };
 
-const SliderPreviewCard = ({ image, onDelete, isUploading }) => (
+const SliderPreviewCard = ({ image, onDelete, isUploading, isDeleting }) => (
   <div className="border border-[#1B1717]/80 rounded-[14px] p-4 flex flex-col justify-center h-[527px] relative group">
-    {isUploading && (
+    {(isUploading || isDeleting) && (
       <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-sm rounded-[14px]">
-        <div className="w-8 h-8 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+        <ButtonLoader color="#039155" />
       </div>
     )}
 
@@ -137,17 +138,19 @@ const SliderPreviewCard = ({ image, onDelete, isUploading }) => (
     )}
 
     {/* Delete Icon Overlay */}
-    <div className="absolute top-4 right-4 translate-x-1 translate-y--1 opacity-0 group-hover:opacity-100 transition-opacity">
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          onDelete?.();
-        }}
-        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors shadow-sm"
-      >
-        <Trash2 className="w-5 h-5" />
-      </button>
-    </div>
+    {!isDeleting && (
+      <div className="absolute top-4 right-4 translate-x-1 translate-y--1 opacity-0 group-hover:opacity-100 transition-opacity">
+        <button
+          onClick={(e) => {
+            e.stopPropagation();
+            onDelete?.();
+          }}
+          className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors shadow-sm"
+        >
+          <Trash2 className="w-5 h-5" />
+        </button>
+      </div>
+    )}
   </div>
 );
 
@@ -231,6 +234,7 @@ const Settings = ({ onBack }) => {
   const [isLogoUploading, setIsLogoUploading] = useState(false);
   const [isFaviconUploading, setIsFaviconUploading] = useState(false);
   const [isSliderUploading, setIsSliderUploading] = useState(false);
+  const [deletingSliderId, setDeletingSliderId] = useState(null);
 
   // Fetch existing images on mount
   useEffect(() => {
@@ -403,7 +407,7 @@ const Settings = ({ onBack }) => {
 
   const handleDeleteSlider = async (id) => {
     if (!id) return;
-
+    setDeletingSliderId(id);
     try {
       const response = await dispatch(deleteCompanySettingSlider(id));
       if (response?.status === "SUCCESS") {
@@ -429,6 +433,8 @@ const Settings = ({ onBack }) => {
         type: "error",
         message: error?.response?.data?.message || error?.message || "An unexpected error occurred while deleting slider.",
       });
+    } finally {
+      setDeletingSliderId(null);
     }
   };
 
@@ -501,6 +507,7 @@ const Settings = ({ onBack }) => {
             <SliderPreviewCard
               key={`existing-${slider.id}`}
               image={slider.image}
+              isDeleting={deletingSliderId === slider.id}
               onDelete={() => handleDeleteSlider(slider.id)}
             />
           ))}
