@@ -223,23 +223,23 @@ const MasterDistLayout = ({ children }) => {
         // },
       ],
     },
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        { name: "Business Report", path: `${BASE_PATH}/reports/business` },
-        { name: "Earning Report", path: `${BASE_PATH}/reports/earning` },
-        {
-          name: "N/W Overview Report",
-          path: `${BASE_PATH}/reports/nw-overview`,
-        },
-        {
-          name: "User Performance",
-          path: `${BASE_PATH}/reports/user-performance`,
-        },
-      ],
-    },
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   dropdown: true,
+    //   children: [
+    //     { name: "Business Report", path: `${BASE_PATH}/reports/business` },
+    //     { name: "Earning Report", path: `${BASE_PATH}/reports/earning` },
+    //     {
+    //       name: "N/W Overview Report",
+    //       path: `${BASE_PATH}/reports/nw-overview`,
+    //     },
+    //     {
+    //       name: "User Performance",
+    //       path: `${BASE_PATH}/reports/user-performance`,
+    //     },
+    //   ],
+    // },
     {
       name: "Txn History",
       icon: MaskGroup5,
