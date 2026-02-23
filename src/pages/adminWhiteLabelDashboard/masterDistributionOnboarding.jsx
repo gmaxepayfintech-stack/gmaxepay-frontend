@@ -13,11 +13,11 @@ import {
 import {
   kycStatusCheck,
   kycUnlock,
-  kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
   getCompanyAdmin,
   kycDataCompany,
+  kycRevertCompany,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
@@ -59,7 +59,7 @@ const MasterDistributionOnboarding = ({
 
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
-    (state) => state?.whitelabel?.kycRevert,
+    (state) => state?.whitelabel?.kycRevertUSer,
   );
 
   // Get data from Redux when available, otherwise use prop data
