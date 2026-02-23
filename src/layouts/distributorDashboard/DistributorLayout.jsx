@@ -195,29 +195,29 @@ const DistributorLayout = ({ children }) => {
       ],
     },
 
-    {
-      name: "Reports",
-      icon: MaskGroup5,
-      dropdown: true,
-      children: [
-        {
-          name: "Business Report",
-          path: "/distributerDashboard/reports/business",
-        },
-        {
-          name: "Earning Report",
-          path: "/distributerDashboard/reports/earning",
-        },
-        {
-          name: "N/W Overview Report",
-          path: "/distributerDashboard/reports/nw-overview",
-        },
-        {
-          name: "User Performance",
-          path: "/distributerDashboard/reports/user-performance",
-        },
-      ],
-    },
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Business Report",
+    //       path: "/distributerDashboard/reports/business",
+    //     },
+    //     {
+    //       name: "Earning Report",
+    //       path: "/distributerDashboard/reports/earning",
+    //     },
+    //     {
+    //       name: "N/W Overview Report",
+    //       path: "/distributerDashboard/reports/nw-overview",
+    //     },
+    //     {
+    //       name: "User Performance",
+    //       path: "/distributerDashboard/reports/user-performance",
+    //     },
+    //   ],
+    // },
     {
       name: "Resources",
       icon: MaskGroup3,
