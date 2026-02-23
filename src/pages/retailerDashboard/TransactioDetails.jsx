@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FileText } from "lucide-react";
 import MainWalletStatement from "./MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
@@ -20,17 +19,20 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   };
 
   const calculateCommissionData = () => {
-    if (!transactionData?.transaction) return [];
-  
+    if (!transactionData) return [];
+
+    // The data might be at the root of transactionData or nested in transactionData.transaction
+    const transaction = transactionData.transaction || transactionData;
+
     const {
       retailerCom = 0,
       retailerComTDS = 0,
-    } = transactionData.transaction;
-  
+    } = transaction;
+
     const commission = Number(retailerCom) || 0;
     const tds = Number(retailerComTDS) || 0;
     const net = commission - tds;
-  
+
     return [
       {
         name: "Retailer",
@@ -40,8 +42,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
       },
     ];
   };
-  
-  
+
+
 
   // Calculate total commission
   const calculateTotalCommission = () => {
@@ -212,8 +214,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                   {transactionData?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                        transactionData.reportingUserDetails.parentRole,
-                      )
+                      transactionData.reportingUserDetails.parentRole,
+                    )
                     : "N/A"}
                 </p>
               </div>
