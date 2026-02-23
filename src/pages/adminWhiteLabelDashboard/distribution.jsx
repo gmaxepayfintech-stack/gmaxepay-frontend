@@ -18,7 +18,7 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  kycDataUser,
+  kycDataCompany,
   kycStatusCheck,
   kycUnlock,
   kycRevert,
@@ -64,7 +64,7 @@ const Distribution = ({
   const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycRevert success state to refresh KYC data after revert
@@ -158,7 +158,7 @@ const Distribution = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataUser(selectedUserId));
+        dispatch(kycDataCompany(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -490,7 +490,7 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setIsKycModalLoading(true);
-                              dispatch(kycDataUser(userId));
+                              dispatch(kycDataCompany(userId));
                               setActiveTab("overview");
                               setZoomedImage(null);
                               setShowKycModal(true);
