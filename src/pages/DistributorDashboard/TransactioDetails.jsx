@@ -25,28 +25,34 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     // The data might be at the root of transactionData or nested in transactionData.transaction
     const transaction = transactionData.transaction || transactionData;
 
+    // Helper to format values safely with fallbacks
+    const getVal = (val1, val2, val3) => {
+      const val = val1 ?? val2 ?? val3 ?? 0;
+      return parseFloat(val) || 0;
+    };
+
     // Distributor
-    const distributorCom = parseFloat(transaction.distributorCom) || 0;
-    const distributorTDS = parseFloat(transaction.distributorComTDS) || 0;
+    const distributorCom = getVal(transaction.distributorCom, transaction.distributorCommission, transaction.distributorComm);
+    const distributorTDS = getVal(transaction.distributorComTDS, transaction.distributorTds, transaction.distributorCommTDS);
     const distributorNet = distributorCom - distributorTDS;
 
     // Retailer
-    const retailerCom = parseFloat(transaction.retailerCom) || 0;
-    const retailerComTDS = parseFloat(transaction.retailerComTDS) || 0;
+    const retailerCom = getVal(transaction.retailerCom, transaction.retailerCommission, transaction.retailerComm);
+    const retailerComTDS = getVal(transaction.retailerComTDS, transaction.retailerTds, transaction.retailerCommTDS);
     const retailerNet = retailerCom - retailerComTDS;
 
     return [
       {
         name: "Distributor",
-        commissions: `₹${distributorCom.toFixed(2)}`,
-        tds: `₹${distributorTDS.toFixed(2)}`,
-        net: `₹${distributorNet.toFixed(2)}`,
+        commissions: `₹${distributorCom.toFixed(4)}`,
+        tds: `₹${distributorTDS.toFixed(4)}`,
+        net: `₹${distributorNet.toFixed(4)}`,
       },
       {
         name: "Retailer",
-        commissions: `₹${retailerCom.toFixed(2)}`,
-        tds: `₹${retailerComTDS.toFixed(2)}`,
-        net: `₹${retailerNet.toFixed(2)}`,
+        commissions: `₹${retailerCom.toFixed(4)}`,
+        tds: `₹${retailerComTDS.toFixed(4)}`,
+        net: `₹${retailerNet.toFixed(4)}`,
       },
     ];
   };

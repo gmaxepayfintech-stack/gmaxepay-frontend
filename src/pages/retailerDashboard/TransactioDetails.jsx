@@ -24,21 +24,28 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     // The data might be at the root of transactionData or nested in transactionData.transaction
     const transaction = transactionData.transaction || transactionData;
 
-    const {
-      retailerCom = 0,
-      retailerComTDS = 0,
-    } = transaction;
+    // Use fallbacks for attribute names to be more robust
+    const retailerCom =
+      transaction.retailerCom ??
+      transaction.retailerComm ??
+      transaction.retailerCommission ??
+      0;
+    const retailerComTDS =
+      transaction.retailerComTDS ??
+      transaction.retailerCommTDS ??
+      transaction.retailerTds ??
+      0;
 
-    const commission = Number(retailerCom) || 0;
-    const tds = Number(retailerComTDS) || 0;
+    const commission = parseFloat(retailerCom) || 0;
+    const tds = parseFloat(retailerComTDS) || 0;
     const net = commission - tds;
 
     return [
       {
         name: "Retailer",
-        commissions: `₹${commission.toFixed(2)}`,
-        tds: `₹${tds.toFixed(2)}`,
-        net: `₹${net.toFixed(2)}`,
+        commissions: `₹${commission.toFixed(4)}`,
+        tds: `₹${tds.toFixed(4)}`,
+        net: `₹${net.toFixed(4)}`,
       },
     ];
   };
