@@ -18,11 +18,11 @@ import {
   kycStatusData,
   kycStatusCheck,
   kycUnlock,
-  kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
   getCompanyAdmin,
   kycDataCompany,
+  kycRevertCompany,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
@@ -73,7 +73,7 @@ const Retailers = ({
 
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
-    (state) => state?.whitelabel?.kycRevert,
+    (state) => state?.whitelabel?.kycRevertUSer,
   );
 
   // Get kycLockStatus success state to refresh table after unlock
@@ -1508,11 +1508,7 @@ const Retailers = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        aadhar: "true",
-                                      }),
-                                    );
+                                    dispatch(kycRevertCompany(selectedUserId));
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1638,11 +1634,7 @@ const Retailers = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        pan: "true",
-                                      }),
-                                    );
+                                    dispatch(kycRevertCompany(selectedUserId));
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1768,11 +1760,7 @@ const Retailers = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        shopImage: "true",
-                                      }),
-                                    );
+                                    dispatch(kycRevertCompany(selectedUserId));
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1854,11 +1842,7 @@ const Retailers = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(
-                                      kycRevert(selectedUserId, {
-                                        bankVerification: "true",
-                                      }),
-                                    );
+                                    dispatch(kycRevertCompany(selectedUserId));
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"

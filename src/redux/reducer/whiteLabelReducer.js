@@ -23,6 +23,7 @@ import {
   GET_USER_ADMIN_SUCCESS,
   FETCH_KYC_DETAILS_COMPANY_SUCCESS,
   FETCH_KYC_DETAILS_USER_SUCCESS,
+  REVERT_USER_KYC_DETAILS_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -51,6 +52,7 @@ const initialState = {
   userAdminDetails: null,
   kycDetailsCompany: null,
   kycDetailsUser: null,
+  kycRevertUSer: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -253,6 +255,14 @@ const whiteLabelReducer = (state = initialState, action) => {
         ...state,
         loading: false,
         kycDetailsUser: action.payload,
+        Success: action.payload.status,
+        message: action.payload.message,
+      }
+    case REVERT_USER_KYC_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        kycRevertUSer: action.payload,
         Success: action.payload.status,
         message: action.payload.message,
       }
