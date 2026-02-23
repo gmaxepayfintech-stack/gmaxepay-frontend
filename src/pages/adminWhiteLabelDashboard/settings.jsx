@@ -94,7 +94,27 @@ UploadCard.propTypes = {
   isUploading: PropTypes.bool,
 };
 
-// PreviewCard removed as per request
+const PreviewCard = ({ image, label }) => (
+  <div className="border border-gray-200 rounded-2xl p-4 h-[249px] flex flex-col bg-gray-50/30">
+    <p className="text-sm text-[#1B1717]/60 font-[Gilroy-Medium] mb-2">{label}</p>
+    <div className="flex-1 flex items-center justify-center overflow-hidden">
+      {image ? (
+        <img
+          src={image}
+          alt="Current"
+          className="max-h-[160px] max-w-full object-contain drop-shadow-sm"
+        />
+      ) : (
+        <p className="text-sm text-[#1B1717]/40 font-[Gilroy-Medium]">No active image</p>
+      )}
+    </div>
+  </div>
+);
+
+PreviewCard.propTypes = {
+  image: PropTypes.string,
+  label: PropTypes.string,
+};
 
 const SliderPreviewCard = ({ image, onDelete, isUploading }) => (
   <div className="border border-[#1B1717]/80 rounded-[14px] p-4 flex flex-col justify-center h-[527px] relative group">
@@ -203,6 +223,8 @@ const Settings = ({ onBack }) => {
 
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
+  const [selectedLogoPreview, setSelectedLogoPreview] = useState(null);
+  const [selectedFaviconPreview, setSelectedFaviconPreview] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [existingSliders, setExistingSliders] = useState([]);
@@ -223,38 +245,33 @@ const Settings = ({ onBack }) => {
     dispatch(getCompanySettingImages(payload));
   }, [dispatch]);
 
-  // Sync state with fetched images
+  // Sync state with fetched images (Right side - Current)
   useEffect(() => {
     if (companySettingImages.length > 0) {
-      // Set logo if not manually selected
-      if (!logoFile) {
-        const logo = companySettingImages.find(
-          (img) => img.type === "signature" && img.subtype === "logo",
-        );
-        if (logo) setLogoPreview(logo.image);
-      }
+      const logo = companySettingImages.find(
+        (img) => img.type === "signature" && img.subtype === "logo",
+      );
+      if (logo) setLogoPreview(logo.image);
 
-      // Set favicon if not manually selected
-      if (!faviconFile) {
-        const favicon = companySettingImages.find(
-          (img) => img.type === "signature" && img.subtype === "favicon",
-        );
-        if (favicon) setFaviconPreview(favicon.image);
-      }
+      const favicon = companySettingImages.find(
+        (img) => img.type === "signature" && img.subtype === "favicon",
+      );
+      if (favicon) setFaviconPreview(favicon.image);
 
-      // Filter existing sliders
       const sliders = companySettingImages.filter(
         (img) => img.type === "loginSlider",
       );
       setExistingSliders(sliders);
     }
-  }, [companySettingImages, logoFile, faviconFile]);
+  }, [companySettingImages]);
 
   const handleLogoUpload = (file) => {
+    setSelectedLogoPreview(URL.createObjectURL(file));
     uploadLogoAPI(file);
   };
 
   const handleFaviconUpload = (file) => {
+    setSelectedFaviconPreview(URL.createObjectURL(file));
     uploadFaviconAPI(file);
   };
 
@@ -433,28 +450,40 @@ const Settings = ({ onBack }) => {
 
       {/* Upload Logo */}
       <div className="bg-white rounded-3xl shadow-sm p-5">
-        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
           Logo Settings
         </h3>
-        <UploadCard
-          image={logoPreview}
-          label="Logo"
-          onFileSelect={handleLogoUpload}
-          isUploading={isLogoUploading}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <UploadCard
+            image={selectedLogoPreview}
+            label="Click to Upload Logo"
+            onFileSelect={handleLogoUpload}
+            isUploading={isLogoUploading}
+          />
+          <PreviewCard
+            image={logoPreview}
+            label="Current Active Logo"
+          />
+        </div>
       </div>
 
       {/* Upload Favicon */}
       <div className="bg-white rounded-3xl shadow-sm p-5">
-        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">
           Favicon Settings
         </h3>
-        <UploadCard
-          image={faviconPreview}
-          label="Favicon"
-          onFileSelect={handleFaviconUpload}
-          isUploading={isFaviconUploading}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <UploadCard
+            image={selectedFaviconPreview}
+            label="Click to Upload Favicon"
+            onFileSelect={handleFaviconUpload}
+            isUploading={isFaviconUploading}
+          />
+          <PreviewCard
+            image={faviconPreview}
+            label="Current Active Favicon"
+          />
+        </div>
       </div>
 
       {/* Upload Sliders */}
