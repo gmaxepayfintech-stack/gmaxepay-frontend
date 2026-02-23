@@ -311,7 +311,6 @@ const Retailers = ({
       "Email Id": row.email || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.company || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",

@@ -329,9 +329,6 @@ const MasterDistributionOnboarding = ({
                     Parent Role
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    Company Name
-                  </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -435,10 +432,6 @@ const MasterDistributionOnboarding = ({
                       {/* Parent Role */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
                         {row.parentRole || "N/A"}
-                      </td>
-                      {/* Company Name */}
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
-                        {row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[gilroy-regular] whitespace-nowrap">
@@ -745,9 +738,6 @@ const MasterDistributionOnboarding = ({
                     Parent Role
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    Company Name
-                  </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -852,10 +842,7 @@ const MasterDistributionOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {row.parentRole || "N/A"}
                       </td>
-                      {/* Company Name */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
-                        {row.companyName || "N/A"}
-                      </td>
+                     
                       {/* KYC Status */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {(() => {

@@ -217,7 +217,6 @@ const Distribution = ({
       "Email Id": row.emailId || row.email || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
@@ -335,9 +334,6 @@ const Distribution = ({
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
-                  </th>
-                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Company Name
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
@@ -735,9 +731,6 @@ const Distribution = ({
                     Parent Role
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Company Name
-                  </th>
-                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
@@ -834,10 +827,6 @@ const Distribution = ({
                       {/* Parent Role */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
                         {row.parentRole || "N/A"}
-                      </td>
-                      {/* Company Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
-                        {row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[11px]">
