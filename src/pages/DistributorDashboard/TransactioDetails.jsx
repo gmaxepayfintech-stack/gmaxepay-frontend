@@ -20,36 +20,37 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   };
 
   const calculateCommissionData = () => {
-    if (!transactionData?.transaction) return [];
-  
-    const transaction = transactionData.transaction;
-  
+    if (!transactionData) return [];
+
+    // The data might be at the root of transactionData or nested in transactionData.transaction
+    const transaction = transactionData.transaction || transactionData;
+
     // Distributor
-    const distributorComm = parseFloat(transaction.distributorCom) || 0;
+    const distributorCom = parseFloat(transaction.distributorCom) || 0;
     const distributorTDS = parseFloat(transaction.distributorComTDS) || 0;
-    const distributorNet = distributorComm - distributorTDS;
-  
+    const distributorNet = distributorCom - distributorTDS;
+
     // Retailer
-    const retailerComm = parseFloat(transaction.retailerCom) || 0;
-    const retailerTDS = parseFloat(transaction.retailerComTDS) || 0;
-    const retailerNet = retailerComm - retailerTDS;
-  
+    const retailerCom = parseFloat(transaction.retailerCom) || 0;
+    const retailerComTDS = parseFloat(transaction.retailerComTDS) || 0;
+    const retailerNet = retailerCom - retailerComTDS;
+
     return [
       {
         name: "Distributor",
-        commissions: `₹${distributorComm.toFixed(2)}`,
+        commissions: `₹${distributorCom.toFixed(2)}`,
         tds: `₹${distributorTDS.toFixed(2)}`,
         net: `₹${distributorNet.toFixed(2)}`,
       },
       {
         name: "Retailer",
-        commissions: `₹${retailerComm.toFixed(2)}`,
-        tds: `₹${retailerTDS.toFixed(2)}`,
+        commissions: `₹${retailerCom.toFixed(2)}`,
+        tds: `₹${retailerComTDS.toFixed(2)}`,
         net: `₹${retailerNet.toFixed(2)}`,
       },
     ];
   };
-  
+
 
   // Calculate total commission
   const calculateTotalCommission = () => {
@@ -117,7 +118,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
@@ -125,7 +126,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -220,8 +221,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                   {transactionData?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                        transactionData.reportingUserDetails.parentRole,
-                      )
+                      transactionData.reportingUserDetails.parentRole,
+                    )
                     : "N/A"}
                 </p>
               </div>

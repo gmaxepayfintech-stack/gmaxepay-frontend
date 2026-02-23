@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
-import { FileText } from "lucide-react";
 import MainWalletStatement from "./MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
@@ -20,17 +19,20 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   };
 
   const calculateCommissionData = () => {
-    if (!transactionData?.transaction) return [];
-  
+    if (!transactionData) return [];
+
+    // The data might be at the root of transactionData or nested in transactionData.transaction
+    const transaction = transactionData.transaction || transactionData;
+
     const {
       retailerCom = 0,
       retailerComTDS = 0,
-    } = transactionData.transaction;
-  
+    } = transaction;
+
     const commission = Number(retailerCom) || 0;
     const tds = Number(retailerComTDS) || 0;
     const net = commission - tds;
-  
+
     return [
       {
         name: "Retailer",
@@ -40,8 +42,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
       },
     ];
   };
-  
-  
+
+
 
   // Calculate total commission
   const calculateTotalCommission = () => {
@@ -109,7 +111,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               </p>
             </div>
           </div>
-          <button
+          {/* <button
             onClick={() => setShowMainWalletStatement(true)}
             className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-green-700 transition shadow-md whitespace-nowrap"
           >
@@ -117,7 +119,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
               Main Wallet Statement
             </span>
             <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button>
+          </button> */}
         </div>
       </div>
 
@@ -212,8 +214,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                   {transactionData?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                        transactionData.reportingUserDetails.parentRole,
-                      )
+                      transactionData.reportingUserDetails.parentRole,
+                    )
                     : "N/A"}
                 </p>
               </div>

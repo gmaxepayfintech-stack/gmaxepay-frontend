@@ -18,68 +18,69 @@ const TransactioDetails = ({ transactionData, onBack }) => {
 
   // Calculate commission data from transaction - Show 3 roles (no Super Admin, no White Label)
   const calculateCommissionData = () => {
-    if (!transactionData?.transaction) return [];
+    if (!transactionData) return [];
 
-    const transaction = transactionData.transaction;
+    // The data might be at the root of transactionData or nested in transactionData.transaction
+    const transaction = transactionData.transaction || transactionData;
     const commissionData = [];
 
     // Master Distributor Commission - Always show, use 0 if null
-    const masterDistributorComm =
+    const masterDistributorCom =
       transaction.masterDistributorCom !== null &&
-      transaction.masterDistributorCom !== undefined
+        transaction.masterDistributorCom !== undefined
         ? parseFloat(transaction.masterDistributorCom) || 0
         : 0;
-    const masterDistributorCommTDS =
+    const masterDistributorComTDS =
       transaction.masterDistributorComTDS !== null &&
-      transaction.masterDistributorComTDS !== undefined
+        transaction.masterDistributorComTDS !== undefined
         ? parseFloat(transaction.masterDistributorComTDS) || 0
         : 0;
     const masterDistributorNet =
-      masterDistributorComm - masterDistributorCommTDS;
+      masterDistributorCom - masterDistributorComTDS;
     commissionData.push({
       name: "Master Distributor",
       userId: "N/A",
-      commissions: `₹${masterDistributorComm.toFixed(2)}`,
-      tds: `₹${masterDistributorCommTDS.toFixed(2)}`,
+      commissions: `₹${masterDistributorCom.toFixed(2)}`,
+      tds: `₹${masterDistributorComTDS.toFixed(2)}`,
       net: `₹${masterDistributorNet.toFixed(2)}`,
     });
 
     // Distributor Commission - Always show, use 0 if null
-    const distributorComm =
+    const distributorCom =
       transaction.distributorCom !== null &&
-      transaction.distributorCom !== undefined
+        transaction.distributorCom !== undefined
         ? parseFloat(transaction.distributorCom) || 0
         : 0;
-    const distributorCommTDS =
+    const distributorComTDS =
       transaction.distributorComTDS !== null &&
-      transaction.distributorComTDS !== undefined
+        transaction.distributorComTDS !== undefined
         ? parseFloat(transaction.distributorComTDS) || 0
         : 0;
-    const distributorNet = distributorComm - distributorCommTDS;
+    const distributorNet = distributorCom - distributorComTDS;
     commissionData.push({
       name: "Distributor",
       userId: "N/A",
-      commissions: `₹${distributorComm.toFixed(2)}`,
-      tds: `₹${distributorCommTDS.toFixed(2)}`,
+      commissions: `₹${distributorCom.toFixed(2)}`,
+      tds: `₹${distributorComTDS.toFixed(2)}`,
       net: `₹${distributorNet.toFixed(2)}`,
     });
 
     // Retailer Commission - Always show, use 0 if null
-    const retailerComm =
+    const retailerCom =
       transaction.retailerCom !== null && transaction.retailerCom !== undefined
         ? parseFloat(transaction.retailerCom) || 0
         : 0;
-    const retailerCommTDS =
+    const retailerComTDS =
       transaction.retailerComTDS !== null &&
-      transaction.retailerComTDS !== undefined
+        transaction.retailerComTDS !== undefined
         ? parseFloat(transaction.retailerComTDS) || 0
         : 0;
-    const retailerNet = retailerComm - retailerCommTDS;
+    const retailerNet = retailerCom - retailerComTDS;
     commissionData.push({
       name: "Retailer",
       userId: transactionData.userDetails?.userId || "N/A",
-      commissions: `₹${retailerComm.toFixed(2)}`,
-      tds: `₹${retailerCommTDS.toFixed(2)}`,
+      commissions: `₹${retailerCom.toFixed(2)}`,
+      tds: `₹${retailerComTDS.toFixed(2)}`,
       net: `₹${retailerNet.toFixed(2)}`,
     });
 
@@ -255,8 +256,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                   {transactionData?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                        transactionData.reportingUserDetails.parentRole,
-                      )
+                      transactionData.reportingUserDetails.parentRole,
+                    )
                     : "N/A"}
                 </p>
               </div>
