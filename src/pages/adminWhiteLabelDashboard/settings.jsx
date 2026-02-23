@@ -1,11 +1,12 @@
 import { Upload, Plus } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import PropTypes from "prop-types";
-import React, { useRef, useState } from "react";
-import { uploadFeviicon } from "../../redux/action/walletAction";
-import { useDispatch } from "react-redux";
+import React, { useRef, useState, useEffect } from "react";
+import { uploadFeviicon, getCompanySettingImages } from "../../redux/action/walletAction";
+import { useDispatch, useSelector } from "react-redux";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
+
 const UploadCard = ({ onFileSelect }) => {
   const inputRef = useRef(null);
 
@@ -185,11 +186,58 @@ const Settings = ({ onBack }) => {
   const dispatch = useDispatch();
   const { showNotification } = useNotification();
   const { refreshCompany } = useCompany();
+
+  // Get images from Redux
+  const companySettingImages = useSelector(
+    (state) => state?.wallet?.companySettingImages?.data || [],
+  );
+
   const [logoPreview, setLogoPreview] = useState(null);
   const [faviconPreview, setFaviconPreview] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
   const [sliderPreviews, setSliderPreviews] = useState([]);
+  const [existingSliders, setExistingSliders] = useState([]);
+
+  // Fetch existing images on mount
+  useEffect(() => {
+    const payload = {
+      query: { isActive: true },
+      options: {
+        order: [["createdAt", "DESC"]],
+        limit: 10,
+        offset: 0,
+      },
+    };
+    dispatch(getCompanySettingImages(payload));
+  }, [dispatch]);
+
+  // Sync state with fetched images
+  useEffect(() => {
+    if (companySettingImages.length > 0) {
+      // Set logo if not manually selected
+      if (!logoFile) {
+        const logo = companySettingImages.find(
+          (img) => img.type === "signature" && img.subtype === "logo",
+        );
+        if (logo) setLogoPreview(logo.image);
+      }
+
+      // Set favicon if not manually selected
+      if (!faviconFile) {
+        const favicon = companySettingImages.find(
+          (img) => img.type === "signature" && img.subtype === "favicon",
+        );
+        if (favicon) setFaviconPreview(favicon.image);
+      }
+
+      // Filter existing sliders
+      const sliders = companySettingImages.filter(
+        (img) => img.type === "loginSlider",
+      );
+      setExistingSliders(sliders);
+    }
+  }, [companySettingImages, logoFile, faviconFile]);
 
   const handleLogoUpload = (file) => {
     const url = URL.createObjectURL(file);
@@ -242,6 +290,11 @@ const Settings = ({ onBack }) => {
         setLogoPreview(null);
         setLogoFile(null);
         refreshCompany();
+        // Refresh local image list after success
+        dispatch(getCompanySettingImages({
+          query: { isActive: true },
+          options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
+        }));
       } else {
         showNotification({
           type: "error",
@@ -284,6 +337,11 @@ const Settings = ({ onBack }) => {
         setFaviconPreview(null);
         setFaviconFile(null);
         refreshCompany();
+        // Refresh local image list after success
+        dispatch(getCompanySettingImages({
+          query: { isActive: true },
+          options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
+        }));
       } else {
         showNotification({
           type: "error",
@@ -330,6 +388,11 @@ const Settings = ({ onBack }) => {
         setSliderPreviews(prev => prev.filter((_, i) => i !== index));
 
         refreshCompany();
+        // Refresh local image list after success
+        dispatch(getCompanySettingImages({
+          query: { isActive: true },
+          options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
+        }));
       } else {
         showNotification({
           type: "error",
@@ -418,12 +481,21 @@ const Settings = ({ onBack }) => {
           {/* Select new slider */}
           <SliderAddCard onFileSelect={handleSliderSelect} />
 
-          {/* Preview sliders */}
+          {/* NEW slider Previews */}
           {sliderPreviews.map((preview, i) => (
             <SliderPreviewCard
-              key={preview.url}
+              key={`new-${i}`}
               image={preview.url}
               onUpload={() => uploadSliderAPI(i)}
+            />
+          ))}
+
+          {/* EXISTING sliders from API */}
+          {existingSliders.map((slider) => (
+            <SliderPreviewCard
+              key={`existing-${slider.id}`}
+              image={slider.image}
+              onUpload={() => { }} // Existing ones don't need upload
             />
           ))}
         </div>
