@@ -21,7 +21,7 @@ import {
   rescendOnboarding,
   deActiveOnboarding,
   getCompanyAdmin,
-  kycDataUser,
+  kycDataCompany,
 } from "../../redux/action/whiteLabelAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
@@ -62,7 +62,7 @@ const MasterDistribution = ({
   });
 
   // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsUser);
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycStatusCheck success state to refresh table after update
@@ -283,10 +283,8 @@ const MasterDistribution = ({
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
-        // Force update by incrementing refresh key
-        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataUser(selectedUserId));
+        dispatch(kycDataCompany(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -592,7 +590,7 @@ const MasterDistribution = ({
                             if (userId) {
                               setSelectedUserId(userId);
                               setIsKycModalLoading(true);
-                              dispatch(kycDataUser(userId));
+                              dispatch(kycDataCompany(userId));
                               setShowKycModal(true);
                             }
                           }}
