@@ -181,7 +181,6 @@ const DistrubtionOnboarding = ({
       "Email Id": row.emailId || row.email || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
-      "Company Name": row.companyName || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
@@ -309,9 +308,6 @@ const DistrubtionOnboarding = ({
                       Parent Role
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                      Company Name
-                    </th>
-                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       KYC Status
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -412,10 +408,6 @@ const DistrubtionOnboarding = ({
                         {/* Parent Role */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                           {row.parentRole || "N/A"}
-                        </td>
-                        {/* Company Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                          {row.companyName || "N/A"}
                         </td>
                         {/* KYC Status */}
                         <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
@@ -725,9 +717,6 @@ const DistrubtionOnboarding = ({
                     Parent Role
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    Company Name
-                  </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     KYC Status
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
@@ -820,10 +809,6 @@ const DistrubtionOnboarding = ({
                       {/* Parent Role */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                         {row.parentRole || "N/A"}
-                      </td>
-                      {/* Company Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
-                        {row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
                       <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
