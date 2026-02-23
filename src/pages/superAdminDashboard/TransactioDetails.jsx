@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { FileText } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import MainWalletStatement from "./MainWalletStatement";
-import { getAepsTransactionDetails } from "../../redux/action/aepsAction";
+import { getAepsTransactionDetails, getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 
-const TransactioDetails = ({ transactionId, onBack }) => {
+const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
   const dispatch = useDispatch();
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
 
@@ -20,9 +20,13 @@ const TransactioDetails = ({ transactionId, onBack }) => {
   // Fetch transaction details when component mounts or transactionId changes
   useEffect(() => {
     if (transactionId) {
-      dispatch(getAepsTransactionDetails(transactionId));
+      if (isAeps2) {
+        dispatch(getAeps2TransactionDetails(transactionId));
+      } else {
+        dispatch(getAepsTransactionDetails(transactionId));
+      }
     }
-  }, [dispatch, transactionId]);
+  }, [dispatch, transactionId, isAeps2]);
 
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
@@ -46,12 +50,12 @@ const TransactioDetails = ({ transactionId, onBack }) => {
     // Super Admin Commission - Always show, use 0 if null
     const superadminComm =
       transaction.superadminComm !== null &&
-      transaction.superadminComm !== undefined
+        transaction.superadminComm !== undefined
         ? parseFloat(transaction.superadminComm) || 0
         : 0;
     const superadminCommTDS =
       transaction.superadminCommTDS !== null &&
-      transaction.superadminCommTDS !== undefined
+        transaction.superadminCommTDS !== undefined
         ? parseFloat(transaction.superadminCommTDS) || 0
         : 0;
     const superadminNet = superadminComm - superadminCommTDS;
@@ -66,12 +70,12 @@ const TransactioDetails = ({ transactionId, onBack }) => {
     // White Label Commission - Always show, use 0 if null
     const whitelabelComm =
       transaction.whitelabelComm !== null &&
-      transaction.whitelabelComm !== undefined
+        transaction.whitelabelComm !== undefined
         ? parseFloat(transaction.whitelabelComm) || 0
         : 0;
     const whitelabelCommTDS =
       transaction.whitelabelCommTDS !== null &&
-      transaction.whitelabelCommTDS !== undefined
+        transaction.whitelabelCommTDS !== undefined
         ? parseFloat(transaction.whitelabelCommTDS) || 0
         : 0;
     const whitelabelNet = whitelabelComm - whitelabelCommTDS;
@@ -86,12 +90,12 @@ const TransactioDetails = ({ transactionId, onBack }) => {
     // Master Distributor Commission - Always show, use 0 if null
     const masterDistributorComm =
       transaction.masterDistributorCom !== null &&
-      transaction.masterDistributorCom !== undefined
+        transaction.masterDistributorCom !== undefined
         ? parseFloat(transaction.masterDistributorCom) || 0
         : 0;
     const masterDistributorCommTDS =
       transaction.masterDistributorComTDS !== null &&
-      transaction.masterDistributorComTDS !== undefined
+        transaction.masterDistributorComTDS !== undefined
         ? parseFloat(transaction.masterDistributorComTDS) || 0
         : 0;
     const masterDistributorNet =
@@ -107,12 +111,12 @@ const TransactioDetails = ({ transactionId, onBack }) => {
     // Distributor Commission - Always show, use 0 if null
     const distributorComm =
       transaction.distributorCom !== null &&
-      transaction.distributorCom !== undefined
+        transaction.distributorCom !== undefined
         ? parseFloat(transaction.distributorCom) || 0
         : 0;
     const distributorCommTDS =
       transaction.distributorComTDS !== null &&
-      transaction.distributorComTDS !== undefined
+        transaction.distributorComTDS !== undefined
         ? parseFloat(transaction.distributorComTDS) || 0
         : 0;
     const distributorNet = distributorComm - distributorCommTDS;
@@ -131,7 +135,7 @@ const TransactioDetails = ({ transactionId, onBack }) => {
         : 0;
     const retailerCommTDS =
       transaction.retailerComTDS !== null &&
-      transaction.retailerComTDS !== undefined
+        transaction.retailerComTDS !== undefined
         ? parseFloat(transaction.retailerComTDS) || 0
         : 0;
     const retailerNet = retailerComm - retailerCommTDS;
@@ -329,8 +333,8 @@ const TransactioDetails = ({ transactionId, onBack }) => {
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
                   {transactionData?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                        transactionData.reportingUserDetails.parentRole,
-                      )
+                      transactionData.reportingUserDetails.parentRole,
+                    )
                     : "N/A"}
                 </p>
               </div>
@@ -494,11 +498,13 @@ const TransactioDetails = ({ transactionId, onBack }) => {
 TransactioDetails.propTypes = {
   transactionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onBack: PropTypes.func,
+  isAeps2: PropTypes.bool,
 };
 
 TransactioDetails.defaultProps = {
   transactionId: null,
   onBack: null,
+  isAeps2: false,
 };
 
 export default TransactioDetails;

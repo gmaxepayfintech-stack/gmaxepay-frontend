@@ -18,6 +18,7 @@ import {
 } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
+import { getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 
 const AepsCWHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -312,7 +313,11 @@ const AepsCWHistory = ({ onBack, type }) => {
     setSelectedTransactionId(transactionId);
 
     // Dispatch action to fetch transaction details
-    dispatch(getAepsTransactionDetails(transactionId));
+    if (isAeps2) {
+      dispatch(getAeps2TransactionDetails(transactionId));
+    } else {
+      dispatch(getAepsTransactionDetails(transactionId));
+    }
   };
 
   // Show loading overlay when fetching transaction details
@@ -334,6 +339,7 @@ const AepsCWHistory = ({ onBack, type }) => {
     return (
       <TransactioDetails
         transactionId={selectedTransactionId}
+        isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);
           setSelectedTransactionId(null);
@@ -374,11 +380,10 @@ const AepsCWHistory = ({ onBack, type }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
-                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
+                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                  }`}
               >
                 {status}
               </button>
@@ -417,9 +422,8 @@ const AepsCWHistory = ({ onBack, type }) => {
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -542,11 +546,10 @@ const AepsCWHistory = ({ onBack, type }) => {
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
-                            ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
-                            : "bg-white hover:bg-gray-50"
-                        }`}
+                        className={`transition-colors ${index % 2 === 0
+                          ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
+                          : "bg-white hover:bg-gray-50"
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
@@ -665,13 +668,12 @@ const AepsCWHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${
-                              transaction.status === "Success"
-                                ? "bg-[#039155] text-white"
-                                : transaction.status === "Pending"
-                                  ? "bg-orange-500/80 text-white"
-                                  : "bg-red-500/80 text-white"
-                            }`}
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
+                              ? "bg-[#039155] text-white"
+                              : transaction.status === "Pending"
+                                ? "bg-orange-500/80 text-white"
+                                : "bg-red-500/80 text-white"
+                              }`}
                           >
                             {transaction.status}
                           </span>
@@ -723,11 +725,10 @@ const AepsCWHistory = ({ onBack, type }) => {
               <button
                 key={page}
                 onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${
-                  currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                }`}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === page
+                  ? "bg-[#039155] text-white"
+                  : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                  }`}
               >
                 {page}
               </button>
