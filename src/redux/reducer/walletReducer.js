@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS, DELETE_COMPANY_SETTING_SLIDER_SUCCESS } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -37,6 +37,8 @@ const initialState = {
     bankUpdateResponseUserError: null,
     companySettingImagesError: null,
     companySettingImages: null,
+    deleteCompanySettingSlider: null,
+    deleteCompanySettingSliderError: null,
 };
 
 const walletReducer = (state = initialState, action) => {
@@ -299,16 +301,26 @@ const walletReducer = (state = initialState, action) => {
                 success: action?.payload?.status,
                 message: action?.payload?.message,
             }
-            case GET_COMPANY_SETTING_IMAGES_SUCCESS:
-                return{
-                    ...state,
-                    companySettingImages: action?.payload,
-                    companySettingImagesError: null,
-                    loading: false,
-                    error: null,
-                    success: action?.payload?.status,
-                    message: action?.payload?.message,
-                }
+        case GET_COMPANY_SETTING_IMAGES_SUCCESS:
+            return {
+                ...state,
+                companySettingImages: action?.payload,
+                companySettingImagesError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case DELETE_COMPANY_SETTING_SLIDER_SUCCESS:
+            return {
+                ...state,
+                deleteCompanySettingSlider: action?.payload,
+                deleteCompanySettingSliderError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
 
         default:
             return state;
