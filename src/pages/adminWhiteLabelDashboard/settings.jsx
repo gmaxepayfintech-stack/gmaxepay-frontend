@@ -1,4 +1,4 @@
-import { Upload, Plus } from "lucide-react";
+import { Upload, Plus, Trash2 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import PropTypes from "prop-types";
 import React, { useRef, useState, useEffect } from "react";
@@ -6,8 +6,9 @@ import { uploadFeviicon, getCompanySettingImages } from "../../redux/action/wall
 import { useDispatch, useSelector } from "react-redux";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
+import { deleteCompanySettingSlider } from "../../redux/action/walletAction";
 
-const UploadCard = ({ onFileSelect }) => {
+const UploadCard = ({ onFileSelect, image, label, isUploading }) => {
   const inputRef = useRef(null);
 
   const openFilePicker = () => {
@@ -31,25 +32,49 @@ const UploadCard = ({ onFileSelect }) => {
   return (
     <div
       onClick={openFilePicker}
-      className="cursor-pointer border-2 border-dashed border-[#1B1717]/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center h-[249px] hover:bg-gray-50 transition"
+      className="cursor-pointer border-2 border-dashed border-[#1B1717]/80 rounded-2xl p-6 flex flex-col items-center justify-center text-center h-[249px] hover:bg-gray-50 transition relative overflow-hidden"
     >
-      <Upload className="w-8 h-8 text-[#1B1717] mb-2" />
+      {isUploading && (
+        <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-sm">
+          <div className="flex flex-col items-center gap-2">
+            <div className="w-8 h-8 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Uploading...</p>
+          </div>
+        </div>
+      )}
 
-      <p className="text-lg text-[#1B1717] font-[Gilroy-Medium] mb-1">
-        Click To Upload
-      </p>
+      {image ? (
+        <div className="flex flex-col items-center gap-3">
+          <img
+            src={image}
+            alt="Preview"
+            className="max-h-[160px] max-w-full object-contain"
+          />
+          <span className="text-xs text-[#1B1717]/60 font-[Gilroy-Medium]">
+            Click to change
+          </span>
+        </div>
+      ) : (
+        <>
+          <Upload className="w-8 h-8 text-[#1B1717] mb-2" />
 
-      <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
-        SVG, PNG Format
-      </p>
+          <p className="text-lg text-[#1B1717] font-[Gilroy-Medium] mb-1">
+            {label || "Click To Upload"}
+          </p>
 
-      <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
-        Select from the Browser
-      </span>
+          <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Medium]">
+            SVG, PNG Format
+          </p>
 
-      <p className="text-sm text-[#1B1717]/80 font-[gilroy-regular] mt-1">
-        File Size (Max 5 MB)
-      </p>
+          <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
+            Select from the Browser
+          </span>
+
+          <p className="text-sm text-[#1B1717]/80 font-[gilroy-regular] mt-1">
+            File Size (Max 5 MB)
+          </p>
+        </>
+      )}
 
       <input
         ref={inputRef}
@@ -64,61 +89,45 @@ const UploadCard = ({ onFileSelect }) => {
 
 UploadCard.propTypes = {
   onFileSelect: PropTypes.func,
+  image: PropTypes.string,
+  label: PropTypes.string,
+  isUploading: PropTypes.bool,
 };
 
-const PreviewCard = ({ image, buttonLabel = "Upload", onUpload }) => (
-  <div className="border-2 border-dashed border-[#1B1717]/80 rounded-2xl p-4 h-[249px] flex flex-col">
-    {/* Image area */}
-    <div className="flex-1 flex items-center justify-center">
-      {image ? (
-        <img
-          src={image}
-          alt="Preview"
-          className="max-h-[120px] max-w-[120px] object-contain"
-        />
-      ) : (
-        <p className="text-sm text-[#1B1717]/60">No image selected</p>
-      )}
-    </div>
+// PreviewCard removed as per request
 
-    {/* Button at bottom */}
-    <button
-      disabled={!image}
-      onClick={onUpload}
-      className={`mx-auto mt-3 px-4 py-2 w-fit rounded-[4px] font-[Gilroy-Medium] text-sm
-    ${image
-          ? "bg-[#C5DBFF] text-[#1B1717]"
-          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
-    >
-      {buttonLabel}
-    </button>
-  </div>
-);
+const SliderPreviewCard = ({ image, onDelete, isUploading }) => (
+  <div className="border border-[#1B1717]/80 rounded-[14px] p-4 flex flex-col justify-center h-[527px] relative group">
+    {isUploading && (
+      <div className="absolute inset-0 bg-white/60 flex items-center justify-center z-10 backdrop-blur-sm rounded-[14px]">
+        <div className="w-8 h-8 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )}
 
-const SliderPreviewCard = ({ image, onUpload }) => (
-  <div className="border border-[#1B1717]/80 rounded-[14px] p-4 flex flex-col justify-between h-[527px]">
     {image ? (
       <img
         src={image}
         alt="Slider Preview"
-        className="max-h-[420px] object-contain mx-auto"
+        className="max-h-[480px] w-full object-contain mx-auto rounded-lg"
       />
     ) : (
-      <p className="text-sm text-center text-[#1B1717]/60">No slider image</p>
+      <p className="text-sm text-center text-[#1B1717]/60 font-[Gilroy-Medium]">
+        No slider image
+      </p>
     )}
 
-    <button
-      disabled={!image}
-      onClick={onUpload}
-      className={`mt-3 px-4 py-2 rounded-[4px] font-[Gilroy-Medium] text-sm
-        ${image
-          ? "bg-[#C5DBFF] text-[#1B1717]"
-          : "bg-gray-200 text-gray-400 cursor-not-allowed"
-        }`}
-    >
-      Change Slider
-    </button>
+    {/* Delete Icon Overlay */}
+    <div className="absolute top-4 right-4 translate-x-1 translate-y--1 opacity-0 group-hover:opacity-100 transition-opacity">
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete?.();
+        }}
+        className="p-2 bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors shadow-sm"
+      >
+        <Trash2 className="w-5 h-5" />
+      </button>
+    </div>
   </div>
 );
 
@@ -196,8 +205,10 @@ const Settings = ({ onBack }) => {
   const [faviconPreview, setFaviconPreview] = useState(null);
   const [faviconFile, setFaviconFile] = useState(null);
   const [logoFile, setLogoFile] = useState(null);
-  const [sliderPreviews, setSliderPreviews] = useState([]);
   const [existingSliders, setExistingSliders] = useState([]);
+  const [isLogoUploading, setIsLogoUploading] = useState(false);
+  const [isFaviconUploading, setIsFaviconUploading] = useState(false);
+  const [isSliderUploading, setIsSliderUploading] = useState(false);
 
   // Fetch existing images on mount
   useEffect(() => {
@@ -240,42 +251,23 @@ const Settings = ({ onBack }) => {
   }, [companySettingImages, logoFile, faviconFile]);
 
   const handleLogoUpload = (file) => {
-    const url = URL.createObjectURL(file);
-    setLogoPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return url;
-    });
-    setLogoFile(file);
+    uploadLogoAPI(file);
   };
 
   const handleFaviconUpload = (file) => {
-    const url = URL.createObjectURL(file);
-    setFaviconPreview((prev) => {
-      if (prev) URL.revokeObjectURL(prev);
-      return url;
-    });
-    setFaviconFile(file);
+    uploadFaviconAPI(file);
   };
 
   const handleSliderSelect = (file) => {
-    const url = URL.createObjectURL(file);
-    setSliderPreviews((prev) => {
-      const newPreviews = [...prev];
-      // Only keep up to 3 previews and always append to end or fill empty slot if we were tracking slots
-      // For now, simpler to just append
-      if (newPreviews.length < 3) {
-        return [...newPreviews, { file, url }];
-      }
-      return newPreviews;
-    });
+    uploadSliderAPI(file);
   };
 
-  const uploadLogoAPI = async () => {
-    if (!logoFile) return;
-
+  const uploadLogoAPI = async (file) => {
+    if (!file) return;
+    setIsLogoUploading(true);
     const formData = new FormData();
-    formData.append("image", logoFile);
-    formData.append("name", logoFile.name);
+    formData.append("image", file);
+    formData.append("name", file.name);
     formData.append("type", "signature");
     formData.append("subtype", "logo");
 
@@ -287,10 +279,7 @@ const Settings = ({ onBack }) => {
           message: response.message || "Logo uploaded successfully!",
           isCritical: true,
         });
-        setLogoPreview(null);
-        setLogoFile(null);
         refreshCompany();
-        // Refresh local image list after success
         dispatch(getCompanySettingImages({
           query: { isActive: true },
           options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
@@ -306,23 +295,20 @@ const Settings = ({ onBack }) => {
       console.error("Upload error:", error);
       showNotification({
         type: "error",
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          "An unexpected error occurred while uploading company details.",
+        message: error?.response?.data?.message || error?.message || "Unexpected error.",
         isCritical: true,
       });
+    } finally {
+      setIsLogoUploading(false);
     }
   };
 
-
-
-  const uploadFaviconAPI = async () => {
-    if (!faviconFile) return;
-
+  const uploadFaviconAPI = async (file) => {
+    if (!file) return;
+    setIsFaviconUploading(true);
     const formData = new FormData();
-    formData.append("image", faviconFile);
-    formData.append("name", faviconFile.name);
+    formData.append("image", file);
+    formData.append("name", file.name);
     formData.append("type", "signature");
     formData.append("subtype", "favicon");
 
@@ -334,10 +320,7 @@ const Settings = ({ onBack }) => {
           message: response.message || "Favicon uploaded successfully!",
           isCritical: false,
         });
-        setFaviconPreview(null);
-        setFaviconFile(null);
         refreshCompany();
-        // Refresh local image list after success
         dispatch(getCompanySettingImages({
           query: { isActive: true },
           options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
@@ -353,26 +336,21 @@ const Settings = ({ onBack }) => {
       console.error("Upload error:", error);
       showNotification({
         type: "error",
-        message:
-          error?.response?.data?.message ||
-          error?.message ||
-          "An unexpected error occurred while uploading company details.",
+        message: error?.response?.data?.message || error?.message || "Unexpected error.",
         isCritical: true,
       });
+    } finally {
+      setIsFaviconUploading(false);
     }
   };
 
-  const uploadSliderAPI = async (index) => {
-    const sliderItem = sliderPreviews[index];
-    if (!sliderItem?.file) return;
-
+  const uploadSliderAPI = async (file) => {
+    if (!file) return;
+    setIsSliderUploading(true);
     const formData = new FormData();
-    formData.append("image", sliderItem.file);
-    formData.append("name", sliderItem.file.name);
-    // As per request: type: loginSlider
+    formData.append("image", file);
+    formData.append("name", file.name);
     formData.append("type", "loginSlider");
-    // subtype might not be needed for slider if type is loginSlider, but keeping consistency if needed or omitting if strictly following "send attributes name, type: loginSlider, image"
-    // The user request said: "send the attributes name, type: loginSlider, image"
 
     try {
       const response = await dispatch(uploadFeviicon(formData));
@@ -382,13 +360,7 @@ const Settings = ({ onBack }) => {
           message: response.message || "Slider uploaded successfully!",
           isCritical: false,
         });
-
-        // Remove the uploaded slider from preview list or update its status? 
-        // For now, let's remove it to allow new uploads
-        setSliderPreviews(prev => prev.filter((_, i) => i !== index));
-
         refreshCompany();
-        // Refresh local image list after success
         dispatch(getCompanySettingImages({
           query: { isActive: true },
           options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
@@ -404,11 +376,45 @@ const Settings = ({ onBack }) => {
       console.error("Upload error:", error);
       showNotification({
         type: "error",
-        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while uploading slider.",
+        message: error?.response?.data?.message || error?.message || "Unexpected error.",
         isCritical: true,
+      });
+    } finally {
+      setIsSliderUploading(false);
+    }
+  };
+
+  const handleDeleteSlider = async (id) => {
+    if (!id) return;
+
+    try {
+      const response = await dispatch(deleteCompanySettingSlider(id));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response.message || "Slider deleted successfully!",
+        });
+        refreshCompany();
+        // Refresh local image list after success
+        dispatch(getCompanySettingImages({
+          query: { isActive: true },
+          options: { order: [["createdAt", "DESC"]], limit: 10, offset: 0 }
+        }));
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to delete slider.",
+        });
+      }
+    } catch (error) {
+      console.error("Delete error:", error);
+      showNotification({
+        type: "error",
+        message: error?.response?.data?.message || error?.message || "An unexpected error occurred while deleting slider.",
       });
     }
   };
+
 
   return (
     <div className="px-1 py-4 space-y-6">
@@ -427,48 +433,28 @@ const Settings = ({ onBack }) => {
 
       {/* Upload Logo */}
       <div className="bg-white rounded-3xl shadow-sm p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Upload Logo
-            </h3>
-            <UploadCard onFileSelect={handleLogoUpload} />
-          </div>
-
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Preview Logo
-            </h3>
-            <PreviewCard
-              image={logoPreview}
-              buttonLabel="Change Logo"
-              onUpload={uploadLogoAPI}
-            />
-          </div>
-        </div>
+        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+          Logo Settings
+        </h3>
+        <UploadCard
+          image={logoPreview}
+          label="Logo"
+          onFileSelect={handleLogoUpload}
+          isUploading={isLogoUploading}
+        />
       </div>
 
       {/* Upload Favicon */}
       <div className="bg-white rounded-3xl shadow-sm p-5">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Upload Fevicons
-            </h3>
-            <UploadCard onFileSelect={handleFaviconUpload} />
-          </div>
-
-          <div>
-            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
-              Preview Fevicons
-            </h3>
-            <PreviewCard
-              image={faviconPreview}
-              buttonLabel="Change Favicon"
-              onUpload={uploadFaviconAPI}
-            />
-          </div>
-        </div>
+        <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-3">
+          Favicon Settings
+        </h3>
+        <UploadCard
+          image={faviconPreview}
+          label="Favicon"
+          onFileSelect={handleFaviconUpload}
+          isUploading={isFaviconUploading}
+        />
       </div>
 
       {/* Upload Sliders */}
@@ -481,21 +467,12 @@ const Settings = ({ onBack }) => {
           {/* Select new slider */}
           <SliderAddCard onFileSelect={handleSliderSelect} />
 
-          {/* NEW slider Previews */}
-          {sliderPreviews.map((preview, i) => (
-            <SliderPreviewCard
-              key={`new-${i}`}
-              image={preview.url}
-              onUpload={() => uploadSliderAPI(i)}
-            />
-          ))}
-
           {/* EXISTING sliders from API */}
           {existingSliders.map((slider) => (
             <SliderPreviewCard
               key={`existing-${slider.id}`}
               image={slider.image}
-              onUpload={() => { }} // Existing ones don't need upload
+              onDelete={() => handleDeleteSlider(slider.id)}
             />
           ))}
         </div>
