@@ -117,7 +117,7 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "wallet-history",
-      category: "Banking",
+      category: "Finance",
     },
     // {
     //   id: 7,
@@ -213,7 +213,7 @@ const TaxHistory = () => {
       subtitle: "BBPS Payments",
       available: true,
       viewKey: "bbps-history",
-      category: "Finance",
+      category: "Utility Payment",
     },
 
     // E-Governance
