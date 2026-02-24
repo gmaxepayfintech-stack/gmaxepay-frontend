@@ -94,16 +94,18 @@ const MasterDistLayout = ({ children }) => {
     }
   }, [location.pathname]);
 
-  const handleMenuClick = (name, dropdown, path) => {
+  const handleMenuClick = (name, dropdown, path, e) => {
+    // If it's a dropdown, we toggle it regardless of where the click happened in the container
     if (dropdown) {
-      // toggle dropdown open/close
+      if (e) e.preventDefault(); // Prevent navigation if it was a Link in a dropdown
       setOpenDropdown((prev) => (prev === name ? null : name));
-      // also set it as active parent
       setActiveMenu(name);
+      if (path) {
+        navigate(path);
+      }
     } else {
-      // close any open dropdown
+      // For non-dropdowns, handleMenuClick is only called if NOT using a Link
       setOpenDropdown(null);
-      // mark this as active
       setActiveMenu(name);
       if (path) {
         navigate(path);
@@ -285,13 +287,13 @@ const MasterDistLayout = ({ children }) => {
               <div key={name}>
                 {/* Main Menu Item */}
                 <div
-                  onClick={() => handleMenuClick(name, dropdown, path)}
+                  onClick={(e) => handleMenuClick(name, dropdown, path, e)}
                   className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${isActiveParent
-                      ? "bg-[#039155] text-white shadow-md"
-                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                    ? "bg-[#039155] text-white shadow-md"
+                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
                     }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-3 w-full">
                     <img
                       src={icon}
                       alt={name}
@@ -302,22 +304,14 @@ const MasterDistLayout = ({ children }) => {
                         e.target.src = "/img/gmaxepay.png";
                       }}
                     />
-                    {dropdown ? (
-                      path ? (
-                        <Link to={path}>{name}</Link>
-                      ) : (
-                        <span>{name}</span>
-                      )
-                    ) : (
-                      <Link to={path}>{name}</Link>
-                    )}
+                    <span className="flex-1">{name}</span>
                   </div>
 
                   {dropdown &&
                     (isOpen ? (
-                      <ChevronUp className="w-4 h-4 text-white transition-transform duration-300" />
+                      <ChevronUp className={`w-4 h-4 transition-transform duration-300 ${isActiveParent ? "text-white" : ""}`} />
                     ) : (
-                      <ChevronDown className="w-4 h-4 text-gray-500 transition-transform duration-300" />
+                      <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-300 ${isActiveParent ? "text-white" : ""}`} />
                     ))}
                 </div>
 
@@ -339,8 +333,8 @@ const MasterDistLayout = ({ children }) => {
                             key={child.name}
                             to={child.path}
                             className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                                ? "text-[#039155] font-[Gilroy-Semibold]"
-                                : "text-gray-700"
+                              ? "text-[#039155] font-[Gilroy-Semibold]"
+                              : "text-gray-700"
                               }`}
                           >
                             <svg
