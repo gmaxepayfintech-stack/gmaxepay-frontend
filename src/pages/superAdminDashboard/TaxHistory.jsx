@@ -9,6 +9,9 @@ import DTHReport from "./reports/DTHReport";
 import PayoutHistory from "./payoutHistory";
 import WalletHistory from "./walletHistroy";
 import SurCharges from "./SurCharges";
+import GSTHistory from "./GSTHistory";
+import BBPSReport from "./BBPSReport";
+
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -31,12 +34,14 @@ const TaxHistory = () => {
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
   const showSurCharges = viewHistory === "surcharges";
+  const showGstHistory = viewHistory === "gst-history";
+  const showBbpsHistory = viewHistory === "bbps-history";
   const tabs = [
     "Banking",
     "Utility Payment",
     "E-Governance",
     "Insurance",
-    "Travel",
+    "Finance",
     "Verification History",
   ];
 
@@ -106,7 +111,7 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "wallet-history",
-      category: "Banking",
+      category: "Finance",
     },
     {
       id: 9,
@@ -114,15 +119,16 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "surcharges",
-      category: "Banking",
+      category: "Finance",
     },
-    // {
-    //   id: 7,
-    //   title: "DMT",
-    //   subtitle: "Direct Money Transfer",
-    //   available: true,
-    //   category: "Banking",
-    // },
+    {
+      id: 10,
+      title: "GST",
+      subtitle: "Gst Enquiry",
+      available: true,
+      viewKey: "gst-history",
+      category: "Finance",
+    },
     // {
     //   id: 8,
     //   title: "CMS",
@@ -204,6 +210,14 @@ const TaxHistory = () => {
       viewKey: "dth-history",
       category: "Utility Payment",
     },
+    {
+      id: 31,
+      title: "BBPS History",
+      subtitle: "BBPS Payments",
+      available: true,
+      viewKey: "bbps-history",
+      category: "Utility Payment",
+    },
 
     // E-Governance
     {
@@ -253,53 +267,6 @@ const TaxHistory = () => {
     //   category: "Insurance",
     // },
 
-    // Travel
-
-    // {
-    //   id: 23,
-    //   title: "Flight Booking History",
-    //   subtitle: "Flight Tickets",
-    //   available: true,
-    //   category: "Travel",
-    // },
-    // {
-    //   id: 24,
-    //   title: "Bus Booking History",
-    //   subtitle: "Bus Tickets",
-    //   available: true,
-    //   category: "Travel",
-    // },
-    // {
-    //   id: 25,
-    //   title: "Train Booking History",
-    //   subtitle: "Railway Tickets",
-    //   available: true,
-    //   category: "Travel",
-    // },
-
-    // Verification History
-
-    // {+75.
-    //   id: 26,
-    //   title: "KYC Verification History",
-    //   subtitle: "Customer KYC Logs",
-    //   available: true,
-    //   category: "Verification History",
-    // },
-    // {
-    //   id: 27,
-    //   title: "Aadhaar Verification History",
-    //   subtitle: "Aadhaar Verification Logs",
-    //   available: true,
-    //   category: "Verification History",
-    // },
-    // {
-    //   id: 28,
-    //   title: "PAN Verification History",
-    //   subtitle: "PAN Verification Logs",
-    //   available: true,
-    //   category: "Verification History",
-    // },
   ];
 
   useEffect(() => {
@@ -365,6 +332,22 @@ const TaxHistory = () => {
   if (showSurCharges) {
     return (
       <SurCharges
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showGstHistory) {
+    return (
+      <GSTHistory
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showBbpsHistory) {
+    return (
+      <BBPSReport
         onBack={() => navigate("/superDashboard/txn-history")}
       />
     );
@@ -502,8 +485,8 @@ const TaxHistory = () => {
               key={page}
               onClick={() => setCurrentPage(page)}
               className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
-                  ? "bg-[#039155] text-white"
-                  : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                ? "bg-[#039155] text-white"
+                : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                 }`}
             >
               {page}
