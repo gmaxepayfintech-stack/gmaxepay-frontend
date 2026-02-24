@@ -46,7 +46,7 @@ const TaxHistory = () => {
     "Utility Payment",
     "E-Governance",
     "Insurance",
-    "Travel",
+    "Finance",
     "Verification History",
   ];
 
@@ -116,7 +116,7 @@ const TaxHistory = () => {
       subtitle: "Balance Enquiry",
       available: true,
       viewKey: "wallet-history",
-      category: "Banking",
+      category: "Finance",
     },
     // {
     //   id: 7,
