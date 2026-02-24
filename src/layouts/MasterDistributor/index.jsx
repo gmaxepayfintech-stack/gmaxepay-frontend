@@ -19,23 +19,23 @@ const MasterDistributor = () => {
   return (
     <MasterDistLayout>
       <Routes>
-        <Route path="/" element={<MasterDistDashboard />} />
-        <Route path="/home" element={<MasterDistDashboard />} />
-        <Route path="/profile" element={<MasterDistributerProfile />} />
-        <Route path="/members" element={<Members />} />
-        <Route path="/members/user" element={<CreateWhiteLabel />} />
-        <Route path="/members/list" element={<Members />} />
-        <Route path="/members/rolemanagement" element={<Rolemanagement />} />
-        <Route path="/resources/schemamaster" element={<SchemeMaster />} />
-        <Route path="/resources/subscription" element={<Subscription />} />
-        <Route path="/fund-management/wallet-load" element={<WalletLoad />} />
-        <Route path="/fund-management/fund-request" element={<FundRequest />} />
-        <Route path="/reports/business" element={<BusinessReport />} />
-        <Route path="/reports/user-performance" element={<UserPerformance />} />
-        <Route path="/reports/earning" element={<EarningReport />} />
-        <Route path="/services/bbps-services" element={<BBPSServices />} />
-        <Route path="/reports/nw-overview" element={<NWoverview />} />
-        <Route path="/tax-history" element={<TaxHistory />} />
+        <Route index element={<MasterDistDashboard />} />
+        <Route path="home" element={<MasterDistDashboard />} />
+        <Route path="profile" element={<MasterDistributerProfile />} />
+        <Route path="members" element={<Members />} />
+        <Route path="members/user" element={<CreateWhiteLabel />} />
+        <Route path="members/list" element={<Members />} />
+        <Route path="members/rolemanagement" element={<Rolemanagement />} />
+        <Route path="resources/schemamaster" element={<SchemeMaster />} />
+        <Route path="resources/subscription" element={<Subscription />} />
+        <Route path="fund-management/wallet-load" element={<WalletLoad />} />
+        <Route path="fund-management/fund-request" element={<FundRequest />} />
+        <Route path="reports/business" element={<BusinessReport />} />
+        <Route path="reports/user-performance" element={<UserPerformance />} />
+        <Route path="reports/earning" element={<EarningReport />} />
+        <Route path="services/bbps-services" element={<BBPSServices />} />
+        <Route path="reports/nw-overview" element={<NWoverview />} />
+        <Route path="tax-history" element={<TaxHistory />} />
       </Routes>
     </MasterDistLayout>
   );
