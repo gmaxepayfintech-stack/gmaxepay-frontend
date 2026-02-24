@@ -8,6 +8,7 @@ import DTHReport from "../Reports/DTHReport";
 import PanReport from "../Reports/PanReport";
 import PayoutHistory from "./payoutHistory";
 import WalletHistory from "./walletHistroy";
+import BBPSReports from "../../retailerDashboard/BBPSReports";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -38,6 +39,7 @@ const TaxHistory = () => {
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
   const showWalletHistory = viewHistory === "wallet-history";
+  const showBBPSHistory = viewHistory === "bbps-history";
 
   const tabs = [
     "Banking",
@@ -204,6 +206,14 @@ const TaxHistory = () => {
       viewKey: "dth-history",
       category: "Utility Payment",
     },
+    {
+      id: 31,
+      title: "BBPS History",
+      subtitle: "BBPS Payments",
+      available: true,
+      viewKey: "bbps-history",
+      category: "Utility Payment",
+    },
 
     // E-Governance
     {
@@ -365,6 +375,14 @@ const TaxHistory = () => {
     return <PanReport />;
   }
 
+  if (showBBPSHistory) {
+    return (
+      <BBPSReports
+        onBack={() => navigate("/masterDistributerDashboard/tax-history")}
+      />
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-1 sm:p-2 md:p-3 text-[#1B1717]">
       {/* Header Section */}
@@ -405,11 +423,10 @@ const TaxHistory = () => {
                 <span
                   className={`relative z-10 text-xs sm:text-sm md:text-base
               font-[Gilroy-Semibold] whitespace-nowrap
-              ${
-                activeTab === tab
-                  ? "text-white"
-                  : "text-[#1B1717] hover:text-[#039155]"
-              }`}
+              ${activeTab === tab
+                      ? "text-white"
+                      : "text-[#1B1717] hover:text-[#039155]"
+                    }`}
                 >
                   {tab}
                 </span>
@@ -497,11 +514,10 @@ const TaxHistory = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${
-                currentPage === page
-                  ? "bg-[#039155] text-white"
-                  : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-              }`}
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
+                ? "bg-[#039155] text-white"
+                : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                }`}
             >
               {page}
             </button>

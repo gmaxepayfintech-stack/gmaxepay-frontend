@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS, DELETE_COMPANY_SETTING_SLIDER_SUCCESS } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS, DELETE_COMPANY_SETTING_SLIDER_SUCCESS, ADMIN_GST_HISTORY_SUCCESS, ADMIN_GST_HISTORY_FAILURE, BBPS_HISTORY_SUCCESS, BBPS_HISTORY_FAILURE, BBPS_COMPANY_HISTORY_SUCCESS, BBPS_USER_HISTORY_SUCCESS } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -39,6 +39,14 @@ const initialState = {
     companySettingImages: null,
     deleteCompanySettingSlider: null,
     deleteCompanySettingSliderError: null,
+    adminGstHistoryError: null,
+    adminGstHistory: null,
+    bbpsHistory: null,
+    bbpsHistoryError: null,
+    bbpsCompanyHistoryError: null,
+    bbpsCompanyHistory: null,
+    bbpsUserHistoryError: null,
+    bbpsUserHistory: null,
 };
 
 const walletReducer = (state = initialState, action) => {
@@ -321,7 +329,66 @@ const walletReducer = (state = initialState, action) => {
                 success: action?.payload?.status,
                 message: action?.payload?.message,
             }
-
+        case ADMIN_GST_HISTORY_SUCCESS:
+            return {
+                ...state,
+                adminGstHistory: action?.payload,
+                adminGstHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case ADMIN_GST_HISTORY_FAILURE:
+            return {
+                ...state,
+                adminGstHistory: null,
+                adminGstHistoryError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            }
+        case BBPS_HISTORY_SUCCESS:
+            return {
+                ...state,
+                bbpsHistory: action?.payload,
+                bbpsHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case BBPS_COMPANY_HISTORY_SUCCESS:
+            return{
+                ...state,
+                bbpsCompanyHistory: action?.payload,
+                bbpsCompanyHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+            case BBPS_USER_HISTORY_SUCCESS:
+                return{
+                    ...state,
+                    bbpsUserHistory: action?.payload,
+                    bbpsUserHistoryError: null,
+                    loading: false,
+                    error: null,
+                    success: action?.payload?.status,
+                    message: action?.payload?.message,
+                }
+        case BBPS_HISTORY_FAILURE:
+            return {
+                ...state,
+                bbpsHistory: null,
+                bbpsHistoryError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            }
         default:
             return state;
     }
