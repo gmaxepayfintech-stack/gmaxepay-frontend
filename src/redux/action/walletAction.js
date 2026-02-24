@@ -1101,7 +1101,7 @@ export const bbpsUsersHistory = (payload) => async (dispatch) => {
     try {
         const authToken = secureLocalStorage.getItem("userToken");
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/reports/bbpReports`,
+            `${API_ROUTE}/api/v1/user/bbps/report-history`,
             payload,
             {
                 headers: {
