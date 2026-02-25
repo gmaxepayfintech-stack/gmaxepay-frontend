@@ -58,6 +58,11 @@ const LoginDesign1 = () => {
   const [otpTimer, setOtpTimer] = useState(180);
   const [verificationTimer, setVerificationTimer] = useState(180);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [locationData, setLocationData] = useState({
+    latitude: null,
+    longitude: null,
+    ipAddress: null,
+  });
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -147,6 +152,23 @@ const LoginDesign1 = () => {
     }
   }, [otpTimer, currentView]);
 
+  // Pre-fetch location and IP on mount
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const data = await getLocationAndIP();
+        setLocationData({
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+          ipAddress: data.ipAddress,
+        });
+      } catch (error) {
+        console.error("Error pre-fetching location:", error);
+      }
+    };
+    fetchLocation();
+  }, []);
+
   // Verification Timer
   useEffect(() => {
     if (verificationTimer > 0 && currentView === VIEWS.VERIFICATION_CODE) {
@@ -163,7 +185,7 @@ const LoginDesign1 = () => {
     if (loginError) {
       const errorMessage = typeof loginError === 'object' ? loginError.message : loginError;
       const isTokenExpired = typeof loginError === 'object' && loginError.isTokenExpired;
-      
+
       // If login token expired, immediately redirect to step 1
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
@@ -174,7 +196,7 @@ const LoginDesign1 = () => {
         setPhoneNumber("");
         processedLoginRef.current = false;
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -191,7 +213,7 @@ const LoginDesign1 = () => {
       if (verificationError) {
         const errorMessage = typeof verificationError === 'object' ? verificationError.message : verificationError;
         const isTokenExpired = typeof verificationError === 'object' && verificationError.isTokenExpired;
-        
+
         // If login token expired, immediately redirect to step 1
         if (isTokenExpired) {
           secureLocalStorage.removeItem("loginToken");
@@ -202,7 +224,7 @@ const LoginDesign1 = () => {
           setPhoneNumber("");
           processedVerificationRef.current = false;
         }
-        
+
         showNotification({
           type: "error",
           message: errorMessage,
@@ -228,7 +250,7 @@ const LoginDesign1 = () => {
     if (resetPasswordError) {
       const errorMessage = typeof resetPasswordError === 'object' ? resetPasswordError.message : resetPasswordError;
       const isTokenExpired = typeof resetPasswordError === 'object' && resetPasswordError.isTokenExpired;
-      
+
       // If login token expired, immediately redirect to step 1
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
@@ -238,7 +260,7 @@ const LoginDesign1 = () => {
         setSubmittedPhone("");
         setPhoneNumber("");
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -282,7 +304,7 @@ const LoginDesign1 = () => {
     if (forgetPasswordError && (currentView === VIEWS.FORGOT_PASSWORD || currentView === VIEWS.VERIFICATION_CODE)) {
       const errorMessage = typeof forgetPasswordError === 'object' ? forgetPasswordError.message : forgetPasswordError;
       const isTokenExpired = typeof forgetPasswordError === 'object' && forgetPasswordError.isTokenExpired;
-      
+
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
@@ -291,7 +313,7 @@ const LoginDesign1 = () => {
         setSubmittedPhone("");
         setPhoneNumber("");
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -327,7 +349,7 @@ const LoginDesign1 = () => {
     if (verifyForgetPasswordError && currentView === VIEWS.VERIFICATION_CODE) {
       const errorMessage = typeof verifyForgetPasswordError === 'object' ? verifyForgetPasswordError.message : verifyForgetPasswordError;
       const isTokenExpired = typeof verifyForgetPasswordError === 'object' && verifyForgetPasswordError.isTokenExpired;
-      
+
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
@@ -336,7 +358,7 @@ const LoginDesign1 = () => {
         setSubmittedPhone("");
         setPhoneNumber("");
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -371,8 +393,8 @@ const LoginDesign1 = () => {
         loginData?.loginResponse?.data || loginData?.data || loginResponseData || {};
       // Check for requiresPasswordReset in multiple possible locations
       const requiresPasswordReset = !!(
-        loginResponse?.requiresPasswordReset || 
-        loginData?.data?.requiresPasswordReset || 
+        loginResponse?.requiresPasswordReset ||
+        loginData?.data?.requiresPasswordReset ||
         loginData?.loginResponse?.data?.requiresPasswordReset
       );
       const requiresOtp = !!loginResponse?.requiresOtpVerify;
@@ -612,7 +634,7 @@ const LoginDesign1 = () => {
         try {
           const parsedUserData = JSON.parse(existingUserData);
           const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
-          
+
           const rolePaths = {
             1: "/superDashboard/home",
             2: "/adminDashboard/home",
@@ -621,7 +643,7 @@ const LoginDesign1 = () => {
             5: "/retailerDashboard/home",
             6: "/employeeDashboard/home",
           };
-          
+
           // Dispatch loginSuccess with user data
           dispatch(
             loginSuccess({
@@ -629,7 +651,7 @@ const LoginDesign1 = () => {
               user: parsedUserData || userDataFromResponse,
             })
           );
-          
+
           // Navigate based on role
           navigate(rolePaths[userRole] || "/superDashboard/home");
           return;
@@ -671,7 +693,7 @@ const LoginDesign1 = () => {
     if (twoFactorAuthError && (currentView === VIEWS.AUTH_2FA || currentView === VIEWS.REQUIRE_2FA)) {
       const errorMessage = typeof twoFactorAuthError === 'object' ? twoFactorAuthError.message : twoFactorAuthError;
       const isTokenExpired = typeof twoFactorAuthError === 'object' && twoFactorAuthError.isTokenExpired;
-      
+
       // If login token expired, immediately redirect to step 1
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
@@ -682,7 +704,7 @@ const LoginDesign1 = () => {
         setPhoneNumber("");
         setQrData(null);
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -714,7 +736,7 @@ const LoginDesign1 = () => {
         const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
         const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
         const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
-        
+
         if (requiresSetup2FA || requires2FA) {
           if (qrCode) {
             setQrData(qrCode);
@@ -745,7 +767,7 @@ const LoginDesign1 = () => {
       const requires2FA = responseData?.requires2FA;
       const requiresSetup2FA = responseData?.requiresSetup2FA;
       const qrCode = responseData?.qrCode;
-      
+
       // Extract tokens and user data from response
       const accessToken = responseData?.accessToken;
       const refreshToken = responseData?.refreshToken;
@@ -788,7 +810,7 @@ const LoginDesign1 = () => {
             user: userData,
           })
         );
-        
+
         const rolePaths = {
           1: "/superDashboard/home",
           2: "/adminDashboard/home",
@@ -807,7 +829,7 @@ const LoginDesign1 = () => {
     if (verifyMPINError && currentView === VIEWS.VERIFY_MPIN) {
       const errorMessage = typeof verifyMPINError === 'object' ? verifyMPINError.message : verifyMPINError;
       const isTokenExpired = typeof verifyMPINError === 'object' && verifyMPINError.isTokenExpired;
-      
+
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
@@ -815,7 +837,7 @@ const LoginDesign1 = () => {
         setMpin(Array(4).fill(""));
         processedVerifyMPINRef.current = false;
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -894,7 +916,7 @@ const LoginDesign1 = () => {
     if (setMPINError && currentView === VIEWS.SET_MPIN) {
       const errorMessage = typeof setMPINError === 'object' ? setMPINError.message : setMPINError;
       const isTokenExpired = typeof setMPINError === 'object' && setMPINError.isTokenExpired;
-      
+
       if (isTokenExpired) {
         secureLocalStorage.removeItem("loginToken");
         secureLocalStorage.removeItem("userToken");
@@ -903,7 +925,7 @@ const LoginDesign1 = () => {
         setConfirmMpin(Array(4).fill(""));
         processedSetMPINRef.current = false;
       }
-      
+
       showNotification({
         type: "error",
         message: errorMessage,
@@ -985,12 +1007,22 @@ const LoginDesign1 = () => {
   // Login form submission
   const handleLoginSubmit = async (values, { setSubmitting }) => {
     try {
-      const locationIPData = await getLocationAndIP();
+      let currentLat = locationData.latitude;
+      let currentLong = locationData.longitude;
 
-      if (
-        !locationIPData.location.latitude ||
-        !locationIPData.location.longitude
-      ) {
+      // Fallback if not already fetched
+      if (!currentLat || !currentLong) {
+        const data = await getLocationAndIP();
+        currentLat = data.location.latitude;
+        currentLong = data.location.longitude;
+        setLocationData({
+          latitude: currentLat,
+          longitude: currentLong,
+          ipAddress: data.ipAddress,
+        });
+      }
+
+      if (!currentLat || !currentLong) {
         showNotification({
           type: "warning",
           message: "Please allow location to proceed with login.",
@@ -1001,8 +1033,8 @@ const LoginDesign1 = () => {
       const payload = {
         mobileNo: values.phoneNumber,
         password: values.password,
-        latitude: locationIPData.location.latitude || "",
-        longitude: locationIPData.location.longitude || "",
+        latitude: currentLat || "",
+        longitude: currentLong || "",
         userType: "1",
       };
       setSubmittedPhone(values.phoneNumber);
@@ -1063,14 +1095,14 @@ const LoginDesign1 = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 6);
-    
+
     if (digits.length > 0) {
       const newOtp = Array(6).fill("");
       for (let i = 0; i < digits.length && i < 6; i++) {
         newOtp[i] = digits[i];
       }
       setOtp(newOtp);
-      
+
       const focusIndex = Math.min(digits.length, 5);
       setTimeout(() => {
         refs.current[focusIndex]?.focus();
@@ -1147,14 +1179,14 @@ const LoginDesign1 = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 6);
-    
+
     if (digits.length > 0) {
       const newOtp = Array(6).fill("");
       for (let i = 0; i < digits.length && i < 6; i++) {
         newOtp[i] = digits[i];
       }
       setOtp(newOtp);
-      
+
       const focusIndex = Math.min(digits.length, 5);
       setTimeout(() => {
         auth2FAInputRefs.current[focusIndex]?.focus();
@@ -1215,14 +1247,14 @@ const LoginDesign1 = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 4);
-    
+
     if (digits.length > 0) {
       const newMpin = Array(4).fill("");
       for (let i = 0; i < digits.length && i < 4; i++) {
         newMpin[i] = digits[i];
       }
       setMpin(newMpin);
-      
+
       const focusIndex = Math.min(digits.length, 3);
       setTimeout(() => {
         refs.current[focusIndex]?.focus();
@@ -1253,14 +1285,14 @@ const LoginDesign1 = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 4);
-    
+
     if (digits.length > 0) {
       const newMpinArray = Array(4).fill("");
       for (let i = 0; i < digits.length && i < 4; i++) {
         newMpinArray[i] = digits[i];
       }
       setNewMpin(newMpinArray);
-      
+
       const focusIndex = Math.min(digits.length, 3);
       setTimeout(() => {
         if (focusIndex === 3) {
@@ -1292,14 +1324,14 @@ const LoginDesign1 = () => {
     e.preventDefault();
     const pastedData = e.clipboardData.getData("text");
     const digits = pastedData.replace(/\D/g, "").slice(0, 4);
-    
+
     if (digits.length > 0) {
       const newConfirmMpin = Array(4).fill("");
       for (let i = 0; i < digits.length && i < 4; i++) {
         newConfirmMpin[i] = digits[i];
       }
       setConfirmMpin(newConfirmMpin);
-      
+
       const focusIndex = Math.min(digits.length, 3);
       setTimeout(() => {
         refs.current[focusIndex]?.focus();
@@ -1318,13 +1350,12 @@ const LoginDesign1 = () => {
       return;
     }
     try {
-      const locationIPData = await getLocationAndIP();
       const companyId = company?._id || company?.id || company?.companyId;
       const payload = {
         mpin: finalMpin,
-        latitude: locationIPData.location.latitude || "",
-        longitude: locationIPData.location.longitude || "",
-        ipAddress: locationIPData.ip || "",
+        latitude: locationData.latitude || "",
+        longitude: locationData.longitude || "",
+        ipAddress: locationData.ipAddress || "",
       };
       dispatch(verifyMPIN(payload, companyId));
     } catch (error) {
@@ -1339,7 +1370,7 @@ const LoginDesign1 = () => {
   const handleSetMpinSubmit = async () => {
     const finalNewMpin = newMpin.join("");
     const finalConfirmMpin = confirmMpin.join("");
-    
+
     if (finalNewMpin.length !== 4) {
       showNotification({
         type: "error",
@@ -1347,7 +1378,7 @@ const LoginDesign1 = () => {
       });
       return;
     }
-    
+
     if (finalNewMpin !== finalConfirmMpin) {
       showNotification({
         type: "error",
@@ -1355,16 +1386,15 @@ const LoginDesign1 = () => {
       });
       return;
     }
-    
+
     try {
-      const locationIPData = await getLocationAndIP();
       const companyId = company?._id || company?.id || company?.companyId;
       const payload = {
         newMPIN: finalNewMpin,
         confirmMPIN: finalConfirmMpin,
-        latitude: locationIPData.location.latitude || "",
-        longitude: locationIPData.location.longitude || "",
-        ipAddress: locationIPData.ip || "",
+        latitude: locationData.latitude || "",
+        longitude: locationData.longitude || "",
+        ipAddress: locationData.ipAddress || "",
       };
       dispatch(setMPIN(payload, companyId));
     } catch (error) {
@@ -1379,10 +1409,10 @@ const LoginDesign1 = () => {
   return (
     <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
       {/* Hidden preload image to ensure gmaxepay.png is used immediately and avoid browser warning */}
-      <img 
-        src="/img/gmaxepay.png" 
-        alt="" 
-        className="hidden" 
+      <img
+        src="/img/gmaxepay.png"
+        alt=""
+        className="hidden"
         aria-hidden="true"
         fetchpriority="high"
       />
@@ -1481,7 +1511,7 @@ const LoginDesign1 = () => {
           onMpinPaste={handleMpinPaste}
           onSubmit={handleVerifyMpinSubmit}
           mpinInputRefs={mpinInputRefs}
-        onForgotMpinSubmit={handleForgotMpinSubmit}
+          onForgotMpinSubmit={handleForgotMpinSubmit}
         />
       )}
 
