@@ -185,7 +185,7 @@ const OnBoardingAepsTwo = () => {
   }
   // Show AepsAcceptance only when button is clicked
   if (showAcceptance) {
-    return <AepsAcceptanceTwo />;
+    return <AepsAcceptanceTwo onBack={() => setShowAcceptance(false)} />;
   }
   return (
     <div className="w-full py-4 px-1">

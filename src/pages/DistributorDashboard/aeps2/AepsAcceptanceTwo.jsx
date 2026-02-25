@@ -15,7 +15,7 @@ import {
 } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
-const AepsAcceptanceTwo = () => {
+const AepsAcceptanceTwo = ({ onBack: onBackProp }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [accepted, setAccepted] = useState(true);
@@ -26,14 +26,15 @@ const AepsAcceptanceTwo = () => {
   const [showFAVerification, setShowFAVerification] = useState(false);
   const [showAccessConfirm, setShowAccessConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const onBack = () => navigate("/retailerDashboard/services/aeps2/onboarding");
+  const onBack =
+    onBackProp || (() => navigate("/retailerDashboard/services/aeps2/onboarding"));
 
   const handleAcceptAndContinue = async () => {
     setIsLoading(true);
     try {
       // First call AEPS onboarding for AEPS-2
       const onboardResp = await dispatch(aepsOnboarding());
-     // console.log("aepsOnboarding response:", onboardResp);
+      // console.log("aepsOnboarding response:", onboardResp);
 
       // If onboarding succeeded, check status first
       if (onboardResp?.status === "SUCCESS") {
