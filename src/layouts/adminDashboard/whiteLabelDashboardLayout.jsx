@@ -128,12 +128,12 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       if (logoutPromise && typeof logoutPromise.then === "function") {
         await logoutPromise;
       }
-      // Navigate to login after logout completes
-      window.location.href = "/auth/login";
+      // Navigate to root after logout completes - InitialRoute will handle redirection
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if logout fails, redirect to login (storage is cleared by logOut function)
-      window.location.href = "/auth/login";
+      // Even if logout fails, redirect to root (storage is cleared by logOut function)
+      window.location.href = "/";
     }
   };
 
@@ -309,8 +309,8 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                 <div
                   onClick={() => handleMenuClick(name, dropdown, path)}
                   className={`flex items-center justify-between gap-3 py-3 px-4 rounded-lg cursor-pointer transition-all duration-200 font-[Gilroy-Medium] ${isActiveParent
-                      ? "bg-[#039155] text-white shadow-md"
-                      : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
+                    ? "bg-[#039155] text-white shadow-md"
+                    : "text-gray-700 hover:bg-[#039155]/10 hover:text-[#039155]"
                     }`}
                 >
                   <div className="flex items-center gap-3">
@@ -361,8 +361,8 @@ const WhiteLabelDashboardLayout = ({ children }) => {
                             key={child.name}
                             to={child.path}
                             className={`flex items-center gap-2 py-2 px-3 text-md rounded-md transition-all duration-200 ${isChildPathActive
-                                ? "text-[#039155] font-[Gilroy-Semibold]"
-                                : "text-gray-700"
+                              ? "text-[#039155] font-[Gilroy-Semibold]"
+                              : "text-gray-700"
                               }`}
                           >
                             <svg

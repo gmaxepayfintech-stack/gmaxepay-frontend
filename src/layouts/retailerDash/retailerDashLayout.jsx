@@ -222,12 +222,12 @@ const RetailerDashLayout = ({ children }) => {
       if (logoutPromise && typeof logoutPromise.then === "function") {
         await logoutPromise;
       }
-      // Navigate to login after logout completes
-      window.location.href = "/auth/login";
+      // Navigate to root after logout completes - InitialRoute will handle redirection
+      window.location.href = "/";
     } catch (error) {
       console.error("Logout error:", error);
-      // Even if logout fails, redirect to login (storage is cleared by logOut function)
-      window.location.href = "/auth/login";
+      // Even if logout fails, redirect to root (storage is cleared by logOut function)
+      window.location.href = "/";
     }
   };
 
