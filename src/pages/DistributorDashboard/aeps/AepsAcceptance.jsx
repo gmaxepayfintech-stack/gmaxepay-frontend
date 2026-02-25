@@ -15,7 +15,7 @@ import {
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 
-const AepsAcceptance = () => {
+const AepsAcceptance = ({ onBack: onBackProp }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const { aepsStatus } = useSelector((state) => state.aeps || {});
@@ -23,7 +23,8 @@ const AepsAcceptance = () => {
   const [showIdentityVerification, setShowIdentityVerification] =
     useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const onBack = () => navigate("/distributerDashboard/onboarding-aeps");
+  const onBack =
+    onBackProp || (() => navigate("/distributerDashboard/services"));
 
   // Call aepsStatusCheck on component mount
   useEffect(() => {
@@ -237,7 +238,7 @@ const AepsAcceptance = () => {
           <span className="font-['Gilroy-Medium'] text-[#1B1717]">
             Last Updated:
           </span>{" "}
-          October 24, 2023
+          February 25, 2026
         </div>
 
         <div className=" text-[14px] text-[#1B1717] font-['Gilroy-Regular'] leading-relaxed">
