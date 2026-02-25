@@ -2,9 +2,8 @@ import { useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
-import { aepsStatusCheck } from "../../redux/action/aepsAction";
+import BBPSServices from "./services/BBPSServices";
 import DTHRecharge from "./services/DTHRecharge";
-import MobileRecharge from "./services/MobileRecharge";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -16,7 +15,8 @@ const servicesData = [
     status: "available",
     logo: "/img/MobileRecharge.svg",
   },
-  { id: "Aeps", title: "AEPS", status: "available", logo: "/img/AEPS.svg" },
+  { id: "Aeps-1", title: "AEPS-1", status: "available", logo: "/img/AEPS.svg" },
+  { id: "Aeps-2", title: "AEPS-2", status: "available", logo: "/img/AEPS.svg" },
   { id: "BBPS", title: "BBPS", status: "available", logo: "/img/BBPS.svg" },
   {
     id: "dth-recharge",
@@ -27,16 +27,16 @@ const servicesData = [
   { id: "dmt-1", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
   { id: "dmt-2", title: "DMT-2", status: "available", logo: "/img/DMT.svg" },
   {
-    id: "pan",
-    title: "PAN",
-    status: "available",
-    logo: "/img/PanCorrection.svg",
-  },
-  {
     id: "micro-atm",
     title: "Micro ATM",
     status: "available",
     logo: "/img/MATM.svg",
+  },
+  {
+    id: "pan",
+    title: "PAN",
+    status: "available",
+    logo: "/img/PanCorrection.svg",
   },
   { id: "cms-1", title: "CMS-1", status: "available", logo: "/img/CMS.svg" },
   { id: "cms-2", title: "CMS-2", status: "available", logo: "/img/CMS.svg" },
@@ -49,13 +49,29 @@ const servicesData = [
   { id: "dmt", title: "DMT", status: "available", logo: "/img/DMT.svg" },
   { id: "dmt-11", title: "DMT-1", status: "available", logo: "/img/DMT.svg" },
   {
+    id: "pan",
+    title: "Pan Card Creation",
+    status: "subscribed",
+    logo: "/img/PanCorrection.svg",
+  },
+  {
     id: "aeps-cash-deposit",
     title: "AEPS Cash Deposit",
     status: "subscribed",
     logo: "/img/AEPS.svg",
   },
-  // { id: "indo-nepal-dmt", title: "Indo-Nepal DMT", status: "subscribed" },
-  { id: "toto-play", title: "Tata Play Connection", status: "subscribed" },
+  // {
+  //   id: "indo-nepal-dmt",
+  //   title: "Indo-Nepal DMT",
+  //   status: "subscribed",
+  //   logo: "/img/DMT.svg",
+  // },
+  {
+    id: "dth-recharge",
+    title: "Tata Play Connection",
+    status: "subscribed",
+    logo: "/img/TataPlay.svg",
+  },
 ].map((s) => ({ ...s, description: DEFAULT_DESCRIPTION }));
 
 const ServiceCard = ({ title, description, onClick, logo, status }) => {
@@ -66,7 +82,7 @@ const ServiceCard = ({ title, description, onClick, logo, status }) => {
     <button
       type="button"
       onClick={onClick}
-      className="bg-[#FFFFFF] rounded-2xl shadow-sm  px-6 py-4 min-h-[182px] relative text-left hover:shadow-md transition"
+      className="bg-[#FFFFFF] rounded-2xl shadow-sm px-6 py-4 min-h-[182px] relative text-left hover:shadow-md transition"
     >
       <div className="flex gap-3">
         <div className="w-[60px] h-[60px] rounded-full bg-[#DBEAFE] flex items-center justify-center shrink-0">
@@ -77,7 +93,7 @@ const ServiceCard = ({ title, description, onClick, logo, status }) => {
           />
         </div>
         <div className="min-w-0 flex flex-col justify-center">
-          <div className="text-[18px] font-['Gilroy-Medium'] text-[#1B1717] capitalize">
+          <div className="text-lg font-['Gilroy-Medium'] text-[#1B1717] capitalize">
             {title}
           </div>
           <div className="mt-[10px] text-xs text-[#1B1717] font-['Gilroy-Regular'] leading-relaxed line-clamp-4 capitalize">
@@ -99,9 +115,8 @@ ServiceCard.propTypes = {
 
 const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
+  const [showBBPSServices, setShowBBPSServices] = useState(false);
   const [showDTHRecharge, setShowDTHRecharge] = useState(false);
-  const [showMobileRecharge, setShowMobileRecharge] = useState(false);
-
   const navigate = useNavigate();
 
   // Note: Status check only happens when AEPS card is clicked, not mount
@@ -111,37 +126,45 @@ const Services = () => {
     return servicesData.filter((s) => s.status === key);
   }, [activeTab]);
 
-  // Handle AEPS card click - always navigate to onboarding-aeps route
-  // The OnBoardingAeps component will handle all status checks and component rendering
+  // Handle AEPS-1 card click - always navigate to services/aeps1/onboarding route
   const handleAepsClick = () => {
-    // Always navigate to onboarding-aeps - let that component handle everything
-    navigate("/retailerDashboard/onboarding-aeps");
+    navigate("/distributerDashboard/services/aeps1/onboarding");
   };
-  const handleBbpsClick = () => {
+
+  // Handle BBPS card click - show BBPS services component
+  const handleBBPSClick = () => {
     navigate("/distributerDashboard/services/bbps-services");
+    setShowBBPSServices(true);
   };
 
+  // Handle AEPS-2 card click - navigate to services/aeps2/onboarding route
+  const handleAepsTwoClick = () => {
+    navigate("/distributerDashboard/services/aeps2/onboarding");
+  };
+
+  // Handle Recharge card click - navigate to recharge route
   const handleMobileRechargeClick = () => {
-    setShowMobileRecharge(true);
+    navigate("/distributerDashboard/services/recharge");
   };
-
 
   const handleDTHRechargeClick = () => {
     setShowDTHRecharge(true);
   };
 
-  if (showDTHRecharge) {
-    return <DTHRecharge onBack={() => setShowDTHRecharge(false)} />;
-  }
-
-  if (showMobileRecharge) {
-    return <MobileRecharge onBack={() => setShowMobileRecharge(false)} />;
-  }
-
-    // Handle PAN card click - navigate to pan-service route
+  // Handle PAN card click - navigate to pan-service route
   const handlePANClick = () => {
     navigate("/distributerDashboard/services/pan-service");
   };
+
+  // If BBPS services should be shown, render that component
+  if (showBBPSServices) {
+    return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
+  }
+
+  // If DTH Recharge should be shown, render that component
+  if (showDTHRecharge) {
+    return <DTHRecharge onBack={() => setShowDTHRecharge(false)} />;
+  }
 
   return (
     <div className="w-full py-4 px-3">
@@ -161,22 +184,20 @@ const Services = () => {
           <button
             type="button"
             onClick={() => setActiveTab("Available")}
-            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
-              activeTab === "Available"
-                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
-                : "text-gray-700 hover:bg-gray-50"
-            }`}
+            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Available"
+              ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
+              : "text-gray-700 hover:bg-gray-50"
+              }`}
           >
             Available
           </button>
           <button
             type="button"
             onClick={() => setActiveTab("Subscribed")}
-            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${
-              activeTab === "Subscribed"
-                ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
-                : "text-[#1B1717] hover:bg-gray-50"
-            }`}
+            className={`px-6 py-3 rounded-lg text-[14px] font-['Gilroy-Medium'] transition ${activeTab === "Subscribed"
+              ? "bg-[#039155] text-white shadow-sm font-[Gilroy-Semibold]"
+              : "text-[#1B1717] hover:bg-gray-50"
+              }`}
           >
             Subscribed
           </button>
@@ -202,10 +223,12 @@ const Services = () => {
             onClick={() => {
               if (s.id === "mobile-dth") {
                 handleMobileRechargeClick();
-              } else if (s.id === "Aeps") {
+              } else if (s.id === "Aeps-1") {
                 handleAepsClick();
-              } else if (s.id === "BBPS") {
-                handleBbpsClick();
+              } else if (s.id === "Aeps-2") {
+                handleAepsTwoClick();
+              } else if (s.id === "BBPS" || s.id === "bbps") {
+                handleBBPSClick();
               } else if (s.id === "dth-recharge") {
                 handleDTHRechargeClick();
               } else if (s.id === "pan") {
@@ -220,3 +243,4 @@ const Services = () => {
 };
 
 export default Services;
+
