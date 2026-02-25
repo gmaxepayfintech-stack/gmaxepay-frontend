@@ -2,6 +2,8 @@ import { Routes, Route } from "react-router-dom";
 import DistributorLayout from "./DistributorLayout";
 import DistDashboard from "../../pages/DistributorDashboard/DistDashboard";
 import OnBoardingAeps from "../../pages/DistributorDashboard/aeps/onBoardingAeps";
+import OnBoardingAepsTwo from "../../pages/DistributorDashboard/aeps2/onBoardingAepsTwo";
+import SelectserviceTwo from "../../pages/DistributorDashboard/aeps2/SelectserviceTwo";
 import WalletLoad from "../../pages/DistributorDashboard/fundManagement/WalletLoad";
 import FundRequest from "../../pages/DistributorDashboard/fundManagement/FundRequest";
 import Subscription from "../../pages/DistributorDashboard/Resources/Subscription";
@@ -13,8 +15,10 @@ import TaxHistory from "../../pages/DistributorDashboard/TaxHistory";
 import Services from "../../pages/DistributorDashboard/Services";
 import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
 import PanService from "../../pages/DistributorDashboard/services/PanService";
+import MobileRecharge from "../../pages/DistributorDashboard/services/MobileRecharge";
 import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaster";
 import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
+
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -24,6 +28,16 @@ const DistributorDashboard = () => {
         <Route path="/profile" element={<DistributerProfile />} />
         <Route path="/aeps" element={<OnBoardingAeps />} />
         <Route path="/services" element={<Services />} />
+        <Route path="/services/recharge" element={<MobileRecharge />} />
+        <Route path="/services/aeps1/onboarding" element={<OnBoardingAeps />} />
+        <Route
+          path="/services/aeps2/onboarding"
+          element={<OnBoardingAepsTwo />}
+        />
+        <Route
+          path="/services/aeps2/select-service"
+          element={<SelectserviceTwo />}
+        />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
         <Route path="/services/pan-service" element={<PanService />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
@@ -41,3 +55,4 @@ const DistributorDashboard = () => {
 };
 
 export default DistributorDashboard;
+
