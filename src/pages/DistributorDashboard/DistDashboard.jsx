@@ -232,7 +232,7 @@ const DistDashboard = () => {
   // KPI Cards from dashboard statistics
   const kpiCards = [
     {
-      title: "Distributor",
+      title: "Retailers",
       value: userDashboardStatisticsResponse?.data?.downlineCount ?? "0",
       subtitle: `Today Member + ${userDashboardStatisticsResponse?.data?.todayJoinedDownlineCount ?? 0}`,
       icon: Distributor,
