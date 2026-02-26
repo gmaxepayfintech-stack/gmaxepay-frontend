@@ -192,33 +192,39 @@ const ContactSupport = () => {
                             </div>
                         )}
 
-                        {/* Add new phone */}
-                        <div className="flex items-center gap-3">
-                            <div className="flex-1 flex items-center gap-2 border border-gray-300 rounded-2xl px-4 py-2 bg-gray-50 focus-within:border-[#039155] focus-within:ring-1 focus-within:ring-[#039155] transition">
-                                <Phone className="w-4 h-4 text-gray-400 shrink-0" />
-                                <input
-                                    type="text"
-                                    maxLength={10}
-                                    placeholder="Enter 10-digit phone number"
-                                    value={newPhone}
-                                    onChange={(e) => setNewPhone(e.target.value.replace(/\D/g, ""))}
-                                    onKeyDown={(e) => e.key === "Enter" && handleAddPhone()}
-                                    className="flex-1 bg-transparent outline-none text-sm font-[Gilroy-Medium] text-[#1B1717] placeholder:text-gray-400"
-                                />
+                        {/* Add new phone — hidden when limit reached */}
+                        {phoneNumbers.length >= 2 ? (
+                            <p className="text-xs font-[Gilroy-Medium] text-amber-600 bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5">
+                                ⚠️ Maximum 2 support phone numbers are allowed. Delete one to add a new number.
+                            </p>
+                        ) : (
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 flex items-center gap-2 border border-gray-300 rounded-2xl px-4 py-2 bg-gray-50 focus-within:border-[#039155] focus-within:ring-1 focus-within:ring-[#039155] transition">
+                                    <Phone className="w-4 h-4 text-gray-400 shrink-0" />
+                                    <input
+                                        type="text"
+                                        maxLength={10}
+                                        placeholder="Enter 10-digit phone number"
+                                        value={newPhone}
+                                        onChange={(e) => setNewPhone(e.target.value.replace(/\D/g, ""))}
+                                        onKeyDown={(e) => e.key === "Enter" && handleAddPhone()}
+                                        className="flex-1 bg-transparent outline-none text-sm font-[Gilroy-Medium] text-[#1B1717] placeholder:text-gray-400"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleAddPhone}
+                                    disabled={addingPhone}
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-[#039155] text-white text-sm font-[Gilroy-Medium] rounded-2xl hover:bg-[#027a47] transition-colors disabled:opacity-60 whitespace-nowrap"
+                                >
+                                    {addingPhone ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Plus className="w-4 h-4" />
+                                    )}
+                                    Add Phone
+                                </button>
                             </div>
-                            <button
-                                onClick={handleAddPhone}
-                                disabled={addingPhone}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-[#039155] text-white text-sm font-[Gilroy-Medium] rounded-2xl hover:bg-[#027a47] transition-colors disabled:opacity-60 whitespace-nowrap"
-                            >
-                                {addingPhone ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                    <Plus className="w-4 h-4" />
-                                )}
-                                Add Phone
-                            </button>
-                        </div>
+                        )}
                     </div>
 
                     {/* ── Email Section ────────────────────────────────── */}
