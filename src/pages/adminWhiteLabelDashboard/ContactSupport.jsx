@@ -36,8 +36,10 @@ const ContactSupport = () => {
             const res = await dispatch(helpinformationCompany());
             console.log("helpinformationCompany response:", res);
             if (res?.status === true || res?.status === "SUCCESS") {
-                setSupportEmail(res?.data?.customerSupportEmail || "");
-                setPhoneNumbers(res?.data?.supportPhoneNumbers || []);
+                // Action returns { helpinfo, status, message }
+                // helpinfo = response.data.data = { customerSupportEmail, supportPhoneNumbers }
+                setSupportEmail(res?.helpinfo?.customerSupportEmail || "");
+                setPhoneNumbers(res?.helpinfo?.supportPhoneNumbers || []);
             }
         } catch (err) {
             console.error("Fetch error:", err);
