@@ -9,7 +9,7 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { Phone, Mail, Trash2, Plus, Loader2 } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
-
+import { useCompany } from "../../context/CompanyContext";
 const ContactSupport = () => {
     const dispatch = useDispatch();
     const { showNotification } = useNotification();
@@ -34,6 +34,7 @@ const ContactSupport = () => {
         setLoading(true);
         try {
             const res = await dispatch(helpinformationCompany());
+            console.log("helpinformationCompany response:", res);
             if (res?.status === true || res?.status === "SUCCESS") {
                 setSupportEmail(res?.data?.customerSupportEmail || "");
                 setPhoneNumbers(res?.data?.supportPhoneNumbers || []);
