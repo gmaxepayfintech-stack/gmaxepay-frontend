@@ -50,7 +50,7 @@ const ContactSupport = () => {
                                 No phone numbers available.
                             </p>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {phoneNumbers.map((phone, idx) => (
                                     <div
                                         key={idx}
