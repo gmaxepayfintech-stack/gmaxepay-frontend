@@ -21,6 +21,7 @@ import subscriptionReducer from "./subscriptionReducer";
 import serviceReducer from "./serviceReducer";
 import operatorReducer from "./operatorReducer";
 import reportsReducer from "./reportsReducer";
+import helpReducer from "./helpReducer";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -45,6 +46,7 @@ const rootReducer = combineReducers({
   services: serviceReducer,
   operators: operatorReducer,
   reports: reportsReducer,
+  help: helpReducer
 });
 
 export default rootReducer;
