@@ -26,7 +26,7 @@ const ContactSupport = () => {
                     <HiArrowLeft className="text-xl text-gray-600" />
                 </button>
                 <h1 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-                    Contact Support
+                    Contact Our Team
                 </h1>
             </div>
 
@@ -36,11 +36,7 @@ const ContactSupport = () => {
                 </div>
             ) : (
                 <div className="space-y-4">
-                    <h2 className="text-xl font-[Gilroy-Medium] text-[#1B1717]">
-                        Contact Our Team
-                    </h2>
-
-                    <div className="flex flex-wrap gap-4">
+                    <div className="flex flex-wrap gap-4 pt-2">
                         {/* Call Support Cards */}
                         {phoneNumbers.map((phone, idx) => (
                             <div
