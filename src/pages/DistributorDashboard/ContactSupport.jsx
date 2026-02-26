@@ -35,67 +35,48 @@ const ContactSupport = () => {
                     <Loader2 className="w-8 h-8 animate-spin text-[#039155]" />
                 </div>
             ) : (
-                <>
-                    {/* ── Phone Numbers Section ────────────────────────── */}
-                    <div className="bg-white rounded-3xl shadow-sm p-5 space-y-4">
-                        <div className="flex items-center gap-2">
-                            <span className="p-2 bg-green-50 rounded-xl">
-                                <Phone className="w-5 h-5 text-[#039155]" />
-                            </span>
-                            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-                                Support Phone Numbers
-                            </h3>
-                        </div>
+                <div className="space-y-4">
+                    <h2 className="text-xl font-[Gilroy-Medium] text-[#1B1717]">
+                        Contact Our Team
+                    </h2>
 
-                        {phoneNumbers.length === 0 ? (
-                            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/50">
-                                No phone numbers available.
-                            </p>
-                        ) : (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                {phoneNumbers.map((phone, idx) => (
-                                    <div
-                                        key={idx}
-                                        className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3"
-                                    >
-                                        <Phone className="w-4 h-4 text-[#039155]" />
-                                        <span className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
-                                            +91 {phone}
-                                        </span>
-                                    </div>
-                                ))}
+                    <div className="flex flex-wrap gap-4">
+                        {/* Call Support Cards */}
+                        {phoneNumbers.map((phone, idx) => (
+                            <div
+                                key={idx}
+                                className="bg-white rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 flex items-center gap-4 min-w-[280px] flex-1 max-w-sm"
+                            >
+                                <div className="w-12 h-12 shrink-0 bg-[#E6F8EF] rounded-full flex items-center justify-center">
+                                    <Phone className="w-5 h-5 text-[#039155]" />
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Call Support</p>
+                                    <p className="text-xl mt-0.5 font-[Gilroy-SemiBold] text-[#1B1717] truncate">{phone}</p>
+                                </div>
+                            </div>
+                        ))}
+
+                        {/* Email Support Card */}
+                        {supportEmail && (
+                            <div className="bg-white rounded-[20px] shadow-[0_2px_10px_rgba(0,0,0,0.04)] p-6 flex items-center gap-4 min-w-[280px] flex-1 max-w-sm">
+                                <div className="w-12 h-12 shrink-0 bg-[#E6F8EF] rounded-full flex items-center justify-center">
+                                    <Mail className="w-5 h-5 text-[#039155]" />
+                                </div>
+                                <div className="overflow-hidden">
+                                    <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">Email Support</p>
+                                    <p className="text-xl mt-0.5 font-[Gilroy-SemiBold] text-[#1B1717] truncate">{supportEmail}</p>
+                                </div>
                             </div>
                         )}
-                    </div>
 
-                    {/* ── Email Section ────────────────────────────────── */}
-                    <div className="bg-white rounded-3xl shadow-sm p-5 space-y-4">
-                        <div className="flex items-center gap-2">
-                            <span className="p-2 bg-blue-50 rounded-xl">
-                                <Mail className="w-5 h-5 text-blue-500" />
-                            </span>
-                            <h3 className="text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-                                Support Email
-                            </h3>
-                        </div>
-
-                        {supportEmail ? (
-                            <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3">
-                                <Mail className="w-4 h-4 text-blue-500" />
-                                <span className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
-                                    {supportEmail}
-                                </span>
-                                <span className="ml-auto text-xs font-[Gilroy-Medium] px-2 py-0.5 bg-green-100 text-[#039155] rounded-full">
-                                    Active
-                                </span>
-                            </div>
-                        ) : (
-                            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/50">
-                                No support email configured.
+                        {phoneNumbers.length === 0 && !supportEmail && (
+                            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/50 py-4 px-2">
+                                No contact support information available yet.
                             </p>
                         )}
                     </div>
-                </>
+                </div>
             )}
         </div>
     );
