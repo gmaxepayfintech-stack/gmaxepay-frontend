@@ -164,7 +164,7 @@ const ContactSupport = () => {
                                 No phone numbers added yet.
                             </p>
                         ) : (
-                            <div className="space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {phoneNumbers.map((phone, idx) => (
                                     <div
                                         key={idx}
@@ -238,48 +238,52 @@ const ContactSupport = () => {
                             </h3>
                         </div>
 
-                        {/* Current email */}
-                        {supportEmail ? (
-                            <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3">
-                                <Mail className="w-4 h-4 text-blue-500" />
-                                <span className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
-                                    {supportEmail}
-                                </span>
-                                <span className="ml-auto text-xs font-[Gilroy-Medium] px-2 py-0.5 bg-green-100 text-[#039155] rounded-full">
-                                    Active
-                                </span>
-                            </div>
-                        ) : (
-                            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/50">
-                                No support email configured yet.
-                            </p>
-                        )}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Current email */}
+                            {supportEmail ? (
+                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-2xl px-4 py-3">
+                                    <Mail className="w-4 h-4 text-blue-500" />
+                                    <span className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
+                                        {supportEmail}
+                                    </span>
+                                    <span className="ml-auto text-xs font-[Gilroy-Medium] px-2 py-0.5 bg-green-100 text-[#039155] rounded-full">
+                                        Active
+                                    </span>
+                                </div>
+                            ) : (
+                                <div className="flex items-center h-full px-4 py-3 bg-gray-50 border border-dashed border-gray-300 rounded-2xl">
+                                    <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]/50">
+                                        No support email configured yet.
+                                    </p>
+                                </div>
+                            )}
 
-                        {/* Update email */}
-                        <div className="flex items-center gap-3">
-                            <div className="flex-1 flex items-center gap-2 border border-gray-300 rounded-2xl px-4 py-2 bg-gray-50 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition">
-                                <Mail className="w-4 h-4 text-gray-400 shrink-0" />
-                                <input
-                                    type="email"
-                                    placeholder="Enter support email address"
-                                    value={newEmail}
-                                    onChange={(e) => setNewEmail(e.target.value)}
-                                    onKeyDown={(e) => e.key === "Enter" && handleUpdateEmail()}
-                                    className="flex-1 bg-transparent outline-none text-sm font-[Gilroy-Medium] text-[#1B1717] placeholder:text-gray-400"
-                                />
+                            {/* Update email */}
+                            <div className="flex items-center gap-3">
+                                <div className="flex-1 flex items-center gap-2 border border-gray-300 rounded-2xl px-4 py-2 bg-gray-50 focus-within:border-blue-400 focus-within:ring-1 focus-within:ring-blue-400 transition">
+                                    <Mail className="w-4 h-4 text-gray-400 shrink-0" />
+                                    <input
+                                        type="email"
+                                        placeholder="Enter support email address"
+                                        value={newEmail}
+                                        onChange={(e) => setNewEmail(e.target.value)}
+                                        onKeyDown={(e) => e.key === "Enter" && handleUpdateEmail()}
+                                        className="flex-1 bg-transparent outline-none text-sm font-[Gilroy-Medium] text-[#1B1717] placeholder:text-gray-400 min-w-0"
+                                    />
+                                </div>
+                                <button
+                                    onClick={handleUpdateEmail}
+                                    disabled={addingEmail}
+                                    className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white text-sm font-[Gilroy-Medium] rounded-2xl hover:bg-blue-600 transition-colors disabled:opacity-60 whitespace-nowrap h-full"
+                                >
+                                    {addingEmail ? (
+                                        <Loader2 className="w-4 h-4 animate-spin" />
+                                    ) : (
+                                        <Mail className="w-4 h-4" />
+                                    )}
+                                    {supportEmail ? "Update" : "Add"}
+                                </button>
                             </div>
-                            <button
-                                onClick={handleUpdateEmail}
-                                disabled={addingEmail}
-                                className="flex items-center gap-2 px-5 py-2.5 bg-blue-500 text-white text-sm font-[Gilroy-Medium] rounded-2xl hover:bg-blue-600 transition-colors disabled:opacity-60 whitespace-nowrap"
-                            >
-                                {addingEmail ? (
-                                    <Loader2 className="w-4 h-4 animate-spin" />
-                                ) : (
-                                    <Mail className="w-4 h-4" />
-                                )}
-                                {supportEmail ? "Update Email" : "Add Email"}
-                            </button>
                         </div>
                     </div>
                 </>
