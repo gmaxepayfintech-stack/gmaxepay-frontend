@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { useCompany } from "../../context/CompanyContext";
+import React, { useEffect } from 'react';
+import { useCompany } from '../../context/CompanyContext';
 import { HiArrowLeft } from "react-icons/hi2";
 import { Phone, Mail, Loader2 } from "lucide-react";
 

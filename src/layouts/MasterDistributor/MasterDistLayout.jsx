@@ -226,7 +226,7 @@ const MasterDistLayout = ({ children }) => {
       ],
     },
      {
-      name: "Contact Support",
+      name: "Help",
       icon: MaskGroup3,
       dropdown: true,
       children: [

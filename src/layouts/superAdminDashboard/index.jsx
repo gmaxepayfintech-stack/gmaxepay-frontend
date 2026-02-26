@@ -15,6 +15,7 @@ import NWoverview from "../../pages/superAdminDashboard/NW-Overview";
 import SuperAdminProfile from "../../pages/superAdminDashboard/superAdminProfile";
 import ServiceSetting from "../../pages/superAdminDashboard/serviceSetting";
 import OperatorSetting from "../../pages/superAdminDashboard/operatorSetting";
+import ContactSupport from "../../pages/superAdminDashboard/ContactSupport";
 
 const SuperAdminDashboard = () => {
   return (
@@ -44,6 +45,7 @@ const SuperAdminDashboard = () => {
           path="/api-operator/operator-settings"
           element={<OperatorSetting />}
         />
+        <Route path="/contact-support" element={<ContactSupport />} />
       </Routes>
     </DashboardLayout>
   );
