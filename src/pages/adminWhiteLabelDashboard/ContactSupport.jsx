@@ -10,8 +10,10 @@ import { HiArrowLeft } from "react-icons/hi2";
 import { Phone, Mail, Trash2, Plus, Loader2 } from "lucide-react";
 import { useNotification } from "../../context/NotificationContext";
 import { useCompany } from "../../context/CompanyContext";
+import { useNavigate } from "react-router-dom";
 const ContactSupport = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { showNotification } = useNotification();
 
     const [supportEmail, setSupportEmail] = useState("");
@@ -131,7 +133,7 @@ const ContactSupport = () => {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => globalThis.history?.back()}
+                    onClick={() => navigate("/adminDashboard/home")}
                     className="rounded-full p-2 bg-white border border-gray-400"
                 >
                     <HiArrowLeft className="text-xl text-gray-600" />

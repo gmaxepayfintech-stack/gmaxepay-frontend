@@ -2,8 +2,10 @@ import React, { useEffect } from 'react';
 import { useCompany } from '../../context/CompanyContext';
 import { HiArrowLeft } from "react-icons/hi2";
 import { Phone, Mail, Loader2 } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const ContactSupport = () => {
+    const navigate = useNavigate();
     const { company, loading } = useCompany();
 
     useEffect(() => {
@@ -18,7 +20,7 @@ const ContactSupport = () => {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => globalThis.history?.back()}
+                    onClick={() => navigate('/retailerDashboard/home')}
                     className="rounded-full p-2 bg-white border border-gray-400"
                 >
                     <HiArrowLeft className="text-xl text-gray-600" />
