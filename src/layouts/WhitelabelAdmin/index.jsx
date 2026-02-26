@@ -11,6 +11,7 @@ import Subscription from "../../pages/adminWhiteLabelDashboard/resources/Subscri
 import TaxHistory from "../../pages/adminWhiteLabelDashboard/taxHistoryAdmin/TaxHistory";
 import AdminProfile from "../../pages/adminWhiteLabelDashboard/adminProfile";
 import Settings from "../../pages/adminWhiteLabelDashboard/settings";
+import ContactSupport from "../../pages/adminWhiteLabelDashboard/ContactSupport";
 
 const WhitelabelAdmin = () => {
   return (
@@ -32,6 +33,7 @@ const WhitelabelAdmin = () => {
         <Route path="/tax-history/list" element={<TaxHistory />} />
         <Route path="/txn-history" element={<TaxHistory />} />
         <Route path="/settings" element={<Settings />} />
+        <Route path="/contact-support" element={<ContactSupport />} />
       </Routes>
     </WhiteLabelDashboardLayout>
   );

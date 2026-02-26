@@ -10,7 +10,6 @@ import { logOut } from "../../redux/action/loginAction";
 import { getGreeting } from "../../utils/getGreeting";
 
 const MaskGroup = "/img/Maskgroup.png";
-const MaskGroup1 = "/img/Maskgroup1.png";
 const MaskGroup2 = "/img/Maskgroup2.png";
 const MaskGroup3 = "/img/Maskgroup3.png";
 const MaskGroup4 = "/img/Maskgroup4.png";
@@ -242,10 +241,10 @@ const DistributorLayout = ({ children }) => {
           name: "Contact Support",
           path: "/distributerDashboard/contact-support",
         },
-        {
-          name: "Complaints",
-          path: "/distributerDashboard/complaints",
-        },
+        // {
+        //   name: "Complaints",
+        //   path: "/distributerDashboard/complaints",
+        // },
       ],
     },
   ];

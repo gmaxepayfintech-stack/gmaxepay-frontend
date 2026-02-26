@@ -132,6 +132,18 @@ const DashboardLayout = ({ children }) => {
       path: "/superDashboard/txn-history",
       dropdown: false,
     },
+
+    {
+      name: "Help",
+      icon: MaskGroup3,
+      dropdown: true,
+      children: [
+        {
+          name: "Contact Support",
+          path: "/superDashboard/contact-support",
+        },
+      ],
+    },
   ];
 
   // Fetch admin details on component mount

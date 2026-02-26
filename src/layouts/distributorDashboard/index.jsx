@@ -18,6 +18,7 @@ import PanService from "../../pages/DistributorDashboard/services/PanService";
 import MobileRecharge from "../../pages/DistributorDashboard/services/MobileRecharge";
 import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaster";
 import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
+import ContactSupport from "../../pages/DistributorDashboard/ContactSupport";
 
 const DistributorDashboard = () => {
   return (
@@ -49,6 +50,7 @@ const DistributorDashboard = () => {
         <Route path="/reports/earning" element={<EarningReport />} />
         <Route path="/reports/nw-overview" element={<NWoverview />} />
         <Route path="/tax-history" element={<TaxHistory />} />
+        <Route path="/contact-support" element={<ContactSupport />} />
       </Routes>
     </DistributorLayout>
   );

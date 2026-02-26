@@ -225,6 +225,17 @@ const MasterDistLayout = ({ children }) => {
         // },
       ],
     },
+     {
+      name: "Help",
+      icon: MaskGroup3,
+      dropdown: true,
+      children: [
+        {
+          name: "Contact Support",
+          path: `${BASE_PATH}/contact-support`,
+        }
+      ],
+    },
     // {
     //   name: "Reports",
     //   icon: MaskGroup5,
