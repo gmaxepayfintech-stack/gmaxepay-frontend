@@ -90,7 +90,7 @@ const TaxHistory = () => {
     {
       id: 5,
       title: "AEPS 1 BE History",
-      subtitle: "Balance Enquiry",
+      subtitle: "AEPS 1 BE History",
       available: true,
       viewKey: "aeps1-be-history",
       category: "Banking",
@@ -98,7 +98,7 @@ const TaxHistory = () => {
     {
       id: 6,
       title: "AEPS 2 BE History",
-      subtitle: "Balance Enquiry",
+      subtitle: "AEPS 2 BE History",
       available: true,
       viewKey: "aeps2-be-history",
       category: "Banking",
@@ -106,7 +106,7 @@ const TaxHistory = () => {
     {
       id: 7,
       title: "Payout History",
-      subtitle: "Balance Enquiry",
+      subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
       category: "Banking",
@@ -114,7 +114,7 @@ const TaxHistory = () => {
     {
       id: 8,
       title: "Wallet History",
-      subtitle: "Balance Enquiry",
+      subtitle: "Wallet History",
       available: true,
       viewKey: "wallet-history",
       category: "Finance",
