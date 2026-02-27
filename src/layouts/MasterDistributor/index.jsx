@@ -16,6 +16,7 @@ import NWoverview from "../../pages/MasterDistributorDashboard/Reports/NW-Overvi
 import BBPSServices from "../../pages/DistributorDashboard/services/BBPSServices";
 import MasterDistributerProfile from "../../pages/MasterDistributorDashboard/masterDistributerProfile";
 import ContactSupport from "../../pages/MasterDistributorDashboard/ContactSupport";
+import Complaints from "../../pages/MasterDistributorDashboard/Complaints";
 const MasterDistributor = () => {
   return (
     <MasterDistLayout>
@@ -38,6 +39,7 @@ const MasterDistributor = () => {
         <Route path="reports/nw-overview" element={<NWoverview />} />
         <Route path="tax-history" element={<TaxHistory />} />
         <Route path="contact-support" element={<ContactSupport />} />
+        <Route path="complaints" element={<Complaints />} />
       </Routes>
     </MasterDistLayout>
   );

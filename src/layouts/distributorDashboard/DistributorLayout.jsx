@@ -241,10 +241,10 @@ const DistributorLayout = ({ children }) => {
           name: "Contact Support",
           path: "/distributerDashboard/contact-support",
         },
-        // {
-        //   name: "Complaints",
-        //   path: "/distributerDashboard/complaints",
-        // },
+        {
+          name: "Complaints",
+          path: "/distributerDashboard/complaints",
+        },
       ],
     },
   ];

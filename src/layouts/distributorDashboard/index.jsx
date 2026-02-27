@@ -19,7 +19,7 @@ import MobileRecharge from "../../pages/DistributorDashboard/services/MobileRech
 import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaster";
 import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
 import ContactSupport from "../../pages/DistributorDashboard/ContactSupport";
-
+import Complaints from "../../pages/DistributorDashboard/Complaints";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -51,6 +51,7 @@ const DistributorDashboard = () => {
         <Route path="/reports/nw-overview" element={<NWoverview />} />
         <Route path="/tax-history" element={<TaxHistory />} />
         <Route path="/contact-support" element={<ContactSupport />} />
+        <Route path="/complaints" element={<Complaints />} />
       </Routes>
     </DistributorLayout>
   );
