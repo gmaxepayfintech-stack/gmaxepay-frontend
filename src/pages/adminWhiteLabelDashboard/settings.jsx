@@ -339,7 +339,7 @@ const Settings = ({ onBack }) => {
         showNotification({
           type: "success",
           message: response.message || "Favicon uploaded successfully!",
-          isCritical: false,
+          isCritical: true,
         });
         refreshCompany();
         dispatch(getCompanySettingImages({
@@ -379,7 +379,7 @@ const Settings = ({ onBack }) => {
         showNotification({
           type: "success",
           message: response.message || "Slider uploaded successfully!",
-          isCritical: false,
+          isCritical: true,
         });
         refreshCompany();
         dispatch(getCompanySettingImages({
@@ -414,6 +414,7 @@ const Settings = ({ onBack }) => {
         showNotification({
           type: "success",
           message: response.message || "Slider deleted successfully!",
+          isCritical: true,
         });
         refreshCompany();
         // Refresh local image list after success
@@ -425,6 +426,7 @@ const Settings = ({ onBack }) => {
         showNotification({
           type: "error",
           message: response?.message || "Failed to delete slider.",
+          isCritical: true,
         });
       }
     } catch (error) {
@@ -432,6 +434,7 @@ const Settings = ({ onBack }) => {
       showNotification({
         type: "error",
         message: error?.response?.data?.message || error?.message || "An unexpected error occurred while deleting slider.",
+        isCritical: true,
       });
     } finally {
       setDeletingSliderId(null);

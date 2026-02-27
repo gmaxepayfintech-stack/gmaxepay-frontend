@@ -69,7 +69,7 @@ const ContactSupport = () => {
         try {
             const res = await dispatch(addSupportPhoneCompany({ phone: trimmed }));
             if (res?.status === true || res?.status === "SUCCESS") {
-                showNotification({ type: "success", message: res?.message || "Phone number added!", isCritical: false });
+                showNotification({ type: "success", message: res?.message || "Phone number added!", isCritical: true });
                 setNewPhone("");
                 await fetchSupportInfo();
             } else {
@@ -88,7 +88,7 @@ const ContactSupport = () => {
         try {
             const res = await dispatch(deleteSupportCompany({ phone }));
             if (res?.status === true || res?.status === "SUCCESS") {
-                showNotification({ type: "success", message: res?.message || "Phone number removed!", isCritical: false });
+                showNotification({ type: "success", message: res?.message || "Phone number removed!", isCritical: true });
                 await fetchSupportInfo();
             } else {
                 showNotification({ type: "error", message: res?.message || "Failed to remove phone.", isCritical: true });
@@ -115,7 +115,7 @@ const ContactSupport = () => {
         try {
             const res = await dispatch(addSupportEmailCompany({ email: trimmed }));
             if (res?.status === true || res?.status === "SUCCESS") {
-                showNotification({ type: "success", message: res?.message || "Support email updated!", isCritical: false });
+                showNotification({ type: "success", message: res?.message || "Support email updated!", isCritical: true });
                 setNewEmail("");
                 await fetchSupportInfo();
             } else {
