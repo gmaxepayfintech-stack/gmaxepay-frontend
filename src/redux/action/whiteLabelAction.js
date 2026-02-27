@@ -180,21 +180,22 @@ export const panDataFetch = (values) => async (dispatch) => {
       }
     );
 
-    const { data: panData, message } = response?.data ?? {};
+    const { data: panData, message: outerMessage } = response?.data ?? {};
     const status = response?.data?.data?.status;
+    const innerMessage = response?.data?.data?.message || response?.data?.data?.error;
 
     if (status === "Success") {
       dispatch({
         type: GET_PANDATA_FETCH_SUCCESS,
-        payload: { panData, message, status }, // 👈 include status here
+        payload: { panData, message: innerMessage || outerMessage, status }, // 👈 include status here
       });
-      return { status: "SUCCESS", message: message || "PAN fetched successfully", data: panData };
+      return { status: "SUCCESS", message: innerMessage || outerMessage || "PAN fetched successfully", data: panData };
     } else if (status === "Failure") {
       dispatch({
         type: GET_PANDATA_FETCH_FAILURE,
-        payload: { message, status, errorData: response?.data },
+        payload: { message: innerMessage || "Failed to verify PAN", status, errorData: response?.data },
       });
-      return { status: "FAILURE", message: message || "Failed to fetch PAN" };
+      return { status: "FAILURE", message: innerMessage || "Invalid PAN Number" };
     }
     return { status: "FAILURE", message: "Unknown response status" };
   } catch (error) {

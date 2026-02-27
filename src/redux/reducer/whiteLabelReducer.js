@@ -4,6 +4,7 @@ import {
   GET_CITY_BY_PINCODE_SUCCESS,
   GET_IP_CHECK_SUCCESS,
   GET_PANDATA_FETCH_SUCCESS,
+  GET_PANDATA_FETCH_FAILURE,
   GET_WHITELABEL_LIST_SUCCESS,
   FETCH_KYC_DETAILS_SUCCESS,
   GET_KYCSTATUS_SUCCESS,
@@ -57,6 +58,8 @@ const initialState = {
 
 const whiteLabelReducer = (state = initialState, action) => {
   switch (action.type) {
+    case "RESET_WHITELABEL_STATE":
+      return { ...initialState };
     case WHITELABEL_CREATE_SUCCESS:
       return {
         ...state,
@@ -104,6 +107,13 @@ const whiteLabelReducer = (state = initialState, action) => {
         panData: action?.payload,
         success: action?.payload?.status,
         message: action?.payload?.message,
+      };
+
+    case GET_PANDATA_FETCH_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        panData: null,
       };
 
     case GET_WHITELABEL_LIST_SUCCESS:
