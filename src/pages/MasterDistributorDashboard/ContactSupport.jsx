@@ -20,7 +20,7 @@ const ContactSupport = () => {
             {/* Header */}
             <div className="flex items-center gap-4">
                 <button
-                    onClick={() => navigate('/masterDistributor/home')}
+                    onClick={() => navigate('/masterDistributerDashboard/home')}
                     className="rounded-full p-2 bg-white border border-gray-400"
                 >
                     <HiArrowLeft className="text-xl text-gray-600" />
