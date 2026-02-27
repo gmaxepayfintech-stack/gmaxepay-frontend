@@ -71,17 +71,20 @@ export const ipCheckStatus = (values) => async (dispatch) => {
         type: GET_IP_CHECK_SUCCESS,
         payload: { ipResponse, success, message },
       });
+      return { status: "SUCCESS", message: message || "IP Check successful", data: ipResponse };
     } else {
       dispatch({
         type: GET_IP_CHECK_FAILURE,
         payload: response?.data?.message ?? commonError,
       });
+      return { status: "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: GET_IP_CHECK_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -185,12 +188,15 @@ export const panDataFetch = (values) => async (dispatch) => {
         type: GET_PANDATA_FETCH_SUCCESS,
         payload: { panData, message, status }, // 👈 include status here
       });
+      return { status: "SUCCESS", message: message || "PAN fetched successfully", data: panData };
     } else if (status === "Failure") {
       dispatch({
         type: GET_PANDATA_FETCH_FAILURE,
         payload: { message, status, errorData: response?.data },
       });
+      return { status: "FAILURE", message: message || "Failed to fetch PAN" };
     }
+    return { status: "FAILURE", message: "Unknown response status" };
   } catch (error) {
     dispatch({
       type: GET_PANDATA_FETCH_FAILURE,
@@ -199,6 +205,7 @@ export const panDataFetch = (values) => async (dispatch) => {
         status: "Error", // 👈 optional but useful
       },
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -227,17 +234,20 @@ export const createWhiteLabel = (formData) => async (dispatch) => {
         type: WHITELABEL_CREATE_SUCCESS,
         payload: { createResponse, status, message },
       });
+      return { status: "SUCCESS", message: message || "Whitelabel created successfully" };
     } else {
       dispatch({
         type: WHITELABEL_CREATE_FAILURE,
         payload: response?.data?.message ?? commonError,
       });
+      return { status: "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: WHITELABEL_CREATE_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }

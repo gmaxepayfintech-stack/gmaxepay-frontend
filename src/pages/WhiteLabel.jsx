@@ -66,92 +66,7 @@ const WhiteLabel = ({ onBack }) => {
   );
   const panDataError = useSelector((state) => state?.error?.message);
 
-  // Create error state
-  const createError = useSelector((state) => state?.error?.error);
 
-  // Track last shown notifications to avoid duplicates
-  const lastNotificationRef = useRef({
-    ipCheck: null,
-    panFetch: null,
-    create: null,
-  });
-
-  // Show notifications for IP Check
-  useEffect(() => {
-    if (ipCheckStatusState === "SUCCESS" && ipCheckMessage) {
-      const notificationKey = `ip-success-${ipCheckMessage}`;
-      if (lastNotificationRef.current.ipCheck !== notificationKey) {
-        success(ipCheckMessage || "IP check completed successfully");
-        lastNotificationRef.current.ipCheck = notificationKey;
-      }
-    }
-  }, [ipCheckStatusState, ipCheckMessage, success]);
-
-  useEffect(() => {
-    if (
-      ipCheckError &&
-      typeof ipCheckError === "string" &&
-      ipCheckStatusState !== "SUCCESS"
-    ) {
-      const notificationKey = `ip-error-${ipCheckError}`;
-      if (lastNotificationRef.current.ipCheck !== notificationKey) {
-        error(ipCheckError);
-        lastNotificationRef.current.ipCheck = notificationKey;
-      }
-    }
-  }, [ipCheckError, ipCheckStatusState, error]);
-
-  // Show notifications for PAN Fetch
-  useEffect(() => {
-    if (panDataStatus === "Success" && panDataMessage) {
-      const notificationKey = `pan-success-${panDataMessage}`;
-      if (lastNotificationRef.current.panFetch !== notificationKey) {
-        success(panDataMessage || "PAN data fetched successfully");
-        lastNotificationRef.current.panFetch = notificationKey;
-      }
-    }
-  }, [panDataStatus, panDataMessage, success]);
-
-  useEffect(() => {
-    if (panDataStatus === "Failure" && panDataError) {
-      const errorMsg =
-        typeof panDataError === "string"
-          ? panDataError
-          : "Failed to fetch PAN data";
-      const notificationKey = `pan-error-${errorMsg}`;
-      if (lastNotificationRef.current.panFetch !== notificationKey) {
-        error(errorMsg);
-        lastNotificationRef.current.panFetch = notificationKey;
-      }
-    }
-  }, [panDataStatus, panDataError, error]);
-
-  // Show success message when form is submitted successfully
-  useEffect(() => {
-    if (createSuccess === "SUCCESS") {
-      const notificationKey = `create-success-${createMessage}`;
-      if (lastNotificationRef.current.create !== notificationKey) {
-        success(createMessage || "Whitelabel created successfully!");
-        lastNotificationRef.current.create = notificationKey;
-        formik.resetForm();
-      }
-    }
-  }, [createSuccess, createMessage, success]);
-
-  // Show error message when form submission fails
-  useEffect(() => {
-    if (
-      createError &&
-      typeof createError === "string" &&
-      createSuccess !== "SUCCESS"
-    ) {
-      const notificationKey = `create-error-${createError}`;
-      if (lastNotificationRef.current.create !== notificationKey) {
-        error(createError);
-        lastNotificationRef.current.create = notificationKey;
-      }
-    }
-  }, [createError, createSuccess, error]);
 
   const validationSchema = Yup.object({
     businessEntity: Yup.string().required("Business entity is required"),
@@ -223,7 +138,7 @@ const WhiteLabel = ({ onBack }) => {
       clientConsent: true,
     },
     validationSchema,
-    onSubmit: (values) => {
+    onSubmit: async (values) => {
       const formData = new FormData();
 
       formData.append("BussinessEntity", values.businessEntity);
@@ -241,7 +156,22 @@ const WhiteLabel = ({ onBack }) => {
       formData.append("verificationToken", verificationToken || "");
       formData.append("companyGst", values.gstin);
       formData.append("profileImage", values.profilePhoto);
-      dispatch(createWhiteLabel(formData));
+
+      const response = await dispatch(createWhiteLabel(formData));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "Whitelabel created successfully!",
+          isCritical: true,
+        });
+        formik.resetForm();
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to create whitelabel",
+          isCritical: true,
+        });
+      }
     },
   });
 
@@ -371,22 +301,56 @@ const WhiteLabel = ({ onBack }) => {
     }
   }, [cityStatus, activeInput]);
 
-  const handleIPCheck = () => {
+  const handleIPCheck = async () => {
     const domain = formik.values.companyDomain;
     if (!domain) {
-      error("Please enter a company domain first!");
+      showNotification({
+        type: "error",
+        message: "Please enter a company domain first!",
+        isCritical: true,
+      });
       return;
     }
-    dispatch(ipCheckStatus({ domain }));
+    const response = await dispatch(ipCheckStatus({ domain }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "IP check completed successfully",
+        isCritical: true,
+      });
+    } else {
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to check IP logic",
+        isCritical: true,
+      });
+    }
   };
 
-  const handleFetchPan = () => {
+  const handleFetchPan = async () => {
     const pan = formik.values.pan;
     if (!pan) {
-      error("Please enter a PAN number first!");
+      showNotification({
+        type: "error",
+        message: "Please enter a PAN number first!",
+        isCritical: true,
+      });
       return;
     }
-    dispatch(panDataFetch({ pan }));
+    const response = await dispatch(panDataFetch({ pan }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN data fetched successfully",
+        isCritical: true,
+      });
+    } else {
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to fetch PAN data",
+        isCritical: true,
+      });
+    }
   };
 
   const panname = useSelector(
@@ -514,10 +478,14 @@ const WhiteLabel = ({ onBack }) => {
                       type="text"
                       name="pan"
                       placeholder="Enter Pan Number"
-                      className="p-3 border border-[#1B1717]/80 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full text-sm placeholder-gray-500 sm:border-r-0"
+                      className="p-3 border border-[#1B1717]/80 rounded-md sm:rounded-l-lg sm:rounded-r-none w-full text-sm placeholder-gray-500 sm:border-r-0 uppercase"
                       value={formik.values.pan}
-                      onChange={formik.handleChange}
+                      onChange={(e) => {
+                        e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                        formik.handleChange(e);
+                      }}
                       onBlur={formik.handleBlur}
+                      maxLength={10}
                     />
                     <button
                       type="button"
@@ -567,9 +535,8 @@ const WhiteLabel = ({ onBack }) => {
                   <label className={labelStyle}>Profile Photo</label>
                   <label
                     htmlFor="profilePhoto"
-                    className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${
-                      isImageUploading ? "opacity-75 cursor-not-allowed" : ""
-                    }`}
+                    className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                      }`}
                   >
                     {isImageUploading ? (
                       <>
@@ -650,8 +617,8 @@ const WhiteLabel = ({ onBack }) => {
                   </label>
 
                   {cityStatus === "SUCCESS" &&
-                  pincodeOptions.length > 0 &&
-                  !isPincodeFetched ? (
+                    pincodeOptions.length > 0 &&
+                    !isPincodeFetched ? (
                     // Case: Fetched by city → show pincode dropdown
                     <select
                       name="postalCode"
@@ -745,8 +712,8 @@ const WhiteLabel = ({ onBack }) => {
                   </label>
 
                   {pincodeStatus === "SUCCESS" &&
-                  cityOptions.length > 0 &&
-                  !isCityFetched ? (
+                    cityOptions.length > 0 &&
+                    !isCityFetched ? (
                     <select
                       name="city"
                       className={inputStyle}
@@ -806,11 +773,16 @@ const WhiteLabel = ({ onBack }) => {
                     type="text"
                     name="gstin"
                     placeholder="Enter GST Number"
-                    className={inputStyle}
-                    value={formik.values.gstin}
-                    onChange={formik.handleChange}
+                    className={`${inputStyle} uppercase`}
+                    value={formik.values.gstin || ""}
+                    onChange={(e) => {
+                      e.target.value = e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, "");
+                      formik.handleChange(e);
+                    }}
                     onBlur={formik.handleBlur}
+                    maxLength={15}
                   />
+                  <ErrorMsg name="gstin" />
                 </div>
 
                 <div>
