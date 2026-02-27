@@ -7,9 +7,11 @@ import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { aepsTwoStatusCheck } from "../../../redux/action/aepsTwoAction";
+import { useNotification } from "../../../context/NotificationContext";
 
 const OnBoardingAepsTwo = () => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const aepsStatus = useSelector((state) => state.aeps?.aepsStatus);
   const [showAcceptance, setShowAcceptance] = useState(false);
   const [currentStep, setCurrentStep] = useState(null);
@@ -22,6 +24,14 @@ const OnBoardingAepsTwo = () => {
         setIsLoading(true);
         const response = await dispatch(aepsTwoStatusCheck());
         //console.log("aepsTwoStatusCheck response in OnBoardingAeps:", response);
+
+        if (response && response.status !== "SUCCESS") {
+          showNotification({
+            type: "error",
+            message: response.message || "Failed to check AEPS status",
+            isCritical: true,
+          });
+        }
 
         // Get status data from response or Redux state
         const statusData = response?.aepsStatus || aepsStatus?.aepsStatus;
@@ -91,6 +101,11 @@ const OnBoardingAepsTwo = () => {
         }
       } catch (error) {
         console.error("aepsTwoStatusCheck error in OnBoardingAeps:", error);
+        showNotification({
+          type: "error",
+          message: error?.message || "Failed to check AEPS status",
+          isCritical: true,
+        });
         setCurrentStep(null); // On error, show initial screen
       } finally {
         setIsLoading(false);

@@ -15,9 +15,11 @@ import {
 } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
 const AepsAcceptanceTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [accepted, setAccepted] = useState(true);
   const [showIdentityVerification, setShowIdentityVerification] =
     useState(false);
@@ -37,6 +39,12 @@ const AepsAcceptanceTwo = () => {
 
       // If onboarding succeeded, check status first
       if (onboardResp?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: onboardResp?.message || "AEPS onboarding completed successfully",
+          isCritical: true,
+        });
+
         // Check status to determine next step
         const statusResponse = await dispatch(aepsTwoStatusCheck());
         // console.log(
@@ -59,11 +67,22 @@ const AepsAcceptanceTwo = () => {
             ) {
               // Send OTP for AEPS-2
               const otpResp = await dispatch(aepsTwoOtp());
-             // console.log("aepsTwoOtp response:", otpResp);
+              // console.log("aepsTwoOtp response:", otpResp);
 
               if (otpResp?.status === "SUCCESS") {
+                showNotification({
+                  type: "success",
+                  message: otpResp?.message || "OTP sent successfully",
+                  isCritical: true,
+                });
                 // Navigate to identity verification
                 setShowIdentityVerification(true);
+              } else {
+                showNotification({
+                  type: "error",
+                  message: otpResp?.message || "Failed to send OTP",
+                  isCritical: true,
+                });
               }
             }
             // If ekycOtp is completed, check next step
@@ -105,15 +124,32 @@ const AepsAcceptanceTwo = () => {
                 daily2FAAuthentication?.isCompleted === true
               ) {
                 // All steps completed, show access confirm
-               // console.log("All steps completed, showing access confirm");
+                // console.log("All steps completed, showing access confirm");
                 setShowAccessConfirm(true);
               }
             }
           }
+        } else {
+          showNotification({
+            type: "error",
+            message: statusResponse?.message || "Failed to check AEPS status",
+            isCritical: true,
+          });
         }
+      } else {
+        showNotification({
+          type: "error",
+          message: onboardResp?.message || "AEPS onboarding failed",
+          isCritical: true,
+        });
       }
     } catch (error) {
       console.error("AEPS-2 onboarding/otp error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong during AEPS onboarding",
+        isCritical: true,
+      });
     } finally {
       setIsLoading(false);
     }

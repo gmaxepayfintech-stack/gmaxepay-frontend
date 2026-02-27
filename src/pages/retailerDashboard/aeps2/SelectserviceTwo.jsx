@@ -12,12 +12,14 @@ import {
   aepsTwoBankList,
   aepsTwoRecentBankList,
 } from "../../../redux/action/aepsTwoAction";
+import { useNotification } from "../../../context/NotificationContext";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
 
 const SelectserviceTwo = () => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const bankList = useSelector((state) => state.aepsTwo?.bankList);
   const resentBankListState = useSelector(
     (state) => state.aepsTwo?.bankRecentList,
@@ -111,8 +113,8 @@ const SelectserviceTwo = () => {
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
-        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
-      )
+      bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
+    )
     : banks;
 
   // Function to handle bank selection and update recent banks
@@ -801,6 +803,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 response?.data || response?.cashWithdrawl || null,
             });
+            showNotification({
+              type: "success",
+              message: response?.message || "Withdrawal successful",
+              isCritical: true,
+            });
 
             // Reset form
             formik.resetForm();
@@ -828,6 +835,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 response?.data || response?.cashWithdrawl || null,
             });
+            showNotification({
+              type: "error",
+              message: response?.message || "Withdrawal failed",
+              isCritical: true,
+            });
             setDeviceMessage("Withdrawal failed");
           }
         } catch (apiError) {
@@ -854,6 +866,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 apiError?.cashWithdrawl || apiError?.data || null,
             });
+            showNotification({
+              type: "error",
+              message: apiError?.message || "Withdrawal failed",
+              isCritical: true,
+            });
           } else {
             // Network or other errors
             const errorResponseData = apiError?.response?.data;
@@ -866,6 +883,11 @@ const SelectserviceTwo = () => {
                 "Failed to process withdrawal. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
+            });
+            showNotification({
+              type: "error",
+              message: errorResponseData?.message || apiError?.message || "Withdrawal failed",
+              isCritical: true,
             });
           }
           setDeviceMessage("API call failed");
@@ -1129,6 +1151,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 response?.data || response?.balanceEnquiry || null,
             });
+            showNotification({
+              type: "success",
+              message: response?.message || "Balance enquiry successful",
+              isCritical: true,
+            });
             setDeviceMessage("Balance enquiry completed successfully");
           } else {
             console.log("❌ Balance enquiry failed:", response?.message);
@@ -1145,6 +1172,11 @@ const SelectserviceTwo = () => {
               type: "error",
               transactionData:
                 response?.data || response?.balanceEnquiry || null,
+            });
+            showNotification({
+              type: "error",
+              message: response?.message || "Balance enquiry failed",
+              isCritical: true,
             });
             setDeviceMessage("Balance enquiry failed");
           }
@@ -1172,6 +1204,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 apiError?.balanceEnquiry || apiError?.data || null,
             });
+            showNotification({
+              type: "error",
+              message: apiError?.message || "Balance enquiry failed",
+              isCritical: true,
+            });
           } else {
             // Network or other errors
             const errorResponseData = apiError?.response?.data;
@@ -1184,6 +1221,11 @@ const SelectserviceTwo = () => {
                 "Failed to process balance enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
+            });
+            showNotification({
+              type: "error",
+              message: errorResponseData?.message || apiError?.message || "Balance enquiry failed",
+              isCritical: true,
             });
           }
           setDeviceMessage("API call failed");
@@ -1445,6 +1487,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 response?.data || response?.miniStatement || null,
             });
+            showNotification({
+              type: "success",
+              message: response?.message || "Statement enquiry successful",
+              isCritical: true,
+            });
             setDeviceMessage("Statement enquiry completed successfully");
           } else {
             console.log("❌ Statement enquiry failed:", response?.message);
@@ -1461,6 +1508,11 @@ const SelectserviceTwo = () => {
               type: "error",
               transactionData:
                 response?.data || response?.miniStatement || null,
+            });
+            showNotification({
+              type: "error",
+              message: response?.message || "Statement enquiry failed",
+              isCritical: true,
             });
             setDeviceMessage("Statement enquiry failed");
           }
@@ -1488,6 +1540,11 @@ const SelectserviceTwo = () => {
               transactionData:
                 apiError?.miniStatement || apiError?.data || null,
             });
+            showNotification({
+              type: "error",
+              message: apiError?.message || "Statement enquiry failed",
+              isCritical: true,
+            });
           } else {
             // Network or other errors
             const errorResponseData = apiError?.response?.data;
@@ -1500,6 +1557,11 @@ const SelectserviceTwo = () => {
                 "Failed to process statement enquiry. Please check the console for details.",
               type: "error",
               transactionData: errorResponseData?.data || null,
+            });
+            showNotification({
+              type: "error",
+              message: errorResponseData?.message || apiError?.message || "Statement enquiry failed",
+              isCritical: true,
             });
           }
           setDeviceMessage("API call failed");
@@ -1703,19 +1765,19 @@ const SelectserviceTwo = () => {
                     // For Cash Withdrawal: transactionData.result
                     // For Balance Enquiry: transactionData.data
                     const transactionDetails = transactionData?.result || transactionData?.data || null;
-                    
+
                     if (!transactionDetails) return null;
-                    
+
                     // Show Balance Amount or Transaction Amount in highlighted box
-                    const displayAmount = transactionDetails.balanceAmount !== undefined 
-                      ? transactionDetails.balanceAmount 
-                      : (transactionDetails.transactionAmount !== undefined && transactionDetails.transactionAmount !== 0 
-                        ? transactionDetails.transactionAmount 
+                    const displayAmount = transactionDetails.balanceAmount !== undefined
+                      ? transactionDetails.balanceAmount
+                      : (transactionDetails.transactionAmount !== undefined && transactionDetails.transactionAmount !== 0
+                        ? transactionDetails.transactionAmount
                         : null);
-                    
+
                     // Collect all fields to display (excluding amount fields that are shown separately)
                     const fieldsToShow = [];
-                    
+
                     if (transactionDetails.fpTransactionId) {
                       fieldsToShow.push({ label: "FP Transaction ID", value: transactionDetails.fpTransactionId });
                     }
@@ -1743,7 +1805,7 @@ const SelectserviceTwo = () => {
                     if (transactionData?.transactionId) {
                       fieldsToShow.push({ label: "Transaction ID", value: transactionData.transactionId });
                     }
-                    
+
                     return (
                       <>
                         {/* Amount Display - Highlighted Box */}
@@ -1754,7 +1816,7 @@ const SelectserviceTwo = () => {
                             </div>
                           </div>
                         )}
-                        
+
                         {/* Details Grid */}
                         <div className="grid grid-cols-2 gap-4 mb-6">
                           {fieldsToShow.map((field, index) => (
@@ -1775,15 +1837,15 @@ const SelectserviceTwo = () => {
                   {/* Mini Statement - ministatement array */}
                   {(() => {
                     // Check for ministatement in different possible locations
-                    const ministatement = transactionData?.ministatement || 
-                                         transactionData?.data?.ministatement ||
-                                         transactionData?.result?.ministatement ||
-                                         null;
-                    
+                    const ministatement = transactionData?.ministatement ||
+                      transactionData?.data?.ministatement ||
+                      transactionData?.result?.ministatement ||
+                      null;
+
                     if (!ministatement || !Array.isArray(ministatement) || ministatement.length === 0) {
                       return null;
                     }
-                    
+
                     return (
                       <div className="mt-6 pt-6 border-t border-gray-200">
                         <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
@@ -1889,11 +1951,10 @@ const SelectserviceTwo = () => {
               {/* Transaction/Response Details */}
               {transactionData && (
                 <div
-                  className={`rounded-lg p-4 mb-4 border ${
-                    type === "success"
+                  className={`rounded-lg p-4 mb-4 border ${type === "success"
                       ? "bg-white border-gray-200"
                       : "bg-red-50 border-red-200"
-                  }`}
+                    }`}
                 >
                   <div>
                     {/* Error/Failure Details */}
@@ -1903,21 +1964,21 @@ const SelectserviceTwo = () => {
                         {(() => {
                           // For errors: transactionData.result or transactionData.data
                           const transactionDetails = transactionData?.result || transactionData?.data || transactionData;
-                          
+
                           if (!transactionDetails) return null;
-                          
+
                           // Collect all error fields to display
                           const fieldsToShow = [];
-                          
+
                           // Error message (most important)
                           if (transactionDetails.message || transactionData?.message) {
-                            fieldsToShow.push({ 
-                              label: "Error Message", 
+                            fieldsToShow.push({
+                              label: "Error Message",
                               value: transactionDetails.message || transactionData?.message,
-                              isError: true 
+                              isError: true
                             });
                           }
-                          
+
                           if (transactionDetails.fpTransactionId) {
                             fieldsToShow.push({ label: "FP Transaction ID", value: transactionDetails.fpTransactionId });
                           }
@@ -1960,7 +2021,7 @@ const SelectserviceTwo = () => {
                           if (transactionData?.gatewayResponse?.message) {
                             fieldsToShow.push({ label: "Gateway Message", value: transactionData.gatewayResponse.message, isError: true });
                           }
-                          
+
                           return (
                             <div className="grid grid-cols-2 gap-4">
                               {fieldsToShow.map((field, index) => (
@@ -2044,11 +2105,10 @@ const SelectserviceTwo = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${
-                  isActive
+                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${isActive
                     ? "bg-[#039155] text-[#FFFFFF]"
                     : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -2074,11 +2134,10 @@ const SelectserviceTwo = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("thumb")}
-              className={`p-8 rounded-xl border-2 transition ${
-                biometricMethod === "thumb"
+              className={`p-8 rounded-xl border-2 transition ${biometricMethod === "thumb"
                   ? "bg-[#E5FFF4] border-[#039155]"
                   : "bg-white border-gray-200"
-              }`}
+                }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img
@@ -2096,11 +2155,10 @@ const SelectserviceTwo = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("iris")}
-              className={`p-4 rounded-xl border-2 transition ${
-                biometricMethod === "iris"
+              className={`p-4 rounded-xl border-2 transition ${biometricMethod === "iris"
                   ? "bg-[#E5FFF4] border-[#039155]"
                   : "bg-white border-gray-200"
-              }`}
+                }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img src={IrisIcon} alt="Iris Scan" className="w-10 h-10" />
@@ -2114,11 +2172,10 @@ const SelectserviceTwo = () => {
           {/* Connected Device Indicator */}
           <div className="mb-6">
             <div
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
-                deviceConnected
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${deviceConnected
                   ? "bg-[#039155] text-white"
                   : "bg-[#DC2626] text-white"
-              }`}
+                }`}
             >
               {deviceMessage ? (
                 <div className="flex items-center gap-2">
@@ -2157,17 +2214,15 @@ const SelectserviceTwo = () => {
 
           {/* Scanner Interface - Conditional based on biometric method */}
           <div
-            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             {/* Background content - blurred when comingSoon */}
             <div
-              className={`flex flex-col items-center gap-4 ${
-                comingSoon
+              className={`flex flex-col items-center gap-4 ${comingSoon
                   ? "opacity-80 pointer-events-none select-none blur-sm"
                   : ""
-              }`}
+                }`}
             >
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
                 {/* Outer circle background */}
@@ -2186,9 +2241,8 @@ const SelectserviceTwo = () => {
                 <img
                   src={biometricMethod === "iris" ? IrisIcon : FingerPrintIcon}
                   alt={biometricMethod === "iris" ? "Iris" : "Fingerprint"}
-                  className={`relative w-16 h-16 z-20 ${
-                    biometricMethod === "iris" ? "" : "opacity-60"
-                  }`}
+                  className={`relative w-16 h-16 z-20 ${biometricMethod === "iris" ? "" : "opacity-60"
+                    }`}
                 />
                 <button
                   type="button"
@@ -2317,11 +2371,10 @@ const SelectserviceTwo = () => {
                     onClick={() => {
                       handleBankSelection(bank);
                     }}
-                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
-                      selectedBank?.bankIIN === bank.bankIIN
+                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.bankIIN === bank.bankIIN
                         ? "bg-[#E5FFF4] border-[#039155]"
                         : "bg-white border-gray-200"
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-full h-full bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
@@ -2409,11 +2462,10 @@ const SelectserviceTwo = () => {
                       onClick={() => {
                         handleBankSelection(bank);
                       }}
-                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
-                        selectedBank?.bankIIN === bank.bankIIN
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.bankIIN === bank.bankIIN
                           ? "bg-[#E5FFF4]"
                           : ""
-                      }`}
+                        }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
                         {bank.bankLogo ? (
@@ -2478,11 +2530,10 @@ const SelectserviceTwo = () => {
                   formik.setFieldValue("aadhaarNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
-                  formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
                 <p className="mt-1 text-[12px] text-red-500">
@@ -2504,11 +2555,10 @@ const SelectserviceTwo = () => {
                   formik.setFieldValue("mobileNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("mobileNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
-                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.mobileNumber && formik.errors.mobileNumber
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
                 <p className="mt-1 text-[12px] text-red-500">
@@ -2548,55 +2598,50 @@ const SelectserviceTwo = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("500")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "500"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "500"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 500
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("1000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "1000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "1000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 1,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("2000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "2000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "2000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 2,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("5000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "5000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "5000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 5,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("10000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "10000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "10000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 10,000
                 </button>
