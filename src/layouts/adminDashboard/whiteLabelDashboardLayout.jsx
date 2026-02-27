@@ -221,21 +221,6 @@ const WhiteLabelDashboardLayout = ({ children }) => {
       ],
     },
     {
-      name: "Help",
-      icon: MaskGroup2,
-      dropdown: true,
-      children: [
-        {
-          name: "Contact Support",
-          path: "/adminDashboard/contact-support",
-        },
-        // {
-        //   name: "Complaints",
-        //   path: "/retailerDashboard/complaints",
-        // },
-      ],
-    },
-    {
       name: "Fund Manage",
       icon: MaskGroup3,
       dropdown: true,
@@ -251,6 +236,21 @@ const WhiteLabelDashboardLayout = ({ children }) => {
         // {
         //   name: "QR UPI Transcation",
         //   path: "/adminDashboard/fund-manage/qr-upi-transaction",
+        // },
+      ],
+    },
+    {
+      name: "Help",
+      icon: MaskGroup2,
+      dropdown: true,
+      children: [
+        {
+          name: "Contact Support",
+          path: "/adminDashboard/contact-support",
+        },
+        // {
+        //   name: "Complaints",
+        //   path: "/retailerDashboard/complaints",
         // },
       ],
     },

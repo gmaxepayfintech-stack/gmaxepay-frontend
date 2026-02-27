@@ -156,12 +156,14 @@ const RetailerDashLayout = ({ children }) => {
       // Check if path matches exactly
       if (item.path && currentPath === item.path) {
         setActiveMenu(item.name);
+        setOpenDropdown(null);
         return;
       }
 
       // Check if path starts with the menu item path (for sub-routes like /retailerDashboard/services/recharge)
       if (item.path && currentPath.startsWith(item.path + "/")) {
         setActiveMenu(item.name);
+        setOpenDropdown(null);
         return;
       }
 
@@ -186,6 +188,7 @@ const RetailerDashLayout = ({ children }) => {
       currentPath === "/retailerDashboard/"
     ) {
       setActiveMenu("Dashboard");
+      setOpenDropdown(null);
     }
   }, [location.pathname]);
 
