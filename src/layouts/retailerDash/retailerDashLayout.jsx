@@ -113,10 +113,10 @@ const RetailerDashLayout = ({ children }) => {
           name: "Contact Support",
           path: "/retailerDashboard/contact-support",
         },
-        // {
-        //   name: "Complaints",
-        //   path: "/retailerDashboard/complaints",
-        // },
+        {
+          name: "Complaints",
+          path: "/retailerDashboard/complaints",
+        },
       ],
     },
   ];

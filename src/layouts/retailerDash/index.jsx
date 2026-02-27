@@ -17,6 +17,7 @@ import BBPSServices from "../../pages/retailerDashboard/services/BBPSServices";
 import PanService from "../../pages/retailerDashboard/services/PanService";
 import RetailerProfile from "../../pages/retailerDashboard/retailerProfile";
 import ContactSupport from "../../pages/retailerDashboard/ContactSupport";
+import Complaints from "../../pages/retailerDashboard/Complaints";
 const RetailerDash = () => {
   return (
     <RetailerDashLayout>
@@ -48,6 +49,7 @@ const RetailerDash = () => {
         <Route path="/tax-history" element={<TaxHistory />} />
         <Route path="/txn-history" element={<TaxHistory />} />
         <Route path="/contact-support" element={<ContactSupport />} />
+        <Route path="/complaints" element={<Complaints />} />
       </Routes>
     </RetailerDashLayout>
   );
