@@ -57,7 +57,7 @@ const TaxHistory = () => {
     {
       id: 1,
       title: "AEPS 1 CW History",
-      subtitle: "Cash History",
+      subtitle: "AEPS 1 CW History",
       available: true,
       viewKey: "aeps1-cw-history",
       category: "Banking",
@@ -65,7 +65,7 @@ const TaxHistory = () => {
     {
       id: 2,
       title: "AEPS 2 CW History",
-      subtitle: "Cash History",
+      subtitle: "AEPS 2 CW History",
       available: true,
       viewKey: "aeps2-cw-history",
       category: "Banking",
@@ -73,7 +73,7 @@ const TaxHistory = () => {
     {
       id: 3,
       title: "AEPS 1 MS History",
-      subtitle: "Mini Statement",
+      subtitle: "AEPS 1 MS History",
       available: true,
       viewKey: "aeps1-ms-history",
       category: "Banking",
@@ -81,7 +81,7 @@ const TaxHistory = () => {
     {
       id: 4,
       title: "AEPS 2 MS History",
-      subtitle: "Mini Statement",
+      subtitle: "AEPS 2 MS History",
       available: true,
       viewKey: "aeps2-ms-history",
       category: "Banking",
@@ -89,7 +89,7 @@ const TaxHistory = () => {
     {
       id: 5,
       title: "AEPS 1 BE History",
-      subtitle: "Balance Enquiry",
+      subtitle: "AEPS 1 BE History",
       available: true,
       viewKey: "aeps1-be-history",
       category: "Banking",
@@ -97,7 +97,7 @@ const TaxHistory = () => {
     {
       id: 6,
       title: "AEPS 2 BE History",
-      subtitle: "Balance Enquiry",
+      subtitle: "AEPS 2 BE History",
       available: true,
       viewKey: "aeps2-be-history",
       category: "Banking",
@@ -105,7 +105,7 @@ const TaxHistory = () => {
     {
       id: 7,
       title: "Payout History",
-      subtitle: "Balance Enquiry",
+      subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
       category: "Banking",
@@ -113,7 +113,7 @@ const TaxHistory = () => {
     {
       id: 8,
       title: "Wallet History",
-      subtitle: "Balance Enquiry",
+      subtitle: "Wallet History",
       available: true,
       viewKey: "wallet-history",
       category: "Finance",
