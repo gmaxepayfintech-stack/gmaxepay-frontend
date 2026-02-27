@@ -66,7 +66,10 @@ const WhiteLabel = ({ onBack }) => {
   );
   const panDataError = useSelector((state) => state?.error?.message);
 
-
+  // Clear previous data on mount so fields are empty
+  useEffect(() => {
+    dispatch({ type: "RESET_WHITELABEL_STATE" });
+  }, [dispatch]);
 
   const validationSchema = Yup.object({
     businessEntity: Yup.string().required("Business entity is required"),
@@ -345,6 +348,7 @@ const WhiteLabel = ({ onBack }) => {
         isCritical: true,
       });
     } else {
+      formik.setFieldValue("name", "");
       showNotification({
         type: "error",
         message: response?.message || "Failed to fetch PAN data",
@@ -485,6 +489,12 @@ const WhiteLabel = ({ onBack }) => {
                         formik.handleChange(e);
                       }}
                       onBlur={formik.handleBlur}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          handleFetchPan();
+                        }
+                      }}
                       maxLength={10}
                     />
                     <button
