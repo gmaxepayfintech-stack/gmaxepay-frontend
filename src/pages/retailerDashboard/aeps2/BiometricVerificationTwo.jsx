@@ -9,6 +9,7 @@ import {
   aepsTwoBiometricSubmit,
 } from "../../../redux/action/aepsTwoAction";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -16,6 +17,7 @@ const EyeIcon = "/img/Eye.svg";
 const BiometricVerificationTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [mode, setMode] = useState("fingerprint");
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
@@ -342,7 +344,7 @@ const BiometricVerificationTwo = () => {
       return;
     }
 
-   // console.log("✅ Processing new pidData, dispatching API call...");
+    // console.log("✅ Processing new pidData, dispatching API call...");
     pidDataProcessedRef.current = true;
     lastPidDataRef.current = pidData;
 
@@ -373,11 +375,16 @@ const BiometricVerificationTwo = () => {
 
     dispatch(aepsTwoBiometricSubmit(requestData))
       .then((response) => {
-       // console.log("✅ Biometric verification response:", response);
+        // console.log("✅ Biometric verification response:", response);
 
         // Only check status after successful submission
         if (response?.status === "SUCCESS") {
           setDeviceMessage("Biometric verification successful");
+          showNotification({
+            type: "success",
+            message: response?.message || "Biometric verification successful",
+            isCritical: true,
+          });
 
           // Check status ONCE after successful biometric verification
           // console.log(
@@ -386,7 +393,20 @@ const BiometricVerificationTwo = () => {
 
           dispatch(aepsTwoStatusCheck())
             .then((statusResponse) => {
-             // console.log("✅ AEPS Status check response:", statusResponse);
+              // console.log("✅ AEPS Status check response:", statusResponse);
+              if (statusResponse?.status === "SUCCESS") {
+                showNotification({
+                  type: "success",
+                  message: statusResponse?.message || "Status check successful",
+                  isCritical: true,
+                });
+              } else {
+                showNotification({
+                  type: "error",
+                  message: statusResponse?.message || "Status check failed",
+                  isCritical: true,
+                });
+              }
 
               // Extract status data from response
               const aepsStatusData = statusResponse?.aepsStatus;
@@ -403,7 +423,7 @@ const BiometricVerificationTwo = () => {
                   // Check if 2FA is next
                   if (
                     daily2FAAuthentication?.status?.toLowerCase() ===
-                      "pending" ||
+                    "pending" ||
                     (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
                       daily2FAAuthentication.isCompleted === false)
                   ) {
@@ -415,7 +435,7 @@ const BiometricVerificationTwo = () => {
                   // Check if all completed
                   else if (
                     daily2FAAuthentication?.status?.toLowerCase() ===
-                      "completed" &&
+                    "completed" &&
                     daily2FAAuthentication?.isCompleted === true
                   ) {
                     // console.log(
@@ -428,17 +448,32 @@ const BiometricVerificationTwo = () => {
             })
             .catch((error) => {
               console.error("❌ AEPS Status check error:", error);
+              showNotification({
+                type: "error",
+                message: error?.message || "AEPS Status check failed",
+                isCritical: true,
+              });
             });
         } else {
           setDeviceMessage(
             response?.message || "Biometric verification failed",
           );
+          showNotification({
+            type: "error",
+            message: response?.message || "Biometric verification failed",
+            isCritical: true,
+          });
           pidDataProcessedRef.current = false;
         }
       })
       .catch((error) => {
         console.error("❌ Biometric verification error:", error);
         setDeviceMessage("Biometric verification failed. Please try again.");
+        showNotification({
+          type: "error",
+          message: error?.message || "Biometric verification failed. Please try again.",
+          isCritical: true,
+        });
         pidDataProcessedRef.current = false;
       });
   }, [pidData, dispatch]);
@@ -544,9 +579,8 @@ const BiometricVerificationTwo = () => {
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
             <div
-              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+                } text-white`}
             >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
@@ -566,9 +600,8 @@ const BiometricVerificationTwo = () => {
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        deviceConnected ? "bg-white" : "bg-white"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                        }`}
                     />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected
@@ -593,9 +626,8 @@ const BiometricVerificationTwo = () => {
         {/* Capture area */}
         <div className="mt-[28px] pt-5 ">
           <div
-            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
@@ -614,11 +646,9 @@ const BiometricVerificationTwo = () => {
                     <div
                       className="absolute inset-0 rounded-full transition-all duration-75 ease-linear"
                       style={{
-                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${
-                          (scanProgress / 100) * 360
-                        }deg, transparent ${
-                          (scanProgress / 100) * 360
-                        }deg, transparent 360deg)`,
+                        background: `conic-gradient(from -90deg, #039155 0deg, #039155 ${(scanProgress / 100) * 360
+                          }deg, transparent ${(scanProgress / 100) * 360
+                          }deg, transparent 360deg)`,
                       }}
                     />
                   )}

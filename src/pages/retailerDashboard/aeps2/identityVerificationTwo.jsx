@@ -11,11 +11,13 @@ import {
 } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
 const OTP_LENGTH = 6;
 
 const IdentityVerificationTwo = ({ onBack }) => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
   const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
   const [touchedSubmit, setTouchedSubmit] = useState(false);
@@ -24,7 +26,7 @@ const IdentityVerificationTwo = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const inputsRef = useRef([]);
 
-  // Call getUserProfile on component mount
+  // Call getUserProfile and send OTP on component mount
   useEffect(() => {
     dispatch(getUserProfile())
       .then((response) => {
@@ -38,6 +40,28 @@ const IdentityVerificationTwo = ({ onBack }) => {
           "getUserProfile error in IdentityVerificationTwo:",
           error,
         );
+      });
+
+    // Automatically trigger OTP send/resend when this component mounts directly
+    dispatch(aepsTwoRescendOTP())
+      .then((response) => {
+        if (response?.status === "SUCCESS") {
+          showNotification({
+            type: "success",
+            message: response?.message || "OTP sent successfully",
+            isCritical: true,
+          });
+          setResendTimer(180); // Start 3-minute countdown
+        } else {
+          showNotification({
+            type: "error",
+            message: response?.message || "Failed to send OTP",
+            isCritical: true,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("aepsTwoRescendOTP error on mount:", error);
       });
   }, [dispatch]);
 
@@ -131,19 +155,19 @@ const IdentityVerificationTwo = ({ onBack }) => {
 
       // Only check status ONCE after successful OTP submission
       if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "OTP Verification successful",
+          isCritical: true,
+        });
         // Check status once to verify and then navigate
         const statusResponse = await dispatch(aepsTwoStatusCheck());
-        // console.log(
-        //   "aepsTwoStatusCheck response after OTP submit:",
-        //   statusResponse,
-        // );
 
         // Verify status and navigate to next step
         const statusData = statusResponse?.aepsStatus;
         if (statusData) {
           const { ekycOtp, ekycBiometric } = statusData;
 
-          // If ekycOtp is completed, move to biometric verification
           if (
             ekycOtp?.status?.toLowerCase() === "completed" &&
             ekycOtp?.isCompleted === true
@@ -154,19 +178,32 @@ const IdentityVerificationTwo = ({ onBack }) => {
               (typeof ekycBiometric?.isCompleted === "boolean" &&
                 ekycBiometric.isCompleted === false)
             ) {
-              // console.log(
-              //   "ekycOtp completed, moving to biometric verification",
-              // );
               setShowBiometric(true);
             }
           }
         } else {
           // If status check fails but OTP was successful, still proceed
+          showNotification({
+            type: "error",
+            message: statusResponse?.message || "Failed to check AEPS status after OTP",
+            isCritical: true,
+          });
           setShowBiometric(true);
         }
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "OTP Verification failed",
+          isCritical: true,
+        });
       }
     } catch (error) {
       console.error("aepsTwoSubmitOTP error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong during OTP submission",
+        isCritical: true,
+      });
       // Handle error (you might want to show an error message to the user)
     } finally {
       setIsLoading(false);
@@ -181,11 +218,27 @@ const IdentityVerificationTwo = ({ onBack }) => {
       //console.log("aepsTwoRescendOTP response:", response);
 
       if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "OTP resent successfully",
+          isCritical: true,
+        });
         // Start 3-minute countdown (180 seconds)
         setResendTimer(180);
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to resend OTP",
+          isCritical: true,
+        });
       }
     } catch (error) {
       console.error("aepsTwoRescendOTP error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong while resending OTP",
+        isCritical: true,
+      });
     }
   };
 
@@ -260,8 +313,8 @@ const IdentityVerificationTwo = ({ onBack }) => {
                     onChange={(e) => handleChange(idx, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(idx, e)}
                     className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${showError
-                        ? "border-red-500 focus:ring-red-200 focus:border-red-500"
-                        : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"
+                      ? "border-red-500 focus:ring-red-200 focus:border-red-500"
+                      : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"
                       }`}
                   />
                 );
@@ -278,8 +331,8 @@ const IdentityVerificationTwo = ({ onBack }) => {
               onClick={handleResendOTP}
               disabled={resendTimer > 0}
               className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${resendTimer > 0
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-[#039155] hover:text-[#027A47] cursor-pointer"
                 }`}
             >
               {resendTimer > 0

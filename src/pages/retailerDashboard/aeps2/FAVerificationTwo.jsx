@@ -9,6 +9,7 @@ import {
 } from "../../../redux/action/aepsTwoAction";
 import { getLocationAndIP } from "../../../util/getLocationAndIP";
 import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
 
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
@@ -17,6 +18,7 @@ const EyeIcon = "/img/Eye.svg";
 const FAVerificationTwo = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [mode, setMode] = useState("fingerprint"); // fingerprint | iris
   const [deviceConnected, setDeviceConnected] = useState(false);
   const [comingSoon, setComingSoon] = useState(false);
@@ -389,6 +391,11 @@ const FAVerificationTwo = () => {
 
             // Only check status after successful submission
             if (response?.status === "SUCCESS") {
+              showNotification({
+                type: "success",
+                message: response?.message || "2FA Verification successful",
+                isCritical: true,
+              });
               // Check status ONCE after successful 2FA verification
               dispatch(aepsTwoStatusCheck())
                 .then((statusResponse) => {
@@ -400,7 +407,7 @@ const FAVerificationTwo = () => {
                     const { daily2FAAuthentication } = statusData;
                     if (
                       daily2FAAuthentication?.status?.toLowerCase() ===
-                        "completed" &&
+                      "completed" &&
                       daily2FAAuthentication?.isCompleted === true
                     ) {
                       //console.log("2FA completed, showing confirm page");
@@ -413,17 +420,37 @@ const FAVerificationTwo = () => {
                     "aepsTwoStatusCheck error after FA verification:",
                     err,
                   );
+                  showNotification({
+                    type: "error",
+                    message: err?.message || "Status check failed after 2FA verification",
+                    isCritical: true,
+                  });
                 });
             } else {
+              showNotification({
+                type: "error",
+                message: response?.message || "2FA Verification failed",
+                isCritical: true,
+              });
               pidDataProcessedRef.current = false;
             }
           })
           .catch((err) => {
             console.error("aepsTwoFAVerification error:", err);
+            showNotification({
+              type: "error",
+              message: err?.message || "2FA Verification failed",
+              isCritical: true,
+            });
             pidDataProcessedRef.current = false;
           });
       } catch (error) {
         console.error("❌ Error processing FA verification:", error);
+        showNotification({
+          type: "error",
+          message: error?.message || "Error processing FA verification",
+          isCritical: true,
+        });
         pidDataProcessedRef.current = false;
       }
     };
@@ -544,9 +571,8 @@ const FAVerificationTwo = () => {
 
           <div className="flex items-center gap-3 justify-start lg:justify-end">
             <div
-              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${
-                deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
-              } text-white`}
+              className={`flex flex-col gap-2 rounded-lg px-4 py-2.5 min-w-[240px] ${deviceConnected ? "bg-[#098324]" : "bg-[#DC2626]"
+                } text-white`}
             >
               {deviceMessage ? (
                 <div className="flex items-center justify-between gap-[50px]">
@@ -566,9 +592,8 @@ const FAVerificationTwo = () => {
                 <div className="flex items-center justify-between gap-[50px]">
                   <div className="flex items-center gap-2">
                     <span
-                      className={`w-2 h-2 rounded-full ${
-                        deviceConnected ? "bg-white" : "bg-white"
-                      }`}
+                      className={`w-2 h-2 rounded-full ${deviceConnected ? "bg-white" : "bg-white"
+                        }`}
                     />
                     <span className="text-[12px] font-['Gilroy-Medium']">
                       {deviceConnected
@@ -593,9 +618,8 @@ const FAVerificationTwo = () => {
         {/* Capture area */}
         <div className="mt-[20px] pt-4 border-t border-gray-200">
           <div
-            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-dashed border-gray-300 rounded-xl p-6 sm:p-8 transition ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             <div className="max-w-2xl mx-auto text-center relative">
               {/* Keep same UI visible; dim/disable when comingSoon */}
