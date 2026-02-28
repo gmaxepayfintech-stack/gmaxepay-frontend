@@ -434,8 +434,11 @@ const DistributorLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
-              <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                {profile?.outlet} - Distributor
+              <span
+                className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline max-w-[150px] md:max-w-[200px] xl:max-w-[250px] truncate"
+                title={`${profile?.outlet || ''} - Distributor`}
+              >
+                {profile?.outlet || ''} - Distributor
               </span>
               <button
                 onClick={toggleProfileDropdown}
