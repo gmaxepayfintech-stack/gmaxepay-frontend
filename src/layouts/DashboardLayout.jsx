@@ -255,6 +255,13 @@ const DashboardLayout = ({ children }) => {
     };
   }, [isProfileDropdownOpen]);
 
+  const profileDetails = useSelector((state) => state?.
+    userProfile?.adminDetailsResponse?.
+    adminDetailsResponse
+  );
+  console.log("profile", profileDetails);
+
+
   return (
     <div className="relative flex h-screen  text-[#1B1717] font-[Gilroy-Medium] overflow-hidden">
       {isSidebarOpen && (
@@ -409,7 +416,7 @@ const DashboardLayout = ({ children }) => {
                         />
                       </div>
                       <p className="text-xs sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                        {name || email || "Admin"}
+                        {profileDetails?.name}
                       </p>
                     </>
                   );
@@ -436,7 +443,7 @@ const DashboardLayout = ({ children }) => {
               ref={profileDropdownRef}
             >
               <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                {"Admin Panel"}
+                {profileDetails?.companyDetails?.companyName} - Admin              
               </span>
               <button
                 onClick={toggleProfileDropdown}
