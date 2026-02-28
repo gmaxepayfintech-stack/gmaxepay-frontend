@@ -442,8 +442,11 @@ const DashboardLayout = ({ children }) => {
               className="relative flex items-center gap-2"
               ref={profileDropdownRef}
             >
-              <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                {profileDetails?.companyDetails?.companyName} - Admin              
+              <span
+                className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline max-w-[150px] md:max-w-[200px] xl:max-w-[250px] truncate"
+                title={`${profileDetails?.companyDetails?.companyName} - Admin`}
+              >
+                {profileDetails?.companyDetails?.companyName} - Admin
               </span>
               <button
                 onClick={toggleProfileDropdown}
