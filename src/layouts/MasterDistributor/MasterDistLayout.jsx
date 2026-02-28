@@ -443,7 +443,7 @@ const MasterDistLayout = ({ children }) => {
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline">
-                {"MasterDis Dashboard"}
+                {profile?.outlet} - Master Distributor
               </span>
               <button
                 onClick={toggleProfileDropdown}

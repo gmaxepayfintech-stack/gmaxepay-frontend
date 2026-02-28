@@ -1282,9 +1282,7 @@ const DistDashboard = () => {
                         });
                         return;
                       }
-
                       setIsAddBankLoading(true);
-
                       try {
                         const payload = {
                           account_number: bankAccountNumber,
