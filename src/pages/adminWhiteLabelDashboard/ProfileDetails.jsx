@@ -1310,7 +1310,7 @@ ProfileDetails.propTypes = {
   onBack: PropTypes.func,
   skipApi: PropTypes.bool,
   initialData: PropTypes.object,
-  userRole: PropTypes.oneOfType([PropTypes.string, PropTypes.null]),
+  userRole: PropTypes.string,
 };
 
 export default ProfileDetails;

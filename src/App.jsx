@@ -283,13 +283,15 @@ function App() {
 
   useEffect(() => {
     const message = onBoardingMobileVerification?.message;
+    const status = onBoardingMobileVerification?.success;
+
     if (
       message &&
       message !== prevOnBoardingMobileVerificationRef.current?.message
     ) {
       if (prevOnBoardingMobileVerificationRef.current !== null) {
         showNotification({
-          type: "success",
+          type: status === "FAILURE" ? "error" : "success",
           message: message,
           isCritical: true,
         });

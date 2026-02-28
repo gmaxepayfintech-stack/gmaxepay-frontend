@@ -25,6 +25,14 @@ import {
   POST_SHOP_DETAILS_START,
   POST_SHOP_DETAILS_SUCCESS,
   POST_SHOP_DETAILS_FAILURE,
+  MOBILE_OTP_SENT_FAILURE,
+  SMS_RESEND_OTP_FAILURE,
+  SMS_VERIFY_OTP_FAILURE,
+  EMAIL_OTP_SENT_FAILURE,
+  EMAIL_RESCEND_OTP_FAILURE,
+  EMAIL_VERIFY_OTP_FAILURE,
+  AADHAAR_CONNECTION_FAILURE,
+  DOWNLOAD_AADHAAR_FAILURE,
 } from "../actionType/onboardingActionType";
 import { fetchOnboarding, postProfile } from "../action/onboardingAction";
 
@@ -149,6 +157,8 @@ const onboardingReducer = (state = initialState, action) => {
         postProfileError: null,
         postProfileSuccess: true,
         postProfileMessage: action.payload?.message || "Profile photo uploaded successfully.",
+        success: action.payload?.status || "SUCCESS",
+        message: action.payload?.message || "Profile photo uploaded successfully.",
       };
 
     case POST_PROFILE_FAILURE:
@@ -158,6 +168,8 @@ const onboardingReducer = (state = initialState, action) => {
         postProfileError: action.payload?.message || action.payload || "Failed to post profile",
         postProfileSuccess: false,
         postProfileMessage: "",
+        success: action.payload?.status || "FAILURE",
+        message: action.payload?.message || action.payload || "Failed to post profile",
       };
 
     case POST_SHOP_DETAILS_START:
@@ -176,6 +188,8 @@ const onboardingReducer = (state = initialState, action) => {
         postShopDetailsError: null,
         postShopDetailsSuccess: true,
         postShopDetailsMessage: action.payload?.message || "Shop details uploaded successfully.",
+        success: action.payload?.status || "SUCCESS",
+        message: action.payload?.message || "Shop details uploaded successfully.",
       };
 
     case POST_SHOP_DETAILS_FAILURE:
@@ -185,6 +199,8 @@ const onboardingReducer = (state = initialState, action) => {
         postShopDetailsError: action.payload?.message || action.payload || "Failed to post shop details",
         postShopDetailsSuccess: false,
         postShopDetailsMessage: "",
+        success: action.payload?.status || "FAILURE",
+        message: action.payload?.message || action.payload || "Failed to post shop details",
       };
 
     case CLEAR_ONBOARDING:
@@ -255,12 +271,26 @@ const onboardingReducer = (state = initialState, action) => {
       };
 
     case DOWNLOAD_AADHAAR_SUCCESS:
-      return{
+      return {
         ...state,
         success: action.payload.status,
         message: action.payload.message,
         downloadResponse: action?.payload,
       }
+
+    case MOBILE_OTP_SENT_FAILURE:
+    case SMS_RESEND_OTP_FAILURE:
+    case SMS_VERIFY_OTP_FAILURE:
+    case EMAIL_OTP_SENT_FAILURE:
+    case EMAIL_RESCEND_OTP_FAILURE:
+    case EMAIL_VERIFY_OTP_FAILURE:
+    case AADHAAR_CONNECTION_FAILURE:
+    case DOWNLOAD_AADHAAR_FAILURE:
+      return {
+        ...state,
+        success: action.payload?.status || "FAILURE",
+        message: action.payload?.message || action.payload,
+      };
 
     case UPLOAD_AADHAAR_SUCCESS:
       return {

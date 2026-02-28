@@ -6,9 +6,11 @@ import {
   uploadPanDocument,
 } from "../redux/action/onboardingAction";
 import { UPLOAD_PAN_SUCCESS } from "../redux/actionType/onboardingActionType";
+import { useNotification } from "../context/NotificationContext";
 
 function Step4({ setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
 
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -86,32 +88,43 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
     setLoading(true);
 
     try {
-      await dispatch(panConnection());
-      setIsVerified(true);
-      setShowTickMark(true); // Show tick mark for 3 minutes
-      setFormData((d) => ({
-        ...d,
-        panDocFetched: true,
-        digilockerLinked: true,
-      }));
+      const res = await dispatch(panConnection());
+      if (res?.status === "SUCCESS") {
+        setIsVerified(true);
+        setShowTickMark(true); // Show tick mark for 3 minutes
+        setFormData((d) => ({
+          ...d,
+          panDocFetched: true,
+          digilockerLinked: true,
+        }));
+        notifySuccess(res?.message || "Connected to DigiLocker successfully");
+      } else {
+        notifyError(res?.message || "Verification failed");
+      }
     } catch (error) {
       console.error("Verification failed:", error);
+      notifyError("Verification failed due to an error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Only allow download if verification is done
     if (!isConnectDone) {
-      console.error("Please verify PAN first!");
+      notifyError("Please verify PAN first!");
       return;
     }
     const payload = {
       document_type: "PAN",
     };
 
-    dispatch(panDownload(payload));
+    const res = await dispatch(panDownload(payload));
+    if (res?.status === "SUCCESS") {
+      notifySuccess(res?.message || "PAN verified successfully");
+    } else {
+      notifyError(res?.message || "PAN verification failed");
+    }
   };
 
   const handleImageChange = (e) => {
@@ -155,13 +168,21 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
 
   const handleSubmitImage = async () => {
     if (!panImage) {
+      notifyError("Please upload PAN image");
       return;
     }
     setUploading(true);
     try {
-      await dispatch(uploadPanDocument(panImage));
+      const res = await dispatch(uploadPanDocument(panImage));
+      if (res?.status === "SUCCESS") {
+        notifySuccess(res?.message || "Document uploaded successfully");
+      } else {
+        notifyError(res?.message || "Failed to upload PAN document");
+        setUploading(false);
+      }
     } catch (error) {
       console.error("Failed to upload PAN document:", error);
+      notifyError("Failed to upload PAN document");
       setUploading(false);
     }
   };
@@ -267,12 +288,11 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-xs sm:text-sm md:text-base transition shadow-md 
-                    ${
-                      isConnectDone && showTickMark
-                        ? "bg-green-600  cursor-not-allowed"
-                        : loading
-                          ? "bg-[#039155] opacity-75 cursor-not-allowed"
-                          : "bg-[#039155] hover:bg-green-700"
+                    ${isConnectDone && showTickMark
+                      ? "bg-green-600  cursor-not-allowed"
+                      : loading
+                        ? "bg-[#039155] opacity-75 cursor-not-allowed"
+                        : "bg-[#039155] hover:bg-green-700"
                     }`}
                 >
                   {loading
@@ -287,10 +307,9 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                   disabled={!isConnectDone || isDownloadDone}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md 
 
-                    ${
-                      !isConnectDone || isDownloadDone
-                        ? "text-gray-400 cursor-not-allowed border-gray-300"
-                        : "text-gray-700 hover:bg-gray-100"
+                    ${!isConnectDone || isDownloadDone
+                      ? "text-gray-400 cursor-not-allowed border-gray-300"
+                      : "text-gray-700 hover:bg-gray-100"
                     }`}
                 >
                   {isDownloadDone ? "Verified" : "Verify"}
@@ -419,10 +438,9 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
               onClick={handleSubmitImage}
               disabled={!panImage || uploading}
               className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center 
-                ${
-                  panImage && !uploading
-                    ? "bg-[#039155] text-white hover:bg-green-700"
-                    : "bg-gray-400 text-white cursor-not-allowed"
+                ${panImage && !uploading
+                  ? "bg-[#039155] text-white hover:bg-green-700"
+                  : "bg-gray-400 text-white cursor-not-allowed"
                 }`}
             >
               {uploading ? "Uploading..." : "Submit"}

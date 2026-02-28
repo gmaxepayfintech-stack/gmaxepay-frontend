@@ -1,6 +1,6 @@
 import { createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
-import { API_ROUTE,BASE_URL } from "../../data/env";
+import { API_ROUTE, BASE_URL } from "../../data/env";
 import {
   CLEAR_ONBOARDING,
   UPDATE_ONBOARDING_STEP,
@@ -68,8 +68,8 @@ export const fetchOnboarding = createAsyncThunk(
     } catch (error) {
       return rejectWithValue(
         error.response?.data?.message ||
-          error.message ||
-          "Failed to fetch onboarding data"
+        error.message ||
+        "Failed to fetch onboarding data"
       );
     }
   }
@@ -105,6 +105,7 @@ export const MobileOTPResponse = (values, token) => async (dispatch) => {
         type: MOBILE_OTP_SENT_SUCCESS,
         payload: { otpStatus, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: MOBILE_OTP_SENT_FAILURE,
@@ -113,6 +114,7 @@ export const MobileOTPResponse = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -144,11 +146,13 @@ export const resendOTPResponse = (values, token) => async (dispatch) => {
         type: SMS_RESEND_OTP_SUCCESS,
         payload: { rescendResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: SMS_RESEND_OTP_FAILURE,
         payload: response?.data?.message ?? commonError,
       });
+      return { status: "FAILURE", message: response?.data?.message ?? commonError };
     }
   } catch (error) {
     dispatch({
@@ -180,6 +184,7 @@ export const verifySmsOtp = (values, token) => async (dispatch) => {
         type: SMS_VERIFY_OTP_SUCCESS,
         payload: { verifySmsVerify, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: SMS_VERIFY_OTP_FAILURE,
@@ -188,6 +193,7 @@ export const verifySmsOtp = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -219,6 +225,7 @@ export const emailSmsOtp = (values, token) => async (dispatch) => {
         type: EMAIL_OTP_SENT_SUCCESS,
         payload: { verifySmsVerify, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: EMAIL_OTP_SENT_FAILURE,
@@ -227,6 +234,7 @@ export const emailSmsOtp = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -258,6 +266,7 @@ export const emailResendOtp = (values, token) => async (dispatch) => {
         type: EMAIL_RESCEND_OTP_SUCCESS,
         payload: { emailrescendOtp, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: EMAIL_RESCEND_OTP_FAILURE,
@@ -266,6 +275,7 @@ export const emailResendOtp = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -297,6 +307,7 @@ export const emailOtpVerify = (values, token) => async (dispatch) => {
         type: EMAIL_VERIFY_OTP_SUCCESS,
         payload: { verifyEmailOtp, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: EMAIL_VERIFY_OTP_FAILURE,
@@ -305,6 +316,7 @@ export const emailOtpVerify = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -318,13 +330,12 @@ export const emailOtpVerify = (values, token) => async (dispatch) => {
 
 export const aadhaarConnection = () => async (dispatch) => {
   const token = localStorage.getItem("onboardingToken");
+
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
-      {
-        "redirect_url": `${BASE_URL}/onboarding/${token}`,
-      },
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/digilockerUrl`,
+      {},
       {
         headers: {
           "Content-Type": "application/json",
@@ -339,6 +350,7 @@ export const aadhaarConnection = () => async (dispatch) => {
         type: AADHAAR_CONNECTION_SUCCESS,
         payload: { aadhaarVerify, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: AADHAAR_CONNECTION_FAILURE,
@@ -347,12 +359,14 @@ export const aadhaarConnection = () => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: AADHAAR_CONNECTION_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -380,6 +394,7 @@ export const aadhaarDownload = (value) => async (dispatch) => {
         type: DOWNLOAD_AADHAAR_SUCCESS,
         payload: { downloadResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: DOWNLOAD_AADHAAR_FAILURE,
@@ -388,12 +403,14 @@ export const aadhaarDownload = (value) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: DOWNLOAD_AADHAAR_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -404,7 +421,7 @@ export const uploadAadhaarDocuments = (frontImage, backImage) => async (dispatch
   dispatch({ type: LOADING_START });
   try {
     const formData = new FormData();
-    
+
     if (frontImage) {
       formData.append("front_photo", frontImage);
     }
@@ -429,6 +446,7 @@ export const uploadAadhaarDocuments = (frontImage, backImage) => async (dispatch
         type: UPLOAD_AADHAAR_SUCCESS,
         payload: { uploadResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: UPLOAD_AADHAAR_FAILURE,
@@ -437,18 +455,20 @@ export const uploadAadhaarDocuments = (frontImage, backImage) => async (dispatch
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: UPLOAD_AADHAAR_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
 };
 
-export const panConnection = (token) => async (dispatch) => {
+export const panConnection = () => async (dispatch) => {
   const token = localStorage.getItem("onboardingToken");
   dispatch({ type: LOADING_START });
   try {
@@ -471,6 +491,7 @@ export const panConnection = (token) => async (dispatch) => {
         type: PAN_CONNECTION_SUCCESS,
         payload: { panVerify, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: PAN_CONNECTION_FAILURE,
@@ -479,12 +500,14 @@ export const panConnection = (token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: PAN_CONNECTION_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -511,6 +534,7 @@ export const panDownload = (value) => async (dispatch) => {
         type: DOWNLOAD_PAN_SUCCESS,
         payload: { downloadResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: DOWNLOAD_PAN_FAILURE,
@@ -519,12 +543,14 @@ export const panDownload = (value) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: DOWNLOAD_PAN_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -536,7 +562,7 @@ export const uploadPanDocument = (panImage) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const formData = new FormData();
-    
+
     if (panImage) {
       formData.append("front_photo", panImage);
     }
@@ -558,6 +584,7 @@ export const uploadPanDocument = (panImage) => async (dispatch) => {
         type: UPLOAD_PAN_SUCCESS,
         payload: { uploadResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: UPLOAD_PAN_FAILURE,
@@ -566,12 +593,14 @@ export const uploadPanDocument = (panImage) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
       type: UPLOAD_PAN_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -601,7 +630,7 @@ export const postProfile = (photoDataUrl, token) => async (dispatch) => {
           message: "Profile image is required",
         },
       });
-      return;
+      return { status: "FAILURE", message: "Profile image is required" };
     }
 
     const photoFile = dataURLtoFile(photoDataUrl, "profile-liveness.jpg");
@@ -625,6 +654,7 @@ export const postProfile = (photoDataUrl, token) => async (dispatch) => {
         type: POST_PROFILE_SUCCESS,
         payload: { uploadResponse, status, message: message || response.data.message },
       });
+      return { status: "SUCCESS", message: message || response.data.message };
     } else {
       dispatch({
         type: POST_PROFILE_FAILURE,
@@ -633,12 +663,14 @@ export const postProfile = (photoDataUrl, token) => async (dispatch) => {
           message: response?.data?.message || "Failed to post profile",
         },
       });
+      return { status: "FAILURE", message: response?.data?.message || "Failed to post profile" };
     }
   } catch (error) {
     dispatch({
       type: POST_PROFILE_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -705,6 +737,7 @@ export const postShopDetails = (shopName, shopImage, token, ipAddress, longitude
         type: POST_SHOP_DETAILS_SUCCESS,
         payload: { uploadResponse, status, message: message || response.data.message },
       });
+      return { status: "SUCCESS", message: message || response.data.message };
     } else {
       dispatch({
         type: POST_SHOP_DETAILS_FAILURE,
@@ -713,12 +746,14 @@ export const postShopDetails = (shopName, shopImage, token, ipAddress, longitude
           message: response?.data?.message || "Failed to post shop details",
         },
       });
+      return { status: "FAILURE", message: response?.data?.message || "Failed to post shop details" };
     }
   } catch (error) {
     dispatch({
       type: POST_SHOP_DETAILS_FAILURE,
       payload: error.response ? error.response.data.message : error.message,
     });
+    return { status: "FAILURE", message: error.response ? error.response.data.message : error.message };
   } finally {
     dispatch({ type: LOADING_END });
   }
@@ -748,6 +783,7 @@ export const postBankDetails = (values, token) => async (dispatch) => {
         type: POST_BANK_DETAILS_SUCCESS,
         payload: { bankDetailsResponse, status, message },
       });
+      return { status, message };
     } else {
       dispatch({
         type: POST_BANK_DETAILS_FAILURE,
@@ -756,6 +792,7 @@ export const postBankDetails = (values, token) => async (dispatch) => {
           message: response?.data?.message ?? commonError,
         },
       });
+      return { status: response?.data?.status || "FAILURE", message: response?.data?.message || commonError };
     }
   } catch (error) {
     dispatch({
@@ -765,6 +802,7 @@ export const postBankDetails = (values, token) => async (dispatch) => {
         message: error.response?.data?.message || error.message || commonError,
       },
     });
+    return { status: "FAILURE", message: error.response?.data?.message || error.message || commonError };
   } finally {
     dispatch({ type: LOADING_END });
   }
