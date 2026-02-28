@@ -5,9 +5,11 @@ import {
   emailResendOtp,
   emailOtpVerify,
 } from "../redux/action/onboardingAction";
+import { useNotification } from "../context/NotificationContext";
 
 function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const [successCooldown, setSuccessCooldown] = useState(180);
 
   const handleChange = (e) => {
@@ -17,7 +19,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
 
   const sendEmailOtp = () => {
     if (!formData.email) {
-      alert("Please enter a valid Email ID");
+      notifyError("Please enter a valid Email ID");
       return;
     }
 
@@ -27,15 +29,18 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     const token = localStorage.getItem("onboardingToken");
 
     dispatch(emailSmsOtp(value, token)).then((res) => {
-      if (res?.status === 200 || res?.success === true) {
+      if (res?.status === "SUCCESS") {
         setFormData((d) => ({ ...d, emailOtpSent: true }));
+        notifySuccess(res?.message || "OTP sent successfully");
+      } else {
+        notifyError(res?.message || "Failed to send OTP");
       }
     });
   };
 
   const handleResendOtp = () => {
     if (!formData.email) {
-      alert("Please enter a valid Email ID");
+      notifyError("Please enter a valid Email ID");
       return;
     }
 
@@ -45,8 +50,11 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
     const token = localStorage.getItem("onboardingToken");
 
     dispatch(emailResendOtp(value, token)).then((res) => {
-      if (res?.status === 200 || res?.success === true) {
+      if (res?.status === "SUCCESS") {
         setSuccessCooldown(180);
+        notifySuccess(res?.message || "OTP resent successfully");
+      } else {
+        notifyError(res?.message || "Failed to resend OTP");
       }
     });
   };
@@ -58,14 +66,20 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   //console.log("verifySuccess", verifySuccess);
 
   // Submit OTP verification
-  const submitEmailOtp = () => {
+  const submitEmailOtp = async () => {
     if (!formData.emailOtp) {
-      alert("Enter OTP first");
+      notifyError("Please enter the OTP");
       return;
     }
 
     const token = localStorage.getItem("onboardingToken");
-    dispatch(emailOtpVerify({ otp: formData.emailOtp }, token));
+    const res = await dispatch(emailOtpVerify({ otp: formData.emailOtp }, token));
+
+    if (res?.status && res?.status !== "SUCCESS") {
+      notifyError(res?.message || "OTP verification failed");
+    } else if (res?.status === "SUCCESS") {
+      notifySuccess(res?.message || "OTP verified successfully");
+    }
   };
 
   // Handle Verify or Resend based on state
@@ -82,7 +96,7 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
   };
 
   const verifyfailure = useSelector((state) => state?.error?.status);
- // console.log("verifyfailure", verifyfailure);
+  // console.log("verifyfailure", verifyfailure);
 
   const [verifyError, setVerifyError] = useState(null);
   const [emailFocused, setEmailFocused] = useState(false);
@@ -156,11 +170,10 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                     className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
                   />
                   <div
-                    className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                      emailFocused || formData.email
-                        ? "bg-[#1B1717]"
-                        : "bg-gray-300"
-                    }`}
+                    className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${emailFocused || formData.email
+                      ? "bg-[#1B1717]"
+                      : "bg-gray-300"
+                      }`}
                   />
                   <input
                     type="email"
@@ -200,11 +213,10 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                 shadow-md
                 transition
                 flex-shrink-0
-                ${
-                  verifySuccess === "SUCCESS" && successCooldown > 0
-                    ? "bg-gray-400 cursor-not-allowed"
-                    : "bg-[#039155] text-white hover:bg-green-700"
-                }`}
+                ${verifySuccess === "SUCCESS" && successCooldown > 0
+                      ? "bg-gray-400 cursor-not-allowed"
+                      : "bg-[#039155] text-white hover:bg-green-700"
+                    }`}
                 >
                   {verifySuccess === "SUCCESS"
                     ? successCooldown > 0
@@ -227,11 +239,10 @@ function Step2({ formData, setFormData, onNext, onRefreshSteps }) {
                   className="absolute left-3 md:left-4 top-1/2 -translate-y-1/2 w-4 h-4 md:w-5 md:h-5 text-[#1B1717]/70 z-10"
                 />
                 <div
-                  className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                    otpFocused || formData.emailOtp
-                      ? "bg-[#1B1717]"
-                      : "bg-gray-300"
-                  }`}
+                  className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${otpFocused || formData.emailOtp
+                    ? "bg-[#1B1717]"
+                    : "bg-gray-300"
+                    }`}
                 />
                 <input
                   type="text"

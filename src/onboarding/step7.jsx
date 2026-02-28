@@ -1,9 +1,11 @@
 import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { postProfile } from "../redux/action/onboardingAction";
+import { useNotification } from "../context/NotificationContext";
 
 function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const {
     postProfileLoading,
     postProfileError,
@@ -70,7 +72,7 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
     } catch (error) {
       console.error("Error accessing camera:", error);
       setIsCameraActive(false);
-      alert("Unable to access camera. Please check permissions.");
+      notifyError("Unable to access camera. Please check permissions.");
     }
   };
 
@@ -107,23 +109,21 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
 
   const handleSubmit = async () => {
     if (!formData.profilePhotoDataUrl) {
+      notifyError("Please capture a profile photo");
       return;
     }
 
     const token = localStorage.getItem("onboardingToken");
     if (!token) {
-      alert("Onboarding token not found. Please refresh the page.");
+      notifyError("Onboarding token not found. Please refresh the page.");
       return;
     }
 
     // Upload the photo if not already uploaded
-    dispatch(postProfile(formData.profilePhotoDataUrl, token));
-  };
+    const res = await dispatch(postProfile(formData.profilePhotoDataUrl, token));
 
-  // Handle success when profile is posted successfully
-  useEffect(() => {
-    if (postProfileSuccess) {
-      // Refresh steps after successful completion
+    if (res?.status === "SUCCESS") {
+      notifySuccess(res?.message || "Profile posted successfully");
       if (onRefreshSteps) {
         onRefreshSteps();
       }
@@ -131,8 +131,15 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
       if (onComplete) {
         onComplete();
       }
+    } else {
+      notifyError(res?.message || "Failed to post profile");
     }
-  }, [postProfileSuccess, onComplete, setFormData, onRefreshSteps]);
+  };
+
+  // Handle success when profile is posted successfully
+  useEffect(() => {
+    // Legacy effect removed mapping handled by handleSubmit promise.
+  }, []);
 
   // Effect to ensure video stream is properly connected when camera becomes active
   useEffect(() => {
@@ -265,11 +272,10 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${
-                    isCameraActive
+                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${isCameraActive
                       ? "bg-[#039155] text-white hover:bg-green-700"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   Capture
                 </button>
@@ -304,20 +310,6 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
             </ul>
           </div>
 
-          {/* Error Message */}
-          {postProfileError && (
-            <div className="w-full p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-4 mt-4">
-              {postProfileError}
-            </div>
-          )}
-
-          {/* Success Message */}
-          {postProfileSuccess && postProfileMessage && (
-            <div className="w-full p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm mb-4 mt-4">
-              {postProfileMessage}
-            </div>
-          )}
-
           {/* Submit Button */}
           <button
             type="button"
@@ -333,11 +325,10 @@ function Step7({ formData, setFormData, onComplete, onRefreshSteps }) {
             transition
             shadow-lg
             flex items-center justify-center
-            ${
-              postProfileLoading || !formData.profilePhotoDataUrl
+            ${postProfileLoading || !formData.profilePhotoDataUrl
                 ? "bg-[#039155] text-white cursor-not-allowed"
                 : "bg-[#039155] hover:bg-green-700"
-            }`}
+              }`}
           >
             {postProfileLoading ? "Submitting..." : "Submit"}
           </button>

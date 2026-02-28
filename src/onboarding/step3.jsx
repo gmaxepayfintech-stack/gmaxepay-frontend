@@ -6,9 +6,11 @@ import {
   uploadAadhaarDocuments,
 } from "../redux/action/onboardingAction";
 import { UPLOAD_AADHAAR_SUCCESS } from "../redux/actionType/onboardingActionType";
+import { useNotification } from "../context/NotificationContext";
 
 function Step3({ setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
 
   const [isVerified, setIsVerified] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -89,32 +91,43 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
     setLoading(true);
 
     try {
-      await dispatch(aadhaarConnection());
-      setIsVerified(true);
-      setShowTickMark(true); // Show tick mark for 3 minutes
-      setFormData((d) => ({
-        ...d,
-        aadhaarDocFetched: true,
-        digilockerLinked: true,
-      }));
+      const res = await dispatch(aadhaarConnection());
+      if (res?.status === "SUCCESS") {
+        setIsVerified(true);
+        setShowTickMark(true); // Show tick mark for 3 minutes
+        setFormData((d) => ({
+          ...d,
+          aadhaarDocFetched: true,
+          digilockerLinked: true,
+        }));
+        notifySuccess(res?.message || "Connected to DigiLocker successfully");
+      } else {
+        notifyError(res?.message || "Verification failed");
+      }
     } catch (error) {
       console.error("Verification failed:", error);
+      notifyError("Verification failed due to an error");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleDownload = () => {
+  const handleDownload = async () => {
     // Only allow download if verification is done
     if (!isConnectDone) {
-      console.error("Please verify Aadhaar first!");
+      notifyError("Please verify Aadhaar first!");
       return;
     }
     const payload = {
       document_type: "AADHAAR",
     };
 
-    dispatch(aadhaarDownload(payload));
+    const res = await dispatch(aadhaarDownload(payload));
+    if (res?.status === "SUCCESS") {
+      notifySuccess(res?.message || "Aadhaar verified successfully");
+    } else {
+      notifyError(res?.message || "Aadhaar verification failed");
+    }
   };
 
   const handleImageChange = (type, e) => {
@@ -180,14 +193,22 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
   const handleSubmitImages = async () => {
     if (!frontImage || !backImage) {
+      notifyError("Please upload both front and back images");
       return;
     }
 
     setUploading(true);
     try {
-      await dispatch(uploadAadhaarDocuments(frontImage, backImage));
+      const res = await dispatch(uploadAadhaarDocuments(frontImage, backImage));
+      if (res?.status === "SUCCESS") {
+        notifySuccess(res?.message || "Documents uploaded successfully");
+      } else {
+        notifyError(res?.message || "Failed to upload Aadhaar documents");
+        setUploading(false);
+      }
     } catch (error) {
       console.error("Failed to upload Aadhaar documents:", error);
+      notifyError("Failed to upload Aadhaar documents");
       setUploading(false);
     }
   };
@@ -292,12 +313,11 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   onClick={handleVerify}
                   disabled={loading || (isConnectDone && showTickMark)}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md 
-                    ${
-                      isConnectDone && showTickMark
-                        ? "bg-green-600 text-white cursor-not-allowed"
-                        : loading
-                          ? "bg-[#039155] text-white opacity-75 cursor-not-allowed"
-                          : "bg-[#039155] text-white hover:bg-green-700"
+                    ${isConnectDone && showTickMark
+                      ? "bg-green-600 text-white cursor-not-allowed"
+                      : loading
+                        ? "bg-[#039155] text-white opacity-75 cursor-not-allowed"
+                        : "bg-[#039155] text-white hover:bg-green-700"
                     }`}
                 >
                   {loading
@@ -311,10 +331,9 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   disabled={!isConnectDone || isDownloadDone}
                   className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base border transition shadow-md 
 
-                    ${
-                      !isConnectDone || isDownloadDone
-                        ? "text-gray-400 cursor-not-allowed border-gray-300"
-                        : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    ${!isConnectDone || isDownloadDone
+                      ? "text-gray-400 cursor-not-allowed border-gray-300"
+                      : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
                     }`}
                 >
                   {isDownloadDone ? "Verified" : "Verify"}
@@ -538,11 +557,10 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
         font-[Gilroy-Semibold]
         text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
         shadow-md transition-all
-        flex items-center justify-center                ${
-          frontImage && backImage && !uploading
-            ? "bg-[#039155] text-white hover:bg-green-700"
-            : "bg-gray-400 text-white cursor-not-allowed"
-        }`}
+        flex items-center justify-center                ${frontImage && backImage && !uploading
+                  ? "bg-[#039155] text-white hover:bg-green-700"
+                  : "bg-gray-400 text-white cursor-not-allowed"
+                }`}
             >
               {uploading ? "Uploading..." : "Submit"}
             </button>

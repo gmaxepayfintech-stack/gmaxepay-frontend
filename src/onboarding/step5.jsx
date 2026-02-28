@@ -2,9 +2,11 @@ import { useRef, useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { postShopDetails } from "./../redux/action/onboardingAction";
 import { getLocationAndIP } from "./../util/getLocationAndIP";
+import { useNotification } from "../context/NotificationContext";
 
 function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const {
     postShopDetailsLoading,
     postShopDetailsError,
@@ -75,7 +77,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
     } catch (error) {
       console.error("Error accessing camera:", error);
       setIsCameraActive(false);
-      alert("Unable to access camera. Please check permissions.");
+      notifyError("Unable to access camera. Please check permissions.");
     }
   };
 
@@ -112,12 +114,13 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
 
   const handleSubmit = async () => {
     if (!formData.shopName || !formData.shopPhotoDataUrl) {
+      notifyError("Please enter shop name and capture a photo");
       return;
     }
 
     const token = localStorage.getItem("onboardingToken");
     if (!token) {
-      alert("Onboarding token not found. Please refresh the page.");
+      notifyError("Onboarding token not found. Please refresh the page.");
       return;
     }
 
@@ -129,7 +132,7 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
       const latitude = locationIPData.location?.latitude;
 
       // Dispatch the API call
-      await dispatch(
+      const res = await dispatch(
         postShopDetails(
           formData.shopName,
           formData.shopPhotoDataUrl,
@@ -139,10 +142,16 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
           latitude,
         ),
       );
-      // Success will be handled in useEffect below
+
+      if (res?.status === "SUCCESS") {
+        notifySuccess(res?.message || "Shop details submitted successfully");
+      } else {
+        notifyError(res?.message || "Failed to submit shop details");
+      }
     } catch (error) {
       // Error is handled by Redux state and displayed above
       console.error("Failed to submit shop details:", error);
+      notifyError("Failed to submit shop details");
     }
   };
 
@@ -238,9 +247,8 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
             />
 
             <div
-              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                formData.shopName ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${formData.shopName ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -340,11 +348,10 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
                     capturePhoto();
                   }}
                   disabled={!isCameraActive}
-                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${
-                    isCameraActive
+                  className={`px-4 py-1.5 rounded-lg text-sm font-[Gilroy-Medium] transition shadow-md ${isCameraActive
                       ? "bg-[#039155] text-white hover:bg-green-700"
                       : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  }`}
+                    }`}
                 >
                   Capture
                 </button>
@@ -380,20 +387,6 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
             </ul>
           </div>
 
-          {/* Error Message */}
-          {postShopDetailsError && (
-            <div className="w-full p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm mb-4">
-              {postShopDetailsError}
-            </div>
-          )}
-
-          {/* Success Message */}
-          {postShopDetailsSuccess && postShopDetailsMessage && (
-            <div className="w-full p-3 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm mb-4">
-              {postShopDetailsMessage}
-            </div>
-          )}
-
           {/* Submit Button */}
           <button
             type="button"
@@ -403,13 +396,12 @@ function Step5({ formData, setFormData, onNext, onRefreshSteps }) {
               !formData.shopName ||
               !formData.shopPhotoDataUrl
             }
-            className={`w-full h-10 sm:h-11 md:h-12 mt-6 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm text-white shadow-lg transition ${
-              postShopDetailsLoading ||
-              !formData.shopName ||
-              !formData.shopPhotoDataUrl
+            className={`w-full h-10 sm:h-11 md:h-12 mt-6 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm text-white shadow-lg transition ${postShopDetailsLoading ||
+                !formData.shopName ||
+                !formData.shopPhotoDataUrl
                 ? "bg-gray-400 cursor-not-allowed"
                 : "bg-[#039155] hover:bg-green-700"
-            }`}
+              }`}
           >
             {postShopDetailsLoading ? "Submitting..." : "Submit"}
           </button>

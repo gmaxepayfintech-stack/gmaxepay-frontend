@@ -55,16 +55,20 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
     }
 
     const token = localStorage.getItem("onboardingToken");
-    dispatch(MobileOTPResponse({ mobileNo: formik.values.phone }, token));
+    const response = await dispatch(MobileOTPResponse({ mobileNo: formik.values.phone }, token));
 
-    setFormData((d) => ({ ...d, otpSent: true }));
-    setTimer(30);
+    if (response?.status === "SUCCESS") {
+      setFormData((d) => ({ ...d, otpSent: true }));
+      setTimer(30);
+    }
   };
 
-  const resendOtp = () => {
+  const resendOtp = async () => {
     const token = localStorage.getItem("onboardingToken");
-    dispatch(resendOTPResponse({ mobileNo: formik.values.phone }, token));
-    setTimer(30);
+    const response = await dispatch(resendOTPResponse({ mobileNo: formik.values.phone }, token));
+    if (response?.status === "SUCCESS") {
+      setTimer(30);
+    }
   };
 
   useEffect(() => {
@@ -135,9 +139,8 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
               />
 
               <div
-                className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px transition ${
-                  formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+                className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
               />
 
               <input
@@ -182,11 +185,10 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
         whitespace-nowrap
         shadow-md
         transition
-        flex-shrink-0    ${
-          verifySuccess === "SUCCESS" && successCooldown > 0
-            ? "bg-gray-400 cursor-not-allowed"
-            : "bg-[#039155] text-white hover:bg-green-700"
-        }
+        flex-shrink-0    ${verifySuccess === "SUCCESS" && successCooldown > 0
+                  ? "bg-gray-400 cursor-not-allowed"
+                  : "bg-[#039155] text-white hover:bg-green-700"
+                }
   `}
             >
               {verifySuccess === "SUCCESS"
@@ -221,9 +223,8 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
             />
 
             <div
-              className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px ${
-                formData.otp ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-10 sm:left-11 top-1/2 -translate-y-1/2 h-5 sm:h-6 w-px ${formData.otp ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -235,11 +236,10 @@ function Step1({ formData, setFormData, onNext, onRefreshSteps }) {
               placeholder="Enter Mobile OTP"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
         font-[Gilroy-Medium]
-        ${
-          formik.errors.otp && formik.touched.otp
-            ? "border-red-500"
-            : "border-[#1B1717]/80"
-        }
+        ${formik.errors.otp && formik.touched.otp
+                  ? "border-red-500"
+                  : "border-[#1B1717]/80"
+                }
         rounded-lg
         pl-10 md:pl-12 lg:pl-14
         pr-3

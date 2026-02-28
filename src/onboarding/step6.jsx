@@ -3,9 +3,11 @@ import * as Yup from "yup";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
 import { postBankDetails } from "../redux/action/onboardingAction";
+import { useNotification } from "../context/NotificationContext";
 
 function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
   const dispatch = useDispatch();
+  const { error: notifyError, success: notifySuccess } = useNotification();
   const validationSchema = Yup.object({
     bankAccountNumber: Yup.string()
       .matches(/^\d{9,18}$/, "Account number must be 9-18 digits")
@@ -69,7 +71,7 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
     // Call API to verify and fetch beneficiary name
     const token = localStorage.getItem("onboardingToken");
     if (token && formik.values.bankAccountNumber && formik.values.ifscCode) {
-      dispatch(
+      const res = await dispatch(
         postBankDetails(
           {
             account_number: formik.values.bankAccountNumber,
@@ -78,6 +80,12 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           token,
         ),
       );
+
+      if (res?.status === "SUCCESS") {
+        notifySuccess(res?.message || "Bank details verified successfully");
+      } else {
+        notifyError(res?.message || "Failed to verify bank details");
+      }
     }
   };
 
@@ -187,15 +195,13 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
             <img
               src="/img/User.png"
               alt="Account"
-              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
-                formik.values.bankAccountNumber ? "opacity-100" : "opacity-50"
-              }`}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${formik.values.bankAccountNumber ? "opacity-100" : "opacity-50"
+                }`}
             />
 
             <div
-              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                formik.values.bankAccountNumber ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${formik.values.bankAccountNumber ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -209,12 +215,11 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               inputMode="numeric"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
               font-[Gilroy-Medium]
-              ${
-                formik.errors.bankAccountNumber &&
-                formik.touched.bankAccountNumber
+              ${formik.errors.bankAccountNumber &&
+                  formik.touched.bankAccountNumber
                   ? "border-red-500"
                   : "border-[#1B1717]/80"
-              }
+                }
               rounded-lg
               pl-10 md:pl-12 lg:pl-14
               pr-3
@@ -235,12 +240,11 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           {formik.values.bankAccountNumber &&
             !formik.errors.bankAccountNumber && (
               <p
-                className={`text-sm mt-1 ${
-                  formik.values.bankAccountNumber.length >= 9 &&
-                  formik.values.bankAccountNumber.length <= 18
+                className={`text-sm mt-1 ${formik.values.bankAccountNumber.length >= 9 &&
+                    formik.values.bankAccountNumber.length <= 18
                     ? "text-green-600"
                     : "text-gray-500"
-                }`}
+                  }`}
               >
                 {formik.values.bankAccountNumber.length} / 18 digits entered
                 {formik.values.bankAccountNumber.length < 9 &&
@@ -263,15 +267,13 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               <img
                 src="/img/ListMagnifyingGlass.png"
                 alt="IFSC"
-                className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
-                  formik.values.ifscCode ? "opacity-100" : "opacity-50"
-                }`}
+                className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${formik.values.ifscCode ? "opacity-100" : "opacity-50"
+                  }`}
               />
 
               <div
-                className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                  formik.values.ifscCode ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+                className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${formik.values.ifscCode ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
               />
 
               <input
@@ -283,11 +285,10 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
                 placeholder="Enter IFSC Code"
                 className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0
                 font-[Gilroy-Medium]
-                ${
-                  formik.errors.ifscCode && formik.touched.ifscCode
+                ${formik.errors.ifscCode && formik.touched.ifscCode
                     ? "border-red-500"
                     : "border-[#1B1717]/80"
-                }
+                  }
                 rounded-l-lg
                 pl-10 md:pl-12 lg:pl-14
                 pr-3
@@ -320,13 +321,12 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               shadow-md
               transition
               flex-shrink-0            
-              ${
-                !formik.values.bankAccountNumber ||
-                !formik.values.ifscCode ||
-                formik.values.bankAccountNumber.length < 9
+              ${!formik.values.bankAccountNumber ||
+                  !formik.values.ifscCode ||
+                  formik.values.bankAccountNumber.length < 9
                   ? "bg-[#039155] cursor-not-allowed opacity-70"
                   : "bg-[#039155] hover:bg-green-700"
-              }
+                }
               `}
             >
               Verify
@@ -335,12 +335,6 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           {formik.errors.ifscCode && formik.touched.ifscCode && (
             <p className="text-red-500 text-sm mt-1">
               {formik.errors.ifscCode}
-            </p>
-          )}
-          {bankDetailsStatus === "FAILURE" && bankDetailsError && (
-            <p className="text-red-500 text-sm mt-1">
-              {bankDetailsError?.message ||
-                "Failed to verify bank details. Please try again."}
             </p>
           )}
         </div>
@@ -358,15 +352,13 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
             <img
               src="/img/UserSquare.png"
               alt="Beneficiary"
-              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${
-                formik.values.beneficiaryName ? "opacity-100" : "opacity-50"
-              }`}
+              className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 transition ${formik.values.beneficiaryName ? "opacity-100" : "opacity-50"
+                }`}
             />
 
             <div
-              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${
-                formik.values.beneficiaryName ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-11 top-1/2 -translate-y-1/2 h-6 w-px transition ${formik.values.beneficiaryName ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -385,11 +377,10 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
               text-sm md:text-base
               outline-none
               transition
-              ${
-                !formData.ifscVerified
+              ${!formData.ifscVerified
                   ? "bg-gray-50 cursor-not-allowed"
                   : "focus:border-[#1B1717]/80"
-              }
+                }
             `}
             />
           </div>
@@ -399,11 +390,10 @@ function Step6({ formData, setFormData, onNext, onRefreshSteps }) {
           type="button"
           onClick={formik.handleSubmit}
           disabled={!isNextEnabled}
-          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${
-            !isNextEnabled
+          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${!isNextEnabled
               ? "bg-[#039155] cursor-not-allowed opacity-70"
               : "bg-[#039155] hover:bg-green-700"
-          }`}
+            }`}
         >
           Next
         </button>
