@@ -447,7 +447,7 @@ const DashboardLayout = ({ children }) => {
                 title={`${profileDetails?.companyDetails?.companyName} - Admin`}
               >
                 {profileDetails?.companyDetails?.companyName} - Admin
-              </span> 
+              </span>
               <button
                 onClick={toggleProfileDropdown}
                 className="focus:outline-none  rounded-full"
