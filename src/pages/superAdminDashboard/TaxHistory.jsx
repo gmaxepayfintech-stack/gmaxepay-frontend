@@ -11,7 +11,9 @@ import WalletHistory from "./walletHistroy";
 import SurCharges from "./SurCharges";
 import GSTHistory from "./GSTHistory";
 import BBPSReport from "./BBPSReport";
-
+import PanReportTwo from "./reports/PanReportTwo";
+import RechargeReportTwo from "./reports/RechargeReportTwo";
+import DTHReportTwo from "./reports/DTHReportTwo";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -33,6 +35,9 @@ const TaxHistory = () => {
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
   const showPanServiceHistory = viewHistory === "pan-service-history";
+  const showRechargeHistoryTwo = viewHistory === "recharge-history-two";
+  const showDthHistoryTwo = viewHistory === "dth-history-two";
+  const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
   const showSurCharges = viewHistory === "surcharges";
   const showGstHistory = viewHistory === "gst-history";
   const showBbpsHistory = viewHistory === "bbps-history";
@@ -196,7 +201,7 @@ const TaxHistory = () => {
     // },
     {
       id: 29,
-      title: "Mobile Recharge History",
+      title: "Mobile Recharge -1 History",
       subtitle: "Prepaid & Postpaid",
       available: true,
       viewKey: "recharge-history",
@@ -204,10 +209,26 @@ const TaxHistory = () => {
     },
     {
       id: 30,
-      title: "DTH Recharge History",
+      title: "Mobile Recharge -2 History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history-two",
+      category: "Utility Payment",
+    },
+    {
+      id: 31,
+      title: "DTH Recharge -1 History",
       subtitle: "DTH Payments",
       available: true,
       viewKey: "dth-history",
+      category: "Utility Payment",
+    },
+    {
+      id: 31,
+      title: "DTH Recharge -2 History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history-two",
       category: "Utility Payment",
     },
     {
@@ -222,10 +243,18 @@ const TaxHistory = () => {
     // E-Governance
     {
       id: 17,
-      title: "PAN Service History",
+      title: "PAN Service -1 History",
       subtitle: "PAN Applications & Updates",
       available: true,
       viewKey: "pan-service-history",
+      category: "E-Governance",
+    },
+    {
+      id: 32,
+      title: "PAN Service -2 History",
+      subtitle: "PAN Applications & Updates",
+      available: true,
+      viewKey: "pan-service-history-two",
       category: "E-Governance",
     },
     // {
@@ -327,6 +356,20 @@ const TaxHistory = () => {
 
   if (showPanServiceHistory) {
     return <PanReport />;
+  }
+
+  if (showRechargeHistoryTwo) {
+    return (
+      <RechargeReportTwo onBack={() => navigate("/superDashboard/txn-history")} />
+    );
+  }
+
+  if (showDthHistoryTwo) {
+    return <DTHReportTwo />;
+  }
+
+  if (showPanServiceHistoryTwo) {
+    return <PanReportTwo />;
   }
 
   if (showSurCharges) {
