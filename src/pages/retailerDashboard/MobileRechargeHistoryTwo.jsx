@@ -65,7 +65,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
     useEffect(() => {
         const query = {
             // API expects serviceType: "MobileRecharge"
-            serviceType: "Mobile1Recharge",
+            serviceType: "Mobile2Recharge",
         };
 
         // Add date filters only if both dates are selected

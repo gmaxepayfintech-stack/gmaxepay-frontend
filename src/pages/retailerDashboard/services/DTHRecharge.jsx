@@ -320,7 +320,7 @@ const DTHRecharge = ({ onBack }) => {
     const fetchRecentHistory = async () => {
       const payload = {
         query: {
-          serviceType: "DTHRecharge",
+          serviceType: "DTH1Recharge",
         },
         customSearch: {},
         options: {
