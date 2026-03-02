@@ -53,12 +53,12 @@ const servicesData = [
     status: "available",
     logo: "/img/PanCorrection.svg",
   },
-  {
-    id: "A1 TOP-UP PAN",
-    title: "Express PAN",
-    status: "available",
-    logo: "/img/PanCorrection.svg",
-  },
+  // {
+  //   id: "A1 TOP-UP PAN",
+  //   title: "Express PAN",
+  //   status: "available",
+  //   logo: "/img/PanCorrection.svg",
+  // },
   { id: "cms-1", title: "CMS-1", status: "available", logo: "/img/CMS.svg" },
   { id: "cms-2", title: "CMS-2", status: "available", logo: "/img/CMS.svg" },
   {
