@@ -254,7 +254,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
                                 setToDate("");
                                 setIsReloading(true);
 
-                                const query = { serviceType: "Mobile1Recharge" };
+                                const query = { serviceType: "Mobile2Recharge" };
                                 const customSearch = debouncedSearchQuery.trim()
                                     ? getSearchField(debouncedSearchQuery)
                                     : {};
