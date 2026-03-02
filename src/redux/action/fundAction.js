@@ -913,7 +913,61 @@ export const PanRequest = (payload) => async (dispatch) => {
     const token = typeof authToken === 'string' ? authToken : String(authToken || '');
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/pan/actions`,
+      `${API_ROUTE}/api/v1/user/pan1/actions`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const { data: panServiceRequest, status, message } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: PAN_SERVICE_REQUEST_SUCCESS,
+        payload: { panServiceRequest, status, message },
+      });
+      return { panServiceRequest, status, message };
+    } else {
+      // Also return the data object for FAILURE cases so component can access it
+      dispatch({
+        type: PAN_SERVICE_REQUEST_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+          panServiceRequest: panServiceRequest, // Include data object
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+        panServiceRequest: panServiceRequest, // Include data object
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: PAN_SERVICE_REQUEST_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const PanAOneRequest = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const token = typeof authToken === 'string' ? authToken : String(authToken || '');
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/pan2/actions`,
       payload,
       {
         headers: {
