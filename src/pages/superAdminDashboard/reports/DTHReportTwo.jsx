@@ -9,8 +9,9 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsAdmin } from "../../../redux/action/reportAction";
+import { rechargeReportsTwoAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+
 
 const DTHReportTwo = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -91,7 +92,7 @@ const DTHReportTwo = ({ onBack }) => {
             },
         };
 
-        dispatch(rechargeReportsAdmin(payload));
+        dispatch(rechargeReportsTwoAdmin(payload));
     }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -305,7 +306,7 @@ const DTHReportTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsAdmin(payload));
+                                dispatch(rechargeReportsTwoAdmin(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

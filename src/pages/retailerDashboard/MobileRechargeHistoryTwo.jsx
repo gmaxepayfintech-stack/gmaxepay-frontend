@@ -10,8 +10,7 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { rechargeReportsUser } from "../../redux/action/reportAction";
-
+import { rechargeReportsTwoUser } from "../../redux/action/reportAction";
 const MobileRechargeHistoryTwo = ({ onBack }) => {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState("");
@@ -91,7 +90,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
             },
         };
 
-        dispatch(rechargeReportsUser(payload));
+        dispatch(rechargeReportsTwoUser(payload));
     }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -270,7 +269,7 @@ const MobileRechargeHistoryTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsUser(payload));
+                                dispatch(rechargeReportsTwoUser(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}
