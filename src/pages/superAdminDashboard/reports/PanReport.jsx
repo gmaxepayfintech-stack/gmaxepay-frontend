@@ -265,11 +265,10 @@ const PanReport = ({ onBack }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                     ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                     : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -302,9 +301,8 @@ const PanReport = ({ onBack }) => {
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -385,15 +383,6 @@ const PanReport = ({ onBack }) => {
               </div>
             );
           }
-          if (paginatedTransactions.length === 0) {
-            return (
-              <div className="flex items-center justify-center py-20">
-                <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-gray-500">
-                  No PAN service transactions found
-                </p>
-              </div>
-            );
-          }
           return (
             <div className="w-full overflow-x-auto overscroll-x-contain">
               <table className="w-full border-collapse min-w-full">
@@ -448,83 +437,90 @@ const PanReport = ({ onBack }) => {
                 </thead>
 
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {paginatedTransactions.map((transaction) => (
-                    <tr
-                      key={transaction.id}
-                      className="hover:bg-gray-50 transition-colors"
-                    >
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {transaction.srNo}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
-                        {transaction.transactionId}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
-                        {transaction.orderId}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                        {transaction.name}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {transaction.userId}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {transaction.mobileNo}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 capitalize">
-                          {transaction.action}
-                        </span>
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        ₹
-                        {Number.parseFloat(transaction.commission || 0).toFixed(
-                          2,
-                        )}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        <span
-                          className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
-                            transaction.status,
-                          )}`}
-                        >
-                          {transaction.status}
-                        </span>
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                        {transaction.txid}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                        {transaction.apiMessage}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
-                        {transaction.redirectUrl !== "N/A" ? (
-                          <a
-                            href={transaction.redirectUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 underline truncate block max-w-xs"
-                            title={transaction.redirectUrl}
-                          >
-                            {transaction.redirectUrl.length > 30
-                              ? `${transaction.redirectUrl.substring(0, 30)}...`
-                              : transaction.redirectUrl}
-                          </a>
-                        ) : (
-                          "N/A"
-                        )}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {formatDate(transaction.date)}
-                      </td>
-                      <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                        {formatTime(transaction.date)}
+                  {paginatedTransactions.length === 0 ? (
+                    <tr>
+                      <td colSpan="15" className="px-4 py-8 text-center text-sm sm:text-base font-['Gilroy-Medium'] text-gray-500">
+                        No PAN service transactions found
                       </td>
                     </tr>
-                  ))}
+                  ) : (
+                    paginatedTransactions.map((transaction) => (
+                      <tr
+                        key={transaction.id}
+                        className="hover:bg-gray-50 transition-colors"
+                      >
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          {transaction.srNo}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
+                          {transaction.transactionId}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">
+                          {transaction.orderId}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                          {transaction.name}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          {transaction.userId}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          {transaction.mobileNo}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          <span className="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800 capitalize">
+                            {transaction.action}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          ₹
+                          {Number.parseFloat(transaction.commission || 0).toFixed(
+                            2,
+                          )}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          <span
+                            className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-['Gilroy-Medium'] ${getStatusBadgeColor(
+                              transaction.status,
+                            )}`}
+                          >
+                            {transaction.status}
+                          </span>
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                          {transaction.txid}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                          {transaction.apiMessage}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left max-w-[160px] truncate whitespace-nowrap overflow-hidden text-ellipsis">
+                          {transaction.redirectUrl !== "N/A" ? (
+                            <a
+                              href={transaction.redirectUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 underline truncate block max-w-xs"
+                              title={transaction.redirectUrl}
+                            >
+                              {transaction.redirectUrl.length > 30
+                                ? `${transaction.redirectUrl.substring(0, 30)}...`
+                                : transaction.redirectUrl}
+                            </a>
+                          ) : (
+                            "N/A"
+                          )}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          {formatDate(transaction.date)}
+                        </td>
+                        <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
+                          {formatTime(transaction.date)}
+                        </td>
+                      </tr>
+                    )))}
                 </tbody>
               </table>
             </div>
@@ -568,11 +564,10 @@ const PanReport = ({ onBack }) => {
                   <button
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
-                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                      apiCurrentPage === pageNum
+                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
                         ? "bg-[#039155] text-white"
                         : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {pageNum}
                   </button>

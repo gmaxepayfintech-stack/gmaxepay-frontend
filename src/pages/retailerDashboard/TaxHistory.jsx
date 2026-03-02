@@ -9,6 +9,11 @@ import PanServiceHistory from "./panServiceHistory";
 import PayoutHistory from "./payoutHistory";
 import WalletHistory from "./walletHistroy";
 import BBPSReports from "./BBPSReports";
+import PanServiceHistoryTwo from "./PanServiceHistoryTwo";
+import DTHRechargeHistoryTwo from "./DTHRechargeHistoryTwo";
+import MobileRechargeHistoryTwo from "./MobileRechargeHistoryTwo";
+
+
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -38,8 +43,11 @@ const TaxHistory = () => {
 
   const showPayoutHistory = viewHistory === "payout-history";
   const showRechargeHistory = viewHistory === "recharge-history";
+  const showRechargeHistoryTwo = viewHistory === "recharge-history-two";
   const showDthHistory = viewHistory === "dth-history";
+  const showDthHistoryTwo = viewHistory === "dth-history-two";
   const showPanServiceHistory = viewHistory === "pan-service-history";
+  const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
   const showWalletHistory = viewHistory === "wallet-history";
   const showBBPSHistory = viewHistory === "bbps-history";
   const tabs = [
@@ -193,18 +201,34 @@ const TaxHistory = () => {
     // },
     {
       id: 29,
-      title: "Mobile Recharge History",
+      title: "Mobile Recharge -1 History",
       subtitle: "Prepaid & Postpaid",
       available: true,
       viewKey: "recharge-history",
       category: "Utility Payment",
     },
     {
+      id: 32,
+      title: "Mobile Recharge -2 History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history-two",
+      category: "Utility Payment",
+    },
+    {
       id: 30,
-      title: "DTH Recharge History",
+      title: "DTH Recharge -1 History",
       subtitle: "DTH Payments",
       available: true,
       viewKey: "dth-history",
+      category: "Utility Payment",
+    },
+    {
+      id: 33,
+      title: "DTH Recharge -2 History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history-two",
       category: "Utility Payment",
     },
     {
@@ -219,10 +243,18 @@ const TaxHistory = () => {
     // E-Governance
     {
       id: 17,
-      title: "PAN Service History",
+      title: "PAN Service -1 History",
       subtitle: "PAN Applications & Updates",
       available: true,
       viewKey: "pan-service-history",
+      category: "E-Governance",
+    },
+    {
+      id: 34,
+      title: "PAN Service -2 History",
+      subtitle: "PAN Applications & Updates",
+      available: true,
+      viewKey: "pan-service-history-two",
       category: "E-Governance",
     },
     // {
@@ -367,12 +399,36 @@ const TaxHistory = () => {
     );
   }
 
+  if (showRechargeHistoryTwo) {
+    return (
+      <MobileRechargeHistoryTwo
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
   if (showDthHistory) {
     return <DthRechargeHistory />;
   }
 
+  if (showDthHistoryTwo) {
+    return (
+      <DTHRechargeHistoryTwo
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+
   if (showPanServiceHistory) {
     return <PanServiceHistory />;
+  }
+
+  if (showPanServiceHistoryTwo) {
+    return (
+      <PanServiceHistoryTwo
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
   }
 
   if (showBBPSHistory) {

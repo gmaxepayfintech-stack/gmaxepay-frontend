@@ -9,6 +9,9 @@ import DTHReport from "../reports/DTHReport";
 import PayoutHistory from "./payoutHistory";
 import WalletHistory from "./walletHistroy";
 import BBPSReports from "./BBPSReports";
+import RechargeReportTwo from "../reports/RechargeReportTwo";
+import PanReportTwo from "../reports/PanReportTwo";
+import DTHReportTwo from "../reports/DTHReportTwo";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -37,8 +40,11 @@ const TaxHistory = () => {
 
   const showAepsHistory = apiType && transactionType;
   const showRechargeHistory = viewHistory === "recharge-history";
+  const showRechargeHistoryTwo = viewHistory === "recharge-history-two";
   const showDTHHistory = viewHistory === "dth-history";
+  const showDthHistoryTwo = viewHistory === "dth-history-two";
   const showPANHistory = viewHistory === "pan-service-history";
+  const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
   const showPayoutHistory = viewHistory === "payout-history";
   const showWalletHistory = viewHistory === "wallet-history";
   const showBBPSHistory = viewHistory === "bbps-history";
@@ -199,16 +205,25 @@ const TaxHistory = () => {
     //   category: "Utility Payment",
     // },
     {
-      id: 29,
-      title: "Mobile Recharge History",
+      id: 28,
+      title: "Mobile Recharge -1 History",
       subtitle: "Prepaid & Postpaid",
       available: true,
       viewKey: "recharge-history",
       category: "Utility Payment",
     },
     {
+      id: 29,
+      title: "Mobile Recharge -2 History",
+      subtitle: "Prepaid & Postpaid",
+      available: true,
+      viewKey: "recharge-history-two",
+      category: "Utility Payment",
+    },
+
+    {
       id: 30,
-      title: "DTH Recharge History",
+      title: "DTH Recharge -1 History",
       subtitle: "DTH Payments",
       available: true,
       viewKey: "dth-history",
@@ -216,6 +231,14 @@ const TaxHistory = () => {
     },
     {
       id: 31,
+      title: "DTH Recharge -2 History",
+      subtitle: "DTH Payments",
+      available: true,
+      viewKey: "dth-history-two",
+      category: "Utility Payment",
+    },
+    {
+      id: 33,
       title: "BBPS History",
       subtitle: "BBPS Payments",
       available: true,
@@ -226,10 +249,18 @@ const TaxHistory = () => {
     // E-Governance
     {
       id: 17,
-      title: "PAN Service History",
+      title: "PAN Service -1 History",
       subtitle: "PAN Applications & Updates",
       available: true,
       viewKey: "pan-service-history",
+      category: "E-Governance",
+    },
+    {
+      id: 32,
+      title: "PAN Service -2 History",
+      subtitle: "PAN Applications & Updates",
+      available: true,
+      viewKey: "pan-service-history-two",
       category: "E-Governance",
     },
     // {
@@ -370,12 +401,26 @@ const TaxHistory = () => {
     );
   }
 
+  if (showRechargeHistoryTwo) {
+    return (
+      <RechargeReportTwo onBack={() => navigate("/adminDashboard/txn-history")} />
+    );
+  }
+
   if (showDTHHistory) {
     return <DTHReport onBack={() => navigate("/adminDashboard/txn-history")} />;
   }
 
+  if (showDthHistoryTwo) {
+    return <DTHReportTwo onBack={() => navigate("/adminDashboard/txn-history")} />;
+  }
+
   if (showPANHistory) {
     return <PanReport onBack={() => navigate("/adminDashboard/txn-history")} />;
+  }
+
+  if (showPanServiceHistoryTwo) {
+    return <PanReportTwo onBack={() => navigate("/adminDashboard/txn-history")} />;
   }
 
   if (showBBPSHistory) {
