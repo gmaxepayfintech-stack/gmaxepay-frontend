@@ -20,6 +20,11 @@ import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaste
 import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
 import ContactSupport from "../../pages/DistributorDashboard/ContactSupport";
 import Complaints from "../../pages/DistributorDashboard/Complaints";
+
+import DTHRecharge from "../../pages/DistributorDashboard/services/DTHRecharge";
+import AOneRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/components/AOneRecharge";
+import AOneDthRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/AOneDthRecharge";
+import AOnePan from "../../pages/DistributorDashboard/services/MobileRecharge/AOnePan";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -40,7 +45,11 @@ const DistributorDashboard = () => {
           element={<SelectserviceTwo />}
         />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
+        <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />
+        <Route path="/services/aone-recharge" element={<AOneRecharge />} />
+        <Route path="/services/aone-dth-recharge" element={<AOneDthRecharge />} />
+        <Route path="/services/aone-pan-service" element={<AOnePan />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
         <Route path="/resources/subscription" element={<Subscription />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />

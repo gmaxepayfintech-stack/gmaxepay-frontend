@@ -3,10 +3,6 @@ import { useNavigate } from "react-router-dom";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import BBPSServices from "./services/BBPSServices";
-import DTHRecharge from "./services/DTHRecharge";
-import AOnePan from "./services/MobileRecharge/AOnePan";
-import AOneRecharge from "./services/MobileRecharge/components/AOneRecharge";
-import AOneDthRecharge from "./services/MobileRecharge/AOneDthRecharge";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -137,10 +133,6 @@ ServiceCard.propTypes = {
 const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showBBPSServices, setShowBBPSServices] = useState(false);
-  const [showDTHRecharge, setShowDTHRecharge] = useState(false);
-  const [showAOneRecharge, setShowAOneRecharge] = useState(false);
-  const [showAOneDthRecharge, setShowAOneDthRecharge] = useState(false);
-  const [showAOnePan, setShowAOnePan] = useState(false);
   const navigate = useNavigate();
 
   // Note: Status check only happens when AEPS card is clicked, not mount
@@ -172,7 +164,7 @@ const Services = () => {
   };
 
   const handleDTHRechargeClick = () => {
-    setShowDTHRecharge(true);
+    navigate("/distributerDashboard/services/dth-recharge");
   };
 
   // Handle PAN card click - navigate to pan-service route
@@ -183,23 +175,6 @@ const Services = () => {
   // If BBPS services should be shown, render that component
   if (showBBPSServices) {
     return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
-  }
-
-  // If DTH Recharge should be shown, render that component
-  if (showDTHRecharge) {
-    return <DTHRecharge onBack={() => setShowDTHRecharge(false)} />;
-  }
-
-  if (showAOneRecharge) {
-    return <AOneRecharge onBack={() => setShowAOneRecharge(false)} />;
-  }
-
-  if (showAOneDthRecharge) {
-    return <AOneDthRecharge onBack={() => setShowAOneDthRecharge(false)} />;
-  }
-
-  if (showAOnePan) {
-    return <AOnePan onBack={() => setShowAOnePan(false)} />;
   }
 
   return (
@@ -260,7 +235,7 @@ const Services = () => {
               if (s.id === "mobile-dth") {
                 handleMobileRechargeClick();
               } else if (s.id === "A1 TOP-UP Mobile Recharge") {
-                setShowAOneRecharge(true);
+                navigate("/distributerDashboard/services/aone-recharge");
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
@@ -270,11 +245,11 @@ const Services = () => {
               } else if (s.id === "dth-recharge") {
                 handleDTHRechargeClick();
               } else if (s.id === "A1 Top-UP DTH") {
-                setShowAOneDthRecharge(true);
+                navigate("/distributerDashboard/services/aone-dth-recharge");
               } else if (s.id === "pan") {
                 handlePANClick();
               } else if (s.id === "A1 TOP-UP PAN") {
-                setShowAOnePan(true);
+                navigate("/distributerDashboard/services/aone-pan-service");
               }
             }}
           />

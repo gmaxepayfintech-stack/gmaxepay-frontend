@@ -18,6 +18,10 @@ import PanService from "../../pages/retailerDashboard/services/PanService";
 import RetailerProfile from "../../pages/retailerDashboard/retailerProfile";
 import ContactSupport from "../../pages/retailerDashboard/ContactSupport";
 import Complaints from "../../pages/retailerDashboard/Complaints";
+
+import AOneRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneRecharge";
+import AOneDthRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneDthRecharge";
+import AOnePan from "../../pages/retailerDashboard/services/MobileRecharge/AOnePan";
 const RetailerDash = () => {
   return (
     <RetailerDashLayout>
@@ -36,6 +40,9 @@ const RetailerDash = () => {
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />
         <Route path="/services/bbps-services" element={<BBPSServices />} />
+        <Route path="/services/aone-recharge" element={<AOneRecharge />} />
+        <Route path="/services/aone-dth-recharge" element={<AOneDthRecharge />} />
+        <Route path="/services/aone-pan-service" element={<AOnePan />} />
 
         <Route
           path="/services/aeps2/select-service"
