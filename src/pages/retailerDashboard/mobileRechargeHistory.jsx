@@ -65,7 +65,7 @@ const MobileRechargeHistory = ({ onBack }) => {
   useEffect(() => {
     const query = {
       // API expects serviceType: "MobileRecharge"
-      serviceType: "MobileRecharge",
+      serviceType: "Mobile1Recharge",
     };
 
     // Add date filters only if both dates are selected
@@ -255,7 +255,7 @@ const MobileRechargeHistory = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "MobileRecharge" };
+                const query = { serviceType: "Mobile1Recharge" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};

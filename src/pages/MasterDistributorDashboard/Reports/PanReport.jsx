@@ -64,7 +64,7 @@ const PanReport = ({ onBack }) => {
   useEffect(() => {
     const query = {
       // API expects serviceType: "Pan"
-      serviceType: "Pan",
+      serviceType: "Pan1",
     };
 
     // Add date filters only if both dates are selected
@@ -279,7 +279,7 @@ const PanReport = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "Pan" };
+                const query = { serviceType: "Pan1" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};

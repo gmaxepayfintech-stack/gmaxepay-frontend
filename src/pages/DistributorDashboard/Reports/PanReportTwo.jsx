@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { rechargeReportsUser } from "../../../redux/action/reportAction";
+import { rechargeReportsTwoUser } from "../../../redux/action/reportAction";
 
 const PanReportTwo = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const PanReportTwo = ({ onBack }) => {
     useEffect(() => {
         const query = {
             // API expects serviceType: "Pan"
-            serviceType: "Pan1",
+            serviceType: "Pan2",
         };
 
         // Add date filters only if both dates are selected
@@ -91,7 +91,7 @@ const PanReportTwo = ({ onBack }) => {
             },
         };
 
-        dispatch(rechargeReportsUser(payload));
+        dispatch(rechargeReportsTwoUser(payload));
     }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -267,7 +267,7 @@ const PanReportTwo = ({ onBack }) => {
                                 setToDate("");
                                 setIsReloading(true);
 
-                                const query = { serviceType: "Pan1" };
+                                const query = { serviceType: "Pan2" };
                                 const customSearch = debouncedSearchQuery.trim()
                                     ? getSearchField(debouncedSearchQuery)
                                     : {};
@@ -282,7 +282,7 @@ const PanReportTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsUser(payload));
+                                dispatch(rechargeReportsTwoUser(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

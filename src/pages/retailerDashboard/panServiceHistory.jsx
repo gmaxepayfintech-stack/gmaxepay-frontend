@@ -65,7 +65,7 @@ const PanServiceHistory = ({ onBack }) => {
   useEffect(() => {
     const query = {
       // API expects serviceType: "Pan"
-      serviceType: "Pan",
+      serviceType: "Pan1",
     };
 
     // Add date filters only if both dates are selected
@@ -252,8 +252,8 @@ const PanServiceHistory = ({ onBack }) => {
                 key={status}
                 onClick={() => setStatusFilter(status)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
-                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                  ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                  : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
                   }`}
               >
                 {status}
@@ -266,7 +266,7 @@ const PanServiceHistory = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "Pan" };
+                const query = { serviceType: "Pan1" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -514,8 +514,8 @@ const PanServiceHistory = ({ onBack }) => {
                     key={pageNum}
                     onClick={() => setCurrentPage(pageNum)}
                     className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
-                        ? "bg-[#039155] text-white"
-                        : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                      ? "bg-[#039155] text-white"
+                      : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                       }`}
                   >
                     {pageNum}

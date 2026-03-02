@@ -65,7 +65,7 @@ const DthRechargeHIstory = ({ onBack }) => {
   useEffect(() => {
     const query = {
       // API expects serviceType: "DTHRecharge"
-      serviceType: "DTHRecharge",
+      serviceType: "DTH1Recharge",
     };
 
     // Add date filters only if both dates are selected
@@ -272,7 +272,7 @@ const DthRechargeHIstory = ({ onBack }) => {
                 setToDate("");
                 setIsReloading(true);
 
-                const query = { serviceType: "DTHRecharge" };
+                const query = { serviceType: "DTH1Recharge" };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};

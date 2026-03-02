@@ -10,7 +10,6 @@ import {
   rechargefindOffers,
   rechargePay,
 } from "../../../redux/action/rechargeAction";
-import { getOperatorLogo } from "./MobileRecharge/utils";
 import InformationForm from "./MobileRecharge/components/InformationForm";
 import PaymentSuccessScreen from "./MobileRecharge/components/PaymentSuccessScreen";
 import PlanConfirmationCard from "./MobileRecharge/components/PlanConfirmationCard";
@@ -67,7 +66,7 @@ RecentRechargeCard.propTypes = {
   recharge: PropTypes.object.isRequired,
 };
 
-const MobileRecharge = ({ onBack }) => {
+const MobileRechargeTwo = ({ onBack }) => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { recentHistory: recentHistoryData } = useSelector((state) => state.recharge);
@@ -99,7 +98,7 @@ const MobileRecharge = ({ onBack }) => {
     const fetchRecentHistory = async () => {
       const payload = {
         query: {
-          serviceType: "Mobile1Recharge",
+          serviceType: "Mobile2Recharge",
         },
         customSearch: {},
         options: {
@@ -1470,8 +1469,10 @@ const MobileRecharge = ({ onBack }) => {
   );
 };
 
-MobileRecharge.propTypes = {
+MobileRechargeTwo.propTypes = {
   onBack: PropTypes.func,
 };
 
-export default MobileRecharge;
+export default MobileRechargeTwo;
+
+

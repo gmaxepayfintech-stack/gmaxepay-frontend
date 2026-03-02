@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { rechargeReportsCompany } from "../../../redux/action/reportAction";
+import { rechargeReportTwoCompany } from "../../../redux/action/reportAction";
 
 const DTHReportTwo = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const DTHReportTwo = ({ onBack }) => {
     useEffect(() => {
         const query = {
             // API expects serviceType: "DTHRecharge"
-            serviceType: "DTH1Recharge",
+            serviceType: "DTH2Recharge",
         };
 
         // Add date filters only if both dates are selected
@@ -91,7 +91,7 @@ const DTHReportTwo = ({ onBack }) => {
             },
         };
 
-        dispatch(rechargeReportsCompany(payload));
+        dispatch(rechargeReportTwoCompany(payload));
     }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -290,7 +290,7 @@ const DTHReportTwo = ({ onBack }) => {
                                 setToDate("");
                                 setIsReloading(true);
 
-                                const query = { serviceType: "DTH1Recharge" };
+                                const query = { serviceType: "DTH2Recharge" };
                                 const customSearch = debouncedSearchQuery.trim()
                                     ? getSearchField(debouncedSearchQuery)
                                     : {};
@@ -305,7 +305,7 @@ const DTHReportTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsCompany(payload));
+                                dispatch(rechargeReportTwoCompany(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

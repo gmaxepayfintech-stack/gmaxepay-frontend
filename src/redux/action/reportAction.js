@@ -14,7 +14,58 @@ export const rechargeReportsAdmin = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/admin/reports/rechargeReports`,
+      `${API_ROUTE}/api/v1/admin/reports/recharge1Reports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const responseData = response?.data ?? {};
+    const { status, message } = responseData;
+    if (status === "SUCCESS") {
+      dispatch({
+        type: ADMIN_TXN_REPORT_SUCCESS,
+        payload: responseData,
+      });
+      return responseData;
+    } else {
+      dispatch({
+        type: ADMIN_TXN_REPORT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: ADMIN_TXN_REPORT_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const rechargeReportsTwoAdmin = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/reports/recharge2Reports`,
       payload,
       {
         headers: {
@@ -65,7 +116,58 @@ export const rechargeReportsCompany = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/company/reports/rechargeReports`,
+      `${API_ROUTE}/api/v1/company/reports/recharge1Reports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const responseData = response?.data ?? {};
+    const { status, message } = responseData;
+    if (status === "SUCCESS") {
+      dispatch({
+        type: COMPANY_TXN_REPORT_SUCCESS,
+        payload: responseData,
+      });
+      return responseData;
+    } else {
+      dispatch({
+        type: COMPANY_TXN_REPORT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: COMPANY_TXN_REPORT_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const rechargeReportTwoCompany = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/reports/recharge2Reports`,
       payload,
       {
         headers: {
@@ -116,7 +218,58 @@ export const rechargeReportsUser = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/recharge/rechargeReports`,
+      `${API_ROUTE}/api/v1/user/recharge/recharge1Reports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const responseData = response?.data ?? {};
+    const { status, message } = responseData;
+    if (status === "SUCCESS") {
+      dispatch({
+        type: USER_TXN_REPORT_SUCCESS,
+        payload: responseData,
+      });
+      return responseData;
+    } else {
+      dispatch({
+        type: USER_TXN_REPORT_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: USER_TXN_REPORT_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const rechargeReportsTwoUser = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/recharge/recharge2Reports`,
       payload,
       {
         headers: {

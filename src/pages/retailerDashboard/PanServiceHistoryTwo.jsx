@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { rechargeReportsUser } from "../../redux/action/reportAction";
+import { rechargeReportsTwoUser } from "../../redux/action/reportAction";
 
 const PanServiceHistoryTwo = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -65,7 +65,7 @@ const PanServiceHistoryTwo = ({ onBack }) => {
     useEffect(() => {
         const query = {
             // API expects serviceType: "Pan"
-            serviceType: "Pan1",
+            serviceType: "Pan2",
         };
 
         // Add date filters only if both dates are selected
@@ -91,7 +91,7 @@ const PanServiceHistoryTwo = ({ onBack }) => {
             },
         };
 
-        dispatch(rechargeReportsUser(payload));
+        dispatch(rechargeReportsTwoUser(payload));
     }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -252,8 +252,8 @@ const PanServiceHistoryTwo = ({ onBack }) => {
                                 key={status}
                                 onClick={() => setStatusFilter(status)}
                                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
-                                        ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
-                                        : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
+                                    ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
+                                    : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
                                     }`}
                             >
                                 {status}
@@ -266,7 +266,7 @@ const PanServiceHistoryTwo = ({ onBack }) => {
                                 setToDate("");
                                 setIsReloading(true);
 
-                                const query = { serviceType: "Pan" };
+                                const query = { serviceType: "Pan2" };
                                 const customSearch = debouncedSearchQuery.trim()
                                     ? getSearchField(debouncedSearchQuery)
                                     : {};
@@ -281,7 +281,7 @@ const PanServiceHistoryTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsUser(payload));
+                                dispatch(rechargeReportsTwoUser(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}
@@ -514,8 +514,8 @@ const PanServiceHistoryTwo = ({ onBack }) => {
                                         key={pageNum}
                                         onClick={() => setCurrentPage(pageNum)}
                                         className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
-                                                ? "bg-[#039155] text-white"
-                                                : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                                            ? "bg-[#039155] text-white"
+                                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                                             }`}
                                     >
                                         {pageNum}

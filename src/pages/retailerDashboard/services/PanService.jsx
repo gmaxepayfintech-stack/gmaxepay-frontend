@@ -68,7 +68,7 @@ const PanService = () => {
     const fetchRecentHistory = async () => {
       const payload = {
         query: {
-          serviceType: "Pan",
+          serviceType: "Pan1",
         },
         customSearch: {},
         options: {
