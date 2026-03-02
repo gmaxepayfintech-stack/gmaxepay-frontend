@@ -234,10 +234,10 @@ const MasterDistLayout = ({ children }) => {
           name: "Contact Support",
           path: `${BASE_PATH}/contact-support`,
         },
-        {
-          name: "Complaints",
-          path: `${BASE_PATH}/complaints`,
-        },
+        // {
+        //   name: "Complaints",
+        //   path: `${BASE_PATH}/complaints`,
+        // },
       ],
     },
     // {

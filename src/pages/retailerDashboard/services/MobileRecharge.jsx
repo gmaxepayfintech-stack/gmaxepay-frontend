@@ -980,19 +980,23 @@ const MobileRecharge = ({ onBack }) => {
         // Store with the nested data structure: { data: { DATA: [...], STV: [...], ... } }
         setRechargePlans({ data: plansData });
 
-        // Call rechargefindOffers with the same payload
-        const offersResponse = await dispatch(rechargefindOffers(planPayload));
+        // Call rechargefindOffers with the same payload (optional)
+        try {
+          const offersResponse = await dispatch(rechargefindOffers(planPayload));
 
-        // Store the offers data (optional - don't block if offers fail)
-        // API response structure: { status, message, data: { status, mobile, message, data: [...], txid } }
-        // Action extracts response.data.data and returns: { mobileRechargeOffers: { status, mobile, message, data: [...], txid }, status, message }
-        if (offersResponse?.mobileRechargeOffers) {
-          const offersData = offersResponse.mobileRechargeOffers;
-          // The offers array is in offersData.data
-          // console.log("📊 Offers response:", offersResponse);
-          // console.log("📊 Offers data:", offersData);
-          // console.log("📊 Offers array:", offersData?.data);
-          setRechargeOffers(offersData);
+          // Store the offers data (optional - don't block if offers fail)
+          // API response structure: { status, message, data: { status, mobile, message, data: [...], txid } }
+          // Action extracts response.data.data and returns: { mobileRechargeOffers: { status, mobile, message, data: [...], txid }, status, message }
+          if (offersResponse?.mobileRechargeOffers) {
+            const offersData = offersResponse.mobileRechargeOffers;
+            // The offers array is in offersData.data
+            // console.log("📊 Offers response:", offersResponse);
+            // console.log("📊 Offers data:", offersData);
+            // console.log("📊 Offers array:", offersData?.data);
+            setRechargeOffers(offersData);
+          }
+        } catch (offerError) {
+          console.warn("Failed to fetch offers, proceeding with plans:", offerError);
         }
 
         // Move to plan selection step only if plans were successfully fetched

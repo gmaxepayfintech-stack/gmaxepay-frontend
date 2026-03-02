@@ -769,13 +769,14 @@ const MobileRecharge = ({ onBack }) => {
         const plansData = planResponse.mobileRechargePlan;
         setRechargePlans(plansData);
 
-        // Call rechargefindOffers with the same payload
-        const offersResponse = await dispatch(rechargefindOffers(planPayload));
-
-        // Store the offers data (optional - don't block if offers fail)
-        if (offersResponse?.mobileRechargeOffers) {
-          const offersData = offersResponse.mobileRechargeOffers;
-          setRechargeOffers(offersData);
+        // Call rechargefindOffers with the same payload (optional)
+        try {
+          const offersResponse = await dispatch(rechargefindOffers(planPayload));
+          if (offersResponse?.mobileRechargeOffers) {
+            setRechargeOffers(offersResponse.mobileRechargeOffers);
+          }
+        } catch (offerError) {
+          console.warn("Failed to fetch offers, proceeding with plans only:", offerError);
         }
 
         // Move to plan selection step only if plans were successfully fetched

@@ -133,17 +133,17 @@ const DashboardLayout = ({ children }) => {
       dropdown: false,
     },
 
-    {
-      name: "Help",
-      icon: MaskGroup3,
-      dropdown: true,
-      children: [
-        {
-          name: "Contact Support",
-          path: "/superDashboard/contact-support",
-        },
-      ],
-    },
+    // {
+    //   name: "Help",
+    //   icon: MaskGroup3,
+    //   dropdown: true,
+    //   children: [
+    //     {
+    //       name: "Contact Support",
+    //       path: "/superDashboard/contact-support",
+    //     },
+    //   ],
+    // },
   ];
 
   // Fetch admin details on component mount
