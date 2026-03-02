@@ -218,7 +218,7 @@ export const rechargeReportsUser = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/recharge/recharge1Reports`,
+      `${API_ROUTE}/api/v1/user/recharge1/rechargeReports`,
       payload,
       {
         headers: {
@@ -269,7 +269,7 @@ export const rechargeReportsTwoUser = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/recharge/recharge2Reports`,
+      `${API_ROUTE}/api/v1/user/recharge2/rechargeReports`,
       payload,
       {
         headers: {
