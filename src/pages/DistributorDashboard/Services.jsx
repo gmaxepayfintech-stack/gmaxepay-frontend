@@ -20,7 +20,7 @@ const servicesData = [
   },
   {
     id: "A1 TOP-UP Mobile Recharge",
-    title: "A1 TOP-UP Mobile Recharge",
+    title: "Express Mobile Recharge",
     status: "available",
     logo: "/img/MobileRecharge.svg",
   },
@@ -35,7 +35,7 @@ const servicesData = [
   },
   {
     id: "A1 Top-UP DTH",
-    title: "A1 Top-UP DTH",
+    title: "Express DTH Recharge",
     status: "available",
     logo: "/img/DTH1.svg",
   },
@@ -55,7 +55,7 @@ const servicesData = [
   },
   {
     id: "A1 TOP-UP PAN",
-    title: "A1 TOP-UP PAN",
+    title: "Express PAN",
     status: "available",
     logo: "/img/PanCorrection.svg",
   },
