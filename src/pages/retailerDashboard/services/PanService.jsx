@@ -184,7 +184,7 @@ const PanService = () => {
         // Open URL in a new tab
         window.open(panData.url, "_blank", "noopener,noreferrer");
         // Optionally refresh history
-        dispatch(recentHistory({ query: { serviceType: "PanService" }, options: { page: 1, limit: 10, sort: { id: -1 } } }));
+        dispatch(recentHistory({ query: { serviceType: "Pan1" }, options: { page: 1, limit: 10, sort: { id: -1 } } }));
       } else if (panData?.status === "Failure") {
         // Show failure message from inner data
         const errorMessage =
