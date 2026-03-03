@@ -10,7 +10,6 @@ import {
   rechargefindOffers,
   rechargePay,
 } from "../../../redux/action/rechargeAction";
-import { getOperatorLogo } from "./MobileRecharge/utils";
 import InformationForm from "./MobileRecharge/components/InformationForm";
 import PaymentSuccessScreen from "./MobileRecharge/components/PaymentSuccessScreen";
 import PlanConfirmationCard from "./MobileRecharge/components/PlanConfirmationCard";
@@ -19,8 +18,6 @@ import SuggestedPlans from "./MobileRecharge/components/SuggestedPlans";
 import PlanSearchAndFilters from "./MobileRecharge/components/PlanSearchAndFilters";
 import { recentHistory } from "../../../redux/action/rechargeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-
-
 
 const RecentRechargeCard = ({ recharge }) => {
   return (

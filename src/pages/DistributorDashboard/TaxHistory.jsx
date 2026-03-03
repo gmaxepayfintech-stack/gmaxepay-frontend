@@ -63,14 +63,14 @@ const TaxHistory = () => {
   // so we can segregate the cards per tab.
   const transactionCards = [
     // Banking
-    {
-      id: 1,
-      title: "AEPS 1 CW History",
-      subtitle: "AEPS 1 CW History",
-      available: true,
-      viewKey: "aeps1-cw-history",
-      category: "Banking",
-    },
+    // {
+    //   id: 1,
+    //   title: "AEPS 1 CW History",
+    //   subtitle: "AEPS 1 CW History",
+    //   available: true,
+    //   viewKey: "aeps1-cw-history",
+    //   category: "Banking",
+    // },
     {
       id: 2,
       title: "AEPS 2 CW History",
@@ -79,14 +79,14 @@ const TaxHistory = () => {
       viewKey: "aeps2-cw-history",
       category: "Banking",
     },
-    {
-      id: 3,
-      title: "AEPS 1 MS History",
-      subtitle: "AEPS 1 MS History",
-      available: true,
-      viewKey: "aeps1-ms-history",
-      category: "Banking",
-    },
+    // {
+    //   id: 3,
+    //   title: "AEPS 1 MS History",
+    //   subtitle: "AEPS 1 MS History",
+    //   available: true,
+    //   viewKey: "aeps1-ms-history",
+    //   category: "Banking",
+    // },
     {
       id: 4,
       title: "AEPS 2 MS History",
@@ -95,14 +95,14 @@ const TaxHistory = () => {
       viewKey: "aeps2-ms-history",
       category: "Banking",
     },
-    {
-      id: 5,
-      title: "AEPS 1 BE History",
-      subtitle: "AEPS 1 BE History",
-      available: true,
-      viewKey: "aeps1-be-history",
-      category: "Banking",
-    },
+    // {
+    //   id: 5,
+    //   title: "AEPS 1 BE History",
+    //   subtitle: "AEPS 1 BE History",
+    //   available: true,
+    //   viewKey: "aeps1-be-history",
+    //   category: "Banking",
+    // },
     {
       id: 6,
       title: "AEPS 2 BE History",

@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import MobileIcon from "../../../public/img/MobileIcon.svg";
 import PropTypes from "prop-types";
 import BBPSServices from "./services/BBPSServices";
+import { motion, AnimatePresence } from "framer-motion";
 
 const DEFAULT_DESCRIPTION =
   "You Can Now Recharge Your Mobile Phones And DTH Services in India, You Can Recharge With Any Operator And Also Have Access To The Latest Offers That";
@@ -133,6 +134,7 @@ ServiceCard.propTypes = {
 const Services = () => {
   const [activeTab, setActiveTab] = useState("Available");
   const [showBBPSServices, setShowBBPSServices] = useState(false);
+  const [showAepsPopup, setShowAepsPopup] = useState(false);
   const navigate = useNavigate();
 
   // Note: Status check only happens when AEPS card is clicked, not mount
@@ -142,9 +144,9 @@ const Services = () => {
     return servicesData.filter((s) => s.status === key);
   }, [activeTab]);
 
-  // Handle AEPS-1 card click - always navigate to services/aeps1/onboarding route
+  // Handle AEPS-1 card click - show animated popup
   const handleAepsClick = () => {
-    navigate("/distributerDashboard/services/aeps1/onboarding");
+    setShowAepsPopup(true);
   };
 
   // Handle BBPS card click - show BBPS services component
@@ -255,6 +257,49 @@ const Services = () => {
           />
         ))}
       </div>
+
+      {/* AEPS-1 Unavailable Popup */}
+      <AnimatePresence>
+        {showAepsPopup && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 10 }}
+              transition={{ duration: 0.2, ease: "easeOut" }}
+              className="bg-white rounded-[24px] w-full max-w-[360px] overflow-hidden shadow-2xl relative"
+            >
+              <div className="p-8 text-center pt-10">
+                <button
+                  onClick={() => setShowAepsPopup(false)}
+                  className="absolute top-4 right-4 p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-full transition-all"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18" /><path d="m6 6 12 12" /></svg>
+                </button>
+
+                <div className="w-[84px] h-[84px] bg-[#DBEAFE] rounded-full flex items-center justify-center mx-auto mb-6 shadow-sm border-[6px] border-white">
+                  <img src="/img/AEPS.svg" alt="AEPS" className="w-[42px] h-[42px]" />
+                </div>
+
+                <h3 className="text-[22px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-[10px]">
+                  Service Unavailable
+                </h3>
+
+                <p className="text-[#64748B] font-['Gilroy-Medium'] text-[15px] leading-[1.6] mb-8 px-2">
+                  Thank you for your interest! We appreciate your engagement. This service is currently unavailable, we will notify you once it is live.
+                </p>
+
+                <button
+                  onClick={() => setShowAepsPopup(false)}
+                  className="w-full py-[14px] px-6 bg-[#039155] hover:bg-[#027a48] text-white rounded-xl font-['Gilroy-SemiBold'] text-[16px] transition-all shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  Okay, Got it
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
