@@ -1,0 +1,244 @@
+import { useState } from "react";
+import { Download } from "lucide-react";
+import PropTypes from "prop-types";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { getUserBBPSPayBill } from "../../../redux/action/bbpsAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
+
+const BBPSPage5 = ({ onBack, formData, setFormData, onSuccess }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { userPayBill, userPayBillLoading } = useSelector((state) => state.bbps);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  const handlePayNow = () => {
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmPayment = async () => {
+    if (!formData.billDetails?.requestId) return;
+    
+    const paymentPayload = {
+      fetchRefId: formData.billDetails.requestId,
+      secureKey: "1234",
+    };
+
+    const result = await dispatch(getUserBBPSPayBill(paymentPayload));
+    if (result?.status === 'SUCCESS') {
+      setShowConfirmModal(false);
+      setFormData((prev) => ({
+        ...prev,
+        paymentResponse: result.data,
+      }));
+      if (onSuccess) {
+        onSuccess(result.data);
+      }
+    }
+  };
+
+  const selectedCategoryName =
+    formData.category?.name || formData.category || "Selected Category";
+
+  return (
+    <div className="w-full">
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-6">
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={onBack}
+          className="flex items-center justify-center w-10 h-10 border border-gray-300 rounded-full bg-white hover:bg-gray-50 transition"
+        >
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+        </button>
+        <div className="flex-1">
+          <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+            Bharat Connect Service
+          </div>
+          <div className="text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80">
+            Making Connections Easier for Everyone
+          </div>
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="bg-white rounded-3xl border border-gray-200 p-6">
+        <div className="space-y-8">
+          {/* BILL DETAILS CARD */}
+          <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-4">
+            <p className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
+              Bill Details
+            </p>
+
+            <div className="flex justify-between text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+              <span>Bill Number: {formData.billDetails?.billDetails?.billNumber || formData.billNumber || "N/A"}</span>
+            </div>
+
+            <div className="grid grid-cols-3 gap-y-8">
+              <div>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Customer Name
+                </p>
+                <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
+                  {formData.billDetails?.billDetails?.customerName || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Service Provider
+                </p>
+                <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
+                  {selectedCategoryName}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Bill Period
+                </p>
+                <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
+                  {formData.billDetails?.billDetails?.billPeriod || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Due Date
+                </p>
+                <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
+                  {formData.billDetails?.billDetails?.dueDate || "N/A"}
+                </p>
+              </div>
+
+              <div>
+                <p className="font-['Gilroy-Medium'] text-[#1B1717]">
+                  Amount Due
+                </p>
+                <p className="font-['Gilroy-SemiBold'] text-[16px] text-[#1B1717] text-opacity-80">
+                  ₹{formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* PAYMENT CARD */}
+          <div className="bg-white border border-gray-200 rounded-[16px] p-6 shadow-sm space-y-6">
+            <p className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">
+              Payment
+            </p>
+
+            <div className="flex items-center gap-2 text-[20px] font-['Gilroy-Medium'] text-[#1B1717]">
+              <span className="w-1 p-1 h-1 bg-[#FFFFFF]   border-[#039155] border-[5px] rounded-full"></span>
+              Main Wallet
+            </div>
+
+            <div className="flex gap-4">
+              <button
+                onClick={onBack}
+                className="flex-1 h-[48px] border border-gray-300 rounded-lg font-['Gilroy-Medium'] hover:bg-gray-50"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handlePayNow}
+                className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] text-white rounded-lg font-['Gilroy-Medium']"
+              >
+                Pay Now
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Confirm Payment Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
+          <div className="bg-white rounded-2xl w-[90%] max-w-[520px] p-8 relative">
+            {/* Header */}
+            <h2 className="text-[24px] font-['Gilroy-Medium'] text-center">
+              Confirm Payment Method
+            </h2>
+            <p className="text-center text-[16px] font-['Gilroy-Regular'] text-[#1B1717] text-opacity-80 mt-1">
+              Review Your Payment Details
+            </p>
+
+            {/* Title */}
+            <p className="text-center text-[18px] text-[#1B1717] font-['Gilroy-Medium'] mt-6">
+              Confirm {selectedCategoryName} Bill Payment
+            </p>
+
+            {/* Amount */}
+            <div className="border border-dashed border-gray-300 rounded-lg py-6 mt-4 text-center">
+              <span className="text-[28px] font-['Gilroy-SemiBold']">
+                ₹ {formData.amount || formData.billDetails?.billDetails?.billAmount || "0.00"}
+              </span>
+            </div>
+
+            {/* Details */}
+            <div className="mt-6 space-y-3 text-[14px]">
+              <div className="flex justify-between">
+                <span className="text-gray-500">Customer Name</span>
+                <span className="font-['Gilroy-Medium']">
+                  {formData.billDetails?.billDetails?.customerName || "N/A"}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-500">Due Date</span>
+                <span className="font-['Gilroy-Medium']">
+                  {formData.billDetails?.billDetails?.dueDate || "N/A"}
+                </span>
+              </div>
+
+              <div className="flex justify-between">
+                <span className="text-gray-500">Bill Number</span>
+                <span className="font-['Gilroy-Medium']">
+                  {formData.billDetails?.billDetails?.billNumber || "N/A"}
+                </span>
+              </div>
+            </div>
+
+            {/* Buttons */}
+            <div className="flex gap-4 mt-8">
+              <button
+                onClick={() => setShowConfirmModal(false)}
+                disabled={userPayBillLoading}
+                className="flex-1 h-[48px] border border-gray-300 rounded-lg font-['Gilroy-Medium'] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Cancel
+              </button>
+
+              <button
+                onClick={handleConfirmPayment}
+                disabled={userPayBillLoading || !formData.billDetails?.requestId}
+                className="flex-1 h-[48px] bg-[#039155] hover:bg-[#027a46] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg font-['Gilroy-Medium'] flex items-center justify-center gap-2"
+              >
+                {userPayBillLoading ? (
+                  <>
+                    <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+                    <span>Processing...</span>
+                  </>
+                ) : (
+                  "Confirm Payment"
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+BBPSPage5.propTypes = {
+  onBack: PropTypes.func.isRequired,
+  formData: PropTypes.object.isRequired,
+  setFormData: PropTypes.func.isRequired,
+  onSuccess: PropTypes.func,
+};
+
+export default BBPSPage5;

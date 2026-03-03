@@ -1,0 +1,364 @@
+import { useMemo, useRef, useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import PropTypes from "prop-types";
+import BiometricVerificationTwo from "./BiometricVerificationTwo";
+import { getUserProfile } from "../../../redux/action/userProfileAction";
+import {
+  aepsTwoStatusCheck,
+  aepsTwoSubmitOTP,
+  aepsTwoRescendOTP,
+} from "../../../redux/action/aepsTwoAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
+import { HiArrowLeft } from "react-icons/hi2";
+import { useNotification } from "../../../context/NotificationContext";
+const OTP_LENGTH = 6;
+
+const IdentityVerificationTwo = ({ onBack }) => {
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
+  const { mobileNo, profile } = useSelector((state) => state.userProfile || {});
+  const [otp, setOtp] = useState(Array.from({ length: OTP_LENGTH }, () => ""));
+  const [touchedSubmit, setTouchedSubmit] = useState(false);
+  const [showBiometric, setShowBiometric] = useState(false);
+  const [resendTimer, setResendTimer] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
+  const inputsRef = useRef([]);
+
+  // Call getUserProfile and send OTP on component mount
+  useEffect(() => {
+    dispatch(getUserProfile())
+      .then((response) => {
+        console.log(
+          "getUserProfile response in IdentityVerificationTwo:",
+          response,
+        );
+      })
+      .catch((error) => {
+        console.error(
+          "getUserProfile error in IdentityVerificationTwo:",
+          error,
+        );
+      });
+
+    // Automatically trigger OTP send/resend when this component mounts directly
+    dispatch(aepsTwoRescendOTP())
+      .then((response) => {
+        if (response?.status === "SUCCESS") {
+          showNotification({
+            type: "success",
+            message: response?.message || "OTP sent successfully",
+            isCritical: true,
+          });
+          setResendTimer(180); // Start 3-minute countdown
+        } else {
+          showNotification({
+            type: "error",
+            message: response?.message || "Failed to send OTP",
+            isCritical: true,
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("aepsTwoRescendOTP error on mount:", error);
+      });
+  }, [dispatch]);
+
+  // Countdown timer effect
+  useEffect(() => {
+    if (resendTimer > 0) {
+      const timer = setTimeout(() => {
+        setResendTimer(resendTimer - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [resendTimer]);
+
+  // Format mobile number for display
+  const formatPhoneNumber = (mobile) => {
+    if (!mobile) return "+91 00000 00000";
+    // Remove any non-digit characters
+    const digits = mobile.replace(/\D/g, "");
+    // Format as +91 XXXXX XXXXX
+    if (digits.length === 10) {
+      return `+91 ${digits.slice(0, 5)} ${digits.slice(5)}`;
+    }
+    return `+91 ${mobile}`;
+  };
+
+  const phone = formatPhoneNumber(mobileNo || profile?.mobileNo);
+
+  const otpValue = useMemo(() => otp.join(""), [otp]);
+
+  const focusIndex = (idx) => {
+    const el = inputsRef.current?.[idx];
+    if (el) el.focus();
+  };
+
+  const handleChange = (idx, value) => {
+    const v = String(value ?? "").replace(/\D/g, "");
+    if (!v) {
+      setOtp((prev) => {
+        const next = [...prev];
+        next[idx] = "";
+        return next;
+      });
+      return;
+    }
+
+    // support paste / fast typing
+    const chars = v.split("");
+    setOtp((prev) => {
+      const next = [...prev];
+      let cursor = idx;
+      for (const ch of chars) {
+        if (cursor >= OTP_LENGTH) break;
+        next[cursor] = ch;
+        cursor += 1;
+      }
+      return next;
+    });
+
+    const nextIndex = Math.min(idx + chars.length, OTP_LENGTH - 1);
+    focusIndex(nextIndex);
+  };
+
+  const handleKeyDown = (idx, e) => {
+    if (e.key === "Enter" && idx === OTP_LENGTH - 1) {
+      handleSubmit(e);
+    }
+    if (e.key === "Backspace" && !otp[idx] && idx > 0) {
+      focusIndex(idx - 1);
+    }
+    if (e.key === "ArrowLeft" && idx > 0) focusIndex(idx - 1);
+    if (e.key === "ArrowRight" && idx < OTP_LENGTH - 1) focusIndex(idx + 1);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setTouchedSubmit(true);
+
+    const isComplete = otp.every((d) => String(d).trim().length > 0);
+    if (!isComplete) {
+      // focus first empty input
+      const firstEmptyIndex = otp.findIndex((d) => !String(d).trim());
+      if (firstEmptyIndex >= 0) focusIndex(firstEmptyIndex);
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Submit OTP for AEPS-2
+      const response = await dispatch(aepsTwoSubmitOTP({ otp: otpValue }));
+      //console.log("aepsTwoSubmitOTP response:", response);
+
+      // Only check status ONCE after successful OTP submission
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "OTP Verification successful",
+          isCritical: true,
+        });
+        // Check status once to verify and then navigate
+        const statusResponse = await dispatch(aepsTwoStatusCheck());
+
+        // Verify status and navigate to next step
+        const statusData = statusResponse?.aepsStatus;
+        if (statusData) {
+          const { ekycOtp, ekycBiometric } = statusData;
+
+          if (
+            ekycOtp?.status?.toLowerCase() === "completed" &&
+            ekycOtp?.isCompleted === true
+          ) {
+            // Check if biometric is next
+            if (
+              ekycBiometric?.status?.toLowerCase() === "pending" ||
+              (typeof ekycBiometric?.isCompleted === "boolean" &&
+                ekycBiometric.isCompleted === false)
+            ) {
+              setShowBiometric(true);
+            }
+          }
+        } else {
+          // If status check fails but OTP was successful, still proceed
+          showNotification({
+            type: "error",
+            message: statusResponse?.message || "Failed to check AEPS status after OTP",
+            isCritical: true,
+          });
+          setShowBiometric(true);
+        }
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "OTP Verification failed",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
+      console.error("aepsTwoSubmitOTP error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong during OTP submission",
+        isCritical: true,
+      });
+      // Handle error (you might want to show an error message to the user)
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResendOTP = async () => {
+    if (resendTimer > 0) return; // Don't allow resend if timer is active
+
+    try {
+      const response = await dispatch(aepsTwoRescendOTP());
+      //console.log("aepsTwoRescendOTP response:", response);
+
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "OTP resent successfully",
+          isCritical: true,
+        });
+        // Start 3-minute countdown (180 seconds)
+        setResendTimer(180);
+      } else {
+        showNotification({
+          type: "error",
+          message: response?.message || "Failed to resend OTP",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
+      console.error("aepsTwoRescendOTP error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong while resending OTP",
+        isCritical: true,
+      });
+    }
+  };
+
+  // Format timer display (MM:SS)
+  const formatTimer = (seconds) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  if (showBiometric) {
+    return <BiometricVerificationTwo />;
+  }
+
+  return (
+    <div className="w-full py-4 px-1">
+      {/* Header */}
+      <div className="flex items-start gap-3 mb-6">
+        <button
+          type="button"
+          aria-label="Back"
+          onClick={() =>
+            typeof onBack === "function" ? onBack() : navigate(-1)
+          }
+          className="flex items-center justify-center w-10 h-10 border border-gray-400 rounded-full mr-2 bg-white hover:bg-gray-50 transition"
+        >
+          <HiArrowLeft className="text-2xl text-[#1B1717] opacity-80" />
+        </button>
+
+        <div className="flex-1">
+          <div className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717]">
+            Identity Verification
+          </div>
+          <div className="mt-[18px] text-[16px] text-[#000000] font-['Gilroy-Regular']">
+            Please Review The Aadhaar Enabled Payment System Terms Carefully
+            Before Proceeding To KYC Verification
+          </div>
+        </div>
+      </div>
+
+      {/* Card */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#FFFFFF] rounded-2xl px-6 py-10 sm:px-10 sm:py-12"
+      >
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
+            Enter Verification Code
+          </div>
+          <div className="mt-[16px] text-[16px] text-[#000000] text font-['Gilroy-Medium']">
+            We've Sent A 6-Digit Code To
+          </div>
+          <div className="mt-[12px] text-[18px] font-['Gilroy-Medium'] text-[#1B1717]">
+            {phone}
+          </div>
+
+          {/* OTP Inputs */}
+          <div className="mt-[32px] flex items-center justify-center gap-6">
+            {otp.map((digit, idx) =>
+              (() => {
+                const showError = touchedSubmit && !String(digit).trim();
+                return (
+                  <input
+                    key={idx}
+                    ref={(el) => {
+                      inputsRef.current[idx] = el;
+                    }}
+                    value={digit}
+                    inputMode="numeric"
+                    autoComplete="one-time-code"
+                    maxLength={OTP_LENGTH}
+                    onChange={(e) => handleChange(idx, e.target.value)}
+                    onKeyDown={(e) => handleKeyDown(idx, e)}
+                    className={`w-12 h-12 rounded-xl bg-white text-center text-[16px] font-['Gilroy-Medium'] text-[#1B1717] outline-none border-[0.5px] focus:ring-2 ${showError
+                      ? "border-red-500 focus:ring-red-200 focus:border-red-500"
+                      : "border-[#000000] focus:ring-[#039155]/30 focus:border-[#039155]"
+                      }`}
+                  />
+                );
+              })(),
+            )}
+          </div>
+
+          <div className="mt-[28px]">
+            <div className="text-[18px] text-[#000000] text-opacity-70 font-['Gilroy-Regular']">
+              Didn't Receive The Code?
+            </div>
+            <button
+              type="button"
+              onClick={handleResendOTP}
+              disabled={resendTimer > 0}
+              className={`mt-[12px] block mx-auto text-[16px] font-['Gilroy-Medium'] transition ${resendTimer > 0
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-[#039155] hover:text-[#027A47] cursor-pointer"
+                }`}
+            >
+              {resendTimer > 0
+                ? `Resend In ${formatTimer(resendTimer)}`
+                : "Resend OTP"}
+            </button>
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="mt-[32px] w-[510px] max-w-full bg-[#039155] hover:bg-[#027A47] disabled:bg-[#039155]/50 disabled:cursor-not-allowed text-white rounded-lg py-3 text-[24px] font-['Gilroy-SemiBold'] transition inline-flex items-center justify-center gap-2"
+          >
+            {isLoading && (
+              <ButtonLoader color="#FFFFFF" size={20} thickness={3} />
+            )}
+            {isLoading ? "Processing..." : "Submit"}
+          </button>
+        </div>
+      </form>
+    </div>
+  );
+};
+
+IdentityVerificationTwo.propTypes = {
+  onBack: PropTypes.func,
+};
+
+export default IdentityVerificationTwo;

@@ -1,0 +1,1560 @@
+import React, { useEffect, useState, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
+import secureLocalStorage from "react-secure-storage";
+import { getLocationAndIP } from "../../util/getLocationAndIP";
+import { useNotification } from "../../context/NotificationContext";
+import { useCompany } from "../../context/CompanyContext";
+import {
+  loginStatus,
+  verificationStatus,
+  authOtp,
+  rescendOtp,
+  resetPassword,
+  sendForgetPasswordOTP,
+  verifyForgetPassword,
+  verifyMPIN,
+  setMPIN,
+  forgotMpinOTP,
+  verifyMpinOTP
+} from "../../redux/action/loginAction";
+import { loginSuccess } from "../../redux/action/authAction";
+import LeftSideSlider from "./pages/LeftSideSlider";
+import LoginView from "./pages/LoginView";
+import ForgotPasswordView from "./pages/ForgotPasswordView";
+import OtpVerifyView from "./pages/OtpVerifyView";
+import VerificationCodeView from "./pages/VerificationCodeView";
+import Require2FAView from "./pages/Require2FAView";
+import Auth2FAView from "./pages/Auth2FAView";
+import ResetPasswordView from "./pages/ResetPasswordView";
+import VerifyMPINView from "./pages/VerifyMPINView";
+import SetMPINView from "./pages/SetMPINView";
+import VerifyMpinOtp from "./pages/VerifyMpinOtp";
+
+// View types
+const VIEWS = {
+  LOGIN: "login",
+  FORGOT_PASSWORD: "forgotPassword",
+  VERIFICATION_CODE: "verificationCode",
+  OTP_VERIFY: "otpVerify",
+  REQUIRE_2FA: "require2FA",
+  AUTH_2FA: "auth2FA",
+  RESET_PASSWORD: "resetPassword",
+  VERIFY_MPIN: "verifyMPIN",
+  SET_MPIN: "setMPIN",
+  FORGOT_MPIN_OTP: "forgotMpinOtp",
+};
+
+const LoginDesign1 = () => {
+  const [currentView, setCurrentView] = useState(VIEWS.LOGIN);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [submittedPhone, setSubmittedPhone] = useState("");
+  const [phoneNumber, setPhoneNumber] = useState("");
+  const [qrData, setQrData] = useState(null);
+  const [otp, setOtp] = useState(Array(6).fill(""));
+  const [mpin, setMpin] = useState(Array(4).fill(""));
+  const [newMpin, setNewMpin] = useState(Array(4).fill(""));
+  const [confirmMpin, setConfirmMpin] = useState(Array(4).fill(""));
+  const [otpTimer, setOtpTimer] = useState(180);
+  const [verificationTimer, setVerificationTimer] = useState(180);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [locationData, setLocationData] = useState({
+    latitude: null,
+    longitude: null,
+    ipAddress: null,
+  });
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const { showNotification } = useNotification();
+  const { company } = useCompany();
+
+  const otpInputRefs = useRef([]);
+  const auth2FAInputRefs = useRef([]);
+  const mpinInputRefs = useRef([]);
+  const newMpinInputRefs = useRef([]);
+  const confirmMpinInputRefs = useRef([]);
+  const processedLoginRef = useRef(false);
+  const processedVerificationRef = useRef(false);
+  const processedForgetPasswordRef = useRef(false);
+  const processedVerifyForgetPasswordRef = useRef(false);
+  const processedVerifyMPINRef = useRef(false);
+  const processedSetMPINRef = useRef(false);
+
+  // Redux selectors
+  const loginData = useSelector((state) => state?.login?.loginResponse);
+  const loginError = useSelector((state) => state?.login?.error);
+  const loginResponseData = useSelector(
+    (state) => state?.login?.loginResponse?.data
+  );
+  const verificationResponse = useSelector(
+    (state) => state?.login?.verificationcode?.data
+  );
+  const verificationStatusdata = useSelector(
+    (state) => state?.login?.verificationcode?.status
+  );
+  const verificationError = useSelector(
+    (state) => state?.login?.verificationError
+  );
+  const factresponse = useSelector(
+    (state) => state?.login?.twoFactorAuth?.data?.accessToken || state?.login?.twoFactorAuth?.accessToken
+  );
+  const usedata = useSelector(
+    (state) => state?.login?.twoFactorAuth?.data?.user || state?.login?.twoFactorAuth?.user
+  );
+  const factstatus = useSelector((state) => state?.login?.twoFactorAuth?.status);
+  const twoFactorAuthData = useSelector((state) => state?.login?.twoFactorAuth);
+  const twoFactorAuthError = useSelector((state) => state?.login?.twoFactorAuthError);
+  const resetPasswordResponse = useSelector((state) => state?.login?.resetPasswordResponse);
+  const resetPasswordError = useSelector((state) => state?.login?.resetPasswordError);
+  const forgetPasswordResponse = useSelector((state) => state?.login?.forgetPasswordResponse);
+  const forgetPasswordError = useSelector((state) => state?.login?.forgetPasswordError);
+  const verifyForgetPasswordResponse = useSelector((state) => state?.login?.verifyForgetPasswordResponse);
+  const verifyForgetPasswordError = useSelector((state) => state?.login?.verifyForgetPasswordError);
+  const verifyMPINResponse = useSelector((state) => state?.login?.verifyMPINResponse);
+  const verifyMPINError = useSelector((state) => state?.login?.verifyMPINError);
+  const setMPINResponse = useSelector((state) => state?.login?.setMPINResponse);
+  const setMPINError = useSelector((state) => state?.login?.setMPINError);
+  const verifyMpinOTPResponse = useSelector(
+    (state) => state?.login?.verifyMpinOTPResponse
+  );
+  const forgotMpinResponse = useSelector(
+    (state) => state?.login?.forgotMpinResponse
+  );
+  const forgetMpinError = useSelector(
+    (state) => state?.login?.ForgetError
+  );
+
+  // Image slider effect
+  useEffect(() => {
+    if (company?.sliderImages && company.sliderImages.length > 0) {
+      const interval = setInterval(() => {
+        setCurrentSlide((prev) => (prev + 1) % company.sliderImages.length);
+      }, 5000);
+      return () => clearInterval(interval);
+    } else {
+      const interval = setInterval(() => {
+        setCurrentIndex((prev) => (prev + 1) % 2);
+      }, 4000);
+      return () => clearInterval(interval);
+    }
+  }, [company?.sliderImages]);
+
+  // OTP Timer (for login OTP verify and forgot MPIN OTP)
+  useEffect(() => {
+    if (
+      otpTimer > 0 &&
+      (currentView === VIEWS.OTP_VERIFY ||
+        currentView === VIEWS.FORGOT_MPIN_OTP)
+    ) {
+      const interval = setInterval(() => setOtpTimer((prev) => prev - 1), 1000);
+      return () => clearInterval(interval);
+    }
+  }, [otpTimer, currentView]);
+
+  // Pre-fetch location and IP on mount
+  useEffect(() => {
+    const fetchLocation = async () => {
+      try {
+        const data = await getLocationAndIP();
+        setLocationData({
+          latitude: data.location.latitude,
+          longitude: data.location.longitude,
+          ipAddress: data.ipAddress,
+        });
+      } catch (error) {
+        console.error("Error pre-fetching location:", error);
+      }
+    };
+    fetchLocation();
+  }, []);
+
+  // Verification Timer
+  useEffect(() => {
+    if (verificationTimer > 0 && currentView === VIEWS.VERIFICATION_CODE) {
+      const interval = setInterval(
+        () => setVerificationTimer((prev) => prev - 1),
+        1000
+      );
+      return () => clearInterval(interval);
+    }
+  }, [verificationTimer, currentView]);
+
+  // Handle login errors
+  useEffect(() => {
+    if (loginError) {
+      const errorMessage = typeof loginError === 'object' ? loginError.message : loginError;
+      const isTokenExpired = typeof loginError === 'object' && loginError.isTokenExpired;
+
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        processedLoginRef.current = false;
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true, // Clear existing notifications for errors
+      });
+    }
+  }, [loginError, showNotification]);
+
+  // Handle OTP verification errors (handles both verificationError and FAILURE status)
+  useEffect(() => {
+    if ((currentView === VIEWS.OTP_VERIFY || currentView === VIEWS.VERIFICATION_CODE)) {
+      // Check for verificationError first (from reducer)
+      if (verificationError) {
+        const errorMessage = typeof verificationError === 'object' ? verificationError.message : verificationError;
+        const isTokenExpired = typeof verificationError === 'object' && verificationError.isTokenExpired;
+
+        // If login token expired, immediately redirect to step 1
+        if (isTokenExpired) {
+          secureLocalStorage.removeItem("loginToken");
+          secureLocalStorage.removeItem("userToken");
+          setCurrentView(VIEWS.LOGIN);
+          setOtp(Array(6).fill(""));
+          setSubmittedPhone("");
+          setPhoneNumber("");
+          processedVerificationRef.current = false;
+        }
+
+        showNotification({
+          type: "error",
+          message: errorMessage,
+          duration: 6000,
+          clearExisting: true, // Clear existing notifications for errors
+        });
+      }
+      // Also check for FAILURE status in verificationStatusdata
+      else if (verificationStatusdata === "FAILURE") {
+        const errorMessage = verificationResponse?.message || verificationResponse?.data?.message || "OTP verification failed. Please try again.";
+        showNotification({
+          type: "error",
+          message: errorMessage,
+          duration: 6000,
+          clearExisting: true, // Clear existing notifications for errors
+        });
+      }
+    }
+  }, [verificationError, verificationStatusdata, verificationResponse, currentView, showNotification]);
+
+  // Handle reset password errors
+  useEffect(() => {
+    if (resetPasswordError) {
+      const errorMessage = typeof resetPasswordError === 'object' ? resetPasswordError.message : resetPasswordError;
+      const isTokenExpired = typeof resetPasswordError === 'object' && resetPasswordError.isTokenExpired;
+
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true, // Clear existing notifications for errors
+      });
+    }
+  }, [resetPasswordError, showNotification]);
+
+  // Handle forget password response (sendForgetPasswordOTP)
+  useEffect(() => {
+    if (forgetPasswordResponse && !processedForgetPasswordRef.current) {
+      const status = forgetPasswordResponse?.status;
+      if (status === "SUCCESS") {
+        processedForgetPasswordRef.current = true;
+        // Store token if present
+        const token = forgetPasswordResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        // Navigate to VERIFICATION_CODE view
+        setCurrentView(VIEWS.VERIFICATION_CODE);
+        setOtp(Array(6).fill(""));
+        setVerificationTimer(180);
+        setTimeout(() => {
+          otpInputRefs.current[0]?.focus();
+        }, 100);
+      }
+    }
+  }, [forgetPasswordResponse]);
+
+  // Reset processed flag when starting new forgot password attempt
+  useEffect(() => {
+    if (currentView === VIEWS.FORGOT_PASSWORD) {
+      processedForgetPasswordRef.current = false;
+    }
+  }, [currentView]);
+
+  // Handle forget password errors
+  useEffect(() => {
+    if (forgetPasswordError && (currentView === VIEWS.FORGOT_PASSWORD || currentView === VIEWS.VERIFICATION_CODE)) {
+      const errorMessage = typeof forgetPasswordError === 'object' ? forgetPasswordError.message : forgetPasswordError;
+      const isTokenExpired = typeof forgetPasswordError === 'object' && forgetPasswordError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [forgetPasswordError, currentView, showNotification]);
+
+  // Handle verify forget password response
+  useEffect(() => {
+    if (verifyForgetPasswordResponse && currentView === VIEWS.VERIFICATION_CODE && !processedVerifyForgetPasswordRef.current) {
+      const status = verifyForgetPasswordResponse?.status;
+      if (status === "SUCCESS") {
+        processedVerifyForgetPasswordRef.current = true;
+        // On successful OTP verification, navigate back to LoginView
+        setOtp(Array(6).fill(""));
+        setPhoneNumber("");
+        setCurrentView(VIEWS.LOGIN);
+      }
+    }
+  }, [verifyForgetPasswordResponse, currentView]);
+
+  // Reset verify forget password processed flag when starting new verification
+  useEffect(() => {
+    if (currentView === VIEWS.VERIFICATION_CODE) {
+      processedVerifyForgetPasswordRef.current = false;
+    }
+  }, [currentView]);
+
+  // Handle verify forget password errors
+  useEffect(() => {
+    if (verifyForgetPasswordError && currentView === VIEWS.VERIFICATION_CODE) {
+      const errorMessage = typeof verifyForgetPasswordError === 'object' ? verifyForgetPasswordError.message : verifyForgetPasswordError;
+      const isTokenExpired = typeof verifyForgetPasswordError === 'object' && verifyForgetPasswordError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [verifyForgetPasswordError, currentView, showNotification]);
+
+  // Handle login response
+  useEffect(() => {
+    if (!loginData || processedLoginRef.current) return;
+
+    // Check for FAILURE status or error status codes (like 429) in login response
+    // The status can be in loginData.status or loginData.loginResponse?.status
+    const status = loginData.status || loginData.loginResponse?.status || loginData.data?.status;
+    if (status === "FAILURE" || (typeof status === "number" && status !== 200 && status !== "SUCCESS")) {
+      const errorMessage = loginData?.message || loginData?.loginResponse?.message || loginData?.data?.message || "Login failed. Please try again.";
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true, // Clear existing notifications for errors
+      });
+      processedLoginRef.current = true;
+      return;
+    }
+
+    if (status === "SUCCESS" || status === 200) {
+      processedLoginRef.current = true;
+      const loginResponse =
+        loginData?.loginResponse?.data || loginData?.data || loginResponseData || {};
+      // Check for requiresPasswordReset in multiple possible locations
+      const requiresPasswordReset = !!(
+        loginResponse?.requiresPasswordReset ||
+        loginData?.data?.requiresPasswordReset ||
+        loginData?.loginResponse?.data?.requiresPasswordReset
+      );
+      const requiresOtp = !!loginResponse?.requiresOtpVerify;
+      const requires2FA = !!loginResponse?.requires2FA;
+      const requiresSetup2FA = !!loginResponse?.requiresSetup2FA;
+      const requiresMPIN = !!loginResponse?.requiresMPIN;
+      const requiresSetupMPIN = !!loginResponse?.requiresSetupMPIN;
+
+      // Check for password reset requirement first
+      if (requiresPasswordReset) {
+        // Store the token from login response for password reset
+        // Token can be in: loginResponse.token, loginData.data.token, or loginData.token
+        const token = loginResponse?.token || loginData?.data?.token || loginData?.token || loginData?.loginResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        setCurrentView(VIEWS.RESET_PASSWORD);
+        return;
+      }
+
+      // Check for MPIN requirements
+      if (requiresSetupMPIN) {
+        const token = loginResponse?.token || loginData?.data?.token || loginData?.token || loginData?.loginResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        setNewMpin(Array(4).fill(""));
+        setConfirmMpin(Array(4).fill(""));
+        setCurrentView(VIEWS.SET_MPIN);
+        setTimeout(() => {
+          newMpinInputRefs.current[0]?.focus();
+        }, 100);
+        return;
+      }
+
+      if (requiresMPIN) {
+        const token = loginResponse?.token || loginData?.data?.token || loginData?.token || loginData?.loginResponse?.data?.token;
+        if (token) {
+          secureLocalStorage.setItem("loginToken", token);
+        }
+        setMpin(Array(4).fill(""));
+        setCurrentView(VIEWS.VERIFY_MPIN);
+        setTimeout(() => {
+          mpinInputRefs.current[0]?.focus();
+        }, 100);
+        return;
+      }
+
+      if (requiresOtp) {
+        setOtp(Array(6).fill(""));
+        setOtpTimer(180);
+        setCurrentView(VIEWS.OTP_VERIFY);
+        setTimeout(() => {
+          otpInputRefs.current[0]?.focus();
+        }, 100);
+        return;
+      }
+
+      if (requiresSetup2FA || requires2FA) {
+        const qrCode = loginResponse?.qrCode;
+        if (qrCode) {
+          setQrData(qrCode);
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.REQUIRE_2FA);
+        } else {
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.AUTH_2FA);
+          setTimeout(() => {
+            auth2FAInputRefs.current[0]?.focus();
+          }, 100);
+        }
+        return;
+      }
+
+      // Don't navigate here - wait for JWT token after 2FA verification
+      // Only navigate if we have JWT token (which comes after 2FA)
+      // For now, just proceed to next step (OTP, 2FA setup, etc.)
+    }
+  }, [loginData, loginResponseData, navigate, showNotification]);
+
+  // Reset processed flag only when loginData actually changes (not on every status change)
+  useEffect(() => {
+    // Only reset if we're not currently on OTP_VERIFY or other intermediate views
+    // This prevents the view from resetting when we're already on step 2
+    if (currentView === VIEWS.LOGIN && loginData) {
+      processedLoginRef.current = false;
+    }
+  }, [loginData, currentView]);
+
+  // Handle OTP verification response
+  useEffect(() => {
+    if (verificationStatusdata === "SUCCESS" && verificationResponse && !processedVerificationRef.current) {
+      processedVerificationRef.current = true;
+      // Navigate/change view immediately without success notification
+      if (currentView === VIEWS.OTP_VERIFY) {
+        const responseData = verificationResponse?.data || verificationResponse;
+        const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
+        if (requiresPasswordReset) {
+          setCurrentView(VIEWS.RESET_PASSWORD);
+          return;
+        }
+        const requiresMPIN = responseData?.requiresMPIN || verificationResponse?.requiresMPIN;
+        const requiresSetupMPIN = responseData?.requiresSetupMPIN || verificationResponse?.requiresSetupMPIN;
+        if (requiresSetupMPIN) {
+          const token = responseData?.token || verificationResponse?.token;
+          if (token) {
+            secureLocalStorage.setItem("loginToken", token);
+          }
+          setNewMpin(Array(6).fill(""));
+          setConfirmMpin(Array(6).fill(""));
+          setCurrentView(VIEWS.SET_MPIN);
+          setTimeout(() => {
+            newMpinInputRefs.current[0]?.focus();
+          }, 100);
+          return;
+        }
+        if (requiresMPIN) {
+          const token = responseData?.token || verificationResponse?.token;
+          if (token) {
+            secureLocalStorage.setItem("loginToken", token);
+          }
+          setMpin(Array(4).fill(""));
+          setCurrentView(VIEWS.VERIFY_MPIN);
+          setTimeout(() => {
+            mpinInputRefs.current[0]?.focus();
+          }, 100);
+          return;
+        }
+        const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
+          } else {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }
+        } else {
+          const jwtToken = secureLocalStorage.getItem("userToken");
+          if (jwtToken) {
+            const rolePaths = {
+              1: "/superDashboard/home",
+              2: "/adminDashboard/home",
+              3: "/masterDistributerDashboard/home",
+              4: "/distributerDashboard/home",
+              5: "/retailerDashboard/home",
+              6: "/employeeDashboard/home",
+            };
+            const userRole = responseData?.userRole || verificationResponse?.userRole;
+            navigate(rolePaths[userRole] || "/superDashboard/home");
+          }
+        }
+      } else if (currentView === VIEWS.VERIFICATION_CODE) {
+        const responseData = verificationResponse?.data || verificationResponse;
+        const requiresPasswordReset = responseData?.requiresPasswordReset || verificationResponse?.requiresPasswordReset;
+        if (requiresPasswordReset) {
+          setCurrentView(VIEWS.RESET_PASSWORD);
+          return;
+        }
+        const requiresMPIN = responseData?.requiresMPIN || verificationResponse?.requiresMPIN;
+        const requiresSetupMPIN = responseData?.requiresSetupMPIN || verificationResponse?.requiresSetupMPIN;
+        if (requiresSetupMPIN) {
+          const token = responseData?.token || verificationResponse?.token;
+          if (token) {
+            secureLocalStorage.setItem("loginToken", token);
+          }
+          setNewMpin(Array(6).fill(""));
+          setConfirmMpin(Array(6).fill(""));
+          setCurrentView(VIEWS.SET_MPIN);
+          setTimeout(() => {
+            newMpinInputRefs.current[0]?.focus();
+          }, 100);
+          return;
+        }
+        if (requiresMPIN) {
+          const token = responseData?.token || verificationResponse?.token;
+          if (token) {
+            secureLocalStorage.setItem("loginToken", token);
+          }
+          setMpin(Array(4).fill(""));
+          setCurrentView(VIEWS.VERIFY_MPIN);
+          setTimeout(() => {
+            mpinInputRefs.current[0]?.focus();
+          }, 100);
+          return;
+        }
+        const requires2FA = responseData?.requires2FA || verificationResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || verificationResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || verificationResponse?.qrCode;
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
+          } else {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }
+        }
+      }
+    }
+  }, [verificationStatusdata, verificationResponse, currentView, navigate, showNotification]);
+
+  // Reset processed verification flag when view changes
+  useEffect(() => {
+    if (currentView === VIEWS.OTP_VERIFY || currentView === VIEWS.VERIFICATION_CODE) {
+      processedVerificationRef.current = false;
+    }
+  }, [currentView]);
+
+  // Reset processed flag when verification status changes
+  useEffect(() => {
+    if (verificationStatusdata !== "SUCCESS") {
+      processedVerificationRef.current = false;
+    }
+  }, [verificationStatusdata]);
+
+  // Handle 2FA response
+  useEffect(() => {
+    if (factstatus === "SUCCESS" && factresponse) {
+      // Get user data from response - check multiple possible locations
+      const userDataFromResponse = usedata || twoFactorAuthData?.data?.user || twoFactorAuthData?.user;
+      // Check if both token and userData exist in secure storage (from authOtp action)
+      const existingToken = secureLocalStorage.getItem("userToken");
+      const existingUserData = secureLocalStorage.getItem("userData");
+      // Only navigate if BOTH token and userData exist
+      if (existingToken && existingUserData) {
+        try {
+          const parsedUserData = JSON.parse(existingUserData);
+          const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashboard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+
+          // Dispatch loginSuccess with user data
+          dispatch(
+            loginSuccess({
+              token: factresponse || existingToken,
+              user: parsedUserData || userDataFromResponse,
+            })
+          );
+
+          // Navigate based on role
+          navigate(rolePaths[userRole] || "/superDashboard/home");
+          return;
+        } catch (e) {
+          console.error("Error parsing userData:", e);
+        }
+      }
+      // If token or userData doesn't exist yet, check again quickly and navigate without showing success notification
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const storedUserData = secureLocalStorage.getItem("userData");
+      if (jwtToken && storedUserData) {
+        try {
+          const parsedUserData = JSON.parse(storedUserData);
+          const userRole = parsedUserData?.userRole || userDataFromResponse?.userRole;
+          dispatch(
+            loginSuccess({
+              token: factresponse || jwtToken,
+              user: parsedUserData || userDataFromResponse,
+            })
+          );
+          const rolePaths = {
+            1: "/superDashboard/home",
+            2: "/adminDashboard/home",
+            3: "/masterDistributerDashboard/home",
+            4: "/distributerDashboard/home",
+            5: "/retailerDashboard/home",
+            6: "/employeeDashboard/home",
+          };
+          navigate(rolePaths[userRole] || "/superDashboard/home");
+        } catch (e) {
+          console.error("Error parsing userData:", e);
+        }
+      }
+    }
+  }, [factstatus, factresponse, usedata, twoFactorAuthData, dispatch, navigate, showNotification]);
+
+  // Handle 2FA errors
+  useEffect(() => {
+    if (twoFactorAuthError && (currentView === VIEWS.AUTH_2FA || currentView === VIEWS.REQUIRE_2FA)) {
+      const errorMessage = typeof twoFactorAuthError === 'object' ? twoFactorAuthError.message : twoFactorAuthError;
+      const isTokenExpired = typeof twoFactorAuthError === 'object' && twoFactorAuthError.isTokenExpired;
+
+      // If login token expired, immediately redirect to step 1
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+        setPhoneNumber("");
+        setQrData(null);
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true, // Clear existing notifications for errors
+      });
+    }
+  }, [twoFactorAuthError, currentView, showNotification]);
+
+  // Handle reset password response
+  useEffect(() => {
+    if (resetPasswordResponse?.status === "SUCCESS") {
+      // Navigate immediately without success notification
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const responseData = resetPasswordResponse?.data || resetPasswordResponse;
+      const userRole = responseData?.userRole;
+
+      if (jwtToken && userRole) {
+        const rolePaths = {
+          1: "/superDashboard/home",
+          2: "/adminDashboard/home",
+          3: "/masterDistributerDashboard/home",
+          4: "/distributerDashboard/home",
+          5: "/retailerDashboard/home",
+          6: "/employeeDashboard/home",
+        };
+        navigate(rolePaths[userRole] || "/superDashboard/home");
+      } else if (userRole) {
+        const requires2FA = responseData?.requires2FA || resetPasswordResponse?.requires2FA;
+        const requiresSetup2FA = responseData?.requiresSetup2FA || resetPasswordResponse?.requiresSetup2FA;
+        const qrCode = responseData?.qrCode || resetPasswordResponse?.qrCode;
+
+        if (requiresSetup2FA || requires2FA) {
+          if (qrCode) {
+            setQrData(qrCode);
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.REQUIRE_2FA);
+          } else {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }
+        } else {
+          setCurrentView(VIEWS.LOGIN);
+        }
+      } else {
+        setCurrentView(VIEWS.LOGIN);
+      }
+    }
+  }, [resetPasswordResponse, navigate, showNotification]);
+
+  // Handle verify MPIN response
+  useEffect(() => {
+    if (verifyMPINResponse?.status === "SUCCESS" && !processedVerifyMPINRef.current) {
+      processedVerifyMPINRef.current = true;
+      const responseData = verifyMPINResponse?.data || verifyMPINResponse;
+      const requiresPasswordReset = responseData?.requiresPasswordReset;
+      const requires2FA = responseData?.requires2FA;
+      const requiresSetup2FA = responseData?.requiresSetup2FA;
+      const qrCode = responseData?.qrCode;
+
+      // Extract tokens and user data from response
+      const accessToken = responseData?.accessToken;
+      const refreshToken = responseData?.refreshToken;
+      const userData = responseData?.user;
+      const userRole = userData?.userRole || responseData?.userRole;
+
+      // Store tokens if available
+      if (accessToken) {
+        secureLocalStorage.setItem("userToken", accessToken);
+      }
+      if (refreshToken) {
+        secureLocalStorage.setItem("refreshToken", refreshToken);
+      }
+      if (userData) {
+        secureLocalStorage.setItem("userData", JSON.stringify(userData));
+      }
+
+      if (requiresPasswordReset) {
+        setCurrentView(VIEWS.RESET_PASSWORD);
+        return;
+      }
+
+      if (requiresSetup2FA || requires2FA) {
+        if (qrCode) {
+          setQrData(qrCode);
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.REQUIRE_2FA);
+        } else {
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.AUTH_2FA);
+          setTimeout(() => {
+            auth2FAInputRefs.current[0]?.focus();
+          }, 100);
+        }
+      } else if (accessToken && userData && userRole) {
+        // Dispatch loginSuccess with user data
+        dispatch(
+          loginSuccess({
+            token: accessToken,
+            user: userData,
+          })
+        );
+
+        const rolePaths = {
+          1: "/superDashboard/home",
+          2: "/adminDashboard/home",
+          3: "/masterDistributerDashboard/home",
+          4: "/distributerDashboard/home",
+          5: "/retailerDashboard/home",
+          6: "/employeeDashboard/home",
+        };
+        navigate(rolePaths[userRole] || "/superDashboard/home");
+      }
+    }
+  }, [verifyMPINResponse, navigate, dispatch]);
+
+  // Handle verify MPIN errors
+  useEffect(() => {
+    if (verifyMPINError && currentView === VIEWS.VERIFY_MPIN) {
+      const errorMessage = typeof verifyMPINError === 'object' ? verifyMPINError.message : verifyMPINError;
+      const isTokenExpired = typeof verifyMPINError === 'object' && verifyMPINError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setMpin(Array(4).fill(""));
+        processedVerifyMPINRef.current = false;
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [verifyMPINError, currentView, showNotification]);
+
+  // Handle set MPIN response
+  useEffect(() => {
+    if (setMPINResponse?.status === "SUCCESS" && !processedSetMPINRef.current) {
+      processedSetMPINRef.current = true;
+      const responseData = setMPINResponse?.data || setMPINResponse;
+      const requiresMPIN = responseData?.requiresMPIN;
+      const requiresPasswordReset = responseData?.requiresPasswordReset;
+      const requires2FA = responseData?.requires2FA;
+      const requiresSetup2FA = responseData?.requiresSetup2FA;
+      const qrCode = responseData?.qrCode;
+      const jwtToken = secureLocalStorage.getItem("userToken");
+      const userRole = responseData?.userRole;
+
+      // If requiresMPIN is true, redirect to login (start from first)
+      if (requiresMPIN) {
+        // Clear MPIN states
+        setNewMpin(Array(4).fill(""));
+        setConfirmMpin(Array(4).fill(""));
+        setMpin(Array(4).fill(""));
+        // Clear login token to force fresh login
+        secureLocalStorage.removeItem("loginToken");
+        // Show success message
+        showNotification({
+          type: "success",
+          message: setMPINResponse?.message || "MPIN set successfully! Please login again.",
+          duration: 5000,
+        });
+        // Reset to login view
+        setCurrentView(VIEWS.LOGIN);
+        processedSetMPINRef.current = false;
+        return;
+      }
+
+      if (requiresPasswordReset) {
+        setCurrentView(VIEWS.RESET_PASSWORD);
+        return;
+      }
+
+      if (requiresSetup2FA || requires2FA) {
+        if (qrCode) {
+          setQrData(qrCode);
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.REQUIRE_2FA);
+        } else {
+          setOtp(Array(6).fill(""));
+          setCurrentView(VIEWS.AUTH_2FA);
+          setTimeout(() => {
+            auth2FAInputRefs.current[0]?.focus();
+          }, 100);
+        }
+      } else if (jwtToken && userRole) {
+        const rolePaths = {
+          1: "/superDashboard/home",
+          2: "/adminDashboard/home",
+          3: "/masterDistributerDashboard/home",
+          4: "/distributerDashboard/home",
+          5: "/retailerDashboard/home",
+          6: "/employeeDashboard/home",
+        };
+        navigate(rolePaths[userRole] || "/superDashboard/home");
+      }
+    }
+  }, [setMPINResponse, navigate, showNotification]);
+
+  // Handle set MPIN errors
+  useEffect(() => {
+    if (setMPINError && currentView === VIEWS.SET_MPIN) {
+      const errorMessage = typeof setMPINError === 'object' ? setMPINError.message : setMPINError;
+      const isTokenExpired = typeof setMPINError === 'object' && setMPINError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        setCurrentView(VIEWS.LOGIN);
+        setNewMpin(Array(4).fill(""));
+        setConfirmMpin(Array(4).fill(""));
+        processedSetMPINRef.current = false;
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [setMPINError, currentView, showNotification]);
+
+  // Handle forgot MPIN OTP response (send OTP)
+  useEffect(() => {
+    if (forgotMpinResponse?.status === "SUCCESS") {
+      // Show success notification from API
+      showNotification({
+        type: "success",
+        message: forgotMpinResponse?.message || "OTP sent successfully!",
+        duration: 4000,
+        clearExisting: true,
+      });
+
+      setOtp(Array(6).fill(""));
+      setCurrentView(VIEWS.FORGOT_MPIN_OTP);
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 100);
+    }
+  }, [forgotMpinResponse, showNotification]);
+
+  // Handle forgot MPIN OTP errors (send OTP failure)
+  useEffect(() => {
+    if (forgetMpinError) {
+      const errorMessage =
+        typeof forgetMpinError === "object"
+          ? forgetMpinError.message
+          : forgetMpinError;
+      const isTokenExpired =
+        typeof forgetMpinError === "object" && forgetMpinError.isTokenExpired;
+
+      if (isTokenExpired) {
+        secureLocalStorage.removeItem("loginToken");
+        secureLocalStorage.removeItem("userToken");
+        secureLocalStorage.removeItem("refreshToken");
+        setCurrentView(VIEWS.LOGIN);
+        setOtp(Array(6).fill(""));
+        setSubmittedPhone("");
+      }
+
+      showNotification({
+        type: "error",
+        message: errorMessage,
+        duration: 6000,
+        clearExisting: true,
+      });
+    }
+  }, [forgetMpinError, showNotification]);
+
+  // Handle verify forgot MPIN OTP success - go back to Login view
+  useEffect(() => {
+    if (
+      currentView === VIEWS.FORGOT_MPIN_OTP &&
+      verifyMpinOTPResponse?.status === "SUCCESS"
+    ) {
+      // Show success notification from API
+      showNotification({
+        type: "success",
+        message:
+          verifyMpinOTPResponse?.message ||
+          "MPIN OTP verified successfully. Please login again.",
+        duration: 4000,
+        clearExisting: true,
+      });
+
+      setOtp(Array(6).fill(""));
+      setSubmittedPhone("");
+      setCurrentView(VIEWS.LOGIN);
+    }
+  }, [currentView, verifyMpinOTPResponse, showNotification]);
+
+  // Login form submission
+  const handleLoginSubmit = async (values, { setSubmitting }) => {
+    try {
+      let currentLat = locationData.latitude;
+      let currentLong = locationData.longitude;
+
+      // Fallback if not already fetched
+      if (!currentLat || !currentLong) {
+        const data = await getLocationAndIP();
+        currentLat = data.location.latitude;
+        currentLong = data.location.longitude;
+        setLocationData({
+          latitude: currentLat,
+          longitude: currentLong,
+          ipAddress: data.ipAddress,
+        });
+      }
+
+      if (!currentLat || !currentLong) {
+        showNotification({
+          type: "warning",
+          message: "Please allow location to proceed with login.",
+          duration: 6000,
+        });
+      }
+
+      const payload = {
+        mobileNo: values.phoneNumber,
+        password: values.password,
+        latitude: currentLat || "",
+        longitude: currentLong || "",
+        userType: "1",
+      };
+      setSubmittedPhone(values.phoneNumber);
+
+      const companyId = company?._id || company?.id || company?.companyId;
+      dispatch(loginStatus(payload, companyId));
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: error.response?.data?.message || "Login failed. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Forgot MPIN submission
+  const handleForgotMpinSubmit = (values, { setSubmitting }) => {
+    try {
+      const companyId = company?._id || company?.id || company?.companyId;
+      const payload = {
+        mobileNo: values.phoneNumber,
+      };
+      setSubmittedPhone(values.phoneNumber);
+      dispatch(forgotMpinOTP(payload, companyId));
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // Forgot password submission
+  const handleForgotPasswordSubmit = (values) => {
+    setPhoneNumber(values.phoneNumber);
+    setOtp(Array(6).fill(""));
+    const companyId = company?._id || company?.id || company?.companyId;
+    // Call sendForgetPasswordOTP API with phoneNumber
+    dispatch(sendForgetPasswordOTP({ phoneNumber: values.phoneNumber }, companyId));
+  };
+
+  // OTP input handlers
+  const handleOtpChange = (value, index, refs) => {
+    if (/^[0-9]?$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (value && index < 5) refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleOtpKeyDown = (e, index, refs) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      refs.current[index - 1]?.focus();
+    }
+  };
+
+  // Handle paste for OTP - split 6-digit code across boxes
+  const handleOtpPaste = (e, refs) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const digits = pastedData.replace(/\D/g, "").slice(0, 6);
+
+    if (digits.length > 0) {
+      const newOtp = Array(6).fill("");
+      for (let i = 0; i < digits.length && i < 6; i++) {
+        newOtp[i] = digits[i];
+      }
+      setOtp(newOtp);
+
+      const focusIndex = Math.min(digits.length, 5);
+      setTimeout(() => {
+        refs.current[focusIndex]?.focus();
+      }, 0);
+    }
+  };
+
+  // OTP submit
+  const handleOtpSubmit = () => {
+    const finalOtp = otp.join("");
+    if (finalOtp.length !== 6) {
+      showNotification({
+        type: "error",
+        message: "Please enter a valid 6-digit OTP",
+      });
+      return;
+    }
+    const companyId = company?._id || company?.id || company?.companyId;
+
+    if (currentView === VIEWS.FORGOT_MPIN_OTP) {
+      // Forgot MPIN OTP verification
+      dispatch(verifyMpinOTP({ otp: finalOtp }, companyId));
+    } else if (currentView === VIEWS.VERIFICATION_CODE) {
+      // Forgot password OTP verification
+      dispatch(verifyForgetPassword({ otp: finalOtp }, companyId));
+    } else {
+      // Login OTP verification
+      dispatch(verificationStatus({ otp: finalOtp }, companyId));
+    }
+  };
+
+  // Resend OTP
+  const handleResendOtp = () => {
+    const companyId = company?._id || company?.id || company?.companyId;
+    dispatch(rescendOtp(companyId));
+    setOtpTimer(180);
+    setOtp(Array(6).fill(""));
+  };
+
+  // Resend Verification Code
+  const handleResendVerification = () => {
+    if (!phoneNumber) {
+      showNotification({
+        type: "error",
+        message: "Phone number is missing. Please try again.",
+      });
+      return;
+    }
+    const companyId = company?._id || company?.id || company?.companyId;
+    // Call sendForgetPasswordOTP API again with the same phoneNumber
+    dispatch(sendForgetPasswordOTP({ phoneNumber: phoneNumber }, companyId));
+    setVerificationTimer(180);
+    setOtp(Array(6).fill(""));
+  };
+
+  // 2FA OTP handlers
+  const handleAuth2FAChange = (value, index) => {
+    if (/^[0-9]?$/.test(value)) {
+      const newOtp = [...otp];
+      newOtp[index] = value;
+      setOtp(newOtp);
+      if (value && index < 5) auth2FAInputRefs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleAuth2FAKeyDown = (e, index) => {
+    if (e.key === "Backspace" && !otp[index] && index > 0) {
+      auth2FAInputRefs.current[index - 1]?.focus();
+    }
+  };
+
+  // Handle paste for 2FA - split 6-digit code across boxes
+  const handleAuth2FAPaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const digits = pastedData.replace(/\D/g, "").slice(0, 6);
+
+    if (digits.length > 0) {
+      const newOtp = Array(6).fill("");
+      for (let i = 0; i < digits.length && i < 6; i++) {
+        newOtp[i] = digits[i];
+      }
+      setOtp(newOtp);
+
+      const focusIndex = Math.min(digits.length, 5);
+      setTimeout(() => {
+        auth2FAInputRefs.current[focusIndex]?.focus();
+      }, 0);
+    }
+  };
+
+  // 2FA OTP submit
+  const handleAuth2FASubmit = () => {
+    const finalOtp = otp.join("");
+    if (finalOtp.length !== 6) {
+      showNotification({
+        type: "error",
+        message: "Enter full 6-digit OTP",
+      });
+      return;
+    }
+    const companyId = company?._id || company?.id || company?.companyId;
+    dispatch(authOtp({ otp: finalOtp }, companyId));
+  };
+
+  // Reset password submission
+  const handleResetPasswordSubmit = async (values, { setSubmitting }) => {
+    try {
+      const payload = {
+        newPassword: values.newPassword,
+        confirmPassword: values.confirmPassword,
+      };
+      const companyId = company?._id || company?.id || company?.companyId;
+      dispatch(resetPassword(payload, companyId));
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: error.response?.data?.message || "Password reset failed. Please try again.",
+      });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  // MPIN input handlers
+  const handleMpinChange = (value, index, refs) => {
+    if (/^[0-9]?$/.test(value)) {
+      const newMpin = [...mpin];
+      newMpin[index] = value;
+      setMpin(newMpin);
+      if (value && index < 3) refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleMpinKeyDown = (e, index, refs) => {
+    if (e.key === "Backspace" && !mpin[index] && index > 0) {
+      refs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleMpinPaste = (e, refs) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const digits = pastedData.replace(/\D/g, "").slice(0, 4);
+
+    if (digits.length > 0) {
+      const newMpin = Array(4).fill("");
+      for (let i = 0; i < digits.length && i < 4; i++) {
+        newMpin[i] = digits[i];
+      }
+      setMpin(newMpin);
+
+      const focusIndex = Math.min(digits.length, 3);
+      setTimeout(() => {
+        refs.current[focusIndex]?.focus();
+      }, 0);
+    }
+  };
+
+  // New MPIN input handlers
+  const handleNewMpinChange = (value, index, refs) => {
+    if (/^[0-9]?$/.test(value)) {
+      const newMpinArray = [...newMpin];
+      newMpinArray[index] = value;
+      setNewMpin(newMpinArray);
+      if (value && index < 3) refs.current[index + 1]?.focus();
+      else if (value && index === 3) {
+        confirmMpinInputRefs.current[0]?.focus();
+      }
+    }
+  };
+
+  const handleNewMpinKeyDown = (e, index, refs, confirmRefs) => {
+    if (e.key === "Backspace" && !newMpin[index] && index > 0) {
+      refs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleNewMpinPaste = (e, refs) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const digits = pastedData.replace(/\D/g, "").slice(0, 4);
+
+    if (digits.length > 0) {
+      const newMpinArray = Array(4).fill("");
+      for (let i = 0; i < digits.length && i < 4; i++) {
+        newMpinArray[i] = digits[i];
+      }
+      setNewMpin(newMpinArray);
+
+      const focusIndex = Math.min(digits.length, 3);
+      setTimeout(() => {
+        if (focusIndex === 3) {
+          confirmMpinInputRefs.current[0]?.focus();
+        } else {
+          refs.current[focusIndex]?.focus();
+        }
+      }, 0);
+    }
+  };
+
+  // Confirm MPIN input handlers
+  const handleConfirmMpinChange = (value, index, refs) => {
+    if (/^[0-9]?$/.test(value)) {
+      const newConfirmMpin = [...confirmMpin];
+      newConfirmMpin[index] = value;
+      setConfirmMpin(newConfirmMpin);
+      if (value && index < 3) refs.current[index + 1]?.focus();
+    }
+  };
+
+  const handleConfirmMpinKeyDown = (e, index, refs) => {
+    if (e.key === "Backspace" && !confirmMpin[index] && index > 0) {
+      refs.current[index - 1]?.focus();
+    }
+  };
+
+  const handleConfirmMpinPaste = (e, refs) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData("text");
+    const digits = pastedData.replace(/\D/g, "").slice(0, 4);
+
+    if (digits.length > 0) {
+      const newConfirmMpin = Array(4).fill("");
+      for (let i = 0; i < digits.length && i < 4; i++) {
+        newConfirmMpin[i] = digits[i];
+      }
+      setConfirmMpin(newConfirmMpin);
+
+      const focusIndex = Math.min(digits.length, 3);
+      setTimeout(() => {
+        refs.current[focusIndex]?.focus();
+      }, 0);
+    }
+  };
+
+  // Verify MPIN submit
+  const handleVerifyMpinSubmit = async () => {
+    const finalMpin = mpin.join("");
+    if (finalMpin.length !== 4) {
+      showNotification({
+        type: "error",
+        message: "Please enter a valid 4-digit MPIN",
+      });
+      return;
+    }
+    try {
+      const companyId = company?._id || company?.id || company?.companyId;
+      const payload = {
+        mpin: finalMpin,
+        latitude: locationData.latitude || "",
+        longitude: locationData.longitude || "",
+        ipAddress: locationData.ipAddress || "",
+      };
+      dispatch(verifyMPIN(payload, companyId));
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: error.response?.data?.message || "MPIN verification failed. Please try again.",
+      });
+    }
+  };
+
+  // Set MPIN submit
+  const handleSetMpinSubmit = async () => {
+    const finalNewMpin = newMpin.join("");
+    const finalConfirmMpin = confirmMpin.join("");
+
+    if (finalNewMpin.length !== 4) {
+      showNotification({
+        type: "error",
+        message: "Please enter a valid 4-digit MPIN",
+      });
+      return;
+    }
+
+    if (finalNewMpin !== finalConfirmMpin) {
+      showNotification({
+        type: "error",
+        message: "MPINs do not match. Please try again.",
+      });
+      return;
+    }
+
+    try {
+      const companyId = company?._id || company?.id || company?.companyId;
+      const payload = {
+        newMPIN: finalNewMpin,
+        confirmMPIN: finalConfirmMpin,
+        latitude: locationData.latitude || "",
+        longitude: locationData.longitude || "",
+        ipAddress: locationData.ipAddress || "",
+      };
+      dispatch(setMPIN(payload, companyId));
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message: error.response?.data?.message || "Setting MPIN failed. Please try again.",
+      });
+    }
+  };
+
+  // Main render
+  return (
+    <div className="min-h-screen flex flex-col lg:flex-row bg-white overflow-hidden">
+      {/* Hidden preload image to ensure gmaxepay.png is used immediately and avoid browser warning */}
+      <img
+        src="/img/gmaxepay.png"
+        alt=""
+        className="hidden"
+        aria-hidden="true"
+        fetchpriority="high"
+      />
+      <LeftSideSlider
+        company={company}
+        currentSlide={currentSlide}
+        setCurrentSlide={setCurrentSlide}
+        currentIndex={currentIndex}
+        setCurrentIndex={setCurrentIndex}
+      />
+
+      {currentView === VIEWS.LOGIN && (
+        <LoginView
+          onSubmit={handleLoginSubmit}
+          onForgotPassword={() => {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.FORGOT_PASSWORD);
+          }}
+          onSignUp={() => navigate("/unity")}
+        />
+      )}
+
+      {currentView === VIEWS.FORGOT_PASSWORD && (
+        <ForgotPasswordView
+          onSubmit={handleForgotPasswordSubmit}
+          onBack={() => {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.LOGIN);
+          }}
+        />
+      )}
+
+      {currentView === VIEWS.OTP_VERIFY && (
+        <OtpVerifyView
+          otp={otp}
+          setOtp={setOtp}
+          otpTimer={otpTimer}
+          onOtpChange={handleOtpChange}
+          onOtpKeyDown={handleOtpKeyDown}
+          onOtpPaste={handleOtpPaste}
+          onSubmit={handleOtpSubmit}
+          onResend={handleResendOtp}
+          submittedPhone={submittedPhone}
+          otpInputRefs={otpInputRefs}
+        />
+      )}
+
+      {currentView === VIEWS.VERIFICATION_CODE && (
+        <VerificationCodeView
+          otp={otp}
+          setOtp={setOtp}
+          verificationTimer={verificationTimer}
+          onOtpChange={handleOtpChange}
+          onOtpKeyDown={handleOtpKeyDown}
+          onOtpPaste={handleOtpPaste}
+          onSubmit={handleOtpSubmit}
+          onResend={handleResendVerification}
+          phoneNumber={phoneNumber}
+          otpInputRefs={otpInputRefs}
+        />
+      )}
+
+      {currentView === VIEWS.REQUIRE_2FA && (
+        <Require2FAView
+          qrData={qrData}
+          onNext={() => {
+            setOtp(Array(6).fill(""));
+            setCurrentView(VIEWS.AUTH_2FA);
+            setTimeout(() => {
+              auth2FAInputRefs.current[0]?.focus();
+            }, 100);
+          }}
+        />
+      )}
+
+      {currentView === VIEWS.AUTH_2FA && (
+        <Auth2FAView
+          otp={otp}
+          onAuth2FAChange={handleAuth2FAChange}
+          onAuth2FAKeyDown={handleAuth2FAKeyDown}
+          onAuth2FAPaste={handleAuth2FAPaste}
+          onSubmit={handleAuth2FASubmit}
+          auth2FAInputRefs={auth2FAInputRefs}
+        />
+      )}
+
+      {currentView === VIEWS.RESET_PASSWORD && (
+        <ResetPasswordView onSubmit={handleResetPasswordSubmit} />
+      )}
+
+      {currentView === VIEWS.VERIFY_MPIN && (
+        <VerifyMPINView
+          mpin={mpin}
+          onMpinChange={handleMpinChange}
+          onMpinKeyDown={handleMpinKeyDown}
+          onMpinPaste={handleMpinPaste}
+          onSubmit={handleVerifyMpinSubmit}
+          mpinInputRefs={mpinInputRefs}
+          onForgotMpinSubmit={handleForgotMpinSubmit}
+        />
+      )}
+
+      {currentView === VIEWS.FORGOT_MPIN_OTP && (
+        <VerifyMpinOtp
+          otp={otp}
+          otpTimer={otpTimer}
+          onOtpChange={handleOtpChange}
+          onOtpKeyDown={handleOtpKeyDown}
+          onOtpPaste={handleOtpPaste}
+          onSubmit={handleOtpSubmit}
+          onResend={() => {
+            const companyId =
+              company?._id || company?.id || company?.companyId;
+            if (!submittedPhone) return;
+            dispatch(
+              forgotMpinOTP({ mobileNo: submittedPhone }, companyId)
+            );
+            setOtpTimer(180);
+            setOtp(Array(6).fill(""));
+          }}
+          submittedPhone={submittedPhone}
+          otpInputRefs={otpInputRefs}
+        />
+      )}
+
+      {currentView === VIEWS.SET_MPIN && (
+        <SetMPINView
+          newMpin={newMpin}
+          confirmMpin={confirmMpin}
+          onNewMpinChange={handleNewMpinChange}
+          onConfirmMpinChange={handleConfirmMpinChange}
+          onNewMpinKeyDown={handleNewMpinKeyDown}
+          onConfirmMpinKeyDown={handleConfirmMpinKeyDown}
+          onNewMpinPaste={handleNewMpinPaste}
+          onConfirmMpinPaste={handleConfirmMpinPaste}
+          onSubmit={handleSetMpinSubmit}
+          newMpinInputRefs={newMpinInputRefs}
+          confirmMpinInputRefs={confirmMpinInputRefs}
+        />
+      )}
+    </div>
+  );
+};
+
+export default LoginDesign1;

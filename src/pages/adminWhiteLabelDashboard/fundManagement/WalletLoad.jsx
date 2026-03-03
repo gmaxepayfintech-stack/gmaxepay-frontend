@@ -1,0 +1,492 @@
+import React, { useState, useRef, useEffect } from "react";
+import { useDispatch } from "react-redux";
+import {
+  companyFundLoad,
+  companyGetBanks,
+} from "../../../redux/action/fundAction";
+import { useNotification } from "../../../context/NotificationContext";
+
+const WalletLoad = () => {
+  const dispatch = useDispatch();
+  const { showNotification } = useNotification();
+  const [amount, setAmount] = useState("");
+  const [paymentMode, setPaymentMode] = useState("");
+  const [payDate, setPayDate] = useState("");
+  const [referenceNumber, setReferenceNumber] = useState("");
+  const [remarks, setRemarks] = useState("");
+  const [selectedBank, setSelectedBank] = useState(null);
+  const [paySlipFile, setPaySlipFile] = useState(null);
+  const [banks, setBanks] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const fileInputRef = useRef(null);
+  const [previewUrl, setPreviewUrl] = useState(null);
+  const [fileError, setFileError] = useState("");
+
+  // Fetch banks on component mount
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        setLoading(true);
+        const result = await dispatch(companyGetBanks({}));
+        if (result?.status === "SUCCESS" && result?.companyBankLists) {
+          setBanks(result.companyBankLists);
+          // Set the first bank as selected by default, or the primary bank if exists
+          const primaryBank = result.companyBankLists.find(
+            (bank) => bank.isPrimary,
+          );
+          if (primaryBank) {
+            setSelectedBank(primaryBank.bankId || primaryBank.id);
+          } else if (result.companyBankLists.length > 0) {
+            setSelectedBank(
+              result.companyBankLists[0].bankId ||
+                result.companyBankLists[0].id,
+            );
+          }
+        }
+      } catch (error) {
+        showNotification({
+          type: "error",
+          message: error?.message || "Failed to fetch bank details",
+          isCritical: true,
+        });
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchBanks();
+  }, [dispatch, showNotification]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const maxSize = 5 * 1024 * 1024; // 5MB
+
+    if (file.size > maxSize) {
+      setFileError("File size must be below 5 MB");
+      setPaySlipFile(null);
+      setPreviewUrl(null);
+      return;
+    }
+
+    setFileError("");
+    setPaySlipFile(file);
+
+    // Preview for images
+    if (file.type.startsWith("image/")) {
+      const url = URL.createObjectURL(file);
+      setPreviewUrl(url);
+    } else {
+      setPreviewUrl(null);
+    }
+  };
+
+  const handleFileDrop = (e) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        alert("File size must be less than 5 MB");
+        return;
+      }
+      setPaySlipFile(file);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!selectedBank) {
+      showNotification({
+        type: "error",
+        message: "Please select a bank",
+        isCritical: true,
+      });
+      return;
+    }
+
+    if (!amount || !paymentMode || !payDate) {
+      showNotification({
+        type: "error",
+        message: "Please fill all required fields",
+        isCritical: true,
+      });
+      return;
+    }
+
+    try {
+      setLoading(true);
+
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append("amount", amount);
+      formData.append("paymentMode", paymentMode);
+      formData.append("transactionDate", payDate);
+      formData.append("bankId", selectedBank);
+
+      if (referenceNumber) {
+        formData.append("referenceNo", referenceNumber);
+      }
+
+      if (remarks) {
+        formData.append("remarks", remarks);
+      }
+
+      if (paySlipFile) {
+        formData.append("paySlip", paySlipFile);
+      }
+
+      const result = await dispatch(companyFundLoad(formData));
+
+      if (result?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: result.message || "Fund request submitted successfully",
+          isCritical: true,
+        });
+        // Reset form
+        setAmount("");
+        setPaymentMode("");
+        setPayDate("");
+        setReferenceNumber("");
+        setRemarks("");
+        setPaySlipFile(null);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = "";
+        }
+        // Reset to primary bank or first bank
+        const primaryBank = banks.find((bank) => bank.isPrimary);
+        if (primaryBank) {
+          setSelectedBank(primaryBank.bankId || primaryBank.id);
+        } else if (banks.length > 0) {
+          setSelectedBank(banks[0].bankId || banks[0].id);
+        }
+      } else {
+        showNotification({
+          type: "error",
+          message: result?.message || "Failed to submit fund request",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
+      showNotification({
+        type: "error",
+        message:
+          error?.response?.data?.message ||
+          error?.message ||
+          "Failed to submit fund request",
+        isCritical: true,
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 p-4 sm:p-6 lg:p-8">
+      <div className="max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 lg:grid-cols-[3fr_2fr] gap-6 lg:gap-8">
+          {/* Left Container: Wallet Load */}
+          <div className="bg-white rounded-3xl shadow-sm p-[18px] sm:p-[18px] lg:p-[18px]">
+            <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717] mb-4">
+              Wallet Load
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* GRID START */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                {/* Amount */}
+                <div>
+                  <label
+                    htmlFor="amount"
+                    className="block text-[14px] leading-[1.2] font-['Gilroy-Medium'] mb-[8px] text-[#1B1717]"
+                  >
+                    Amount<span className=" text-red-400 ml-[2px]">*</span>
+                  </label>
+
+                  <input
+                    id="amount"
+                    type="number"
+                    value={amount}
+                    onChange={(e) => setAmount(e.target.value)}
+                    placeholder="Enter Amount"
+                    required
+                    min="0"
+                    inputMode="numeric"
+                    className="w-full px-4 h-[43px]  border-[#1B1717] border-[0.5px] focus:outline-none border-opacity-50 rounded-lg"
+                  />
+                </div>
+
+                {/* Payment Mode */}
+                <div>
+                  <label
+                    htmlFor="paymentMode"
+                    className="block mb-[8px] text-[14px] font-['Gilroy-Medium'] text-[#1B1717]"
+                  >
+                    Payment Mode{" "}
+                    <span className="text-red-400 text-[12px]">*</span>
+                  </label>
+                  <select
+                    id="paymentMode"
+                    value={paymentMode}
+                    onChange={(e) => setPaymentMode(e.target.value)}
+                    required
+                    className="w-full px-4 h-[43px] border border-[#1B1717] border-opacity-50 focus:outline-none rounded-lg"
+                  >
+                    <option value="">Select</option>
+                    <option value="CASH">CASH</option>
+                    <option value="UPI">UPI</option>
+                    <option value="NEFT">NEFT</option>
+                    <option value="RTGS">RTGS</option>
+                    <option value="IMPS">IMPS</option>
+                    <option value="BANK_TRANSFER">Bank Transfer</option>
+                  </select>
+                </div>
+
+                {/* Pay Date */}
+                <div>
+                  <label
+                    htmlFor="payDate"
+                    className="block text-[14px] mb-[8px] font-['Gilroy-Medium'] text-[#1B1717]"
+                  >
+                    Pay Date <span className="text-red-400 text-[12px]">*</span>
+                  </label>
+                  <input
+                    id="payDate"
+                    type="date"
+                    value={payDate}
+                    onChange={(e) => setPayDate(e.target.value)}
+                    required
+                    className="w-full px-4 h-[43px] border border-[#1B1717] focus:outline-none border-opacity-50 rounded-lg"
+                  />
+                </div>
+
+                {/* Reference / UTR */}
+                <div>
+                  <label
+                    htmlFor="referenceNumber"
+                    className="block text-[14px] mb-[8px] font-['Gilroy-Medium'] text-[#1B1717]"
+                  >
+                    Reference / UTR Number
+                  </label>
+                  <input
+                    id="referenceNumber"
+                    type="text"
+                    maxLength={25}
+                    minLength={10}
+                    pattern="[A-Za-z0-9]+"
+                    value={referenceNumber}
+                    onChange={(e) => setReferenceNumber(e.target.value)}
+                    placeholder="Enter Reference Number"
+                    className="w-full px-4 h-[43px] focus:outline-none border border-[#1B1717] border-opacity-50 rounded-lg"
+                  />
+                </div>
+              </div>
+
+              {/* Pay Slip */}
+              <div>
+                <label
+                  htmlFor="paySlip"
+                  className="block text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
+                  Pay Slip
+                </label>
+                <div
+                  onDrop={handleFileDrop}
+                  onDragOver={(e) => e.preventDefault()}
+                  onClick={() => fileInputRef.current?.click()}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" || e.key === " ") {
+                      e.preventDefault();
+                      fileInputRef.current?.click();
+                    }
+                  }}
+                  role="button"
+                  tabIndex={0}
+                  className="border-2 border-dashed border-[#1B1717] h-[159px] border-opacity-50 rounded-lg p-6 text-center cursor-pointer transition-colors flex items-center justify-center"
+                >
+                  <input
+                    id="paySlip"
+                    ref={fileInputRef}
+                    type="file"
+                    accept=".svg,.png,.jpg,.jpeg,.pdf"
+                    onChange={handleFileChange}
+                    className="hidden"
+                  />
+
+                  {/* If file selected show preview */}
+                  {paySlipFile ? (
+                    <div className="flex flex-col items-center gap-2">
+                      {previewUrl ? (
+                        <img
+                          src={previewUrl}
+                          alt="Pay Slip Preview"
+                          className="max-h-[120px] object-contain"
+                        />
+                      ) : (
+                        <p className="text-sm text-[#1B1717]">
+                          📄 {paySlipFile.name}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2">
+                      <svg
+                        className="w-12 h-12 text-[#1B1717] text-opacity-50"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"
+                        />
+                      </svg>
+                      <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
+                        Click To Upload Or Drag And Drop
+                      </p>
+                      <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                        SVG, PNG, JPG Or PDF (Max 5 MB)
+                      </p>
+                    </div>
+                  )}
+                </div>
+                {paySlipFile && (
+                  <p className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717] mt-2">
+                    {paySlipFile.name}
+                  </p>
+                )}
+                {/* Error message */}
+                {fileError && (
+                  <p className="text-red-500 text-sm mt-2">{fileError}</p>
+                )}
+              </div>
+
+              {/* Remarks */}
+              <div>
+                <label
+                  htmlFor="remarks"
+                  className="block   text-[14px] font-['Gilroy-Medium'] text-[#1B1717] mb-2"
+                >
+                  Remarks
+                </label>
+                <textarea
+                  id="remarks"
+                  value={remarks}
+                  onChange={(e) => setRemarks(e.target.value)}
+                  placeholder="Write Remarks"
+                  rows={4}
+                  className="w-full px-4 h-[142px] py-3 border border-[#1B1717] border-opacity-50 rounded-lg focus:outline-none text-[14px] font-['Gilroy-Medium'] resize-none"
+                />
+              </div>
+            </form>
+          </div>
+
+          {/* Right Container: Admin Accounts */}
+          <div className="bg-white  p-[18px] sm:p-[18px] lg:p-[18px] flex flex-col">
+            <div className="mb-4">
+              <h2 className="text-[24px] font-['Gilroy-Medium'] text-[#1B1717] mb-2">
+              Master Accounts
+              </h2>
+              <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-80">
+                Select A Bank To View Details To Transfer
+              </p>
+            </div>
+
+            <div className="space-y-[16px] flex-1 overflow-y-auto pr-2 mb-6">
+              {loading && banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    Loading banks...
+                  </p>
+                </div>
+              ) : banks.length === 0 ? (
+                <div className="text-center py-8">
+                  <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717] text-opacity-60">
+                    No banks available
+                  </p>
+                </div>
+              ) : (
+                banks.map((bank) => {
+                  const bankId = bank.bankId || bank.id;
+                  return (
+                    <button
+                      key={bankId}
+                      type="button"
+                      onClick={() => setSelectedBank(bankId)}
+                      className={`w-full p-3 border-[0.5px] rounded-2xl cursor-pointer transition-all text-left ${
+                        selectedBank === bankId
+                          ? "border-[#039155] bg-green-50"
+                          : "border-[#1B1717] border-opacity-80 bg-white"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Bank Logo */}
+                        <div className="w-34 h-10 flex items-center justify-center shrink-0">
+                          <img
+                            src={bank.bankImage || bank.logo}
+                            alt={bank.bankName || bank.name}
+                            className="w-28 h-12 object-contain"
+                            onError={(e) => {
+                              e.target.style.display = "none";
+                            }}
+                          />
+                        </div>
+
+                        {/* Bank Details */}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-[2px]">
+                            <p className="text-[13px] font-[Gilroy-Medium] text-gray-900 leading-tight">
+                              Bank Name: {bank.bankName || bank.name}
+                            </p>
+
+                            {selectedBank === bankId && (
+                              <div className="w-[20px] h-[20px] rounded-full bg-[#039155] flex items-center justify-center shrink-0">
+                                <div className="w-[6px] h-[6px] rounded-full bg-white" />
+                              </div>
+                            )}
+                          </div>
+
+                          <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                            Account Number:{" "}
+                            <span className="text-[#1B1717]">
+                              {bank.accountNumber}
+                            </span>
+                          </p>
+
+                          {bank.isPrimary && (
+                            <p className="text-[10px] font-['Gilroy-Medium'] text-[#039155] leading-tight mt-1">
+                              Primary Account
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <div className="mt-auto pt-4 ">
+              <button
+                type="button"
+                onClick={handleSubmit}
+                disabled={loading || !selectedBank}
+                className="w-full px-6 py-3 text-[18px] rounded-lg bg-[#039155] text-[#FFFFFF] font-['Gilroy-SemiBold'] hover:bg-[#027a47] transition shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? "Submitting..." : "Submit"}
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default WalletLoad;

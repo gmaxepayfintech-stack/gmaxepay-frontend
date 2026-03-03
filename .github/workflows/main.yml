@@ -1,0 +1,49 @@
+name: Deploy to Production
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0
+
+    - name: Install Dependencies
+      run: npm install
+
+    - name: Inject Environment Variables
+      env:
+        VITE_REACT_APP_API_ROUTE: ${{ secrets.VITE_DEV_REACT_APP_API_ROUTE }}
+        VITE_REACT_APP_ROUTE: ${{ secrets.VITE_REACT_APP_ROUTE }}
+      run: |
+        echo "VITE_REACT_APP_API_ROUTE=${VITE_REACT_APP_API_ROUTE}" > .env.development
+        echo "VITE_REACT_APP_ROUTE=${VITE_REACT_APP_ROUTE}" >> .env.development
+
+    - name: Deploy to Vercel Production
+      env:
+        VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+      run: |
+        npm install -g vercel
+        vercel pull --yes --environment=production --token=$VERCEL_TOKEN
+        vercel build --prod --token=$VERCEL_TOKEN
+        vercel deploy --prebuilt --prod --token=$VERCEL_TOKEN
+
+    - name: Clean Up Old Deployments
+      continue-on-error: true
+      run: |
+        vercel ls --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID > deployments.txt || true
+        tail -n +4 deployments.txt | awk '{print $1}' | while read -r deployment_url; do
+          if [ ! -z "$deployment_url" ] && [ "$deployment_url" != "NAME" ]; then
+            echo "Deleting old deployment: $deployment_url"
+            vercel rm $deployment_url --token=$VERCEL_TOKEN --scope=$VERCEL_ORG_ID --yes || echo "Failed to delete $deployment_url"
+          fi
+        done

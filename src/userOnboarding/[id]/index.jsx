@@ -1,0 +1,924 @@
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { useCompany } from "../../context/CompanyContext";
+import { getPendingSteps } from "../../redux/action/retailerOnboardingAction";
+import { useSelector, useDispatch } from "react-redux";
+import secureLocalStorage from "react-secure-storage";
+
+import Step1 from "../step1";
+import Step2 from "../step2";
+import Step3 from "../step3";
+import Step4 from "../step4";
+import Step5 from "../step5";
+import Step6 from "../step6";
+import Step7 from "../step7";
+
+const STEP_INFO = [
+  { key: "mobileVerification", label: "Mobile Verification" },
+  { key: "emailVerification", label: "Email Verification" },
+  { key: "aadharVerification", label: "Aadhaar Verification" },
+  { key: "panVerification", label: "PAN Card Verification" },
+  { key: "shopDetails", label: "Shop Information" },
+  { key: "bankVerification", label: "Bank Account Details" },
+  { key: "profile", label: "Profile Photo" },
+];
+
+function OnboardingRetailerById({ referralCode: propReferralCode }) {
+  const { referCode: urlReferralCode } = useParams();
+  const dispatch = useDispatch();
+  const { company, loading: companyLoading } = useCompany();
+  const companyFromRedux = useSelector((state) => state?.company?.company);
+  const companyData = companyFromRedux || company;
+  const primaryColor = companyData?.primaryColor || "#039155";
+
+  // Helper to get company ID
+  const getCompanyId = () => {
+    return (
+      companyData?.companyId || companyData?._id || companyData?.id || null
+    );
+  };
+
+  // Helper to get company domain
+  const getCompanyDomain = () => {
+    return companyData?.domain || companyData?.companyDomain || null;
+  };
+
+  // Get referral code from URL params, props, or localStorage (optional)
+  const getInitialReferralCode = () => {
+    if (urlReferralCode) return urlReferralCode.toUpperCase();
+    if (propReferralCode) return propReferralCode;
+    try {
+      const stored = localStorage.getItem("referralCodeFromUrl");
+      if (stored) return stored;
+    } catch (e) {
+      console.error("Error reading referral code from localStorage:", e);
+    }
+    return null;
+  };
+
+  // State management
+  const [currentStep, setCurrentStep] = useState(1);
+  const [showSteps, setShowSteps] = useState(true);
+  const [pendingStepsData, setPendingStepsData] = useState(null);
+  const [isLoadingPending, setIsLoadingPending] = useState(false);
+  const [wasShowingSteps, setWasShowingSteps] = useState(true);
+  const isInitialMount = useRef(true);
+  const [startedStep, setStartedStep] = useState(null);
+  // Redux state
+  const getPendingResponse = useSelector(
+    (state) => state?.retailerOnboarding?.getPendingResponse,
+  );
+  const getPendingError = useSelector(
+    (state) => state?.retailerOnboarding?.getPendingError,
+  );
+  const mobileOtpResponse = useSelector(
+    (state) => state?.retailerOnboarding?.OTPResponse,
+  );
+  const otpSubmitResponse = useSelector(
+    (state) => state?.retailerOnboarding?.OTPSubmitResponse,
+  );
+  const isLoading = useSelector((state) => state?.loading?.isLoading);
+
+  // Form data
+  const [formData, setFormData] = useState({
+    phone: "",
+    otp: "",
+    otpSent: false,
+    otpVerified: false,
+    email: "",
+    emailOtp: "",
+    emailOtpSent: false,
+    emailOtpVerified: false,
+    aadhaarDocFetched: false,
+    panDocFetched: false,
+    digilockerLinked: false,
+    shopName: "",
+    shopPhotoDataUrl: "",
+    bankAccountNumber: "",
+    ifscCode: "",
+    profilePhotoDataUrl: "",
+    completed: false,
+    referralCode: getInitialReferralCode(),
+  });
+
+  // Check for moveAadhaar flag and navigate to step 3
+  useEffect(() => {
+    try {
+      const moveAadhaar = localStorage.getItem("moveAadhaar");
+      const aadhaarConnected = localStorage.getItem("aadhaarConnected");
+      const redirectToaddhar = sessionStorage.getItem("redirectToaddhar");
+
+      if (
+        moveAadhaar === "true" ||
+        aadhaarConnected === "true" ||
+        redirectToaddhar === "true"
+      ) {
+        setCurrentStep(3);
+        setShowSteps(false);
+        if (redirectToaddhar === "true") {
+          sessionStorage.removeItem("redirectToaddhar");
+        }
+      }
+    } catch (e) {
+      console.error("Error checking moveAadhaar:", e);
+    }
+  }, []);
+
+  // Check for movePan flag and navigate to step 4
+  useEffect(() => {
+    try {
+      const movePan = localStorage.getItem("movePan");
+      const panConnected = localStorage.getItem("panConnected");
+      const redirectToPan = sessionStorage.getItem("redirectToPan");
+
+      if (
+        movePan === "true" ||
+        panConnected === "true" ||
+        redirectToPan === "true"
+      ) {
+        setCurrentStep(4);
+        setShowSteps(false);
+        if (redirectToPan === "true") {
+          sessionStorage.removeItem("redirectToPan");
+        }
+      }
+    } catch (e) {
+      console.error("Error checking movePan:", e);
+    }
+  }, []);
+
+  // Call getPending on initial load if token exists and company data is loaded
+  useEffect(() => {
+    const fetchPendingOnMount = async () => {
+      // Wait for company data to load
+      if (companyLoading) return;
+
+      try {
+        const token = secureLocalStorage.getItem("onboardingToken");
+        const companyId = getCompanyId();
+        const companyDomain = getCompanyDomain();
+
+        // console.log("fetchPendingOnMount - companyData:", companyData);
+        // console.log("fetchPendingOnMount - companyId:", companyId);
+        // console.log("fetchPendingOnMount - companyDomain:", companyDomain);
+        // console.log(
+        //   "fetchPendingOnMount - token:",
+        //   token ? "present" : "missing",
+        // );
+
+        if (
+          token &&
+          companyId &&
+          companyDomain &&
+          !isLoadingPending &&
+          !getPendingResponse
+        ) {
+          setIsLoadingPending(true);
+          // Set a timeout to reset loading state if API takes too long (30 seconds)
+          const timeoutId = setTimeout(() => {
+            setIsLoadingPending(false);
+          }, 30000);
+
+          try {
+            await dispatch(getPendingSteps(companyData, token));
+          } finally {
+            clearTimeout(timeoutId);
+          }
+        } else {
+          console.warn("fetchPendingOnMount - Missing required data:", {
+            token: !!token,
+            companyId: !!companyId,
+            companyDomain: !!companyDomain,
+            isLoadingPending,
+            hasResponse: !!getPendingResponse,
+          });
+        }
+      } catch (e) {
+        console.error("Error fetching pending on mount:", e);
+        setIsLoadingPending(false);
+      }
+    };
+
+    fetchPendingOnMount();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyLoading, companyData]);
+
+  // Call getPending API after mobile verification if token exists
+  useEffect(() => {
+    const checkAndFetchPending = async () => {
+      // Wait for company data to load
+      if (companyLoading) return;
+
+      try {
+        const token = secureLocalStorage.getItem("onboardingToken");
+        const companyId = getCompanyId();
+        const companyDomain = getCompanyDomain();
+
+        // Check if mobile is verified and token exists
+        const isMobileVerified =
+          otpSubmitResponse?.status === "SUCCESS" ||
+          mobileOtpResponse?.OTPResponse?.status === "verified" ||
+          mobileOtpResponse?.OTPResponse?.data?.status === "verified" ||
+          mobileOtpResponse?.status === "SUCCESS";
+
+        // console.log(
+        //   "checkAndFetchPending - isMobileVerified:",
+        //   isMobileVerified,
+        // );
+        // console.log("checkAndFetchPending - companyId:", companyId);
+        // console.log("checkAndFetchPending - companyDomain:", companyDomain);
+
+        if (
+          token &&
+          companyId &&
+          companyDomain &&
+          isMobileVerified &&
+          !isLoadingPending &&
+          !getPendingResponse
+        ) {
+          setIsLoadingPending(true);
+          // Set a timeout to reset loading state if API takes too long (30 seconds)
+          const timeoutId = setTimeout(() => {
+            setIsLoadingPending(false);
+          }, 30000);
+
+          try {
+            await dispatch(getPendingSteps(companyData, token));
+          } finally {
+            clearTimeout(timeoutId);
+          }
+        } else {
+          console.warn("checkAndFetchPending - Missing required data:", {
+            token: !!token,
+            companyId: !!companyId,
+            companyDomain: !!companyDomain,
+            isMobileVerified,
+            isLoadingPending,
+            hasResponse: !!getPendingResponse,
+          });
+        }
+      } catch (e) {
+        console.error("Error checking token for getPending:", e);
+        setIsLoadingPending(false);
+      }
+    };
+
+    checkAndFetchPending();
+  }, [
+    mobileOtpResponse,
+    otpSubmitResponse,
+    dispatch,
+    companyData,
+    isLoadingPending,
+    getPendingResponse,
+    companyLoading,
+  ]);
+
+  // Handle getPending response
+  useEffect(() => {
+    if (getPendingResponse?.status === "SUCCESS" && getPendingResponse?.data) {
+      setPendingStepsData(getPendingResponse.data);
+      setIsLoadingPending(false);
+
+      // Update formData based on API response
+      const data = getPendingResponse.data;
+      setFormData((prev) => ({
+        ...prev,
+        otpVerified:
+          data.steps?.find((s) => s.key === "mobileVerification")?.done ||
+          prev.otpVerified,
+        emailOtpVerified:
+          data.steps?.find((s) => s.key === "emailVerification")?.done ||
+          prev.emailOtpVerified,
+        aadhaarDocFetched:
+          data.steps?.find((s) => s.key === "aadharVerification")?.done ||
+          prev.aadhaarDocFetched,
+        panDocFetched:
+          data.steps?.find((s) => s.key === "panVerification")?.done ||
+          prev.panDocFetched,
+        completed: data.allCompleted || prev.completed,
+      }));
+
+      // Show steps if mobile or email is verified
+      if (
+        data.steps?.find((s) => s.key === "mobileVerification")?.done ||
+        data.steps?.find((s) => s.key === "emailVerification")?.done
+      ) {
+        setShowSteps(true);
+      }
+    } else if (getPendingError) {
+      setIsLoadingPending(false);
+      console.error("Error fetching pending steps:", getPendingError);
+    }
+
+    // Reset loading state when we have a response (success or error)
+    if (getPendingResponse || getPendingError) {
+      setIsLoadingPending(false);
+    }
+  }, [getPendingResponse, getPendingError]);
+
+  // Handle when coming back to steps page - no reload needed
+  useEffect(() => {
+    // Skip on initial mount
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      setWasShowingSteps(showSteps);
+      return;
+    }
+
+    // Update the previous state when showSteps changes
+    setWasShowingSteps(showSteps);
+  }, [showSteps, wasShowingSteps]);
+
+  const next = () => {
+    const newStep = Math.min(7, currentStep + 1);
+    setCurrentStep(newStep);
+  };
+
+  const handleStepNext = () => {
+    next();
+    setShowSteps(true);
+  };
+
+  // Check if step is done based on API response
+  const isStepDone = (step) => {
+    if (pendingStepsData?.steps && Array.isArray(pendingStepsData.steps)) {
+      const stepData = pendingStepsData.steps.find((s) => s.key === step.key);
+      return stepData?.done || false;
+    }
+
+    // Fallback to formData
+    switch (step.key) {
+      case "mobileVerification":
+        return formData.otpVerified || false;
+      case "emailVerification":
+        return formData.emailOtpVerified || false;
+      case "aadharVerification":
+        return formData.aadhaarDocFetched || false;
+      case "panVerification":
+        return formData.panDocFetched || false;
+      case "shopDetails":
+        return formData.shopName && formData.shopPhotoDataUrl;
+      case "bankVerification":
+        return formData.bankAccountNumber && formData.ifscCode;
+      case "profile":
+        return formData.profilePhotoDataUrl;
+      default:
+        return false;
+    }
+  };
+
+  const totalSteps = STEP_INFO.length;
+  const completedSteps = STEP_INFO.filter(isStepDone).length;
+  const progressPercent =
+    totalSteps > 0 ? Math.round((completedSteps / totalSteps) * 100) : 0;
+
+  // Check if step is accessible (previous steps must be completed)
+  const isStepAccessible = (stepIndex) => {
+    // Step 1 is always accessible
+    if (stepIndex === 0) return true;
+
+    // Check if all previous steps are completed
+    for (let i = 0; i < stepIndex; i++) {
+      const prevStep = STEP_INFO[i];
+      if (!isStepDone(prevStep)) {
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const isCompleted =
+    formData.completed || pendingStepsData?.allCompleted || false;
+
+  const getStepIcon = (key, status = "pending") => {
+    if (status === "completed") {
+      switch (key) {
+        case "mobileVerification":
+          return "/img/green-mobile.png";
+        case "emailVerification":
+          return "/img/completedMail.png";
+        case "aadharVerification":
+          return "/img/AadhaarCompleted.png";
+        case "panVerification":
+          return "/img/PanCompleted.png";
+        case "shopDetails":
+          return "/img/completedShopDetails.png";
+        case "bankVerification":
+          return "/img/completedBankVerification.png";
+        case "profile":
+          return "/img/completedProfile.png";
+        default:
+          return "/img/Profile.png";
+      }
+    }
+
+    switch (key) {
+      case "mobileVerification":
+        return "/img/green-mobile.png";
+      case "emailVerification":
+        return "/img/Email.png";
+      case "aadharVerification":
+        return "/img/aadhar.png";
+      case "panVerification":
+        return "/img/PanCard.png";
+      case "shopDetails":
+        return "/img/ShopDetails.png";
+      case "bankVerification":
+        return "/img/BankDetails.png";
+      case "profile":
+        return "/img/Profile.png";
+      default:
+        return "/img/Profile.png";
+    }
+  };
+
+  return (
+    <>
+      {/* Loading Loader for getPendingSteps API only */}
+      {(isLoadingPending || isLoading) && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
+          <div className="bg-white rounded-2xl p-6 sm:p-8 md:p-10 max-w-md mx-4 flex flex-col items-center gap-4 sm:gap-6 shadow-2xl">
+            {/* Animated Spinner */}
+            <div className="relative w-12 h-12 sm:w-16 sm:h-16 md:w-20 md:h-20">
+              <div className="absolute inset-0 border-4 border-gray-200 rounded-full"></div>
+              <div className="absolute inset-0 border-4 border-[#039155] border-t-transparent rounded-full animate-spin"></div>
+            </div>
+
+            {/* Loading Message */}
+            <div className="text-center">
+              <h3 className="text-lg sm:text-xl md:text-2xl font-[Gilroy-Semibold] text-gray-900 mb-1 sm:mb-2">
+                Loading
+              </h3>
+              <p className="text-gray-600 text-xs font-[Gilroy-Medium] sm:text-sm md:text-base px-2">
+                Please wait while we fetch your KYC progress...
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <div
+        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${
+          !showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
+        }`}
+      >
+        <div
+          className={`w-full max-w-[1450px] ${
+            !showSteps ? "h-full flex flex-col overflow-hidden" : ""
+          }`}
+        >
+          {/* HEADER + STEP LIST */}
+          <div
+            className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${
+              !showSteps ? "hidden" : "mb-6"
+            }`}
+          >
+            {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
+              <>
+                <h1 className="text-xl sm:text-2xl md:text-2xl font-[Gilroy-Semibold] text-center text-[#1B1717] mb-2 md:mb-3">
+                  Complete Your KYC
+                </h1>
+                <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
+                  Secure your account by completing this quick verification.
+                </p>
+
+                {/* STEP LIST */}
+                {/* <div className="w-full max-w-md mx-auto mt-4 sm:mt-6 md:mt-8 space-y-2 sm:space-y-3 md:space-y-4">
+                  {STEP_INFO.map((step, idx) => {
+                    const done = isStepDone(step);
+                    const active = currentStep === idx + 1;
+                    const accessible = isStepAccessible(idx);
+
+                    let iconStatus = "pending";
+                    if (done) {
+                      iconStatus = "completed";
+                    } else if (active) {
+                      iconStatus = "in-progress";
+                    }
+
+                    return (
+                      <div
+                        key={step.key}
+                        onClick={() => {
+                          // Only allow clicking if step is accessible and not already done
+                          if (accessible && !done) {
+                            setCurrentStep(idx + 1);
+                            setShowSteps(false);
+                          }
+                        }}
+                        className={`flex items-center gap-2 sm:gap-3 md:gap-4 p-2 sm:p-3 md:p-4 rounded-lg sm:rounded-xl  shadow-sm transition-all ${
+                          done
+                            ? "cursor-default bg-green-50 border-green-300"
+                            : accessible
+                              ? "cursor-pointer hover:shadow-md"
+                              : "cursor-not-allowed opacity-50 bg-gray-100 border-gray-200"
+                        } ${
+                          done
+                            ? "bg-green-50 border-green-300"
+                            : active && accessible
+                              ? "bg-white border-gray-300 ring-1 ring-offset-2 ring-[#1B1717]/40"
+                              : accessible
+                                ? "bg-white border-gray-200"
+                                : "bg-gray-100 border-gray-200"
+                        }`}
+                        style={
+                          active && !done && accessible
+                            ? { ringcolor: primaryColor }
+                            : {}
+                        }
+                      >
+                        <img
+                          src={getStepIcon(step.key, iconStatus)}
+                          className="w-6 h-6 sm:w-8 sm:h-8 md:w-10 md:h-10 lg:w-14 lg:h-14 flex-shrink-0"
+                          alt=""
+                        />
+
+                        <div className="flex-1 min-w-0">
+                          <div
+                            className={`font-[Gilroy-Semibold] text-sm sm:text-base md:text-xl truncate ${
+                              done
+                                ? "text-green-700 font-[Gilroy-Semibold]"
+                                : "text-[#1B1717]"
+                            }`}
+                          >
+                            {step.label}
+                          </div>
+                          <div
+                            className={`text-xs sm:text-sm font-[Gilroy-Medium] ${
+                              done
+                                ? "text-[#039155]" // ✅ Completed
+                                : active
+                                  ? "text-[#E32424]" // 🔴 In progress
+                                  : "text-[#D66000]" // 🟠 Pending
+                            }`}
+                          >
+                            {done
+                              ? "Completed"
+                              : active
+                                ? "In progress"
+                                : "Pending"}
+                          </div>
+                        </div>
+
+                        {done ? (
+                          <div className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 bg-green-600 text-white rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base font-[Gilroy-Semibold] shadow-md flex-shrink-0">
+                            ✓
+                          </div>
+                        ) : (
+                          <div
+                            className={`w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 lg:w-10 lg:h-10 border rounded-full flex items-center justify-center text-xs sm:text-sm md:text-base flex-shrink-0 ${
+                              accessible && active
+                                ? `border-[#1B1717]/40 text-[#1B1717]/70 bg-white`
+                                : accessible
+                                  ? "border-gray-300 text-gray-400"
+                                  : "border-gray-200 text-gray-300"
+                            }`}
+                          >
+                            {idx + 1}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div> */}
+                {/* PROGRESS BAR */}
+                <div className="bg-white rounded-2xl p-4 mb-6 shadow-sm">
+                  <p className="text-[12px] sm:text-[16px] font-[Gilroy-Medium] text-[#180404]/80">
+                    Current Progress
+                  </p>
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="font-[Gilroy-Semibold] text-[12px] sm:text-[16px] text-[#1B1717]">
+                      {progressPercent}% Completed
+                    </span>
+                    <span className="text-[8px] sm:text-xs bg-[#039155] text-[#FBFBFB] px-3 py-1 rounded-lg font-[Gilroy-Medium] ">
+                      {totalSteps - completedSteps} of {totalSteps} Steps
+                      Remaining
+                    </span>
+                  </div>
+
+                  <div className="w-full bg-[#F6F6F6] rounded-full h-2">
+                    <div
+                      className="h-2 rounded-full transition-all"
+                      style={{
+                        width: `${progressPercent}%`,
+                        backgroundColor: primaryColor,
+                      }}
+                    />
+                  </div>
+                </div>
+
+                {/* STEP CARDS */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {STEP_INFO.map((step, idx) => {
+                    const done = isStepDone(step);
+                    const accessible = isStepAccessible(idx);
+
+                    const isActive = startedStep === idx + 1;
+
+                    let status = "pending";
+                    if (done) status = "completed";
+                    else if (isActive) status = "in-progress";
+
+                    return (
+                      <div
+                        key={step.key}
+                        onClick={() => {
+                          if (accessible && !done) {
+                            setStartedStep(idx + 1); // 👈 mark as started
+                            setCurrentStep(idx + 1);
+                            setShowSteps(false);
+                          }
+                        }}
+                        className={`relative rounded-2xl p-4 shadow transition-all
+                            ${
+                              status === "pending"
+                                ? "bg-gray-100 opacity-50 cursor-not-allowed"
+                                : "bg-white cursor-pointer hover:shadow-md"
+                            }
+                          `}
+                      >
+                        <div className="relative">
+                          {/* STATUS (TOP RIGHT) */}
+                          <div className="absolute top-3 right-0 flex items-center gap-2 text-[10px] sm:text-sm font-[Gilroy-Medium]">
+                            <span
+                              className={`w-2 h-2 rounded-full
+                              ${
+                                status === "completed"
+                                  ? "bg-[#039155]"
+                                  : status === "in-progress"
+                                    ? "bg-[#EA9707]"
+                                    : "bg-[#E32424]"
+                              }
+                            `}
+                            />
+                            <span
+                              className={
+                                status === "completed"
+                                  ? "text-[#039155]"
+                                  : status === "in-progress"
+                                    ? "text-[#EA9707]"
+                                    : "text-[#E32424]"
+                              }
+                            >
+                              {status === "in-progress"
+                                ? "In Progress"
+                                : status === "completed"
+                                  ? "Completed"
+                                  : "Pending"}
+                            </span>
+                          </div>
+
+                          {/* ICON */}
+                          <div className="w-12 h-12 rounded-full flex items-center justify-center mb-4">
+                            <img
+                              src={getStepIcon(
+                                step.key,
+                                done ? "completed" : "pending",
+                              )}
+                              alt=""
+                              className="w-9 h-9 sm:w-12 sm:h-12"
+                            />
+                          </div>
+
+                          {/* TITLE */}
+                          <h3 className="text-sm sm:text-lg font-[Gilroy-Semibold] text-[#1B1717] mb-1">
+                            {step.label}
+                          </h3>
+
+                          {/* DESCRIPTION */}
+                          <p className=" text-xs sm:text-sm text-[#1B1717]  mt-1 font-[gilroy-regular] whitespace-pre-line">
+                            {step.key === "mobileVerification" &&
+                              "We will send a 6-digit OTP to your mobile number Please enter it to verify your identity"}
+                            {step.key === "emailVerification" &&
+                              "We will send a 6-digit OTP to your email address Please check your inbox and enter the code"}
+                            {step.key === "aadharVerification" &&
+                              "Please upload clear photos of both the front and back sides of your Aadhaar card Ensure all details are visible"}
+                            {step.key === "panVerification" &&
+                              "Please upload clear photos of the front Ensure all details are visible"}
+                            {step.key === "shopDetails" &&
+                              "Upload your shop name and clear photos of your shop This helps us verify your business details quickly"}
+                            {step.key === "bankVerification" &&
+                              "Fill in your bank name, account number, and IFSC code carefully This helps us process payments smoothly"}
+                            {step.key === "profile" &&
+                              "Add your profile picture. Make sure your face is clearly visible with good lighting"}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
+
+            {isCompleted && (
+              <div className="text-center py-8 sm:py-10 md:py-12">
+                <div className="w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg">
+                  <svg
+                    className="w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={3}
+                      d="M5 13l4 4L19 7"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-[Gilroy-Semibold] text-green-700 mb-2">
+                  KYC Completed
+                </h2>
+                <p className="text-gray-600 mt-2 mb-4 sm:mb-6 text-sm sm:text-base md:text-lg px-4">
+                  Temporary password has been sent to your registered email.
+                </p>
+                <button
+                  onClick={() => {
+                    try {
+                      // Remove localStorage items
+                      // Remove secureLocalStorage items
+                      secureLocalStorage.removeItem("onboardingToken");
+
+                      // Navigate to login page
+                      window.location.href = "/auth/login";
+                    } catch (e) {
+                      console.error(
+                        "Error clearing storage and navigating:",
+                        e,
+                      );
+                      // Still navigate even if clearing storage fails
+                      window.location.href = "/auth/login";
+                    }
+                  }}
+                  className="
+                  bg-[#039155] 
+                  text-white 
+                  px-6 sm:px-8 md:px-10 
+                  py-3 sm:py-3.5 md:py-4 
+                  rounded-lg sm:rounded-xl 
+                  font-[Gilroy-Semibold] 
+                  text-base sm:text-lg md:text-xl 
+                  hover:bg-green-700 
+                  transition-all 
+                  shadow-md 
+                  hover:shadow-lg
+                  active:scale-95
+                "
+                >
+                  Welcome
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* STEP CARD */}
+          {!showSteps && (
+            <div className="flex-1 flex flex-col justify-center items-center px-1 sm:px-2 md:px-4 lg:px-6 xl:px-8 overflow-hidden">
+              <div className="w-full h-full">
+                {currentStep === 1 && (
+                  <Step1
+                    formData={formData}
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("moveAadhaar");
+                        localStorage.removeItem("aadhaarConnected");
+                        sessionStorage.removeItem("redirectToaddhar");
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                    referralCode={formData.referralCode}
+                  />
+                )}
+                {currentStep === 2 && (
+                  <Step2
+                    formData={formData}
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("moveAadhaar");
+                        localStorage.removeItem("aadhaarConnected");
+                        sessionStorage.removeItem("redirectToaddhar");
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+                {currentStep === 3 && (
+                  <Step3
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("moveAadhaar");
+                        localStorage.removeItem("aadhaarConnected");
+                        sessionStorage.removeItem("redirectToaddhar");
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+                {currentStep === 4 && (
+                  <Step4
+                    formData={formData}
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+                {currentStep === 5 && (
+                  <Step5
+                    formData={formData}
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("moveAadhaar");
+                        localStorage.removeItem("aadhaarConnected");
+                        sessionStorage.removeItem("redirectToaddhar");
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+                {currentStep === 6 && (
+                  <Step6
+                    formData={formData}
+                    setFormData={setFormData}
+                    onNext={handleStepNext}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => {
+                      try {
+                        localStorage.removeItem("moveAadhaar");
+                        localStorage.removeItem("aadhaarConnected");
+                        sessionStorage.removeItem("redirectToaddhar");
+                        localStorage.removeItem("movePan");
+                        localStorage.removeItem("panConnected");
+                        sessionStorage.removeItem("redirectToPan");
+                      } catch (e) {
+                        console.error("Error clearing verification flags:", e);
+                      }
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+                {currentStep === 7 && (
+                  <Step7
+                    formData={formData}
+                    setFormData={setFormData}
+                    onShowSteps={() => setShowSteps(true)}
+                    onBack={() => setShowSteps(true)}
+                    onComplete={() => {
+                      setFormData((d) => ({ ...d, completed: true }));
+                      setShowSteps(true);
+                    }}
+                  />
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </>
+  );
+}
+
+export default OnboardingRetailerById;
