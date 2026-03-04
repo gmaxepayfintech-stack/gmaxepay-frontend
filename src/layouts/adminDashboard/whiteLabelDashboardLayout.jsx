@@ -303,8 +303,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
           <img
             src={company?.logo || companyLogo}
             alt="Company Logo"
-            // className="h-10 mx-auto mb-2 object-contain"
-            className="h-[60px] w-[100px] mx-auto mb-2 object-contain"
+            className="h-16 w-auto mx-auto mb-2 object-contain"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = companyLogo;
