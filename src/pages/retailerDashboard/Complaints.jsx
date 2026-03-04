@@ -103,7 +103,7 @@ const Complaints = () => {
                                 <h3 className="text-sm font-semibold text-gray-800 mb-1 font-['Gilroy-Medium']">
                                     Click To Upload Or Drag And Drop
                                 </h3>
-                                <p className="text-[11px] text-gray-500 font-['Gilroy-Regular']">
+                                <p className="text-[12px] text-gray-500 font-['Gilroy-Regular']">
                                     SVG, PNG, JPG Or PDF ( Max 5 MB)
                                 </p>
                             </div>

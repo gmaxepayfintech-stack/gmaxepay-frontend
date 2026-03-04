@@ -632,7 +632,7 @@ const FAVerification = () => {
                       }
                     }}
                     disabled={isDeviceChecking || isGettingDeviceInfo}
-                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[11px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
+                    className="absolute -bottom-2 left-1/2 -translate-x-1/2 bg-[#039155] text-[#FFFFFF] text-[12px] font-['Gilroy-Medium'] px-3 py-1 rounded-md cursor-pointer hover:bg-[#027A47] transition disabled:opacity-50 disabled:cursor-not-allowed z-20"
                     aria-label={deviceConnected ? "Device Info" : "Ready"}
                   >
                     {isDeviceChecking

@@ -436,7 +436,7 @@ const WalletLoad = () => {
                           )}
                         </div>
 
-                        <p className="text-[11px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
+                        <p className="text-[12px] font-['Gilroy-Medium'] text-gray-600 leading-tight">
                           Account Number:{" "}
                           <span className="text-[#1B1717]">
                             {bank.accountNumber}

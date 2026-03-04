@@ -1024,11 +1024,11 @@ const CreateCompanyUser = () => {
                             }`}
                         >
                           {/* ID */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.id || "N/A"}
                           </td>
                           {/* User */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             <button
                               onClick={() => {
                                 setShowProfileDetails(true);
@@ -1039,51 +1039,51 @@ const CreateCompanyUser = () => {
                             </button>
                           </td>
                           {/* User ID */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.userId || "N/A"}
                           </td>
                           {/* Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.name || "N/A"}
                           </td>
                           {/* User Role */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.userRole || "N/A"}
                           </td>
                           {/* Mobile No */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.mobileNo || "N/A"}
                           </td>
                           {/* Email Id */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.emailId || "N/A"}
                           </td>
                           {/* Slab Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.slabName ? (
                               <span className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-[Gilroy-Medium] bg-[#FFF7E0] text-[#B7791F] border border-[#F6E0A3]">
                                 {row.slabName}
                               </span>
                             ) : (
-                              <span className="text-[11px] text-gray-500">
+                              <span className="text-[14px] text-gray-500">
                                 N/A
                               </span>
                             )}
                           </td>
                           {/* Parent Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.parentName || "N/A"}
                           </td>
                           {/* Parent Role */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.parentRole || "N/A"}
                           </td>
                           {/* Company Name */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.companyName || "N/A"}
                           </td>
                           {/* KYC Status */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {(() => {
                               const status = row.kycStatus?.toLowerCase();
                               let className =
@@ -1106,23 +1106,23 @@ const CreateCompanyUser = () => {
                             })()}
                           </td>
                           {/* KYC Steps */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.kycSteps || "0"}
                           </td>
                           {/* Main Wallet */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.mainWallet || "0"}
                           </td>
                           {/* AEPS Wallet */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.aepsWallet || "0"}
                           </td>
                           {/* Remaining Days */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             {row.remainingDays || "0"}
                           </td>
                           {/* Status */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             <span
                               className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                                 ? "bg-green-600"
@@ -1133,7 +1133,7 @@ const CreateCompanyUser = () => {
                             </span>
                           </td>
                           {/* KYC Details */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                             <button
                               onClick={() => {
                                 const userId = row.id || row.originalItem?.id;
@@ -1150,7 +1150,7 @@ const CreateCompanyUser = () => {
                             </button>
                           </td>
                           {/* Action - Toggle Button */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
                               const isActive =
@@ -1227,7 +1227,7 @@ const CreateCompanyUser = () => {
                             })()}
                           </td>
                           {/* Lock Status - Colored Button */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
                               // Check multiple possible formats for lock status
@@ -1291,7 +1291,7 @@ const CreateCompanyUser = () => {
                             })()}
                           </td>
                           {/* Onboarding - Re-send Button */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
                               return (
@@ -1309,7 +1309,7 @@ const CreateCompanyUser = () => {
                             })()}
                           </td>
                           {/* Deactivation - Send Button */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                             {(() => {
                               const userId = row.id || row.originalItem?.id;
                               return (
@@ -1327,7 +1327,7 @@ const CreateCompanyUser = () => {
                             })()}
                           </td>
                           {/* Date */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                             {row.date || "N/A"}
                           </td>
                         </tr>

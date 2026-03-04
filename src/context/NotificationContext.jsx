@@ -290,7 +290,7 @@ const Notification = ({ notification, onRemove }) => {
           {getIcon()}
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className={`${colors.title} font-[Gilroy-Semibold] text-[11px] sm:text-xs md:text-sm lg:text-base mb-0.5 sm:mb-1`}>
+          <h3 className={`${colors.title} font-[Gilroy-Semibold] text-[12px] sm:text-xs md:text-sm lg:text-base mb-0.5 sm:mb-1`}>
             {getTitle()}
           </h3>
           <p className={`${colors.text} text-[10px] sm:text-xs md:text-sm lg:text-sm leading-relaxed break-words font-[Gilroy-Medium]`}>

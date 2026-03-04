@@ -412,7 +412,7 @@ const AddBillerModal = ({
                                     <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
                                         Active Status
                                     </h3>
-                                    <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
+                                    <p className="text-[12px] mt-1 text-gray-500 font-['Gilroy-Regular']">
                                         Activate This Biller
                                     </p>
                                 </div>
@@ -438,7 +438,7 @@ const AddBillerModal = ({
                                     <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
                                         Deleted Status
                                     </h3>
-                                    <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
+                                    <p className="text-[12px] mt-1 text-gray-500 font-['Gilroy-Regular']">
                                         Delete This Biller
                                     </p>
                                 </div>

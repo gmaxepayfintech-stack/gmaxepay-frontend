@@ -494,10 +494,10 @@ const Retailers = ({
                       key={row.id || index}
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] ">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] ">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -521,31 +521,31 @@ const Retailers = ({
                         </button>
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -564,16 +564,16 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {getWalletValue(row.wallet, "apesWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
@@ -583,7 +583,7 @@ const Retailers = ({
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -600,7 +600,7 @@ const Retailers = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -661,7 +661,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -711,7 +711,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -729,7 +729,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -746,7 +746,7 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -943,10 +943,10 @@ const Retailers = ({
                       key={row.id || index}
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -964,31 +964,31 @@ const Retailers = ({
                         </button>
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -1007,16 +1007,16 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
                         {getWalletValue(row.wallet, "apesWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
@@ -1026,7 +1026,7 @@ const Retailers = ({
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -1042,7 +1042,7 @@ const Retailers = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -1103,7 +1103,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -1153,7 +1153,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1171,7 +1171,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1188,7 +1188,7 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>

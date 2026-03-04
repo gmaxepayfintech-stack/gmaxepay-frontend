@@ -410,7 +410,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                     className="w-[100px] h-[60px] sm:w-[110px] sm:h-[70px] md:w-[120px] md:h-[75px] lg:w-[140px] lg:h-[85px] xl:w-[150px] xl:h-[90px] object-contain"
                   />
 
-                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80  text-[11px] sm:text-xs md:text-sm  text-center leading-[100%] tracking-[0%] align-middle">
+                  <h3 className="capitalize font-['Gilroy-Medium'] text-[#1B1717]/80  text-[12px] sm:text-xs md:text-sm  text-center leading-[100%] tracking-[0%] align-middle">
                     Add PAN Card Image
                   </h3>
 

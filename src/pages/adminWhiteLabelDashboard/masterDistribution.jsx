@@ -474,10 +474,10 @@ const MasterDistribution = ({
                         }`}
                     >
                       {/* ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.id || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -497,38 +497,38 @@ const MasterDistribution = ({
                       </td>
 
                       {/* User ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
                       {/* Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.name || row.userName || "N/A"}
                       </td>
                       {/* User Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.userRole || "N/A"}
                       </td>
                       {/* Mobile No */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
                       {/* Email Id */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.emailId || row.email || "N/A"}
                       </td>
                       {/* Parent Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.parentName || "N/A"}
                       </td>
                       {/* Parent Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.parentRole || "N/A"}
                       </td>
                       {/* KYC Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -548,23 +548,23 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* KYC Steps */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.remainingDays || "0"}
                       </td>
                       {/* Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
@@ -575,7 +575,7 @@ const MasterDistribution = ({
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -592,7 +592,7 @@ const MasterDistribution = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -635,7 +635,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isLocked =
@@ -667,7 +667,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -685,7 +685,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -703,7 +703,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.date || "N/A"}
                       </td>
                     </tr>
@@ -898,10 +898,10 @@ const MasterDistribution = ({
                         }`}
                     >
                       {/* ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.id || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -918,38 +918,38 @@ const MasterDistribution = ({
                       </td>
 
                       {/* User ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
                       {/* Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.name || row.userName || "N/A"}
                       </td>
                       {/* User Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.userRole || "N/A"}
                       </td>
                       {/* Mobile No */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
                       {/* Email Id */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.emailId || row.email || "N/A"}
                       </td>
                       {/* Parent Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.parentName || "N/A"}
                       </td>
                       {/* Parent Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.parentRole || "N/A"}
                       </td>
                       {/* KYC Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -969,23 +969,23 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* KYC Steps */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.wallet?.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.wallet?.apes1Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         {row.remainingDays || "0"}
                       </td>
                       {/* Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
@@ -996,7 +996,7 @@ const MasterDistribution = ({
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -1013,7 +1013,7 @@ const MasterDistribution = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -1056,7 +1056,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isLocked =
@@ -1088,7 +1088,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1106,7 +1106,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1124,7 +1124,7 @@ const MasterDistribution = ({
                         })()}
                       </td>
                       {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {row.date || "N/A"}
                       </td>
                     </tr>
