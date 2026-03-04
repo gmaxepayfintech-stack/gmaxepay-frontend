@@ -335,7 +335,7 @@ const AddOperatorModal = ({
                   <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
                     CCF1
                   </h3>
-                  <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
+                  <p className="text-[12px] mt-1 text-gray-500 font-['Gilroy-Regular']">
                     Enable CCF1 For This Operator
                   </p>
                 </div>
@@ -361,7 +361,7 @@ const AddOperatorModal = ({
                   <h3 className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]">
                     Active
                   </h3>
-                  <p className="text-[11px] mt-1 text-gray-500 font-['Gilroy-Regular']">
+                  <p className="text-[12px] mt-1 text-gray-500 font-['Gilroy-Regular']">
                     Activate This Operator
                   </p>
                 </div>

@@ -303,7 +303,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
           <img
             src={company?.logo || companyLogo}
             alt="Company Logo"
-            className="h-10 mx-auto mb-2 object-contain"
+            className="h-16 w-auto mx-auto mb-2 object-contain"
             onError={(e) => {
               e.target.onerror = null;
               e.target.src = companyLogo;
@@ -499,7 +499,7 @@ const WhiteLabelDashboardLayout = ({ children }) => {
             </button>
 
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
-             <span
+              <span
                 className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline max-w-[150px] md:max-w-[200px] xl:max-w-[250px] truncate"
                 title={`${profile?.outlet || ''} - White Label`}
               >

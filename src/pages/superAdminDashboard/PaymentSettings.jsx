@@ -266,7 +266,7 @@ const PaymentMethodCard = ({ paymentMethod, onEditClick }) => {
           Payment Method
         </label>
         <div className="px-3 py-2 border border-[#1B1717] border-opacity-20 rounded-lg min-h-[60px]">
-          <pre className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] whitespace-pre-wrap break-words">
+          <pre className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] whitespace-pre-wrap break-words">
             {paymentMethod.paymentMethod}
           </pre>
         </div>
@@ -278,7 +278,7 @@ const PaymentMethodCard = ({ paymentMethod, onEditClick }) => {
           Payment Information
         </label>
         <div className="px-3 py-2 border border-[#1B1717] border-opacity-20 rounded-lg min-h-[60px]">
-          <pre className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717] whitespace-pre-wrap break-words">
+          <pre className="text-[12px] font-['Gilroy-Regular'] text-[#1B1717] whitespace-pre-wrap break-words">
             {paymentMethod.paymentInformation}
           </pre>
         </div>

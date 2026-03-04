@@ -438,7 +438,7 @@ const FundRequest = () => {
               </thead>
 
               {!loading && (
-                <tbody className='text-[11px] sm:text-[12px]'>
+                <tbody className='text-[12px] sm:text-[12px]'>
                   {fundRequests.length === 0 ? (
                     <tr>
                       <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
@@ -507,7 +507,7 @@ const FundRequest = () => {
                         </td>
                         {/* Status */}
                         <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
-                          <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[11px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
+                          <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
                             item.status === "APPROVED" || isApproved
                               ? "bg-[#039155]"
                               : item.status === "REJECTED"
@@ -524,7 +524,7 @@ const FundRequest = () => {
                         <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
                           <button
                             onClick={() => handleViewDetails(item)}
-                            className="px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 bg-[#039155] text-white rounded-lg text-[10px] sm:text-[11px] md:text-[12px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors flex items-center justify-center gap-1.5 sm:gap-2"
+                            className="px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 bg-[#039155] text-white rounded-lg text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors flex items-center justify-center gap-1.5 sm:gap-2"
                           >
                             <img 
                               src="/img/Eye.svg" 

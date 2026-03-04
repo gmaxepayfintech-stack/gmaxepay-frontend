@@ -397,7 +397,7 @@ const AdminWhitelabelList = ({
                   <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                     {row.id || "N/A"}
                   </td>
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                  <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                     <button
                       onClick={() => {
                         const userId = row.id || row.originalItem?.id;
@@ -565,7 +565,7 @@ const AdminWhitelabelList = ({
                     })()}
                   </td>
                   {/* Onboarding - Re-send Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                  <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                     {(() => {
                       const userId = row.id || row.originalItem?.id;
                       return (
@@ -583,7 +583,7 @@ const AdminWhitelabelList = ({
                     })()}
                   </td>
                   {/* Deactivation - Send Button */}
-                  <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                  <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                     {(() => {
                       const userId = row.id || row.originalItem?.id;
                       return (
@@ -681,7 +681,7 @@ const AdminWhitelabelList = ({
                     <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
                       {row.id || "N/A"}
                     </td>
-                    <td className="px-4 py-4 whitespace-nowrap text-[11px] text-center">
+                    <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                       <button
                         onClick={() => {
                           const userId = row.id || row.originalItem?.id;

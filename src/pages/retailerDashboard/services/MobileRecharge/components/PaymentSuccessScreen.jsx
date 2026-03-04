@@ -584,7 +584,7 @@ const PaymentSuccessScreen = ({ transactionDetails, mobileNumber, selectedPlanFo
           </div>
 
           <div>
-            <div className="text-[#1B1717]/80 text-[11px]">Date</div>
+            <div className="text-[#1B1717]/80 text-[12px]">Date</div>
             <div className="font-['Gilroy-Medium']">
               {transactionDetails.dateTime || 'N/A'}
             </div>

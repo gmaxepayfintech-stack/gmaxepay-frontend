@@ -925,7 +925,7 @@ const SchemeMaster = () => {
                 </h2>
 
                 <p
-                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
                         text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
                 >
                   Configure Your New Membership Program <br />
@@ -1044,7 +1044,7 @@ const SchemeMaster = () => {
                           <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
                             {mode}
                           </span>
-                          <p className="text-[11px] text-[#1B1717]/70">
+                          <p className="text-[12px] text-[#1B1717]/70">
                             {mode === "Global"
                               ? "Available To All Users Worldwide"
                               : "Restricted To Specific Users"}
@@ -1105,7 +1105,7 @@ const SchemeMaster = () => {
                           <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
                             {type}
                           </span>
-                          <p className="text-[11px] text-[#1B1717]/70">
+                          <p className="text-[12px] text-[#1B1717]/70">
                             {type === "Free"
                               ? "No Cost Membership"
                               : "Restricted Access With Invitation Only"}
@@ -1263,7 +1263,7 @@ const SchemeMaster = () => {
                 </h2>
 
                 <p
-                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
                         text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
                 >
                   Update Your Membership Program <br />
@@ -1369,7 +1369,7 @@ const SchemeMaster = () => {
                           <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
                             {mode}
                           </span>
-                          <p className="text-[11px] text-[#1B1717]/70">
+                          <p className="text-[12px] text-[#1B1717]/70">
                             {mode === "Global"
                               ? "Available To All Users Worldwide"
                               : "Restricted To Specific Users"}
@@ -1430,7 +1430,7 @@ const SchemeMaster = () => {
                           <span className="block text-xs sm:text-sm font-[Gilroy-Medium]">
                             {type}
                           </span>
-                          <p className="text-[11px] text-[#1B1717]/70">
+                          <p className="text-[12px] text-[#1B1717]/70">
                             {type === "Free"
                               ? "No Cost Membership"
                               : "Restricted Access With Invitation Only"}
@@ -1584,7 +1584,7 @@ const SchemeMaster = () => {
                   Select Users
                 </h2>
                 <p
-                  className="mt-1 text-[11px] xs:text-xs sm:text-sm 
+                  className="mt-1 text-[12px] xs:text-xs sm:text-sm 
                         text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
                 >
                   Choose users who can access this private scheme

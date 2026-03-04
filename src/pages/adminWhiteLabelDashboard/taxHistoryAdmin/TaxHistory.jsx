@@ -498,7 +498,7 @@ const TaxHistory = () => {
                 </div>
                 <div className="flex items-center gap-1 sm:gap-1.5 rounded-full bg-white border border-[#039155]/50 px-1.5 py-0.5 sm:px-2 sm:py-1">
                   <div className="w-1.5 h-1.5 sm:w-2 sm:h-2 md:w-[8px] md:h-[8px] rounded-full bg-[#039155]" />
-                  <span className="text-[#039155] text-[9px] sm:text-[11px] font-[Gilroy-Semibold] whitespace-nowrap">
+                  <span className="text-[#039155] text-[9px] sm:text-[12px] font-[Gilroy-Semibold] whitespace-nowrap">
                     Active
                   </span>
                 </div>

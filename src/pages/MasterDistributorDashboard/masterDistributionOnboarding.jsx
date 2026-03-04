@@ -506,7 +506,7 @@ const MasterDistributionOnboarding = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -524,7 +524,7 @@ const MasterDistributionOnboarding = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -902,7 +902,7 @@ const MasterDistributionOnboarding = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -920,7 +920,7 @@ const MasterDistributionOnboarding = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[11px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (

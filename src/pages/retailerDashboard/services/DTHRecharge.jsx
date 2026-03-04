@@ -1611,7 +1611,7 @@ const DTHRecharge = ({ onBack }) => {
                     </div>
 
                     <div>
-                      <div className="text-[#1B1717]/80 text-[11px]">Date</div>
+                      <div className="text-[#1B1717]/80 text-[12px]">Date</div>
                       <div className="font-['Gilroy-Medium']">
                         {new Date().toLocaleString()}
                       </div>
