@@ -258,7 +258,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
               <h1 className="text-base sm:text-lg  font-[Gilroy-Semibold] text-[#1B1717]">
                 PAN Card Verification
               </h1>
-              <p className="text-xs sm:text-xs md:text-sm  text-[#1B1717]/80 font-[gilroy-regular] mt-2 max-w-[90%] mx-auto">
+              <p className="text-xs sm:text-xs md:text-sm  text-[#1B1717]/80 font-[Gilroy-Regular] mt-2 max-w-[90%] mx-auto">
                 Connect Your DigiLocker For Instant Document Verification
               </p>
             </div>
@@ -276,7 +276,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                   <h3 className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                     PAN Via DigiLocker
                   </h3>
-                  <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
+                  <p className="text-xs sm:text-sm font-[Gilroy-Regular] text-[#1B1717]/80 mt-2">
                     Fetch PAN Document Securely From DigiLocker
                   </p>
                 </div>
@@ -340,7 +340,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                 <h4 className="font-[Gilroy-Semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs text-[#0059FF] font-[gilroy-regular]  ">
+                <p className="text-xs text-[#0059FF] font-[Gilroy-Regular]  ">
                   Documents are fetched directly from DigiLocker using secure
                   APIs.
                 </p>
@@ -421,7 +421,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={handleImageChange}
                     />
-                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 rounded-lg sm:rounded-xl text-xs  font-[gilroy-regular]">
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 rounded-lg sm:rounded-xl text-xs  font-[Gilroy-Regular]">
                       Select From Browser
                     </span>
                   </label>

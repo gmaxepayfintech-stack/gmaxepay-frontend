@@ -92,32 +92,31 @@ const RoleUpgrade = () => {
               filteredData.map((row, index) => (
                 <tr
                   key={index}
-                  className={`${
-                    index % 2 === 0 ? "bg-[#039155]/5" : "bg-white"
-                  } border-y border-[#1B1717]/30`}
+                  className={`${index % 2 === 0 ? "bg-[#039155]/5" : "bg-white"
+                    } border-y border-[#1B1717]/30`}
                 >
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.srNo}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.date}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.parentName}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.userName}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.mobileNumber}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.emailId}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.currentRole}
                   </td>
-                  <td className="px-3 py-3 whitespace-nowrap font-[gilroy-regular] text-[#121216] text-xs">
+                  <td className="px-3 py-3 whitespace-nowrap font-[Gilroy-Regular] text-[#121216] text-xs">
                     {row.upgradeRole}
                   </td>
                 </tr>

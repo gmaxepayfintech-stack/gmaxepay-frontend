@@ -144,7 +144,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
         retailerOnboardingState?.OTPSubmitResponse?.OTPResponse?.userToken;
 
       if (tokenFromRedux) {
-       // console.log("handleVerify - Found token in Redux, storing it");
+        // console.log("handleVerify - Found token in Redux, storing it");
         try {
           secureLocalStorage.setItem("onboardingToken", tokenFromRedux);
           // Retry with the token from Redux
@@ -211,7 +211,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
 
       // Navigate to DigiLocker - when user returns, they'll come back to /unity/:referCode
       // and index.jsx will detect the flags and show step4 directly
-     // console.log("Redirecting to DigiLocker:", response.data.url);
+      // console.log("Redirecting to DigiLocker:", response.data.url);
       window.location.href = response.data.url;
     } else if (
       response?.status === "SUCCESS" &&
@@ -510,13 +510,12 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md ${
-                      isDownloaded
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Medium] text-xs sm:text-sm md:text-base border transition shadow-md ${isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
                           ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                           : "border-gray-300 text-gray-700 hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {isDownloading
                       ? "Downloading..."
@@ -529,13 +528,12 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-xs sm:text-sm md:text-base transition shadow-md ${
-                      isVerified
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-xs sm:text-sm md:text-base transition shadow-md ${isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
                           ? "bg-gray-400 text-white cursor-not-allowed"
                           : "bg-[#039155] text-white hover:bg-green-700"
-                    }`}
+                      }`}
                   >
                     {isConnecting
                       ? "Connecting..."
@@ -654,7 +652,7 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                         className="hidden"
                         onChange={handleImageChange}
                       />
-                      <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 min-w-[120px] sm:min-w-[130px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[170px] h-auto min-h-[28px] sm:min-h-[30px] md:min-h-[32px] lg:min-h-[38px] xl:min-h-[40px] rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-xs lg:text-sm xl:text-base font-[gilroy-regular]">
+                      <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-3 sm:px-3.5 md:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 md:py-2 lg:py-2.5 xl:py-3 min-w-[120px] sm:min-w-[130px] md:min-w-[140px] lg:min-w-[160px] xl:min-w-[170px] h-auto min-h-[28px] sm:min-h-[30px] md:min-h-[32px] lg:min-h-[38px] xl:min-h-[40px] rounded-lg sm:rounded-xl text-[10px] sm:text-xs md:text-xs lg:text-sm xl:text-base font-[Gilroy-Regular]">
                         Select From Browser
                       </span>
                     </label>
@@ -670,11 +668,10 @@ function RetailerPan({ setFormData, onNext, onBack, onShowSteps }) {
                 type="button"
                 onClick={handleSubmitImage}
                 disabled={!panImage || isUploading}
-                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${
-                  panImage && !isUploading
+                className={`w-full px-3 sm:px-4 md:px-4 lg:px-5 xl:px-6 py-2 sm:py-2 md:py-2.5 lg:py-3 xl:py-3.5 h-10 sm:h-11 md:h-12 lg:h-12 xl:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-white text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base mx-auto shadow-md transition-all flex items-center justify-center ${panImage && !isUploading
                     ? "bg-[#039155] hover:bg-green-700 active:scale-95"
                     : "bg-gray-400 cursor-not-allowed"
-                }`}
+                  }`}
               >
                 {isUploading ? "Uploading..." : "Submit"}
               </button>

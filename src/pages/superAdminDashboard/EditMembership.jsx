@@ -171,16 +171,16 @@ const EditMembership = ({ scheme = null, onBack }) => {
       const isEntChanged =
         commission.entMargin !== commission.originalEntMargin ||
         (commission.entCommType || "").toLowerCase() !==
-          (commission.originalEntCommType || "").toLowerCase() ||
+        (commission.originalEntCommType || "").toLowerCase() ||
         (commission.entMarginType || "").toLowerCase() !==
-          (commission.originalEntMarginType || "").toLowerCase();
+        (commission.originalEntMarginType || "").toLowerCase();
 
       const isWlChanged =
         commission.whitelabel !== commission.originalWhitelabel ||
         (commission.whitelabelCommType || "").toLowerCase() !==
-          (commission.originalWhitelabelCommType || "").toLowerCase() ||
+        (commission.originalWhitelabelCommType || "").toLowerCase() ||
         (commission.whitelabelType || "").toLowerCase() !==
-          (commission.originalWhitelabelType || "").toLowerCase();
+        (commission.originalWhitelabelType || "").toLowerCase();
 
       if (!isEntChanged && !isWlChanged) {
         return;
@@ -273,7 +273,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
   const renderCommissionSection = (title, items, sectionKey) => {
     const isSectionExpanded = expandedSections[sectionKey];
-    
+
     // Show section if loading OR if it has items OR if it's expanded (to show empty state)
     if (!commLoading && items.length === 0 && !isSectionExpanded) return null;
 
@@ -377,9 +377,9 @@ const EditMembership = ({ scheme = null, onBack }) => {
                   ))
                 ) : items.length === 0 ? (
                   <div className="px-4 py-6 flex flex-col items-center justify-center">
-                    <img 
-                      src="/img/pagenotfound.gif" 
-                      alt="No data found" 
+                    <img
+                      src="/img/pagenotfound.gif"
+                      alt="No data found"
                       className="w-64 h-64 object-contain mb-4"
                     />
                     <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
@@ -391,18 +391,18 @@ const EditMembership = ({ scheme = null, onBack }) => {
                     const isEntChanged =
                       commission.entMargin !== commission.originalEntMargin ||
                       (commission.entCommType || "").toLowerCase() !==
-                        (commission.originalEntCommType || "").toLowerCase() ||
+                      (commission.originalEntCommType || "").toLowerCase() ||
                       (commission.entMarginType || "").toLowerCase() !==
-                        (commission.originalEntMarginType || "").toLowerCase();
+                      (commission.originalEntMarginType || "").toLowerCase();
 
                     const isWlChanged =
                       commission.whitelabel !== commission.originalWhitelabel ||
                       (commission.whitelabelCommType || "").toLowerCase() !==
-                        (
-                          commission.originalWhitelabelCommType || ""
-                        ).toLowerCase() ||
+                      (
+                        commission.originalWhitelabelCommType || ""
+                      ).toLowerCase() ||
                       (commission.whitelabelType || "").toLowerCase() !==
-                        (commission.originalWhitelabelType || "").toLowerCase();
+                      (commission.originalWhitelabelType || "").toLowerCase();
 
                     const isDirty = isEntChanged || isWlChanged;
                     const isSaving = !!savingRows[commission.id];
@@ -435,8 +435,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                   ).toLowerCase() === "fix"
                                     ? "flat"
                                     : (
-                                          commission.myDealType || ""
-                                        ).toLowerCase() === "per"
+                                      commission.myDealType || ""
+                                    ).toLowerCase() === "per"
                                       ? "per"
                                       : commission.myDealType}
                                 </span>
@@ -481,11 +481,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
-                                        isActive
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
-                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                        } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
                                     >
                                       {opt.code}
                                     </button>
@@ -514,11 +513,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
-                                        isActive
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
-                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                        } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
                                     >
                                       {opt.code}
                                     </button>
@@ -565,11 +563,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
-                                        isActive
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
-                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                        } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
                                     >
                                       {opt.code}
                                     </button>
@@ -598,11 +595,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                           opt.value,
                                         )
                                       }
-                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${
-                                        isActive
+                                      className={`min-w-[24px] px-2 py-0.5 text-[10px] font-[Gilroy-Medium] uppercase ${isActive
                                           ? "bg-[#000000] text-white"
                                           : "bg-white text-[#121216]"
-                                      } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
+                                        } ${idx === 0 ? "border-r border-[#DADADA]" : ""}`}
                                     >
                                       {opt.code}
                                     </button>
@@ -619,16 +615,14 @@ const EditMembership = ({ scheme = null, onBack }) => {
                                 handleSaveCommissionRow(commission)
                               }
                               disabled={!isDirty || isSaving}
-                              className={`w-9 h-7 rounded border flex items-center justify-center transition ${
-                                isDirty
+                              className={`w-9 h-7 rounded border flex items-center justify-center transition ${isDirty
                                   ? "border-[#039155] bg-[#039155]/10 hover:bg-[#039155]/20"
                                   : "border-[#DADADA] bg-white cursor-default opacity-60"
-                              } ${isSaving ? "cursor-wait opacity-70" : ""}`}
+                                } ${isSaving ? "cursor-wait opacity-70" : ""}`}
                             >
                               <Check
-                                className={`w-5 h-5 ${
-                                  isDirty ? "text-[#039155]" : "text-[#121216]"
-                                }`}
+                                className={`w-5 h-5 ${isDirty ? "text-[#039155]" : "text-[#121216]"
+                                  }`}
                               />
                             </button>
                           </div>
@@ -663,7 +657,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
             <h1 className="text-[20px] sm:text-2xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
               Edit Membership Scheme
             </h1>
-            <span className="block mt-2 sm:mt-0  text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+            <span className="block mt-2 sm:mt-0  text-sm sm:text-base font-[Gilroy-Regular] text-[#1B1717]">
               Configure Your Membership Settings And Commissions
             </span>
           </div>
@@ -706,7 +700,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                 <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeMode}
                 </span>
-                <p className="text-[10px] text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed truncate">
+                <p className="text-[10px] text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed truncate">
                   {schemeMode === "Global"
                     ? "Available To All Users Worldwide"
                     : "Restricted To Specific Users"}
@@ -731,7 +725,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
                 <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   {schemeType}
                 </span>
-                <p className="text-[10px] text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed truncate">
+                <p className="text-[10px] text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed truncate">
                   {schemeType === "Free"
                     ? "No Cost Membership"
                     : "Restricted Access With Invitation Only"}
@@ -755,13 +749,13 @@ const EditMembership = ({ scheme = null, onBack }) => {
           ) : (
             <>
               {/* Check if all sections are empty */}
-              {aepsCommissions.length === 0 && 
-               mobileDthCommissions.length === 0 && 
-               dynamicSectionTypes.length === 0 ? (
+              {aepsCommissions.length === 0 &&
+                mobileDthCommissions.length === 0 &&
+                dynamicSectionTypes.length === 0 ? (
                 <div className="px-4 py-12 flex flex-col items-center justify-center">
-                  <img 
-                    src="/img/pagenotfound.gif" 
-                    alt="No data found" 
+                  <img
+                    src="/img/pagenotfound.gif"
+                    alt="No data found"
                     className="w-64 h-64 object-contain mb-4"
                   />
                   <p className="text-sm text-[#121216]/60 font-['Gilroy-Regular']">
@@ -771,11 +765,11 @@ const EditMembership = ({ scheme = null, onBack }) => {
               ) : (
                 <>
                   {/* AEPS Commissions Section (accordion by operatorType) */}
-                  {aepsCommissions.length > 0 && 
+                  {aepsCommissions.length > 0 &&
                     renderCommissionSection("AEPS Commissions", aepsCommissions, "aeps")}
 
                   {/* Mobile And DTH Recharge Commissions Section (accordion by operatorType) */}
-                  {mobileDthCommissions.length > 0 && 
+                  {mobileDthCommissions.length > 0 &&
                     renderCommissionSection(
                       "Mobile And DTH Recharge",
                       mobileDthCommissions,

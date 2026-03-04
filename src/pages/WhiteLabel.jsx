@@ -387,7 +387,7 @@ const WhiteLabel = ({ onBack }) => {
                 <h1 className="text-lg sm:text-xl md::text-2xl font-[Gilroy-Medium] text-[#1B1717]">
                   Create Whitelabel
                 </h1>
-                <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-sm md:text-base lg:text-lg">
+                <p className="text-[#1B1717] font-[Gilroy-Regular] text-xs sm:text-sm md:text-base lg:text-lg">
                   Set Up Your Whitelabel Configuration With Business Details And
                   Profile Settings
                 </p>

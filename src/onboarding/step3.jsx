@@ -301,7 +301,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                   <h3 className="text-sm sm:text-base  font-[Gilroy-Medium] text-[#1B1717]">
                     Aadhaar Via DigiLocker
                   </h3>
-                  <p className="text-xs sm:text-sm font-[gilroy-regular] text-[#1B1717]/80 mt-2">
+                  <p className="text-xs sm:text-sm font-[Gilroy-Regular] text-[#1B1717]/80 mt-2">
                     Fetch Aadhaar Document Securely From DigiLocker
                   </p>
                 </div>
@@ -364,7 +364,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                 <h4 className="font-[Gilroy-Semibold] text-[#08378D] text-xs">
                   Secure Document Verification
                 </h4>
-                <p className="text-xs text-[#0059FF] font-[gilroy-regular]">
+                <p className="text-xs text-[#0059FF] font-[Gilroy-Regular]">
                   Documents are fetched directly from DigiLocker using secure
                   APIs.
                 </p>
@@ -470,7 +470,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
               min-w-[100px] sm:min-w-[110px] md:min-w-[120px]
               rounded-lg sm:rounded-xl
               text-[8px] sm:text-[9px] md:text-[10px]
-              lg:text-xs  font-[gilroy-regular]"
+              lg:text-xs  font-[Gilroy-Regular]"
                     >
                       Select From Browser
                     </span>
@@ -478,7 +478,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
 
                   <p
                     className="text-[7px] sm:text-[8px] md:text-[9px]
-            lg:text-[10px]  text-[#1B1717]/80 font-[gilroy-regular]"
+            lg:text-[10px]  text-[#1B1717]/80 font-[Gilroy-Regular]"
                   >
                     File Size (Max 5 MB)
                   </p>
@@ -535,7 +535,7 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
                       className="hidden"
                       onChange={(e) => handleImageChange("back", e)}
                     />
-                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs  font-[gilroy-regular]">
+                    <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs  font-[Gilroy-Regular]">
                       Select From Browser
                     </span>
                   </label>

@@ -137,7 +137,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                     // Determine badge text based on combination of commType and amtType
                     const commType = (comm.commType || "").toLowerCase();
                     const amtType = (comm.amtType || "").toLowerCase();
-                    
+
                     let badgeText = "";
                     if (commType === "com" && amtType === "fix") {
                       badgeText = "Commission/Flat";
@@ -149,12 +149,12 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
                       badgeText = "Surcharge/Percentage";
                     } else {
                       // Fallback for any other combination
-                      const commTypeDisplay = commType === "com" ? "Commission" : 
-                                             commType === "sur" ? "Surcharge" : 
-                                             (comm.commType || "").toUpperCase();
-                      const amtTypeDisplay = amtType === "fix" ? "Flat" : 
-                                           amtType === "per" ? "Percentage" : 
-                                           (comm.amtType || "").toUpperCase();
+                      const commTypeDisplay = commType === "com" ? "Commission" :
+                        commType === "sur" ? "Surcharge" :
+                          (comm.commType || "").toUpperCase();
+                      const amtTypeDisplay = amtType === "fix" ? "Flat" :
+                        amtType === "per" ? "Percentage" :
+                          (comm.amtType || "").toUpperCase();
                       badgeText = `${commTypeDisplay}/${amtTypeDisplay}`;
                     }
 
@@ -222,7 +222,7 @@ const ViewSubscription = ({ subscription = null, onBack }) => {
             <h1 className="text-[20px] sm:text-2xl md:text-2xl font-['Gilroy-Medium'] text-[#1B1717]">
               {subscription.title} - Details
             </h1>
-            <span className="text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+            <span className="text-sm sm:text-base font-[Gilroy-Regular] text-[#1B1717]">
               Complete subscription information
             </span>
           </div>

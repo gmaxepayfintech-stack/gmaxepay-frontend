@@ -360,7 +360,7 @@ const DistrubtionOnboarding = ({
                           }`}
                       >
                         {/* ID */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
@@ -379,38 +379,38 @@ const DistrubtionOnboarding = ({
                         </td>
 
                         {/* User ID */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.userId || row.userAgentCode || "N/A"}
                         </td>
                         {/* Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.name || row.userName || "N/A"}
                         </td>
                         {/* User Role */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.userRole || "N/A"}
                         </td>
                         {/* Mobile No */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.mobileNo ||
                             row.mobile ||
                             row.mobileNumber ||
                             "N/A"}
                         </td>
                         {/* Email Id */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.emailId || row.email || "N/A"}
                         </td>
                         {/* Parent Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.parentName || "N/A"}
                         </td>
                         {/* Parent Role */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.parentRole || "N/A"}
                         </td>
                         {/* KYC Status */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const status = row.kycStatus?.toLowerCase();
                             let className =
@@ -433,19 +433,19 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* KYC Steps */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.kycSteps || "0"}
                         </td>
                         {/* Main Wallet */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.wallet?.mainWallet || "0"}
                         </td>
                         {/* AEPS Wallet */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.wallet?.apes1Wallet || "0"}
                         </td>
                         {/* Status */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           <span
                             className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
@@ -456,7 +456,7 @@ const DistrubtionOnboarding = ({
                           </span>
                         </td>
                         {/* KYC Details */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           <button
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
@@ -474,7 +474,7 @@ const DistrubtionOnboarding = ({
                           </button>
                         </td>
                         {/* Action - Toggle Button */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isActive =
@@ -513,7 +513,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Lock Status - Colored Button */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isLocked =
@@ -579,7 +579,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Date */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.date || "N/A"}
                         </td>
                       </tr>
@@ -760,7 +760,7 @@ const DistrubtionOnboarding = ({
                         }`}
                     >
                       {/* ID */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
@@ -780,38 +780,38 @@ const DistrubtionOnboarding = ({
                       </td>
 
                       {/* User ID */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
                       {/* Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.name || row.userName || "N/A"}
                       </td>
                       {/* User Role */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.userRole || "N/A"}
                       </td>
                       {/* Mobile No */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
                       {/* Email Id */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.emailId || row.email || "N/A"}
                       </td>
                       {/* Parent Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.parentName || "N/A"}
                       </td>
                       {/* Parent Role */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.parentRole || "N/A"}
                       </td>
                       {/* KYC Status */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -831,19 +831,19 @@ const DistrubtionOnboarding = ({
                         })()}
                       </td>
                       {/* KYC Steps */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.mainWallet || "0"}
                       </td>
                       {/* AEPS Wallet */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.aepsWallet || "0"}
                       </td>
                       {/* Status */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
@@ -854,7 +854,7 @@ const DistrubtionOnboarding = ({
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -872,7 +872,7 @@ const DistrubtionOnboarding = ({
                         </button>
                       </td>
                       {/* Action */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
@@ -893,7 +893,7 @@ const DistrubtionOnboarding = ({
                         </div>
                       </td>
                       {/* Date */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.date || "N/A"}
                       </td>
                     </tr>
