@@ -376,7 +376,7 @@ const OperatorSetting = () => {
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${apiCurrentPage === page
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${apiCurrentPage === page
                     ? "bg-[#039155] text-white"
                     : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                     }`}
@@ -422,7 +422,7 @@ const OperatorSetting = () => {
             <h2 className="text-2xl font-[Gilroy-Medium] text-[#1B1717] text-center">
               {editId ? "Update Operator" : "Add New Operator"}
             </h2>
-            <p className="text-base text-[#1B1717]/80 font-[gilroy-regular] text-center mb-6">
+            <p className="text-base text-[#1B1717]/80 font-[Gilroy-Regular] text-center mb-6">
               Create A New Operator Entry
             </p>
 

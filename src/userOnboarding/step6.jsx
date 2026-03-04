@@ -188,7 +188,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
         typeof bankDetailsError === "string"
           ? bankDetailsError
           : bankDetailsError?.message ||
-            "Failed to verify bank details. Please try again.";
+          "Failed to verify bank details. Please try again.";
 
       showNotification({
         type: "error",
@@ -251,7 +251,7 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
           </h3>
         </div>
 
-        <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+        <p className="text-[#1B1717] font-[Gilroy-Regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
           Tell Us About Bank Details
         </p>
 
@@ -285,12 +285,11 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
               inputMode="numeric"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
               font-[Gilroy-Medium]
-              ${
-                formik.errors.bankAccountNumber &&
-                formik.touched.bankAccountNumber
+              ${formik.errors.bankAccountNumber &&
+                  formik.touched.bankAccountNumber
                   ? "border-red-500"
                   : "border-[#1B1717]/80"
-              }
+                }
               rounded-lg
               pl-10 md:pl-12 lg:pl-14
               pr-3
@@ -345,11 +344,10 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 maxLength={11}
                 className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px] border-r-0
                 font-[Gilroy-Medium]
-                ${
-                  formik.errors.ifscCode && formik.touched.ifscCode
+                ${formik.errors.ifscCode && formik.touched.ifscCode
                     ? "border-red-500"
                     : "border-[#1B1717]/80"
-                }
+                  }
                 rounded-l-lg
                 pl-10 md:pl-12 lg:pl-14
                 pr-3
@@ -378,11 +376,10 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
               shadow-md
               transition
               flex-shrink-0
-              ${
-                !formik.values.ifscCode || formik.values.ifscCode.length !== 11
+              ${!formik.values.ifscCode || formik.values.ifscCode.length !== 11
                   ? "bg-[#039155] cursor-not-allowed"
                   : "bg-[#039155] hover:bg-green-700 active:scale-95"
-              }
+                }
             `}
             >
               Verify
@@ -430,11 +427,10 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
               text-sm md:text-base
               outline-none
               transition
-              ${
-                !formData.ifscVerified
+              ${!formData.ifscVerified
                   ? "bg-gray-50 cursor-not-allowed"
                   : "focus:border-[#1B1717]/80"
-              }
+                }
             `}
             />
           </div>
@@ -445,11 +441,10 @@ function Step6({ formData, setFormData, onNext, onBack, onShowSteps }) {
           type="button"
           onClick={formik.handleSubmit}
           disabled={!isNextEnabled}
-          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${
-            !isNextEnabled
+          className={`w-full h-10 md:h-11 lg:h-14 bg-[#039155] text-white rounded-lg md:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg flex items-center justify-center ${!isNextEnabled
               ? "opacity-70 cursor-not-allowed"
               : "hover:bg-green-700 active:scale-95"
-          }`}
+            }`}
         >
           Next
         </button>

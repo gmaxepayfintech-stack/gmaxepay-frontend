@@ -80,7 +80,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
       // First try secureLocalStorage
       const tokenFromStorage = secureLocalStorage.getItem("onboardingToken");
       if (tokenFromStorage) {
-       // console.log("Token found in secureLocalStorage");
+        // console.log("Token found in secureLocalStorage");
         return tokenFromStorage;
       }
 
@@ -507,7 +507,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                 </h1>
 
                 {/* Subtitle */}
-                <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[gilroy-regular] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
+                <p className="text-xs sm:text-xs md:text-sm lg:text-base font-[Gilroy-Regular] text-[#1B1717] mt-1 max-w-[90%] mx-auto">
                   Connect Your DigiLocker For Instant Document Verification
                 </p>
               </div>
@@ -536,13 +536,12 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleDownload}
                     disabled={!isVerified || isDownloading || isConnecting}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base border transition shadow-md ${
-                      isDownloaded
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base border transition shadow-md ${isDownloaded
                         ? "bg-green-50 text-green-700 border-green-500"
                         : !isVerified || isDownloading || isConnecting
                           ? "bg-gray-100 text-gray-400 border-gray-300 cursor-not-allowed"
                           : "border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                    }`}
+                      }`}
                   >
                     {isDownloaded ? "Downloaded ✓" : "Download"}
                   </button>
@@ -551,13 +550,12 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                     type="button"
                     onClick={handleVerify}
                     disabled={isVerified || isConnecting || isDownloading}
-                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md ${
-                      isVerified
+                    className={`flex-1 h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-md ${isVerified
                         ? "bg-green-600 text-white cursor-not-allowed"
                         : isConnecting || isDownloading
                           ? "bg-gray-400 text-white cursor-not-allowed"
                           : "bg-[#039155] text-white hover:bg-green-700"
-                    }`}
+                      }`}
                   >
                     {isVerified ? "Verified" : "Verify"}
                   </button>
@@ -712,7 +710,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
               min-w-[100px] sm:min-w-[110px] md:min-w-[120px]
               rounded-lg sm:rounded-xl
               text-[8px] sm:text-[9px] md:text-[10px]
-              lg:text-xs xl:text-sm font-[gilroy-regular]"
+              lg:text-xs xl:text-sm font-[Gilroy-Regular]"
                       >
                         Select From Browser
                       </span>
@@ -720,7 +718,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
 
                     <p
                       className="text-[7px] sm:text-[8px] md:text-[9px]
-            lg:text-[10px] xl:text-xs text-[#1B1717]/80 font-[gilroy-regular]"
+            lg:text-[10px] xl:text-xs text-[#1B1717]/80 font-[Gilroy-Regular]"
                     >
                       File Size ( Max 5 MB )
                     </p>
@@ -775,7 +773,7 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
                         className="hidden"
                         onChange={(e) => handleImageChange("back", e)}
                       />
-                      <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs xl:text-sm font-[gilroy-regular]">
+                      <span className="bg-[#C5DBFF] text-[#1B1717] cursor-pointer hover:bg-[#B0CFFF] active:scale-95 transition-all inline-flex items-center justify-center px-2.5 sm:px-3 md:px-3 lg:px-3.5 xl:px-4 py-0.5 sm:py-1 md:py-1 lg:py-1.5 xl:py-1 min-w-[100px] sm:min-w-[110px] md:min-w-[120px] lg:min-w-[130px] xl:min-w-[140px] h-auto min-h-[24px] sm:min-h-[26px] md:min-h-[28px] lg:min-h-[30px] xl:min-h-[30px] rounded-lg sm:rounded-xl text-[8px] sm:text-[9px] md:text-[10px] lg:text-xs xl:text-sm font-[Gilroy-Regular]">
                         Select From Browser
                       </span>
                     </label>
@@ -798,11 +796,10 @@ function RetailerAadhaar({ setFormData, onNext, onBack, onShowSteps }) {
         text-sm sm:text-sm md:text-sm lg:text-sm xl:text-base
         shadow-md transition-all
         flex items-center justify-center
-        ${
-          frontImage && backImage && !isUploading
-            ? "bg-[#039155] hover:bg-green-700 active:scale-95 text-white"
-            : "bg-gray-400 cursor-not-allowed text-white"
-        }`}
+        ${frontImage && backImage && !isUploading
+                    ? "bg-[#039155] hover:bg-green-700 active:scale-95 text-white"
+                    : "bg-gray-400 cursor-not-allowed text-white"
+                  }`}
               >
                 {isUploading ? "Uploading..." : "Submit"}
               </button>

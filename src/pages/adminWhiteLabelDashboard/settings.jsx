@@ -67,11 +67,11 @@ const UploadCard = ({ onFileSelect, image, label, isUploading }) => {
             SVG, PNG Format
           </p>
 
-          <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
+          <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[Gilroy-Regular] bg-[#C5DBFF] border rounded-[4px]">
             Select from the Browser
           </span>
 
-          <p className="text-sm text-[#1B1717]/80 font-[gilroy-regular] mt-1">
+          <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] mt-1">
             File Size (Max 5 MB)
           </p>
         </>
@@ -191,11 +191,11 @@ const SliderAddCard = ({ onFileSelect }) => {
         SVG/PNG Format
       </p>
 
-      <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[gilroy-regular] bg-[#C5DBFF] border rounded-[4px]">
+      <span className="mt-2 p-1 text-[10px] text-[#1B1717] font-[Gilroy-Regular] bg-[#C5DBFF] border rounded-[4px]">
         Select from the Browser
       </span>
 
-      <p className="text-sm text-[#1B1717]/80 font-[gilroy-regular] mt-1">
+      <p className="text-sm text-[#1B1717]/80 font-[Gilroy-Regular] mt-1">
         File Size (Max 5 MB)
       </p>
 

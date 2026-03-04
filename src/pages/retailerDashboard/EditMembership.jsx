@@ -95,7 +95,7 @@ const EditMembership = ({ scheme, onBack }) => {
           </h1>
         </div>
 
-        <span className="block mt-2 sm:mt-0 sm:ml-14 text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+        <span className="block mt-2 sm:mt-0 sm:ml-14 text-sm sm:text-base font-[Gilroy-Regular] text-[#1B1717]">
           Configure Your Membership Settings And Commissions
         </span>
       </div>
@@ -136,11 +136,10 @@ const EditMembership = ({ scheme, onBack }) => {
                   className="sr-only"
                 />
                 <div
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    schemeMode === "Global"
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${schemeMode === "Global"
                       ? "border-[#039155] bg-[#039155]"
                       : "border-gray-300 bg-white"
-                  }`}
+                    }`}
                 >
                   {schemeMode === "Global" && (
                     <div className="w-2 h-2 rounded-full bg-white"></div>
@@ -152,7 +151,7 @@ const EditMembership = ({ scheme, onBack }) => {
                 <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Global
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
+                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   Available To All Users Worldwide
                 </p>
               </div>
@@ -175,11 +174,10 @@ const EditMembership = ({ scheme, onBack }) => {
                   className="sr-only"
                 />
                 <div
-                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${
-                    schemeType === "Free"
+                  className={`w-4 h-4 rounded-full border-2 flex items-center justify-center ${schemeType === "Free"
                       ? "border-[#039155] bg-[#039155]"
                       : "border-gray-300 bg-white"
-                  }`}
+                    }`}
                 >
                   {schemeType === "Free" && (
                     <div className="w-2 h-2 rounded-full bg-white"></div>
@@ -191,7 +189,7 @@ const EditMembership = ({ scheme, onBack }) => {
                 <span className="text-xs font-[Gilroy-Medium] block text-[#1B1717]/80">
                   Free
                 </span>
-                <p className="text-xs text-[#1B1717]/80 font-[gilroy-regular] leading-relaxed">
+                <p className="text-xs text-[#1B1717]/80 font-[Gilroy-Regular] leading-relaxed">
                   No Cost Membership
                 </p>
               </div>
@@ -230,9 +228,8 @@ const EditMembership = ({ scheme, onBack }) => {
                   ].map((h, i) => (
                     <div
                       key={i}
-                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${
-                        h === "Actions" ? "text-center" : "text-left"
-                      }`}
+                      className={`text-[14px] font-[Gilroy-Medium] text-[#121216] ${h === "Actions" ? "text-center" : "text-left"
+                        }`}
                     >
                       {h}
                     </div>

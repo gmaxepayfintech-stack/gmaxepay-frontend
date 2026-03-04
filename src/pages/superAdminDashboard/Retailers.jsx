@@ -494,7 +494,7 @@ const Retailers = ({
                       key={row.id || index}
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.id, "N/A")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] ">
@@ -521,31 +521,31 @@ const Retailers = ({
                         </button>
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -564,26 +564,26 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "apesWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -600,7 +600,7 @@ const Retailers = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -661,7 +661,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -696,8 +696,8 @@ const Retailers = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -711,7 +711,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -729,7 +729,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -746,7 +746,7 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -762,8 +762,8 @@ const Retailers = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -775,8 +775,8 @@ const Retailers = ({
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -794,8 +794,8 @@ const Retailers = ({
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -943,7 +943,7 @@ const Retailers = ({
                       key={row.id || index}
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.id, "N/A")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
@@ -964,31 +964,31 @@ const Retailers = ({
                         </button>
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -1007,26 +1007,26 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "apesWallet")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -1042,7 +1042,7 @@ const Retailers = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -1103,7 +1103,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -1138,8 +1138,8 @@ const Retailers = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -1153,7 +1153,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1171,7 +1171,7 @@ const Retailers = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -1188,7 +1188,7 @@ const Retailers = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[gilroy-regular]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -1204,8 +1204,8 @@ const Retailers = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1 || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -1217,8 +1217,8 @@ const Retailers = ({
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
-                        ? "bg-green-600 text-white"
-                        : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -1236,8 +1236,8 @@ const Retailers = ({
               }
               disabled={currentPage === totalPages || totalPages === 0}
               className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
-                  ? "text-gray-400 cursor-not-allowed bg-gray-100"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -1290,8 +1290,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
@@ -1300,8 +1300,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("aadhar")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Aadhar Document
@@ -1309,8 +1309,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("pan")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   PAN Document
@@ -1318,8 +1318,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Outlet Details
@@ -1327,8 +1327,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("bankDetails")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Bank Details
@@ -1336,8 +1336,8 @@ const Retailers = ({
                 <button
                   onClick={() => setActiveTab("verification")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Verification
@@ -1365,10 +1365,10 @@ const Retailers = ({
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -1525,9 +1525,9 @@ const Retailers = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
-                                    "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1655,8 +1655,8 @@ const Retailers = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
@@ -1899,8 +1899,8 @@ const Retailers = ({
                           {/* Mobile Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1915,8 +1915,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
@@ -1928,8 +1928,8 @@ const Retailers = ({
                           {/* Email Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1944,8 +1944,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.emailVerify
@@ -1957,8 +1957,8 @@ const Retailers = ({
                           {/* Aadhar Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1973,8 +1973,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
@@ -1986,8 +1986,8 @@ const Retailers = ({
                           {/* PAN Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2002,8 +2002,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.panVerify
@@ -2015,8 +2015,8 @@ const Retailers = ({
                           {/* Shop Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2031,8 +2031,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
@@ -2044,8 +2044,8 @@ const Retailers = ({
                           {/* Image Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2060,8 +2060,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.imageVerify
@@ -2073,9 +2073,9 @@ const Retailers = ({
                           {/* Profile Image with Shop Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2091,9 +2091,9 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails
@@ -2106,8 +2106,8 @@ const Retailers = ({
                           {/* Bank Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2122,8 +2122,8 @@ const Retailers = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify

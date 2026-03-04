@@ -459,27 +459,24 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
       )}
 
       <div
-        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${
-          !showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
-        }`}
+        className={`bg-gray-50 flex justify-center px-3 md:px-0 ${!showSteps ? "h-screen overflow-hidden" : "min-h-screen py-4 md:py-6"
+          }`}
       >
         <div
-          className={`w-full max-w-[1450px] ${
-            !showSteps ? "h-full flex flex-col overflow-hidden" : ""
-          }`}
+          className={`w-full max-w-[1450px] ${!showSteps ? "h-full flex flex-col overflow-hidden" : ""
+            }`}
         >
           {/* HEADER + STEP LIST */}
           <div
-            className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${
-              !showSteps ? "hidden" : "mb-6"
-            }`}
+            className={`px-4 py-6 md:px-8 md:py-8 rounded-xl ${!showSteps ? "hidden" : "mb-6"
+              }`}
           >
             {!isCompleted && showSteps && !isLoadingPending && !isLoading && (
               <>
                 <h1 className="text-xl sm:text-2xl md:text-2xl font-[Gilroy-Semibold] text-center text-[#1B1717] mb-2 md:mb-3">
                   Complete Your KYC
                 </h1>
-                <p className="text-xs sm:text-sm md:text-base font-[gilroy-regular] text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
+                <p className="text-xs sm:text-sm md:text-base font-[Gilroy-Regular] text-[#1B1717] text-center mb-4 sm:mb-6 md:mb-8">
                   Secure your account by completing this quick verification.
                 </p>
 
@@ -631,11 +628,10 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           }
                         }}
                         className={`relative rounded-2xl p-4 shadow transition-all
-                            ${
-                              status === "pending"
-                                ? "bg-gray-100 opacity-50 cursor-not-allowed"
-                                : "bg-white cursor-pointer hover:shadow-md"
-                            }
+                            ${status === "pending"
+                            ? "bg-gray-100 opacity-50 cursor-not-allowed"
+                            : "bg-white cursor-pointer hover:shadow-md"
+                          }
                           `}
                       >
                         <div className="relative">
@@ -643,13 +639,12 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           <div className="absolute top-3 right-0 flex items-center gap-2 text-[10px] sm:text-sm font-[Gilroy-Medium]">
                             <span
                               className={`w-2 h-2 rounded-full
-                              ${
-                                status === "completed"
+                              ${status === "completed"
                                   ? "bg-[#039155]"
                                   : status === "in-progress"
                                     ? "bg-[#EA9707]"
                                     : "bg-[#E32424]"
-                              }
+                                }
                             `}
                             />
                             <span
@@ -687,7 +682,7 @@ function OnboardingRetailerById({ referralCode: propReferralCode }) {
                           </h3>
 
                           {/* DESCRIPTION */}
-                          <p className=" text-xs sm:text-sm text-[#1B1717]  mt-1 font-[gilroy-regular] whitespace-pre-line">
+                          <p className=" text-xs sm:text-sm text-[#1B1717]  mt-1 font-[Gilroy-Regular] whitespace-pre-line">
                             {step.key === "mobileVerification" &&
                               "We will send a 6-digit OTP to your mobile number Please enter it to verify your identity"}
                             {step.key === "emailVerification" &&

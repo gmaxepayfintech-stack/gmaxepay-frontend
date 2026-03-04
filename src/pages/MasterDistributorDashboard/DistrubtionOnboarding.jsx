@@ -390,7 +390,7 @@ const DistrubtionOnboarding = ({
                           }`}
                       >
                         {/* ID */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
@@ -409,42 +409,42 @@ const DistrubtionOnboarding = ({
                         </td>
 
                         {/* User ID */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.userId || row.userAgentCode || "N/A"}
                         </td>
                         {/* Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.name || row.userName || "N/A"}
                         </td>
                         {/* User Role */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.userRole || "N/A"}
                         </td>
                         {/* Mobile No */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.mobileNo ||
                             row.mobile ||
                             row.mobileNumber ||
                             "N/A"}
                         </td>
                         {/* Email Id */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.emailId || row.email || "N/A"}
                         </td>
                         {/* Parent Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.parentName || "N/A"}
                         </td>
                         {/* Parent Role */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.parentRole || "N/A"}
                         </td>
                         {/* Company Name */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.company || row.companyName || "N/A"}
                         </td>
                         {/* KYC Status */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const status = row.kycStatus?.toLowerCase();
                             let className =
@@ -467,30 +467,30 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* KYC Steps */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.kycSteps || "0"}
                         </td>
                         {/* Main Wallet */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                         </td>
                         {/* AEPS Wallet */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                         </td>
                         {/* Status */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           <span
                             className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                                ? "bg-green-600"
-                                : "bg-red-600"
+                              ? "bg-green-600"
+                              : "bg-red-600"
                               }`}
                           >
                             {row.status || "Active"}
                           </span>
                         </td>
                         {/* KYC Details */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           <button
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
@@ -508,7 +508,7 @@ const DistrubtionOnboarding = ({
                           </button>
                         </td>
                         {/* Action - Toggle Button */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isActive =
@@ -547,7 +547,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Lock Status - Colored Button */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             const isLocked =
@@ -562,8 +562,8 @@ const DistrubtionOnboarding = ({
                                 }}
                                 disabled={!isLocked}
                                 className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                    ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                    : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                   }`}
                                 title={
                                   isLocked
@@ -613,7 +613,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Date */}
-                        <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.date || "N/A"}
                         </td>
                       </tr>
@@ -629,8 +629,8 @@ const DistrubtionOnboarding = ({
                 onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                 disabled={currentPage === 1}
                 className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1
-                    ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-[#121216] hover:bg-gray-50"
+                  ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-[#121216] hover:bg-gray-50"
                   }`}
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -641,8 +641,8 @@ const DistrubtionOnboarding = ({
                     key={page}
                     onClick={() => setCurrentPage(page)}
                     className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
-                        ? "bg-[#039155] text-white"
-                        : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
+                      ? "bg-[#039155] text-white"
+                      : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
                       }`}
                   >
                     {page}
@@ -655,8 +655,8 @@ const DistrubtionOnboarding = ({
                 }
                 disabled={currentPage === totalPages}
                 className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
-                    ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                    : "bg-white text-[#121216] hover:bg-gray-50"
+                  ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                  : "bg-white text-[#121216] hover:bg-gray-50"
                   }`}
               >
                 <ChevronRight className="w-5 h-5" />
@@ -797,7 +797,7 @@ const DistrubtionOnboarding = ({
                         }`}
                     >
                       {/* ID */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
@@ -817,42 +817,42 @@ const DistrubtionOnboarding = ({
                       </td>
 
                       {/* User ID */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
                       {/* Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.name || row.userName || "N/A"}
                       </td>
                       {/* User Role */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.userRole || "N/A"}
                       </td>
                       {/* Mobile No */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
                       {/* Email Id */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.emailId || row.email || "N/A"}
                       </td>
                       {/* Parent Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.parentName || "N/A"}
                       </td>
                       {/* Parent Role */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.parentRole || "N/A"}
                       </td>
                       {/* Company Name */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.company || row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -872,30 +872,30 @@ const DistrubtionOnboarding = ({
                         })()}
                       </td>
                       {/* KYC Steps */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       {/* AEPS Wallet */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap text-center">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       {/* Status */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {row.status || "Active"}
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -913,7 +913,7 @@ const DistrubtionOnboarding = ({
                         </button>
                       </td>
                       {/* Action */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         <div className="flex items-center gap-3">
                           <button
                             onClick={() => {
@@ -934,7 +934,7 @@ const DistrubtionOnboarding = ({
                         </div>
                       </td>
                       {/* Date */}
-                      <td className="py-3 px-4 text-xs font-[gilroy-regular] text-[#121216] whitespace-nowrap">
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.date || "N/A"}
                       </td>
                     </tr>
@@ -950,8 +950,8 @@ const DistrubtionOnboarding = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1
-                  ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-[#121216] hover:bg-gray-50"
+                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                : "bg-white text-[#121216] hover:bg-gray-50"
                 }`}
             >
               <ChevronLeft className="w-5 h-5" />
@@ -961,8 +961,8 @@ const DistrubtionOnboarding = ({
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
-                    ? "bg-[#039155] text-white"
-                    : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
+                  ? "bg-[#039155] text-white"
+                  : "bg-white border border-gray-300 text-[#121216] hover:bg-gray-50"
                   }`}
               >
                 {page}
@@ -974,8 +974,8 @@ const DistrubtionOnboarding = ({
               }
               disabled={currentPage === totalPages}
               className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === totalPages
-                  ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                  : "bg-white text-[#121216] hover:bg-gray-50"
+                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
+                : "bg-white text-[#121216] hover:bg-gray-50"
                 }`}
             >
               <ChevronRight className="w-5 h-5" />
@@ -1028,8 +1028,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
@@ -1038,8 +1038,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("aadhar")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Aadhar Document
@@ -1047,8 +1047,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("pan")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   PAN Document
@@ -1056,8 +1056,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Outlet Details
@@ -1065,8 +1065,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("bankDetails")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Bank Details
@@ -1074,8 +1074,8 @@ const DistrubtionOnboarding = ({
                 <button
                   onClick={() => setActiveTab("verification")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Verification
@@ -1099,10 +1099,10 @@ const DistrubtionOnboarding = ({
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -1259,9 +1259,9 @@ const DistrubtionOnboarding = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
-                                    "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1389,8 +1389,8 @@ const DistrubtionOnboarding = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
@@ -1633,8 +1633,8 @@ const DistrubtionOnboarding = ({
                           {/* Mobile Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1649,8 +1649,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
@@ -1662,8 +1662,8 @@ const DistrubtionOnboarding = ({
                           {/* Email Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1678,8 +1678,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.emailVerify
@@ -1691,8 +1691,8 @@ const DistrubtionOnboarding = ({
                           {/* Aadhar Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1707,8 +1707,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
@@ -1720,8 +1720,8 @@ const DistrubtionOnboarding = ({
                           {/* PAN Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1736,8 +1736,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.panVerify
@@ -1749,8 +1749,8 @@ const DistrubtionOnboarding = ({
                           {/* Shop Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1765,8 +1765,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
@@ -1778,8 +1778,8 @@ const DistrubtionOnboarding = ({
                           {/* Image Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1794,8 +1794,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.imageVerify
@@ -1807,9 +1807,9 @@ const DistrubtionOnboarding = ({
                           {/* Profile Image with Shop Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1825,9 +1825,9 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails
@@ -1840,8 +1840,8 @@ const DistrubtionOnboarding = ({
                           {/* Bank Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1856,8 +1856,8 @@ const DistrubtionOnboarding = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify

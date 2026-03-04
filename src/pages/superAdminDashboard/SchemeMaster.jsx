@@ -170,7 +170,7 @@ const SchemeMaster = () => {
     const handleClickOutside = (event) => {
       // Don't close if user selection modal is open
       if (showUserSelectionModal) return;
-      
+
       if (modalRef.current && !modalRef.current.contains(event.target)) {
         // Also check if click is not on user selection modal
         if (userModalRef.current && !userModalRef.current.contains(event.target)) {
@@ -219,9 +219,9 @@ const SchemeMaster = () => {
         },
         customSearch: debouncedUserSearchQuery.trim()
           ? {
-              mobileNo: debouncedUserSearchQuery.trim(),
-              name: debouncedUserSearchQuery.trim(),
-            }
+            mobileNo: debouncedUserSearchQuery.trim(),
+            name: debouncedUserSearchQuery.trim(),
+          }
           : {},
       };
       dispatch(useList(payload));
@@ -286,10 +286,10 @@ const SchemeMaster = () => {
     const iconData = getIcon(slab.schemaType, slab.schemaMode);
     const createdAt = slab.createdAt
       ? new Date(slab.createdAt).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-          year: "2-digit",
-        })
+        day: "2-digit",
+        month: "2-digit",
+        year: "2-digit",
+      })
       : "N/A";
 
     // Extract view user IDs from viewDetails
@@ -358,11 +358,11 @@ const SchemeMaster = () => {
   // Handle user selection
   const handleUserToggle = (user) => {
     const userId = user.id || user._id;
-    
+
     setSelectedUserIds((prev) => {
       if (prev.includes(userId)) {
         // Remove user
-        setSelectedUsersData((prevData) => 
+        setSelectedUsersData((prevData) =>
           prevData.filter((u) => {
             const uId = u.id || u._id;
             return uId !== userId;
@@ -391,7 +391,7 @@ const SchemeMaster = () => {
     const allUserIds = usersList.map((user) => user.id || user._id).filter(Boolean);
     // Remove duplicates
     const uniqueUserIds = [...new Set(allUserIds)];
-    
+
     if (selectedUserIds.length === uniqueUserIds.length && uniqueUserIds.length > 0) {
       setSelectedUserIds([]);
       setSelectedUsersData([]);
@@ -473,7 +473,7 @@ const SchemeMaster = () => {
     } catch (error) {
       showError(
         error?.message ||
-          "An error occurred while creating the slab. Please try again.",
+        "An error occurred while creating the slab. Please try again.",
       );
     } finally {
       setIsCreating(false);
@@ -534,7 +534,7 @@ const SchemeMaster = () => {
     } catch (error) {
       showError(
         error?.message ||
-          "An error occurred while updating the slab. Please try again.",
+        "An error occurred while updating the slab. Please try again.",
       );
     } finally {
       setIsUpdating(false);
@@ -596,7 +596,7 @@ const SchemeMaster = () => {
             <h1 className="text-lg sm:text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-1 sm:mb-2">
               Membership Schemes
             </h1>
-            <p className="text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+            <p className="text-sm sm:text-base font-[Gilroy-Regular] text-[#1B1717]">
               Manage And Monitor All Your Membership Programs
             </p>
           </div>
@@ -647,11 +647,10 @@ const SchemeMaster = () => {
                 key={filter}
                 onClick={() => setActiveFilter(filter)}
                 className={`px-3 py-2 sm:px-4 sm:py-3 rounded-lg sm:rounded-2xl
-            text-xs sm:text-sm transition whitespace-nowrap ${
-              activeFilter === filter
-                ? "bg-[#039155] text-white shadow-md font-[Gilroy-Semibold]"
-                : "bg-white text-[#1B1717]/80 border border-[#1B1717]/80 hover:bg-gray-50 font-[Gilroy-Medium]"
-            }`}
+            text-xs sm:text-sm transition whitespace-nowrap ${activeFilter === filter
+                    ? "bg-[#039155] text-white shadow-md font-[Gilroy-Semibold]"
+                    : "bg-white text-[#1B1717]/80 border border-[#1B1717]/80 hover:bg-gray-50 font-[Gilroy-Medium]"
+                  }`}
               >
                 {filter}
               </button>
@@ -684,9 +683,8 @@ const SchemeMaster = () => {
                   <div className="flex items-start justify-between mb-3 sm:mb-4 gap-2">
                     <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0">
                       <div
-                        className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${
-                          scheme.useImage ? "" : scheme.iconBg
-                        } flex items-center justify-center`}
+                        className={`w-8 h-8 sm:w-10 sm:h-10 md:w-12 md:h-12 rounded-lg flex-shrink-0 ${scheme.useImage ? "" : scheme.iconBg
+                          } flex items-center justify-center`}
                       >
                         {scheme.useImage ? (
                           <img
@@ -714,7 +712,7 @@ const SchemeMaster = () => {
                           {scheme.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
+                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[Gilroy-Regular] ${tag.color}`}
                             >
                               {tag.label}
                             </span>
@@ -771,7 +769,7 @@ const SchemeMaster = () => {
                       >
                         <Pencil className="w-3 h-3 sm:w-4 sm:h-4" />
                       </button>
-                      
+
                       {/* Status Indicator */}
                       <div
                         className={`flex items-center rounded-3xl
@@ -791,7 +789,7 @@ const SchemeMaster = () => {
                   {/* Scheme Details */}
                   <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Scheme Id
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -800,7 +798,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Created
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -809,7 +807,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Visibility
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -818,7 +816,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Amount
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -827,7 +825,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Members
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -868,11 +866,10 @@ const SchemeMaster = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                currentPage === page
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
                   ? "bg-[#039155] text-white"
                   : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-              }`}
+                }`}
             >
               {page}
             </button>
@@ -926,7 +923,7 @@ const SchemeMaster = () => {
 
                 <p
                   className="mt-1 text-[12px] xs:text-xs sm:text-sm 
-                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                        text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Configure Your New Membership Program <br />
                   With Custom Settings And Features
@@ -1005,11 +1002,10 @@ const SchemeMaster = () => {
                       <label
                         key={mode}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeMode === mode
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeMode === mode
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1029,11 +1025,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeMode === mode
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeMode === mode
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeMode === mode && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1066,11 +1061,10 @@ const SchemeMaster = () => {
                       <label
                         key={type}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeType === type
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeType === type
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1090,11 +1084,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeType === type
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeType === type
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeType === type && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1264,7 +1257,7 @@ const SchemeMaster = () => {
 
                 <p
                   className="mt-1 text-[12px] xs:text-xs sm:text-sm 
-                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                        text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Update Your Membership Program <br />
                   With Custom Settings And Features
@@ -1330,11 +1323,10 @@ const SchemeMaster = () => {
                       <label
                         key={mode}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeMode === mode
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeMode === mode
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1354,11 +1346,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeMode === mode
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeMode === mode
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeMode === mode && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1391,11 +1382,10 @@ const SchemeMaster = () => {
                       <label
                         key={type}
                         className={`flex gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                    ${
-                      formData.schemeType === type
-                        ? "border-[#039155] bg-green-50"
-                        : "border-gray-300 hover:border-gray-400"
-                    }`}
+                    ${formData.schemeType === type
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-300 hover:border-gray-400"
+                          }`}
                       >
                         <input
                           type="radio"
@@ -1415,11 +1405,10 @@ const SchemeMaster = () => {
 
                         <div
                           className={`w-4 h-4 sm:w-5 sm:h-5 rounded-full border-2 flex items-center justify-center
-                      ${
-                        formData.schemeType === type
-                          ? "border-[#039155] bg-[#039155]"
-                          : "border-gray-300"
-                      }`}
+                      ${formData.schemeType === type
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
+                            }`}
                         >
                           {formData.schemeType === type && (
                             <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 bg-white rounded-full" />
@@ -1585,7 +1574,7 @@ const SchemeMaster = () => {
                 </h2>
                 <p
                   className="mt-1 text-[12px] xs:text-xs sm:text-sm 
-                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                        text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Choose users who can access this private scheme
                 </p>
@@ -1630,7 +1619,7 @@ const SchemeMaster = () => {
                     ? "Deselect All"
                     : "Select All"}
                 </button>
-                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                   {selectedUserIds.length} selected
                 </span>
               </div>
@@ -1653,10 +1642,9 @@ const SchemeMaster = () => {
                       <label
                         key={userId}
                         className={`flex items-center gap-3 p-3 sm:p-4 border-2 rounded-lg cursor-pointer transition
-                          ${
-                            isSelected
-                              ? "border-[#039155] bg-green-50"
-                              : "border-gray-200 hover:border-gray-300"
+                          ${isSelected
+                            ? "border-[#039155] bg-green-50"
+                            : "border-gray-200 hover:border-gray-300"
                           }`}
                       >
                         <input
@@ -1667,10 +1655,9 @@ const SchemeMaster = () => {
                         />
                         <div
                           className={`w-5 h-5 sm:w-6 sm:h-6 rounded border-2 flex items-center justify-center flex-shrink-0
-                            ${
-                              isSelected
-                                ? "border-[#039155] bg-[#039155]"
-                                : "border-gray-300"
+                            ${isSelected
+                              ? "border-[#039155] bg-[#039155]"
+                              : "border-gray-300"
                             }`}
                         >
                           {isSelected && (
@@ -1681,14 +1668,14 @@ const SchemeMaster = () => {
                           <div className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                             {user.name || "N/A"}
                           </div>
-                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                             {user.mobileNo || user.mobile || "N/A"} • {user.email || "N/A"}
                           </div>
-                          <div className="text-xs text-[#1B1717]/70 font-[gilroy-regular]">
+                          <div className="text-xs text-[#1B1717]/70 font-[Gilroy-Regular]">
                             {user.company || "N/A"}
                           </div>
                           {user.userId && (
-                            <div className="text-xs text-[#1B1717]/50 font-[gilroy-regular]">
+                            <div className="text-xs text-[#1B1717]/50 font-[Gilroy-Regular]">
                               ID: {user.userId}
                             </div>
                           )}
@@ -1714,11 +1701,10 @@ const SchemeMaster = () => {
                     <button
                       key={page}
                       onClick={() => setUserPage(page)}
-                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${
-                        userPage === page
+                      className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${userPage === page
                           ? "bg-[#039155] text-white"
                           : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                      }`}
+                        }`}
                     >
                       {page}
                     </button>

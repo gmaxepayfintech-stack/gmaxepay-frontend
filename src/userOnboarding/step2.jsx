@@ -316,7 +316,7 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
             </h3>
           </div>
 
-          <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base text-center mb-3">
+          <p className="text-[#1B1717] font-[Gilroy-Regular] text-xs sm:text-xs md:text-sm lg:text-base text-center mb-3">
             Enter your Email address to receive the OTP
           </p>
 
@@ -336,9 +336,8 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 />
 
                 <div
-                  className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
-                    formData.email ? "bg-[#1B1717]" : "bg-gray-300"
-                  }`}
+                  className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${formData.email ? "bg-[#1B1717]" : "bg-gray-300"
+                    }`}
                 />
 
                 <input
@@ -350,11 +349,10 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                   placeholder="Enter your Email"
                   className={`w-full h-10 md:h-11 lg:h-14
                   border-[0.5px] border-r-0
-                  ${
-                    emailSubmitMessage
+                  ${emailSubmitMessage
                       ? "border-red-500"
                       : "border-[#1B1717]/80"
-                  }
+                    }
                   rounded-l-lg
                   pl-10 md:pl-12 lg:pl-14
                   pr-3
@@ -382,16 +380,14 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
                 shadow-md
                 transition
                 flex-shrink-0
-                ${
-                  verifuSuccess === "SUCCESS"
+                ${verifuSuccess === "SUCCESS"
                     ? "w-[90px] md:w-[100px] lg:w-[110px]"
                     : "w-[80px] md:w-[90px] lg:w-[100px]"
-                }
-                ${
-                  verifuSuccess === "SUCCESS" && successCooldown > 0
+                  }
+                ${verifuSuccess === "SUCCESS" && successCooldown > 0
                     ? "bg-gray-400 text-white cursor-not-allowed"
                     : "bg-[#039155] text-white hover:bg-green-700"
-                }
+                  }
               `}
               >
                 {verifuSuccess === "SUCCESS"
@@ -417,9 +413,8 @@ function Step2({ formData, setFormData, onNext, onBack, onShowSteps }) {
               />
 
               <div
-                className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
-                  formData.emailOtp ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+                className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${formData.emailOtp ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
               />
 
               <input

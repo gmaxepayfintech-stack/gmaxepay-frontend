@@ -550,7 +550,7 @@ const SchemeMaster = () => {
             <h1 className="text-lg sm:text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-1 sm:mb-2">
               Membership Schemes
             </h1>
-            <p className="text-sm sm:text-base font-[gilroy-regular] text-[#1B1717]">
+            <p className="text-sm sm:text-base font-[Gilroy-Regular] text-[#1B1717]">
               Manage And Monitor All Your Membership Programs
             </p>
           </div>
@@ -666,7 +666,7 @@ const SchemeMaster = () => {
                           {scheme.tags.map((tag, index) => (
                             <span
                               key={index}
-                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[gilroy-regular] ${tag.color}`}
+                              className={`px-2 py-0.5 rounded-2xl text-[10px] font-[Gilroy-Regular] ${tag.color}`}
                             >
                               {tag.label}
                             </span>
@@ -681,7 +681,7 @@ const SchemeMaster = () => {
                         onClick={(e) => {
                           e.stopPropagation();
                           setSelectedScheme(scheme);
-                          
+
                           // Extract nested ternaries into independent statements
                           let schemeMode;
                           if (scheme?.schemaMode) {
@@ -689,14 +689,14 @@ const SchemeMaster = () => {
                           } else {
                             schemeMode = scheme?.visibilityType || "Global";
                           }
-                          
+
                           let schemeType;
                           if (scheme?.schemaType) {
                             schemeType = scheme.schemaType === "free" ? "Free" : "Premium";
                           } else {
                             schemeType = "Free";
                           }
-                          
+
                           setFormData({
                             schemeName: scheme.name || "",
                             schemeMode,
@@ -743,7 +743,7 @@ const SchemeMaster = () => {
                   {/* Scheme Details */}
                   <div className="space-y-2 sm:space-y-3 md:space-y-4 mb-4 sm:mb-6 flex-grow">
                     <div className="flex justify-between text-xs sm:text-sm">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Scheme Id
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -752,16 +752,16 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Created
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
                         {scheme.created}
                       </span>
                     </div>
-                    
+
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Visibility
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -770,7 +770,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Amount
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -779,7 +779,7 @@ const SchemeMaster = () => {
                     </div>
 
                     <div className="flex justify-between text-sm sm:text-base">
-                      <span className="text-[#1B1717]/80 font-[gilroy-regular]">
+                      <span className="text-[#1B1717]/80 font-[Gilroy-Regular]">
                         Members
                       </span>
                       <span className="font-[Gilroy-Medium] text-[#1B1717]">
@@ -820,7 +820,7 @@ const SchemeMaster = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${currentPage === page
+              className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
                 ? "bg-[#039155] text-white"
                 : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                 }`}
@@ -870,7 +870,7 @@ const SchemeMaster = () => {
 
                 <p
                   className="mt-1 text-[14px] xs:text-xs sm:text-sm 
-                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                        text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Configure Your New Membership Program <br />
                   With Custom Settings And Features
@@ -1207,7 +1207,7 @@ const SchemeMaster = () => {
 
                 <p
                   className="mt-1 text-[14px] xs:text-xs sm:text-sm 
-                        text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed"
+                        text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed"
                 >
                   Update Your Membership Program <br />
                   With Custom Settings And Features
@@ -1539,7 +1539,7 @@ const SchemeMaster = () => {
                 <h2 className="text-sm xs:text-base sm:text-xl md:text-2xl font-[Gilroy-Medium] text-[#1B1717] leading-snug">
                   Select Users
                 </h2>
-                <p className="mt-1 text-[14px] xs:text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular] leading-relaxed">
+                <p className="mt-1 text-[14px] xs:text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular] leading-relaxed">
                   Choose users who can access this private scheme
                 </p>
               </div>
@@ -1622,7 +1622,7 @@ const SchemeMaster = () => {
                     return allSelected ? "Deselect All" : "Select All";
                   })()}
                 </button>
-                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                <span className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                   {selectedUserIds.length} selected
                 </span>
               </div>
@@ -1668,7 +1668,7 @@ const SchemeMaster = () => {
                           <div className="text-sm sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
                             {user.name || "N/A"}
                           </div>
-                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[gilroy-regular]">
+                          <div className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Regular]">
                             {user.mobileNo || user.mobile || "N/A"}
                           </div>
                         </div>
@@ -1694,7 +1694,7 @@ const SchemeMaster = () => {
                       <button
                         key={page}
                         onClick={() => setUserPage(page)}
-                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[gilroy-regular] transition text-sm sm:text-base ${userPage === page
+                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${userPage === page
                           ? "bg-[#039155] text-white"
                           : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                           }`}

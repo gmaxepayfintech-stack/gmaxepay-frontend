@@ -760,10 +760,10 @@ const RetailerDashboard = () => {
                     <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] font-[Gilroy-Semibold] whitespace-nowrap">
                       {row.service}
                     </td>
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular]">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[Gilroy-Regular]">
                       {formatCurrency(row.volume)}
                     </td>
-                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[gilroy-regular ">
+                    <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#121216] whitespace-nowrap text-center font-[Gilroy-Regular ">
                       {row.count}
                     </td>
                     <td className="py-2.5 sm:py-3 px-2 sm:px-4 text-[10px] sm:text-xs text-[#039155] font-[Gilroy-Semibold] whitespace-nowrap text-center">

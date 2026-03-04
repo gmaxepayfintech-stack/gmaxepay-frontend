@@ -165,7 +165,7 @@ function Step1({
         OTPSubmitResponseData?.data ||
         OTPSubmitResponseData;
 
-     // console.log("Response data from verifySmsOtp:", responseData);
+      // console.log("Response data from verifySmsOtp:", responseData);
       if (responseData) {
         // Store userToken as onboardingToken
         if (responseData.userToken) {
@@ -341,7 +341,7 @@ function Step1({
     // Always add referral code if it exists and is not empty
     if (referCode && typeof referCode === "string" && referCode.trim() !== "") {
       requestBody.referCode = referCode.trim().toUpperCase();
-     // console.log("Adding referCode to request:", requestBody.referCode);
+      // console.log("Adding referCode to request:", requestBody.referCode);
     } else {
       console.warn("referCode is missing or invalid:", referCode);
     }
@@ -402,7 +402,7 @@ function Step1({
       if (verifiedData.userToken) {
         try {
           secureLocalStorage.setItem("onboardingToken", verifiedData.userToken);
-         // console.log("Stored onboardingToken successfully");
+          // console.log("Stored onboardingToken successfully");
         } catch (e) {
           console.error("Error storing onboardingToken:", e);
         }
@@ -489,7 +489,7 @@ function Step1({
           </h3>
         </div>
 
-        <p className="text-[#1B1717] font-[gilroy-regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
+        <p className="text-[#1B1717] font-[Gilroy-Regular] text-xs sm:text-xs md:text-sm lg:text-base xl:text-base text-center mb-2.5 sm:mb-3 md:mb-3.5 lg:mb-3 xl:mb-4">
           Enter your mobile number to receive OTP
         </p>
 
@@ -513,9 +513,8 @@ function Step1({
               />
 
               <div
-                className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
-                  formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-                }`}
+                className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                  }`}
               />
 
               <input
@@ -566,22 +565,20 @@ function Step1({
         shadow-md
         transition
         flex-shrink-0
-        ${
-          OTPResponseStatus === "SUCCESS"
-            ? "w-[90px] md:w-[100px] lg:w-[110px]"
-            : "w-[80px] md:w-[90px] lg:w-[100px]"
-        }
-        ${
-          resendCountdown > 0
-            ? "bg-gray-400 text-white cursor-not-allowed"
-            : "bg-[#039155] text-white hover:bg-green-700"
-        }
+        ${OTPResponseStatus === "SUCCESS"
+                  ? "w-[90px] md:w-[100px] lg:w-[110px]"
+                  : "w-[80px] md:w-[90px] lg:w-[100px]"
+                }
+        ${resendCountdown > 0
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-[#039155] text-white hover:bg-green-700"
+                }
       `}
             >
               {OTPResponseStatus === "SUCCESS" && resendCountdown > 0
                 ? `Resend (${Math.floor(resendCountdown / 60)}:${String(
-                    resendCountdown % 60,
-                  ).padStart(2, "0")})`
+                  resendCountdown % 60,
+                ).padStart(2, "0")})`
                 : OTPResponseStatus === "SUCCESS"
                   ? "Resend"
                   : "Verify"}
@@ -613,9 +610,8 @@ function Step1({
             />
 
             <div
-              className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${
-                formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
-              }`}
+              className={`absolute left-9 md:left-11 top-1/2 -translate-y-1/2 h-4 md:h-5 w-px transition ${formData.phone ? "bg-[#1B1717]" : "bg-gray-300"
+                }`}
             />
 
             <input
@@ -638,11 +634,10 @@ function Step1({
               placeholder="Enter Mobile OTP"
               className={`w-full h-10 md:h-11 lg:h-14 border-[0.5px]
         font-[Gilroy-Medium]
-        ${
-          formik.errors.otp && formik.touched.otp
-            ? "border-red-500"
-            : "border-[#1B1717]/80"
-        }
+        ${formik.errors.otp && formik.touched.otp
+                  ? "border-red-500"
+                  : "border-[#1B1717]/80"
+                }
         rounded-lg
         pl-10 md:pl-12 lg:pl-14
         pr-3

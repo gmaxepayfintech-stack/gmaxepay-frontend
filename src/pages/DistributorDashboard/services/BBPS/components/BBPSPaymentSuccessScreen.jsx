@@ -12,9 +12,8 @@ const Detail = ({ label, value, green }) => {
         {label}
       </div>
       <div
-        className={`font-['Gilroy-Medium'] text-sm ${
-          green ? "text-[#039155]" : "text-[#1B1717]"
-        }`}
+        className={`font-['Gilroy-Medium'] text-sm ${green ? "text-[#039155]" : "text-[#1B1717]"
+          }`}
       >
         {value || "N/A"}
       </div>
@@ -534,7 +533,7 @@ const BBPSPaymentSuccessScreen = ({ transactionDetails }) => {
           <h2 className="text-[20px] font-['Gilroy-SemiBold'] text-[#1B1717]">
             Payment Successful
           </h2>
-          <p className="text-[12px] text-[#1B1717]/80 font-[gilroy-regular]">
+          <p className="text-[12px] text-[#1B1717]/80 font-[Gilroy-Regular]">
             Your Payment Has Been Completed
           </p>
         </div>

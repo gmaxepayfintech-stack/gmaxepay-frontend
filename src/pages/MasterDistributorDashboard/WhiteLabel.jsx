@@ -415,7 +415,7 @@ const WhiteLabel = ({ onBack }) => {
               <h1 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
                 Create Whitelabel
               </h1>
-              <p className="text-[#1B1717] font-[gilroy-regular] text-sm sm:text-base lg:text-lg">
+              <p className="text-[#1B1717] font-[Gilroy-Regular] text-sm sm:text-base lg:text-lg">
                 Set Up Your Whitelabel Configuration With Business Details And
                 Profile Settings
               </p>
@@ -541,9 +541,8 @@ const WhiteLabel = ({ onBack }) => {
                 <label className={labelStyle}>Profile Photo</label>
                 <label
                   htmlFor="profilePhoto"
-                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${
-                    isImageUploading ? "opacity-75 cursor-not-allowed" : ""
-                  }`}
+                  className={`flex items-center justify-center bg-gray-200 text-gray-700 p-3 rounded-lg font-[Gilroy-Medium] hover:bg-gray-300 w-full text-sm cursor-pointer ${isImageUploading ? "opacity-75 cursor-not-allowed" : ""
+                    }`}
                 >
                   {isImageUploading ? (
                     <>
@@ -622,8 +621,8 @@ const WhiteLabel = ({ onBack }) => {
                 </label>
 
                 {cityStatus === "SUCCESS" &&
-                pincodeOptions.length > 0 &&
-                !isPincodeFetched ? (
+                  pincodeOptions.length > 0 &&
+                  !isPincodeFetched ? (
                   // Case: Fetched by city → show pincode dropdown
                   <select
                     name="postalCode"
@@ -717,8 +716,8 @@ const WhiteLabel = ({ onBack }) => {
                 </label>
 
                 {pincodeStatus === "SUCCESS" &&
-                cityOptions.length > 0 &&
-                !isCityFetched ? (
+                  cityOptions.length > 0 &&
+                  !isCityFetched ? (
                   <select
                     name="city"
                     className={inputStyle}
