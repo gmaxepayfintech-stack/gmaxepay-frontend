@@ -267,7 +267,8 @@ const RetailerOnboarding = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
+      "AEPS1 Wallet": row.wallet?.apes1Wallet || "0",
+      "AEPS2 Wallet": row.wallet?.apes2Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -433,7 +434,10 @@ const RetailerOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
@@ -544,6 +548,9 @@ const RetailerOnboarding = ({
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}
+                      </td>
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         <span
@@ -871,7 +878,10 @@ const RetailerOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status

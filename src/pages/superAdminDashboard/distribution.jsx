@@ -178,8 +178,9 @@ const Distribution = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      "AEPS1 Wallet": row.aeps1Wallet || "0",
+      "AEPS2 Wallet": row.aeps2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
       Approved: row.approved ? "Yes" : "No",
     }));
@@ -298,11 +299,14 @@ const Distribution = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Remaining Days
+                    AEPS2 Wallet
                   </th>
+                  {/* <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Remaining Days
+                  </th> */}
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -425,11 +429,14 @@ const Distribution = ({
                         {row.mainWallet || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.aeps1Wallet || "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {row.remainingDays || "N/A"}
+                        {row.aeps2Wallet || "0"}
                       </td>
+                      {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {row.remainingDays || "N/A"}
+                      </td> */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
@@ -704,7 +711,10 @@ const Distribution = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   {/* <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
@@ -827,9 +837,13 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
+                      {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
-                        {row.aepsWallet || "0"}
+                        {row.aeps1Wallet || "0"}
+                      </td>
+                      {/* AEPS2 Wallet */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                        {row.aeps2Wallet || "0"}
                       </td>
                       {/* Remaining Days */}
                       {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">

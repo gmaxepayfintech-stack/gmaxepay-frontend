@@ -362,7 +362,10 @@ const AdminWhitelabelList = ({
                   Main Wallet
                 </th>
                 <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                  AEPS Wallet
+                  AEPS1 Wallet
+                </th>
+                <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  AEPS2 Wallet
                 </th>
                 <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                   Status
@@ -474,7 +477,10 @@ const AdminWhitelabelList = ({
                     {row.mainWallet || "0"}
                   </td>
                   <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
-                    {row.aepsWallet || "0"}
+                    {row.apes1Wallet || "0"}
+                  </td>
+                  <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
+                    {row.apes2Wallet || "0"}
                   </td>
                   <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                     <span
@@ -655,7 +661,10 @@ const AdminWhitelabelList = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
@@ -753,7 +762,10 @@ const AdminWhitelabelList = ({
                       {row.mainWallet || "0"}
                     </td>
                     <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
-                      {row.aepsWallet || "0"}
+                      {row.apes1Wallet || "0"}
+                    </td>
+                    <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
+                      {row.apes2Wallet || "0"}
                     </td>
                     <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                       <span

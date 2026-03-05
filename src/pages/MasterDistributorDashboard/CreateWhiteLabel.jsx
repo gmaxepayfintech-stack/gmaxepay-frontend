@@ -411,8 +411,9 @@ const CreateWhiteLabel = () => {
     "KYC Status",
     "KYC Steps",
     "Main Wallet",
-    "AEPS Wallet",
-    "Remaining Days",
+    "AEPS1 Wallet",
+    "AEPS2 Wallet",
+    // "Remaining Days",
     "Status",
     "KYC Details",
     "Action",
@@ -473,16 +474,6 @@ const CreateWhiteLabel = () => {
         return "1067";
       };
 
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
-        if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
-        }
-        return "0";
-      };
-
       // Return object with keys matching table header order
       const transformed = {
         id: safeString(item.id, "N/A"),
@@ -501,7 +492,8 @@ const CreateWhiteLabel = () => {
         ),
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "N/A"),
-        aepsWallet: getAepsWallet(),
+        apes1Wallet: item.wallet?.apes1Wallet || "0",
+        apes2Wallet: item.wallet?.apes2Wallet || "0",
         remainingDays: calculateRemainingDays(),
         status: safeString(item.status, "Active"),
         kycDetails: item.kycDetails || null, // Store full kycDetails object for modal
@@ -535,16 +527,6 @@ const CreateWhiteLabel = () => {
           .toLocaleDateString("en-GB")
           .replaceAll("/", "-");
       }
-
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
-        if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
-        }
-        return "0";
-      };
 
       // Calculate remaining days
       const calculateRemainingDays = () => {
@@ -592,7 +574,8 @@ const CreateWhiteLabel = () => {
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "0"),
         status: safeString(item.status, "Active"),
-        aepsWallet: getAepsWallet(),
+        apes1Wallet: item.wallet?.apes1Wallet || "0",
+        apes2Wallet: item.wallet?.apes2Wallet || "0",
         remainingDays: calculateRemainingDays(),
         kycDetails: item.kycDetails || null,
         approved: item.approved === undefined ? true : item.approved,
@@ -725,8 +708,9 @@ const CreateWhiteLabel = () => {
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      // "AEPS1 Wallet": row.apes1Wallet || "0",
+      // "AEPS2 Wallet": row.apes2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
     }));
 
@@ -1110,14 +1094,16 @@ const CreateWhiteLabel = () => {
                           <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                             {row.mainWallet || "0"}
                           </td>
-                          {/* AEPS Wallet */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
-                            {row.aepsWallet || "0"}
+                          {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                            {row.apes1Wallet || "0"}
                           </td>
+                          <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                            {row.apes2Wallet || "0"}
+                          </td> */}
                           {/* Remaining Days */}
-                          <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                          {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                             {row.remainingDays || "0"}
-                          </td>
+                          </td> */}
                           {/* Status */}
                           <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                             <span

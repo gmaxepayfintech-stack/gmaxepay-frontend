@@ -187,8 +187,9 @@ const MasterDistribution = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
-      "Remaining Days": row.remainingDays || "0",
+      "AEPS1 Wallet": row.wallet?.apes1Wallet || "0",
+      "AEPS2 Wallet": row.wallet?.apes2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "0",
       Status: row.status || "Active",
     }));
 
@@ -426,11 +427,14 @@ const MasterDistribution = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Remaining Days
+                    AEPS2 Wallet
                   </th>
+                  {/* <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Remaining Days
+                  </th> */}
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -555,14 +559,18 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.wallet?.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
+                      {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.wallet?.apes1Wallet || "0"}
                       </td>
-                      {/* Remaining Days */}
+                      {/* AEPS2 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {row.remainingDays || "0"}
+                        {row.wallet?.apes2Wallet || "0"}
                       </td>
+                      {/* Remaining Days */}
+                      {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {row.remainingDays || "0"}
+                      </td> */}
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         <span
@@ -850,11 +858,14 @@ const MasterDistribution = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
                   </th>
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    Remaining Days
+                    AEPS2 Wallet
                   </th>
+                  {/* <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Remaining Days
+                  </th> */}
                   <th className="px-3 py-4 font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -976,14 +987,18 @@ const MasterDistribution = ({
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.wallet?.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
+                      {/* AEPS1 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         {row.wallet?.apes1Wallet || "0"}
                       </td>
-                      {/* Remaining Days */}
+                      {/* AEPS2 Wallet */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                        {row.remainingDays || "0"}
+                        {row.wallet?.apes2Wallet || "0"}
                       </td>
+                      {/* Remaining Days */}
+                      {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                        {row.remainingDays || "0"}
+                      </td> */}
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         <span

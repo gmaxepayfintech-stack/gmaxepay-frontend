@@ -338,7 +338,10 @@ const MasterDistributionOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
@@ -461,9 +464,13 @@ const MasterDistributionOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
+                      {/* AEPS1 Wallet */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {row.aepsWallet || "0"}
+                        {row.apes1Wallet || row.aepsWallet || "0"}
+                      </td>
+                      {/* AEPS2 Wallet */}
+                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
+                        {row.apes2Wallet || "0"}
                       </td>
                       {/* Status */}
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
@@ -747,7 +754,10 @@ const MasterDistributionOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
@@ -871,9 +881,13 @@ const MasterDistributionOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
+                      {/* AEPS1 Wallet */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
-                        {row.aepsWallet || "0"}
+                        {row.apes1Wallet || row.aepsWallet || "0"}
+                      </td>
+                      {/* AEPS2 Wallet */}
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                        {row.apes2Wallet || "0"}
                       </td>
                       {/* Status */}
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
