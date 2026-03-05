@@ -89,7 +89,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
   const hasData = data && Object.keys(data).length > 0;
   if (isLoading || !hasData) {
     return (
-      <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+      <div className="py-4 px-3 text-[#1B1717]">
         {/* Cover Picture Section Skeleton */}
         <div className="w-full h-48 sm:h-64 relative bg-gray-200 rounded-t-3xl">
           <div className="absolute bottom-0 left-6 sm:left-8 transform translate-y-1/2">
@@ -159,7 +159,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
   }
 
   return (
-    <div className="min-h-screen py-4 px-3 bg-[#FAFAFA] text-[#1B1717]">
+    <div className="py-4 px-3 text-[#1B1717]">
       {/* Header Section */}
       <div className="mb-3 sm:mb-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
@@ -198,7 +198,7 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
             {(data?.profileImage ||
               outletDetails?.shopImage ||
               companyDetails?.compnyLogo) &&
-            !imageError ? (
+              !imageError ? (
               <img
                 src={
                   data?.profileImage ||
@@ -267,11 +267,10 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
 
             {/* Active Status */}
             <div
-              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${
-                (data?.status || "Active").toLowerCase() === "inactive"
+              className={`flex items-center gap-2 px-2 py-1 rounded-3xl mb-16 ${(data?.status || "Active").toLowerCase() === "inactive"
                   ? "bg-red-500"
                   : "bg-[#008D1E]"
-              }`}
+                }`}
             >
               <div className="w-2 h-2 bg-[#FFFFFF] rounded-full flex items-center justify-center"></div>
               <span className="text-[12px] sm:text-sm font-['Gilroy-SemiBold'] text-[#FFFFFF]">
@@ -386,11 +385,10 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
 
                 {/* Text */}
                 <span
-                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${
-                    activeTab === key
+                  className={`relative z-10 text-sm sm:text-base font-[Gilroy-Medium] whitespace-nowrap transition-colors ${activeTab === key
                       ? "text-white"
                       : "text-[#1B1717]/80 hover:text-[#039155]"
-                  }`}
+                    }`}
                 >
                   {label}
                 </span>
@@ -770,11 +768,10 @@ const ProfileDetails = ({ onBack = null, userRole = null }) => {
                 <div>
                   <p className="text-xs text-gray-500 mb-1">Status</p>
                   <span
-                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${
-                      (data?.status || "Active").toLowerCase() === "inactive"
+                    className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] text-white ${(data?.status || "Active").toLowerCase() === "inactive"
                         ? "bg-red-500"
                         : "bg-[#039155]"
-                    }`}
+                      }`}
                   >
                     {data?.status || "Active"}
                   </span>

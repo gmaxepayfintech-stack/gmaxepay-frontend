@@ -400,7 +400,7 @@ const WhiteLabel = ({ onBack }) => {
   }, [panname]);
 
   return (
-    <div className="min-h-screen bg-gray-50 py-4 px-2">
+    <div className="py-4 px-2">
       {isLoading && <Loader />}
       <form onSubmit={formik.handleSubmit}>
         <div className="mb-6">
