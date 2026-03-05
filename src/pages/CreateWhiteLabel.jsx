@@ -440,8 +440,9 @@ const CreateWhiteLabel = () => {
     "KYC Status",
     "KYC Steps",
     "Main Wallet",
-    "AEPS Wallet",
-    "Remaining Days",
+    "AEPS1 Wallet",
+    "AEPS2 Wallet",
+    // "Remaining Days",
     "Status",
     "KYC Details",
     "Action",
@@ -502,12 +503,18 @@ const CreateWhiteLabel = () => {
         return "1067";
       };
 
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
+      // Get AEPS1 Wallet (apes1Wallet) from wallet object
+      const getAeps1Wallet = () => {
         if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
+          return String(item.wallet.apes1Wallet || "0");
+        }
+        return "0";
+      };
+
+      // Get AEPS2 Wallet (apes2Wallet) from wallet object
+      const getAeps2Wallet = () => {
+        if (item.wallet && typeof item.wallet === "object") {
+          return String(item.wallet.apes2Wallet || "0");
         }
         return "0";
       };
@@ -530,7 +537,8 @@ const CreateWhiteLabel = () => {
         ),
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "N/A"),
-        aepsWallet: getAepsWallet(),
+        aeps1Wallet: getAeps1Wallet(),
+        aeps2Wallet: getAeps2Wallet(),
         remainingDays: calculateRemainingDays(),
         status: safeString(item.status, "Active"),
         kycDetails: item.kycDetails || null, // Store full kycDetails object for modal
@@ -565,12 +573,18 @@ const CreateWhiteLabel = () => {
           .replaceAll("/", "-");
       }
 
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
+      // Get AEPS1 Wallet (apes1Wallet) from wallet object
+      const getAeps1Wallet = () => {
         if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
+          return String(item.wallet.apes1Wallet || "0");
+        }
+        return "0";
+      };
+
+      // Get AEPS2 Wallet (apes2Wallet) from wallet object
+      const getAeps2Wallet = () => {
+        if (item.wallet && typeof item.wallet === "object") {
+          return String(item.wallet.apes2Wallet || "0");
         }
         return "0";
       };
@@ -621,7 +635,8 @@ const CreateWhiteLabel = () => {
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "0"),
         status: safeString(item.status, "Active"),
-        aepsWallet: getAepsWallet(),
+        aeps1Wallet: getAeps1Wallet(),
+        aeps2Wallet: getAeps2Wallet(),
         remainingDays: calculateRemainingDays(),
         kycDetails: item.kycDetails || null,
         approved: item.approved === undefined ? true : item.approved,
@@ -754,8 +769,9 @@ const CreateWhiteLabel = () => {
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      "AEPS1 Wallet": row.aeps1Wallet || "0",
+      "AEPS2 Wallet": row.aeps2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
     }));
 
@@ -815,11 +831,10 @@ const CreateWhiteLabel = () => {
                     <span
                       className={`relative z-10 text-sm sm:text-base lg:text-lg
                 font-[gilroy-[gilroy-medium]] whitespace-nowrap
-                ${
-                  activeNav === item
-                    ? "text-white"
-                    : "text-[#1B1717] hover:text-[#039155]"
-                }`}
+                ${activeNav === item
+                          ? "text-white"
+                          : "text-[#1B1717] hover:text-[#039155]"
+                        }`}
                     >
                       {item}
                     </span>
@@ -834,21 +849,19 @@ const CreateWhiteLabel = () => {
         <div className="flex flex-wrap gap-3 mb-6">
           <button
             onClick={() => setShowOnboardingList(false)}
-            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                : "bg-[#039155] text-white"
-            }`}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
+              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              : "bg-[#039155] text-white"
+              }`}
           >
             All List
           </button>
           <button
             onClick={() => setShowOnboardingList(true)}
-            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${
-              showOnboardingList
-                ? "bg-[#039155] text-white shadow-md"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
+              ? "bg-[#039155] text-white shadow-md"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
           >
             Onboarding Process
           </button>
@@ -1050,9 +1063,8 @@ const CreateWhiteLabel = () => {
                       currentTableData.map((row, index) => (
                         <tr
                           key={index}
-                          className={`text-sm ${
-                            index % 2 === 0 ? "bg-green-50" : "bg-white"
-                          }`}
+                          className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
+                            }`}
                         >
                           {/* ID */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
@@ -1160,20 +1172,22 @@ const CreateWhiteLabel = () => {
                           </td>
                           {/* AEPS Wallet */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                            {row.aepsWallet || "0"}
+                            {row.aeps1Wallet || "0"}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                            {row.aeps2Wallet || "0"}
                           </td>
                           {/* Remaining Days */}
-                          <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                          {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                             {row.remainingDays || "0"}
-                          </td>
+                          </td> */}
                           {/* Status */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px] text-center">
                             <span
-                              className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${
-                                row.status?.toLowerCase() === "active"
-                                  ? "bg-green-600"
-                                  : "bg-red-600"
-                              }`}
+                              className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
+                                ? "bg-green-600"
+                                : "bg-red-600"
+                                }`}
                             >
                               {row.status || "Active"}
                             </span>
@@ -1257,18 +1271,16 @@ const CreateWhiteLabel = () => {
                                       }, 500); // Small delay to ensure API call is initiated
                                     }
                                   }}
-                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  focus:ring-offset-1 ${
-                                    isActive ? "bg-green-600" : "bg-gray-300"
-                                  }`}
+                                  className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none  focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
+                                    }`}
                                   role="switch"
                                   aria-checked={isActive}
                                 >
                                   <span
-                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
-                                      isActive
-                                        ? "translate-x-6"
-                                        : "translate-x-1"
-                                    }`}
+                                    className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive
+                                      ? "translate-x-6"
+                                      : "translate-x-1"
+                                      }`}
                                   />
                                 </button>
                               );
@@ -1299,9 +1311,9 @@ const CreateWhiteLabel = () => {
                                 }
                                 return undefined;
                               };
-                              
+
                               const lockValue = getLockValue();
-                              
+
                               // More robust check for lock status - handles true, "true", 1, and string "true"
                               const isLocked =
                                 lockValue !== undefined &&
@@ -1322,11 +1334,10 @@ const CreateWhiteLabel = () => {
                                     }
                                   }}
                                   disabled={!isLocked}
-                                  className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${
-                                    isLocked
-                                      ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                      : "bg-green-500 text-white cursor-pointer opacity-75"
-                                  }`}
+                                  className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                                    ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                    : "bg-green-500 text-white cursor-pointer opacity-75"
+                                    }`}
                                   title={
                                     isLocked
                                       ? "Click to enable access for this account"
@@ -1393,11 +1404,10 @@ const CreateWhiteLabel = () => {
                   <button
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
-                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${
-                      currentPage === 1
-                        ? "text-gray-300 bg-gray-100"
-                        : "text-gray-500 hover:bg-gray-100"
-                    }`}
+                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === 1
+                      ? "text-gray-300 bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
+                      }`}
                   >
                     <IoIosArrowBack />
                   </button>
@@ -1406,11 +1416,10 @@ const CreateWhiteLabel = () => {
                       <button
                         key={page}
                         onClick={() => setCurrentPage(page)}
-                        className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${
-                          page === currentPage
-                            ? "bg-green-600 text-white"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
-                        }`}
+                        className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
+                          ? "bg-green-600 text-white"
+                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                          }`}
                       >
                         {page}
                       </button>
@@ -1421,11 +1430,10 @@ const CreateWhiteLabel = () => {
                       setCurrentPage(Math.min(totalPages, currentPage + 1))
                     }
                     disabled={currentPage === totalPages || totalPages === 0}
-                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${
-                      currentPage === totalPages || totalPages === 0
-                        ? "text-gray-300 bg-gray-100"
-                        : "text-gray-500 hover:bg-gray-100"
-                    }`}
+                    className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === totalPages || totalPages === 0
+                      ? "text-gray-300 bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
+                      }`}
                   >
                     <IoIosArrowForward />
                   </button>
@@ -1479,62 +1487,56 @@ const CreateWhiteLabel = () => {
               <div className="flex border-b border-gray-200 bg-gray-50 px-6">
                 <button
                   onClick={() => setActiveTab("overview")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Overview
                 </button>
 
                 <button
                   onClick={() => setActiveTab("aadhar")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Aadhar Document
                 </button>
                 <button
                   onClick={() => setActiveTab("pan")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   PAN Document
                 </button>
                 <button
                   onClick={() => setActiveTab("details")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Outlet Details
                 </button>
                 <button
                   onClick={() => setActiveTab("bankDetails")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Bank Details
                 </button>
                 <button
                   onClick={() => setActiveTab("verification")}
-                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${
-                    activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
-                  }`}
+                  className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
+                    }`}
                 >
                   Verification
                 </button>
@@ -1560,13 +1562,12 @@ const CreateWhiteLabel = () => {
                             KYC Status
                           </h3>
                           <span
-                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${
-                              selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
-                            }`}
+                            className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
+                              }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
                           </span>
@@ -1721,12 +1722,11 @@ const CreateWhiteLabel = () => {
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
-                                  selectedKycData.aadhaarDoc.status ===
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
                                   "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                                  }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
                               </span>
@@ -1852,11 +1852,10 @@ const CreateWhiteLabel = () => {
                                 Status
                               </span>
                               <span
-                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${
-                                  selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
-                                }`}
+                                className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
+                                  }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
                               </span>
@@ -2097,11 +2096,10 @@ const CreateWhiteLabel = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {/* Mobile Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.mobileVerify ? (
@@ -2114,11 +2112,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
                                 ? "Verified"
@@ -2128,11 +2125,10 @@ const CreateWhiteLabel = () => {
 
                           {/* Email Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.emailVerify ? (
@@ -2145,11 +2141,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.emailVerify
                                 ? "Verified"
@@ -2159,11 +2154,10 @@ const CreateWhiteLabel = () => {
 
                           {/* Aadhar Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.aadharVerify ? (
@@ -2176,11 +2170,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
                                 ? "Verified"
@@ -2190,11 +2183,10 @@ const CreateWhiteLabel = () => {
 
                           {/* PAN Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.panVerify ? (
@@ -2207,11 +2199,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.panVerify
                                 ? "Verified"
@@ -2221,11 +2212,10 @@ const CreateWhiteLabel = () => {
 
                           {/* Shop Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.shopDetailsVerify ? (
@@ -2238,11 +2228,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
                                 ? "Verified"
@@ -2252,11 +2241,10 @@ const CreateWhiteLabel = () => {
 
                           {/* Image Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.imageVerify ? (
@@ -2269,11 +2257,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.imageVerify
                                 ? "Verified"
@@ -2283,12 +2270,11 @@ const CreateWhiteLabel = () => {
 
                           {/* Profile Image with Shop Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails
@@ -2302,12 +2288,11 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails
                                 .profileImageWithShopVerify
@@ -2318,11 +2303,10 @@ const CreateWhiteLabel = () => {
 
                           {/* Bank Details Verify */}
                           <div
-                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${
-                              selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
-                            }`}
+                            className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
+                              }`}
                           >
                             <div className="flex items-center gap-3">
                               {selectedKycData.userDetails.bankDetailsVerify ? (
@@ -2335,11 +2319,10 @@ const CreateWhiteLabel = () => {
                               </span>
                             </div>
                             <span
-                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${
-                                selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
-                              }`}
+                              className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
+                                }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify
                                 ? "Verified"

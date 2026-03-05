@@ -337,8 +337,9 @@ const CreateWhiteLabel = () => {
     "KYC Status",
     "KYC Steps",
     "Main Wallet",
-    "AEPS Wallet",
-    "Remaining Days",
+    "AEPS1 Wallet",
+    "AEPS2 Wallet",
+    // "Remaining Days",
     "Status",
     "KYC Details",
     "Action",
@@ -399,16 +400,6 @@ const CreateWhiteLabel = () => {
         return "1067";
       };
 
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
-        if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
-        }
-        return "0";
-      };
-
       // Return object with keys matching table header order
       const transformed = {
         id: safeString(item.id, "N/A"),
@@ -426,7 +417,8 @@ const CreateWhiteLabel = () => {
         ),
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "N/A"),
-        aepsWallet: getAepsWallet(),
+        apes1Wallet: item.wallet?.apes1Wallet || "0",
+        apes2Wallet: item.wallet?.apes2Wallet || "0",
         remainingDays: calculateRemainingDays(),
         status: safeString(item.status, "Active"),
         kycDetails: item.kycDetails || null, // Store full kycDetails object for modal
@@ -460,16 +452,6 @@ const CreateWhiteLabel = () => {
           .toLocaleDateString("en-GB")
           .replaceAll("/", "-");
       }
-
-      // Get AEPS Wallet (apesWallet) from wallet object
-      const getAepsWallet = () => {
-        if (item.wallet && typeof item.wallet === "object") {
-          return String(
-            item.wallet.apesWallet || item.wallet.aepsWallet || "0",
-          );
-        }
-        return "0";
-      };
 
       // Calculate remaining days
       const calculateRemainingDays = () => {
@@ -516,7 +498,8 @@ const CreateWhiteLabel = () => {
         kycStatus: safeString(item.kycStatus, "N/A"),
         kycSteps: safeString(item.kycSteps, "0"),
         status: safeString(item.status, "Active"),
-        aepsWallet: getAepsWallet(),
+        apes1Wallet: item.wallet?.apes1Wallet || "0",
+        apes2Wallet: item.wallet?.apes2Wallet || "0",
         remainingDays: calculateRemainingDays(),
         kycDetails: item.kycDetails || null,
         approved: item.approved === undefined ? true : item.approved,
@@ -648,8 +631,9 @@ const CreateWhiteLabel = () => {
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      "AEPS1 Wallet": row.apes1Wallet || "0",
+      "AEPS2 Wallet": row.apes2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
     }));
 
@@ -683,8 +667,8 @@ const CreateWhiteLabel = () => {
                   setShowOnboardingList(false);
                 }}
                 className={`px-3 sm:px-4 py-1.5 rounded-xl font-[Gilroy-Medium] text-sm sm:text-base lg:text-lg ${activeNav === "Whitelabel"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#039155] text-white"
+                  : "text-gray-600 hover:text-green-600"
                   }`}
               >
                 Whitelabel
@@ -695,8 +679,8 @@ const CreateWhiteLabel = () => {
                   setShowOnboardingList(false);
                 }}
                 className={`px-3 sm:px-4 py-1.5 rounded-xl font-[Gilroy-Medium] text-sm sm:text-base lg:text-lg ${activeNav === "Master Distributor"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#039155] text-white"
+                  : "text-gray-600 hover:text-green-600"
                   }`}
               >
                 Master Distributor
@@ -707,8 +691,8 @@ const CreateWhiteLabel = () => {
                   setShowOnboardingList(false);
                 }}
                 className={`px-3 sm:px-4 py-1.5 rounded-xl font-[Gilroy-Medium] text-sm sm:text-base lg:text-lg ${activeNav === "Distributor"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#039155] text-white"
+                  : "text-gray-600 hover:text-green-600"
                   }`}
               >
                 Distributor
@@ -719,8 +703,8 @@ const CreateWhiteLabel = () => {
                   setShowOnboardingList(false);
                 }}
                 className={`px-3 sm:px-4 py-1.5 rounded-xl font-[Gilroy-Medium] text-sm sm:text-base lg:text-lg ${activeNav === "Retailers"
-                    ? "bg-[#039155] text-white"
-                    : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#039155] text-white"
+                  : "text-gray-600 hover:text-green-600"
                   }`}
               >
                 Retailers
@@ -734,8 +718,8 @@ const CreateWhiteLabel = () => {
           <button
             onClick={() => setShowOnboardingList(false)}
             className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
-                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                : "bg-[#039155] text-white"
+              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              : "bg-[#039155] text-white"
               }`}
           >
             All List
@@ -743,8 +727,8 @@ const CreateWhiteLabel = () => {
           <button
             onClick={() => setShowOnboardingList(true)}
             className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
-                ? "bg-[#039155] text-white shadow-md"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              ? "bg-[#039155] text-white shadow-md"
+              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
               }`}
           >
             Onboarding Process
@@ -1012,20 +996,22 @@ const CreateWhiteLabel = () => {
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                             {row.mainWallet || "0"}
                           </td>
-                          {/* AEPS Wallet */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
-                            {row.aepsWallet || "0"}
+                            {row.apes1Wallet || "0"}
+                          </td>
+                          <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                            {row.apes2Wallet || "0"}
                           </td>
                           {/* Remaining Days */}
-                          <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                          {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                             {row.remainingDays || "0"}
-                          </td>
+                          </td> */}
                           {/* Status */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                             <span
                               className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                                  ? "bg-green-600"
-                                  : "bg-red-600"
+                                ? "bg-green-600"
+                                : "bg-red-600"
                                 }`}
                             >
                               {row.status || "Active"}
@@ -1115,8 +1101,8 @@ const CreateWhiteLabel = () => {
                                 >
                                   <span
                                     className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${isActive
-                                        ? "translate-x-6"
-                                        : "translate-x-1"
+                                      ? "translate-x-6"
+                                      : "translate-x-1"
                                       }`}
                                   />
                                 </button>
@@ -1172,8 +1158,8 @@ const CreateWhiteLabel = () => {
                                   }}
                                   disabled={!isLocked}
                                   className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                      ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                      : "bg-green-500 text-white cursor-pointer opacity-75"
+                                    ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                    : "bg-green-500 text-white cursor-pointer opacity-75"
                                     }`}
                                   title={
                                     isLocked
@@ -1240,8 +1226,8 @@ const CreateWhiteLabel = () => {
                     onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
                     disabled={currentPage === 1}
                     className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === 1
-                        ? "text-gray-300 bg-gray-100"
-                        : "text-gray-500 hover:bg-gray-100"
+                      ? "text-gray-300 bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
                       }`}
                   >
                     <IoIosArrowBack />
@@ -1252,8 +1238,8 @@ const CreateWhiteLabel = () => {
                         key={page}
                         onClick={() => setCurrentPage(page)}
                         className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
-                            ? "bg-green-600 text-white"
-                            : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                          ? "bg-green-600 text-white"
+                          : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                           }`}
                       >
                         {page}
@@ -1266,8 +1252,8 @@ const CreateWhiteLabel = () => {
                     }
                     disabled={currentPage === totalPages || totalPages === 0}
                     className={`p-2 border border-gray-300 rounded-lg transition cursor-pointer ${currentPage === totalPages || totalPages === 0
-                        ? "text-gray-300 bg-gray-100"
-                        : "text-gray-500 hover:bg-gray-100"
+                      ? "text-gray-300 bg-gray-100"
+                      : "text-gray-500 hover:bg-gray-100"
                       }`}
                   >
                     <IoIosArrowForward />
@@ -1323,8 +1309,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
@@ -1333,8 +1319,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("aadhar")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Aadhar Document
@@ -1342,8 +1328,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("pan")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   PAN Document
@@ -1351,8 +1337,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Outlet Details
@@ -1360,8 +1346,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("bankDetails")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Bank Details
@@ -1369,8 +1355,8 @@ const CreateWhiteLabel = () => {
                 <button
                   onClick={() => setActiveTab("verification")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Verification
@@ -1394,10 +1380,10 @@ const CreateWhiteLabel = () => {
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -1554,9 +1540,9 @@ const CreateWhiteLabel = () => {
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
-                                    "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1684,8 +1670,8 @@ const CreateWhiteLabel = () => {
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
@@ -1928,8 +1914,8 @@ const CreateWhiteLabel = () => {
                           {/* Mobile Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1944,8 +1930,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
@@ -1957,8 +1943,8 @@ const CreateWhiteLabel = () => {
                           {/* Email Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1973,8 +1959,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.emailVerify
@@ -1986,8 +1972,8 @@ const CreateWhiteLabel = () => {
                           {/* Aadhar Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2002,8 +1988,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
@@ -2015,8 +2001,8 @@ const CreateWhiteLabel = () => {
                           {/* PAN Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2031,8 +2017,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.panVerify
@@ -2044,8 +2030,8 @@ const CreateWhiteLabel = () => {
                           {/* Shop Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2060,8 +2046,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
@@ -2073,8 +2059,8 @@ const CreateWhiteLabel = () => {
                           {/* Image Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2089,8 +2075,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.imageVerify
@@ -2102,9 +2088,9 @@ const CreateWhiteLabel = () => {
                           {/* Profile Image with Shop Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2120,9 +2106,9 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails
@@ -2135,8 +2121,8 @@ const CreateWhiteLabel = () => {
                           {/* Bank Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -2151,8 +2137,8 @@ const CreateWhiteLabel = () => {
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify

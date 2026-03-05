@@ -410,8 +410,9 @@ const CreateCompanyUser = () => {
     "KYC Status",
     "KYC Steps",
     "Main Wallet",
-    "AEPS Wallet",
-    "Remaining Days",
+    "AEPS1 Wallet",
+    "AEPS2 Wallet",
+    // "Remaining Days",
     "Status",
     "KYC Details",
     "Action",
@@ -724,8 +725,9 @@ const CreateCompanyUser = () => {
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      "AEPS1 Wallet": row.aepsWallet || "0",
+      "AEPS2 Wallet": row.apes2Wallet || "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
     }));
 
@@ -1118,9 +1120,9 @@ const CreateCompanyUser = () => {
                             {row.aepsWallet || "0"}
                           </td>
                           {/* Remaining Days */}
-                          <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                          {/* <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                             {row.remainingDays || "0"}
-                          </td>
+                          </td> */}
                           {/* Status */}
                           <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                             <span

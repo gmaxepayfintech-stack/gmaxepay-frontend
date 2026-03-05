@@ -36,7 +36,7 @@ const ContactSupport = () => {
         setLoading(true);
         try {
             const res = await dispatch(helpinformationCompany());
-            console.log("helpinformationCompany response:", res);
+            // console.log("helpinformationCompany response:", res);
             if (res?.status === true || res?.status === "SUCCESS") {
                 // Action returns { helpinfo, status, message }
                 // helpinfo = response.data.data = { customerSupportEmail, supportPhoneNumbers }

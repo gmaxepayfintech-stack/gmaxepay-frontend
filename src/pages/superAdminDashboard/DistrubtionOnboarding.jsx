@@ -180,7 +180,8 @@ const DistrubtionOnboarding = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.mainWallet || "0",
-      "AEPS Wallet": row.aepsWallet || "0",
+      "AEPS1 Wallet": row.apes1Wallet || "0",
+      "AEPS2 Wallet": row.apes2Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -308,7 +309,10 @@ const DistrubtionOnboarding = ({
                       Main Wallet
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                      AEPS Wallet
+                      AEPS1 Wallet
+                    </th>
+                    <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                      AEPS2 Wallet
                     </th>
                     <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                       Status
@@ -440,9 +444,11 @@ const DistrubtionOnboarding = ({
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                           {row.mainWallet || "0"}
                         </td>
-                        {/* AEPS Wallet */}
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
-                          {row.aepsWallet || "0"}
+                          {row.apes1Wallet || "0"}
+                        </td>
+                        <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
+                          {row.apes2Wallet || "0"}
                         </td>
                         {/* Status */}
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
@@ -729,7 +735,10 @@ const DistrubtionOnboarding = ({
                     Main Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     Status
@@ -856,9 +865,11 @@ const DistrubtionOnboarding = ({
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
                         {row.mainWallet || "0"}
                       </td>
-                      {/* AEPS Wallet */}
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
-                        {row.aepsWallet || "0"}
+                        {row.apes1Wallet || "0"}
+                      </td>
+                      <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap text-center">
+                        {row.apes2Wallet || "0"}
                       </td>
                       {/* Status */}
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">

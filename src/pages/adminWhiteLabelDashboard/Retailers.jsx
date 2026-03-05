@@ -314,7 +314,8 @@ const Retailers = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS Wallet": row.wallet?.apes1Wallet || "0",
+      "AEPS1 Wallet": row.wallet?.apes1Wallet || "0",
+      "AEPS2 Wallet": row.wallet?.apes2Wallet || "0",
       Status: row.status || "Active",
     }));
 
@@ -477,7 +478,10 @@ const Retailers = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
@@ -593,6 +597,9 @@ const Retailers = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
@@ -923,7 +930,10 @@ const Retailers = ({
                     Main Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS1 Wallet
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS2 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status

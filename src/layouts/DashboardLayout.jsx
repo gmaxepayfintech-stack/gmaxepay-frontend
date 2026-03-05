@@ -259,7 +259,6 @@ const DashboardLayout = ({ children }) => {
     userProfile?.adminDetailsResponse?.
     adminDetailsResponse
   );
-  console.log("profile", profileDetails);
 
 
   return (

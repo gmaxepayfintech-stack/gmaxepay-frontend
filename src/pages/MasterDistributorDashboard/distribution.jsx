@@ -203,8 +203,9 @@ const Distribution = ({
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": row.wallet?.mainWallet ?? row.mainWallet ?? "0",
-      "AEPS Wallet": row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0",
-      "Remaining Days": row.remainingDays || "N/A",
+      // "AEPS1 Wallet": row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0",
+      // "AEPS2 Wallet": row.wallet?.apes2Wallet ?? "0",
+      // "Remaining Days": row.remainingDays || "N/A",
       Status: row.status || "Active",
       Approved: row.approved ? "Yes" : "No",
     }));
@@ -327,12 +328,15 @@ const Distribution = ({
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
+                  {/* <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS1 Wallet
+                  </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS2 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
-                  </th>
+                  </th> */}
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -443,17 +447,20 @@ const Distribution = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
+                        {row.wallet?.apes2Wallet ?? "0"}
+                      </td> */}
+                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.remainingDays || "N/A"}
-                      </td>
+                      </td> */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {row.status || "Active"}
@@ -532,8 +539,8 @@ const Distribution = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -598,8 +605,8 @@ const Distribution = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -609,8 +616,8 @@ const Distribution = ({
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                  ? "bg-green-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                   }`}
               >
                 {page}
@@ -622,8 +629,8 @@ const Distribution = ({
               }
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -722,12 +729,15 @@ const Distribution = ({
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
+                  {/* <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
+                    AEPS1 Wallet
+                  </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
-                    AEPS Wallet
+                    AEPS2 Wallet
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Remaining Days
-                  </th>
+                  </th> */}
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-sm text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
@@ -840,23 +850,23 @@ const Distribution = ({
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
+                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
-                      </td>
+                      </td> */}
                       {/* AEPS Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
+                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
-                      </td>
+                      </td> */}
                       {/* Remaining Days */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
+                      {/* <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.remainingDays || "N/A"}
-                      </td>
+                      </td> */}
                       {/* Status */}
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
-                              ? "bg-green-600"
-                              : "bg-red-600"
+                            ? "bg-green-600"
+                            : "bg-red-600"
                             }`}
                         >
                           {row.status || "Active"}
@@ -935,8 +945,8 @@ const Distribution = ({
                               }}
                               disabled={!isLocked}
                               className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
-                                  ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
-                                  : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                                ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                                : "bg-green-500 text-white cursor-not-allowed opacity-75"
                                 }`}
                               title={
                                 isLocked
@@ -966,8 +976,8 @@ const Distribution = ({
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
               disabled={currentPage === 1}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === 1
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowBack />
@@ -977,8 +987,8 @@ const Distribution = ({
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] transition ${page === currentPage
-                    ? "bg-green-600 text-white"
-                    : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
+                  ? "bg-green-600 text-white"
+                  : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                   }`}
               >
                 {page}
@@ -990,8 +1000,8 @@ const Distribution = ({
               }
               disabled={currentPage === totalPages}
               className={`p-2 border border-gray-300 rounded-lg transition ${currentPage === totalPages
-                  ? "text-gray-400 cursor-not-allowed"
-                  : "text-gray-500 hover:bg-gray-100"
+                ? "text-gray-400 cursor-not-allowed"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
               <IoIosArrowForward />
@@ -1044,8 +1054,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("overview")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "overview"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Overview
@@ -1054,8 +1064,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("aadhar")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "aadhar"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Aadhar Document
@@ -1063,8 +1073,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("pan")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "pan"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   PAN Document
@@ -1072,8 +1082,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("details")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "details"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Outlet Details
@@ -1081,8 +1091,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("bankDetails")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "bankDetails"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Bank Details
@@ -1090,8 +1100,8 @@ const Distribution = ({
                 <button
                   onClick={() => setActiveTab("verification")}
                   className={`px-4 py-3 text-sm font-[Gilroy-Medium] transition-colors relative ${activeTab === "verification"
-                      ? "text-green-600 border-b-2 border-green-600"
-                      : "text-gray-600 hover:text-gray-800"
+                    ? "text-green-600 border-b-2 border-green-600"
+                    : "text-gray-600 hover:text-gray-800"
                     }`}
                 >
                   Verification
@@ -1119,10 +1129,10 @@ const Distribution = ({
                           </h3>
                           <span
                             className={`px-4 py-2 rounded-full text-sm font-[Gilroy-Semibold] ${selectedKycData.kycStatus === "FULL_KYC"
-                                ? "bg-green-100 text-green-700"
-                                : selectedKycData.kycStatus === "NO_KYC"
-                                  ? "bg-red-100 text-red-700"
-                                  : "bg-yellow-100 text-yellow-700"
+                              ? "bg-green-100 text-green-700"
+                              : selectedKycData.kycStatus === "NO_KYC"
+                                ? "bg-red-100 text-red-700"
+                                : "bg-yellow-100 text-yellow-700"
                               }`}
                           >
                             {selectedKycData.kycStatus || "N/A"}
@@ -1147,9 +1157,9 @@ const Distribution = ({
                               className="bg-gradient-to-r from-green-500 to-green-600 h-3 rounded-full transition-all duration-500 ease-out"
                               style={{
                                 width: `${((selectedKycData.completedSteps ||
-                                    selectedKycData.kycSteps ||
-                                    0) /
-                                    (selectedKycData.totalSteps || 7)) *
+                                  selectedKycData.kycSteps ||
+                                  0) /
+                                  (selectedKycData.totalSteps || 7)) *
                                   100
                                   }%`,
                               }}
@@ -1284,9 +1294,9 @@ const Distribution = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.aadhaarDoc.status ===
-                                    "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  "Success"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.aadhaarDoc.status || "N/A"}
@@ -1414,8 +1424,8 @@ const Distribution = ({
                               </span>
                               <span
                                 className={`px-3 py-1 rounded-lg text-xs font-[Gilroy-Semibold] inline-block w-fit ${selectedKycData.panDoc.status === "Success"
-                                    ? "bg-green-100 text-green-700"
-                                    : "bg-red-100 text-red-700"
+                                  ? "bg-green-100 text-green-700"
+                                  : "bg-red-100 text-red-700"
                                   }`}
                               >
                                 {selectedKycData.panDoc.status || "N/A"}
@@ -1658,8 +1668,8 @@ const Distribution = ({
                           {/* Mobile Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.mobileVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1674,8 +1684,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.mobileVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.mobileVerify
@@ -1687,8 +1697,8 @@ const Distribution = ({
                           {/* Email Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.emailVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1703,8 +1713,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.emailVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.emailVerify
@@ -1716,8 +1726,8 @@ const Distribution = ({
                           {/* Aadhar Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.aadharVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1732,8 +1742,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.aadharVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.aadharVerify
@@ -1745,8 +1755,8 @@ const Distribution = ({
                           {/* PAN Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.panVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1761,8 +1771,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.panVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.panVerify
@@ -1774,8 +1784,8 @@ const Distribution = ({
                           {/* Shop Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.shopDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1790,8 +1800,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.shopDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.shopDetailsVerify
@@ -1803,8 +1813,8 @@ const Distribution = ({
                           {/* Image Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.imageVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1819,8 +1829,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.imageVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.imageVerify
@@ -1832,9 +1842,9 @@ const Distribution = ({
                           {/* Profile Image with Shop Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails
-                                .profileImageWithShopVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              .profileImageWithShopVerify
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1850,9 +1860,9 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails
-                                  .profileImageWithShopVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                .profileImageWithShopVerify
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails
@@ -1865,8 +1875,8 @@ const Distribution = ({
                           {/* Bank Details Verify */}
                           <div
                             className={`flex items-center justify-between p-4 rounded-lg border-2 transition-all ${selectedKycData.userDetails.bankDetailsVerify
-                                ? "bg-green-50 border-green-200"
-                                : "bg-red-50 border-red-200"
+                              ? "bg-green-50 border-green-200"
+                              : "bg-red-50 border-red-200"
                               }`}
                           >
                             <div className="flex items-center gap-3">
@@ -1881,8 +1891,8 @@ const Distribution = ({
                             </div>
                             <span
                               className={`px-3 py-1 rounded-full text-xs font-[Gilroy-Semibold] ${selectedKycData.userDetails.bankDetailsVerify
-                                  ? "bg-green-100 text-green-700"
-                                  : "bg-red-100 text-red-700"
+                                ? "bg-green-100 text-green-700"
+                                : "bg-red-100 text-red-700"
                                 }`}
                             >
                               {selectedKycData.userDetails.bankDetailsVerify
