@@ -393,7 +393,7 @@ const DistrubtionOnboarding = ({
                         <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                           {row.id || "N/A"}
                         </td>
-                        <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                        <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                           <button
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
@@ -577,7 +577,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Onboarding - Re-send Button */}
-                        <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                        <td className="px-4 py-4 whitespace-nowrap fonrt-[Gilroy-Regular] text-[14px]">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             return (
@@ -595,7 +595,7 @@ const DistrubtionOnboarding = ({
                           })()}
                         </td>
                         {/* Deactivation - Send Button */}
-                        <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                        <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                           {(() => {
                             const userId = row.id || row.originalItem?.id;
                             return (
@@ -800,7 +800,7 @@ const DistrubtionOnboarding = ({
                       <td className="py-3 px-4 text-xs font-[Gilroy-Regular] text-[#121216] whitespace-nowrap">
                         {row.id || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;

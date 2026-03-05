@@ -338,28 +338,28 @@ const RoleUpgradeWhiteLabel = () => {
                                 className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
                                     }`}
                             >
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.srNo}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.date}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.parentName}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.userName}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.mobileNumber}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.emailId}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.currentRole}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     <button
                                         onClick={() => handleUpgradeClick(row)}
                                         className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-[Gilroy-Medium]"
@@ -367,34 +367,34 @@ const RoleUpgradeWhiteLabel = () => {
                                         Upgrade
                                     </button>
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.userId || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.parentRole || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.company || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.companyId || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.kycStatus || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.kycSteps || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.status || '-'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.lock ? 'Yes' : 'No'}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.wallet?.mainWallet ?? 0}
                                 </td>
-                                <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                                     {row.wallet?.apesWallet ?? 0}
                                 </td>
                             </tr>

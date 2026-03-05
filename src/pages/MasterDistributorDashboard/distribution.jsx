@@ -375,10 +375,10 @@ const Distribution = ({
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"
                         }`}
                     >
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {row.id || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -394,31 +394,31 @@ const Distribution = ({
                         </button>
                       </td>
 
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.name || row.userName || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userRole || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.mobileNo || row.mobile || row.mobileNumber || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.email || row.emailId || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentName || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentRole || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.company || row.companyName || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -437,19 +437,19 @@ const Distribution = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.kycSteps || "0"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular] text-center">
                         {row.remainingDays || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
@@ -460,7 +460,7 @@ const Distribution = ({
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -478,7 +478,7 @@ const Distribution = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -517,7 +517,7 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isLocked =
@@ -547,7 +547,7 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilory-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -565,7 +565,7 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilory-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -582,7 +582,7 @@ const Distribution = ({
                           );
                         })()}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilory-Regular] text-[14px]">
                         {row.date || "N/A"}
                       </td>
                     </tr>
@@ -762,10 +762,10 @@ const Distribution = ({
                       className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
                       {/* ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.id || "N/A"}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -781,42 +781,42 @@ const Distribution = ({
                       </td>
 
                       {/* User ID */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userId || row.userAgentCode || "N/A"}
                       </td>
                       {/* Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.name || row.userName || "N/A"}
                       </td>
                       {/* User Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.userRole || "N/A"}
                       </td>
                       {/* Mobile */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.mobileNo ||
                           row.mobile ||
                           row.mobileNumber ||
                           "N/A"}
                       </td>
                       {/* Email */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.emailId || row.email || "N/A"}
                       </td>
                       {/* Parent Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentName || "N/A"}
                       </td>
                       {/* Parent Role */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.parentRole || "N/A"}
                       </td>
                       {/* Company Name */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.company || row.companyName || "N/A"}
                       </td>
                       {/* KYC Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -836,23 +836,23 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* KYC Steps */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.kycSteps || "0"}
                       </td>
                       {/* Main Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.wallet?.mainWallet ?? row.mainWallet ?? "0"}
                       </td>
                       {/* AEPS Wallet */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.wallet?.apes1Wallet ?? row.aepsWallet ?? "0"}
                       </td>
                       {/* Remaining Days */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center font-[Gilroy-Regular]">
                         {row.remainingDays || "N/A"}
                       </td>
                       {/* Status */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                               ? "bg-green-600"
@@ -863,7 +863,7 @@ const Distribution = ({
                         </span>
                       </td>
                       {/* KYC Details */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -881,7 +881,7 @@ const Distribution = ({
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -920,7 +920,7 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isLocked =
@@ -950,7 +950,7 @@ const Distribution = ({
                         })()}
                       </td>
                       {/* Date */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] font-[Gilroy-Regular]">
                         {row.date || "N/A"}
                       </td>
                     </tr>

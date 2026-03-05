@@ -463,7 +463,7 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
@@ -670,7 +670,7 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -688,7 +688,7 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -895,7 +895,7 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
