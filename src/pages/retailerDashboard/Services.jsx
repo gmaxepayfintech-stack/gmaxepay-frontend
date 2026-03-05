@@ -16,7 +16,7 @@ const servicesData = [
     logo: "/img/MobileRecharge.svg",
   },
   {
-    id: "A1 TOP-UP Mobile Recharge",
+    id: "Express Mobile Recharge",
     title: "Express Mobile Recharge",
     status: "available",
     logo: "/img/MobileRecharge.svg",
@@ -31,7 +31,7 @@ const servicesData = [
     logo: "/img/DTH1.svg",
   },
   {
-    id: "A1 Top-UP DTH",
+    id: "Express DTH",
     title: "Express DTH Recharge",
     status: "available",
     logo: "/img/DTH1.svg",
@@ -51,7 +51,7 @@ const servicesData = [
     logo: "/img/PanCorrection.svg",
   },
   // {
-  //   id: "A1 TOP-UP PAN",
+  //   id: "Express PAN",
   //   title: "Express PAN",
   //   status: "available",
   //   logo: "/img/PanCorrection.svg",
@@ -241,8 +241,8 @@ const Services = () => {
             onClick={() => {
               if (s.id === "mobile-dth") {
                 handleMobileRechargeClick();
-              } else if (s.id === "A1 TOP-UP Mobile Recharge") {
-                navigate("/retailerDashboard/services/aone-recharge");
+              } else if (s.id === "Express Mobile Recharge") {
+                navigate("/retailerDashboard/services/express-recharge");
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
@@ -251,12 +251,12 @@ const Services = () => {
                 handleBBPSClick();
               } else if (s.id === "dth-recharge") {
                 handleDTHRechargeClick();
-              } else if (s.id === "A1 Top-UP DTH") {
-                navigate("/retailerDashboard/services/aone-dth-recharge");
+              } else if (s.id === "Express DTH") {
+                navigate("/retailerDashboard/services/express-dth-recharge");
               } else if (s.id === "pan") {
                 handlePANClick();
-              } else if (s.id === "A1 TOP-UP PAN") {
-                navigate("/retailerDashboard/services/aone-pan-service");
+              } else if (s.id === "Express PAN") {
+                navigate("/retailerDashboard/services/express-pan-service");
               }
             }}
           />

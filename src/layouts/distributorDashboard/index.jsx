@@ -47,9 +47,9 @@ const DistributorDashboard = () => {
         <Route path="/services/bbps-services" element={<BBPSServices />} />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />
-        <Route path="/services/aone-recharge" element={<AOneRecharge />} />
-        <Route path="/services/aone-dth-recharge" element={<AOneDthRecharge />} />
-        <Route path="/services/aone-pan-service" element={<AOnePan />} />
+        <Route path="/services/express-recharge" element={<AOneRecharge />} />
+        <Route path="/services/express-dth-recharge" element={<AOneDthRecharge />} />
+        <Route path="/services/express-pan-service" element={<AOnePan />} />
         <Route path="/resources/schemamaster" element={<SchemeMaster />} />
         <Route path="/resources/subscription" element={<Subscription />} />
         <Route path="/fund-manage/wallet-load" element={<WalletLoad />} />
