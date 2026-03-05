@@ -497,7 +497,7 @@ const Retailers = ({
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-[14px] ">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] ">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
