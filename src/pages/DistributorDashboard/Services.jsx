@@ -237,7 +237,7 @@ const Services = () => {
               if (s.id === "mobile-dth") {
                 handleMobileRechargeClick();
               } else if (s.id === "Express Mobile Recharge") {
-                navigate("/distributerDashboard/services/aone-recharge");
+                navigate("/distributerDashboard/services/express-recharge");
               } else if (s.id === "Aeps-1") {
                 handleAepsClick();
               } else if (s.id === "Aeps-2") {
@@ -247,11 +247,11 @@ const Services = () => {
               } else if (s.id === "dth-recharge") {
                 handleDTHRechargeClick();
               } else if (s.id === "Express DTH") {
-                navigate("/distributerDashboard/services/aone-dth-recharge");
+                navigate("/distributerDashboard/services/express-dth-recharge");
               } else if (s.id === "pan") {
                 handlePANClick();
               } else if (s.id === "Express PAN") {
-                navigate("/distributerDashboard/services/aone-pan-service");
+                navigate("/distributerDashboard/services/express-pan-service");
               }
             }}
           />
