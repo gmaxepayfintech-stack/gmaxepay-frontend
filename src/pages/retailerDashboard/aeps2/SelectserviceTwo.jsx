@@ -58,6 +58,7 @@ const SelectserviceTwo = () => {
     message: "",
     type: "info", // success, error, warning, info
     transactionData: null, // For success modal with transaction details
+    transactionType: null, // "cashWithdrawal" | "balanceEnquiry" | "miniStatement"
   });
 
   // Ref to track if API has been called for current pidData
@@ -794,14 +795,14 @@ const SelectserviceTwo = () => {
             // );
 
             // Show success modal with transaction details
-            // The action returns { cashWithdrawl, status, message } where cashWithdrawl is the data object
+            // The action returns { cashWithdrawl, status, message } where cashWithdrawl = response.data.data
             setModal({
               isOpen: true,
               title: "Transaction Successful",
               message: response?.message || "Withdrawal successful!",
               type: "success",
-              transactionData:
-                response?.data || response?.cashWithdrawl || null,
+              transactionType: "cashWithdrawal",
+              transactionData: response?.cashWithdrawl || null,
             });
             showNotification({
               type: "success",
@@ -832,8 +833,7 @@ const SelectserviceTwo = () => {
               title: "Transaction Failed",
               message: response?.message || "Withdrawal failed",
               type: "error",
-              transactionData:
-                response?.data || response?.cashWithdrawl || null,
+              transactionData: response?.cashWithdrawl || null,
             });
             showNotification({
               type: "error",
@@ -1148,8 +1148,8 @@ const SelectserviceTwo = () => {
               title: "Balance Enquiry Successful",
               message: response?.message || "Balance enquiry successful!",
               type: "success",
-              transactionData:
-                response?.data || response?.balanceEnquiry || null,
+              transactionType: "balanceEnquiry",
+              transactionData: response?.balanceEnquiry || null,
             });
             showNotification({
               type: "success",
@@ -1484,8 +1484,8 @@ const SelectserviceTwo = () => {
               title: "Statement Enquiry Successful",
               message: response?.message || "Statement enquiry successful!",
               type: "success",
-              transactionData:
-                response?.data || response?.miniStatement || null,
+              transactionType: "miniStatement",
+              transactionData: response?.miniStatement || null,
             });
             showNotification({
               type: "success",
@@ -1601,6 +1601,7 @@ const SelectserviceTwo = () => {
     message,
     type,
     transactionData,
+    transactionType,
   }) => {
     if (!isOpen) return null;
 
@@ -1759,146 +1760,162 @@ const SelectserviceTwo = () => {
 
               {/* Transaction/Response Details */}
               {transactionData && (
-                <div className="mb-20">
-                  {/* Get transaction details - handle both result (CW) and data.data (BE) structures */}
-                  {(() => {
-                    // For Cash Withdrawal: transactionData.result
-                    // For Balance Enquiry: transactionData.data
-                    const transactionDetails = transactionData?.result || transactionData?.data || null;
+                <div className={transactionType === 'miniStatement' ? 'mb-20 w-[480px]' : 'mb-20'}>
 
-                    if (!transactionDetails) return null;
+                  {/* ══════════════════════════════════════
+                      CASH WITHDRAWAL SUCCESS VIEW
+                  ══════════════════════════════════════ */}
+                  {transactionType === 'cashWithdrawal' && (() => {
+                    // transactionData = response.cashWithdrawl = API's response.data.data
+                    const d = transactionData;
 
-                    // Show Balance Amount or Transaction Amount in highlighted box
-                    const displayAmount = transactionDetails.balanceAmount !== undefined
-                      ? transactionDetails.balanceAmount
-                      : (transactionDetails.transactionAmount !== undefined && transactionDetails.transactionAmount !== 0
-                        ? transactionDetails.transactionAmount
-                        : null);
+                    // Amount: try transactionAmount, then withdrawalAmount, then amount
+                    const displayAmount = d?.transactionAmount ?? d?.withdrawalAmount ?? d?.amount ?? null;
 
-                    // Collect all fields to display (excluding amount fields that are shown separately)
-                    const fieldsToShow = [];
-
-                    if (transactionDetails.fpTransactionId) {
-                      fieldsToShow.push({ label: "FP Transaction ID", value: transactionDetails.fpTransactionId });
-                    }
-                    // if (transactionDetails.merchantTransactionId) {
-                    //   fieldsToShow.push({ label: "Merchant Transaction ID", value: transactionDetails.merchantTransactionId });
-                    // }
-                    if (transactionDetails.bankRRN) {
-                      fieldsToShow.push({ label: "Bank RRN", value: transactionDetails.bankRRN });
-                    }
-                    if (transactionDetails.requestTransactionTime) {
-                      fieldsToShow.push({ label: "Transaction Time", value: transactionDetails.requestTransactionTime });
-                    }
-                    if (transactionDetails.transactionType) {
-                      fieldsToShow.push({ label: "Transaction Type", value: transactionDetails.transactionType });
-                    }
-                    if (transactionDetails.transactionStatus) {
-                      fieldsToShow.push({ label: "Status", value: transactionDetails.transactionStatus, isGreen: true });
-                    }
-                    if (transactionDetails.device) {
-                      fieldsToShow.push({ label: "Device", value: transactionDetails.device });
-                    }
-                    if (transactionDetails.terminalId) {
-                      fieldsToShow.push({ label: "Terminal ID", value: transactionDetails.terminalId });
-                    }
-                    if (transactionData?.transactionId) {
-                      fieldsToShow.push({ label: "Transaction ID", value: transactionData.transactionId });
-                    }
+                    const fields = [];
+                    if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
+                    if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
+                    if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
+                    if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
+                    if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
+                    if (d?.device) fields.push({ label: 'Device', value: d.device });
+                    if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
+                    if (d?.transactionId || d?.merchantTransactionId)
+                      fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
 
                     return (
                       <>
-                        {/* Amount Display - Highlighted Box */}
-                        {displayAmount !== null && (
+                        {/* Amount Box */}
+                        {displayAmount != null && displayAmount !== '' && (
                           <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
-                            <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
-                              ₹{displayAmount}
-                            </div>
+                            <div className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60 mb-1">Withdrawal Amount</div>
+                            <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">₹{displayAmount}</div>
                           </div>
                         )}
-
                         {/* Details Grid */}
-                        <div className="grid grid-cols-2 gap-4 mb-6">
-                          {fieldsToShow.map((field, index) => (
-                            <div key={index}>
-                              <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">
-                                {field.label}
+                        {fields.length > 0 && (
+                          <div className="grid grid-cols-2 gap-4 mb-6">
+                            {fields.map((f, i) => (
+                              <div key={i}>
+                                <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">{f.label}</div>
+                                <div className={`font-['Gilroy-Medium'] text-sm ${f.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>{f.value}</div>
                               </div>
-                              <div className={`font-['Gilroy-Medium'] text-sm ${field.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>
-                                {field.value}
-                              </div>
-                            </div>
-                          ))}
-                        </div>
+                            ))}
+                          </div>
+                        )}
                       </>
                     );
                   })()}
 
-                  {/* Mini Statement - ministatement array */}
-                  {(() => {
-                    // Check for ministatement in different possible locations
-                    const ministatement = transactionData?.ministatement ||
-                      transactionData?.data?.ministatement ||
-                      transactionData?.result?.ministatement ||
-                      null;
+                  {/* ══════════════════════════════════════
+                      BALANCE ENQUIRY SUCCESS VIEW
+                  ══════════════════════════════════════ */}
+                  {transactionType === 'balanceEnquiry' && (() => {
+                    // transactionData = response.balanceEnquiry = API's response.data.data
+                    const d = transactionData;
 
-                    if (!ministatement || !Array.isArray(ministatement) || ministatement.length === 0) {
-                      return null;
-                    }
+                    // Balance: try balanceAmount, availableBalance, balance
+                    const balanceAmt = d?.balanceAmount ?? d?.availableBalance ?? d?.balance ?? null;
+
+                    const fields = [];
+                    if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
+                    if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
+                    if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
+                    if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
+                    if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
+                    if (d?.device) fields.push({ label: 'Device', value: d.device });
+                    if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
+                    if (d?.transactionId || d?.merchantTransactionId)
+                      fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
 
                     return (
-                      <div className="mt-6 pt-6 border-t border-gray-200">
-                        <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-4">
-                          Mini Statement
-                        </div>
-                        <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                          {/* Table Header */}
-                          <div className="grid grid-cols-4 gap-2 bg-gray-100 px-3 py-2 border-b border-gray-200">
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
-                              Date
-                            </div>
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
-                              Type
-                            </div>
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
-                              Amount
-                            </div>
-                            <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">
-                              Narration
-                            </div>
+                      <>
+                        {/* Balance Amount Box */}
+                        {balanceAmt != null && (
+                          <div className="border-2 border-dashed border-[#039155] rounded-lg p-3 text-center mb-5">
+                            <div className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60 mb-1">Available Balance</div>
+                            <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#039155]">₹{balanceAmt}</div>
                           </div>
-                          {/* Table Body */}
-                          <div className="max-h-60 overflow-y-auto">
-                            {ministatement.map(
-                              (stmt, index) => (
-                                <div
-                                  key={index}
-                                  className="grid grid-cols-4 gap-2 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start"
-                                >
-                                  <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717]">
-                                    {stmt.date}
-                                  </div>
-                                  <div
-                                    className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
-                                  >
-                                    {stmt.txnType}
-                                  </div>
-                                  <div
-                                    className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === "Cr" ? "text-green-600" : "text-red-600"}`}
-                                  >
-                                    ₹ {stmt.amount}
-                                  </div>
-                                  <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717] break-words whitespace-normal">
-                                    {stmt.narration}
-                                  </div>
-                                </div>
-                              ),
-                            )}
+                        )}
+                        {/* Details Grid */}
+                        {fields.length > 0 && (
+                          <div className="grid grid-cols-2 gap-4 mb-6">
+                            {fields.map((f, i) => (
+                              <div key={i}>
+                                <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">{f.label}</div>
+                                <div className={`font-['Gilroy-Medium'] text-sm ${f.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>{f.value}</div>
+                              </div>
+                            ))}
                           </div>
-                        </div>
-                      </div>
+                        )}
+                      </>
                     );
                   })()}
+
+                  {/* ══════════════════════════════════════
+                      MINI STATEMENT SUCCESS VIEW
+                  ══════════════════════════════════════ */}
+                  {transactionType === 'miniStatement' && (() => {
+                    // transactionData = response.miniStatement = API's response.data.data
+                    // The ministatement array can be directly on the object or nested
+                    const d = transactionData;
+                    const stmtList =
+                      (Array.isArray(d) ? d : null) ||
+                      d?.miniStatement || d?.ministatement ||
+                      d?.data?.miniStatement || d?.data?.ministatement ||
+                      d?.result?.miniStatement || d?.result?.ministatement ||
+                      null;
+
+                    const fields = [];
+                    if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
+                    if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
+                    if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
+                    if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
+
+                    return (
+                      <>
+                        {/* Summary fields */}
+                        {fields.length > 0 && (
+                          <div className="grid grid-cols-2 gap-4 mb-5">
+                            {fields.map((f, i) => (
+                              <div key={i}>
+                                <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">{f.label}</div>
+                                <div className={`font-['Gilroy-Medium'] text-sm ${f.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>{f.value}</div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* Mini Statement Table */}
+                        {stmtList && Array.isArray(stmtList) && stmtList.length > 0 ? (
+                          <div className="mt-2 pt-4 border-t border-gray-200">
+                            <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">Mini Statement</div>
+                            <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
+                              <div className="grid grid-cols-4 gap-1 bg-gray-100 px-3 py-2 border-b border-gray-200">
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Date</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Type</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Amount</div>
+                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Narration</div>
+                              </div>
+                              <div className="max-h-60 overflow-y-auto">
+                                {stmtList.map((stmt, index) => (
+                                  <div key={index} className="grid grid-cols-4 gap-1 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start">
+                                    <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717]">{stmt.date}</div>
+                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>{stmt.txnType}</div>
+                                    <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>₹{stmt.amount}</div>
+                                    <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717] break-words whitespace-normal">{stmt.narration}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="text-xs text-gray-400 font-['Gilroy-Regular'] text-center mt-4">No statement entries found.</p>
+                        )}
+                      </>
+                    );
+                  })()}
+
                 </div>
               )}
 
@@ -1952,8 +1969,8 @@ const SelectserviceTwo = () => {
               {transactionData && (
                 <div
                   className={`rounded-lg p-4 mb-4 border ${type === "success"
-                      ? "bg-white border-gray-200"
-                      : "bg-red-50 border-red-200"
+                    ? "bg-white border-gray-200"
+                    : "bg-red-50 border-red-200"
                     }`}
                 >
                   <div>
@@ -2081,12 +2098,13 @@ const SelectserviceTwo = () => {
       <Modal
         isOpen={modal.isOpen}
         onClose={() =>
-          setModal({ ...modal, isOpen: false, transactionData: null })
+          setModal({ ...modal, isOpen: false, transactionData: null, transactionType: null })
         }
         title={modal.title}
         message={modal.message}
         type={modal.type}
         transactionData={modal.transactionData}
+        transactionType={modal.transactionType}
       />
       {/* Header */}
       <div className="mb-6">
@@ -2106,8 +2124,8 @@ const SelectserviceTwo = () => {
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
                 className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${isActive
-                    ? "bg-[#039155] text-[#FFFFFF]"
-                    : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
+                  ? "bg-[#039155] text-[#FFFFFF]"
+                  : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
                   }`}
               >
                 {tab.label}
@@ -2135,8 +2153,8 @@ const SelectserviceTwo = () => {
               type="button"
               onClick={() => setBiometricMethod("thumb")}
               className={`p-8 rounded-xl border-2 transition ${biometricMethod === "thumb"
-                  ? "bg-[#E5FFF4] border-[#039155]"
-                  : "bg-white border-gray-200"
+                ? "bg-[#E5FFF4] border-[#039155]"
+                : "bg-white border-gray-200"
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -2156,8 +2174,8 @@ const SelectserviceTwo = () => {
               type="button"
               onClick={() => setBiometricMethod("iris")}
               className={`p-4 rounded-xl border-2 transition ${biometricMethod === "iris"
-                  ? "bg-[#E5FFF4] border-[#039155]"
-                  : "bg-white border-gray-200"
+                ? "bg-[#E5FFF4] border-[#039155]"
+                : "bg-white border-gray-200"
                 }`}
             >
               <div className="flex flex-col items-center gap-3">
@@ -2173,8 +2191,8 @@ const SelectserviceTwo = () => {
           <div className="mb-6">
             <div
               className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${deviceConnected
-                  ? "bg-[#039155] text-white"
-                  : "bg-[#DC2626] text-white"
+                ? "bg-[#039155] text-white"
+                : "bg-[#DC2626] text-white"
                 }`}
             >
               {deviceMessage ? (
@@ -2220,8 +2238,8 @@ const SelectserviceTwo = () => {
             {/* Background content - blurred when comingSoon */}
             <div
               className={`flex flex-col items-center gap-4 ${comingSoon
-                  ? "opacity-80 pointer-events-none select-none blur-sm"
-                  : ""
+                ? "opacity-80 pointer-events-none select-none blur-sm"
+                : ""
                 }`}
             >
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
@@ -2372,8 +2390,8 @@ const SelectserviceTwo = () => {
                       handleBankSelection(bank);
                     }}
                     className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.bankIIN === bank.bankIIN
-                        ? "bg-[#E5FFF4] border-[#039155]"
-                        : "bg-white border-gray-200"
+                      ? "bg-[#E5FFF4] border-[#039155]"
+                      : "bg-white border-gray-200"
                       }`}
                   >
                     <div className="flex flex-col items-center gap-2">
@@ -2463,8 +2481,8 @@ const SelectserviceTwo = () => {
                         handleBankSelection(bank);
                       }}
                       className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.bankIIN === bank.bankIIN
-                          ? "bg-[#E5FFF4]"
-                          : ""
+                        ? "bg-[#E5FFF4]"
+                        : ""
                         }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
@@ -2531,8 +2549,8 @@ const SelectserviceTwo = () => {
                 }}
                 onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
                 className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
-                    ? "border-red-500"
-                    : "border-gray-300"
+                  ? "border-red-500"
+                  : "border-gray-300"
                   }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
@@ -2556,8 +2574,8 @@ const SelectserviceTwo = () => {
                 }}
                 onBlur={() => formik.setFieldTouched("mobileNumber", true)}
                 className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.mobileNumber && formik.errors.mobileNumber
-                    ? "border-red-500"
-                    : "border-gray-300"
+                  ? "border-red-500"
+                  : "border-gray-300"
                   }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
@@ -2599,8 +2617,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("500")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "500"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 500
@@ -2609,8 +2627,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("1000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "1000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 1,000
@@ -2619,8 +2637,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("2000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "2000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 2,000
@@ -2629,8 +2647,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("5000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "5000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 5,000
@@ -2639,8 +2657,8 @@ const SelectserviceTwo = () => {
                   type="button"
                   onClick={() => setSelectedAmount("10000")}
                   className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "10000"
-                      ? "bg-[#039155] text-white border-[#039155]"
-                      : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
+                    ? "bg-[#039155] text-white border-[#039155]"
+                    : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
                     }`}
                 >
                   ₹ 10,000

@@ -114,8 +114,8 @@ const Selectservice = () => {
   // Filter banks based on search query (show all if search is empty)
   const filteredBanks = bankSearchQuery
     ? banks.filter((bank) =>
-        bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
-      )
+      bank?.bankName?.toLowerCase().includes(bankSearchQuery.toLowerCase()),
+    )
     : banks;
 
   // Function to handle bank selection and update recent banks
@@ -421,7 +421,7 @@ const Selectservice = () => {
         // Only complete to 100% on successful capture (thumb was on device)
         setScanProgress(100);
         setDeviceMessage("Fingerprint captured successfully");
-        
+
         setPidData(captureText);
         setIsScanning(false);
       } else {
@@ -1125,7 +1125,7 @@ const Selectservice = () => {
           const response = await dispatch(aepsWithdrawl(payload));
 
           if (response?.status === "SUCCESS") {
-           // console.log("✅ Balance enquiry successful!");
+            // console.log("✅ Balance enquiry successful!");
             console.log(
               "📊 Transaction data:",
               response?.data || response?.withdrawal,
@@ -1452,7 +1452,7 @@ const Selectservice = () => {
             // Action returns: { withdrawal: data, status, message } where withdrawal = response.data.data
             // So response.withdrawal contains: { transactionId, referenceId, miniStatement, ... }
             let transactionData = response?.withdrawal || response?.data || null;
-            
+
             // The action extracts response.data.data and assigns it to withdrawal
             // So response.withdrawal should directly contain miniStatement
             //console.log("📊 Final transactionData:", transactionData);
@@ -1462,7 +1462,7 @@ const Selectservice = () => {
             if (transactionData?.miniStatement) {
               console.log("📊 First mini statement item:", transactionData.miniStatement[0]);
             }
-            
+
             setModal({
               isOpen: true,
               title: "Statement Enquiry Successful",
@@ -1681,7 +1681,7 @@ const Selectservice = () => {
     if (type === "success") {
       return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
-          <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+          <div className={`bg-green-100 rounded-xl relative overflow-hidden mx-auto ${transactionData?.miniStatement && Array.isArray(transactionData.miniStatement) && transactionData.miniStatement.length > 0 ? 'max-w-lg' : 'max-w-md'}`}>
             {/* Notches */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
@@ -1721,11 +1721,21 @@ const Selectservice = () => {
               {/* Transaction/Response Details */}
               {transactionData && (
                 <div className="mb-20">
-                  {/* Amount Display - Highlighted Box */}
-                  {transactionData.amount !== undefined && (
+                  {/* Amount Display - Highlighted Box (Cash Withdrawal) */}
+                  {transactionData.amount != null && transactionData.amount !== '' && (
                     <div className="border-2 border-dashed border-[#1B1717] rounded-lg p-3 text-center mb-5">
                       <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#1B1717]">
                         ₹{transactionData.amount}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Available Balance Display - Balance Enquiry */}
+                  {(transactionData.availableBalance != null || transactionData.balance != null) && transactionData.amount == null && (
+                    <div className="border-2 border-dashed border-[#039155] rounded-lg p-3 text-center mb-5">
+                      <div className="text-[12px] font-['Gilroy-Medium'] text-[#1B1717]/70 mb-1">Available Balance</div>
+                      <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#039155]">
+                        ₹{transactionData.availableBalance ?? transactionData.balance}
                       </div>
                     </div>
                   )}
@@ -1900,11 +1910,10 @@ const Selectservice = () => {
               {/* Transaction/Response Details */}
               {transactionData && (
                 <div
-                  className={`rounded-lg p-4 mb-4 border ${
-                    type === "success"
+                  className={`rounded-lg p-4 mb-4 border ${type === "success"
                       ? "bg-white border-gray-200"
                       : "bg-red-50 border-red-200"
-                  }`}
+                    }`}
                 >
                   <div>
                     {/* Error/Failure Details */}
@@ -2035,11 +2044,10 @@ const Selectservice = () => {
                 key={tab.key}
                 type="button"
                 onClick={() => setActiveTab(tab.key)}
-                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${
-                  isActive
+                className={`px-[14px] py-[10px] gap-10 rounded-xl text-[14px] font-['Gilroy-Medium'] transition ${isActive
                     ? "bg-[#039155] text-[#FFFFFF]"
                     : "text-[#1B1717] text-opacity-80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {tab.label}
               </button>
@@ -2065,11 +2073,10 @@ const Selectservice = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("thumb")}
-              className={`p-8 rounded-xl border-2 transition ${
-                biometricMethod === "thumb"
+              className={`p-8 rounded-xl border-2 transition ${biometricMethod === "thumb"
                   ? "bg-[#E5FFF4] border-[#039155]"
                   : "bg-white border-gray-200"
-              }`}
+                }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img
@@ -2087,11 +2094,10 @@ const Selectservice = () => {
             <button
               type="button"
               onClick={() => setBiometricMethod("iris")}
-              className={`p-4 rounded-xl border-2 transition ${
-                biometricMethod === "iris"
+              className={`p-4 rounded-xl border-2 transition ${biometricMethod === "iris"
                   ? "bg-[#E5FFF4] border-[#039155]"
                   : "bg-white border-gray-200"
-              }`}
+                }`}
             >
               <div className="flex flex-col items-center gap-3">
                 <img src={IrisIcon} alt="Iris Scan" className="w-10 h-10" />
@@ -2105,11 +2111,10 @@ const Selectservice = () => {
           {/* Connected Device Indicator */}
           <div className="mb-6">
             <div
-              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${
-                deviceConnected
+              className={`inline-flex items-center gap-2 rounded-full px-4 py-2 ${deviceConnected
                   ? "bg-[#039155] text-white"
                   : "bg-[#DC2626] text-white"
-              }`}
+                }`}
             >
               {deviceMessage ? (
                 <div className="flex items-center gap-2">
@@ -2148,17 +2153,15 @@ const Selectservice = () => {
 
           {/* Scanner Interface - Conditional based on biometric method */}
           <div
-            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${
-              comingSoon ? "bg-gray-50" : "bg-white"
-            }`}
+            className={`border border-gray-200 rounded-xl p-8 flex-1 flex flex-col justify-center transition relative ${comingSoon ? "bg-gray-50" : "bg-white"
+              }`}
           >
             {/* Background content - blurred when comingSoon */}
             <div
-              className={`flex flex-col items-center gap-4 ${
-                comingSoon
+              className={`flex flex-col items-center gap-4 ${comingSoon
                   ? "opacity-80 pointer-events-none select-none blur-sm"
                   : ""
-              }`}
+                }`}
             >
               <div className="relative w-[170px] h-[170px] flex items-center justify-center">
                 {/* Outer circle background */}
@@ -2177,9 +2180,8 @@ const Selectservice = () => {
                 <img
                   src={biometricMethod === "iris" ? IrisIcon : FingerPrintIcon}
                   alt={biometricMethod === "iris" ? "Iris" : "Fingerprint"}
-                  className={`relative w-16 h-16 z-20 ${
-                    biometricMethod === "iris" ? "" : "opacity-60"
-                  }`}
+                  className={`relative w-16 h-16 z-20 ${biometricMethod === "iris" ? "" : "opacity-60"
+                    }`}
                 />
                 <button
                   type="button"
@@ -2308,13 +2310,12 @@ const Selectservice = () => {
                     onClick={() => {
                       handleBankSelection(bank);
                     }}
-                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${
-                      selectedBank?.bankIIN &&
-                      bank.bankIIN &&
-                      selectedBank.bankIIN === bank.bankIIN
+                    className={`flex-shrink-0 w-[120px] p-3 rounded-xl border-2 transition ${selectedBank?.bankIIN &&
+                        bank.bankIIN &&
+                        selectedBank.bankIIN === bank.bankIIN
                         ? "bg-[#E5FFF4] border-[#039155]"
                         : "bg-white border-gray-200"
-                    }`}
+                      }`}
                   >
                     <div className="flex flex-col items-center gap-2">
                       <div className="w-full h-full bg-[#FFFFFF] flex items-center justify-center overflow-hidden">
@@ -2402,13 +2403,12 @@ const Selectservice = () => {
                       onClick={() => {
                         handleBankSelection(bank);
                       }}
-                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${
-                        selectedBank?.bankIIN &&
-                        bank.bankIIN &&
-                        selectedBank.bankIIN === bank.bankIIN
+                      className={`w-full px-4 py-3 flex items-center gap-3 hover:bg-gray-50 transition ${selectedBank?.bankIIN &&
+                          bank.bankIIN &&
+                          selectedBank.bankIIN === bank.bankIIN
                           ? "bg-[#E5FFF4]"
                           : ""
-                      }`}
+                        }`}
                     >
                       <div className="w-10 h-10 bg-[#FFFFFF]  flex items-center justify-center overflow-hidden relative">
                         {bank.bankLogo ? (
@@ -2473,11 +2473,10 @@ const Selectservice = () => {
                   formik.setFieldValue("aadhaarNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("aadhaarNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
-                  formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.aadhaarNumber && formik.errors.aadhaarNumber
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {formik.touched.aadhaarNumber && formik.errors.aadhaarNumber && (
                 <p className="mt-1 text-[12px] text-red-500">
@@ -2499,11 +2498,10 @@ const Selectservice = () => {
                   formik.setFieldValue("mobileNumber", value);
                 }}
                 onBlur={() => formik.setFieldTouched("mobileNumber", true)}
-                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${
-                  formik.touched.mobileNumber && formik.errors.mobileNumber
+                className={`w-full px-4 py-3 border rounded-lg text-[14px] font-['Gilroy-Regular'] text-[#1B1717] focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-transparent ${formik.touched.mobileNumber && formik.errors.mobileNumber
                     ? "border-red-500"
                     : "border-gray-300"
-                }`}
+                  }`}
               />
               {formik.touched.mobileNumber && formik.errors.mobileNumber && (
                 <p className="mt-1 text-[12px] text-red-500">
@@ -2543,55 +2541,50 @@ const Selectservice = () => {
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("500")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "500"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "500"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 500
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("1000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "1000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "1000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 1,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("2000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "2000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "2000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 2,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("5000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "5000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "5000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 5,000
                 </button>
                 <button
                   type="button"
                   onClick={() => setSelectedAmount("10000")}
-                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${
-                    selectedAmount === "10000"
+                  className={`px-6 py-2 rounded-lg border-2 text-[12px] font-['Gilroy-Medium'] transition ${selectedAmount === "10000"
                       ? "bg-[#039155] text-white border-[#039155]"
                       : "bg-white text-[#1B1717] border-gray-200 hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   ₹ 10,000
                 </button>
