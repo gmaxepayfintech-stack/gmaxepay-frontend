@@ -644,9 +644,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Id
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                {/* <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Name
-                </th>
+                </th> */}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Merchant Id
                 </th>
@@ -723,11 +723,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                        {/* <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.companyName}
                           </span>
-                        </td>
+                        </td> */}
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
