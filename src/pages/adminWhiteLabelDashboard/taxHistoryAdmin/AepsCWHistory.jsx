@@ -20,7 +20,6 @@ import {
   getAeps2TransactionDetailsCompany
 } from "../../../redux/action/aepsAction";
 
-
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
