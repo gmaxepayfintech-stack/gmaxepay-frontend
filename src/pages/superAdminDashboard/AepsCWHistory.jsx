@@ -3,7 +3,6 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import {
   Search,
-  Download,
   Share,
   User,
   ChevronLeft,
@@ -78,27 +77,41 @@ const AepsCWHistory = ({ onBack, type }) => {
           .replace(/\//g, "-");
       }
 
-      // Format amount with currency symbol
-      const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+      // --- Amount ---
+      // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
+      const rawAmount = item.transactionAmount ?? item.amount ?? 0;
+      const formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
 
-      // Map status from API to display format
-      const getStatusDisplay = (status) => {
-        if (status === null || status === undefined) return "Pending";
-        const statusUpper = String(status).toUpperCase();
-        if (statusUpper === "SUCCESS") return "Success";
-        if (statusUpper === "FAILED" || statusUpper === "FAILURE")
-          return "Failed";
+      // --- Status ---
+      // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
+      //         `status` field is a boolean (true/false) on AEPS2 — NOT the display status
+      // AEPS1: `status` = "SUCCESS"/"FAILED" string
+      const getStatusDisplay = (rawStatus) => {
+        if (rawStatus === null || rawStatus === undefined) return "Pending";
+        const s = String(rawStatus).toUpperCase();
+        if (s === "SUCCESS" || s === "SUCCESSFUL") return "Success";
+        if (s === "FAILED" || s === "FAILURE") return "Failed";
+        // Handle boolean true/false (AEPS1 older responses)
+        if (rawStatus === true) return "Success";
+        if (rawStatus === false) return "Failed";
         return "Pending";
       };
 
-      // Map capture type to display format
+      // Prefer transactionStatus (e.g. "successful") → paymentStatus (e.g. "SUCCESS") → status
+      const statusValue =
+        item.transactionStatus ?? item.paymentStatus ?? item.status;
+
+      // --- VIA / Capture type ---
+      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
       const getViaDisplay = (captureType) => {
         if (!captureType) return "APP";
-        const typeUpper = captureType.toUpperCase();
+        const typeUpper = String(captureType).toUpperCase();
         if (typeUpper === "FINGER") return "FINGER";
         if (typeUpper === "IRIS") return "IRIS";
-        return captureType;
+        return String(captureType);
       };
+
+      const captureType = item.captureType || item.device || null;
 
       // Map user role number to text
       const getUserRoleDisplay = (userRole) => {
@@ -125,8 +138,17 @@ const AepsCWHistory = ({ onBack, type }) => {
             ? item.userRole
             : null;
       const profileImage = userDetails.profileImage || null;
+
+      // Mobile: prefer userDetails.mobileNo, then top-level fields
+      // AEPS2 also has `mobileNumber` directly on the item
       const mobileNo =
-        userDetails.mobileNo || item.mobileNo || item.mobile || "N/A";
+        userDetails.mobileNo ||
+        item.mobileNo ||
+        item.mobileNumber ||
+        item.mobile ||
+        "N/A";
+
+      // Consumer number: Aadhaar for AEPS2
       const consumerNumber =
         item.consumerNumber || item.consumerAadhaarNumber || "N/A";
 
@@ -140,13 +162,14 @@ const AepsCWHistory = ({ onBack, type }) => {
         consumerNumber: consumerNumber,
         companyName: item.companyName || "N/A",
         companyLogo: item.companyLogo || null,
-        bankName: item.bankName || item.bankiin || "N/A", // Use bankName from API, fallback to bankIIN
+        // AEPS2 has `bankName` directly; AEPS1 may use bankiin
+        bankName: item.bankName || item.bankIin || item.bankiin || "N/A",
         taxId: item.transactionId || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A", // For search purposes
+        bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
-        status: getStatusDisplay(item.status),
+        via: getViaDisplay(captureType),
+        status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         originalItem: item, // Store full item for details
       };
@@ -227,10 +250,22 @@ const AepsCWHistory = ({ onBack, type }) => {
       query.endDate = toDate.replace(/-/g, "/");
     }
 
-    // Get the appropriate search field based on input pattern
+    // Build customSearch — merge text search + status filter
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
+
+    // --- Status filter via customSearch (camelCase values) ---
+    // AEPS2: filter by `transactionStatus` ("successful" / "failed" / "pending")
+    // AEPS1: filter by `paymentStatus`   ("success"    / "failed" / "pending")
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase(); // "success" | "failed" | "pending"
+      if (isAeps2) {
+        customSearch.transactionStatus = camelStatus;
+      } else {
+        customSearch.paymentStatus = camelStatus;
+      }
+    }
 
     const payload = {
       query,
@@ -255,6 +290,7 @@ const AepsCWHistory = ({ onBack, type }) => {
     toDate,
     aepsTxnType,
     isAeps2,
+    statusFilter,
   ]);
 
   // Reset isReloading when loading completes
@@ -269,12 +305,8 @@ const AepsCWHistory = ({ onBack, type }) => {
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on selected status (search is handled by API)
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesStatus =
-      statusFilter === "All" || transaction.status === statusFilter;
-    return matchesStatus;
-  });
+  // Status is filtered server-side via customSearch — no client-side filter needed.
+  const filteredTransactions = transactions;
 
   // Pagination settings - Use API pagination data
   const itemsPerPage = paginator.perPage || 10;
