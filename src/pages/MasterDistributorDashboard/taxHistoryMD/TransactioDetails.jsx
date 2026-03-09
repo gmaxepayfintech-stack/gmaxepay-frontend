@@ -21,8 +21,11 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   const calculateCommissionData = () => {
     if (!transactionData) return [];
 
-    // The data might be at the root of transactionData or nested in transactionData.transaction
-    const transaction = transactionData.transaction || transactionData;
+    // Extract core payload if coming from Redux wrapper
+    const payload = transactionData?.data || transactionData;
+
+    // The data might be at the root of payload or nested in payload.transaction
+    const transaction = payload.transaction || payload;
     const commissionData = [];
 
     // Helper to format values safely with fallbacks
@@ -61,7 +64,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
     const retailerNet = retailerCom - retailerComTDS;
     commissionData.push({
       name: "Retailer",
-      userId: transactionData.userDetails?.userId || "N/A",
+      userId: payload.userDetails?.userId || "N/A",
       commissions: `₹${retailerCom.toFixed(4)}`,
       tds: `₹${retailerComTDS.toFixed(4)}`,
       net: `₹${retailerNet.toFixed(4)}`,
@@ -112,6 +115,9 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   //     <MainWalletStatement onBack={() => setShowMainWalletStatement(false)} />
   //   );
   // }
+
+  // Setup a common payload pointing to either transactionData or transactionData.data
+  const payload = transactionData?.data || transactionData;
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] px-3 py-2 text-[#1B1717]">
@@ -169,7 +175,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.userDetails?.name || "N/A"}
+                  {payload?.userDetails?.name || "N/A"}
                 </p>
               </div>
               <div>
@@ -177,8 +183,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.userDetails?.userRole
-                    ? getRoleName(transactionData.userDetails.userRole)
+                  {payload?.userDetails?.userRole
+                    ? getRoleName(payload.userDetails.userRole)
                     : "N/A"}
                 </p>
               </div>
@@ -187,7 +193,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Agent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.userDetails?.userId || "N/A"}
+                  {payload?.userDetails?.userId || "N/A"}
                 </p>
               </div>
               <div>
@@ -195,7 +201,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   User Mobile
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.userDetails?.mobileNo || "N/A"}
+                  {payload?.userDetails?.mobileNo || "N/A"}
                 </p>
               </div>
             </div>
@@ -221,7 +227,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Company Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.reportingUserDetails?.companyName || "N/A"}
+                  {payload?.reportingUserDetails?.companyName || "N/A"}
                 </p>
               </div>
               <div>
@@ -229,7 +235,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Parent Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.reportingUserDetails?.parentName || "N/A"}
+                  {payload?.reportingUserDetails?.parentName || "N/A"}
                 </p>
               </div>
               <div>
@@ -237,9 +243,9 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Parent Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.reportingUserDetails?.parentRole
+                  {payload?.reportingUserDetails?.parentRole
                     ? getRoleName(
-                      transactionData.reportingUserDetails.parentRole,
+                      payload.reportingUserDetails.parentRole,
                     )
                     : "N/A"}
                 </p>
@@ -249,7 +255,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Parent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.reportingUserDetails?.parentUserId || "N/A"}
+                  {payload?.reportingUserDetails?.parentUserId || "N/A"}
                 </p>
               </div>
             </div>
@@ -275,7 +281,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Bank Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.bankName || "N/A"}
+                  {payload?.transactionDetails?.bankName || "N/A"}
                 </p>
               </div>
               <div>
@@ -283,8 +289,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Aadhar Number
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.aadharNumber
-                    ? `${transactionData.transactionDetails.aadharNumber.slice(0, 4)} ${transactionData.transactionDetails.aadharNumber.slice(4, 8)} ${transactionData.transactionDetails.aadharNumber.slice(8, 12)} ****`
+                  {payload?.transactionDetails?.aadharNumber
+                    ? `${payload.transactionDetails.aadharNumber.slice(0, 4)} ${payload.transactionDetails.aadharNumber.slice(4, 8)} ${payload.transactionDetails.aadharNumber.slice(8, 12)} ****`
                     : "N/A"}
                 </p>
               </div>
@@ -293,19 +299,19 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Amount
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.amount !== undefined && transactionData?.transactionDetails?.amount !== null
-                    ? `₹${parseFloat(transactionData.transactionDetails.amount).toFixed(2)}`
+                  {payload?.transactionDetails?.amount !== undefined && payload?.transactionDetails?.amount !== null
+                    ? `₹${parseFloat(payload.transactionDetails.amount).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
 
-              {transactionData?.transactionDetails?.balanceAmount !== undefined && transactionData?.transactionDetails?.balanceAmount !== "N/A" && transactionData?.transactionDetails?.balanceAmount !== null && (
+              {payload?.transactionDetails?.balanceAmount !== undefined && payload?.transactionDetails?.balanceAmount !== "N/A" && payload?.transactionDetails?.balanceAmount !== null && (
                 <div>
                   <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                     Balance Amount
                   </p>
                   <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                    ₹{parseFloat(transactionData.transactionDetails.balanceAmount).toFixed(2)}
+                    ₹{parseFloat(payload.transactionDetails.balanceAmount).toFixed(2)}
                   </p>
                 </div>
               )}
@@ -315,8 +321,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.commission !== undefined && transactionData?.transactionDetails?.commission !== null
-                    ? `₹${parseFloat(transactionData.transactionDetails.commission).toFixed(2)}`
+                  {payload?.transactionDetails?.commission !== undefined && payload?.transactionDetails?.commission !== null
+                    ? `₹${parseFloat(payload.transactionDetails.commission).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
@@ -326,7 +332,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
       </div>
 
       {/* Mini Statement Table */}
-      {transactionData?.transactionDetails?.ministatement && Array.isArray(transactionData.transactionDetails.ministatement) && transactionData.transactionDetails.ministatement.length > 0 && (
+      {payload?.transactionDetails?.ministatement && Array.isArray(payload.transactionDetails.ministatement) && payload.transactionDetails.ministatement.length > 0 && (
         <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4 sm:mb-6">
           <div className="bg-[#039155] px-4 py-3 flex items-center gap-2">
             <FileText className="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px] text-white" />
@@ -347,7 +353,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   </tr>
                 </thead>
                 <tbody>
-                  {transactionData.transactionDetails.ministatement.map((stmt, idx) => (
+                  {payload.transactionDetails.ministatement.map((stmt, idx) => (
                     <tr key={idx} className="border-t border-[#1B1717]/10">
                       <td className="px-4 py-3 text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">{stmt.date}</td>
                       <td className="px-4 py-3 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">{stmt.narration}</td>
