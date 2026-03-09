@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_RESENT_BANK_LIST_FAILURE, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_CW_HISTORY_USER_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_RESENT_BANK_LIST_FAILURE, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_CW_HISTORY_USER_FAILURE, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -415,8 +415,8 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
         const authToken = secureLocalStorage.getItem("userToken");
 
         const apiUrl = `${API_ROUTE}/api/v1/user/aeps1/transaction`;
-       
-        
+
+
         const response = await axios.post(
             apiUrl,
             data,
@@ -427,7 +427,7 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                 },
             }
         );
-        
+
         console.log("📥 API response received:", {
             status: response?.status,
             statusText: response?.statusText,
@@ -451,8 +451,8 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                     data: failureData,
                 },
             });
-            return { 
-                status: response?.data?.status ?? "FAILURE", 
+            return {
+                status: response?.data?.status ?? "FAILURE",
                 message: response?.data?.message ?? commonError,
                 data: failureData,
                 withdrawal: failureData,
@@ -467,8 +467,8 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
             statusText: error?.response?.statusText,
             request: error?.request,
         });
-        
-        const errorMessage = error.response ? error.response.data.message : error.message;        
+
+        const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_WITHDRAWAL_FAILURE,
             payload: {
@@ -476,13 +476,13 @@ export const aepsWithdrawl = (data) => async (dispatch) => {
                 message: errorMessage,
             },
         });
-        
+
         const errorData = error?.response?.data?.data || null;
         return {
             status: "FAILURE",
             message: errorMessage,
             data: errorData,
-            withdrawal: errorData, 
+            withdrawal: errorData,
         };
     } finally {
         dispatch({ type: LOADING_END });
@@ -907,6 +907,57 @@ export const getAeps2TransactionDetails = (transactionId) => async (dispatch) =>
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_TRANSACTION_DETAILS_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const getAeps2TransactionDetailsCompany = (transactionId) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/company/reports/aeps2/aeps2TransactionDetailsById/${transactionId}`,
+            {},
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: transactionDetailsCompany, status, message } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS,
+                payload: { data: transactionDetailsCompany, status, message },
+            });
+            return { data: transactionDetailsCompany, status, message };
+        } else {
+            dispatch({
+                type: AEPS_TRANSACTION_DETAILS_COMPANY_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_TRANSACTION_DETAILS_COMPANY_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: errorMessage,
