@@ -354,18 +354,30 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
                   Amount
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.amount
-                    ? `₹${transactionData.transactionDetails.amount}`
+                  {transactionData?.transactionDetails?.amount !== undefined && transactionData?.transactionDetails?.amount !== null
+                    ? `₹${parseFloat(transactionData.transactionDetails.amount).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
+
+              {transactionData?.transactionDetails?.balanceAmount !== undefined && transactionData?.transactionDetails?.balanceAmount !== "N/A" && transactionData?.transactionDetails?.balanceAmount !== null && (
+                <div>
+                  <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
+                    Balance Amount
+                  </p>
+                  <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
+                    ₹{parseFloat(transactionData.transactionDetails.balanceAmount).toFixed(2)}
+                  </p>
+                </div>
+              )}
+
               <div>
                 <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {transactionData?.transactionDetails?.commission
-                    ? `₹${transactionData.transactionDetails.commission.toFixed(2)}`
+                  {transactionData?.transactionDetails?.commission !== undefined && transactionData?.transactionDetails?.commission !== null
+                    ? `₹${parseFloat(transactionData.transactionDetails.commission).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
@@ -373,6 +385,43 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
           </div>
         </div>
       </div>
+
+      {/* Mini Statement Table */}
+      {transactionData?.transactionDetails?.ministatement && Array.isArray(transactionData.transactionDetails.ministatement) && transactionData.transactionDetails.ministatement.length > 0 && (
+        <div className="bg-white rounded-xl shadow-sm overflow-hidden mb-4 sm:mb-6">
+          <div className="bg-[#039155] px-4 py-3 flex items-center gap-2">
+            <FileText className="w-[20px] h-[20px] sm:w-[24px] sm:h-[24px] text-white" />
+            <h3 className="text-white font-['Gilroy-Semibold'] text-sm sm:text-base">
+              Mini Statement
+            </h3>
+          </div>
+
+          <div className="p-2">
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="px-4 py-2 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/70">Date</th>
+                    <th className="px-4 py-2 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/70">Narration</th>
+                    <th className="px-4 py-2 text-center text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/70">Txn Type</th>
+                    <th className="px-4 py-2 text-right text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/70">Amount</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {transactionData.transactionDetails.ministatement.map((stmt, idx) => (
+                    <tr key={idx} className="border-t border-[#1B1717]/10">
+                      <td className="px-4 py-3 text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">{stmt.date}</td>
+                      <td className="px-4 py-3 text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">{stmt.narration}</td>
+                      <td className={`px-4 py-3 text-center text-sm sm:text-base font-['Gilroy-Semibold'] ${stmt.txnType?.toUpperCase() === 'CR' ? 'text-[#039155]' : 'text-red-500'}`}>{stmt.txnType}</td>
+                      <td className="px-4 py-3 text-right text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">₹{parseFloat(stmt.amount).toFixed(2)}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Commission Details Table */}
       <div className="bg-white rounded-xl shadow-sm overflow-hidden">

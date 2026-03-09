@@ -62,10 +62,18 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       const isAeps2 = apiType === "aeps2";
 
       // Format amount with currency symbol - handle both AEPS 1 and AEPS 2
-      const amountValue = isAeps2 
+      const amountValue = isAeps2
         ? (item.transactionAmount || 0)
         : (item.amount || 0);
-      const formattedAmount = `₹${amountValue}`;
+      let formattedAmount = `₹${amountValue}`;
+
+      const txnType = item.transactionType || transactionType;
+      if (txnType === "BE") {
+        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
+        if (balance !== undefined && balance !== null && balance !== "N/A") {
+          formattedAmount = `Bal: ₹${balance}`;
+        }
+      }
 
       // Map status from API to display format - handle both structures
       const getStatusDisplay = (status, transactionStatus) => {
@@ -76,7 +84,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           if (statusStr === "failed" || statusStr === "failure") return "Failed";
           return "Pending";
         }
-        
+
         // For AEPS 1 or fallback, use status field
         if (status !== undefined && status !== null) {
           if (typeof status === "boolean") {
@@ -100,7 +108,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           }
           if (deviceStr.includes("IRIS")) return "IRIS";
         }
-        
+
         if (!captureType) return "APP";
         const typeStr = String(captureType);
         const typeUpper = typeStr.toUpperCase();
@@ -125,28 +133,28 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       // Extract bank name - handle both AEPS 1 and AEPS 2 structures
       const bankName = isAeps2
         ? (item.responsePayload?.result?.bankName ||
-           item.responsePayload?.data?.bankName ||
-           item.bankName ||
-           item.bankIin ||
-           "N/A")
+          item.responsePayload?.data?.bankName ||
+          item.bankName ||
+          item.bankIin ||
+          "N/A")
         : (item.responsePayload?.data?.bankName ||
-           item.bankName ||
-           item.bankiin ||
-           "N/A");
+          item.bankName ||
+          item.bankiin ||
+          "N/A");
 
       // Prefer consumerNumber as a readable identifier, then fall back
       const userName = isAeps2
         ? (item.mobileNumber ||
-           userDetails.name ||
-           item.name ||
-           item.userName ||
-           `User ${item.refId || item.addedBy || index + 1}`)
+          userDetails.name ||
+          item.name ||
+          item.userName ||
+          `User ${item.refId || item.addedBy || index + 1}`)
         : (item.consumerNumber ||
-           item.requestPayload?.consumerNumber ||
-           userDetails.name ||
-           item.name ||
-           item.userName ||
-           `User ${item.refId || item.addedBy || index + 1}`);
+          item.requestPayload?.consumerNumber ||
+          userDetails.name ||
+          item.name ||
+          item.userName ||
+          `User ${item.refId || item.addedBy || index + 1}`);
 
       const userRoleValue =
         userDetails.userRole !== undefined
@@ -160,51 +168,51 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       // Mobile number - handle both structures
       const mobileNo = isAeps2
         ? (item.mobileNumber ||
-           item.requestPayload?.mobileNumber ||
-           userDetails.mobileNo ||
-           item.mobileNo ||
-           item.mobile ||
-           "N/A")
+          item.requestPayload?.mobileNumber ||
+          userDetails.mobileNo ||
+          item.mobileNo ||
+          item.mobile ||
+          "N/A")
         : (item.consumerNumber ||
-           item.requestPayload?.mobile ||
-           item.requestPayload?.consumerNumber ||
-           userDetails.mobileNo ||
-           item.mobileNo ||
-           item.mobile ||
-           "N/A");
+          item.requestPayload?.mobile ||
+          item.requestPayload?.consumerNumber ||
+          userDetails.mobileNo ||
+          item.mobileNo ||
+          item.mobile ||
+          "N/A");
 
       // Consumer/Aadhaar number - handle both structures
       const consumerNumber = isAeps2
         ? (item.consumerAadhaarNumber ||
-           item.requestPayload?.adhaarNumber ||
-           item.requestPayload?.consumerAadhaarNumber ||
-           "N/A")
+          item.requestPayload?.adhaarNumber ||
+          item.requestPayload?.consumerAadhaarNumber ||
+          "N/A")
         : (item.consumerNumber ||
-           item.requestPayload?.consumerNumber ||
-           item.consumerAadhaarNumber ||
-           item.requestPayload?.consumerAadhaarNumber ||
-           item.requestPayload?.aadhaarNo ||
-           "N/A");
+          item.requestPayload?.consumerNumber ||
+          item.consumerAadhaarNumber ||
+          item.requestPayload?.consumerAadhaarNumber ||
+          item.requestPayload?.aadhaarNo ||
+          "N/A");
 
       // Extract merchant login ID - handle both structures
       const merchantLoginId = isAeps2
         ? (item.merchantLoginId ||
-           item.requestPayload?.merchantLoginId ||
-           item.merchantTransactionId ||
-           "N/A")
+          item.requestPayload?.merchantLoginId ||
+          item.merchantTransactionId ||
+          "N/A")
         : (item.requestPayload?.merchantLoginId ||
-           item.merchantTransactionId ||
-           "N/A");
+          item.merchantTransactionId ||
+          "N/A");
 
       // Extract bank RRN - handle both structures
       const bankRRN = isAeps2
         ? (item.bankRRN ||
-           item.responsePayload?.result?.bankRRN ||
-           item.responsePayload?.data?.bankRRN ||
-           "N/A")
+          item.responsePayload?.result?.bankRRN ||
+          item.responsePayload?.data?.bankRRN ||
+          "N/A")
         : (item.bankRRN ||
-           item.responsePayload?.data?.bankRRN ||
-           "N/A");
+          item.responsePayload?.data?.bankRRN ||
+          "N/A");
 
       return {
         id: item.id,
@@ -371,24 +379,24 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     // Extract bank name - handle both structures
     const bankName = isAeps2
       ? apiItem.responsePayload?.result?.bankName ||
-        apiItem.responsePayload?.data?.bankName ||
-        apiItem.bankName ||
-        apiItem.bankIin ||
-        "N/A"
+      apiItem.responsePayload?.data?.bankName ||
+      apiItem.bankName ||
+      apiItem.bankIin ||
+      "N/A"
       : apiItem.responsePayload?.data?.bankName ||
-        apiItem.bankName ||
-        apiItem.bankiin ||
-        "N/A";
+      apiItem.bankName ||
+      apiItem.bankiin ||
+      "N/A";
 
     // Extract aadhar number - handle both structures
     const aadharNumber = isAeps2
       ? apiItem.consumerAadhaarNumber ||
-        apiItem.requestPayload?.adhaarNumber ||
-        null
+      apiItem.requestPayload?.adhaarNumber ||
+      null
       : apiItem.consumerAadhaarNumber ||
-        apiItem.requestPayload?.consumerAadhaarNumber ||
-        apiItem.requestPayload?.aadhaarNo ||
-        null;
+      apiItem.requestPayload?.consumerAadhaarNumber ||
+      apiItem.requestPayload?.aadhaarNo ||
+      null;
 
     // Calculate commission (credit field) - AEPS 2 might not have commission fields
     const commission = apiItem.credit || 0;
@@ -401,28 +409,52 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       ? apiItem.transactionAmount || 0
       : apiItem.amount || 0;
 
+    // Balance Amount
+    const balanceAmount =
+      apiItem.balanceAmount ??
+      apiItem.responsePayload?.result?.balanceAmount ??
+      apiItem.responsePayload?.balanceAmount ??
+      "N/A";
+
+    // Mini Statement Array
+    let ministatement = [];
+    if (Array.isArray(apiItem.responsePayload?.ministatement)) {
+      ministatement = apiItem.responsePayload.ministatement;
+    } else if (Array.isArray(apiItem.responsePayload?.result?.ministatement)) {
+      ministatement = apiItem.responsePayload.result.ministatement;
+    } else if (apiItem.ministatement) {
+      try {
+        ministatement =
+          typeof apiItem.ministatement === "string"
+            ? JSON.parse(apiItem.ministatement)
+            : apiItem.ministatement;
+      } catch (e) {
+        console.error("Failed to parse ministatement", e);
+      }
+    }
+
     // Extract mobile number - handle both structures
     const mobileNo = isAeps2
       ? apiItem.mobileNumber ||
-        apiItem.requestPayload?.mobileNumber ||
-        userDetails.mobileNo ||
-        "N/A"
+      apiItem.requestPayload?.mobileNumber ||
+      userDetails.mobileNo ||
+      "N/A"
       : apiItem.consumerNumber ||
-        apiItem.requestPayload?.mobile ||
-        apiItem.requestPayload?.consumerNumber ||
-        userDetails.mobileNo ||
-        "N/A";
+      apiItem.requestPayload?.mobile ||
+      apiItem.requestPayload?.consumerNumber ||
+      userDetails.mobileNo ||
+      "N/A";
 
     // Extract user name/identifier
     const userName = isAeps2
       ? apiItem.mobileNumber ||
-        userDetails.name ||
-        apiItem.name ||
-        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`
+      userDetails.name ||
+      apiItem.name ||
+      `User ${apiItem.refId || apiItem.addedBy || "N/A"}`
       : apiItem.consumerNumber ||
-        userDetails.name ||
-        apiItem.name ||
-        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
+      userDetails.name ||
+      apiItem.name ||
+      `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
 
     return {
       transaction: {
@@ -453,7 +485,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         bankName: bankName,
         aadharNumber: aadharNumber,
         amount: amount,
+        balanceAmount: balanceAmount,
         commission: commission,
+        ministatement: ministatement,
       },
     };
   };

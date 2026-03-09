@@ -74,7 +74,15 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       const rawAmount = isAeps2
         ? (item.transactionAmount ?? item.amount ?? 0)
         : (item.amount ?? 0);
-      const formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+      let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+
+      const txnType = item.transactionType || transactionType;
+      if (txnType === "BE") {
+        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
+        if (balance !== undefined && balance !== null && balance !== "N/A") {
+          formattedAmount = `Bal: ₹${balance}`;
+        }
+      }
 
       // --- Status ---
       // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
@@ -116,7 +124,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         return userRole || "N/A";
       };
 
-      // Extract user details from item (AEPS2 has no nested userDetails)
+      // Extract user details from item
       const userDetails = item.userDetails || {};
 
       // --- Bank name ---
@@ -129,41 +137,29 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         "N/A";
 
       // --- User name ---
-      // AEPS2: consumer identified by `consumerAadhaarNumber` or `mobileNumber`
-      const userName = isAeps2
-        ? (item.merchantLoginId ||
-          item.mobileNumber ||
-          item.requestPayload?.mobileNumber ||
-          `User ${item.refId || item.addedBy || index + 1}`)
-        : (item.consumerNumber ||
-          item.requestPayload?.consumerNumber ||
-          userDetails.name ||
-          item.name ||
-          item.userName ||
-          `User ${item.refId || item.addedBy || index + 1}`);
+      const userName =
+        userDetails.name ||
+        item.name ||
+        item.userName ||
+        item.merchantLoginId ||
+        `User ${item.refId || item.addedBy || index + 1}`;
 
-      const userRoleValue = isAeps2
-        ? null
-        : (userDetails.userRole !== undefined
+      const userRoleValue =
+        userDetails.userRole !== undefined
           ? userDetails.userRole
           : item.userRole !== undefined
             ? item.userRole
-            : null);
+            : null;
 
       const profileImage = userDetails.profileImage || null;
 
       // --- Mobile number ---
-      const mobileNo = isAeps2
-        ? (item.mobileNumber ||
-          item.requestPayload?.mobileNumber ||
-          "N/A")
-        : (item.consumerNumber ||
-          item.requestPayload?.mobile ||
-          item.requestPayload?.consumerNumber ||
-          userDetails.mobileNo ||
-          item.mobileNo ||
-          item.mobile ||
-          "N/A");
+      const mobileNo =
+        userDetails.mobileNo ||
+        item.mobileNumber ||
+        item.mobileNo ||
+        item.mobile ||
+        "N/A";
 
       // --- Consumer number (Aadhaar) ---
       const consumerNumber = isAeps2
@@ -209,6 +205,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         via: getViaDisplay(captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
+        tdsAndComm: `TDS: ₹${item.whitelabelCommTDS ?? 0} | Comm: ₹${item.whitelabelComm ?? 0}`,
         originalItem: item,
       };
     });
@@ -383,6 +380,30 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       ? (apiItem.transactionAmount ?? apiItem.amount ?? 0)
       : (apiItem.amount ?? 0);
 
+    // Balance Amount
+    const balanceAmount =
+      apiItem.balanceAmount ??
+      apiItem.responsePayload?.result?.balanceAmount ??
+      apiItem.responsePayload?.balanceAmount ??
+      "N/A";
+
+    // Mini Statement Array
+    let ministatement = [];
+    if (Array.isArray(apiItem.responsePayload?.ministatement)) {
+      ministatement = apiItem.responsePayload.ministatement;
+    } else if (Array.isArray(apiItem.responsePayload?.result?.ministatement)) {
+      ministatement = apiItem.responsePayload.result.ministatement;
+    } else if (apiItem.ministatement) {
+      try {
+        ministatement =
+          typeof apiItem.ministatement === "string"
+            ? JSON.parse(apiItem.ministatement)
+            : apiItem.ministatement;
+      } catch (e) {
+        console.error("Failed to parse ministatement", e);
+      }
+    }
+
     // Commission (credit field)
     const commission = apiItem.credit || 0;
 
@@ -390,25 +411,19 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     const userDetails = apiItem.userDetails || {};
 
     // Name
-    const userName = isAeps2
-      ? (apiItem.merchantLoginId ||
-        apiItem.mobileNumber ||
-        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`)
-      : (apiItem.consumerNumber ||
-        userDetails.name ||
-        apiItem.name ||
-        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`);
+    const userName =
+      userDetails.name ||
+      apiItem.name ||
+      apiItem.merchantLoginId ||
+      `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
 
     // Mobile
-    const mobileNo = isAeps2
-      ? (apiItem.mobileNumber ||
-        apiItem.requestPayload?.mobileNumber ||
-        "N/A")
-      : (apiItem.consumerNumber ||
-        apiItem.requestPayload?.mobile ||
-        apiItem.requestPayload?.consumerNumber ||
-        userDetails.mobileNo ||
-        "N/A");
+    const mobileNo =
+      userDetails.mobileNo ||
+      apiItem.mobileNumber ||
+      apiItem.mobileNo ||
+      apiItem.mobile ||
+      "N/A";
 
     return {
       transaction: {
@@ -425,8 +440,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       },
       userDetails: {
         name: userName,
-        userRole: isAeps2 ? null : (userDetails.userRole || apiItem.userRole || null),
-        userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
+        userRole: userDetails.userRole !== undefined ? userDetails.userRole : apiItem.userRole !== undefined ? apiItem.userRole : null,
+        userId: userDetails.userId || apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
         mobileNo: mobileNo,
       },
       reportingUserDetails: {
@@ -439,7 +454,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         bankName: bankName,
         aadharNumber: aadharNumber,
         amount: amount,
+        balanceAmount: balanceAmount,
         commission: commission,
+        ministatement: ministatement,
+        transactionType: apiItem.transactionType || transactionType,
       },
     };
   };
@@ -656,6 +674,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   TDS & Comm
                 </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Action
+                </th>
               </tr>
             </thead>
             {!isLoading && (
@@ -763,6 +784,12 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.createdAt}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
+                            {transaction.tdsAndComm}
                           </span>
                         </td>
 
