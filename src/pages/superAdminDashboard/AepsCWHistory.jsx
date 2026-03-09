@@ -80,7 +80,15 @@ const AepsCWHistory = ({ onBack, type }) => {
       // --- Amount ---
       // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
       const rawAmount = item.transactionAmount ?? item.amount ?? 0;
-      const formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+      let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+
+      const txnType = item.transactionType || aepsTxnType;
+      if (txnType === "BE") {
+        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
+        if (balance !== undefined && balance !== null && balance !== "N/A") {
+          formattedAmount = `Bal: ₹${balance}`;
+        }
+      }
 
       // --- Status ---
       // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
@@ -130,6 +138,7 @@ const AepsCWHistory = ({ onBack, type }) => {
         userDetails.name ||
         item.name ||
         item.userName ||
+        item.merchantLoginId ||
         `User ${item.refId || item.addedBy || index + 1}`;
       const userRoleValue =
         userDetails.userRole !== undefined
