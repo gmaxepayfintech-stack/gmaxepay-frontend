@@ -40,6 +40,13 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const paginator = aepsCwHistoryResponse?.paginator || {};
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
+  // Detect if an item is from the AEPS2 API response shape
+  // AEPS2 items have `transactionStatus` and `mobileNumber` instead of `status`/`mobileNo`
+  const isAeps2Item = (item) =>
+    apiType === "aeps2" ||
+    item.transactionStatus !== undefined ||
+    item.mobileNumber !== undefined;
+
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
     if (!Array.isArray(dataArray) || dataArray.length === 0) {
@@ -60,31 +67,44 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           .replaceAll("/", "-");
       }
 
-      // Format amount with currency symbol
-      const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+      const isAeps2 = isAeps2Item(item);
 
-      // Map status from API to display format
-      const getStatusDisplay = (status) => {
-        if (!status) return "Pending";
-        // Ensure status is a string before calling toUpperCase
-        const statusStr = String(status);
-        const statusUpper = statusStr.toUpperCase();
-        if (statusUpper === "SUCCESS") return "Success";
-        if (statusUpper === "FAILED" || statusUpper === "FAILURE")
-          return "Failed";
+      // --- Amount ---
+      // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
+      const rawAmount = isAeps2
+        ? (item.transactionAmount ?? item.amount ?? 0)
+        : (item.amount ?? 0);
+      const formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+
+      // --- Status ---
+      // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
+      // AEPS1: `status` = true/false or "SUCCESS"/"FAILED"
+      const getStatusDisplay = (rawStatus) => {
+        if (rawStatus === null || rawStatus === undefined) return "Pending";
+        const s = String(rawStatus).toUpperCase();
+        if (s === "SUCCESS" || s === "SUCCESSFUL") return "Success";
+        if (s === "FAILED" || s === "FAILURE") return "Failed";
+        if (rawStatus === true) return "Success";
+        if (rawStatus === false) return "Failed";
         return "Pending";
       };
 
-      // Map capture type to display format
+      const statusValue = isAeps2
+        ? (item.transactionStatus ?? item.paymentStatus ?? item.status)
+        : item.status;
+
+      // --- Capture type / VIA ---
+      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
       const getViaDisplay = (captureType) => {
         if (!captureType) return "APP";
-        // Ensure captureType is a string before calling toUpperCase
         const typeStr = String(captureType);
         const typeUpper = typeStr.toUpperCase();
         if (typeUpper === "FINGER") return "FINGER";
         if (typeUpper === "IRIS") return "IRIS";
         return typeStr;
       };
+
+      const captureType = isAeps2 ? item.device : item.captureType;
 
       // Map user role number to text
       const getUserRoleDisplay = (userRole) => {
@@ -93,60 +113,78 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           if (userRole === 4) return "Distributor";
           return `Role ${userRole}`;
         }
-        // If it's already a string, return as is
         return userRole || "N/A";
       };
 
-      // Extract user details from item (company response usually has none)
+      // Extract user details from item (AEPS2 has no nested userDetails)
       const userDetails = item.userDetails || {};
 
-      // Extract bank name from responsePayload if available, otherwise use bankiin
+      // --- Bank name ---
+      // AEPS2 may have `bankIin` as a code; AEPS1 may have `bankiin`
       const bankName =
         item.responsePayload?.data?.bankName ||
         item.bankName ||
+        item.bankIin ||
         item.bankiin ||
         "N/A";
 
-      // Prefer consumerNumber as a readable identifier, then fall back
-      const userName =
-        item.consumerNumber ||
-        item.requestPayload?.consumerNumber ||
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        `User ${item.refId || item.addedBy || index + 1}`;
+      // --- User name ---
+      // AEPS2: consumer identified by `consumerAadhaarNumber` or `mobileNumber`
+      const userName = isAeps2
+        ? (item.merchantLoginId ||
+          item.mobileNumber ||
+          item.requestPayload?.mobileNumber ||
+          `User ${item.refId || item.addedBy || index + 1}`)
+        : (item.consumerNumber ||
+          item.requestPayload?.consumerNumber ||
+          userDetails.name ||
+          item.name ||
+          item.userName ||
+          `User ${item.refId || item.addedBy || index + 1}`);
 
-      const userRoleValue =
-        userDetails.userRole !== undefined
+      const userRoleValue = isAeps2
+        ? null
+        : (userDetails.userRole !== undefined
           ? userDetails.userRole
           : item.userRole !== undefined
             ? item.userRole
-            : null;
+            : null);
 
       const profileImage = userDetails.profileImage || null;
 
-      // Mobile number from consumerNumber or requestPayload
-      const mobileNo =
-        item.consumerNumber ||
-        item.requestPayload?.mobile ||
-        item.requestPayload?.consumerNumber ||
-        userDetails.mobileNo ||
-        item.mobileNo ||
-        item.mobile ||
-        "N/A";
+      // --- Mobile number ---
+      const mobileNo = isAeps2
+        ? (item.mobileNumber ||
+          item.requestPayload?.mobileNumber ||
+          "N/A")
+        : (item.consumerNumber ||
+          item.requestPayload?.mobile ||
+          item.requestPayload?.consumerNumber ||
+          userDetails.mobileNo ||
+          item.mobileNo ||
+          item.mobile ||
+          "N/A");
 
-      const consumerNumber =
-        item.consumerNumber ||
-        item.requestPayload?.consumerNumber ||
-        item.consumerAadhaarNumber ||
-        item.requestPayload?.consumerAadhaarNumber ||
-        "N/A";
+      // --- Consumer number (Aadhaar) ---
+      const consumerNumber = isAeps2
+        ? (item.consumerAadhaarNumber ||
+          item.requestPayload?.adhaarNumber ||
+          item.requestPayload?.aadhaarNo ||
+          "N/A")
+        : (item.consumerNumber ||
+          item.requestPayload?.consumerNumber ||
+          item.consumerAadhaarNumber ||
+          item.requestPayload?.consumerAadhaarNumber ||
+          "N/A");
 
-      // Extract merchant login ID from requestPayload
-      const merchantLoginId =
-        item.requestPayload?.merchantLoginId ||
-        item.merchantTransactionId ||
-        "N/A";
+      // --- Merchant login ID ---
+      const merchantLoginId = isAeps2
+        ? (item.merchantLoginId ||
+          item.merchantTransactionId ||
+          "N/A")
+        : (item.requestPayload?.merchantLoginId ||
+          item.merchantTransactionId ||
+          "N/A");
 
       return {
         id: item.id,
@@ -157,16 +195,19 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         mobileNo: mobileNo,
         consumerNumber: consumerNumber,
         companyId: item.companyId ?? "N/A",
-        // Company response doesn't include companyName/logo; use operator as a friendly name
         companyName: item.companyName || item.operator || "N/A",
         merchantLoginId: merchantLoginId,
         bankName: bankName,
         taxId: item.transactionId || "N/A",
         refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || item.responsePayload?.data?.bankRRN || "N/A",
+        bankRRN:
+          item.bankRRN ||
+          item.responsePayload?.data?.bankRRN ||
+          item.responsePayload?.result?.bankRRN ||
+          "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(item.captureType),
-        status: getStatusDisplay(item.status),
+        via: getViaDisplay(captureType),
+        status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         originalItem: item,
       };
@@ -248,10 +289,22 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    // Get the appropriate search field based on input pattern
+    // Build customSearch — merge text search + status filter
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
+
+    // --- Status filter via customSearch (camelCase values) ---
+    // AEPS2: filter by `transactionStatus` ("successful" / "failed" / "pending")
+    // AEPS1: filter by `paymentStatus`   ("success"    / "failed" / "pending")
+    if (statusFilter !== "All") {
+      const camelStatus = statusFilter.toLowerCase(); // "success" | "failed" | "pending"
+      if (apiType === "aeps2") {
+        customSearch.transactionStatus = camelStatus;
+      } else {
+        customSearch.paymentStatus = camelStatus;
+      }
+    }
 
     const payload = {
       query: query,
@@ -269,7 +322,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     } else {
       dispatch(getAepsCwHistoryCompany(payload));
     }
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
+  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, statusFilter]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -283,12 +336,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Filter transactions based on selected status (search is handled by API)
-  const filteredTransactions = transactions.filter((transaction) => {
-    const matchesStatus =
-      statusFilter === "All" || transaction.status === statusFilter;
-    return matchesStatus;
-  });
+  // Status is filtered server-side via customSearch — no client-side filter needed.
+  const filteredTransactions = transactions;
 
   // Pagination settings - Use API pagination data
   const itemsPerPage = paginator.perPage || 10;
@@ -307,25 +356,59 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const transformTransactionData = (apiItem) => {
     if (!apiItem) return null;
 
-    // Extract bank name from bankiin or responsePayload
+    const isAeps2 = isAeps2Item(apiItem);
+
+    // Extract bank name
     const bankName =
       apiItem.responsePayload?.data?.bankName ||
+      apiItem.responsePayload?.result?.bankName ||
       apiItem.bankName ||
+      apiItem.bankIin ||
       apiItem.bankiin ||
       "N/A";
 
-    // Extract aadhar number
-    const aadharNumber =
-      apiItem.consumerAadhaarNumber ||
-      apiItem.requestPayload?.consumerAadhaarNumber ||
-      apiItem.requestPayload?.aadhaarNo ||
-      null;
+    // Extract aadhaar number
+    const aadharNumber = isAeps2
+      ? (apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.adhaarNumber ||
+        apiItem.requestPayload?.aadhaarNo ||
+        null)
+      : (apiItem.consumerAadhaarNumber ||
+        apiItem.requestPayload?.consumerAadhaarNumber ||
+        apiItem.requestPayload?.aadhaarNo ||
+        null);
 
-    // Calculate commission (credit field)
+    // Amount
+    const amount = isAeps2
+      ? (apiItem.transactionAmount ?? apiItem.amount ?? 0)
+      : (apiItem.amount ?? 0);
+
+    // Commission (credit field)
     const commission = apiItem.credit || 0;
 
-    // Extract user details from API response
+    // User details
     const userDetails = apiItem.userDetails || {};
+
+    // Name
+    const userName = isAeps2
+      ? (apiItem.merchantLoginId ||
+        apiItem.mobileNumber ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`)
+      : (apiItem.consumerNumber ||
+        userDetails.name ||
+        apiItem.name ||
+        `User ${apiItem.refId || apiItem.addedBy || "N/A"}`);
+
+    // Mobile
+    const mobileNo = isAeps2
+      ? (apiItem.mobileNumber ||
+        apiItem.requestPayload?.mobileNumber ||
+        "N/A")
+      : (apiItem.consumerNumber ||
+        apiItem.requestPayload?.mobile ||
+        apiItem.requestPayload?.consumerNumber ||
+        userDetails.mobileNo ||
+        "N/A");
 
     return {
       transaction: {
@@ -341,17 +424,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         retailerComTDS: apiItem.retailerComTDS,
       },
       userDetails: {
-        name: apiItem.consumerNumber ||
-          userDetails.name ||
-          apiItem.name ||
-          `User ${apiItem.refId || apiItem.addedBy || "N/A"}`,
-        userRole: userDetails.userRole || apiItem.userRole || null,
+        name: userName,
+        userRole: isAeps2 ? null : (userDetails.userRole || apiItem.userRole || null),
         userId: apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
-        mobileNo: apiItem.consumerNumber ||
-          apiItem.requestPayload?.mobile ||
-          apiItem.requestPayload?.consumerNumber ||
-          userDetails.mobileNo ||
-          "N/A",
+        mobileNo: mobileNo,
       },
       reportingUserDetails: {
         companyName: apiItem.companyName || apiItem.operator || "N/A",
@@ -362,7 +438,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       transactionDetails: {
         bankName: bankName,
         aadharNumber: aadharNumber,
-        amount: apiItem.amount || 0,
+        amount: amount,
         commission: commission,
       },
     };
