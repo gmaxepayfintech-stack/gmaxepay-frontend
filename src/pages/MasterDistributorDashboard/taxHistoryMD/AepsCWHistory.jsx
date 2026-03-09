@@ -702,9 +702,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  TDS & Comm
-                </th>
               </tr>
             </thead>
             {!isLoading && (
@@ -814,7 +811,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                             {transaction.createdAt}
                           </span>
                         </td>
-
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
                             onClick={() => handleViewClick(transaction)}
@@ -842,50 +838,52 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       </div>
 
       {/* Loading / Pagination (unchanged) */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
-          <ButtonLoader color="#039155" size={24} thickness={3} />
-          <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading...
-          </p>
-        </div>
-      ) : (
-        totalPages > 0 && (
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === page
-                  ? "bg-[#039155] text-white"
-                  : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
-
-            <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+      {
+        isLoading ? (
+          <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
+            <ButtonLoader color="#039155" size={24} thickness={3} />
+            <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+              Loading...
+            </p>
           </div>
+        ) : (
+          totalPages > 0 && (
+            <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
+              <button
+                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                disabled={currentPage === 1}
+                className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(page)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === page
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    }`}
+                >
+                  {page}
+                </button>
+              ))}
+
+              <button
+                onClick={() =>
+                  setCurrentPage(Math.min(totalPages, currentPage + 1))
+                }
+                disabled={currentPage === totalPages}
+                className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
+          )
         )
-      )}
-    </div>
+      }
+    </div >
   );
 };
 

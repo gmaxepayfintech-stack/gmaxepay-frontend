@@ -209,7 +209,7 @@ const TaxHistory = () => {
     },
     {
       id: 30,
-      title: "Mobile Recharge -2 History",
+      title: "Express Recharge History",
       subtitle: "Prepaid & Postpaid",
       available: true,
       viewKey: "recharge-history-two",
@@ -225,7 +225,7 @@ const TaxHistory = () => {
     },
     {
       id: 31,
-      title: "DTH Recharge -2 History",
+      title: "Express DTH Recharge History",
       subtitle: "DTH Payments",
       available: true,
       viewKey: "dth-history-two",
@@ -249,14 +249,14 @@ const TaxHistory = () => {
       viewKey: "pan-service-history",
       category: "E-Governance",
     },
-    {
-      id: 32,
-      title: "PAN Service -2 History",
-      subtitle: "PAN Applications & Updates",
-      available: true,
-      viewKey: "pan-service-history-two",
-      category: "E-Governance",
-    },
+    // {
+    //   id: 32,
+    //   title: "PAN Service -2 History",
+    //   subtitle: "PAN Applications & Updates",
+    //   available: true,
+    //   viewKey: "pan-service-history-two",
+    //   category: "E-Governance",
+    // },
     // {
     //   id: 18,
     //   title: "Aadhaar KYC History",

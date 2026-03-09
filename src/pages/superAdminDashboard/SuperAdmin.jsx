@@ -7,6 +7,7 @@ import {
   getEkycHubBalance,
   getInspayWalletBalance,
   getBbpsWalletBalance,
+  getA1TopupWallet,
   getDashboardStatistics,
 } from "../../redux/action/walletAction";
 import {
@@ -44,6 +45,7 @@ const SuperAdmin = () => {
   const [ekycHubBalance, setEkycHubBalance] = useState(null);
   const [inspayWalletBalance, setInspayWalletBalance] = useState(null);
   const [bbpsWalletBalance, setBbpsWalletBalance] = useState(null);
+  const [a1TopupWalletBalance, setA1TopupWalletBalance] = useState(null);
   const [walletData, setWalletData] = useState({
     mainWallet: null,
     aeps1: null,
@@ -54,12 +56,14 @@ const SuperAdmin = () => {
   const [isEkycHubLoading, setIsEkycHubLoading] = useState(true);
   const [isInspayWalletLoading, setIsInspayWalletLoading] = useState(true);
   const [isBbpsWalletLoading, setIsBbpsWalletLoading] = useState(true);
+  const [isA1TopupWalletLoading, setIsA1TopupWalletLoading] = useState(true);
   const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
   const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Today");
   const [isInspayWalletRefreshing, setIsInspayWalletRefreshing] =
     useState(false);
   const [isBbpsWalletRefreshing, setIsBbpsWalletRefreshing] = useState(false);
+  const [isA1TopupWalletRefreshing, setIsA1TopupWalletRefreshing] = useState(false);
 
   const [payoutOpen, setPayout] = useState(false);
   const [walletType, setWalletType] = useState("bank");
@@ -90,6 +94,9 @@ const SuperAdmin = () => {
   );
   const bbpsWalletBalanceResponse = useSelector(
     (state) => state?.wallet?.bbpsWalletBalance,
+  );
+  const a1TopupWalletResponse = useSelector(
+    (state) => state?.wallet?.a1TopupWallet,
   );
   const dashboardStatisticsResponse = useSelector(
     (state) => state?.wallet?.dashboardStatistics,
@@ -258,6 +265,21 @@ const SuperAdmin = () => {
     fetchBbpsWalletBalance();
   }, [dispatch]);
 
+  // Fetch A1 Topup wallet on component mount
+  useEffect(() => {
+    const fetchA1TopupWallet = async () => {
+      setIsA1TopupWalletLoading(true);
+      try {
+        await dispatch(getA1TopupWallet());
+      } catch (error) {
+        console.error("Failed to fetch A1 Topup wallet balance:", error);
+      } finally {
+        setIsA1TopupWalletLoading(false);
+      }
+    };
+    fetchA1TopupWallet();
+  }, [dispatch]);
+
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
@@ -300,12 +322,31 @@ const SuperAdmin = () => {
 
   // Update BBPS wallet balance when data is fetched
   useEffect(() => {
-    if (bbpsWalletBalanceResponse?.data?.balance) {
-      setBbpsWalletBalance(bbpsWalletBalanceResponse.data.balance);
+    if (bbpsWalletBalanceResponse?.data?.currentBalance || bbpsWalletBalanceResponse?.data?.balance) {
+      setBbpsWalletBalance(bbpsWalletBalanceResponse.data.currentBalance || bbpsWalletBalanceResponse.data.balance);
     } else {
       setBbpsWalletBalance("0.00");
     }
   }, [bbpsWalletBalanceResponse]);
+
+  // Update A1 Topup wallet balance when data is fetched
+  // API response: { "status": "SUCCESS", "data": 139.03 }
+  useEffect(() => {
+    const responseData = a1TopupWalletResponse?.data;
+    if (responseData !== undefined && responseData !== null) {
+      if (typeof responseData === "number" || typeof responseData === "string") {
+        // data is a plain number/string
+        setA1TopupWalletBalance(responseData);
+      } else if (responseData?.currentBalance ?? responseData?.balance ?? responseData?.walletBalance) {
+        // data is an object with balance field
+        setA1TopupWalletBalance(responseData.currentBalance ?? responseData.balance ?? responseData.walletBalance);
+      } else {
+        setA1TopupWalletBalance("0.00");
+      }
+    } else {
+      setA1TopupWalletBalance("0.00");
+    }
+  }, [a1TopupWalletResponse]);
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
@@ -513,7 +554,8 @@ const SuperAdmin = () => {
     isAlsWalletLoading ||
     isEkycHubLoading ||
     isInspayWalletLoading ||
-    isBbpsWalletLoading
+    isBbpsWalletLoading ||
+    isA1TopupWalletLoading
   ) {
     return <SkeletonLoader />;
   }
@@ -788,6 +830,7 @@ const SuperAdmin = () => {
               const isEkycHubWallet = i === 1;
               const isInspayWallet = i === 2;
               const isBbpsWallet = i === 3;
+              const isA1TopupWallet = i === 4;
               const walletName = isAslWallet
                 ? "ASL Wallet"
                 : isEkycHubWallet
@@ -796,7 +839,9 @@ const SuperAdmin = () => {
                     ? "Inspay Wallet"
                     : isBbpsWallet
                       ? "BBPS Wallet"
-                      : `Rupaisa Pay Wallet ${i}`;
+                      : isA1TopupWallet
+                        ? "A1 Topup Wallet"
+                        : `Rupaisa Pay Wallet ${i}`;
               const displayBalance = isAslWallet
                 ? alsOpeningBalance
                   ? `₹${parseFloat(alsOpeningBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -813,7 +858,11 @@ const SuperAdmin = () => {
                       ? bbpsWalletBalance
                         ? `₹${parseFloat(bbpsWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                         : "₹0.00"
-                      : "$4,21,40,238";
+                      : isA1TopupWallet
+                        ? a1TopupWalletBalance
+                          ? `₹${parseFloat(a1TopupWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                          : "₹0.00"
+                        : "₹0.00";
 
               return (
                 <div
@@ -827,7 +876,8 @@ const SuperAdmin = () => {
                     {(isAslWalletRefreshing && isAslWallet) ||
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
-                      (isBbpsWalletRefreshing && isBbpsWallet)
+                      (isBbpsWalletRefreshing && isBbpsWallet) ||
+                      (isA1TopupWalletRefreshing && isA1TopupWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -895,19 +945,36 @@ const SuperAdmin = () => {
                           .finally(() => {
                             setIsBbpsWalletRefreshing(false);
                           });
+                      } else if (isA1TopupWallet) {
+                        setIsA1TopupWalletRefreshing(true);
+                        dispatch(getA1TopupWallet())
+                          .then(() => {
+                            // The useEffect will update a1TopupWalletBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Failed to refresh A1 Topup wallet:",
+                              error,
+                            );
+                          })
+                          .finally(() => {
+                            setIsA1TopupWalletRefreshing(false);
+                          });
                       }
                     }}
                     disabled={
                       (isAslWalletRefreshing && isAslWallet) ||
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
-                      (isBbpsWalletRefreshing && isBbpsWallet)
+                      (isBbpsWalletRefreshing && isBbpsWallet) ||
+                      (isA1TopupWalletRefreshing && isA1TopupWallet)
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
-                      (isBbpsWalletRefreshing && isBbpsWallet)
+                      (isBbpsWalletRefreshing && isBbpsWallet) ||
+                      (isA1TopupWalletRefreshing && isA1TopupWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>

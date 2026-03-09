@@ -15,7 +15,10 @@ import {
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
 import { getAeps2CwHistoryCompany } from "../../../redux/action/aepsTwoAction";
-
+import {
+  getAepsTransactionDetailsCompany,
+  getAeps2TransactionDetailsCompany
+} from "../../../redux/action/aepsAction";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -26,8 +29,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [currentPage, setCurrentPage] = useState(1);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+  const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
+  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
 
   // Determine which Redux state to use based on apiType
   const aepsCwHistoryResponse = useSelector((state) => {
@@ -349,137 +353,57 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     setCurrentPage(1);
   }, [statusFilter]);
 
-  // Transform API response to match TransactioDetails expected format
-  const transformTransactionData = (apiItem) => {
-    if (!apiItem) return null;
-
-    const isAeps2 = isAeps2Item(apiItem);
-
-    // Extract bank name
-    const bankName =
-      apiItem.responsePayload?.data?.bankName ||
-      apiItem.responsePayload?.result?.bankName ||
-      apiItem.bankName ||
-      apiItem.bankIin ||
-      apiItem.bankiin ||
-      "N/A";
-
-    // Extract aadhaar number
-    const aadharNumber = isAeps2
-      ? (apiItem.consumerAadhaarNumber ||
-        apiItem.requestPayload?.adhaarNumber ||
-        apiItem.requestPayload?.aadhaarNo ||
-        null)
-      : (apiItem.consumerAadhaarNumber ||
-        apiItem.requestPayload?.consumerAadhaarNumber ||
-        apiItem.requestPayload?.aadhaarNo ||
-        null);
-
-    // Amount
-    const amount = isAeps2
-      ? (apiItem.transactionAmount ?? apiItem.amount ?? 0)
-      : (apiItem.amount ?? 0);
-
-    // Balance Amount
-    const balanceAmount =
-      apiItem.balanceAmount ??
-      apiItem.responsePayload?.result?.balanceAmount ??
-      apiItem.responsePayload?.balanceAmount ??
-      "N/A";
-
-    // Mini Statement Array
-    let ministatement = [];
-    if (Array.isArray(apiItem.responsePayload?.ministatement)) {
-      ministatement = apiItem.responsePayload.ministatement;
-    } else if (Array.isArray(apiItem.responsePayload?.result?.ministatement)) {
-      ministatement = apiItem.responsePayload.result.ministatement;
-    } else if (apiItem.ministatement) {
-      try {
-        ministatement =
-          typeof apiItem.ministatement === "string"
-            ? JSON.parse(apiItem.ministatement)
-            : apiItem.ministatement;
-      } catch (e) {
-        console.error("Failed to parse ministatement", e);
+  // Watch for transaction details to be loaded
+  useEffect(() => {
+    if (selectedTransactionId && isLoadingTransactionDetails) {
+      if (!isLoading) {
+        const timer = setTimeout(() => {
+          setIsLoadingTransactionDetails(false);
+          setShowTransactionDetails(true);
+        }, 100);
+        return () => clearTimeout(timer);
       }
     }
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-    // Commission (credit field)
-    const commission = apiItem.credit || 0;
+  // Handle view button click - fetch transaction details first
+  const handleViewClick = (transactionId) => {
+    if (!transactionId || isLoadingTransactionDetails) return;
 
-    // User details
-    const userDetails = apiItem.userDetails || {};
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(transactionId);
 
-    // Name
-    const userName =
-      userDetails.name ||
-      apiItem.name ||
-      apiItem.merchantLoginId ||
-      `User ${apiItem.refId || apiItem.addedBy || "N/A"}`;
-
-    // Mobile
-    const mobileNo =
-      userDetails.mobileNo ||
-      apiItem.mobileNumber ||
-      apiItem.mobileNo ||
-      apiItem.mobile ||
-      "N/A";
-
-    return {
-      transaction: {
-        superadminComm: apiItem.superadminComm,
-        superadminCommTDS: apiItem.superadminCommTDS,
-        whitelabelComm: apiItem.whitelabelComm,
-        whitelabelCommTDS: apiItem.whitelabelCommTDS,
-        masterDistributorCom: apiItem.masterDistributorCom,
-        masterDistributorComTDS: apiItem.masterDistributorComTDS,
-        distributorCom: apiItem.distributorCom,
-        distributorComTDS: apiItem.distributorComTDS,
-        retailerCom: apiItem.retailerCom,
-        retailerComTDS: apiItem.retailerComTDS,
-      },
-      userDetails: {
-        name: userName,
-        userRole: userDetails.userRole !== undefined ? userDetails.userRole : apiItem.userRole !== undefined ? apiItem.userRole : null,
-        userId: userDetails.userId || apiItem.refId?.toString() || apiItem.addedBy?.toString() || "N/A",
-        mobileNo: mobileNo,
-      },
-      reportingUserDetails: {
-        companyName: apiItem.companyName || apiItem.operator || "N/A",
-        parentName: "N/A",
-        parentRole: null,
-        parentUserId: apiItem.companyId?.toString() || "N/A",
-      },
-      transactionDetails: {
-        bankName: bankName,
-        aadharNumber: aadharNumber,
-        amount: amount,
-        balanceAmount: balanceAmount,
-        commission: commission,
-        ministatement: ministatement,
-        transactionType: apiItem.transactionType || transactionType,
-      },
-    };
-  };
-
-  // Handle view button click
-  const handleViewClick = (transaction) => {
-    const originalItem = transaction.originalItem;
-    if (originalItem) {
-      const transformedData = transformTransactionData(originalItem);
-      setSelectedTransaction(transformedData);
-      setShowTransactionDetails(true);
+    if (apiType === "aeps2") {
+      dispatch(getAeps2TransactionDetailsCompany(transactionId));
+    } else {
+      dispatch(getAepsTransactionDetailsCompany(transactionId));
     }
   };
 
+  // Show loading overlay when fetching transaction details
+  if (isLoadingTransactionDetails && selectedTransactionId) {
+    return (
+      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
+        <div className="flex flex-col items-center gap-4">
+          <ButtonLoader color="#039155" size={40} thickness={4} />
+          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
+            Loading transaction details...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   // If showing transaction details, render TransactioDetails
-  if (showTransactionDetails && selectedTransaction) {
+  if (showTransactionDetails) {
     return (
       <TransactioDetails
-        transactionData={selectedTransaction}
+        transactionId={selectedTransactionId}
+        isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
-          setSelectedTransaction(null);
+          setSelectedTransactionId(null);
+          setIsLoadingTransactionDetails(false);
         }}
       />
     );
@@ -644,9 +568,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Id
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                {/* <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Name
-                </th>
+                </th> */}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Merchant Id
                 </th>
@@ -670,9 +594,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Created At
-                </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  TDS & Comm
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Action
@@ -726,11 +647,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                           </span>
                         </td>
 
-                        <td className="px-4 sm:px-6 py-3 sm:py-4">
+                        {/* <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
                             {transaction.companyName}
                           </span>
-                        </td>
+                        </td> */}
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
@@ -788,15 +709,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                         </td>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] font-[Gilroy-Medium]">
-                            {transaction.tdsAndComm}
-                          </span>
-                        </td>
-
-                        <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
-                            onClick={() => handleViewClick(transaction)}
+                            onClick={() => handleViewClick(transaction.id)}
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#039155] text-white text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg hover:bg-green-700 transition shadow-sm whitespace-nowrap"
+                            disabled={isLoadingTransactionDetails}
                           >
                             View
                           </button>
