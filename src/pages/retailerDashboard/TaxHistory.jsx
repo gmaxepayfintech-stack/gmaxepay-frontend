@@ -243,7 +243,7 @@ const TaxHistory = () => {
     // E-Governance
     {
       id: 17,
-      title: "PAN Service -1 History",
+      title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
       viewKey: "pan-service-history",
