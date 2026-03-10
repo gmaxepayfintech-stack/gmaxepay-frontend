@@ -53,9 +53,12 @@ const AepsCWHistory = ({ onBack, type }) => {
   const paginator = aepsHistoryResponse?.paginator || {};
   const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetails,
-  );
+  const transactionDetailsResponse = useSelector((state) => {
+    if (isAeps2) {
+      return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
+    }
+    return state?.aeps?.transactionDetails;
+  });
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -379,7 +382,7 @@ const AepsCWHistory = ({ onBack, type }) => {
   if (showTransactionDetails) {
     return (
       <TransactioDetails
-        transactionId={selectedTransactionId}
+        transactionData={transactionDetailsResponse}
         isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);

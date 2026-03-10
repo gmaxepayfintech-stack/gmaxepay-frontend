@@ -45,12 +45,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Selector for fetching transaction details from Redux
-  const transactionDetailsData = useSelector((state) => {
-    if (apiType === "aeps2") {
-      return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
-    }
-    return state?.aeps?.transactionDetails;
-  });
+  const transactionDetailsData = useSelector((state) => state?.aeps?.transactionDetailsCompany);
 
   // Detect if an item is from the AEPS2 API response shape
   // AEPS2 items have `transactionStatus` and `mobileNumber` instead of `status`/`mobileNo`
