@@ -794,7 +794,6 @@ const SelectserviceTwo = () => {
             //   response?.data || response?.cashWithdrawl,
             // );
 
-            // Show success modal with transaction details
             // The action returns { cashWithdrawl, status, message } where cashWithdrawl = response.data.data
             setModal({
               isOpen: true,
@@ -802,7 +801,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Withdrawal successful!",
               type: "success",
               transactionType: "cashWithdrawal",
-              transactionData: response?.cashWithdrawl || null,
+              transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
             });
             showNotification({
               type: "success",
@@ -833,7 +832,7 @@ const SelectserviceTwo = () => {
               title: "Transaction Failed",
               message: response?.message || "Withdrawal failed",
               type: "error",
-              transactionData: response?.cashWithdrawl || null,
+              transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
             });
             showNotification({
               type: "error",
@@ -1149,7 +1148,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Balance enquiry successful!",
               type: "success",
               transactionType: "balanceEnquiry",
-              transactionData: response?.balanceEnquiry || null,
+              transactionData: response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
             });
             showNotification({
               type: "success",
@@ -1171,7 +1170,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Balance enquiry failed",
               type: "error",
               transactionData:
-                response?.data || response?.balanceEnquiry || null,
+                response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
             });
             showNotification({
               type: "error",
@@ -1485,7 +1484,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Statement enquiry successful!",
               type: "success",
               transactionType: "miniStatement",
-              transactionData: response?.miniStatement || null,
+              transactionData: response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
             });
             showNotification({
               type: "success",
@@ -1507,7 +1506,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Statement enquiry failed",
               type: "error",
               transactionData:
-                response?.data || response?.miniStatement || null,
+                response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
             });
             showNotification({
               type: "error",

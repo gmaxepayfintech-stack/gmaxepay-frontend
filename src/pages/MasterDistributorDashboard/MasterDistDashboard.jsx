@@ -546,7 +546,7 @@ const MasterDistDashboard = () => {
                 Today's Commission
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  ₹200
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>
@@ -616,7 +616,7 @@ const MasterDistDashboard = () => {
                 Today's Earning
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  ₹200
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>
