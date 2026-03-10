@@ -44,6 +44,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const paginator = aepsCwHistoryResponse?.paginator || {};
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
+  // Selector for fetching transaction details from Redux
+  const transactionDetailsData = useSelector((state) => state?.aeps?.transactionDetailsCompany);
+
   // Detect if an item is from the AEPS2 API response shape
   // AEPS2 items have `transactionStatus` and `mobileNumber` instead of `status`/`mobileNo`
   const isAeps2Item = (item) =>
@@ -81,11 +84,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
 
       const txnType = item.transactionType || transactionType;
-      if (txnType === "BE") {
-        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
-        if (balance !== undefined && balance !== null && balance !== "N/A") {
-          formattedAmount = `Bal: ₹${balance}`;
-        }
+      if (txnType === "BE" || txnType === "MS") {
+        formattedAmount = "₹0";
       }
 
       // --- Status ---
@@ -398,7 +398,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   if (showTransactionDetails) {
     return (
       <TransactioDetails
-        transactionId={selectedTransactionId}
+        transactionData={transactionDetailsData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
