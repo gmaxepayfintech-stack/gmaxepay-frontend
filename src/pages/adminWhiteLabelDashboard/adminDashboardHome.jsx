@@ -553,7 +553,7 @@ const AdminDashboardHome = () => {
                 Today's Commission
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  ₹200
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>
@@ -623,7 +623,7 @@ const AdminDashboardHome = () => {
                 Today's Earning
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  ₹200
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>

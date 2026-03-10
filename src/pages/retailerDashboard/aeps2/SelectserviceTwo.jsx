@@ -1148,7 +1148,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Balance enquiry successful!",
               type: "success",
               transactionType: "balanceEnquiry",
-              transactionData: response?.balanceEnquiry || null,
+              transactionData: response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
             });
             showNotification({
               type: "success",
@@ -1170,7 +1170,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Balance enquiry failed",
               type: "error",
               transactionData:
-                response?.data || response?.balanceEnquiry || null,
+                response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
             });
             showNotification({
               type: "error",
@@ -1484,7 +1484,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Statement enquiry successful!",
               type: "success",
               transactionType: "miniStatement",
-              transactionData: response?.miniStatement || null,
+              transactionData: response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
             });
             showNotification({
               type: "success",
@@ -1506,7 +1506,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Statement enquiry failed",
               type: "error",
               transactionData:
-                response?.data || response?.miniStatement || null,
+                response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
             });
             showNotification({
               type: "error",
