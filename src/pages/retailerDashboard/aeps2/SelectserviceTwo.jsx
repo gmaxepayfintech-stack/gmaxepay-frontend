@@ -794,7 +794,6 @@ const SelectserviceTwo = () => {
             //   response?.data || response?.cashWithdrawl,
             // );
 
-            // Show success modal with transaction details
             // The action returns { cashWithdrawl, status, message } where cashWithdrawl = response.data.data
             setModal({
               isOpen: true,
@@ -802,7 +801,7 @@ const SelectserviceTwo = () => {
               message: response?.message || "Withdrawal successful!",
               type: "success",
               transactionType: "cashWithdrawal",
-              transactionData: response?.cashWithdrawl || null,
+              transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
             });
             showNotification({
               type: "success",
@@ -833,7 +832,7 @@ const SelectserviceTwo = () => {
               title: "Transaction Failed",
               message: response?.message || "Withdrawal failed",
               type: "error",
-              transactionData: response?.cashWithdrawl || null,
+              transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
             });
             showNotification({
               type: "error",
