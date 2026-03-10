@@ -822,7 +822,7 @@ export const getAeps2TransactionDetailsUsers = (transactionId) => async (dispatc
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/user/aeps2/aeps2TransactionDetailsById/${transactionId}`,
+      `${API_ROUTE}/api/v1/user/aeps2/aeps2TransactionDetailsById/${transactionId}`,
       {},
       {
         headers: {
