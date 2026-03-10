@@ -201,7 +201,7 @@ const TaxHistory = () => {
     // },
     {
       id: 29,
-      title: "Mobile Recharge -1 History",
+      title: "Mobile Recharge History",
       subtitle: "Prepaid & Postpaid",
       available: true,
       viewKey: "recharge-history",
@@ -217,14 +217,14 @@ const TaxHistory = () => {
     },
     {
       id: 31,
-      title: "DTH Recharge -1 History",
+      title: "DTH Recharge History",
       subtitle: "DTH Payments",
       available: true,
       viewKey: "dth-history",
       category: "Utility Payment",
     },
     {
-      id: 31,
+      id: 32,
       title: "Express DTH Recharge History",
       subtitle: "DTH Payments",
       available: true,
@@ -232,7 +232,7 @@ const TaxHistory = () => {
       category: "Utility Payment",
     },
     {
-      id: 31,
+      id: 33,
       title: "BBPS History",
       subtitle: "BBPS Payments",
       available: true,
@@ -243,7 +243,7 @@ const TaxHistory = () => {
     // E-Governance
     {
       id: 17,
-      title: "PAN Service -1 History",
+      title: "PAN Service History",
       subtitle: "PAN Applications & Updates",
       available: true,
       viewKey: "pan-service-history",
@@ -453,7 +453,7 @@ const TaxHistory = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6 mb-4 sm:mb-6">
           {paginatedCards.map((card) => (
             <div
-              key={card.id}
+              key={card.viewKey || card.id}
               className="bg-white border border-[#1B1717]/80 rounded-3xl shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col"
             >
               {/* Green Header Bar */}

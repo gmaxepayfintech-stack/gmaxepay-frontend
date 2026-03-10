@@ -153,10 +153,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
       // Prefer consumerNumber as a readable identifier, then fall back
       const userName = isAeps2
-        ? (item.mobileNumber ||
-          userDetails.name ||
+        ? (userDetails.name ||
           item.name ||
           item.userName ||
+          item.mobileNumber ||
           `User ${item.refId || item.addedBy || index + 1}`)
         : (item.consumerNumber ||
           item.requestPayload?.consumerNumber ||
