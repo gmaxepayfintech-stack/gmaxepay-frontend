@@ -75,7 +75,7 @@ const SuperAdmin = () => {
 
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
-  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps2");
   const { showNotification } = useNotification();
 
   const AEPS_LABELS = {
