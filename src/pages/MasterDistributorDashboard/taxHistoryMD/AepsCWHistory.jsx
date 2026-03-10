@@ -77,11 +77,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       let formattedAmount = `₹${amountValue}`;
 
       const txnType = item.transactionType || transactionType;
-      if (txnType === "BE") {
-        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
-        if (balance !== undefined && balance !== null && balance !== "N/A") {
-          formattedAmount = `Bal: ₹${balance}`;
-        }
+      if (txnType === "BE" || txnType === "MS") {
+        formattedAmount = "₹0";
       }
 
       // Map status from API to display format - handle both structures

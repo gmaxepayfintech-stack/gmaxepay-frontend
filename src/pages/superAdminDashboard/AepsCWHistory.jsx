@@ -86,11 +86,8 @@ const AepsCWHistory = ({ onBack, type }) => {
       let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
 
       const txnType = item.transactionType || aepsTxnType;
-      if (txnType === "BE") {
-        const balance = item.balanceAmount ?? item.responsePayload?.result?.balanceAmount ?? item.responsePayload?.balanceAmount;
-        if (balance !== undefined && balance !== null && balance !== "N/A") {
-          formattedAmount = `Bal: ₹${balance}`;
-        }
+      if (txnType === "BE" || txnType === "MS") {
+        formattedAmount = "₹0";
       }
 
       // --- Status ---
