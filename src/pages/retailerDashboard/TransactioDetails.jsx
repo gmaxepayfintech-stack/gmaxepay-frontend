@@ -6,6 +6,7 @@ import { HiArrowLeft } from "react-icons/hi2";
 
 const TransactioDetails = ({ transactionData, onBack }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
+  console.log("TransactioDetails received transactionData:", transactionData);
 
   // Helper function to get role name from role number
   const getRoleName = (roleNumber) => {
@@ -69,7 +70,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
   const totalCommission = calculateTotalCommission();
 
   // Show error or no data message
-  if (!transactionData) {
+  if (!transactionData || Object.keys(transactionData).length === 0) {
+    console.log("No transaction data found. Data is empty or null.", transactionData);
     return (
       <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717]">
         <div className="mb-4 sm:mb-6">
