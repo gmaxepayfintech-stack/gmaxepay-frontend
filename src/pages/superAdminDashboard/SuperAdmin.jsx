@@ -75,7 +75,7 @@ const SuperAdmin = () => {
 
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
-  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps2");
   const { showNotification } = useNotification();
 
   const AEPS_LABELS = {
@@ -427,13 +427,14 @@ const SuperAdmin = () => {
     Math.round(i * yAxisStep),
   );
 
-  // Extract dashboard stats for header and summary cards
   const dashboardWallet = dashboardStatisticsResponse?.data?.wallet;
   const statusSummary = dashboardStatisticsResponse?.data?.statusSummary;
 
   const todayEarningAmount = dashboardWallet
     ? formatCurrency(dashboardWallet.totalSuccessAmount)
     : "₹4,21,40,238";
+
+  const totalCommission = dashboardWallet?.totalSuperadminCommission ?? 0;
 
   const summaryItems = [
     {

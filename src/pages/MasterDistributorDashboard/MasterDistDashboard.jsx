@@ -45,7 +45,7 @@ const MasterDistDashboard = () => {
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [addBankOpen, setAddBankOpen] = useState(false);
   const [isTransferLoading, setIsTransferLoading] = useState(false);
-  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps1");
+  const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps2");
   const [isBankLoading, setIsBankLoading] = useState(false);
   const [bankAccountNumber, setBankAccountNumber] = useState("");
   const [bankIfsc, setBankIfsc] = useState("");

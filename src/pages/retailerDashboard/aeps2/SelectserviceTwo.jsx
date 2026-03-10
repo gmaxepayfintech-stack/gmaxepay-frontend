@@ -13,6 +13,7 @@ import {
   aepsTwoRecentBankList,
 } from "../../../redux/action/aepsTwoAction";
 import { useNotification } from "../../../context/NotificationContext";
+import html2canvas from "html2canvas";
 const FingerPrintIcon = "/img/FingerPrint.svg";
 const IrisIcon = "/img/Iris.svg";
 const EyeIcon = "/img/Eye.svg";
@@ -1602,6 +1603,46 @@ const SelectserviceTwo = () => {
     transactionData,
     transactionType,
   }) => {
+    const receiptRef = useRef(null);
+
+    const handleShare = async () => {
+      if (!receiptRef.current) return;
+      try {
+        const buttonsDiv = receiptRef.current.querySelector('.modal-buttons');
+        if (buttonsDiv) buttonsDiv.style.display = 'none';
+
+        const canvas = await html2canvas(receiptRef.current, {
+          scale: 2,
+          useCORS: true,
+          backgroundColor: '#ffffff',
+        });
+
+        if (buttonsDiv) buttonsDiv.style.display = 'flex';
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const file = new File([blob], `receipt_${Date.now()}.png`, { type: 'image/png' });
+
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+              title: title || "Transaction Receipt",
+              text: "Transaction Details",
+              files: [file],
+            });
+          } else {
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement("a");
+            a.href = url;
+            a.download = `receipt_${Date.now()}.png`;
+            a.click();
+            URL.revokeObjectURL(url);
+          }
+        }, 'image/png');
+      } catch (err) {
+        console.error("Error sharing receipt:", err);
+      }
+    };
+
     if (!isOpen) return null;
 
     const getColors = () => {
@@ -1719,8 +1760,8 @@ const SelectserviceTwo = () => {
     // For success type, use PaymentSuccessScreen style
     if (type === "success") {
       return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC]">
-          <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md mx-auto">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC] overflow-y-auto">
+          <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md w-full mx-4 shadow-xl my-auto" ref={receiptRef}>
             {/* Notches */}
             <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
             <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
@@ -1918,22 +1959,24 @@ const SelectserviceTwo = () => {
                 </div>
               )}
 
-              {/* Buttons */}
-              <div className="absolute left-1/2 -translate-x-1/2 bottom-2 flex gap-20 justify-center items-center">
+              {/* Action Buttons */}
+              <div className="flex gap-4 modal-buttons mt-4">
                 <button
                   type="button"
-                  onClick={onClose}
-                  className="w-28 border border-[#039155] rounded-lg py-2 text-sm text-[#039155] font-['Gilroy-Medium'] hover:bg-[#039155] hover:text-white transition"
+                  onClick={handleShare}
+                  className={`flex-1 ${colors.bg} ${colors.text} ${colors.border} border rounded-lg py-2 text-sm font-['Gilroy-Medium'] hover:opacity-80 transition flex justify-center items-center gap-2`}
                 >
-                  Close
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-5.368m0 5.368l5.662 3.775m-5.662-3.775L14.346 9.56" />
+                  </svg>
+                  Share
                 </button>
-
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-28 bg-[#039155] text-white rounded-lg py-2 text-sm font-['Gilroy-semibold'] hover:bg-[#027a44] transition"
+                  className={`flex-1 ${colors.button} text-white rounded-lg py-2.5 text-sm font-['Gilroy-semibold'] transition shadow-sm`}
                 >
-                  OK
+                  Done
                 </button>
               </div>
             </div>
