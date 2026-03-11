@@ -11,6 +11,8 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { getPayoutHistoryCompany } from "../../../redux/action/payoutAction";
+import * as XLSX from "xlsx";
+import { useNotification } from "../../../context/NotificationContext";
 
 const PayoutHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -19,8 +21,10 @@ const PayoutHistory = ({ onBack, type }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPageState, setItemsPerPageState] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
+  const { showNotification } = useNotification();
 
   // Get payout history from Redux
   const payoutHistoryResponse = useSelector(
@@ -163,7 +167,7 @@ const PayoutHistory = ({ onBack, type }) => {
   });
 
   // CLIENT-SIDE Pagination
-  const itemsPerPage = 10;
+  const itemsPerPage = itemsPerPageState;
   const totalCount = filteredTransactions.length;
   const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
 
@@ -177,7 +181,47 @@ const PayoutHistory = ({ onBack, type }) => {
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, debouncedSearchQuery]);
+  }, [statusFilter, debouncedSearchQuery, itemsPerPageState]);
+
+  // Export to Excel function
+  const handleExportToExcel = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      if (showNotification) showNotification("No data available to export", "error");
+      else alert("No data available to export");
+      return;
+    }
+
+    const excelData = filteredTransactions.map((row, index) => {
+      const currentPosition = index + 1;
+      const reverseSrNo = totalCount - currentPosition + 1;
+      const srNo = String(reverseSrNo).padStart(2, "0");
+
+      return {
+        "SR No": srNo,
+        "Transaction ID": row.transactionID,
+        "User ID": row.refId,
+        "Mobile": row.mobileNo,
+        "Beneficiary": row.beneficiaryName,
+        "Account Number": row.accountNumber,
+        "IFSC Code": row.ifscCode,
+        "Bank Name": row.bankName,
+        "Amount": row.amount,
+        "Opening Bal": row.openingBalance,
+        "Closing Bal": row.closingBalance,
+        "Type": row.type,
+        "AEPS Type": row.aepsType,
+        "Status": row.status,
+        "Created At": row.createdAt,
+      };
+    });
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payout_History");
+
+    const fileName = `PayoutHistory_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
@@ -210,11 +254,10 @@ const PayoutHistory = ({ onBack, type }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                     ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                     : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -243,9 +286,8 @@ const PayoutHistory = ({ onBack, type }) => {
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -293,9 +335,32 @@ const PayoutHistory = ({ onBack, type }) => {
             />
           </div>
 
-          {/* Export */}
-          <div className="flex items-end">
-            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
+          {/* Records per page & Export */}
+          <div className="flex items-end gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPageState}
+                onChange={(e) => {
+                  setItemsPerPageState(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleExportToExcel}
+              className="flex-1 lg:flex-initial flex justify-center items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
+            >
               <span>Export</span>
               <Share className="w-4 h-4" />
             </button>
@@ -309,49 +374,49 @@ const PayoutHistory = ({ onBack, type }) => {
           <table className="w-full border-collapse min-w-full">
             <thead className="bg-[#FFFFFF] border-b border-gray-200 text-center">
               <tr>
-                <th className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   SR No
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Transaction ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   User ID
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Mobile
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Beneficiary
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Account Number
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   IFSC Code
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Amount
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Opening Bal
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Closing Bal
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Type
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   AEPS Type
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Status
                 </th>
-                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-semibold'] text-[#1B1717] whitespace-nowrap">
                   Created At
                 </th>
               </tr>
@@ -367,15 +432,14 @@ const PayoutHistory = ({ onBack, type }) => {
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
+                        className={`transition-colors ${index % 2 === 0
                             ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
                             : "bg-white hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.id}
+                            {srNo}
                           </span>
                         </td>
 
@@ -453,13 +517,12 @@ const PayoutHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${
-                              transaction.status === "Success"
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
                                 ? "bg-[#039155] text-white"
                                 : transaction.status === "Pending"
                                   ? "bg-orange-500/80 text-white"
                                   : "bg-red-500/80 text-white"
-                            }`}
+                              }`}
                           >
                             {transaction.status}
                           </span>
@@ -523,11 +586,10 @@ const PayoutHistory = ({ onBack, type }) => {
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${
-                    currentPage === pageNum
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === pageNum
                       ? "bg-[#039155] text-white"
                       : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                  }`}
+                    }`}
                 >
                   {pageNum}
                 </button>
