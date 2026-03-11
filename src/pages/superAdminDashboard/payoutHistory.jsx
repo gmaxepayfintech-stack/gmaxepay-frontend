@@ -11,6 +11,7 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { getPayoutHistory } from "../../redux/action/payoutAction";
+import * as XLSX from "xlsx";
 
 const PayoutHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const PayoutHistory = ({ onBack, type }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
@@ -163,7 +165,6 @@ const PayoutHistory = ({ onBack, type }) => {
   });
 
   // CLIENT-SIDE Pagination
-  const itemsPerPage = 10;
   const totalCount = filteredTransactions.length;
   const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
 
@@ -177,7 +178,40 @@ const PayoutHistory = ({ onBack, type }) => {
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter, debouncedSearchQuery]);
+  }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
+
+  // Export to Excel function
+  const handleExportToExcel = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    const excelData = filteredTransactions.map((row) => ({
+      "Transaction ID": row.transactionID,
+      "Ref ID": row.refId,
+      "Mobile No": row.mobileNo,
+      "Account Number": row.accountNumber,
+      "IFSC Code": row.ifscCode,
+      "Bank Name": row.bankName,
+      "Beneficiary Name": row.beneficiaryName,
+      "Amount": row.amount,
+      "Status": row.status,
+      "Type": row.type,
+      "Wallet Type": row.walletType,
+      "AEPS Type": row.aepsType,
+      "Opening Balance": row.openingBalance,
+      "Closing Balance": row.closingBalance,
+      "Date": row.createdAt,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Payout_History");
+
+    const fileName = `Payout_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
@@ -210,11 +244,10 @@ const PayoutHistory = ({ onBack, type }) => {
               <button
                 key={status}
                 onClick={() => setStatusFilter(status)}
-                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${
-                  statusFilter === status
+                className={`px-3 py-2 sm:px-4 sm:py-3 rounded-2xl text-sm sm:text-base transition whitespace-nowrap ${statusFilter === status
                     ? "bg-[#039155] text-white shadow-md font-['gilroy-semibold']"
                     : "bg-white text-[#1B1717]/80 font-['Gilroy-Medium'] border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50"
-                }`}
+                  }`}
               >
                 {status}
               </button>
@@ -243,9 +276,8 @@ const PayoutHistory = ({ onBack, type }) => {
               disabled={isReloading && isLoading}
             >
               <RefreshCw
-                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                  isReloading && isLoading ? "animate-spin" : ""
-                }`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && isLoading ? "animate-spin" : ""
+                  }`}
               />
             </button>
           </div>
@@ -289,13 +321,36 @@ const PayoutHistory = ({ onBack, type }) => {
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
             />
           </div>
 
-          {/* Export */}
-          <div className="flex items-end">
-            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
+          {/* Records per page & Export */}
+          <div className="flex items-end gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleExportToExcel}
+              className="flex-1 lg:flex-initial flex justify-center items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
+            >
               <span>Export</span>
               <Share className="w-4 h-4" />
             </button>
@@ -367,11 +422,10 @@ const PayoutHistory = ({ onBack, type }) => {
                     return (
                       <tr
                         key={transaction.id}
-                        className={`transition-colors ${
-                          index % 2 === 0
+                        className={`transition-colors ${index % 2 === 0
                             ? "bg-[#039155]/5 hover:bg-[#E8F5ED] "
                             : "bg-white hover:bg-gray-50"
-                        }`}
+                          }`}
                       >
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
@@ -453,13 +507,12 @@ const PayoutHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <span
-                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${
-                              transaction.status === "Success"
+                            className={`inline-flex items-center px-3 py-1 rounded-full text-xs sm:text-sm font-[Gilroy-Medium] ${transaction.status === "Success"
                                 ? "bg-[#039155] text-white"
                                 : transaction.status === "Pending"
                                   ? "bg-orange-500/80 text-white"
                                   : "bg-red-500/80 text-white"
-                            }`}
+                              }`}
                           >
                             {transaction.status}
                           </span>
@@ -497,54 +550,51 @@ const PayoutHistory = ({ onBack, type }) => {
           </p>
         </div>
       ) : (
-        totalPages > 1 && (
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
-            <button
-              onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
+        <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
 
-            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-              let pageNum;
-              if (totalPages <= 5) {
-                pageNum = i + 1;
-              } else if (currentPage <= 3) {
-                pageNum = i + 1;
-              } else if (currentPage >= totalPages - 2) {
-                pageNum = totalPages - 4 + i;
-              } else {
-                pageNum = currentPage - 2 + i;
-              }
+          {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+            let pageNum;
+            if (totalPages <= 5) {
+              pageNum = i + 1;
+            } else if (currentPage <= 3) {
+              pageNum = i + 1;
+            } else if (currentPage >= totalPages - 2) {
+              pageNum = totalPages - 4 + i;
+            } else {
+              pageNum = currentPage - 2 + i;
+            }
 
-              return (
-                <button
-                  key={pageNum}
-                  onClick={() => setCurrentPage(pageNum)}
-                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${
-                    currentPage === pageNum
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+            return (
+              <button
+                key={pageNum}
+                onClick={() => setCurrentPage(pageNum)}
+                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === pageNum
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
                   }`}
-                >
-                  {pageNum}
-                </button>
-              );
-            })}
+              >
+                {pageNum}
+              </button>
+            );
+          })}
 
-            <button
-              onClick={() =>
-                setCurrentPage(Math.min(totalPages, currentPage + 1))
-              }
-              disabled={currentPage === totalPages}
-              className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-            </button>
-          </div>
-        )
+          <button
+            onClick={() =>
+              setCurrentPage(Math.min(totalPages, currentPage + 1))
+            }
+            disabled={currentPage === totalPages || totalPages === 0}
+            className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
+        </div>
       )}
     </div>
   );

@@ -11,6 +11,7 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { rechargeReportsTwoAdmin } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import * as XLSX from "xlsx";
 
 const PanReportTwo = ({ onBack }) => {
     const dispatch = useDispatch();
@@ -19,6 +20,7 @@ const PanReportTwo = ({ onBack }) => {
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
+    const [itemsPerPage, setItemsPerPage] = useState(10);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
@@ -29,7 +31,6 @@ const PanReportTwo = ({ onBack }) => {
     const apiData = rechargeReportResponse?.data || [];
     const paginator = rechargeReportResponse?.paginator || {};
     const totalCount = rechargeReportResponse?.total || 0;
-    const itemsPerPage = paginator.perPage || 10;
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Debounce search query
@@ -84,15 +85,15 @@ const PanReportTwo = ({ onBack }) => {
             query: query,
             customSearch: customSearch,
             options: {
-                page: currentPage,
-                paginate: 10,
+                page: 1,
+                paginate: 1000,
                 // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoAdmin(payload));
-    }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
+    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -178,17 +179,55 @@ const PanReportTwo = ({ onBack }) => {
         return matchesStatus;
     });
 
-    // Pagination settings - Use API pagination data
-    // Since API handles pagination, we use the filtered transactions directly
-    const paginatedTransactions = filteredTransactions;
-    // Use pagination info from API response
-    const totalPages = paginator.pageCount || 1;
-    const apiCurrentPage = paginator.currentPage || currentPage;
+    // CLIENT-SIDE Pagination
+    const filteredCount = filteredTransactions.length;
+    const totalPages = Math.ceil(filteredCount / itemsPerPage) || 1;
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedTransactions = filteredTransactions.slice(
+        startIndex,
+        endIndex,
+    );
+    const apiCurrentPage = currentPage;
 
     // Reset to page 1 when filter changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [statusFilter]);
+    }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
+
+    // Export to Excel function
+    const handleExportToExcel = () => {
+        if (!filteredTransactions || filteredTransactions.length === 0) {
+            alert("No data available to export");
+            return;
+        }
+
+        const excelData = filteredTransactions.map((row) => ({
+            "SR No": row.srNo,
+            "Transaction ID": row.transactionId,
+            "Order ID": row.orderId,
+            "Name": row.name,
+            "User ID": row.userId,
+            "Mobile Number": row.mobileNo,
+            "Action": row.action,
+            "Amount": row.amount,
+            "Commission": row.commission,
+            "Status": row.status,
+            "TXID": row.txid,
+            "API Message": row.apiMessage,
+            "Redirect URL": row.redirectUrl,
+            "Date": formatDate(row.date),
+            "Time": formatTime(row.date),
+        }));
+
+        const worksheet = XLSX.utils.json_to_sheet(excelData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "PAN_History");
+
+        const fileName = `PAN_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+        XLSX.writeFile(workbook, fileName);
+    };
 
     // Format date for display
     const formatDate = (dateString) => {
@@ -289,8 +328,8 @@ const PanReportTwo = ({ onBack }) => {
                                     query,
                                     customSearch,
                                     options: {
-                                        page: currentPage,
-                                        paginate: 10,
+                                        page: 1,
+                                        paginate: 1000,
                                         sort: { id: -1 },
                                     },
                                 };
@@ -354,13 +393,36 @@ const PanReportTwo = ({ onBack }) => {
                             type="date"
                             value={toDate}
                             onChange={(e) => setToDate(e.target.value)}
-                            className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                            className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
                         />
                     </div>
 
-                    {/* Export */}
-                    <div className="flex items-end">
-                        <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
+                    {/* Records per page & Export */}
+                    <div className="flex items-end gap-3 w-full lg:w-auto">
+                        <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+                            <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                                Show Entries
+                            </label>
+                            <select
+                                value={itemsPerPage}
+                                onChange={(e) => {
+                                    setItemsPerPage(Number(e.target.value));
+                                    setCurrentPage(1);
+                                }}
+                                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+                            >
+                                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                                    <option key={size} value={size}>
+                                        {size}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+
+                        <button
+                            onClick={handleExportToExcel}
+                            className="flex-1 lg:flex-initial flex justify-center items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
+                        >
                             <span>Export</span>
                             <Share className="w-4 h-4" />
                         </button>
@@ -529,65 +591,55 @@ const PanReportTwo = ({ onBack }) => {
                 })()}
 
                 {/* Pagination */}
-                {totalPages > 1 && (
-                    <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
-                        {/* <div className="text-sm sm:text-base text-[#1B1717] font-['Gilroy-Medium']">
-              {(() => {
-                const start = paginatedTransactions.length > 0 ? (apiCurrentPage - 1) * itemsPerPage + 1 : 0;
-                const end = Math.min(apiCurrentPage * itemsPerPage, totalCount);
-                return `Showing ${start} to ${end} of ${totalCount} entries`;
-              })()}
-            </div> */}
+                <div className="flex items-center justify-center px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
+                    <div className="flex items-center gap-2">
+                        <button
+                            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                            disabled={apiCurrentPage === 1 || isLoading}
+                            className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Previous page"
+                        >
+                            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
 
-                        <div className="flex items-center gap-2">
-                            <button
-                                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-                                disabled={apiCurrentPage === 1 || isLoading}
-                                className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                aria-label="Previous page"
-                            >
-                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
-                            </button>
+                        {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+                            let pageNum;
+                            if (totalPages <= 5) {
+                                pageNum = i + 1;
+                            } else if (apiCurrentPage <= 3) {
+                                pageNum = i + 1;
+                            } else if (apiCurrentPage >= totalPages - 2) {
+                                pageNum = totalPages - 4 + i;
+                            } else {
+                                pageNum = apiCurrentPage - 2 + i;
+                            }
 
-                            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
-                                let pageNum;
-                                if (totalPages <= 5) {
-                                    pageNum = i + 1;
-                                } else if (apiCurrentPage <= 3) {
-                                    pageNum = i + 1;
-                                } else if (apiCurrentPage >= totalPages - 2) {
-                                    pageNum = totalPages - 4 + i;
-                                } else {
-                                    pageNum = apiCurrentPage - 2 + i;
-                                }
+                            return (
+                                <button
+                                    key={pageNum}
+                                    onClick={() => setCurrentPage(pageNum)}
+                                    className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
+                                        ? "bg-[#039155] text-white"
+                                        : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
+                                        }`}
+                                >
+                                    {pageNum}
+                                </button>
+                            );
+                        })}
 
-                                return (
-                                    <button
-                                        key={pageNum}
-                                        onClick={() => setCurrentPage(pageNum)}
-                                        className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${apiCurrentPage === pageNum
-                                            ? "bg-[#039155] text-white"
-                                            : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
-                                            }`}
-                                    >
-                                        {pageNum}
-                                    </button>
-                                );
-                            })}
-
-                            <button
-                                onClick={() =>
-                                    setCurrentPage((prev) => Math.min(totalPages, prev + 1))
-                                }
-                                disabled={apiCurrentPage === totalPages || isLoading}
-                                className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
-                                aria-label="Next page"
-                            >
-                                <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
-                            </button>
-                        </div>
+                        <button
+                            onClick={() =>
+                                setCurrentPage((prev) => Math.min(totalPages, prev + 1))
+                            }
+                            disabled={apiCurrentPage === totalPages || isLoading || totalPages === 0}
+                            className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
+                            aria-label="Next page"
+                        >
+                            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
+                        </button>
                     </div>
-                )}
+                </div>
             </div>
         </div>
     );

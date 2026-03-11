@@ -13,6 +13,7 @@ import { ButtonLoader } from "../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
 import { getAepsCwHistoryUser, getAepsTransactionDetails } from "../../redux/action/aepsAction";
 import { getAeps2CwHistoryUsers, getAeps2TransactionDetailsUsers } from "../../redux/action/aepsTwoAction";
+import * as XLSX from "xlsx";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -21,6 +22,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
@@ -35,7 +37,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     return state?.aeps?.aepsCwHistoryUser;
   });
   const apiData = aepsCwHistoryResponse?.data || [];
-  const paginator = aepsCwHistoryResponse?.paginator || {};
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Selector for fetching transaction details from Redux
@@ -55,8 +56,12 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     return dataArray.map((item, index) => {
       // Format date from API
       let formattedDate = "N/A";
+      let formattedTime = "N/A";
+      let rawDateObj = null;
+
       if (item.createdAt) {
         const date = new Date(item.createdAt);
+        rawDateObj = date;
         formattedDate = date
           .toLocaleDateString("en-GB", {
             day: "2-digit",
@@ -64,6 +69,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             year: "2-digit",
           })
           .replaceAll("/", "-");
+
+        formattedTime = date.toLocaleTimeString("en-GB", {
+          hour: "2-digit",
+          minute: "2-digit",
+        });
       }
 
       // Determine if this is AEPS 2 response structure
@@ -223,6 +233,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         via: getViaDisplay(item.captureType, item.device),
         status: getStatusDisplay(item.status, item.transactionStatus),
         createdAt: formattedDate,
+        createdAtTime: formattedTime,
+        rawDateObj,
         originalItem: item,
       };
     });
@@ -312,8 +324,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       query,
       customSearch,
       options: {
-        page: currentPage,
-        paginate: 10,
+        page: 1,
+        paginate: 1000,
         sort: { createdAt: -1 },
       },
     };
@@ -324,7 +336,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     } else {
       dispatch(getAepsCwHistoryUser(payload));
     }
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
+  }, [dispatch, debouncedSearchQuery, fromDate, toDate, apiType, transactionType]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -345,18 +357,52 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     return matchesStatus;
   });
 
-  // Pagination settings - Use API pagination data
-  const itemsPerPage = paginator.perPage || 10;
-  // Since API handles pagination, we use the filtered transactions directly
-  const paginatedTransactions = filteredTransactions;
-  // Use pagination info from API response
-  const totalPages = paginator.pageCount || 1;
-  const apiCurrentPage = paginator.currentPage || currentPage;
+  // CLIENT-SIDE Pagination
+  const totalCount = filteredTransactions.length;
+  const totalPages = Math.ceil(totalCount / itemsPerPage) || 1;
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedTransactions = filteredTransactions.slice(
+    startIndex,
+    endIndex,
+  );
 
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, debouncedSearchQuery, itemsPerPage]);
+
+  const handleExportToExcel = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    const excelData = filteredTransactions.map((row, index) => ({
+      "SR No": index + 1,
+      "Name": row.name,
+      "User Role": row.userRole,
+      "Mobile": row.mobileNo,
+      "Company Id": row.companyId,
+      "Merchant Id": row.merchantLoginId,
+      "Bank Name": row.bankName,
+      "Tax ID": row.taxId,
+      "Bank RRN": row.bankRRN,
+      "Amount": row.amount,
+      "VIA": row.via,
+      "Status": row.status,
+      "Date": row.createdAt,
+      "Time": row.createdAtTime,
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "AEPS_History");
+
+    const fileName = `AEPS_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   // Watch for transaction details to be loaded
   useEffect(() => {
@@ -477,8 +523,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   query,
                   customSearch,
                   options: {
-                    page: currentPage,
-                    paginate: 10,
+                    page: 1,
+                    paginate: 1000,
                     sort: { createdAt: -1 },
                   },
                 };
@@ -513,7 +559,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               placeholder="Search By Reference,ID"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
             />
           </div>
 
@@ -526,7 +572,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
             />
           </div>
 
@@ -539,13 +585,36 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+              className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
             />
           </div>
 
-          {/* Export */}
-          <div className="flex items-end">
-            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
+          {/* Records per page & Export */}
+          <div className="flex items-end gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleExportToExcel}
+              className="flex-1 lg:flex-initial flex justify-center items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
+            >
               <span>Export</span>
               <Share className="w-4 h-4" />
             </button>
@@ -554,7 +623,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       </div>
 
       {/* Transaction History Table */}
-      <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden">
+      <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden flex-1">
         <div className="w-full overflow-x-auto overscroll-x-contain">
           <table className="w-full border-collapse min-w-full">
             <thead className="bg-[#FFFFFF] border-b border-gray-200">
@@ -574,9 +643,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Id
                 </th>
-                {/* <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Company Name
-                </th> */}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Merchant Id
                 </th>
@@ -610,9 +676,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    // Show API 'id' if present; otherwise fall back to simple ascending SR no
-                    const fallbackSrNo =
-                      (apiCurrentPage - 1) * itemsPerPage + index + 1;
+                    const fallbackSrNo = startIndex + index + 1;
                     const srNo = transaction.id ?? fallbackSrNo;
 
                     return (
@@ -652,12 +716,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                             {transaction.companyId}
                           </span>
                         </td>
-
-                        {/* <td className="px-4 sm:px-6 py-3 sm:py-4">
-                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
-                            {transaction.companyName}
-                          </span>
-                        </td> */}
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216]">
@@ -739,52 +797,63 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             )}
           </table>
         </div>
-      </div>
 
-      {/* Loading / Pagination (unchanged) */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
-          <ButtonLoader color="#039155" size={24} thickness={3} />
-          <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading...
-          </p>
-        </div>
-      ) : (
-        totalPages > 0 && (
-          <div className="flex items-center justify-center gap-1.5 sm:gap-2 mt-4 sm:mt-6 pb-1 flex-shrink-0">
+        {/* Loading / Pagination */}
+        {isLoading ? (
+          <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 border-t border-gray-200">
+            <ButtonLoader color="#039155" size={24} thickness={3} />
+            <p className="text-sm sm:text-base font-['Gilroy-Medium'] text-[#1B1717]">
+              Loading...
+            </p>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-4 sm:px-6 py-3 sm:py-4 border-t border-gray-200">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1 || isLoading}
               className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === page
-                  ? "bg-[#039155] text-white"
-                  : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
-                  }`}
-              >
-                {page}
-              </button>
-            ))}
+            {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`w-8 h-8 sm:w-10 sm:h-10 rounded-lg font-[Gilroy-Medium] transition text-sm sm:text-base ${currentPage === pageNum
+                    ? "bg-[#039155] text-white"
+                    : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
 
             <button
               onClick={() =>
                 setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
-              disabled={currentPage === totalPages}
+              disabled={currentPage === totalPages || isLoading || totalPages === 0}
               className="p-1.5 sm:p-2 rounded-lg border border-gray-300 bg-white text-[#1B1717] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           </div>
-        )
-      )}
+        )}
+      </div>
     </div>
   );
 };

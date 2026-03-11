@@ -11,6 +11,8 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { rechargeReportsUser } from "../../../redux/action/reportAction";
+import * as XLSX from "xlsx";
+
 const RechargeReport = ({ onBack }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
@@ -18,6 +20,7 @@ const RechargeReport = ({ onBack }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPageState, setItemsPerPageState] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
@@ -28,7 +31,7 @@ const RechargeReport = ({ onBack }) => {
   const apiData = rechargeReportResponse?.data || [];
   const paginator = rechargeReportResponse?.paginator || {};
   const totalCount = rechargeReportResponse?.total || 0;
-  const itemsPerPage = paginator.perPage || 10;
+  const itemsPerPage = paginator.perPage || itemsPerPageState;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Debounce search query
@@ -84,14 +87,14 @@ const RechargeReport = ({ onBack }) => {
       customSearch: customSearch,
       options: {
         page: currentPage,
-        paginate: 10,
+        paginate: itemsPerPageState,
         // As per API contract: sort by id desc
         sort: { id: -1 },
       },
     };
 
     dispatch(rechargeReportsUser(payload));
-  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate]);
+  }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, itemsPerPageState]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -180,7 +183,42 @@ const RechargeReport = ({ onBack }) => {
   // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
-  }, [statusFilter]);
+  }, [statusFilter, itemsPerPageState]);
+
+  const handleExportToExcel = () => {
+    if (!filteredTransactions || filteredTransactions.length === 0) {
+      alert("No data available to export");
+      return;
+    }
+
+    const excelData = filteredTransactions.map((row) => ({
+      "Transaction ID": row.transactionId,
+      "Order ID": row.orderId,
+      "Name": row.name,
+      "User ID": row.userId,
+      "Mobile Number": row.mobileNo,
+      "Operator": row.operator,
+      "Opcode": row.opcode,
+      "Circle": row.circle,
+      "Amount": row.amount,
+      "DR Amount": row.drAmount,
+      "Commission": row.commission,
+      "Status": row.status,
+      "TXID": row.txid,
+      "OPID": row.opid,
+      "API Message": row.apiMessage,
+      "Date": formatDate(row.date) + " " + formatTime(row.date),
+      "Updated Date": row.updatedDate ? formatDate(row.updatedDate) + " " + formatTime(row.updatedDate) : "N/A"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Mobile_Recharge_History");
+
+    const fileName = `Mobile_Recharge_1_History_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+
+    XLSX.writeFile(workbook, fileName);
+  };
 
   // Format date for display
   const formatDate = (dateString) => {
@@ -282,7 +320,7 @@ const RechargeReport = ({ onBack }) => {
                   customSearch,
                   options: {
                     page: currentPage,
-                    paginate: 10,
+                    paginate: itemsPerPageState,
                     sort: { id: -1 },
                   },
                 };
@@ -350,9 +388,32 @@ const RechargeReport = ({ onBack }) => {
             />
           </div>
 
-          {/* Export */}
-          <div className="flex items-end">
-            <button className="w-full lg:w-auto flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap">
+          {/* Records per page & Export */}
+          <div className="flex items-end gap-3 w-full lg:w-auto">
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPageState}
+                onChange={(e) => {
+                  setItemsPerPageState(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <button
+              onClick={handleExportToExcel}
+              className="flex-1 lg:flex-initial flex justify-center items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3.5 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 transition shadow-md whitespace-nowrap"
+            >
               <span>Export</span>
               <Share className="w-4 h-4" />
             </button>
