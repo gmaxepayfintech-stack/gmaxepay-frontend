@@ -9,11 +9,11 @@ const FundRequest = () => {
   const dispatch = useDispatch();
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(10);
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [fundRequests, setFundRequests] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [totalPages, setTotalPages] = useState(1);
   const [totalRecords, setTotalRecords] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState(null);
   const [showDetailsPanel, setShowDetailsPanel] = useState(false);
@@ -22,7 +22,6 @@ const FundRequest = () => {
   const [isReloading, setIsReloading] = useState(false);
   const debounceTimerRef = useRef(null);
   const isFetchingRef = useRef(false);
-  const itemsPerPage = 10;
 
   // Fetch fund requests from API
   const fetchFundRequests = useCallback(async () => {
@@ -30,11 +29,11 @@ const FundRequest = () => {
     if (isFetchingRef.current) {
       return;
     }
-    
+
     try {
       isFetchingRef.current = true;
       setLoading(true);
-      
+
       // Build customSearch object for search term
       const customSearch = {};
       if (searchTerm.trim()) {
@@ -56,21 +55,19 @@ const FundRequest = () => {
         query: query,
         customSearch: Object.keys(customSearch).length > 0 ? customSearch : {},
         options: {
-          page: currentPage,
-          paginate: itemsPerPage,
+          page: 1,
+          paginate: 1000,
           sort: { createdAt: -1 }
         }
       };
 
       const result = await dispatch(adminGetRequest(payload));
-      
+
       if (result?.status === "SUCCESS" && result?.adminGetRequest) {
-        const dataArray = Array.isArray(result.adminGetRequest) 
-          ? result.adminGetRequest 
+        const dataArray = Array.isArray(result.adminGetRequest)
+          ? result.adminGetRequest
           : result.adminGetRequest?.data || [];
         setFundRequests(dataArray);
-        const calculatedPages = Math.ceil(dataArray.length / itemsPerPage) || 1;
-        setTotalPages(result.adminGetRequest?.totalPages || calculatedPages);
         setTotalRecords(result.adminGetRequest?.totalRecords || dataArray.length);
       }
     } catch (error) {
@@ -101,7 +98,7 @@ const FundRequest = () => {
     if (!searchTerm.trim()) {
       return;
     }
-    
+
     if (debounceTimerRef.current) {
       clearTimeout(debounceTimerRef.current);
     }
@@ -120,6 +117,12 @@ const FundRequest = () => {
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchTerm]);
+
+  // CLIENT-SIDE Pagination
+  const clientTotalPages = Math.ceil(fundRequests.length / itemsPerPage) || 1;
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const paginatedRequests = fundRequests.slice(startIndex, endIndex);
 
   // Handle view details
   const handleViewDetails = (request) => {
@@ -140,7 +143,7 @@ const FundRequest = () => {
     if (!selectedRequest?.id) {
       return;
     }
-    
+
     try {
       setSubmitting(true);
       const payload = {
@@ -150,7 +153,7 @@ const FundRequest = () => {
       };
 
       const result = await dispatch(adminApproveRequest(payload));
-      
+
       if (result?.status === "SUCCESS") {
         // Close panel and refresh the list
         handleClosePanel();
@@ -174,10 +177,10 @@ const FundRequest = () => {
       if (!dateString) return "";
       try {
         const date = new Date(dateString);
-        return date.toLocaleDateString('en-GB', { 
-          day: '2-digit', 
-          month: '2-digit', 
-          year: '2-digit' 
+        return date.toLocaleDateString('en-GB', {
+          day: '2-digit',
+          month: '2-digit',
+          year: '2-digit'
         });
       } catch {
         return dateString;
@@ -242,7 +245,7 @@ const FundRequest = () => {
                 placeholder="Search By Reference,ID"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
               />
             </div>
             {/* Date filters */}
@@ -255,7 +258,7 @@ const FundRequest = () => {
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
                 />
               </div>
               <div className="relative flex-1">
@@ -266,10 +269,31 @@ const FundRequest = () => {
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                  className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
                 />
               </div>
             </div>
+
+            <div className="relative w-full mb-4">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </div>
+
             {/* Export and Reload buttons */}
             <div className="flex gap-3">
               <button
@@ -303,9 +327,8 @@ const FundRequest = () => {
                 disabled={isReloading && loading}
               >
                 <RefreshCw
-                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                    isReloading && loading ? "animate-spin" : ""
-                  }`}
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && loading ? "animate-spin" : ""
+                    }`}
                 />
               </button>
             </div>
@@ -333,7 +356,7 @@ const FundRequest = () => {
                 placeholder="Search By Reference,ID"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                className="w-full pl-9 sm:pl-10 pr-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
               />
             </div>
 
@@ -346,7 +369,7 @@ const FundRequest = () => {
                 type="date"
                 value={fromDate}
                 onChange={(e) => setFromDate(e.target.value)}
-                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
               />
             </div>
 
@@ -358,8 +381,28 @@ const FundRequest = () => {
                 type="date"
                 value={toDate}
                 onChange={(e) => setToDate(e.target.value)}
-                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] focus:border-[#039155] text-sm sm:text-base"
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base"
               />
+            </div>
+
+            <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
+              <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
+                Show Entries
+              </label>
+              <select
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+                className="w-full px-4 py-2.5 sm:py-3 border-[0.5px] border-[#1B1717]/80 rounded-lg focus:outline-none text-sm sm:text-base appearance-none bg-white font-[Gilroy-Medium] cursor-pointer"
+              >
+                {[10, 50, 100, 200, 500, 1000].map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
             </div>
 
             {/* Export */}
@@ -399,9 +442,8 @@ const FundRequest = () => {
                 disabled={isReloading && loading}
               >
                 <RefreshCw
-                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${
-                    isReloading && loading ? "animate-spin" : ""
-                  }`}
+                  className={`w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80 transition-transform ${isReloading && loading ? "animate-spin" : ""
+                    }`}
                 />
               </button>
             </div>
@@ -439,104 +481,103 @@ const FundRequest = () => {
 
               {!loading && (
                 <tbody className='text-[12px] sm:text-[12px]'>
-                  {fundRequests.length === 0 ? (
+                  {paginatedRequests.length === 0 ? (
                     <tr>
                       <td colSpan={11} className="px-4 py-8 text-center text-[14px] text-[#1B1717]">
                         No fund requests found
                       </td>
                     </tr>
                   ) : (
-                  fundRequests.map((item, index) => {
-                    const isApproved = item.status === "APPROVED";
-                    const fundRequestId = item.id;
-                    
-                    // Format date from ISO string
-                    const formatDate = (dateString) => {
-                      if (!dateString) return "";
-                      try {
-                        const date = new Date(dateString);
-                        return date.toLocaleDateString('en-GB', { 
-                          day: '2-digit', 
-                          month: '2-digit', 
-                          year: '2-digit' 
-                        });
-                      } catch {
-                        return dateString;
-                      }
-                    };
-                    
-                    return (
-                      <tr
-                        key={fundRequestId || index}
-                        className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50 font-['Gilroy-Regular']"
-                          }`}
-                      >
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          {(currentPage - 1) * itemsPerPage + index + 1}
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          <span className="truncate block max-w-[120px] sm:max-w-[150px] md:max-w-none">
-                            {item.requester?.name || ""}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
-                            {item.bank?.bankName || ""}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
-                            {item.bank?.accountNumber || ""}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          <span className="truncate block max-w-[80px] sm:max-w-[100px] md:max-w-none">
-                            {item.referenceNo || ""}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
-                            {item.transactionId || ""}
-                          </span>
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          {item.amount ? `₹${item.amount}` : ""}
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          {item.paymentMode || "-"}
-                        </td>
-                        {/* Status */}
-                        <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
-                          <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
-                            item.status === "APPROVED" || isApproved
+                    paginatedRequests.map((item, index) => {
+                      const isApproved = item.status === "APPROVED";
+                      const fundRequestId = item.id;
+
+                      // Format date from ISO string
+                      const formatDate = (dateString) => {
+                        if (!dateString) return "";
+                        try {
+                          const date = new Date(dateString);
+                          return date.toLocaleDateString('en-GB', {
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: '2-digit'
+                          });
+                        } catch {
+                          return dateString;
+                        }
+                      };
+
+                      return (
+                        <tr
+                          key={fundRequestId || index}
+                          className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50 font-['Gilroy-Regular']"
+                            }`}
+                        >
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            {(currentPage - 1) * itemsPerPage + index + 1}
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            <span className="truncate block max-w-[120px] sm:max-w-[150px] md:max-w-none">
+                              {item.requester?.name || ""}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                              {item.bank?.bankName || ""}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                              {item.bank?.accountNumber || ""}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            <span className="truncate block max-w-[80px] sm:max-w-[100px] md:max-w-none">
+                              {item.referenceNo || ""}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            <span className="truncate block max-w-[100px] sm:max-w-[130px] md:max-w-none">
+                              {item.transactionId || ""}
+                            </span>
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            {item.amount ? `₹${item.amount}` : ""}
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            {item.paymentMode || "-"}
+                          </td>
+                          {/* Status */}
+                          <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
+                            <span className={`px-2 sm:px-3 py-1 text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${item.status === "APPROVED" || isApproved
                               ? "bg-[#039155]"
                               : item.status === "REJECTED"
-                              ? "bg-red-500"
-                              : "bg-yellow-500"
-                          }`}>
-                            {item.status || "PENDING"}
-                          </span>
-                        </td>
-                        {/* Action - View Button */}
-                        <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
-                          {formatDate(item.createdAt)}
-                        </td>
-                        <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
-                          <button
-                            onClick={() => handleViewDetails(item)}
-                            className="px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 bg-[#039155] text-white rounded-lg text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors flex items-center justify-center gap-1.5 sm:gap-2"
-                          >
-                            <img 
-                              src="/img/Eye.svg" 
-                              alt="View" 
-                              className="w-3 h-3 sm:w-4 sm:h-4"
-                            />
-                            View
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })
+                                ? "bg-red-500"
+                                : "bg-yellow-500"
+                              }`}>
+                              {item.status || "PENDING"}
+                            </span>
+                          </td>
+                          {/* Action - View Button */}
+                          <td className="px-2 sm:px-3 md:px-4 py-3 text-[#1B1717] whitespace-nowrap">
+                            {formatDate(item.createdAt)}
+                          </td>
+                          <td className="px-2 sm:px-3 md:px-4 py-3 whitespace-nowrap">
+                            <button
+                              onClick={() => handleViewDetails(item)}
+                              className="px-3 sm:px-4 md:px-5 py-2 sm:py-2.5 bg-[#039155] text-white rounded-lg text-[10px] sm:text-[12px] md:text-[12px] font-['Gilroy-Medium'] hover:bg-[#027a47] transition-colors flex items-center justify-center gap-1.5 sm:gap-2"
+                            >
+                              <img
+                                src="/img/Eye.svg"
+                                alt="View"
+                                className="w-3 h-3 sm:w-4 sm:h-4"
+                              />
+                              View
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               )}
@@ -553,81 +594,79 @@ const FundRequest = () => {
             </p>
           </div>
         ) : (
-          totalPages > 0 && (
+          clientTotalPages > 0 && (
             <div className="flex items-center justify-center gap-2 mt-6">
-          <button
-            onClick={() => handlePageChange(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`p-2 rounded-lg transition ${
-              currentPage === 1
-                ? "text-gray-300 cursor-not-allowed"
-                : "text-[#1B1717] hover:bg-gray-100"
-            }`}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-
-          {totalPages > 0 && [...Array(totalPages)].map((_, index) => {
-            const page = index + 1;
-            // Show first page, last page, current page, and pages around current
-            if (
-              page === 1 ||
-              page === totalPages ||
-              (page >= currentPage - 1 && page <= currentPage + 1)
-            ) {
-              return (
-                <button
-                  key={page}
-                  onClick={() => handlePageChange(page)}
-                  className={`px-4 py-2 rounded-lg text-[12px] font-['Gilroy-Medium'] transition ${currentPage === page
-                    ? "bg-[#039155] text-white"
-                    : "text-[#1B1717] hover:bg-gray-100"
-                    }`}
+              <button
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+                className={`p-2 rounded-lg transition ${currentPage === 1
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-[#1B1717] hover:bg-gray-100"
+                  }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
                 >
-                  {page}
-                </button>
-              );
-            } else if (page === currentPage - 2 || page === currentPage + 2) {
-              return <span key={page} className="px-2">...</span>;
-            }
-            return null;
-          })}
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
 
-          <button
-            onClick={() => handlePageChange(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`p-2 rounded-lg transition ${
-              currentPage === totalPages
-                ? "text-gray-300 cursor-not-allowed"
-                : "text-[#1B1717] hover:bg-gray-100"
-            }`}
-          >
-            <svg
-              className="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
+              {clientTotalPages > 0 && [...Array(clientTotalPages)].map((_, index) => {
+                const page = index + 1;
+                // Show first page, last page, current page, and pages around current
+                if (
+                  page === 1 ||
+                  page === clientTotalPages ||
+                  (page >= currentPage - 1 && page <= currentPage + 1)
+                ) {
+                  return (
+                    <button
+                      key={page}
+                      onClick={() => handlePageChange(page)}
+                      className={`px-4 py-2 rounded-lg text-[12px] font-['Gilroy-Medium'] transition ${currentPage === page
+                        ? "bg-[#039155] text-white"
+                        : "text-[#1B1717] hover:bg-gray-100"
+                        }`}
+                    >
+                      {page}
+                    </button>
+                  );
+                } else if (page === currentPage - 2 || page === currentPage + 2) {
+                  return <span key={page} className="px-2">...</span>;
+                }
+                return null;
+              })}
+
+              <button
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === clientTotalPages}
+                className={`p-2 rounded-lg transition ${currentPage === clientTotalPages
+                  ? "text-gray-300 cursor-not-allowed"
+                  : "text-[#1B1717] hover:bg-gray-100"
+                  }`}
+              >
+                <svg
+                  className="w-5 h-5"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
             </div>
           )
         )}
@@ -642,11 +681,11 @@ const FundRequest = () => {
       {showDetailsPanel && selectedRequest && (
         <div className="fixed inset-0 z-40 flex">
           {/* Backdrop */}
-          <div 
+          <div
             className="flex-1 bg-black bg-opacity-50"
             onClick={handleClosePanel}
           ></div>
-          
+
           {/* Panel */}
           <div className="w-full md:w-[500px] lg:w-[600px] bg-white shadow-xl overflow-y-auto">
             <div className="sticky top-0 bg-white border-b border-gray-200">
@@ -701,13 +740,12 @@ const FundRequest = () => {
                     </div>
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Status</p>
-                      <span className={`inline-block px-3 py-1 text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${
-                        selectedRequest.status === "APPROVED"
-                          ? "bg-[#039155]"
-                          : selectedRequest.status === "REJECTED"
+                      <span className={`inline-block px-3 py-1 text-[12px] font-['Gilroy-Medium'] rounded-full text-white ${selectedRequest.status === "APPROVED"
+                        ? "bg-[#039155]"
+                        : selectedRequest.status === "REJECTED"
                           ? "bg-red-500"
                           : "bg-yellow-500"
-                      }`}>
+                        }`}>
                         {selectedRequest.status || "PENDING"}
                       </span>
                     </div>
@@ -720,7 +758,7 @@ const FundRequest = () => {
                       </div>
                     )}
                   </div>
-                  
+
                   {/* Right Column - Even items (2, 4, 6) */}
                   <div className="space-y-3">
                     <div className="p-3">
@@ -738,12 +776,12 @@ const FundRequest = () => {
                     <div className="p-3">
                       <p className="text-[12px] text-gray-500 mb-1">Transaction Date</p>
                       <p className="text-[14px] font-['Gilroy-Medium'] text-[#1B1717]">
-                        {selectedRequest.transactionDate 
+                        {selectedRequest.transactionDate
                           ? new Date(selectedRequest.transactionDate).toLocaleDateString('en-GB', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric'
-                            })
+                            day: '2-digit',
+                            month: '2-digit',
+                            year: 'numeric'
+                          })
                           : "-"}
                       </p>
                     </div>
@@ -772,7 +810,7 @@ const FundRequest = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Right Column - Even items (2) */}
                   <div className="space-y-3">
                     <div className="p-3">
@@ -806,7 +844,7 @@ const FundRequest = () => {
                       </p>
                     </div>
                   </div>
-                  
+
                   {/* Right Column - Even items (2, 4) */}
                   <div className="space-y-3">
                     <div className="p-3">
