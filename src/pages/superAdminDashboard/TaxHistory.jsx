@@ -14,6 +14,7 @@ import BBPSReport from "./BBPSReport";
 import PanReportTwo from "./reports/PanReportTwo";
 import RechargeReportTwo from "./reports/RechargeReportTwo";
 import DTHReportTwo from "./reports/DTHReportTwo";
+import CMSHistory from "./CMSHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -31,6 +32,7 @@ const TaxHistory = () => {
     viewHistory === "aeps2-ms-history" ||
     viewHistory === "aeps2-be-history";
   const showPayoutHistory = viewHistory === "payout-history";
+  const showCmsHistory = viewHistory === "cms-history";
   const showWalletHistory = viewHistory === "wallet-history";
   const showRechargeHistory = viewHistory === "recharge-history";
   const showDthHistory = viewHistory === "dth-history";
@@ -108,6 +110,14 @@ const TaxHistory = () => {
       subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "CMS History",
+      subtitle: "CMS History",
+      available: true,
+      viewKey: "cms-history",
       category: "Banking",
     },
     {
@@ -330,6 +340,14 @@ const TaxHistory = () => {
     return (
       <PayoutHistory
         type={viewHistory}
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showCmsHistory) {
+    return (
+      <CMSHistory
         onBack={() => navigate("/superDashboard/txn-history")}
       />
     );
