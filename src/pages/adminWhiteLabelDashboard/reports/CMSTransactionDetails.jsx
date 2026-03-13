@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import PropTypes from "prop-types";
 import { FileText } from "lucide-react";
-import MainWalletStatement from "../MainWalletStatement";
+// import MainWalletStatement from "../MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
 const CMSTransactionDetails = ({ transactionData, onBack }) => {
