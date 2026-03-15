@@ -334,7 +334,7 @@ export const aadhaarConnection = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/company/onboarding/${token}/digilockerUrl`,
+      `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
       {},
       {
         headers: {
