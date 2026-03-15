@@ -335,7 +335,9 @@ export const aadhaarConnection = () => async (dispatch) => {
   try {
     const response = await axios.post(
       `${API_ROUTE}/api/v1/company/onboarding/${token}/connectAadhaarVerification`,
-      {},
+      {
+        "redirect_url": `${BASE_URL}/onboarding/${token}`,
+      },
       {
         headers: {
           "Content-Type": "application/json",
