@@ -12,7 +12,7 @@ import BBPSReports from "./BBPSReports";
 import RechargeReportTwo from "../reports/RechargeReportTwo";
 import PanReportTwo from "../reports/PanReportTwo";
 import DTHReportTwo from "../reports/DTHReportTwo";
-
+import CMSHistory from "../reports/CMSHistory";
 const TaxHistory = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -48,6 +48,7 @@ const TaxHistory = () => {
   const showPayoutHistory = viewHistory === "payout-history";
   const showWalletHistory = viewHistory === "wallet-history";
   const showBBPSHistory = viewHistory === "bbps-history";
+  const showCMSHistory = viewHistory === "cms-history";
 
   // Debug: Log when view parameter changes
   useEffect(() => {
@@ -122,6 +123,14 @@ const TaxHistory = () => {
       subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 29,
+      title: "CMS History",
+      subtitle: "CMS History",
+      available: true,
+      viewKey: "cms-history",
       category: "Banking",
     },
     {
@@ -426,6 +435,14 @@ const TaxHistory = () => {
   if (showBBPSHistory) {
     return (
       <BBPSReports
+        onBack={() => navigate("/adminDashboard/txn-history")}
+      />
+    );
+  }
+
+  if (showCMSHistory) {
+    return (
+      <CMSHistory
         onBack={() => navigate("/adminDashboard/txn-history")}
       />
     );

@@ -122,7 +122,7 @@ const OtpVerify = () => {
 
       {/* RIGHT SIDE */}
       <div className="flex-1 flex items-center justify-center bg-white px-4 sm:px-8 md:px-10 lg:px-16 xl:px-20 py-6 sm:py-10 overflow-y-auto">
-        <div className="w-full max-w-sm mx-auto">
+        <div className="w-full max-w-sm sm:max-w-md mx-auto">
           <div className="flex justify-center mb-6">
             <img
               src={company?.logo || "/img/gmaxepay.png"}
@@ -131,17 +131,17 @@ const OtpVerify = () => {
             />
           </div>
 
-          <h1 className="text-1B1717 text-[36px] font-[Gilroy-Semibold] text-center mb-4">
+          <h1 className="text-1B1717 text-2xl sm:text-3xl md:text-[36px] font-[Gilroy-Semibold] text-center mb-2 sm:mb-4">
             Enter Verification Code
           </h1>
-          <p className="text-1B1717 opacity-70 text-center text-[24px] mb-4">
+          <p className="text-1B1717 opacity-70 text-center text-lg sm:text-xl md:text-[24px] mb-2 sm:mb-4">
             We’ve sent a 6-digit code to
           </p>
-          <p className="text-gray-900 font-md text-center mb-10 text-[24px] ">
+          <p className="text-gray-900 font-md text-center mb-8 sm:mb-10 text-lg sm:text-xl md:text-[24px]">
             +91 {mobileNo}
           </p>
 
-          <div className="flex gap-6 sm:gap-6 mb-8 justify-center">
+          <div className="flex gap-2 sm:gap-4 md:gap-6 mb-8 justify-center">
             {otp.map((digit, index) => (
               <input
                 key={index}
@@ -150,7 +150,7 @@ const OtpVerify = () => {
                 value={digit}
                 onChange={(e) => handleChange(e.target.value, index)}
                 onKeyDown={(e) => handleKeyDown(e, index)}
-                className="w-[50px] h-[50px] gap-4 border rounded-lg text-center text-lg font-normal outline-none focus:border-green-700"
+                className="w-[40px] h-[40px] sm:w-[45px] sm:h-[45px] md:w-[50px] md:h-[50px] border rounded-lg text-center text-lg sm:text-xl font-normal outline-none focus:border-green-700 transition"
                 style={{
                   border: digit
                     ? "1.5px solid #1B1717"
@@ -160,13 +160,13 @@ const OtpVerify = () => {
             ))}
           </div>
 
-          <p className="text-sm text-[24px] text-gray-500 text-center mb-1">
+          <p className="text-sm sm:text-lg md:text-[24px] text-gray-500 text-center mb-1">
             Didn't receive code?
           </p>
           <button
             disabled={timer !== 0}
             onClick={() => setTimer(30)}
-            className={`text-sm font-[Gilroy-Semibold] w-full text-center text-[18px] mt-6 ${timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
+            className={`text-sm sm:text-base md:text-[18px] font-[Gilroy-Semibold] w-full text-center mt-4 sm:mt-6 transition-colors ${timer === 0 ? "text-1B1717" : "text-1B171717 opacity-70"
               }`}
           >
             {timer === 0 ? "Resend Now" : `Resend in ${formatTimer(timer)}`}
@@ -174,7 +174,7 @@ const OtpVerify = () => {
 
           <button
             onClick={handleSubmit}
-            className="w-[500px] text-white text-[28px] font-[Gilroy-Medium] mt-10 rounded-xl h-12 sm:h-14 -ml-12 flex items-center justify-center"
+            className="w-full text-white text-xl sm:text-2xl md:text-[28px] font-[Gilroy-Medium] mt-8 sm:mt-10 rounded-xl h-12 sm:h-14 flex items-center justify-center transition hover:opacity-90 active:scale-[0.98]"
             style={{ backgroundColor: company?.primaryColor || "#039155" }}
           >
             Submit

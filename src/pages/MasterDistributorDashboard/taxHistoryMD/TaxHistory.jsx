@@ -12,6 +12,7 @@ import BBPSReports from "../../retailerDashboard/BBPSReports";
 import PanReportTwo from "../Reports/PanReportTwo";
 import RechargeReportTwo from "../Reports/RechargeReportTwo";
 import DTHReportTwo from "../Reports/DTHReportTwo";
+import CMSHistory from "./CMSHistory";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -46,6 +47,7 @@ const TaxHistory = () => {
   const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
   const showWalletHistory = viewHistory === "wallet-history";
   const showBBPSHistory = viewHistory === "bbps-history";
+  const showCMSHistory = viewHistory === "cms-history";
 
   const tabs = [
     "Banking",
@@ -114,6 +116,14 @@ const TaxHistory = () => {
       subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "CMS History",
+      subtitle: "CMS History",
+      available: true,
+      viewKey: "cms-history",
       category: "Banking",
     },
     {
@@ -432,6 +442,14 @@ const TaxHistory = () => {
   if (showBBPSHistory) {
     return (
       <BBPSReports
+        onBack={() => navigate("/masterDistributerDashboard/tax-history")}
+      />
+    );
+  }
+
+  if (showCMSHistory) {
+    return (
+      <CMSHistory
         onBack={() => navigate("/masterDistributerDashboard/tax-history")}
       />
     );
