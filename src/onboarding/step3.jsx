@@ -374,7 +374,12 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
             {/* NEXT */}
             <button
               onClick={() => setShowImageUpload(true)}
-              className="w-full h-10 sm:h-11 md:h-12 lg:h-14 bg-[#039155] text-white rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base hover:bg-green-700 transition shadow-lg"
+              disabled={!isConnectDone || !isDownloadDone}
+              className={`w-full h-10 sm:h-11 md:h-12 lg:h-14 rounded-lg sm:rounded-xl font-[Gilroy-Semibold] text-sm md:text-base transition shadow-lg 
+                ${!isConnectDone || !isDownloadDone
+                  ? "bg-gray-400 text-white cursor-not-allowed"
+                  : "bg-[#039155] text-white hover:bg-green-700"
+                }`}
             >
               Next
             </button>
