@@ -142,7 +142,7 @@ const RoleUpgradeWhiteLabel = () => {
         const kycStatus = getKycStatusFromFilter(activeFilter);
         const payload = {
             query: {
-                userRole: 4, // Default userRole
+                userRole: "", // Default userRole
                 kycStatus: kycStatus
             },
             options: {
