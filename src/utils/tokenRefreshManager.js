@@ -7,7 +7,7 @@ import secureLocalStorage from 'react-secure-storage';
 let isRefreshing = false;
 let refreshPromise = null;
 let lastRefreshTime = null;
-const REFRESH_DEBOUNCE_MS = 288000; // 4.8 minutes (288 seconds) - prevent multiple refreshes within 4.8 minutes
+const REFRESH_DEBOUNCE_MS = 1788000; // 29.8 minutes (1788 seconds) - prevent multiple refreshes within 29.8 minutes
 
 // Helper function to check if token needs refresh (at 4.8 minutes = 288 seconds)
 export const shouldRefreshToken = (token) => {
