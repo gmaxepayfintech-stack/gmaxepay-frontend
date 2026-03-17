@@ -125,15 +125,19 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
     const res = await dispatch(aadhaarDownload(payload));
     if (res?.status === "SUCCESS") {
       notifySuccess(res?.message || "Aadhaar verified successfully");
+      setTimeout(() => {
+        if (onRefreshSteps) {
+          onRefreshSteps();
+        }
+      }, 1000);
     } else {
       notifyError(res?.message || "Aadhaar verification failed");
-      // If failure, refresh steps after 3 seconds (to let toaster show)
       if (res?.status === "FAILURE") {
         setTimeout(() => {
           if (onRefreshSteps) {
             onRefreshSteps();
           }
-        }, 3000);
+        }, 1000);
       }
     }
   };
