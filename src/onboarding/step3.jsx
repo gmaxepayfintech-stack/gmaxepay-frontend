@@ -127,6 +127,14 @@ function Step3({ setFormData, onNext, onRefreshSteps }) {
       notifySuccess(res?.message || "Aadhaar verified successfully");
     } else {
       notifyError(res?.message || "Aadhaar verification failed");
+      // If failure, refresh steps after 3 seconds (to let toaster show)
+      if (res?.status === "FAILURE") {
+        setTimeout(() => {
+          if (onRefreshSteps) {
+            onRefreshSteps();
+          }
+        }, 3000);
+      }
     }
   };
 
