@@ -124,6 +124,14 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
       notifySuccess(res?.message || "PAN verified successfully");
     } else {
       notifyError(res?.message || "PAN verification failed");
+      // If failure, refresh steps after 3 seconds (to let toaster show)
+      if (res?.status === "FAILURE") {
+        setTimeout(() => {
+          if (onRefreshSteps) {
+            onRefreshSteps();
+          }
+        }, 3000);
+      }
     }
   };
 
