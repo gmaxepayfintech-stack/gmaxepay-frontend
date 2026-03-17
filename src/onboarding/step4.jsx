@@ -122,6 +122,11 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
     const res = await dispatch(panDownload(payload));
     if (res?.status === "SUCCESS") {
       notifySuccess(res?.message || "PAN verified successfully");
+      setTimeout(() => {
+        if (onRefreshSteps) {
+          onRefreshSteps();
+        }
+      }, 1000);
     } else {
       notifyError(res?.message || "PAN verification failed");
       // If failure, refresh steps after 3 seconds (to let toaster show)
@@ -130,7 +135,7 @@ function Step4({ setFormData, onNext, onRefreshSteps }) {
           if (onRefreshSteps) {
             onRefreshSteps();
           }
-        }, 3000);
+        }, 1000);
       }
     }
   };
