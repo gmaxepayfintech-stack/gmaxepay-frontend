@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import { cmsProcessStatus } from '../../../redux/action/rechargeAction';
 import { useNotification } from '../../../context/NotificationContext';
 
 const CMSService = () => {
     const dispatch = useDispatch();
+    const navigate = useNavigate();
     const { showNotification } = useNotification();
     const [isLoading, setIsLoading] = useState(false);
 
@@ -18,6 +20,7 @@ const CMSService = () => {
 
                 if (redirectUrl) {
                     window.open(redirectUrl, '_blank');
+                    navigate(-1);
                 } else {
                     showNotification('Could not find redirect link in response.', 'error');
                 }
