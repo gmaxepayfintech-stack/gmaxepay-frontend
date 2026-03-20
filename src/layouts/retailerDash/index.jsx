@@ -22,6 +22,8 @@ import Complaints from "../../pages/retailerDashboard/Complaints";
 import AOneRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneRecharge";
 import AOneDthRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneDthRecharge";
 import AOnePan from "../../pages/retailerDashboard/services/MobileRecharge/AOnePan";
+import CMSService from "../../pages/retailerDashboard/services/CMSService";
+
 const RetailerDash = () => {
   return (
     <RetailerDashLayout>
@@ -43,6 +45,7 @@ const RetailerDash = () => {
         <Route path="/services/express-recharge" element={<AOneRecharge />} />
         <Route path="/services/express-dth-recharge" element={<AOneDthRecharge />} />
         <Route path="/services/express-pan-service" element={<AOnePan />} />
+        <Route path="/services/cms" element={<CMSService />} />
 
         <Route
           path="/services/aeps2/select-service"

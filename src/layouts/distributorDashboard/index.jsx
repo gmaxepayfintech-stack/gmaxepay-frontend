@@ -20,7 +20,7 @@ import SchemeMaster from "../../pages/DistributorDashboard/Resources/SchemeMaste
 import DistributerProfile from "../../pages/DistributorDashboard/distributerProfile";
 import ContactSupport from "../../pages/DistributorDashboard/ContactSupport";
 import Complaints from "../../pages/DistributorDashboard/Complaints";
-
+import CMSService from "../../pages/DistributorDashboard/services/CMSService";
 import DTHRecharge from "../../pages/DistributorDashboard/services/DTHRecharge";
 import AOneRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/components/AOneRecharge";
 import AOneDthRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/AOneDthRecharge";
@@ -47,6 +47,7 @@ const DistributorDashboard = () => {
         <Route path="/services/bbps-services" element={<BBPSServices />} />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />
+        <Route path="/services/cms" element={<CMSService />} />
         <Route path="/services/express-recharge" element={<AOneRecharge />} />
         <Route path="/services/express-dth-recharge" element={<AOneDthRecharge />} />
         <Route path="/services/express-pan-service" element={<AOnePan />} />
