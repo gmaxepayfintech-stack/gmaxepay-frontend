@@ -813,7 +813,7 @@ export const cmsProcessStatus = () => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}api/v1/user/cms/initiate`,
+      `${API_ROUTE}/api/v1/user/cms/initiate`,
       {},
       {
         headers: {
