@@ -14,7 +14,7 @@ const CMSService = () => {
             const response = await dispatch(cmsProcessStatus());
 
             if (response && response.status === 'SUCCESS') {
-                const redirectUrl = response?.data?.redirectionUrl;
+                const redirectUrl = response?.cmsProcessStatus?.redirectionUrl;
 
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
