@@ -1,36 +1,32 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { cmsProcessStatus } from '../../../redux/action/rechargeAction';
+import { useNotification } from '../../../context/NotificationContext';
 
 const CMSService = () => {
     const dispatch = useDispatch();
+    const { showNotification } = useNotification();
     const [isLoading, setIsLoading] = useState(false);
 
     const handleContinue = async () => {
         setIsLoading(true);
         try {
             const response = await dispatch(cmsProcessStatus());
-            
-            if (response && response.status === 'SUCCESS' && response.cmsProcessStatus) {
-                // Determine the redirect URL from the response payload
-                let redirectUrl = null;
-                if (typeof response.cmsProcessStatus === 'string') {
-                    redirectUrl = response.cmsProcessStatus;
-                } else if (typeof response.cmsProcessStatus === 'object') {
-                    redirectUrl = response.cmsProcessStatus.url || response.cmsProcessStatus.redirectUrl || response.cmsProcessStatus.link;
-                }
+
+            if (response && response.status === 'SUCCESS') {
+                const redirectUrl = response?.data?.redirectionUrl;
 
                 if (redirectUrl) {
                     window.location.href = redirectUrl;
                 } else {
-                    alert('Could not find redirect link in response.');
+                    showNotification('Could not find redirect link in response.', 'error');
                 }
             } else {
-                alert(response?.message || 'Failed to initialize CMS service.');
+                showNotification(response?.message || 'Failed to initialize CMS service.', 'error');
             }
         } catch (error) {
             console.error('CMS API error:', error);
-            alert('An unexpected error occurred. Please try again later.');
+            showNotification('An unexpected error occurred. Please try again later.', 'error');
         } finally {
             setIsLoading(false);
         }
