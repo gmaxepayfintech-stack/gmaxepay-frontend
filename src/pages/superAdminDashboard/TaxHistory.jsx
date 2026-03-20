@@ -15,6 +15,7 @@ import PanReportTwo from "./reports/PanReportTwo";
 import RechargeReportTwo from "./reports/RechargeReportTwo";
 import DTHReportTwo from "./reports/DTHReportTwo";
 import CMSHistory from "./CMSHistory";
+import MATMReport from "./reports/MATMReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -43,6 +44,7 @@ const TaxHistory = () => {
   const showSurCharges = viewHistory === "surcharges";
   const showGstHistory = viewHistory === "gst-history";
   const showBbpsHistory = viewHistory === "bbps-history";
+  const showMATMHistory = viewHistory === "matm-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -86,6 +88,14 @@ const TaxHistory = () => {
       subtitle: "Mini Statement",
       available: true,
       viewKey: "aeps2-ms-history",
+      category: "Banking",
+    },
+    {
+      id: 5,
+      title: "MATM History",
+      subtitle: "MATM History",
+      available: true,
+      viewKey: "matm-history",
       category: "Banking",
     },
     // {
@@ -412,6 +422,14 @@ const TaxHistory = () => {
         onBack={() => navigate("/superDashboard/txn-history")}
       />
     );
+  }
+
+  if (showMATMHistory) {
+    return (
+      <MATMReport
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    )
   }
 
   return (

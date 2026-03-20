@@ -13,6 +13,8 @@ import RechargeReportTwo from "../reports/RechargeReportTwo";
 import PanReportTwo from "../reports/PanReportTwo";
 import DTHReportTwo from "../reports/DTHReportTwo";
 import CMSHistory from "../reports/CMSHistory";
+import MATMReport from "../reports/MATMReport";
+
 const TaxHistory = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -49,6 +51,7 @@ const TaxHistory = () => {
   const showWalletHistory = viewHistory === "wallet-history";
   const showBBPSHistory = viewHistory === "bbps-history";
   const showCMSHistory = viewHistory === "cms-history";
+  const showMATMHistory = viewHistory === "matm-history";
 
   // Debug: Log when view parameter changes
   useEffect(() => {
@@ -99,6 +102,14 @@ const TaxHistory = () => {
       subtitle: "Mini Statement",
       available: true,
       viewKey: "aeps2-ms-history",
+      category: "Banking",
+    },
+    {
+      id: 5,
+      title: "MATM History",
+      subtitle: "MATM History",
+      available: true,
+      viewKey: "matm-history",
       category: "Banking",
     },
     // {
@@ -446,6 +457,14 @@ const TaxHistory = () => {
         onBack={() => navigate("/adminDashboard/txn-history")}
       />
     );
+  }
+
+  if (showMATMHistory) {
+    return (
+      <MATMReport
+        onBack={() => navigate("/adminDashboard/txn-history")}
+      />
+    )
   }
 
   return (

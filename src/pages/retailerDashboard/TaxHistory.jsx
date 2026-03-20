@@ -13,6 +13,7 @@ import PanServiceHistoryTwo from "./PanServiceHistoryTwo";
 import DTHRechargeHistoryTwo from "./DTHRechargeHistoryTwo";
 import MobileRechargeHistoryTwo from "./MobileRechargeHistoryTwo";
 import CMSHistory from "./CMSHistory";
+import MATMReport from "./MATMReport";
 
 
 const TaxHistory = () => {
@@ -51,6 +52,7 @@ const TaxHistory = () => {
   const showWalletHistory = viewHistory === "wallet-history";
   const showCMSHistory = viewHistory === "cms-history";
   const showBBPSHistory = viewHistory === "bbps-history";
+  const showMATMReport = viewHistory === "matm-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -120,7 +122,7 @@ const TaxHistory = () => {
       viewKey: "payout-history",
       category: "Banking",
     },
-     {
+    {
       id: 8,
       title: "CMS History",
       subtitle: "Cash History",
@@ -136,20 +138,14 @@ const TaxHistory = () => {
       viewKey: "wallet-history",
       category: "Finance",
     },
-    // {
-    //   id: 7,
-    //   title: "DMT",
-    //   subtitle: "Direct Money Transfer",
-    //   available: true,
-    //   category: "Banking",
-    // },
-    // {
-    //   id: 8,
-    //   title: "CMS",
-    //   subtitle: "Cash History",
-    //   available: true,
-    //   category: "Banking",
-    // },
+    {
+      id: 7,
+      title: "MATM History",
+      subtitle: "MATM History",
+      available: true,
+      viewKey: "matm-history",
+      category: "Banking",
+    },
     // {
     //   id: 9,
     //   title: "F-CMS",
@@ -395,6 +391,13 @@ const TaxHistory = () => {
   if (showWalletHistory) {
     return (
       <WalletHistory
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    );
+  }
+  if (showMATMReport) {
+    return (
+      <MATMReport
         onBack={() => navigate("/retailerDashboard/txn-history")}
       />
     );
