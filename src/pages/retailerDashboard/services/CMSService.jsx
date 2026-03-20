@@ -17,7 +17,7 @@ const CMSService = () => {
                 const redirectUrl = response?.cmsProcessStatus?.redirectionUrl;
 
                 if (redirectUrl) {
-                    window.location.href = redirectUrl;
+                    window.open(redirectUrl, '_blank');
                 } else {
                     showNotification('Could not find redirect link in response.', 'error');
                 }
