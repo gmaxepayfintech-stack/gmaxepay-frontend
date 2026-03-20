@@ -5,10 +5,10 @@ const CMSService = () => {
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 md:p-8 font-['Gilroy-Regular'] text-[#1B1717]">
             <div className="max-w-7xl mx-auto mb-6">
                 <h1 className="text-xl sm:text-2xl font-['Gilroy-Medium'] mb-2">
-                    AEPS Onboarding
+                    CMS Onboarding
                 </h1>
                 <p className="text-sm sm:text-base text-[#1B1717]/80">
-                    Please Review The Aadhaar Enabled Payment System Terms Carefully Before Proceeding To KYC Verification
+                    Please Review The Cash Management System Terms Carefully Before Proceeding To Verification
                 </p>
             </div>
 
