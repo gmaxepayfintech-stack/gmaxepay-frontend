@@ -1,6 +1,41 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { cmsProcessStatus } from '../../../redux/action/rechargeAction';
 
 const CMSService = () => {
+    const dispatch = useDispatch();
+    const [isLoading, setIsLoading] = useState(false);
+
+    const handleContinue = async () => {
+        setIsLoading(true);
+        try {
+            const response = await dispatch(cmsProcessStatus());
+            
+            if (response && response.status === 'SUCCESS' && response.cmsProcessStatus) {
+                // Determine the redirect URL from the response payload
+                let redirectUrl = null;
+                if (typeof response.cmsProcessStatus === 'string') {
+                    redirectUrl = response.cmsProcessStatus;
+                } else if (typeof response.cmsProcessStatus === 'object') {
+                    redirectUrl = response.cmsProcessStatus.url || response.cmsProcessStatus.redirectUrl || response.cmsProcessStatus.link;
+                }
+
+                if (redirectUrl) {
+                    window.location.href = redirectUrl;
+                } else {
+                    alert('Could not find redirect link in response.');
+                }
+            } else {
+                alert(response?.message || 'Failed to initialize CMS service.');
+            }
+        } catch (error) {
+            console.error('CMS API error:', error);
+            alert('An unexpected error occurred. Please try again later.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 md:p-8 font-['Gilroy-Regular'] text-[#1B1717]">
             <div className="max-w-7xl mx-auto mb-6">
@@ -25,8 +60,18 @@ const CMSService = () => {
                     Cash Management System Services For Your Customers
                 </p>
 
-                <button className="w-full max-w-md bg-[#039155] text-white font-['Gilroy-Medium'] text-sm sm:text-base py-3.5 rounded-xl hover:bg-[#027A48] transition-colors">
-                    Continue
+                <button 
+                    onClick={handleContinue}
+                    disabled={isLoading}
+                    className={`w-full max-w-md bg-[#039155] text-white font-['Gilroy-Medium'] text-sm sm:text-base py-3.5 rounded-xl transition-colors flex justify-center items-center ${isLoading ? 'opacity-70 cursor-not-allowed' : 'hover:bg-[#027A48]'}`}
+                >
+                    {isLoading ? (
+                        <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                        </svg>
+                    ) : null}
+                    <span>{isLoading ? 'Processing...' : 'Continue'}</span>
                 </button>
             </div>
         </div>

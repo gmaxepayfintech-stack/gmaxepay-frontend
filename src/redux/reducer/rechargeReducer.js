@@ -1,4 +1,4 @@
-import { DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
+import { CMS_PROCESS_STATUS_SUCCESS, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
 
 const initialState = {
     loading: false,
@@ -11,6 +11,7 @@ const initialState = {
     mobileRechargeOffers: null,
     mobileRechargePay: null,
     recentHistory: null,
+    cmsProcessStatus: null,
 };
 
 const rechargeReducer = (state = initialState, action) => {
@@ -82,6 +83,14 @@ const rechargeReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
                 success: action?.payload?.status,
                 recentHistory: action?.payload,
+            }
+        case CMS_PROCESS_STATUS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                cmsProcessStatus: action?.payload,
             }
         default:
             return state;
