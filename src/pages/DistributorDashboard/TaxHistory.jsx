@@ -14,6 +14,7 @@ import RechargeReportTwo from "./Reports/RechargeReportTwo";
 import DTHReportTwo from "./Reports/DTHReportTwo";
 import CMSHistory from "./CMSHistory";
 import MATMReport from "./Reports/MATMReport";
+import MPOSReport from "./services/MPOSReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -51,6 +52,8 @@ const TaxHistory = () => {
   const showDthHistoryTwo = viewHistory === "dth-history-two";
   const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
   const showMATMReport = viewHistory === "matm-history";
+  const showMPOSReport = viewHistory === "mpos-history";
+
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -134,6 +137,14 @@ const TaxHistory = () => {
       subtitle: "MATM History",
       available: true,
       viewKey: "matm-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "MPOS History",
+      subtitle: "MPOS History",
+      available: true,
+      viewKey: "mpos-history",
       category: "Banking",
     },
     {
@@ -448,6 +459,12 @@ const TaxHistory = () => {
   if (showMATMReport) {
     return (
       <MATMReport onBack={() => navigate("/distributerDashboard/tax-history")} />
+    )
+  }
+
+  if (showMPOSReport) {
+    return (
+      <MPOSReport onBack={() => navigate("/distributerDashboard/tax-history")} />
     )
   }
 

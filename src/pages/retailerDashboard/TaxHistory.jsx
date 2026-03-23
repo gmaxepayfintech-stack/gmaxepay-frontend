@@ -14,7 +14,7 @@ import DTHRechargeHistoryTwo from "./DTHRechargeHistoryTwo";
 import MobileRechargeHistoryTwo from "./MobileRechargeHistoryTwo";
 import CMSHistory from "./CMSHistory";
 import MATMReport from "./MATMReport";
-
+import MPOSReport from "./services/MPOSReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -53,6 +53,7 @@ const TaxHistory = () => {
   const showCMSHistory = viewHistory === "cms-history";
   const showBBPSHistory = viewHistory === "bbps-history";
   const showMATMReport = viewHistory === "matm-history";
+  const showMPOSReport = viewHistory === "mpos-history";
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -144,6 +145,14 @@ const TaxHistory = () => {
       subtitle: "MATM History",
       available: true,
       viewKey: "matm-history",
+      category: "Banking",
+    },
+    {
+      id: 10,
+      title: "MPOS History",
+      subtitle: "MPOS History",
+      available: true,
+      viewKey: "mpos-history",
       category: "Banking",
     },
     // {
@@ -401,6 +410,14 @@ const TaxHistory = () => {
         onBack={() => navigate("/retailerDashboard/txn-history")}
       />
     );
+  }
+
+  if (showMPOSReport) {
+    return (
+      <MPOSReport
+        onBack={() => navigate("/retailerDashboard/txn-history")}
+      />
+    )
   }
 
   if (showRechargeHistory) {

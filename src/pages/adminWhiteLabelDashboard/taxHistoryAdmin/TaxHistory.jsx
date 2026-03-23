@@ -14,6 +14,7 @@ import PanReportTwo from "../reports/PanReportTwo";
 import DTHReportTwo from "../reports/DTHReportTwo";
 import CMSHistory from "../reports/CMSHistory";
 import MATMReport from "../reports/MATMReport";
+import MPOSReport from "../reports/MPOSReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -52,6 +53,7 @@ const TaxHistory = () => {
   const showBBPSHistory = viewHistory === "bbps-history";
   const showCMSHistory = viewHistory === "cms-history";
   const showMATMHistory = viewHistory === "matm-history";
+  const showMPOSHistory = viewHistory === "mpos-history";
 
   // Debug: Log when view parameter changes
   useEffect(() => {
@@ -105,7 +107,7 @@ const TaxHistory = () => {
       category: "Banking",
     },
     {
-      id: 5,
+      id: 7,
       title: "MATM History",
       subtitle: "MATM History",
       available: true,
@@ -142,6 +144,14 @@ const TaxHistory = () => {
       subtitle: "CMS History",
       available: true,
       viewKey: "cms-history",
+      category: "Banking",
+    },
+    {
+      id: 29,
+      title: "MPOS History",
+      subtitle: "MPOS History",
+      available: true,
+      viewKey: "mpos-history",
       category: "Banking",
     },
     {
@@ -464,6 +474,12 @@ const TaxHistory = () => {
       <MATMReport
         onBack={() => navigate("/adminDashboard/txn-history")}
       />
+    )
+  }
+
+  if (showMPOSHistory) {
+    return (
+      <MPOSReport onBack={() => navigate("/adminDashboard/txn-history")} />
     )
   }
 
