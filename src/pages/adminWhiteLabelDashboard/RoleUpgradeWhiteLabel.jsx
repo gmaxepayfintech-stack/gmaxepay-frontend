@@ -2,7 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Search, X, User, Sparkles } from 'lucide-react';
 import { roleDataCompanyUser, roleUpgradeCompanyUser } from '../../redux/action/roleAction';
-
+import { ButtonLoader } from "../../widgets/layout/loader.jsx";
 const RoleUpgradeWhiteLabel = () => {
     const dispatch = useDispatch();
     const [searchQuery, setSearchQuery] = useState('');
@@ -59,6 +59,8 @@ const RoleUpgradeWhiteLabel = () => {
         requestedRole: ''
     });
     const [requestedRoleError, setRequestedRoleError] = useState('');
+    const [isNextLoading, setIsNextLoading] = useState(false);
+    const [isApproveLoading, setIsApproveLoading] = useState(false);
 
     const statusFilters = ['Approved', 'Pending', 'Rejected'];
     const tabs = ['User Details', 'Role Information', 'Status And Actions'];
@@ -459,14 +461,17 @@ const RoleUpgradeWhiteLabel = () => {
         setActiveTab(tabs[idx - 1]);
     };
 
-    const handleNextStep = () => {
+    const handleNextStep = async () => {
         const idx = getActiveTabIndex();
         if (activeTab === 'Role Information' && !formData.requestedRole) {
             setRequestedRoleError('Requested Role is required');
             return;
         }
         if (idx >= tabs.length - 1) return;
+        setIsNextLoading(true);
+        await new Promise((res) => setTimeout(res, 400));
         setActiveTab(tabs[idx + 1]);
+        setIsNextLoading(false);
     };
 
     const handleInputChange = (e) => {
@@ -513,6 +518,7 @@ const RoleUpgradeWhiteLabel = () => {
         console.log('=== Approve Request -> roleUpgradeCompanyUser (component) ===');
         console.log('Payload:', payload);
 
+        setIsApproveLoading(true);
         try {
             const response = await dispatch(roleUpgradeCompanyUser(payload));
            // console.log('=== roleUpgradeCompanyUser response (component) ===');
@@ -521,6 +527,8 @@ const RoleUpgradeWhiteLabel = () => {
         } catch (error) {
             console.log('=== roleUpgradeCompanyUser error (component) ===');
             console.error(error);
+        } finally {
+            setIsApproveLoading(false);
         }
     };
 
@@ -744,9 +752,12 @@ const RoleUpgradeWhiteLabel = () => {
                                             </button>
                                             <button
                                                 onClick={handleApproveRequest}
-                                                className="px-6 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Medium] hover:bg-[#027a45] transition"
+                                                disabled={isApproveLoading}
+                                                className="px-6 py-3 bg-[#039155] text-white rounded-lg font-[Gilroy-Medium] hover:bg-[#027a45] transition disabled:opacity-70 disabled:cursor-not-allowed flex items-center gap-2"
                                             >
-                                                Approve Request
+                                                {isApproveLoading ? (
+                                                    <><ButtonLoader color="#ffffff" size={18} thickness={2} /> Approving...</>
+                                                ) : 'Approve Request'}
                                             </button>
                                         </div>
                                     </div>
@@ -766,10 +777,12 @@ const RoleUpgradeWhiteLabel = () => {
                             <button
                                 type="button"
                                 onClick={handleNextStep}
-                                disabled={getActiveTabIndex() === tabs.length - 1}
-                                className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300"
+                                disabled={getActiveTabIndex() === tabs.length - 1 || isNextLoading}
+                                className="px-6 py-2 bg-[#039155] text-white rounded-xl font-['Gilroy-Medium'] text-[18px] hover:bg-[#027a45] transition disabled:bg-gray-300 disabled:cursor-not-allowed disabled:hover:bg-gray-300 flex items-center gap-2"
                             >
-                                Next
+                                {isNextLoading ? (
+                                    <><ButtonLoader color="#ffffff" size={18} thickness={2} /> Loading...</>
+                                ) : 'Next'}
                             </button>
                         </div>
                     </div>
