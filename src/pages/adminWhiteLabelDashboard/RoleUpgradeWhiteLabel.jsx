@@ -493,6 +493,25 @@ const RoleUpgradeWhiteLabel = () => {
         handleCloseModal();
     };
 
+    const refreshList = () => {
+        const kycStatus = getKycStatusFromFilter(activeFilter);
+        dispatch(roleDataCompanyUser({
+            query: {
+                userRole: "",
+                kycStatus: kycStatus
+            },
+            options: {
+                sort: { id: -1 },
+                page: 1,
+                paginate: 10
+            },
+            customSearch: debouncedSearchQuery.trim() ? {
+                name: debouncedSearchQuery.trim(),
+                mobileNo: debouncedSearchQuery.trim()
+            } : {}
+        }));
+    };
+
     const handleApproveRequest = async () => {
         const userId = selectedUser?.id;
         const targetRole = Number(formData.requestedRole);
@@ -520,10 +539,9 @@ const RoleUpgradeWhiteLabel = () => {
 
         setIsApproveLoading(true);
         try {
-            const response = await dispatch(roleUpgradeCompanyUser(payload));
-           // console.log('=== roleUpgradeCompanyUser response (component) ===');
-           // console.log(response);
+            await dispatch(roleUpgradeCompanyUser(payload));
             handleCloseModal();
+            refreshList();
         } catch (error) {
             console.log('=== roleUpgradeCompanyUser error (component) ===');
             console.error(error);
