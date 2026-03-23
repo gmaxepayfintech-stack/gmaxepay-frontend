@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { cmsProcessStatus } from '../../../redux/action/rechargeAction';
 import { useNotification } from '../../../context/NotificationContext';
+import { HiArrowLeft } from 'react-icons/hi';
 
 const CMSService = () => {
     const dispatch = useDispatch();
@@ -38,9 +39,20 @@ const CMSService = () => {
     return (
         <div className="min-h-screen bg-[#FAFAFA] p-4 sm:p-6 md:p-8 font-['Gilroy-Regular'] text-[#1B1717]">
             <div className="max-w-7xl mx-auto mb-6">
-                <h1 className="text-xl sm:text-2xl font-['Gilroy-Medium'] mb-2">
-                    CMS Onboarding
-                </h1>
+                <div className="flex items-center gap-3 mb-2">
+                    <button
+                        onClick={() => navigate(-1)}
+                        className="flex items-center text-[#1B1717] hover:text-[#039155] transition mt-1"
+                        aria-label="Go back"
+                    >
+                        <div className="rounded-full p-2 bg-[#FFFFFF] border border-[#1B1717]/80 transition">
+                            <HiArrowLeft className="text-xl sm:text-2xl text-[#1B1717]/80 opacity-80" />
+                        </div>
+                    </button>
+                    <h1 className="text-xl sm:text-2xl font-['Gilroy-Medium']">
+                        CMS Onboarding
+                    </h1>
+                </div>
                 <p className="text-sm sm:text-base text-[#1B1717]/80">
                     Please Review The Cash Management System Terms Carefully Before Proceeding To Verification
                 </p>
