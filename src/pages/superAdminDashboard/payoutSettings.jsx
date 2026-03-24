@@ -1,85 +1,96 @@
 import { Plus, Search, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
-import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import React, { useState, useEffect } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { ButtonLoader } from "../../widgets/layout/loader";
+import { listPayouts, createPayout, switchPayoutStatus } from "../../redux/action/payoutAction";
 
 const PayoutSetting = () => {
+  const dispatch = useDispatch();
+
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  
   const isLoading = useSelector((state) => state.loading.isLoading);
+  const payoutSettingList = useSelector((state) => state.payout?.payoutSettingList);
+  
+  const rawPayouts = payoutSettingList?.data || payoutSettingList || [];
+  // Backend returns descending arbitrarily sometimes, fixing it by sorting by id ascending
+  const payouts = Array.isArray(rawPayouts)
+    ? [...rawPayouts].sort((a, b) => a.id - b.id)
+    : [];
+
+  const paginator = payoutSettingList?.paginator || {};
+  const totalPages = paginator?.pageCount || 1;
+  const apiCurrentPage = typeof paginator?.currentPage === "number" ? paginator.currentPage : currentPage;
 
   const [formData, setFormData] = useState({
+    id: "",
     payoutName: "",
     active: true,
   });
 
-  // Demo data — replace with redux-backed data when API is ready
-  const [payouts, setPayouts] = useState([
-    { id: 122310, payoutName: "Zuel Pay", isActive: true, createdAt: "24-03-2026" },
-    { id: 122310, payoutName: "PayIndipro", isActive: true, createdAt: "24-03-2026" },
-  ]);
-
-  const formatDate = (date) => {
-    if (!date) return "";
-    if (typeof date === "string") return date;
-    const d = new Date(date);
-    const day = String(d.getDate()).padStart(2, "0");
-    const month = String(d.getMonth() + 1).padStart(2, "0");
-    const year = d.getFullYear();
-    return `${day}-${month}-${year}`;
+  const checkIsActive = (p) => {
+    if (p.isActive === true || p.active === true || p.status === 1 || p.status === "ACTIVE") return true;
+    return false;
   };
 
-  const today = formatDate(new Date());
-
-  const filteredPayouts = payouts.filter((p) =>
-    p.payoutName.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  useEffect(() => {
+    dispatch(listPayouts({}));
+  }, [dispatch]);
 
   const handleSubmit = () => {
     if (!formData.payoutName) return;
 
     if (isEditMode && editingId !== null) {
-      setPayouts((prev) =>
-        prev.map((p) =>
-          p.id === editingId && p.payoutName === editingId
-            ? { ...p, payoutName: formData.payoutName, isActive: formData.active }
-            : p
-        )
-      );
+      console.log("Edit API not implemented yet for:", formData);
     } else {
-      setPayouts((prev) => [
-        ...prev,
-        {
-          id: Math.floor(100000 + Math.random() * 900000),
-          payoutName: formData.payoutName,
-          isActive: formData.active,
-          createdAt: today,
-        },
-      ]);
+      // Trying payoutName to sync with the serviceName API pattern
+      dispatch(createPayout({
+        payoutName: formData.payoutName,
+        name: formData.payoutName,
+        isActive: formData.active
+      })).then(() => {
+        setCurrentPage(1);
+        dispatch(listPayouts({}));
+      });
     }
 
     setIsOpen(false);
     setIsEditMode(false);
     setEditingId(null);
-    setFormData({ payoutName: "", active: true });
+    setFormData({ id: "", payoutName: "", active: true });
+  };
+
+  const handleToggle = (id) => {
+    dispatch(switchPayoutStatus(id)).then(() => {
+      dispatch(listPayouts({}));
+    });
   };
 
   const handleEdit = (payout) => {
     setIsEditMode(true);
     setEditingId(payout.id);
-    setFormData({ payoutName: payout.payoutName, active: payout.isActive });
+    const name = payout.payoutName || payout.name || "";
+    setFormData({ id: payout.id, payoutName: name, active: checkIsActive(payout) });
     setIsOpen(true);
   };
 
-  const ITEMS_PER_PAGE = 10;
-  const totalPages = Math.ceil(filteredPayouts.length / ITEMS_PER_PAGE);
-  const pagedPayouts = filteredPayouts.slice(
-    (currentPage - 1) * ITEMS_PER_PAGE,
-    currentPage * ITEMS_PER_PAGE
-  );
+  const formatDate = (date) => {
+    if (!date) return "";
+    const cleanDate = typeof date === "string" ? date.split("T")[0] : "";
+    if (cleanDate) {
+      const [year, month, day] = cleanDate.split("-");
+      if (year && month && day) return `${day}-${month}-${year}`;
+    }
+    const d = new Date(date);
+    const dd = String(d.getDate()).padStart(2, "0");
+    const mm = String(d.getMonth() + 1).padStart(2, "0");
+    const yyyy = d.getFullYear();
+    return `${dd}-${mm}-${yyyy}`;
+  };
 
   return (
     <div className="py-4 px-1">
@@ -106,7 +117,7 @@ const PayoutSetting = () => {
             onClick={() => {
               setIsEditMode(false);
               setEditingId(null);
-              setFormData({ payoutName: "", active: true });
+              setFormData({ id: "", payoutName: "", active: true });
               setIsOpen(true);
             }}
             className="w-full lg:w-auto h-[44px] bg-[#039155] hover:bg-[#027a46] text-white px-5 rounded-lg text-sm font-[Gilroy-Semibold] flex items-center justify-center gap-2 shadow-sm truncate"
@@ -144,30 +155,31 @@ const PayoutSetting = () => {
                   <ButtonLoader />
                 </td>
               </tr>
-            ) : pagedPayouts.length > 0 ? (
-              pagedPayouts.map((payout, idx) => (
-                <tr key={idx} className="border-b border-[#1B1717]/20 last:border-b-0">
+            ) : payouts.length > 0 ? (
+              payouts.map((payout, idx) => (
+                <tr key={payout.id || idx} className="border-b border-[#1B1717]/20 last:border-b-0">
                   <td className="w-1/4 py-4 px-6 text-xs font-[Gilroy-Medium] text-[#1B1717] text-left">
                     {payout.id}
                   </td>
                   <td className="w-1/4 py-4 px-6 text-xs font-[Gilroy-Medium] text-[#1B1717] text-left">
-                    {payout.payoutName}
+                    {payout.payoutName || payout.name}
                   </td>
                   <td className="w-1/4 py-4 px-6">
                     <div className="flex justify-center">
                       <button
-                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${payout.isActive ? "bg-[#039155]" : "bg-gray-300"
+                        onClick={() => handleToggle(payout.id)}
+                        className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors ${checkIsActive(payout) ? "bg-[#039155]" : "bg-gray-300"
                           }`}
                       >
                         <div
-                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${payout.isActive ? "translate-x-6" : "translate-x-0"
+                          className={`bg-white w-4 h-4 rounded-full shadow-md transform transition-transform ${checkIsActive(payout) ? "translate-x-6" : "translate-x-0"
                             }`}
                         />
                       </button>
                     </div>
                   </td>
                   <td className="w-1/4 py-4 px-6 text-xs font-[Gilroy-Medium] text-[#1B1717] text-right">
-                    {payout.createdAt}
+                    {formatDate(payout.createdAt)}
                   </td>
                 </tr>
               ))
@@ -185,7 +197,7 @@ const PayoutSetting = () => {
           <div className="flex justify-center gap-2 py-4">
             <button
               onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-              disabled={currentPage === 1}
+              disabled={apiCurrentPage === 1 || isLoading}
               className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Previous page"
             >
@@ -195,15 +207,15 @@ const PayoutSetting = () => {
             {Array.from({ length: Math.min(totalPages, 5) }, (_, i) => {
               let page;
               if (totalPages <= 5) page = i + 1;
-              else if (currentPage <= 3) page = i + 1;
-              else if (currentPage >= totalPages - 2) page = totalPages - 4 + i;
-              else page = currentPage - 2 + i;
+              else if (apiCurrentPage <= 3) page = i + 1;
+              else if (apiCurrentPage >= totalPages - 2) page = totalPages - 4 + i;
+              else page = apiCurrentPage - 2 + i;
 
               return (
                 <button
                   key={page}
                   onClick={() => setCurrentPage(page)}
-                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${currentPage === page
+                  className={`w-9 h-9 sm:w-10 sm:h-10 rounded-md font-[Gilroy-Regular] transition text-sm sm:text-base ${apiCurrentPage === page
                     ? "bg-[#039155] text-white"
                     : "bg-white border-[0.5px] border-[#121216]/54 text-[#1B1717] hover:bg-gray-50"
                     }`}
@@ -215,7 +227,7 @@ const PayoutSetting = () => {
 
             <button
               onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-              disabled={currentPage === totalPages}
+              disabled={apiCurrentPage === totalPages || isLoading}
               className="p-2 sm:p-2.5 rounded-md border-[0.5px] border-[#121216]/54 bg-white text-[#121216] hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               aria-label="Next page"
             >
