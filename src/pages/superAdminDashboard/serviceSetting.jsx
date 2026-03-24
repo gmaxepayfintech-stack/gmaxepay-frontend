@@ -207,7 +207,7 @@ const ServiceSetting = () => {
               </tr>
             ) : services.length > 0 ? (
               services.map((service) => (
-                <tr key={service.id} className="border-b border-[#1B1717]/20  ">
+                <tr key={service.id} className="border-b border-[#1B1717]/20 last:border-b-0">
                   {/* <td className="py-3 px-2 text-xs font-[gilroy-">
                     {service.slno}
                   </td> */}

@@ -76,6 +76,10 @@ const DashboardLayout = ({ children }) => {
           name: "Service Settings",
           path: "/superDashboard/api-operator/service-settings",
         },
+        {
+          name: "Pay-out Settings",
+          path: "/superDashboard/api-operator/payout-settings",
+        },
       ],
     },
     {

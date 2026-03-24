@@ -16,6 +16,7 @@ import SuperAdminProfile from "../../pages/superAdminDashboard/superAdminProfile
 import ServiceSetting from "../../pages/superAdminDashboard/serviceSetting";
 import OperatorSetting from "../../pages/superAdminDashboard/operatorSetting";
 import ContactSupport from "../../pages/superAdminDashboard/ContactSupport";
+import PayoutSetting from "../../pages/superAdminDashboard/payoutSettings";
 
 const SuperAdminDashboard = () => {
   return (
@@ -44,6 +45,10 @@ const SuperAdminDashboard = () => {
         <Route
           path="/api-operator/operator-settings"
           element={<OperatorSetting />}
+        />
+        <Route
+          path="/api-operator/payout-settings"
+          element={<PayoutSetting />}
         />
         <Route path="/contact-support" element={<ContactSupport />} />
       </Routes>
