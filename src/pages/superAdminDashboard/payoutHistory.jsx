@@ -80,6 +80,7 @@ const PayoutHistory = ({ onBack, type }) => {
         accountNumber: item.accountNumber || "N/A",
         ifscCode: item.ifscCode || "N/A",
         bankName: item.bankName || "N/A",
+        payoutType: item.payoutType || "N/A",
         beneficiaryName: item.beneficiaryName || "N/A",
         amount: formattedAmount,
         status: getStatusDisplay(item.status),
@@ -194,6 +195,7 @@ const PayoutHistory = ({ onBack, type }) => {
       "Account Number": row.accountNumber,
       "IFSC Code": row.ifscCode,
       "Bank Name": row.bankName,
+      "Payout Type": row.payoutType,
       "Beneficiary Name": row.beneficiaryName,
       "Amount": row.amount,
       "Status": row.status,
@@ -388,6 +390,9 @@ const PayoutHistory = ({ onBack, type }) => {
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Bank Name
                 </th>
+                <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs text-left sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                  Payout Type
+                </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Amount
                 </th>
@@ -472,6 +477,12 @@ const PayoutHistory = ({ onBack, type }) => {
                         <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
                           <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
                             {transaction.bankName}
+                          </span>
+                        </td>
+
+                        <td className="px-4 sm:px-6 py-3 sm:py-4 text-left">
+                          <span className="text-xs sm:text-sm font-['Gilroy-Regular'] text-[#121216] truncate">
+                            {transaction.payoutType}
                           </span>
                         </td>
 

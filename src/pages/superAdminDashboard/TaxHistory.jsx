@@ -17,7 +17,7 @@ import DTHReportTwo from "./reports/DTHReportTwo";
 import CMSHistory from "./CMSHistory";
 import MATMReport from "./reports/MATMReport";
 import MPOSReport from "./reports/MPOSReport";
-import PayoutHistoryTwo from "./PayoutHistoryTwo";
+// import PayoutHistoryTwo from "./PayoutHistoryTwo";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -48,7 +48,7 @@ const TaxHistory = () => {
   const showBbpsHistory = viewHistory === "bbps-history";
   const showMATMHistory = viewHistory === "matm-history";
   const showMPOSHistory = viewHistory === "mpos-history";
-  const showPayoutHistoryTwo = viewHistory === "payout-history-two";
+  // const showPayoutHistoryTwo = viewHistory === "payout-history-two";
 
   const tabs = [
     "Banking",
@@ -129,20 +129,20 @@ const TaxHistory = () => {
     },
     {
       id: 7,
-      title: "Payout - 1 History",
-      subtitle: "Payout - 1 History",
+      title: "Payout History",
+      subtitle: "Payout History",
       available: true,
       viewKey: "payout-history",
       category: "Banking",
     },
-    {
-      id: 7,
-      title: "Payout - 2 History",
-      subtitle: "Payout - 2 History",
-      available: true,
-      viewKey: "payout-history",
-      category: "Banking",
-    },
+    // {
+    //   id: 7,
+    //   title: "Payout - 2 History",
+    //   subtitle: "Payout - 2 History",
+    //   available: true,
+    //   viewKey: "payout-history",
+    //   category: "Banking",
+    // },
     {
       id: 7,
       title: "CMS History",
@@ -461,13 +461,13 @@ const TaxHistory = () => {
     )
   }
 
-  if (showPayoutHistoryTwo) {
-    return (
-      <PayoutHistoryTwo
-        onBack={() => navigate("/superDashboard/txn-history")}
-      />
-    )
-  }
+  // if (showPayoutHistoryTwo) {
+  //   return (
+  //     <PayoutHistoryTwo
+  //       onBack={() => navigate("/superDashboard/txn-history")}
+  //     />
+  //   )
+  // }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-1 sm:p-2 md:p-3 text-[#1B1717]">
