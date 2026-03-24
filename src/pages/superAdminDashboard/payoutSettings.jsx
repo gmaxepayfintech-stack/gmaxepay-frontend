@@ -3,10 +3,11 @@ import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { listPayouts, createPayout, switchPayoutStatus } from "../../redux/action/payoutAction";
+import { useNotification } from "../../context/NotificationContext";
 
 const PayoutSetting = () => {
   const dispatch = useDispatch();
-
+  const { showNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
   const [isOpen, setIsOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -47,15 +48,35 @@ const PayoutSetting = () => {
     if (isEditMode && editingId !== null) {
       console.log("Edit API not implemented yet for:", formData);
     } else {
-      // Trying payoutName to sync with the serviceName API pattern
       dispatch(createPayout({
         payoutName: formData.payoutName,
         name: formData.payoutName,
-        isActive: formData.active
-      })).then(() => {
-        setCurrentPage(1);
-        dispatch(listPayouts({}));
-      });
+        isActive: formData.active,
+      }))
+        .then((res) => {
+          if (res?.status === "SUCCESS") {
+            showNotification({
+              type: "success",
+              message: res.message || "Payout created successfully!",
+              isCritical: true,
+            });
+            setCurrentPage(1);
+            dispatch(listPayouts({}));
+          } else {
+            showNotification({
+              type: "error",
+              message: res?.message || "Failed to create payout.",
+              isCritical: true,
+            });
+          }
+        })
+        .catch(() => {
+          showNotification({
+            type: "error",
+            message: "Something went wrong while creating payout.",
+            isCritical: true,
+          });
+        });
     }
 
     setIsOpen(false);
@@ -65,9 +86,30 @@ const PayoutSetting = () => {
   };
 
   const handleToggle = (id) => {
-    dispatch(switchPayoutStatus({ id })).then(() => {
-      dispatch(listPayouts({}));
-    });
+    dispatch(switchPayoutStatus({ id }))
+      .then((res) => {
+        if (res?.status === "SUCCESS") {
+          showNotification({
+            type: "success",
+            message: res.message || "Payout status updated successfully!",
+            isCritical: true,
+          });
+          dispatch(listPayouts({}));
+        } else {
+          showNotification({
+            type: "error",
+            message: res?.message || "Failed to update payout status.",
+            isCritical: true,
+          });
+        }
+      })
+      .catch(() => {
+        showNotification({
+          type: "error",
+          message: "Something went wrong while updating payout status.",
+          isCritical: true,
+        });
+      });
   };
 
   const handleEdit = (payout) => {
