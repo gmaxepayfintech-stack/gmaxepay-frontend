@@ -65,7 +65,7 @@ const PayoutSetting = () => {
   };
 
   const handleToggle = (id) => {
-    dispatch(switchPayoutStatus(id)).then(() => {
+    dispatch(switchPayoutStatus({ id })).then(() => {
       dispatch(listPayouts({}));
     });
   };
@@ -137,7 +137,7 @@ const PayoutSetting = () => {
                 ID
               </th>
               <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-left">
-                Pay-Out NAME
+                Pay-Out Name
               </th>
               <th className="w-1/4 py-4 px-6 text-sm font-[Gilroy-Medium] text-center">
                 Active
