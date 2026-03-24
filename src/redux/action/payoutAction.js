@@ -591,13 +591,13 @@ export const createPayout = (payload) => async (dispatch) => {
 };
 
 // ✅ SWITCH PAYOUT STATUS
-export const switchPayoutStatus = (id) => async (dispatch) => {
+export const switchPayoutStatus = (payload) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
       `${API_ROUTE}/api/v1/admin/payout/switch-status`,
-      { id },
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
