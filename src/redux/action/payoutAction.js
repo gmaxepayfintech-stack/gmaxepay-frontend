@@ -18,6 +18,12 @@ import {
   PAYOUT_HISTORY_USER_SUCCESS,
   PAYOUT_HISTORY_USER_FAILURE,
   PAYOUT_HISTORY_COMPANY_SUCCESS,
+  PAYOUT_SETTING_LIST_SUCCESS,
+  PAYOUT_SETTING_LIST_FAILURE,
+  PAYOUT_SETTING_CREATE_SUCCESS,
+  PAYOUT_SETTING_CREATE_FAILURE,
+  PAYOUT_SETTING_SWITCH_SUCCESS,
+  PAYOUT_SETTING_SWITCH_FAILURE,
 } from "../actionType/payOutType";
 const commonError = "Something went wrong!";
 
@@ -522,3 +528,96 @@ export const getPayoutHistoryUser = (payload) => async (dispatch) => {
   }
 };
 
+// ✅ LIST PAYOUT SETTINGS
+export const listPayouts = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/payout/list`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    if (response?.data?.status === "SUCCESS") {
+      dispatch({ type: PAYOUT_SETTING_LIST_SUCCESS, payload: response.data });
+      return response.data;
+    }
+    dispatch({ type: PAYOUT_SETTING_LIST_FAILURE, payload: response.data });
+  } catch (error) {
+    dispatch({
+      type: PAYOUT_SETTING_LIST_FAILURE,
+      payload: error.response?.data || error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// ✅ CREATE PAYOUT SETTING
+export const createPayout = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/payout/create`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    const { status, message } = response.data || {};
+    if (status === "SUCCESS") {
+      dispatch({ type: PAYOUT_SETTING_CREATE_SUCCESS, payload: { status, message } });
+      return { status, message };
+    }
+    dispatch({ type: PAYOUT_SETTING_CREATE_FAILURE, payload: message || commonError });
+  } catch (error) {
+    dispatch({
+      type: PAYOUT_SETTING_CREATE_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// ✅ SWITCH PAYOUT STATUS
+export const switchPayoutStatus = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/payout/switch-status`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    const { status, message } = response.data || {};
+    if (status === "SUCCESS") {
+      dispatch({ type: PAYOUT_SETTING_SWITCH_SUCCESS, payload: { status, message } });
+      return { status, message };
+    }
+    dispatch({ type: PAYOUT_SETTING_SWITCH_FAILURE, payload: message || commonError });
+  } catch (error) {
+    dispatch({
+      type: PAYOUT_SETTING_SWITCH_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};

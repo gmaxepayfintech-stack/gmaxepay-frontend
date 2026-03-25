@@ -179,6 +179,10 @@ const Services = () => {
     navigate("/retailerDashboard/services/pan-service");
   };
 
+  const handleCMSServiceClick = () => {
+    navigate("/retailerDashboard/services/cms");
+  };
+
   // If BBPS services should be shown, render that component
   if (showBBPSServices) {
     return <BBPSServices onBack={() => setShowBBPSServices(false)} />;
@@ -257,6 +261,8 @@ const Services = () => {
                 handlePANClick();
               } else if (s.id === "Express PAN") {
                 navigate("/retailerDashboard/services/express-pan-service");
+              } else if (s.id === "cms-1") {
+                handleCMSServiceClick();
               }
             }}
           />

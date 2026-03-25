@@ -15,6 +15,9 @@ import PanReportTwo from "./reports/PanReportTwo";
 import RechargeReportTwo from "./reports/RechargeReportTwo";
 import DTHReportTwo from "./reports/DTHReportTwo";
 import CMSHistory from "./CMSHistory";
+import MATMReport from "./reports/MATMReport";
+import MPOSReport from "./reports/MPOSReport";
+// import PayoutHistoryTwo from "./PayoutHistoryTwo";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -43,6 +46,10 @@ const TaxHistory = () => {
   const showSurCharges = viewHistory === "surcharges";
   const showGstHistory = viewHistory === "gst-history";
   const showBbpsHistory = viewHistory === "bbps-history";
+  const showMATMHistory = viewHistory === "matm-history";
+  const showMPOSHistory = viewHistory === "mpos-history";
+  // const showPayoutHistoryTwo = viewHistory === "payout-history-two";
+
   const tabs = [
     "Banking",
     "Utility Payment",
@@ -88,6 +95,22 @@ const TaxHistory = () => {
       viewKey: "aeps2-ms-history",
       category: "Banking",
     },
+    {
+      id: 8,
+      title: "MATM History",
+      subtitle: "MATM History",
+      available: true,
+      viewKey: "matm-history",
+      category: "Banking",
+    },
+    {
+      id: 9,
+      title: "MPOS History",
+      subtitle: "MPOS History",
+      available: true,
+      viewKey: "mpos-history",
+      category: "Banking",
+    },
     // {
     //   id: 5,
     //   title: "AEPS 1 BE History",
@@ -112,6 +135,14 @@ const TaxHistory = () => {
       viewKey: "payout-history",
       category: "Banking",
     },
+    // {
+    //   id: 7,
+    //   title: "Payout - 2 History",
+    //   subtitle: "Payout - 2 History",
+    //   available: true,
+    //   viewKey: "payout-history",
+    //   category: "Banking",
+    // },
     {
       id: 7,
       title: "CMS History",
@@ -413,6 +444,30 @@ const TaxHistory = () => {
       />
     );
   }
+
+  if (showMPOSHistory) {
+    return (
+      <MPOSReport
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    )
+  }
+
+  if (showMATMHistory) {
+    return (
+      <MATMReport
+        onBack={() => navigate("/superDashboard/txn-history")}
+      />
+    )
+  }
+
+  // if (showPayoutHistoryTwo) {
+  //   return (
+  //     <PayoutHistoryTwo
+  //       onBack={() => navigate("/superDashboard/txn-history")}
+  //     />
+  //   )
+  // }
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-1 sm:p-2 md:p-3 text-[#1B1717]">

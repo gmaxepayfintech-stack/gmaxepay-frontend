@@ -13,6 +13,8 @@ import PanReportTwo from "./Reports/PanReportTwo";
 import RechargeReportTwo from "./Reports/RechargeReportTwo";
 import DTHReportTwo from "./Reports/DTHReportTwo";
 import CMSHistory from "./CMSHistory";
+import MATMReport from "./Reports/MATMReport";
+import MPOSReport from "./services/MPOSReport";
 
 const TaxHistory = () => {
   const navigate = useNavigate();
@@ -49,6 +51,8 @@ const TaxHistory = () => {
   const showRechargeHistoryTwo = viewHistory === "recharge-history-two";
   const showDthHistoryTwo = viewHistory === "dth-history-two";
   const showPanServiceHistoryTwo = viewHistory === "pan-service-history-two";
+  const showMATMReport = viewHistory === "matm-history";
+  const showMPOSReport = viewHistory === "mpos-history";
 
   const tabs = [
     "Banking",
@@ -119,12 +123,28 @@ const TaxHistory = () => {
       viewKey: "payout-history",
       category: "Banking",
     },
-     {
+    {
       id: 7,
       title: "CMS History",
       subtitle: "CMS History",
       available: true,
       viewKey: "cms-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "MATM History",
+      subtitle: "MATM History",
+      available: true,
+      viewKey: "matm-history",
+      category: "Banking",
+    },
+    {
+      id: 7,
+      title: "MPOS History",
+      subtitle: "MPOS History",
+      available: true,
+      viewKey: "mpos-history",
       category: "Banking",
     },
     {
@@ -434,6 +454,18 @@ const TaxHistory = () => {
 
   if (showCMSHistory) {
     return <CMSHistory onBack={() => navigate("/distributerDashboard/tax-history")} />;
+  }
+
+  if (showMATMReport) {
+    return (
+      <MATMReport onBack={() => navigate("/distributerDashboard/tax-history")} />
+    )
+  }
+
+  if (showMPOSReport) {
+    return (
+      <MPOSReport onBack={() => navigate("/distributerDashboard/tax-history")} />
+    )
   }
 
   if (showBBPSHistory) {
