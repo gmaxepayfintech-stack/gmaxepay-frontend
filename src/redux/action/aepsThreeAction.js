@@ -95,7 +95,7 @@ export const aepsThreeOnboarding = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    
+
     // Fetch location
     const locationInfo = await getLocationAndIP();
     const payload = {
@@ -303,10 +303,10 @@ export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    
+
     // Fetch location
     const locationInfo = await getLocationAndIP();
-    
+
     // Extract base64 Pid (support both old and potentially new key)
     const base64Pid = values.txtPidData || values.pid || "";
 
@@ -322,18 +322,18 @@ export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
     };
 
     const payload = {
-        device_type: "WEB",
-        device_os: getDeviceOS(),
-        device_mobile: "",
-        app_id: window.location.hostname,
-        sdk_version: "1.2.0",
-        device_model: "WEB_BROWSER",
-        model_id: "",
-        peripheral: "BIOMETRIC_FINGERPRINT",
-        pid: base64Pid,
-        pid_type: 1,
-        latitude: locationInfo?.location?.latitude ? String(locationInfo.location.latitude) : "",
-        longitude: locationInfo?.location?.longitude ? String(locationInfo.location.longitude) : ""
+      device_type: "WEB",
+      device_os: getDeviceOS(),
+      device_mobile: "",
+      app_id: window.location.hostname,
+      sdk_version: "1.2.0",
+      device_model: "WEB_BROWSER",
+      model_id: "",
+      peripheral: "BIOMETRIC_FINGERPRINT",
+      pid: base64Pid,
+      pid_type: 1,
+      latitude: locationInfo?.location?.latitude ? String(locationInfo.location.latitude) : "",
+      longitude: locationInfo?.location?.longitude ? String(locationInfo.location.longitude) : ""
     };
 
     const response = await axios.post(
@@ -385,10 +385,10 @@ export const aepsThreeFAVerification = (values) => async (dispatch) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
-    
+
     // Fetch location and IP
     const locationInfo = await getLocationAndIP();
-    
+
     // Support previous or new keys for base64 pid
     const base64Pid = values.txtPidData || values.pid_data || values.pid || "";
 
@@ -412,7 +412,7 @@ export const aepsThreeFAVerification = (values) => async (dispatch) => {
       device_model: "WEB_BROWSER",
       model_id: "",
       peripheral: "BIOMETRIC_FINGERPRINT",
-      pid: base64Pid,
+      pid_data: base64Pid,
       pid_type: 1,
       latitude: locationInfo?.location?.latitude ? String(locationInfo.location.latitude) : "",
       longitude: locationInfo?.location?.longitude ? String(locationInfo.location.longitude) : ""
