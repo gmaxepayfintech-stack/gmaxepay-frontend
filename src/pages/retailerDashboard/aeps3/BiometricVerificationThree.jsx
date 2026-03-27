@@ -409,35 +409,16 @@ const BiometricVerificationThree = () => {
               const aepsStatusData = statusResponse?.aepsStatus;
 
               if (aepsStatusData) {
-                const { ekycBiometric, daily2FAAuthentication } =
-                  aepsStatusData;
+                const { isEkycCompleted, is2faVerified } = aepsStatusData;
 
                 // Check if biometric is completed and what's next
-                if (
-                  ekycBiometric?.status?.toLowerCase() === "completed" &&
-                  ekycBiometric?.isCompleted === true
-                ) {
+                if (isEkycCompleted) {
                   // Check if 2FA is next
-                  if (
-                    daily2FAAuthentication?.status?.toLowerCase() ===
-                    "pending" ||
-                    (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
-                      daily2FAAuthentication.isCompleted === false)
-                  ) {
-                    // console.log(
-                    //   "✅ Biometric completed, moving to 2FA verification",
-                    // );
+                  if (!is2faVerified) {
                     setShow2FA(true);
                   }
                   // Check if all completed
-                  else if (
-                    daily2FAAuthentication?.status?.toLowerCase() ===
-                    "completed" &&
-                    daily2FAAuthentication?.isCompleted === true
-                  ) {
-                    // console.log(
-                    //   "✅ All AEPS status completed, showing confirm page",
-                    // );
+                  else {
                     setShowConfirm(true);
                   }
                 }

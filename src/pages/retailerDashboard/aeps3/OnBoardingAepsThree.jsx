@@ -53,8 +53,8 @@ const OnBoardingAepsThree = () => {
             is2faVerified,
           });
 
-          // Step 1: If onboarding is pending or not initiated, show initial onboarding screen
-          if (onboardingStatus === "PENDING" || !isInitiated) {
+          // Step 1: If not initiated, show initial onboarding screen
+          if (!isInitiated) {
             setCurrentStep(null);
             return;
           }
@@ -105,8 +105,8 @@ const OnBoardingAepsThree = () => {
       const { onboardingStatus, isInitiated, isOtpVerified, isEkycCompleted, is2faVerified } =
         statusData;
 
-      // Step 1: If onboarding is pending or not initiated
-      if (onboardingStatus === "PENDING" || !isInitiated) {
+      // Step 1: If not initiated
+      if (!isInitiated) {
         setCurrentStep(null);
         return;
       }

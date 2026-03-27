@@ -8,7 +8,7 @@ import IdentityVerificationThree from "./IdentityVerificationThree";
 import BiometricVerificationThree from "./BiometricVerificationThree";
 import FAVerificationThree from "./FAVerificationThree";
 import AEPSAccessConfirmThree from "./AEPSAccessConfirmThree";
-import { aepsThreeStatusCheck, aepsThreeOtp, aepsThreeOnboarding } from "../../../redux/action/aepsThreeAction";
+import { aepsThreeStatusCheck, aepsThreeOnboarding } from "../../../redux/action/aepsThreeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
 import { useNotification } from "../../../context/NotificationContext";

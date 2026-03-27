@@ -403,12 +403,8 @@ const FAVerificationThree = () => {
                                     // Check if 2FA is now completed
                                     const statusData = statusResponse?.aepsStatus;
                                     if (statusData) {
-                                        const { daily2FAAuthentication } = statusData;
-                                        if (
-                                            daily2FAAuthentication?.status?.toLowerCase() ===
-                                            "completed" &&
-                                            daily2FAAuthentication?.isCompleted === true
-                                        ) {
+                                        const { is2faVerified } = statusData;
+                                        if (is2faVerified) {
                                             //console.log("2FA completed, showing confirm page");
                                             setShowConfirm(true);
                                         }
