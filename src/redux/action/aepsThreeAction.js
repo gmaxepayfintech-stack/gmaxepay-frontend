@@ -392,12 +392,30 @@ export const aepsThreeFAVerification = (values) => async (dispatch) => {
     // Support previous or new keys for base64 pid
     const base64Pid = values.txtPidData || values.pid_data || values.pid || "";
 
+    // Dynamically get OS from user agent
+    const getDeviceOS = () => {
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (ua.includes("win")) return "WINDOWS";
+      if (ua.includes("mac")) return "MAC";
+      if (ua.includes("linux")) return "LINUX";
+      if (ua.includes("android")) return "ANDROID";
+      if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ios")) return "IOS";
+      return "UNKNOWN";
+    };
+
     const payload = {
-      pid_data: base64Pid,
-      pid_type: "1",
+      device_type: "WEB",
+      device_os: getDeviceOS(),
+      device_mobile: "",
+      app_id: window.location.hostname,
+      sdk_version: "1.2.0",
+      device_model: "WEB_BROWSER",
+      model_id: "",
+      peripheral: "BIOMETRIC_FINGERPRINT",
+      pid: base64Pid,
+      pid_type: 1,
       latitude: locationInfo?.location?.latitude ? String(locationInfo.location.latitude) : "",
-      longitude: locationInfo?.location?.longitude ? String(locationInfo.location.longitude) : "",
-      ipAddress: locationInfo?.ipAddress || ""
+      longitude: locationInfo?.location?.longitude ? String(locationInfo.location.longitude) : ""
     };
 
     const response = await axios.post(
