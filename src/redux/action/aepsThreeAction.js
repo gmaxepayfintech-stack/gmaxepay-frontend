@@ -299,10 +299,14 @@ export const aepsThreeSubmitOTP = (values) => async (dispatch) => {
   }
 };
 
-export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
+export const aepsThreeBiometricSubmit = (values) => async (dispatch, getState) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
+
+    // Get mobile number from redux store
+    const { userProfile } = getState();
+    const deviceMobile = userProfile?.profile?.mobileNo || userProfile?.mobileNo || "";
 
     // Fetch location
     const locationInfo = await getLocationAndIP();
@@ -324,7 +328,7 @@ export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
     const payload = {
       device_type: "WEB",
       device_os: getDeviceOS(),
-      device_mobile: "",
+      device_mobile: deviceMobile ? String(deviceMobile) : "",
       app_id: window.location.hostname,
       sdk_version: "1.2.0",
       device_model: "WEB_BROWSER",
@@ -381,10 +385,14 @@ export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
   }
 };
 
-export const aepsThreeFAVerification = (values) => async (dispatch) => {
+export const aepsThreeFAVerification = (values) => async (dispatch, getState) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
+
+    // Get mobile number from redux store
+    const { userProfile } = getState();
+    const deviceMobile = userProfile?.profile?.mobileNo || userProfile?.mobileNo || "";
 
     // Fetch location and IP
     const locationInfo = await getLocationAndIP();
@@ -406,7 +414,7 @@ export const aepsThreeFAVerification = (values) => async (dispatch) => {
     const payload = {
       device_type: "WEB",
       device_os: getDeviceOS(),
-      device_mobile: "",
+      device_mobile: deviceMobile ? String(deviceMobile) : "",
       app_id: window.location.hostname,
       sdk_version: "1.2.0",
       device_model: "WEB_BROWSER",
