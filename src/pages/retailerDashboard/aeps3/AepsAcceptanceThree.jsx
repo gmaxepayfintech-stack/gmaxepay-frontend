@@ -53,39 +53,23 @@ const AepsAcceptanceThree = () => {
           const statusData = statusResponse?.aepsStatus;
 
           if (statusData) {
-            const { isOtpVerified, isEkycCompleted } = statusData;
+            const { isOtpVerified, isEkycCompleted, is2faVerified } = statusData;
 
-            // If OTP is pending, send OTP first
+            // If OTP is pending (onboarding just sent it), go to verification
             if (!isOtpVerified) {
-              // Send OTP for AEPS-3
-              const otpResp = await dispatch(aepsThreeOtp());
-              console.log("aepsThreeOtp response:", otpResp);
-
-              if (otpResp?.status === "SUCCESS") {
-                showNotification({
-                  type: "success",
-                  message: otpResp?.message || "OTP sent successfully",
-                  isCritical: true,
-                });
-                // Navigate to identity verification
-                setShowIdentityVerification(true);
-              } else {
-                showNotification({
-                  type: "error",
-                  message: otpResp?.message || "Failed to send OTP",
-                  isCritical: true,
-                });
-              }
+              setShowIdentityVerification(true);
             }
-            // If OTP is completed, check next step
+            // If OTP is already completed, check next steps
             else if (isOtpVerified) {
-              // Check if biometric is next
               if (!isEkycCompleted) {
                 // Navigate to biometric verification
                 setShowBiometricVerification(true);
               }
-              // Check if all completed
-              else if (isEkycCompleted) {
+              else if (!is2faVerified) {
+                // Navigate to 2FA verification
+                setShowFAVerification(true);
+              }
+              else {
                 // All steps completed, show access confirm
                 setShowAccessConfirm(true);
               }

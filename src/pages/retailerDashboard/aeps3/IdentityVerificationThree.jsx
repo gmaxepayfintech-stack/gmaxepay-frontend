@@ -22,7 +22,7 @@ const IdentityVerificationThree = ({ onBack }) => {
   const [isLoading, setIsLoading] = useState(false);
   const inputsRef = useRef([]);
 
-  // Call getUserProfile and send OTP on component mount
+  // Call getUserProfile on component mount
   useEffect(() => {
     dispatch(getUserProfile())
       .then((response) => {
@@ -36,28 +36,6 @@ const IdentityVerificationThree = ({ onBack }) => {
           "getUserProfile error in IdentityVerificationTwo:",
           error,
         );
-      });
-
-    // Automatically trigger OTP send/resend when this component mounts directly
-    dispatch(aepsThreeRescendOTP())
-      .then((response) => {
-        if (response?.status === "SUCCESS") {
-          showNotification({
-            type: "success",
-            message: response?.message || "OTP sent successfully",
-            isCritical: true,
-          });
-          setResendTimer(180); // Start 3-minute countdown
-        } else {
-          showNotification({
-            type: "error",
-            message: response?.message || "Failed to send OTP",
-            isCritical: true,
-          });
-        }
-      })
-      .catch((error) => {
-        console.error("aepsThreeRescendOTP error on mount:", error);
       });
   }, [dispatch]);
 
@@ -162,18 +140,11 @@ const IdentityVerificationThree = ({ onBack }) => {
         // Verify status and navigate to next step
         const statusData = statusResponse?.aepsStatus;
         if (statusData) {
-          const { ekycOtp, ekycBiometric } = statusData;
+          const { isOtpVerified, isEkycCompleted } = statusData;
 
-          if (
-            ekycOtp?.status?.toLowerCase() === "completed" &&
-            ekycOtp?.isCompleted === true
-          ) {
+          if (isOtpVerified) {
             // Check if biometric is next
-            if (
-              ekycBiometric?.status?.toLowerCase() === "pending" ||
-              (typeof ekycBiometric?.isCompleted === "boolean" &&
-                ekycBiometric.isCompleted === false)
-            ) {
+            if (!isEkycCompleted) {
               setShowBiometric(true);
             }
           }
@@ -195,9 +166,16 @@ const IdentityVerificationThree = ({ onBack }) => {
       }
     } catch (error) {
       console.error("aepsThreeSubmitOTP error:", error);
+      
+      // Extract error from the Axios response matching the new structure
+      const errorMsg = 
+        error?.response?.data?.message || 
+        error?.message || 
+        "Something went wrong during OTP submission";
+        
       showNotification({
         type: "error",
-        message: error?.message || "Something went wrong during OTP submission",
+        message: errorMsg,
         isCritical: true,
       });
       // Handle error (you might want to show an error message to the user)
@@ -230,9 +208,10 @@ const IdentityVerificationThree = ({ onBack }) => {
       }
     } catch (error) {
       console.error("aepsThreeRescendOTP error:", error);
+      const errorMsg = error?.response?.data?.message || error?.message || "Something went wrong while resending OTP";
       showNotification({
         type: "error",
-        message: error?.message || "Something went wrong while resending OTP",
+        message: errorMsg,
         isCritical: true,
       });
     }
