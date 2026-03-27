@@ -38,59 +38,34 @@ const OnBoardingAepsThree = () => {
 
         if (statusData) {
           const {
-            aepsOnboarding,
-            ekycOtp,
-            ekycBiometric,
-            daily2FAAuthentication,
+            onboardingStatus,
+            isInitiated,
+            isOtpVerified,
+            isEkycCompleted,
           } = statusData;
 
-          console.log("Current AEPS-2 onboarding statuses:", {
-            aepsOnboarding,
-            ekycOtp,
-            ekycBiometric,
-            daily2FAAuthentication,
+          console.log("Current AEPS-3 onboarding statuses:", {
+            onboardingStatus,
+            isInitiated,
+            isOtpVerified,
+            isEkycCompleted,
           });
 
-          // Step 1: If aepsOnboarding is pending or not completed, show initial onboarding screen
-          if (
-            aepsOnboarding?.status?.toLowerCase() === "pending" ||
-            (typeof aepsOnboarding?.isCompleted === "boolean" &&
-              aepsOnboarding.isCompleted === false)
-          ) {
-            setCurrentStep(null); // Show initial onboarding screen
+          // Step 1: If onboarding is pending or not initiated, show initial onboarding screen
+          if (onboardingStatus === "PENDING" || !isInitiated) {
+            setCurrentStep(null);
             return;
           }
 
-          // Step 2: ekycOtp pending or not completed => show identity verification (OTP entry)
-          if (
-            ekycOtp?.status?.toLowerCase() === "pending" ||
-            ekycOtp?.status?.toLowerCase() !== "completed" ||
-            (typeof ekycOtp?.isCompleted === "boolean" &&
-              ekycOtp.isCompleted === false)
-          ) {
+          // Step 2: OTP pending => show identity verification (OTP entry)
+          if (!isOtpVerified) {
             setCurrentStep("identityVerification");
             return;
           }
 
-          // Step 3: ekycBiometric pending or not completed => show biometric verification
-          if (
-            ekycBiometric?.status?.toLowerCase() === "pending" ||
-            ekycBiometric?.status?.toLowerCase() !== "completed" ||
-            (typeof ekycBiometric?.isCompleted === "boolean" &&
-              ekycBiometric.isCompleted === false)
-          ) {
+          // Step 3: EKYC Biometric pending => show biometric verification
+          if (!isEkycCompleted) {
             setCurrentStep("biometricVerification");
-            return;
-          }
-
-          // Step 4: daily2FAAuthentication pending or not completed => show 2FA verification
-          if (
-            daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-            daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
-            (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
-              daily2FAAuthentication.isCompleted === false)
-          ) {
-            setCurrentStep("faVerification");
             return;
           }
 
@@ -119,49 +94,24 @@ const OnBoardingAepsThree = () => {
   useEffect(() => {
     if (aepsStatus?.aepsStatus && !isLoading) {
       const statusData = aepsStatus.aepsStatus;
-      const { aepsOnboarding, ekycOtp, ekycBiometric, daily2FAAuthentication } =
+      const { onboardingStatus, isInitiated, isOtpVerified, isEkycCompleted } =
         statusData;
 
-      // Step 1: If aepsOnboarding is pending or not completed
-      if (
-        aepsOnboarding?.status?.toLowerCase() === "pending" ||
-        (typeof aepsOnboarding?.isCompleted === "boolean" &&
-          aepsOnboarding.isCompleted === false)
-      ) {
+      // Step 1: If onboarding is pending or not initiated
+      if (onboardingStatus === "PENDING" || !isInitiated) {
         setCurrentStep(null);
         return;
       }
 
-      // Step 2: ekycOtp pending or not completed
-      if (
-        ekycOtp?.status?.toLowerCase() === "pending" ||
-        ekycOtp?.status?.toLowerCase() !== "completed" ||
-        (typeof ekycOtp?.isCompleted === "boolean" &&
-          ekycOtp.isCompleted === false)
-      ) {
+      // Step 2: OTP pending
+      if (!isOtpVerified) {
         setCurrentStep("identityVerification");
         return;
       }
 
-      // Step 3: ekycBiometric pending or not completed
-      if (
-        ekycBiometric?.status?.toLowerCase() === "pending" ||
-        ekycBiometric?.status?.toLowerCase() !== "completed" ||
-        (typeof ekycBiometric?.isCompleted === "boolean" &&
-          ekycBiometric.isCompleted === false)
-      ) {
+      // Step 3: EKYC Biometric pending
+      if (!isEkycCompleted) {
         setCurrentStep("biometricVerification");
-        return;
-      }
-
-      // Step 4: daily2FAAuthentication pending or not completed
-      if (
-        daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-        daily2FAAuthentication?.status?.toLowerCase() !== "completed" ||
-        (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
-          daily2FAAuthentication.isCompleted === false)
-      ) {
-        setCurrentStep("faVerification");
         return;
       }
 
