@@ -267,7 +267,7 @@ const FAVerificationThree = () => {
 
         // Build proper XML structure without backslashes
         const pidOptions =
-            '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
+            '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
             DString +
             custOpts +
             "</PidOptions>";
@@ -386,7 +386,7 @@ const FAVerificationThree = () => {
 
                 dispatch(aepsThreeFAVerification(requestData))
                     .then((response) => {
-                        //console.log("✅ FA Verification response:", response);
+                        console.log("✅ FA Verification response:", response);
 
                         // Only check status after successful submission
                         if (response?.status === "SUCCESS") {
@@ -432,9 +432,10 @@ const FAVerificationThree = () => {
                     })
                     .catch((err) => {
                         console.error("aepsThreeFAVerification error:", err);
+                        const errorMsg = err?.response?.data?.message || err?.message || "2FA Verification failed";
                         showNotification({
                             type: "error",
-                            message: err?.message || "2FA Verification failed",
+                            message: errorMsg,
                             isCritical: true,
                         });
                         pidDataProcessedRef.current = false;
