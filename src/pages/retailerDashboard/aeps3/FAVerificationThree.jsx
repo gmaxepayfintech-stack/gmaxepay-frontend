@@ -267,7 +267,7 @@ const FAVerificationThree = () => {
 
         // Build proper XML structure without backslashes
         const pidOptions =
-            '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" wadh="E0jzJ/P8UopUHAieZn8CKqS4WPMi5ZSYXgfnlfkWjrc=" posh="UNKNOWN" />' +
+            '<?xml version="1.0"?><PidOptions ver="1.0"><Opts env="P" fCount="1" fType="2" iCount="0" format="0" pidVer="2.0" timeout="15000" posh="UNKNOWN" />' +
             DString +
             custOpts +
             "</PidOptions>";
@@ -386,7 +386,7 @@ const FAVerificationThree = () => {
 
                 dispatch(aepsThreeFAVerification(requestData))
                     .then((response) => {
-                        console.log("✅ FA Verification response:", response);
+                        //console.log("✅ FA Verification response:", response);
 
                         // Only check status after successful submission
                         if (response?.status === "SUCCESS") {
@@ -403,8 +403,12 @@ const FAVerificationThree = () => {
                                     // Check if 2FA is now completed
                                     const statusData = statusResponse?.aepsStatus;
                                     if (statusData) {
-                                        const { is2faVerified } = statusData;
-                                        if (is2faVerified) {
+                                        const { daily2FAAuthentication } = statusData;
+                                        if (
+                                            daily2FAAuthentication?.status?.toLowerCase() ===
+                                            "completed" &&
+                                            daily2FAAuthentication?.isCompleted === true
+                                        ) {
                                             //console.log("2FA completed, showing confirm page");
                                             setShowConfirm(true);
                                         }
@@ -432,10 +436,9 @@ const FAVerificationThree = () => {
                     })
                     .catch((err) => {
                         console.error("aepsThreeFAVerification error:", err);
-                        const errorMsg = err?.response?.data?.message || err?.message || "2FA Verification failed";
                         showNotification({
                             type: "error",
-                            message: errorMsg,
+                            message: err?.message || "2FA Verification failed",
                             isCritical: true,
                         });
                         pidDataProcessedRef.current = false;
