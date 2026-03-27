@@ -42,6 +42,7 @@ const OnBoardingAepsThree = () => {
             isInitiated,
             isOtpVerified,
             isEkycCompleted,
+            is2faVerified,
           } = statusData;
 
           console.log("Current AEPS-3 onboarding statuses:", {
@@ -49,6 +50,7 @@ const OnBoardingAepsThree = () => {
             isInitiated,
             isOtpVerified,
             isEkycCompleted,
+            is2faVerified,
           });
 
           // Step 1: If onboarding is pending or not initiated, show initial onboarding screen
@@ -66,6 +68,12 @@ const OnBoardingAepsThree = () => {
           // Step 3: EKYC Biometric pending => show biometric verification
           if (!isEkycCompleted) {
             setCurrentStep("biometricVerification");
+            return;
+          }
+
+          // Step 4: 2FA Verification pending
+          if (!is2faVerified) {
+            setCurrentStep("faVerification");
             return;
           }
 
@@ -94,7 +102,7 @@ const OnBoardingAepsThree = () => {
   useEffect(() => {
     if (aepsStatus?.aepsStatus && !isLoading) {
       const statusData = aepsStatus.aepsStatus;
-      const { onboardingStatus, isInitiated, isOtpVerified, isEkycCompleted } =
+      const { onboardingStatus, isInitiated, isOtpVerified, isEkycCompleted, is2faVerified } =
         statusData;
 
       // Step 1: If onboarding is pending or not initiated
@@ -112,6 +120,12 @@ const OnBoardingAepsThree = () => {
       // Step 3: EKYC Biometric pending
       if (!isEkycCompleted) {
         setCurrentStep("biometricVerification");
+        return;
+      }
+
+      // Step 4: 2FA Verification pending
+      if (!is2faVerified) {
+        setCurrentStep("faVerification");
         return;
       }
 
