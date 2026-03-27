@@ -108,7 +108,7 @@ const AEPSAccessConfirmThree = () => {
           <button
             type="button"
             onClick={() =>
-              navigate("/retailerDashboard/services/aeps2/select-service")
+              navigate("/retailerDashboard/services/aeps3/select-service")
             }
             className="mt-8 flex items-center justify-between bg-[#039155] hover:bg-[#027A47] text-white rounded-lg px-6 py-3 text-[14px] font-['Gilroy-Medium'] transition w-full max-w-[320px] mx-auto"
           >
