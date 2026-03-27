@@ -23,6 +23,7 @@ import AOneRecharge from "../../pages/retailerDashboard/services/MobileRecharge/
 import AOneDthRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneDthRecharge";
 import AOnePan from "../../pages/retailerDashboard/services/MobileRecharge/AOnePan";
 import CMSService from "../../pages/retailerDashboard/services/CMSService";
+import SelectserviceThree from "../../pages/retailerDashboard/aeps3/SelectserviceThree";
 
 const RetailerDash = () => {
   return (
@@ -42,6 +43,10 @@ const RetailerDash = () => {
         <Route
           path="/services/aeps3/onboarding"
           element={<OnBoardingAepsThree />}
+        />
+        <Route
+          path="/services/aeps3/select-service"
+          element={<SelectserviceThree />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />
