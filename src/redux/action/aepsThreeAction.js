@@ -310,15 +310,26 @@ export const aepsThreeBiometricSubmit = (values) => async (dispatch) => {
     // Extract base64 Pid (support both old and potentially new key)
     const base64Pid = values.txtPidData || values.pid || "";
 
+    // Dynamically get OS from user agent
+    const getDeviceOS = () => {
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (ua.includes("win")) return "WINDOWS";
+      if (ua.includes("mac")) return "MAC";
+      if (ua.includes("linux")) return "LINUX";
+      if (ua.includes("android")) return "ANDROID";
+      if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ios")) return "IOS";
+      return "UNKNOWN";
+    };
+
     const payload = {
         device_type: "WEB",
-        device_os: "WINDOWS",
+        device_os: getDeviceOS(),
         device_mobile: "",
-        app_id: "com.gmaxepay.web",
+        app_id: window.location.hostname,
         sdk_version: "1.2.0",
         device_model: "WEB_BROWSER",
         model_id: "",
-        peripheral: "NONE",
+        peripheral: "BIOMETRIC_FINGERPRINT",
         pid: base64Pid,
         pid_type: 1,
         latitude: locationInfo?.location?.latitude ? String(locationInfo.location.latitude) : "",

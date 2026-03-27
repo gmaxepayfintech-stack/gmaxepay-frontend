@@ -447,9 +447,10 @@ const BiometricVerificationThree = () => {
       .catch((error) => {
         console.error("❌ Biometric verification error:", error);
         setDeviceMessage("Biometric verification failed. Please try again.");
+        const errorMsg = error?.response?.data?.message || error?.message || "Biometric verification failed. Please try again.";
         showNotification({
           type: "error",
-          message: error?.message || "Biometric verification failed. Please try again.",
+          message: errorMsg,
           isCritical: true,
         });
         pidDataProcessedRef.current = false;
