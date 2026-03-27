@@ -53,16 +53,11 @@ const AepsAcceptanceThree = () => {
           const statusData = statusResponse?.aepsStatus;
 
           if (statusData) {
-            const { ekycOtp, ekycBiometric, daily2FAAuthentication } =
-              statusData;
+            const { isOtpVerified, isEkycCompleted } = statusData;
 
-            // If ekycOtp is pending, send OTP first
-            if (
-              ekycOtp?.status?.toLowerCase() === "pending" ||
-              (typeof ekycOtp?.isCompleted === "boolean" &&
-                ekycOtp.isCompleted === false)
-            ) {
-              // Send OTP for AEPS-2
+            // If OTP is pending, send OTP first
+            if (!isOtpVerified) {
+              // Send OTP for AEPS-3
               const otpResp = await dispatch(aepsThreeOtp());
               console.log("aepsThreeOtp response:", otpResp);
 
@@ -82,46 +77,16 @@ const AepsAcceptanceThree = () => {
                 });
               }
             }
-            // If ekycOtp is completed, check next step
-            else if (
-              ekycOtp?.status?.toLowerCase() === "completed" &&
-              ekycOtp?.isCompleted === true
-            ) {
+            // If OTP is completed, check next step
+            else if (isOtpVerified) {
               // Check if biometric is next
-              if (
-                ekycBiometric?.status?.toLowerCase() === "pending" ||
-                (typeof ekycBiometric?.isCompleted === "boolean" &&
-                  ekycBiometric.isCompleted === false)
-              ) {
+              if (!isEkycCompleted) {
                 // Navigate to biometric verification
-                // console.log(
-                //   "ekycOtp completed, navigating to biometric verification",
-                // );
                 setShowBiometricVerification(true);
               }
-              // Check if 2FA is next
-              else if (
-                ekycBiometric?.status?.toLowerCase() === "completed" &&
-                ekycBiometric?.isCompleted === true &&
-                (daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-                  (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
-                    daily2FAAuthentication.isCompleted === false))
-              ) {
-                // Navigate to 2FA verification
-                // console.log(
-                //   "ekycBiometric completed, navigating to 2FA verification",
-                // );
-                setShowFAVerification(true);
-              }
               // Check if all completed
-              else if (
-                ekycBiometric?.status?.toLowerCase() === "completed" &&
-                ekycBiometric?.isCompleted === true &&
-                daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-                daily2FAAuthentication?.isCompleted === true
-              ) {
+              else if (isEkycCompleted) {
                 // All steps completed, show access confirm
-                // console.log("All steps completed, showing access confirm");
                 setShowAccessConfirm(true);
               }
             }
