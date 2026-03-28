@@ -159,6 +159,26 @@ const MasterDistLayout = ({ children }) => {
     };
   }, [isProfileDropdownOpen]);
 
+  // Referral code - can be fetched from state or props
+  const referralCodeValue = profile?.referrerCode;
+
+  const shareReferralCode = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: "Referral Code",
+        text: `Use my referral code: ${referralCodeValue}`,
+      });
+    } else {
+      // Fallback to copy if share is not available
+      navigator.clipboard.writeText(referralCodeValue);
+      showNotification({
+        type: "success",
+        message: "Referral code copied to clipboard!",
+        duration: 2000,
+      });
+    }
+  };
+
   const BASE_PATH = "/masterDistributerDashboard";
 
   const menuItems = [
@@ -379,6 +399,35 @@ const MasterDistLayout = ({ children }) => {
             );
           })}
         </nav>
+
+        {/* Referral Code Section */}
+        <div className="px-4 py-4  flex-shrink-0">
+          <div className="bg-white rounded-lg p-3 shadow-sm border border-gray-100">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
+                Referral Code
+              </p>
+              <button
+                onClick={shareReferralCode}
+                className="p-1 rounded-md hover:bg-gray-100 transition-colors"
+                aria-label="Share referral code"
+              >
+                <img
+                  src="/img/shareIcon.png"
+                  alt="Share"
+                  className="w-4 h-4 object-contain"
+                  onError={(e) => {
+                    e.target.onerror = null;
+                    e.target.src = "/img/gmaxepay.png";
+                  }}
+                />
+              </button>
+            </div>
+            <p className="text-sm font-[Gilroy-Medium] text-[#1B1717]">
+              {referralCodeValue}
+            </p>
+          </div>
+        </div>
       </aside>
 
       {/* Main Content */}
