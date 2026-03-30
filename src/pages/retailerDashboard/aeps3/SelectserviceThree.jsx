@@ -790,14 +790,14 @@ const SelectserviceThree = () => {
                         //   response?.data || response?.cashWithdrawl,
                         // );
 
-                        // The action returns { cashWithdrawl, status, message } where cashWithdrawl = response.data.data
+                        // The action returns { cashWithdrawl, status, message } where cashWithdrawl = API response.data
                         setModal({
                             isOpen: true,
                             title: "Transaction Successful",
                             message: response?.message || "Withdrawal successful!",
                             type: "success",
                             transactionType: "cashWithdrawal",
-                            transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
+                            transactionData: response?.cashWithdrawl || null,
                         });
                         showNotification({
                             type: "success",
@@ -1145,7 +1145,7 @@ const SelectserviceThree = () => {
                             message: response?.message || "Balance enquiry successful!",
                             type: "success",
                             transactionType: "balanceEnquiry",
-                            transactionData: response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
+                            transactionData: response?.balanceEnquiry || null,
                         });
                         showNotification({
                             type: "success",
@@ -1482,7 +1482,7 @@ const SelectserviceThree = () => {
                             message: response?.message || "Statement enquiry successful!",
                             type: "success",
                             transactionType: "miniStatement",
-                            transactionData: response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
+                            transactionData: response?.miniStatement || null,
                         });
                         showNotification({
                             type: "success",
@@ -1803,22 +1803,22 @@ const SelectserviceThree = () => {
                       CASH WITHDRAWAL SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'cashWithdrawal' && (() => {
-                                        // transactionData = response.cashWithdrawl = API's response.data.data
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
 
-                                        // Amount: try transactionAmount, then withdrawalAmount, then amount
-                                        const displayAmount = d?.transactionAmount ?? d?.withdrawalAmount ?? d?.amount ?? null;
+                                        // Amount from new API structure
+                                        const displayAmount = d?.amount ?? null;
 
                                         const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
-                                        if (d?.device) fields.push({ label: 'Device', value: d.device });
-                                        if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
-                                        if (d?.transactionId || d?.merchantTransactionId)
-                                            fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
+                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
+                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
+                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
+                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
+                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
+                                        if (d?.details?.account_balance) fields.push({ label: 'Account Balance', value: `₹${d.details.account_balance}` });
+                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
+                                        if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
@@ -1848,22 +1848,21 @@ const SelectserviceThree = () => {
                       BALANCE ENQUIRY SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'balanceEnquiry' && (() => {
-                                        // transactionData = response.balanceEnquiry = API's response.data.data
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
 
-                                        // Balance: try balanceAmount, availableBalance, balance
-                                        const balanceAmt = d?.balanceAmount ?? d?.availableBalance ?? d?.balance ?? null;
+                                        // Balance from details.account_balance
+                                        const balanceAmt = d?.details?.account_balance ?? null;
 
                                         const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
-                                        if (d?.device) fields.push({ label: 'Device', value: d.device });
-                                        if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
-                                        if (d?.transactionId || d?.merchantTransactionId)
-                                            fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
+                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
+                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
+                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
+                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
+                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
+                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
+                                        if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
@@ -1893,24 +1892,55 @@ const SelectserviceThree = () => {
                       MINI STATEMENT SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'miniStatement' && (() => {
-                                        // transactionData = response.miniStatement = API's response.data.data
-                                        // The ministatement array can be directly on the object or nested
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
-                                        const stmtList =
-                                            (Array.isArray(d) ? d : null) ||
-                                            d?.miniStatement || d?.ministatement ||
-                                            d?.data?.miniStatement || d?.data?.ministatement ||
-                                            d?.result?.miniStatement || d?.result?.ministatement ||
-                                            null;
+
+                                        // Parse pipe-delimited mini_statement string
+                                        // Format: "Type|DDMMYYYY|Amount|Narration|0|0~Type|..."
+                                        const parseMiniStatement = (raw) => {
+                                            if (!raw || typeof raw !== 'string') return [];
+                                            return raw.split('~').map((entry) => {
+                                                const parts = entry.split('|');
+                                                const typeRaw = parts[0] || '';
+                                                const dateRaw = parts[1] || '';
+                                                const amount = parts[2] || '';
+                                                const narration = parts[3] || '';
+                                                // Format date from DDMMYYYY to DD/MM/YYYY
+                                                let formattedDate = dateRaw;
+                                                if (dateRaw.length === 8) {
+                                                    formattedDate = `${dateRaw.slice(0, 2)}/${dateRaw.slice(2, 4)}/${dateRaw.slice(4)}`;
+                                                }
+                                                return {
+                                                    txnType: typeRaw.toLowerCase().startsWith('cr') || typeRaw.toLowerCase() === 'credit' ? 'Cr' : 'Dr',
+                                                    date: formattedDate,
+                                                    amount,
+                                                    narration,
+                                                };
+                                            }).filter(e => e.amount);
+                                        };
+
+                                        const stmtList = parseMiniStatement(d?.details?.mini_statement);
+                                        const balanceAmt = d?.details?.account_balance ?? null;
 
                                         const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
+                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
+                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
+                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
+                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
+                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
+                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
 
                                         return (
                                             <>
+                                                {/* Balance Box */}
+                                                {balanceAmt != null && (
+                                                    <div className="border-2 border-dashed border-[#039155] rounded-lg p-3 text-center mb-5">
+                                                        <div className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60 mb-1">Account Balance</div>
+                                                        <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#039155]">₹{balanceAmt}</div>
+                                                    </div>
+                                                )}
+
                                                 {/* Summary fields */}
                                                 {fields.length > 0 && (
                                                     <div className="grid grid-cols-2 gap-4 mb-5">
@@ -1924,7 +1954,7 @@ const SelectserviceThree = () => {
                                                 )}
 
                                                 {/* Mini Statement Table */}
-                                                {stmtList && Array.isArray(stmtList) && stmtList.length > 0 ? (
+                                                {stmtList.length > 0 ? (
                                                     <div className="mt-2 pt-4 border-t border-gray-200">
                                                         <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">Mini Statement</div>
                                                         <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
