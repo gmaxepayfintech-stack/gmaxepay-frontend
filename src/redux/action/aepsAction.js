@@ -1022,3 +1022,4 @@ export const getAeps2TransactionDetailsCompany = (transactionId) => async (dispa
         dispatch({ type: LOADING_END });
     }
 };
+

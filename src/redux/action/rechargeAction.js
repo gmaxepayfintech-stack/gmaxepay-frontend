@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { CMS_PROCESS_STATUS_FAILURE, CMS_PROCESS_STATUS_SUCCESS, DTH_RECHARGE_FAILURE, DTH_RECHARGE_PLAN_FETCH_FAILURE, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_FAILURE, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_FAILURE, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_FAILURE, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_FAILURE, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_FAILURE, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_FAILURE, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
+import { CMS_ADMIN_REPORTS_FAILURE, CMS_ADMIN_REPORTS_SUCCESS, CMS_COMPANY_REPORTS_FAILURE, CMS_COMPANY_REPORTS_SUCCESS, CMS_PROCESS_STATUS_FAILURE, CMS_PROCESS_STATUS_SUCCESS, CMS_REPORTS_FAILURE, CMS_REPORTS_SUCCESS, DTH_RECHARGE_FAILURE, DTH_RECHARGE_PLAN_FETCH_FAILURE, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_FAILURE, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_FAILURE, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_FAILURE, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_FAILURE, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_FAILURE, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_FAILURE, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
 
 const commonError = "Something went wrong!";
 
@@ -849,6 +849,156 @@ export const cmsProcessStatus = () => async (dispatch) => {
       : error.message;
     dispatch({
       type: CMS_PROCESS_STATUS_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const cmsUserHistory = (payload = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/user/cms/cmsReports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: cmsReports, status, message, total, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: CMS_REPORTS_SUCCESS,
+        payload: { cmsReports, status, message, total, paginator },
+      });
+      return { cmsReports, status, message, total, paginator };
+    } else {
+      dispatch({
+        type: CMS_REPORTS_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: CMS_REPORTS_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const cmsAdminHistory = (payload = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/reports/cmsReports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: cmsAdminReports, status, message, total, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: CMS_ADMIN_REPORTS_SUCCESS,
+        payload: { cmsAdminReports, status, message, total, paginator },
+      });
+      return { cmsAdminReports, status, message, total, paginator };
+    } else {
+      dispatch({
+        type: CMS_ADMIN_REPORTS_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: CMS_ADMIN_REPORTS_FAILURE,
+      payload: errorMessage,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const cmsCompanyHistory = (payload = {}) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/company/reports/cmsReports`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: cmsCompanyReports, status, message, total, paginator } = response?.data ?? {};
+    if (status === "SUCCESS") {
+      dispatch({
+        type: CMS_COMPANY_REPORTS_SUCCESS,
+        payload: { cmsCompanyReports, status, message, total, paginator },
+      });
+      return { cmsCompanyReports, status, message, total, paginator };
+    } else {
+      dispatch({
+        type: CMS_COMPANY_REPORTS_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: CMS_COMPANY_REPORTS_FAILURE,
       payload: errorMessage,
     });
     throw error;
