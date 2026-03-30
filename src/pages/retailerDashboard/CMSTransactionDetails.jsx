@@ -70,11 +70,13 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
             transaction.retailerCom ??
             transaction.retailerComm ??
             transaction.retailerCommission ??
+            transaction.commission ??
             0;
         const retailerComTDS =
             transaction.retailerComTDS ??
             transaction.retailerCommTDS ??
             transaction.retailerTds ??
+            transaction.tds ??
             0;
 
         const commission = parseFloat(retailerCom) || 0;
@@ -198,7 +200,7 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Name
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.userDetails?.name || "N/A"}
+                                    {payload?.user?.name || payload?.userDetails?.name || "N/A"}
                                 </p>
                             </div>
                             <div>
@@ -206,8 +208,8 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Role
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.userDetails?.userRole
-                                        ? getRoleName(payload.userDetails.userRole)
+                                    {payload?.user?.role || payload?.userDetails?.userRole
+                                        ? getRoleName(payload?.user?.role || payload?.userDetails?.userRole)
                                         : "N/A"}
                                 </p>
                             </div>
@@ -216,7 +218,7 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Agent Code
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.userDetails?.userId || "N/A"}
+                                    {payload?.user?.userId || payload?.userDetails?.userId || "N/A"}
                                 </p>
                             </div>
                             <div>
@@ -224,7 +226,7 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     User Mobile
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.userDetails?.mobileNo || "N/A"}
+                                    {payload?.mobileNo || payload?.user?.mobileNo || payload?.userDetails?.mobileNo || "N/A"}
                                 </p>
                             </div>
                         </div>
@@ -301,10 +303,10 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                         <div className="space-y-3 sm:space-y-4">
                             <div>
                                 <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    Bank Name
+                                    Bank Name / Biller
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.bankName || "N/A"}
+                                    {payload?.bankName || payload?.billerName || payload?.transactionDetails?.bankName || "N/A"}
                                 </p>
                             </div>
                             <div>
@@ -312,8 +314,8 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Aadhar Number
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.aadharNumber
-                                        ? `${payload.transactionDetails.aadharNumber.slice(0, 4)} ${payload.transactionDetails.aadharNumber.slice(4, 8)} ${payload.transactionDetails.aadharNumber.slice(8, 12)} ****`
+                                    {payload?.aadharNo || payload?.aadharNumber || payload?.transactionDetails?.aadharNumber
+                                        ? `${(payload?.aadharNo || payload?.aadharNumber || payload?.transactionDetails?.aadharNumber).slice(0, 4)} ${(payload?.aadharNo || payload?.aadharNumber || payload?.transactionDetails?.aadharNumber).slice(4, 8)} ${(payload?.aadharNo || payload?.aadharNumber || payload?.transactionDetails?.aadharNumber).slice(8, 12)} ****`
                                         : "N/A"}
                                 </p>
                             </div>
@@ -322,8 +324,8 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Amount
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.amount
-                                        ? `₹${payload.transactionDetails.amount}`
+                                    {payload?.amount || payload?.transactionDetails?.amount
+                                        ? `₹${payload?.amount || payload?.transactionDetails?.amount}`
                                         : "N/A"}
                                 </p>
                             </div>
@@ -332,34 +334,9 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     Commission
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.commission
-                                        ? `₹${payload.transactionDetails.commission.toFixed(2)}`
+                                    {payload?.commission || payload?.transactionDetails?.commission
+                                        ? `₹${(payload?.commission || payload?.transactionDetails?.commission).toFixed(2)}`
                                         : "N/A"}
-                                </p>
-                            </div>
-                            {/* <div className="hidden-for-now"> */}
-                            {/* <div>
-                                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    Deposit Number
-                                </p>
-                                <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.depositNumber || "N/A"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    Biller ID
-                                </p>
-                                <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.billerId || "N/A"}
-                                </p>
-                            </div>
-                            <div>
-                                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    Deposit Type
-                                </p>
-                                <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.depositType || "N/A"}
                                 </p>
                             </div>
                             <div>
@@ -367,25 +344,27 @@ const CMSTransactionDetails = ({ transactionData, onBack }) => {
                                     TXN ID
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.txnId || "N/A"}
+                                    {payload?.referenceId || payload?.txnId || payload?.transactionDetails?.txnId || "N/A"}
                                 </p>
                             </div>
                             <div>
                                 <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    REF NO
+                                    REF NO / UTR
                                 </p>
                                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.refNo || "N/A"}
+                                    {payload?.utr || payload?.ackno || payload?.refNo || payload?.transactionDetails?.refNo || "N/A"}
                                 </p>
                             </div>
-                            <div>
-                                <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
-                                    Remark
-                                </p>
-                                <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                                    {payload?.transactionDetails?.remark || "N/A"}
-                                </p>
-                            </div> */}
+                            {payload?.remark && (
+                                <div>
+                                    <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
+                                        Remark
+                                    </p>
+                                    <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
+                                        {payload?.remark}
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
                 </div>

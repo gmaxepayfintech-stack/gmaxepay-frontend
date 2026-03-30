@@ -1,4 +1,4 @@
-import { CMS_PROCESS_STATUS_SUCCESS, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
+import { CMS_ADMIN_REPORTS_SUCCESS, CMS_COMPANY_REPORTS_SUCCESS, CMS_PROCESS_STATUS_SUCCESS, CMS_REPORTS_SUCCESS, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
 
 const initialState = {
     loading: false,
@@ -12,6 +12,7 @@ const initialState = {
     mobileRechargePay: null,
     recentHistory: null,
     cmsProcessStatus: null,
+    cmsReports: null,
 };
 
 const rechargeReducer = (state = initialState, action) => {
@@ -91,6 +92,32 @@ const rechargeReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
                 success: action?.payload?.status,
                 cmsProcessStatus: action?.payload,
+            }
+        case CMS_REPORTS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                cmsReports: action?.payload,
+            }
+
+        case CMS_ADMIN_REPORTS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                cmsAdminReports: action?.payload,
+            }
+
+        case CMS_COMPANY_REPORTS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                cmsCompanyReports: action?.payload,
             }
         default:
             return state;
