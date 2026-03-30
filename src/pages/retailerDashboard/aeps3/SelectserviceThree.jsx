@@ -1818,7 +1818,7 @@ const SelectserviceThree = () => {
                                         if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
                                         if (d?.details?.account_balance) fields.push({ label: 'Account Balance', value: `₹${d.details.account_balance}` });
                                         if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
-                                        if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
+                                        // if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
@@ -1862,7 +1862,7 @@ const SelectserviceThree = () => {
                                         if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
                                         if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
                                         if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
-                                        if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
+                                        // if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
