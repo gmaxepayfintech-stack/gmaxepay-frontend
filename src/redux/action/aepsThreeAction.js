@@ -477,7 +477,7 @@ export const aepsThreeCashWithdrawl = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/cash-withdrawal`,
+      `${API_ROUTE}/api/v1/user/aeps3/cash-withdrawal`,
       values,
       {
         headers: {
@@ -527,7 +527,7 @@ export const aepsThreeBalanceEnquiry = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/balance-enquiry`,
+      `${API_ROUTE}/api/v1/user/aeps3/balance-enquiry`,
       values,
       {
         headers: {
@@ -577,7 +577,7 @@ export const aepsThreeMiniStatement = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/mini-statement`,
+      `${API_ROUTE}/api/v1/user/aeps3/mini-statement`,
       values,
       {
         headers: {
@@ -627,7 +627,7 @@ export const aepsThreeBankList = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/user/v1/aeps3/bank-list`,
+      `${API_ROUTE}/api/v1/user/aeps3/bank-list`,
       values,
       {
         headers: {
@@ -677,7 +677,7 @@ export const aepsThreeRecentBankList = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/user/v1/aeps3/recent-banks`,
+      `${API_ROUTE}/api/v1/user/aeps3/recent-banks`,
       values,
       {
         headers: {
