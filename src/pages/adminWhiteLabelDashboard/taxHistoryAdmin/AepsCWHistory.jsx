@@ -35,7 +35,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
-  const [selectedTransactionData, setSelectedTransactionData] = useState(null);
   const { showNotification } = useNotification();
 
   // Determine which Redux state to use based on apiType
@@ -330,31 +329,29 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      if (!isLoading) {
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
-
   // Handle view button click - hits API for both AEPS1 and AEPS2
   const handleViewClick = (transaction) => {
-    const transactionId = transaction.id;
-    if (!transactionId || isLoadingTransactionDetails) return;
+    const databaseId = transaction.id;
+    console.log("handleViewClick triggered for:", { 
+      transactionId: databaseId, 
+      apiType, 
+      transaction 
+    });
+
+    if (!databaseId || isLoadingTransactionDetails) {
+      console.warn("View click ignored: ID missing or already loading", { databaseId, isLoadingTransactionDetails });
+      return;
+    }
 
     setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
+    setSelectedTransactionId(databaseId);
 
     if (apiType === "aeps2") {
-      dispatch(getAeps2TransactionDetailsCompany(transactionId));
+      console.log("Dispatching getAeps2TransactionDetailsCompany for ID:", databaseId);
+      dispatch(getAeps2TransactionDetailsCompany(databaseId));
     } else {
-      dispatch(getAepsTransactionDetailsCompany(transactionId));
+      console.log("Dispatching getAepsTransactionDetailsCompany for ID:", databaseId);
+      dispatch(getAepsTransactionDetailsCompany(databaseId));
     }
   };
 
@@ -362,6 +359,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   useEffect(() => {
     if (selectedTransactionId && isLoadingTransactionDetails) {
       if (!isLoading) {
+        console.log("Transaction details loading complete for ID:", selectedTransactionId);
         const timer = setTimeout(() => {
           setIsLoadingTransactionDetails(false);
           setShowTransactionDetails(true);
@@ -387,7 +385,10 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    if (!transactionDetailsData) return null;
+    if (!transactionDetailsData) {
+      console.error("showTransactionDetails is true but transactionDetailsData is null");
+      return null;
+    }
 
     return (
       <TransactioDetails
