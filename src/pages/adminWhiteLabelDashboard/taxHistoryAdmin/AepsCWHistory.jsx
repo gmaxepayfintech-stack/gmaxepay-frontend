@@ -79,14 +79,12 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           .replaceAll("/", "-");
       }
 
-      const isAeps2 = isAeps2Item(item);
+      // Determine if this is AEPS 1 response structure from company reports
+      const isAeps1New = !!item.transactionStatus;
 
       // --- Amount ---
-      // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
-      const rawAmount = isAeps2
-        ? (item.transactionAmount ?? item.amount ?? 0)
-        : (item.amount ?? 0);
-      let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+      const amountValue = isAeps1New ? (item.transactionAmount || 0) : (item.amount || 0);
+      let formattedAmount = `₹${amountValue}`;
 
       const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
@@ -94,127 +92,60 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       }
 
       // --- Status ---
-      // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
-      // AEPS1: `status` = true/false or "SUCCESS"/"FAILED"
-      const getStatusDisplay = (rawStatus) => {
-        if (rawStatus === null || rawStatus === undefined) return "Pending";
-        const s = String(rawStatus).toUpperCase();
-        if (s === "SUCCESS" || s === "SUCCESSFUL") return "Success";
-        if (s === "FAILED" || s === "FAILURE") return "Failed";
-        if (rawStatus === true) return "Success";
-        if (rawStatus === false) return "Failed";
+      const getStatusDisplay = (statusVal) => {
+        if (!statusVal) return "Pending";
+        const s = String(statusVal).toUpperCase();
+        if (s === "SUCCESS" || s === "SUCCESSFUL" || s === "TRUE") return "Success";
+        if (s === "FAILED" || s === "FAILURE" || s === "FALSE") return "Failed";
         return "Pending";
       };
 
-      const statusValue = isAeps2
-        ? (item.transactionStatus ?? item.paymentStatus ?? item.status)
-        : item.status;
+      const statusValue = isAeps1New ? item.transactionStatus : item.status;
 
-      // --- Capture type / VIA ---
-      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeStr = String(captureType);
-        const typeUpper = typeStr.toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return typeStr;
+      // --- VIA / Capture Type ---
+      const getViaDisplay = (peripheral, device, captureType) => {
+        const val = peripheral || device || captureType || "APP";
+        const valUpper = String(val).toUpperCase();
+        if (valUpper.includes("FINGER")) return "FINGER";
+        if (valUpper.includes("IRIS")) return "IRIS";
+        return valUpper;
       };
 
-      const captureType = isAeps2 ? item.device : item.captureType;
-
-      // Map user role number to text
-      const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        return userRole || "N/A";
-      };
-
-      // Extract user details from item
+      // --- User Details ---
       const userDetails = item.userDetails || {};
+      const userName = item.name || userDetails.name || "N/A";
+      const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
 
-      // --- Bank name ---
-      // AEPS2 may have `bankIin` as a code; AEPS1 may have `bankiin`
-      const bankName =
-        item.responsePayload?.data?.bankName ||
-        item.bankName ||
-        item.bankIin ||
-        item.bankiin ||
-        "N/A";
-
-      // --- User name ---
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        item.merchantLoginId ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
-
-      const profileImage = userDetails.profileImage || null;
-
-      // --- Mobile number ---
-      const mobileNo =
-        userDetails.mobileNo ||
-        item.mobileNumber ||
-        item.mobileNo ||
-        item.mobile ||
-        "N/A";
-
-      // --- Consumer number (Aadhaar) ---
-      const consumerNumber = isAeps2
-        ? (item.consumerAadhaarNumber ||
-          item.requestPayload?.adhaarNumber ||
-          item.requestPayload?.aadhaarNo ||
-          "N/A")
-        : (item.consumerNumber ||
-          item.requestPayload?.consumerNumber ||
-          item.consumerAadhaarNumber ||
-          item.requestPayload?.consumerAadhaarNumber ||
-          "N/A");
-
-      // --- Merchant login ID ---
-      const merchantLoginId = isAeps2
-        ? (item.merchantLoginId ||
-          item.merchantTransactionId ||
-          "N/A")
-        : (item.requestPayload?.merchantLoginId ||
-          item.merchantTransactionId ||
-          "N/A");
+      // --- Roll-up Commissions for Display ---
+      // For White Label, we focus on their commission
+      const wlComm = item.whitelabelComm || 0;
+      const wlTDS = item.whitelabelCommTDS || 0;
 
       return {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
-        userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
+        userRole:
+          item.userRole === 5 ? "Retailer" :
+          item.userRole === 4 ? "Distributor" :
+          item.userRole === 3 ? "Master Distributor" :
+          item.userRole === 2 ? "White Label" :
+          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
         mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
+        consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
         companyName: item.companyName || item.operator || "N/A",
-        merchantLoginId: merchantLoginId,
-        bankName: bankName,
+        merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
+        bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
-        bankRRN:
-          item.bankRRN ||
-          item.responsePayload?.data?.bankRRN ||
-          item.responsePayload?.result?.bankRRN ||
-          "N/A",
+        refID: item.merchantReferenceId || item.refId || "N/A",
+        bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(captureType),
+        via: getViaDisplay(item.peripheral, item.device, item.captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
-        tdsAndComm: `TDS: ₹${item.whitelabelCommTDS ?? 0} | Comm: ₹${item.whitelabelComm ?? 0}`,
+        tdsAndComm: `Comm: ₹${wlComm} | TDS: ₹${wlTDS}`,
         originalItem: item,
       };
     });
@@ -412,31 +343,24 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle view button click - use local data for AEPS1, hit API for AEPS2
+  // Handle view button click - hits API for both AEPS1 and AEPS2
   const handleViewClick = (transaction) => {
-    if (!transaction) return;
+    const transactionId = transaction.id;
+    if (!transactionId || isLoadingTransactionDetails) return;
+
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(transactionId);
 
     if (apiType === "aeps2") {
-      // AEPS2 still needs to fetch details from API
-      const transactionId = transaction.id;
-      if (!transactionId || isLoadingTransactionDetails) return;
-      setIsLoadingTransactionDetails(true);
-      setSelectedTransactionId(transactionId);
       dispatch(getAeps2TransactionDetailsCompany(transactionId));
     } else {
-      // AEPS1 uses local data (no API hit)
-      if (!transaction.originalItem) return;
-      const detailsData = {
-        data: transaction.originalItem
-      };
-      setSelectedTransactionData(detailsData);
-      setShowTransactionDetails(true);
+      dispatch(getAepsTransactionDetailsCompany(transactionId));
     }
   };
 
-  // Watch for AEPS2 transaction details to be loaded
+  // Watch for transaction details to be loaded
   useEffect(() => {
-    if (apiType === "aeps2" && selectedTransactionId && isLoadingTransactionDetails) {
+    if (selectedTransactionId && isLoadingTransactionDetails) {
       if (!isLoading) {
         const timer = setTimeout(() => {
           setIsLoadingTransactionDetails(false);
@@ -445,9 +369,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         return () => clearTimeout(timer);
       }
     }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails, apiType]);
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Show loading overlay when fetching details (only for AEPS2)
+  // Show loading overlay when fetching details
   if (isLoadingTransactionDetails && selectedTransactionId) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
@@ -463,18 +387,15 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    const detailsToDisplay = apiType === "aeps2" ? transactionDetailsData : selectedTransactionData;
-
-    if (!detailsToDisplay) return null;
+    if (!transactionDetailsData) return null;
 
     return (
       <TransactioDetails
-        transactionData={detailsToDisplay}
+        transactionData={transactionDetailsData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
           setSelectedTransactionId(null);
-          setSelectedTransactionData(null);
           setIsLoadingTransactionDetails(false);
         }}
       />
