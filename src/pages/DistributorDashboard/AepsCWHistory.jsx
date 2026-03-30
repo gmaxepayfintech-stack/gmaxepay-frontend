@@ -29,6 +29,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
+  const [selectedTransactionData, setSelectedTransactionData] = useState(null);
   const { showNotification } = useNotification();
 
   // Determine which Redux state to use based on apiType
@@ -413,24 +414,45 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle view button click - fetch transaction details first
-  const handleViewClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
+  // Handle view button click - use local data for AEPS1, hit API for AEPS2
+  const handleViewClick = (transaction) => {
+    if (!transaction) return;
 
     if (apiType === "aeps2") {
+      // AEPS2 still needs to fetch details from API
+      const transactionId = transaction.id;
+      if (!transactionId || isLoadingTransactionDetails) return;
+      setIsLoadingTransactionDetails(true);
+      setSelectedTransactionId(transactionId);
       dispatch(getAeps2TransactionDetailsUsers(transactionId));
     } else {
-      dispatch(getAepsTransactionDetails(transactionId));
+      // AEPS1 uses local data (no API hit)
+      if (!transaction.originalItem) return;
+      const detailsData = {
+        data: transaction.originalItem
+      };
+      setSelectedTransactionData(detailsData);
+      setShowTransactionDetails(true);
     }
   };
 
-  // Show loading overlay when fetching transaction details
+  // Watch for AEPS2 transaction details to be loaded
+  useEffect(() => {
+    if (apiType === "aeps2" && selectedTransactionId && isLoadingTransactionDetails) {
+      if (!isLoading) {
+        const timer = setTimeout(() => {
+          setIsLoadingTransactionDetails(false);
+          setShowTransactionDetails(true);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails, apiType]);
+
+  // Show loading overlay when fetching details (only for AEPS2)
   if (isLoadingTransactionDetails && selectedTransactionId) {
     return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto items-center justify-center">
+      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <ButtonLoader color="#039155" size={40} thickness={4} />
           <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
@@ -443,13 +465,18 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
+    const detailsToDisplay = apiType === "aeps2" ? transactionDetailsData : selectedTransactionData;
+
+    if (!detailsToDisplay) return null;
+
     return (
       <TransactioDetails
-        transactionData={transactionDetailsData}
+        transactionData={detailsToDisplay}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
           setSelectedTransactionId(null);
+          setSelectedTransactionData(null);
           setIsLoadingTransactionDetails(false);
         }}
       />
@@ -781,9 +808,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
-                            onClick={() => handleViewClick(transaction.id)}
+                            onClick={() => handleViewClick(transaction)}
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#039155] text-white text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg hover:bg-green-700 transition shadow-sm whitespace-nowrap"
-                            disabled={isLoadingTransactionDetails}
                           >
                             View
                           </button>

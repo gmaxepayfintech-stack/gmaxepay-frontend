@@ -28,12 +28,13 @@ const AepsCWHistory = ({ onBack, type }) => {
   const [toDate, setToDate] = useState("");
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [selectedTransactionData, setSelectedTransactionData] = useState(null);
+  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
+
 
   // Determine whether this is AEPS2 history based on type
   const isAeps2 =
@@ -356,44 +357,55 @@ const AepsCWHistory = ({ onBack, type }) => {
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
+  // Handle profile click - use local data for AEPS1, hit API for AEPS2
+  const handleProfileClick = (transaction) => {
+    if (!transaction) return;
 
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    // Dispatch action to fetch transaction details
     if (isAeps2) {
+      // AEPS2 still needs to fetch details from API
+      const transactionId = transaction.id;
+      if (!transactionId || isLoadingTransactionDetails) return;
+      setIsLoadingTransactionDetails(true);
+      setSelectedTransactionId(transactionId);
       dispatch(getAeps2TransactionDetails(transactionId));
     } else {
-      dispatch(getAepsTransactionDetails(transactionId));
+      // AEPS1 uses local data (no API hit)
+      if (!transaction.originalItem) return;
+      const detailsData = {
+        data: transaction.originalItem
+      };
+      setSelectedTransactionData(detailsData);
+      setShowTransactionDetails(true);
     }
   };
 
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Watch for AEPS2 transaction details to be loaded
+  useEffect(() => {
+    if (isAeps2 && selectedTransactionId && isLoadingTransactionDetails) {
+      if (!isLoading) {
+        const timer = setTimeout(() => {
+          setIsLoadingTransactionDetails(false);
+          setShowTransactionDetails(true);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails, isAeps2]);
 
   // If TransactionDetails should be shown, render it
   if (showTransactionDetails) {
+    const detailsToDisplay = isAeps2 ? transactionDetailsResponse : selectedTransactionData;
+
+    if (!detailsToDisplay) return null;
+
     return (
       <TransactioDetails
-        transactionData={transactionDetailsResponse}
+        transactionData={detailsToDisplay}
         isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);
           setSelectedTransactionId(null);
+          setSelectedTransactionData(null);
           setIsLoadingTransactionDetails(false);
         }}
       />
@@ -633,9 +645,8 @@ const AepsCWHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
-                            onClick={() => handleProfileClick(transaction.id)}
+                            onClick={() => handleProfileClick(transaction)}
                             className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
                           >
                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                               {transaction.profileImage ? (
