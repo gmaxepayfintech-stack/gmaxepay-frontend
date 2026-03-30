@@ -1932,27 +1932,36 @@ const SelectserviceThree = () => {
                                                     </div>
                                                 )}
 
-                                                {/* Mini Statement Table */}
+                                                {/* Mini Statement List */}
                                                 {stmtList.length > 0 ? (
                                                     <div className="mt-2 pt-4 border-t border-gray-200">
                                                         <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">Mini Statement</div>
-                                                        <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                                                            <div className="grid grid-cols-4 gap-1 bg-gray-100 px-3 py-2 border-b border-gray-200">
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Date</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Type</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Amount</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Narration</div>
-                                                            </div>
-                                                            <div className="max-h-60 overflow-y-auto">
-                                                                {stmtList.map((stmt, index) => (
-                                                                    <div key={index} className="grid grid-cols-4 gap-1 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start">
-                                                                        <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717]">{stmt.date}</div>
-                                                                        <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>{stmt.txnType}</div>
-                                                                        <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>₹{stmt.amount}</div>
-                                                                        <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717] break-words whitespace-normal">{stmt.narration}</div>
+                                                        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                                                            {stmtList.map((stmt, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="bg-white rounded-lg border border-gray-200 px-3 py-2.5 hover:bg-gray-50 transition"
+                                                                >
+                                                                    {/* Top row: Date | Type badge | Amount */}
+                                                                    <div className="flex items-center justify-between mb-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60">{stmt.date}</span>
+                                                                            <span className={`text-[10px] font-['Gilroy-SemiBold'] px-1.5 py-0.5 rounded-full ${stmt.txnType === 'Cr' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                                                {stmt.txnType === 'Cr' ? 'Credit' : 'Debit'}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className={`text-sm font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {stmt.txnType === 'Cr' ? '+' : '-'}₹{stmt.amount}
+                                                                        </span>
                                                                     </div>
-                                                                ))}
-                                                            </div>
+                                                                    {/* Narration — full width, no truncation */}
+                                                                    {stmt.narration && (
+                                                                        <p className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717]/70 leading-relaxed">
+                                                                            {stmt.narration}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
                                                 ) : (
