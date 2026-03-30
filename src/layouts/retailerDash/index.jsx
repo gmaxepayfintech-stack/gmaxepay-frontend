@@ -18,11 +18,12 @@ import PanService from "../../pages/retailerDashboard/services/PanService";
 import RetailerProfile from "../../pages/retailerDashboard/retailerProfile";
 import ContactSupport from "../../pages/retailerDashboard/ContactSupport";
 import Complaints from "../../pages/retailerDashboard/Complaints";
-
+import OnBoardingAepsThree from "../../pages/retailerDashboard/aeps3/OnBoardingAepsThree";
 import AOneRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneRecharge";
 import AOneDthRecharge from "../../pages/retailerDashboard/services/MobileRecharge/AOneDthRecharge";
 import AOnePan from "../../pages/retailerDashboard/services/MobileRecharge/AOnePan";
 import CMSService from "../../pages/retailerDashboard/services/CMSService";
+import SelectserviceThree from "../../pages/retailerDashboard/aeps3/SelectserviceThree";
 
 const RetailerDash = () => {
   return (
@@ -38,6 +39,14 @@ const RetailerDash = () => {
         <Route
           path="/services/aeps2/onboarding"
           element={<OnBoardingAepsTwo />}
+        />
+        <Route
+          path="/services/aeps3/onboarding"
+          element={<OnBoardingAepsThree />}
+        />
+        <Route
+          path="/services/aeps3/select-service"
+          element={<SelectserviceThree />}
         />
         <Route path="/services/dth-recharge" element={<DTHRecharge />} />
         <Route path="/services/pan-service" element={<PanService />} />

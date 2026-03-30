@@ -22,6 +22,7 @@ import serviceReducer from "./serviceReducer";
 import operatorReducer from "./operatorReducer";
 import reportsReducer from "./reportsReducer";
 import helpReducer from "./helpReducer";
+import aepsThreeReducer from "./aepsThreeReducer";
 
 const rootReducer = combineReducers({
   auth: authReducer,
@@ -46,7 +47,8 @@ const rootReducer = combineReducers({
   services: serviceReducer,
   operators: operatorReducer,
   reports: reportsReducer,
-  help: helpReducer
+  help: helpReducer,
+  aepsThree: aepsThreeReducer,
 });
 
 export default rootReducer;
