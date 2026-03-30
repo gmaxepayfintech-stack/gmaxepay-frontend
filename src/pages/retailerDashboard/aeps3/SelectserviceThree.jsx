@@ -1812,7 +1812,7 @@ const SelectserviceThree = () => {
                                         const fields = [];
                                         if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
                                         if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
-                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        // if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
                                         if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
                                         if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
                                         if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
@@ -1857,7 +1857,7 @@ const SelectserviceThree = () => {
                                         const fields = [];
                                         if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
                                         if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
-                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        // if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
                                         if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
                                         if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
                                         if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
@@ -1922,15 +1922,6 @@ const SelectserviceThree = () => {
                                         const stmtList = parseMiniStatement(d?.details?.mini_statement);
                                         const balanceAmt = d?.details?.account_balance ?? null;
 
-                                        const fields = [];
-                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
-                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
-                                        if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
-                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
-                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
-                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
-                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
-
                                         return (
                                             <>
                                                 {/* Balance Box */}
@@ -1938,18 +1929,6 @@ const SelectserviceThree = () => {
                                                     <div className="border-2 border-dashed border-[#039155] rounded-lg p-3 text-center mb-5">
                                                         <div className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60 mb-1">Account Balance</div>
                                                         <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#039155]">₹{balanceAmt}</div>
-                                                    </div>
-                                                )}
-
-                                                {/* Summary fields */}
-                                                {fields.length > 0 && (
-                                                    <div className="grid grid-cols-2 gap-4 mb-5">
-                                                        {fields.map((f, i) => (
-                                                            <div key={i}>
-                                                                <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">{f.label}</div>
-                                                                <div className={`font-['Gilroy-Medium'] text-sm ${f.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>{f.value}</div>
-                                                            </div>
-                                                        ))}
                                                     </div>
                                                 )}
 
