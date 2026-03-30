@@ -769,6 +769,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 console.log("📤 Sending withdrawal request with payload:", {
@@ -1124,6 +1125,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 // Call API
@@ -1460,6 +1462,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 // Call API
