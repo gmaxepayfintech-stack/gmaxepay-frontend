@@ -476,9 +476,15 @@ export const aepsThreeCashWithdrawl = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const payload = { ...values };
+    if ("txtPidData" in payload) {
+      payload.pid_data = payload.txtPidData;
+      delete payload.txtPidData;
+    }
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/user/aeps3/cash-withdrawal`,
-      values,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -526,9 +532,15 @@ export const aepsThreeBalanceEnquiry = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const payload = { ...values };
+    if ("txtPidData" in payload) {
+      payload.pid_data = payload.txtPidData;
+      delete payload.txtPidData;
+    }
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/user/aeps3/balance-enquiry`,
-      values,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -576,9 +588,15 @@ export const aepsThreeMiniStatement = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const payload = { ...values };
+    if ("txtPidData" in payload) {
+      payload.pid_data = payload.txtPidData;
+      delete payload.txtPidData;
+    }
+
     const response = await axios.post(
       `${API_ROUTE}/api/v1/user/aeps3/mini-statement`,
-      values,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
