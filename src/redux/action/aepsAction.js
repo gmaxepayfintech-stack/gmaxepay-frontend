@@ -301,7 +301,7 @@ export const getAepsCwHistory = (payload) => async (dispatch) => {
         };
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps1Reports`,
+            `${API_ROUTE}/api/v1/admin/reports/aeps3Reports`,
             requestPayload,
             {
                 headers: {
@@ -495,7 +495,7 @@ export const getAepsTransactionDetails = (transactionId) => async (dispatch) => 
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/admin/reports/aeps1/transactionDetails/${transactionId}`,
+            `${API_ROUTE}/api/v1/admin/reports/aeps3/transactionDetails/${transactionId}`,
             {},
             {
                 headers: {
@@ -709,7 +709,7 @@ export const getAepsCwHistoryCompany = (payload) => async (dispatch) => {
         };
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/company/reports/aeps1Reports`,
+            `${API_ROUTE}/api/v1/company/reports/aeps3Reports`,
             requestPayload,
             {
                 headers: {
@@ -828,7 +828,7 @@ export const getAepsCwHistoryUser = (payload) => async (dispatch) => {
         };
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/aeps1/transaction-history`,
+            `${API_ROUTE}/api/v1/user/aeps3/transaction-history`,
             requestPayload,
             {
                 headers: {
@@ -927,7 +927,7 @@ export const getAepsTransactionDetailsCompany = (transactionId) => async (dispat
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/company/reports/aeps1/transactionDetails/${transactionId}`,
+            `${API_ROUTE}/api/v1/company/reports/aeps3/transactionDetails/${transactionId}`,
             {},
             {
                 headers: {

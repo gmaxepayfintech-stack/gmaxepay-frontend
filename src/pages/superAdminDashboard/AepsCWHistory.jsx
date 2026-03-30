@@ -87,7 +87,7 @@ const AepsCWHistory = ({ onBack, type }) => {
       const rawAmount = item.transactionAmount ?? item.amount ?? 0;
       let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
 
-      const txnType = item.transactionType || aepsTxnType;
+      const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
         formattedAmount = "₹0";
       }
@@ -112,56 +112,31 @@ const AepsCWHistory = ({ onBack, type }) => {
         item.transactionStatus ?? item.paymentStatus ?? item.status;
 
       // --- VIA / Capture type ---
-      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeUpper = String(captureType).toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return String(captureType);
-      };
-
-      const captureType = item.captureType || item.device || null;
+      const captureType = item.peripheral || item.device || item.captureType || "N/A";
 
       // Map user role number to text
       const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        // If it's already a string, return as is
-        return userRole || "N/A";
+        const roleMap = {
+          1: "Super Admin",
+          2: "White Label",
+          3: "Master Distributor",
+          4: "Distributor",
+          5: "Retailer",
+        };
+        return roleMap[userRole] || `Role ${userRole}`;
       };
 
       // Extract user details from item
       const userDetails = item.userDetails || {};
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        item.merchantLoginId ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
+      const userName = userDetails.name || item.name || "N/A";
+      const userRoleValue = userDetails.userRole ?? item.userRole ?? null;
       const profileImage = userDetails.profileImage || null;
 
-      // Mobile: prefer userDetails.mobileNo, then top-level fields
-      // AEPS2 also has `mobileNumber` directly on the item
-      const mobileNo =
-        userDetails.mobileNo ||
-        item.mobileNo ||
-        item.mobileNumber ||
-        item.mobile ||
-        "N/A";
+      // Mobile
+      const mobileNo = item.mobileNumber || userDetails.mobileNo || item.mobileNo || "N/A";
 
-      // Consumer number: Aadhaar for AEPS2
-      const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+      // Consumer number: Aadhaar Last Four
+      const consumerNumber = item.aadhaarLastFour || item.consumerNumber || "N/A";
 
       return {
         id: item.id,
@@ -173,13 +148,12 @@ const AepsCWHistory = ({ onBack, type }) => {
         consumerNumber: consumerNumber,
         companyName: item.companyName || "N/A",
         companyLogo: item.companyLogo || null,
-        // AEPS2 has `bankName` directly; AEPS1 may use bankiin
-        bankName: item.bankName || item.bankIin || item.bankiin || "N/A",
+        bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
-        bankRRN: item.bankRRN || "N/A",
+        refID: item.refId || item.merchantReferenceId || "N/A",
+        bankRRN: item.bankRRN || item.bankReferenceNumber || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(captureType),
+        via: captureType,
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         originalItem: item, // Store full item for details
@@ -235,7 +209,7 @@ const AepsCWHistory = ({ onBack, type }) => {
   }, [searchQuery]);
 
   // Determine AEPS transaction type (CW, MS, BE) based on view type
-  const aepsTxnType = (() => {
+  const transactionType = (() => {
     if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
     if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
     return "CW"; // default
@@ -252,7 +226,7 @@ const AepsCWHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
+    const query = isAeps2 ? { transactionType: transactionType } : { transactionType };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -298,7 +272,7 @@ const AepsCWHistory = ({ onBack, type }) => {
     debouncedSearchQuery,
     fromDate,
     toDate,
-    aepsTxnType,
+    transactionType,
     isAeps2,
     statusFilter,
   ]);
@@ -473,8 +447,8 @@ const AepsCWHistory = ({ onBack, type }) => {
                 setIsReloading(true);
 
                 const query = isAeps2
-                  ? { transactionType: aepsTxnType }
-                  : { aepsTxnType };
+                  ? { transactionType: transactionType }
+                  : { transactionType };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};

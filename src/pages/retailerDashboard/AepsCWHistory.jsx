@@ -301,8 +301,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     // Use transactionType for both AEPS 1 and AEPS 2
     const query = {};
     if (apiType === "aeps1") {
-      // For AEPS 1, use aepsTxnType
-      query.aepsTxnType = transactionType;
+      // For AEPS 1, use transactionType
+      query.transactionType = transactionType;
     } else if (apiType === "aeps2") {
       // For AEPS 2, use transactionType
       query.transactionType = transactionType;
@@ -509,8 +509,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 // Build query - use transactionType for both AEPS 1 and AEPS 2
                 const query = {};
                 if (apiType === "aeps1") {
-                  // For AEPS 1, use aepsTxnType
-                  query.aepsTxnType = transactionType;
+                  // For AEPS 1, use transactionType
+                  query.transactionType = transactionType;
                 } else if (apiType === "aeps2") {
                   // For AEPS 2, use transactionType
                   query.transactionType = transactionType;
