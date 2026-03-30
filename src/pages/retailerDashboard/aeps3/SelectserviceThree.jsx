@@ -1758,14 +1758,14 @@ const SelectserviceThree = () => {
         if (type === "success") {
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC] overflow-y-auto">
-                    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md w-full mx-4 shadow-xl my-auto" ref={receiptRef}>
+                    <div className={`bg-green-100 rounded-xl relative overflow-hidden w-full mx-4 shadow-xl my-auto ${transactionType === 'miniStatement' ? 'max-w-xl' : 'max-w-md'}`} ref={receiptRef}>
                         {/* Notches */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-r-full"></div>
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-l-full"></div>
 
-                        <div className="relative z-10 pt-12 pb-12 px-12">
+                        <div className="relative z-10 pt-12 pb-12 px-8">
                             {/* Success Header */}
                             <div className="text-center mb-6">
                                 <div className="flex justify-center mb-3">
