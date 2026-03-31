@@ -293,7 +293,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.commission
+                  {payload?.transactionDetails?.commission !== undefined &&
+                  payload?.transactionDetails?.commission !== null
                     ? `₹${payload.transactionDetails.commission.toFixed(2)}`
                     : "N/A"}
                 </p>
