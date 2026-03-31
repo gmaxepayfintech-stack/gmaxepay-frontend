@@ -1029,7 +1029,7 @@ export const getAepsTransactionDetailsUser = (transactionId) => async (dispatch)
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/user/reports/aeps2/aeps2TransactionDetailsById/${transactionId}`,
+            `${API_ROUTE}/api/v1/user/reports/aeps3/aeps3TransactionDetailsById/${transactionId}`,
             {},
             {
                 headers: {
