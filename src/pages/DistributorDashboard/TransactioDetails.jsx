@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import MainWalletStatement from "./MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
-const TransactioDetails = ({ transactionData, onBack }) => {
+const TransactioDetails = ({ transactionData, onBack = null }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
   console.log("TransactioDetails received transactionData:", transactionData);
 
@@ -313,8 +313,9 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.commission || payload?.distributorCom || payload?.retailerCom
-                    ? `₹${parseFloat(payload?.transactionDetails?.commission || payload?.distributorCom || payload?.retailerCom || 0).toFixed(2)}`
+                  {payload?.transactionDetails?.commission !== undefined &&
+                  payload?.transactionDetails?.commission !== null
+                    ? `₹${parseFloat(payload.transactionDetails.commission).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
@@ -451,10 +452,6 @@ const TransactioDetails = ({ transactionData, onBack }) => {
 TransactioDetails.propTypes = {
   transactionData: PropTypes.object.isRequired,
   onBack: PropTypes.func,
-};
-
-TransactioDetails.defaultProps = {
-  onBack: null,
 };
 
 export default TransactioDetails;

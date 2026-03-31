@@ -7,7 +7,12 @@ import MainWalletStatement from "./MainWalletStatement";
 import { getAepsTransactionDetails, getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 
-const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
+const TransactioDetails = ({
+  transactionId = null,
+  onBack = null,
+  isAeps2 = false,
+  transactionData: propData = null,
+}) => {
   const dispatch = useDispatch();
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
 
@@ -15,7 +20,7 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
     (state) => state?.aeps?.transactionDetails,
   );
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionData = transactionDetailsResponse?.data || null;
+  const transactionData = propData?.data || propData || transactionDetailsResponse?.data || null;
 
   // Fetch transaction details when component mounts or transactionId changes
   useEffect(() => {
@@ -197,15 +202,6 @@ const TransactioDetails = ({ transactionId, onBack, isAeps2 }) => {
               </p>
             </div>
           </div>
-          {/* <button
-            onClick={() => setShowMainWalletStatement(true)}
-            className="flex items-center gap-2 bg-[#039155] text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg  hover:bg-green-700 transition shadow-md whitespace-nowrap"
-          >
-            <span className="font-[Gilroy-Medium] text-white text-sm">
-              Main Wallet Statement
-            </span>
-            <FileText className="w-3 h-3 sm:w-4 sm:h-4 text-white " />
-          </button> */}
         </div>
       </div>
 
@@ -515,12 +511,7 @@ TransactioDetails.propTypes = {
   transactionId: PropTypes.oneOfType([PropTypes.string, PropTypes.number]),
   onBack: PropTypes.func,
   isAeps2: PropTypes.bool,
-};
-
-TransactioDetails.defaultProps = {
-  transactionId: null,
-  onBack: null,
-  isAeps2: false,
+  transactionData: PropTypes.object,
 };
 
 export default TransactioDetails;

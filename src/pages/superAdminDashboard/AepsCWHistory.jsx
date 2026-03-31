@@ -20,7 +20,7 @@ import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 import { getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import * as XLSX from "xlsx";
 
-const AepsCWHistory = ({ onBack, type }) => {
+const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -56,12 +56,9 @@ const AepsCWHistory = ({ onBack, type }) => {
   const paginator = aepsHistoryResponse?.paginator || {};
   const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector((state) => {
-    if (isAeps2) {
-      return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
-    }
-    return state?.aeps?.transactionDetails;
-  });
+  const transactionDetailsResponse = useSelector(
+    (state) => state?.aeps?.transactionDetails,
+  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -353,31 +350,26 @@ const AepsCWHistory = ({ onBack, type }) => {
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle profile click - use local data for AEPS1, hit API for AEPS2
+  // Handle profile click - hit API for both AEPS1 and AEPS2
   const handleProfileClick = (transaction) => {
     if (!transaction) return;
 
+    const transactionId = transaction.id;
+    if (!transactionId || isLoadingTransactionDetails) return;
+
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(transactionId);
+
     if (isAeps2) {
-      // AEPS2 still needs to fetch details from API
-      const transactionId = transaction.id;
-      if (!transactionId || isLoadingTransactionDetails) return;
-      setIsLoadingTransactionDetails(true);
-      setSelectedTransactionId(transactionId);
       dispatch(getAeps2TransactionDetails(transactionId));
     } else {
-      // AEPS1 uses local data (no API hit)
-      if (!transaction.originalItem) return;
-      const detailsData = {
-        data: transaction.originalItem
-      };
-      setSelectedTransactionData(detailsData);
-      setShowTransactionDetails(true);
+      dispatch(getAepsTransactionDetails(transactionId));
     }
   };
 
-  // Watch for AEPS2 transaction details to be loaded
+  // Watch for transaction details to be loaded (both AEPS1 & AEPS2 now via API)
   useEffect(() => {
-    if (isAeps2 && selectedTransactionId && isLoadingTransactionDetails) {
+    if (selectedTransactionId && isLoadingTransactionDetails) {
       if (!isLoading) {
         const timer = setTimeout(() => {
           setIsLoadingTransactionDetails(false);
@@ -386,17 +378,16 @@ const AepsCWHistory = ({ onBack, type }) => {
         return () => clearTimeout(timer);
       }
     }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails, isAeps2]);
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
   // If TransactionDetails should be shown, render it
   if (showTransactionDetails) {
-    const detailsToDisplay = isAeps2 ? transactionDetailsResponse : selectedTransactionData;
-
-    if (!detailsToDisplay) return null;
+    if (!transactionDetailsResponse) return null;
 
     return (
       <TransactioDetails
-        transactionData={detailsToDisplay}
+        transactionId={selectedTransactionId}
+        transactionData={transactionDetailsResponse}
         isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);
@@ -845,11 +836,6 @@ const AepsCWHistory = ({ onBack, type }) => {
 AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
   type: PropTypes.string,
-};
-
-AepsCWHistory.defaultProps = {
-  onBack: null,
-  type: "aeps-cw-history",
 };
 
 export default AepsCWHistory;
