@@ -325,23 +325,16 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // Handle view button click - use local data for AEPS1, hit API for AEPS2
   const handleViewClick = (transaction) => {
-    if (!transaction) return;
+    const databaseId = transaction.id;
+    if (!databaseId || isLoadingTransactionDetails) return;
+
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(databaseId);
 
     if (apiType === "aeps2") {
-      // AEPS2 still needs to fetch details from API
-      const transactionId = transaction.id;
-      if (!transactionId || isLoadingTransactionDetails) return;
-      setIsLoadingTransactionDetails(true);
-      setSelectedTransactionId(transactionId);
-      dispatch(getAeps2TransactionDetailsUsers(transactionId));
+      dispatch(getAeps2TransactionDetailsUsers(databaseId));
     } else {
-      // AEPS1 uses local data (no API hit)
-      if (!transaction.originalItem) return;
-      const detailsData = {
-        data: transaction.originalItem
-      };
-      setSelectedTransactionData(detailsData);
-      setShowTransactionDetails(true);
+      dispatch(getAepsTransactionDetails(databaseId));
     }
   };
 
@@ -374,13 +367,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    const detailsToDisplay = apiType === "aeps2" ? transactionDetailsData : selectedTransactionData;
-
-    if (!detailsToDisplay) return null;
+    if (!transactionDetailsData) return null;
 
     return (
       <TransactioDetails
-        transactionData={detailsToDisplay}
+        transactionData={transactionDetailsData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
