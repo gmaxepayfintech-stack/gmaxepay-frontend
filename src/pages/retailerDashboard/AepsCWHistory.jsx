@@ -11,9 +11,10 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
-import { getAepsCwHistoryUser, getAepsTransactionDetails } from "../../redux/action/aepsAction";
+import { getAepsCwHistoryUser } from "../../redux/action/aepsAction";
 import { getAeps2CwHistoryUsers, getAeps2TransactionDetailsUsers } from "../../redux/action/aepsTwoAction";
 import * as XLSX from "xlsx";
+import { getAepsTransactionDetailsUser } from "../../redux/action/aepsAction";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -45,7 +46,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     if (apiType === "aeps2") {
       return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
     }
-    return state?.aeps?.transactionDetails;
+    return state?.aeps?.transactionDetailsUser;
   });
 
   // Transform API response data to table format
@@ -327,16 +328,19 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle view button click - use local data from the list response
+  // Handle view button click - hit API for details
   const handleViewClick = (transaction) => {
-    if (!transaction || !transaction.originalItem) return;
+    const databaseId = transaction.id;
+    if (!databaseId || isLoadingTransactionDetails) return;
 
-    // The list responses for retailers already contain full details (request/response payloads)
-    const detailsData = {
-      data: transaction.originalItem
-    };
-    setSelectedTransactionData(detailsData);
-    setShowTransactionDetails(true);
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(databaseId);
+
+    if (apiType === "aeps2") {
+      dispatch(getAeps2TransactionDetailsUsers(databaseId));
+    } else {
+      dispatch(getAepsTransactionDetailsUser(databaseId));
+    }
   };
 
   // Show loading overlay when fetching AEPS2 transaction details
@@ -355,11 +359,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    if (!selectedTransactionData) return null;
+    if (!transactionDetailsData) return null;
 
     return (
       <TransactioDetails
-        transactionData={selectedTransactionData}
+        transactionData={transactionDetailsData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
