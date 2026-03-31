@@ -327,31 +327,17 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle view button click - use local data for AEPS1, hit API for AEPS2
+  // Handle view button click - use local data from the list response
   const handleViewClick = (transaction) => {
-    const databaseId = transaction.id;
-    if (!databaseId || isLoadingTransactionDetails) return;
+    if (!transaction || !transaction.originalItem) return;
 
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(databaseId);
-
-    if (apiType === "aeps2") {
-      dispatch(getAeps2TransactionDetailsUsers(databaseId));
-    } else {
-      dispatch(getAepsTransactionDetails(databaseId));
-    }
-  };  // Watch for AEPS2 transaction details to be loaded
-  useEffect(() => {
-    if (apiType === "aeps2" && selectedTransactionId && isLoadingTransactionDetails) {
-      if (!isLoading) {
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails, apiType]);
+    // The list responses for retailers already contain full details (request/response payloads)
+    const detailsData = {
+      data: transaction.originalItem
+    };
+    setSelectedTransactionData(detailsData);
+    setShowTransactionDetails(true);
+  };
 
   // Show loading overlay when fetching AEPS2 transaction details
   if (isLoadingTransactionDetails && selectedTransactionId) {
@@ -369,11 +355,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    if (!transactionDetailsData) return null;
+    if (!selectedTransactionData) return null;
 
     return (
       <TransactioDetails
-        transactionData={transactionDetailsData}
+        transactionData={selectedTransactionData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
