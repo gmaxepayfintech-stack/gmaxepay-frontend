@@ -159,7 +159,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.name || "N/A"}
+                  {payload?.userDetails?.name || payload?.name || "N/A"}
                 </p>
               </div>
               <div>
@@ -167,8 +167,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.userRole
-                    ? getRoleName(payload.userDetails.userRole)
+                  {payload?.userDetails?.userRole || payload?.userRole
+                    ? getRoleName(payload?.userDetails?.userRole || payload?.userRole)
                     : "N/A"}
                 </p>
               </div>
@@ -177,7 +177,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Agent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.userId || "N/A"}
+                  {payload?.userDetails?.userId || payload?.merchantCode || payload?.subMerchantCode || "N/A"}
                 </p>
               </div>
               <div>
@@ -185,7 +185,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   User Mobile
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.mobileNo || "N/A"}
+                  {payload?.userDetails?.mobileNo || payload?.mobileNumber || payload?.mobileNo || "N/A"}
                 </p>
               </div>
             </div>
@@ -265,7 +265,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Bank Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.bankName || "N/A"}
+                  {payload?.transactionDetails?.bankName || payload?.bankName || "N/A"}
                 </p>
               </div>
               <div>
@@ -273,8 +273,10 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Aadhar Number
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.aadharNumber
-                    ? `${payload.transactionDetails.aadharNumber.slice(0, 4)} ${payload.transactionDetails.aadharNumber.slice(4, 8)} ${payload.transactionDetails.aadharNumber.slice(8, 12)} ****`
+                  {payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber
+                    ? String(payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber).replace(/\s/g, "").length === 12
+                      ? `${String(payload?.transactionDetails?.aadharNumber).slice(0, 4)} ${String(payload?.transactionDetails?.aadharNumber).slice(4, 8)} ${String(payload?.transactionDetails?.aadharNumber).slice(8, 12)}`
+                      : payload?.aadhaarLastFour || payload?.consumerNumber || payload?.transactionDetails?.aadharNumber
                     : "N/A"}
                 </p>
               </div>
@@ -283,8 +285,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Amount
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.amount
-                    ? `₹${payload.transactionDetails.amount}`
+                  {payload?.transactionDetails?.amount || payload?.transactionAmount || payload?.amount
+                    ? `₹${payload?.transactionDetails?.amount || payload?.transactionAmount || payload?.amount}`
                     : "N/A"}
                 </p>
               </div>
@@ -293,8 +295,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.commission
-                    ? `₹${payload.transactionDetails.commission.toFixed(2)}`
+                  {payload?.transactionDetails?.commission || payload?.retailerCom || payload?.distributorCom
+                    ? `₹${parseFloat(payload?.transactionDetails?.commission || payload?.retailerCom || payload?.distributorCom || 0).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
