@@ -105,6 +105,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
       const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
 
+      const roleVal = userDetails.userRole ?? item.userRole;
+
       const wlComm = item.whitelabelComm || 0;
       const wlTDS = item.whitelabelCommTDS || 0;
 
@@ -113,11 +115,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
         userRole:
-          item.userRole === 5 ? "Retailer" :
-            item.userRole === 4 ? "Distributor" :
-              item.userRole === 3 ? "Master Distributor" :
-                item.userRole === 2 ? "White Label" :
-                  item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+          roleVal === 5 ? "Retailer" :
+            roleVal === 4 ? "Distributor" :
+              roleVal === 3 ? "Master Distributor" :
+                roleVal === 2 ? "White Label" :
+                  roleVal === 1 ? "Super Admin" : `Role ${roleVal ?? "N/A"}`,
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
