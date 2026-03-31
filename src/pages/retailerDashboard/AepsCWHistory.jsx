@@ -124,11 +124,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
         userRole:
-          item.userRole === 5 ? "Retailer" :
-          item.userRole === 4 ? "Distributor" :
-          item.userRole === 3 ? "Master Distributor" :
-          item.userRole === 2 ? "White Label" :
-          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+          (userDetails.userRole ?? item.userRole) === 5 ? "Retailer" :
+            (userDetails.userRole ?? item.userRole) === 4 ? "Distributor" :
+              (userDetails.userRole ?? item.userRole) === 3 ? "Master Distributor" :
+                (userDetails.userRole ?? item.userRole) === 2 ? "White Label" :
+                  (userDetails.userRole ?? item.userRole) === 1 ? "Super Admin" : `Role ${userDetails.userRole ?? item.userRole ?? "N/A"}`,
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
@@ -329,23 +329,16 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // Handle view button click - use local data for AEPS1, hit API for AEPS2
   const handleViewClick = (transaction) => {
-    if (!transaction) return;
+    const databaseId = transaction.id;
+    if (!databaseId || isLoadingTransactionDetails) return;
+
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(databaseId);
 
     if (apiType === "aeps2") {
-      // AEPS2 still needs to fetch details from API
-      const transactionId = transaction.id;
-      if (!transactionId || isLoadingTransactionDetails) return;
-      setIsLoadingTransactionDetails(true);
-      setSelectedTransactionId(transactionId);
-      dispatch(getAeps2TransactionDetailsUsers(transactionId));
+      dispatch(getAeps2TransactionDetailsUsers(databaseId));
     } else {
-      // AEPS1 uses local data (no API hit)
-      if (!transaction.originalItem) return;
-      const detailsData = {
-        data: transaction.originalItem
-      };
-      setSelectedTransactionData(detailsData);
-      setShowTransactionDetails(true);
+      dispatch(getAepsTransactionDetails(databaseId));
     }
   };  // Watch for AEPS2 transaction details to be loaded
   useEffect(() => {
@@ -376,13 +369,11 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
-    const detailsToDisplay = apiType === "aeps2" ? transactionDetailsData : selectedTransactionData;
-    
-    if (!detailsToDisplay) return null;
+    if (!transactionDetailsData) return null;
 
     return (
       <TransactioDetails
-        transactionData={detailsToDisplay}
+        transactionData={transactionDetailsData}
         isAeps2={apiType === "aeps2"}
         onBack={() => {
           setShowTransactionDetails(false);
