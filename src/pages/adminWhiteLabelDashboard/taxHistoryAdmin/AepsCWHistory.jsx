@@ -22,7 +22,7 @@ import {
 import * as XLSX from "xlsx";
 import { useNotification } from "../../../context/NotificationContext";
 
-const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
+const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -742,12 +742,6 @@ AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
   apiType: PropTypes.string,
   transactionType: PropTypes.string,
-};
-
-AepsCWHistory.defaultProps = {
-  onBack: null,
-  apiType: "aeps1",
-  transactionType: "CW",
 };
 
 export default AepsCWHistory;

@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import MainWalletStatement from "./MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
-const TransactioDetails = ({ transactionData, onBack }) => {
+const TransactioDetails = ({ transactionData, onBack = null }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
   console.log("TransactioDetails received transactionData:", transactionData);
 
@@ -395,10 +395,6 @@ const TransactioDetails = ({ transactionData, onBack }) => {
 TransactioDetails.propTypes = {
   transactionData: PropTypes.object.isRequired,
   onBack: PropTypes.func,
-};
-
-TransactioDetails.defaultProps = {
-  onBack: null,
 };
 
 export default TransactioDetails;
