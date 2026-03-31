@@ -1,4 +1,4 @@
-import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_WITHDRAWAL_SUCCESS, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_USER_SUCCESS } from "../actionType/aepsActionType";
 
 const initialState = {
     loading: false,
@@ -25,6 +25,8 @@ const initialState = {
     aepsCwHistoryUser: null,
     transactionDetailsCompany: null,
     transactionDetailsCompanyError: null,
+    transactionDetailsUser: null,
+    transactionDetailsUserError: null,
 };
 
 const aepsReducer = (state = initialState, action) => {
@@ -144,6 +146,16 @@ const aepsReducer = (state = initialState, action) => {
                 ...state,
                 transactionDetailsCompany: action?.payload,
                 transactionDetailsCompanyError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case AEPS_TRANSACTION_DETAILS_USER_SUCCESS:
+            return {
+                ...state,
+                transactionDetailsUser: action?.payload,
+                transactionDetailsUserError: null,
                 loading: false,
                 error: null,
                 success: action?.payload?.status,

@@ -11,10 +11,11 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import TransactioDetails from "./TransactioDetails";
-import { getAepsCwHistoryUser, getAepsTransactionDetails } from "../../redux/action/aepsAction";
+import { getAepsCwHistoryUser } from "../../redux/action/aepsAction";
 import { getAeps2CwHistoryUsers, getAeps2TransactionDetailsUsers } from "../../redux/action/aepsTwoAction";
 import * as XLSX from "xlsx";
 import { useNotification } from "../../context/NotificationContext";
+import { getAepsTransactionDetailsUser } from "../../redux/action/aepsAction";
 
 const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
@@ -48,7 +49,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     if (apiType === "aeps2") {
       return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
     }
-    return state?.aeps?.transactionDetails;
+    return state?.aeps?.transactionDetailsUser;
   });
 
   // Transform API response data to table format
@@ -334,7 +335,7 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     if (apiType === "aeps2") {
       dispatch(getAeps2TransactionDetailsUsers(databaseId));
     } else {
-      dispatch(getAepsTransactionDetails(databaseId));
+      dispatch(getAepsTransactionDetailsUser(databaseId));
     }
   };
 
