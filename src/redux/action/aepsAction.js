@@ -927,7 +927,7 @@ export const getAepsTransactionDetailsCompany = (transactionId) => async (dispat
         const authToken = secureLocalStorage.getItem("userToken");
 
         const response = await axios.post(
-            `${API_ROUTE}/api/v1/company/reports/aeps3/transactionDetails/${transactionId}`,
+            `${API_ROUTE}/api/v1/company/reports/aeps3/aeps3TransactionDetailsById/${transactionId}`,
             {},
             {
                 headers: {
