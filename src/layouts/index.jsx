@@ -9,4 +9,4 @@ export const ApiUserDashboard = () => <div>ApiUserDashboard</div>;
 export const SalesManagerDashboard = () => <div>SalesManagerDashboard</div>;
 export const SalesExecutiveDashboard = () => <div>SalesExecutiveDashboard</div>;
 export const CustomerCareDashboard = () => <div>CustomerCareDashboard</div>;
-export const EmployeeDashboard = () => <div>EmployeeDashboard</div>;
+export { default as EmployeeDashboard } from './employeeDashboard/index.jsx';
