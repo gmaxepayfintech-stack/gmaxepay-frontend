@@ -8,6 +8,7 @@ import {
   getInspayWalletBalance,
   getBbpsWalletBalance,
   getA1TopupWallet,
+  getPaynidiWalletBalance,
   getDashboardStatistics,
 } from "../../redux/action/walletAction";
 import {
@@ -46,6 +47,7 @@ const SuperAdmin = () => {
   const [inspayWalletBalance, setInspayWalletBalance] = useState(null);
   const [bbpsWalletBalance, setBbpsWalletBalance] = useState(null);
   const [a1TopupWalletBalance, setA1TopupWalletBalance] = useState(null);
+  const [paynidiWalletBalance, setPaynidiWalletBalance] = useState(null);
   const [walletData, setWalletData] = useState({
     mainWallet: null,
     aeps1: null,
@@ -57,6 +59,7 @@ const SuperAdmin = () => {
   const [isInspayWalletLoading, setIsInspayWalletLoading] = useState(true);
   const [isBbpsWalletLoading, setIsBbpsWalletLoading] = useState(true);
   const [isA1TopupWalletLoading, setIsA1TopupWalletLoading] = useState(true);
+  const [isPaynidiWalletLoading, setIsPaynidiWalletLoading] = useState(true);
   const [isAslWalletRefreshing, setIsAslWalletRefreshing] = useState(false);
   const [isEkycHubRefreshing, setIsEkycHubRefreshing] = useState(false);
   const [activeFilter, setActiveFilter] = useState("Today");
@@ -64,6 +67,7 @@ const SuperAdmin = () => {
     useState(false);
   const [isBbpsWalletRefreshing, setIsBbpsWalletRefreshing] = useState(false);
   const [isA1TopupWalletRefreshing, setIsA1TopupWalletRefreshing] = useState(false);
+  const [isPaynidiWalletRefreshing, setIsPaynidiWalletRefreshing] = useState(false);
 
   const [payoutOpen, setPayout] = useState(false);
   const [walletType, setWalletType] = useState("bank");
@@ -97,6 +101,9 @@ const SuperAdmin = () => {
   );
   const a1TopupWalletResponse = useSelector(
     (state) => state?.wallet?.a1TopupWallet,
+  );
+  const paynidiWalletResponse = useSelector(
+    (state) => state?.wallet?.paynidiWalletBalance,
   );
   const dashboardStatisticsResponse = useSelector(
     (state) => state?.wallet?.dashboardStatistics,
@@ -280,6 +287,21 @@ const SuperAdmin = () => {
     fetchA1TopupWallet();
   }, [dispatch]);
 
+  // Fetch Paynidi wallet on component mount
+  useEffect(() => {
+    const fetchPaynidiWallet = async () => {
+      setIsPaynidiWalletLoading(true);
+      try {
+        await dispatch(getPaynidiWalletBalance());
+      } catch (error) {
+        console.error("Failed to fetch Paynidi wallet balance:", error);
+      } finally {
+        setIsPaynidiWalletLoading(false);
+      }
+    };
+    fetchPaynidiWallet();
+  }, [dispatch]);
+
   // Update wallet data when balance is fetched
   useEffect(() => {
     if (walletBalanceResponse?.data) {
@@ -347,6 +369,16 @@ const SuperAdmin = () => {
       setA1TopupWalletBalance("0.00");
     }
   }, [a1TopupWalletResponse]);
+
+  // Update Paynidi wallet balance when data is fetched
+  useEffect(() => {
+    const responseData = paynidiWalletResponse?.data;
+    if (responseData?.message) {
+      setPaynidiWalletBalance(responseData.message);
+    } else {
+      setPaynidiWalletBalance("0.00");
+    }
+  }, [paynidiWalletResponse]);
 
   // Format number with Indian locale
   const formatCurrency = (value) => {
@@ -556,7 +588,8 @@ const SuperAdmin = () => {
     isEkycHubLoading ||
     isInspayWalletLoading ||
     isBbpsWalletLoading ||
-    isA1TopupWalletLoading
+    isA1TopupWalletLoading ||
+    isPaynidiWalletLoading
   ) {
     return <SkeletonLoader />;
   }
@@ -832,6 +865,8 @@ const SuperAdmin = () => {
               const isInspayWallet = i === 2;
               const isBbpsWallet = i === 3;
               const isA1TopupWallet = i === 4;
+              const isPaynidiWallet = i === 5;
+
               const walletName = isAslWallet
                 ? "ASL Wallet"
                 : isEkycHubWallet
@@ -842,7 +877,10 @@ const SuperAdmin = () => {
                       ? "BBPS Wallet"
                       : isA1TopupWallet
                         ? "A1 Topup Wallet"
-                        : `Rupaisa Pay Wallet ${i}`;
+                        : isPaynidiWallet
+                          ? "PayNidiPro"
+                          : `Rupaisa Pay Wallet ${i}`;
+
               const displayBalance = isAslWallet
                 ? alsOpeningBalance
                   ? `₹${parseFloat(alsOpeningBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
@@ -863,7 +901,11 @@ const SuperAdmin = () => {
                         ? a1TopupWalletBalance
                           ? `₹${parseFloat(a1TopupWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
                           : "₹0.00"
-                        : "₹0.00";
+                        : isPaynidiWallet
+                          ? paynidiWalletBalance
+                            ? `₹${parseFloat(paynidiWalletBalance).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+                            : "₹0.00"
+                          : "₹0.00";
 
               return (
                 <div
@@ -878,7 +920,8 @@ const SuperAdmin = () => {
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
                       (isBbpsWalletRefreshing && isBbpsWallet) ||
-                      (isA1TopupWalletRefreshing && isA1TopupWallet)
+                      (isA1TopupWalletRefreshing && isA1TopupWallet) ||
+                      (isPaynidiWalletRefreshing && isPaynidiWallet)
                       ? "Loading..."
                       : displayBalance}
                   </p>
@@ -961,6 +1004,21 @@ const SuperAdmin = () => {
                           .finally(() => {
                             setIsA1TopupWalletRefreshing(false);
                           });
+                      } else if (isPaynidiWallet) {
+                        setIsPaynidiWalletRefreshing(true);
+                        dispatch(getPaynidiWalletBalance())
+                          .then(() => {
+                            // The useEffect will update paynidiWalletBalance when response comes
+                          })
+                          .catch((error) => {
+                            console.error(
+                              "Failed to refresh Paynidi wallet:",
+                              error,
+                            );
+                          })
+                          .finally(() => {
+                            setIsPaynidiWalletRefreshing(false);
+                          });
                       }
                     }}
                     disabled={
@@ -968,14 +1026,16 @@ const SuperAdmin = () => {
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
                       (isBbpsWalletRefreshing && isBbpsWallet) ||
-                      (isA1TopupWalletRefreshing && isA1TopupWallet)
+                      (isA1TopupWalletRefreshing && isA1TopupWallet) ||
+                      (isPaynidiWalletRefreshing && isPaynidiWallet)
                     }
                   >
                     {(isAslWalletRefreshing && isAslWallet) ||
                       (isEkycHubRefreshing && isEkycHubWallet) ||
                       (isInspayWalletRefreshing && isInspayWallet) ||
                       (isBbpsWalletRefreshing && isBbpsWallet) ||
-                      (isA1TopupWalletRefreshing && isA1TopupWallet)
+                      (isA1TopupWalletRefreshing && isA1TopupWallet) ||
+                      (isPaynidiWalletRefreshing && isPaynidiWallet)
                       ? "Loading..."
                       : "Refresh"}
                   </button>
