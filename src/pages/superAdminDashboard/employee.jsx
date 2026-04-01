@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaSearch, FaPlus } from "react-icons/fa";
+import { FaSearch, FaPlus, FaRedo } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { createEmployee } from "../../redux/action/whiteLabelAction";
+import { createEmployee, useList, ResendEmployeeLoginAccess } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
 
 const tableHeaders = [
@@ -16,48 +16,50 @@ const tableHeaders = [
   "Email Id",
   "Active",
   "Date",
-];
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_DATA = [
-  { id: 1, date: "13-10-25", name: "Ruchi Sharma", userRole: "Customer Support", mobileNo: "9355547710", emailId: "ruchi.sharma@company.in", status: "active" },
-  { id: 2, date: "13-10-25", name: "Arjun Mehta", userRole: "Admin", mobileNo: "9812345678", emailId: "arjun.mehta@company.in", status: "active" },
-  { id: 3, date: "12-10-25", name: "Priya Nair", userRole: "Sales Executive", mobileNo: "9701234567", emailId: "priya.nair@company.in", status: "inactive" },
-  { id: 4, date: "12-10-25", name: "Karan Joshi", userRole: "Customer Support", mobileNo: "9645678901", emailId: "karan.joshi@company.in", status: "active" },
-  { id: 5, date: "11-10-25", name: "Sneha Iyer", userRole: "HR Manager", mobileNo: "9534567890", emailId: "sneha.iyer@company.in", status: "active" },
-  { id: 6, date: "11-10-25", name: "Rohan Gupta", userRole: "Finance Analyst", mobileNo: "9423456789", emailId: "rohan.gupta@company.in", status: "inactive" },
-  { id: 7, date: "10-10-25", name: "Ananya Singh", userRole: "Customer Support", mobileNo: "9312345678", emailId: "ananya.singh@company.in", status: "active" },
-  { id: 8, date: "10-10-25", name: "Vikram Patel", userRole: "Team Lead", mobileNo: "9201234567", emailId: "vikram.patel@company.in", status: "active" },
-  { id: 9, date: "09-10-25", name: "Deepika Rao", userRole: "Sales Executive", mobileNo: "9098765432", emailId: "deepika.rao@company.in", status: "inactive" },
-  { id: 10, date: "09-10-25", name: "Amit Verma", userRole: "Admin", mobileNo: "8987654321", emailId: "amit.verma@company.in", status: "active" },
-  { id: 11, date: "08-10-25", name: "Neha Kulkarni", userRole: "HR Manager", mobileNo: "8876543210", emailId: "neha.kulkarni@company.in", status: "active" },
-  { id: 12, date: "08-10-25", name: "Siddharth Bose", userRole: "Finance Analyst", mobileNo: "8765432109", emailId: "siddharth.bose@company.in", status: "active" },
-  { id: 13, date: "07-10-25", name: "Pooja Desai", userRole: "Customer Support", mobileNo: "8654321098", emailId: "pooja.desai@company.in", status: "inactive" },
-  { id: 14, date: "07-10-25", name: "Rahul Tiwari", userRole: "Team Lead", mobileNo: "8543210987", emailId: "rahul.tiwari@company.in", status: "active" },
-  { id: 15, date: "06-10-25", name: "Meera Pillai", userRole: "Sales Executive", mobileNo: "8432109876", emailId: "meera.pillai@company.in", status: "active" },
-  { id: 16, date: "06-10-25", name: "Suresh Nanda", userRole: "Admin", mobileNo: "8321098765", emailId: "suresh.nanda@company.in", status: "inactive" },
-  { id: 17, date: "05-10-25", name: "Kavya Reddy", userRole: "Customer Support", mobileNo: "8210987654", emailId: "kavya.reddy@company.in", status: "active" },
-  { id: 18, date: "05-10-25", name: "Manish Chauhan", userRole: "HR Manager", mobileNo: "8109876543", emailId: "manish.chauhan@company.in", status: "active" },
-  { id: 19, date: "04-10-25", name: "Divya Shetty", userRole: "Finance Analyst", mobileNo: "7998765432", emailId: "divya.shetty@company.in", status: "active" },
-  { id: 20, date: "04-10-25", name: "Nikhil Aggarwal", userRole: "Team Lead", mobileNo: "7887654321", emailId: "nikhil.aggarwal@company.in", status: "inactive" },
+  "Login Access"
 ];
 
 const PAGE_SIZE = 10;
 
 // ── Standalone component (self-contained with local state) ──────────────────
-const Employee = () => {
+const Employee = ({ embedded = false, tableData = null, isLoading = false }) => {
   const [fromDate, setFromDate] = useState("");
   const [toDate, setToDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [data, setData] = useState(DUMMY_DATA);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingLocal, setIsLoadingLocal] = useState(true);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const dispatch = useDispatch();
-  const { EmployeeAdd, Success, message } = useSelector((state) => state.whitelabel);
+  const { EmployeeAdd, Success, message, whitelabelList, resendAccess } = useSelector((state) => state.whitelabel);
   const { isLoading: loading } = useSelector((state) => state.loading);
   const { success: notifySuccess, error: notifyError } = useNotification();
+
+  // Extract total pages and current data from whitelabelList (API response)
+  const apiData = whitelabelList?.whitelabelList?.data || whitelabelList?.whitelabelList || [];
+  const totalItems = whitelabelList?.whitelabelList?.totalCount || whitelabelList?.whitelabelList?.total || apiData.length;
+  const totalPages = Math.ceil(totalItems / PAGE_SIZE) || 1;
+
+  // Function to fetch employee list
+  const fetchEmployees = useCallback(() => {
+    const payload = {
+      query: { userRole: 6 },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: PAGE_SIZE
+      },
+      customSearch: searchTerm ? { name: searchTerm } : {}
+    };
+    dispatch(useList(payload));
+  }, [dispatch, currentPage, searchTerm]);
+
+  // Fetch on mount and when dependencies change (only if not embedded with external data)
+  useEffect(() => {
+    if (!embedded || !tableData) {
+      fetchEmployees();
+    }
+  }, [fetchEmployees, embedded, tableData]);
 
   const validationSchema = Yup.object().shape({
     userName: Yup.string()
@@ -100,20 +102,33 @@ const Employee = () => {
         notifySuccess({ message: message || "Employee Created Successfully", isCritical: true });
         setIsAddModalOpen(false);
         formik.resetForm();
+        fetchEmployees(); // Refresh list after adding
       } else if (Success === "FAILURE") {
         notifyError({ message: message || "Failed to Create Employee", isCritical: true });
       }
     }
-  }, [Success, EmployeeAdd, isAddModalOpen, message]);
+  }, [Success, EmployeeAdd, isAddModalOpen, message, fetchEmployees]);
 
-  // Simulate loading data
+  // Watch for resend access feedback
   useEffect(() => {
-    setIsLoading(true);
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+    if (resendAccess) {
+      if (Success === "SUCCESS") {
+        notifySuccess({ message: message || "Login access resent successfully", isCritical: true });
+        // Optional: refresh list if needed
+      } else if (Success === "FAILURE") {
+        notifyError({ message: message || "Failed to resend login access", isCritical: true });
+      }
+    }
+  }, [Success, resendAccess, message]);
+
+  // Handle local loading state for smoother UI
+  useEffect(() => {
+    if (embedded) {
+      setIsLoadingLocal(isLoading);
+    } else {
+      setIsLoadingLocal(loading);
+    }
+  }, [loading, isLoading, embedded]);
 
   // Loader component for table body
   const TableBodyLoader = ({ colSpan }) => (
@@ -126,31 +141,17 @@ const Employee = () => {
     </tr>
   );
 
-  // Filter logic
-  const filtered = data.filter((row) => {
-    const term = searchTerm.toLowerCase();
-    const matchSearch =
-      !term ||
-      row.name.toLowerCase().includes(term) ||
-      row.mobileNo.includes(term) ||
-      row.emailId.toLowerCase().includes(term) ||
-      row.userRole.toLowerCase().includes(term);
-
-    return matchSearch;
-  });
-
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
-  const safePage = Math.min(currentPage, totalPages);
-  const currentTableData = filtered.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE);
+  // Filter logic handled by API, using search locally for immediate feedback if needed
+  const currentTableData = embedded && tableData ? tableData : apiData;
 
   const handleToggle = (id) => {
-    setData((prev) =>
-      prev.map((row) =>
-        row.id === id
-          ? { ...row, status: row.status === "active" ? "inactive" : "active" }
-          : row
-      )
-    );
+    // setData((prev) =>
+    //   prev.map((row) =>
+    //     row.id === id
+    //       ? { ...row, status: row.status === "active" ? "inactive" : "active" }
+    //       : row
+    //   )
+    // );
   };
 
   return (
@@ -223,7 +224,7 @@ const Employee = () => {
           </thead>
 
           <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
-            {isLoading ? (
+            {isLoadingLocal ? (
               <TableBodyLoader colSpan={tableHeaders.length} />
             ) : currentTableData.length === 0 ? (
               <tr>
@@ -233,7 +234,7 @@ const Employee = () => {
               </tr>
             ) : (
               currentTableData.map((row, index) => {
-                const isActive = row.status === "active";
+                const isActive = row.status === "Active" || row.status === "active";
                 return (
                   <tr
                     key={row.id}
@@ -241,7 +242,7 @@ const Employee = () => {
                   >
                     {/* SR No */}
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                      {(safePage - 1) * PAGE_SIZE + index + 1}
+                      {(currentPage - 1) * PAGE_SIZE + index + 1}
                     </td>
 
                     {/* User Name */}
@@ -258,7 +259,7 @@ const Employee = () => {
                     </td>
                     {/* Email Id */}
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                      {row.emailId}
+                      {row.email}
                     </td>
                     {/* Active Toggle */}
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
@@ -277,7 +278,16 @@ const Employee = () => {
                     </td>
                     {/* Date */}
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
-                      {row.date}
+                      {row.date ? new Date(row.date).toLocaleDateString() : "N/A"}
+                    </td>
+                    <td className="px-4 py-4">
+                      <button
+                        onClick={() => dispatch(ResendEmployeeLoginAccess(row.id))}
+                        className="group flex items-center justify-center gap-2 border border-green-500 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white px-5 py-2.5 rounded-xl font-[Gilroy-Semibold] transition-all duration-300 active:scale-95 text-sm"
+                      >
+                        <FaRedo className="text-[10px] group-hover:rotate-180 transition-transform duration-500" />
+                        <span>Resend</span>
+                      </button>
                     </td>
                   </tr>
                 );
@@ -290,9 +300,9 @@ const Employee = () => {
       {/* Pagination */}
       <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
         <button
-          onClick={() => setCurrentPage(Math.max(1, safePage - 1))}
-          disabled={safePage === 1 || totalPages === 0}
-          className={`p-2 border border-gray-300 rounded-lg ${safePage === 1 || totalPages === 0
+          onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+          disabled={currentPage === 1 || totalPages === 0}
+          className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
             ? "text-gray-400 cursor-not-allowed bg-gray-100"
             : "text-gray-500 hover:bg-gray-100"
             }`}
@@ -305,7 +315,7 @@ const Employee = () => {
             <button
               key={page}
               onClick={() => setCurrentPage(page)}
-              className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === safePage
+              className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
                 ? "bg-green-600 text-white"
                 : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                 }`}
@@ -320,9 +330,9 @@ const Employee = () => {
         )}
 
         <button
-          onClick={() => setCurrentPage(Math.min(totalPages, safePage + 1))}
-          disabled={safePage === totalPages || totalPages === 0}
-          className={`p-2 border border-gray-300 rounded-lg ${safePage === totalPages || totalPages === 0
+          onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
+          disabled={currentPage === totalPages || totalPages === 0}
+          className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
             ? "text-gray-400 cursor-not-allowed bg-gray-100"
             : "text-gray-500 hover:bg-gray-100"
             }`}

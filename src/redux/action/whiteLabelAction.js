@@ -47,6 +47,8 @@ import {
   REVERT_USER_KYC_DETAILS_FAILURE,
   CREATE_EMPLOYEE_SUCCESS,
   CREATE_EMPLOYEE_FAILURE,
+  RESND_LOGIN_ACCESS_SUCCESS,
+  RESND_LOGIN_ACCESS_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -1072,6 +1074,48 @@ export const createEmployee = (values) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: CREATE_EMPLOYEE_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const ResendEmployeeLoginAccess = (id) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/employee/resend/${id}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: resendAccess, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: RESND_LOGIN_ACCESS_SUCCESS,
+        payload: { resendAccess, message, status },
+      });
+    } else {
+      dispatch({
+        type: RESND_LOGIN_ACCESS_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: RESND_LOGIN_ACCESS_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
