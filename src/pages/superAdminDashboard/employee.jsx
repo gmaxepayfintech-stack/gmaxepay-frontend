@@ -1,11 +1,11 @@
 import { useState, useEffect, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { FaSearch, FaPlus, FaRedo } from "react-icons/fa";
+import { FaSearch, FaPlus } from "react-icons/fa";
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { useFormik } from "formik";
 import * as Yup from "yup";
 import { ButtonLoader } from "../../widgets/layout/loader";
-import { createEmployee, useList, ResendEmployeeLoginAccess } from "../../redux/action/whiteLabelAction";
+import { createEmployee, useList, ResendEmployeeLoginAccess, kycUnlock } from "../../redux/action/whiteLabelAction";
 import { useNotification } from "../../context/NotificationContext";
 
 const tableHeaders = [
@@ -15,6 +15,7 @@ const tableHeaders = [
   "Mobile Number",
   "Email Id",
   "Active",
+  "Lock Status",
   "Date",
   "Login Access"
 ];
@@ -280,12 +281,42 @@ const Employee = ({ embedded = false, tableData = null, isLoading = false }) => 
                     <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                       {row.date ? new Date(row.date).toLocaleDateString() : "N/A"}
                     </td>
+
+                    {/* Lock Status */}
+                    <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Medium] text-[14px]">
+                      {(() => {
+                        const userId = row.id || row.originalItem?.id;
+                        const isLocked =
+                          row?.originalItem?.lock === true ||
+                          row?.originalItem?.lock === "true";
+                        return (
+                          <button
+                            onClick={() => {
+                              if (userId && isLocked) {
+                                dispatch(kycUnlock(userId));
+                              }
+                            }}
+                            disabled={!isLocked}
+                            className={`px-4 py-2 rounded-lg text-xs font-[Gilroy-Semibold] transition-colors ${isLocked
+                              ? "bg-red-500 text-white hover:bg-red-600 cursor-pointer"
+                              : "bg-green-500 text-white cursor-not-allowed opacity-75"
+                              }`}
+                            title={
+                              isLocked
+                                ? "Click to enable access for this account"
+                                : "Account access is enabled"
+                            }
+                          >
+                            {isLocked ? "Enable Access" : "Access Enabled"}
+                          </button>
+                        );
+                      })()}
+                    </td>
                     <td className="px-4 py-4">
                       <button
                         onClick={() => dispatch(ResendEmployeeLoginAccess(row.id))}
                         className="group flex items-center justify-center gap-2 border border-green-500 bg-green-50 text-green-600 hover:bg-green-600 hover:text-white px-5 py-2.5 rounded-xl font-[Gilroy-Semibold] transition-all duration-300 active:scale-95 text-sm"
                       >
-                        <FaRedo className="text-[10px] group-hover:rotate-180 transition-transform duration-500" />
                         <span>Resend</span>
                       </button>
                     </td>
