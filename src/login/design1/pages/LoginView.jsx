@@ -22,7 +22,8 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
   const [showPassword, setShowPassword] = useState(false);
   const isLoading = useSelector((state) => state?.loading?.isLoading);
   const currentDomain = window.location.hostname;
-  const shouldHideSignUp = currentDomain === "app.gmaxepay.in" || currentDomain === "app.gmaxepay.com";
+  const isSupportSubdomain = currentDomain.startsWith("support.");
+  const shouldHideSignUp = currentDomain === "app.gmaxepay.in" || currentDomain === "app.gmaxepay.com" || isSupportSubdomain;
 
   return (
     <div className="flex-1 flex items-center justify-center bg-white px-3 sm:px-6 md:px-12 lg:px-16 xl:px-20 py-3 sm:py-5 md:py-4 lg:py-0 overflow-y-auto min-h-screen">
@@ -215,21 +216,23 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                 </div>
               </div>
 
-              <div className="flex justify-end mt-4 sm:mt-5 md:mt-6 mb-4 sm:mb-6 md:mb-6 lg:mb-10">
-                <button
-                  type="button"
-                  onClick={onForgotPassword}
-                  className="text-1B1717 hover:text-1B1717 transition-colors"
-                  style={{
-                    fontFamily: "Gilroy-SemiBold",
-                    fontWeight: 400,
-                    fontSize: "14px",
-                    lineHeight: "100%",
-                  }}
-                >
-                  Forgot Password?
-                </button>
-              </div>
+              {!isSupportSubdomain && (
+                <div className="flex justify-end mt-4 sm:mt-5 md:mt-6 mb-4 sm:mb-6 md:mb-6 lg:mb-10">
+                  <button
+                    type="button"
+                    onClick={onForgotPassword}
+                    className="text-1B1717 hover:text-1B1717 transition-colors"
+                    style={{
+                      fontFamily: "Gilroy-SemiBold",
+                      fontWeight: 400,
+                      fontSize: "14px",
+                      lineHeight: "100%",
+                    }}
+                  >
+                    Forgot Password?
+                  </button>
+                </div>
+              )}
 
               <div className="w-full flex justify-center">
                 <button
@@ -285,51 +288,53 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
           )}
         </Formik>
 
-        <div className="mt-3 sm:mt-4 md:mt-6">
-          <div className="flex items-center justify-center gap-2 sm:gap-3 px-2">
-            <img
-              src="/img/Chat.png"
-              alt="Email"
-              className="object-contain w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
-            />
-            <span
-              className="text-center break-all"
-              style={{
-                fontFamily: "Gilroy-Medium",
-                fontWeight: 400,
-                fontSize: "14px",
-                lineHeight: "100%",
-                color: "#1B1717",
-              }}
-            >
-              {company?.customerSupportEmail || "support@gmaxepay.com"}
-            </span>
-          </div>
+        {!isSupportSubdomain && (
+          <div className="mt-3 sm:mt-4 md:mt-6">
+            <div className="flex items-center justify-center gap-2 sm:gap-3 px-2">
+              <img
+                src="/img/Chat.png"
+                alt="Email"
+                className="object-contain w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+              />
+              <span
+                className="text-center break-all"
+                style={{
+                  fontFamily: "Gilroy-Medium",
+                  fontWeight: 400,
+                  fontSize: "14px",
+                  lineHeight: "100%",
+                  color: "#1B1717",
+                }}
+              >
+                {company?.customerSupportEmail || "support@gmaxepay.com"}
+              </span>
+            </div>
 
-          <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 px-2">
-            <img
-              src="/img/PhoneOutgoing.png"
-              alt="Phone"
-              className="object-contain w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
-            />
-            <span
-              className="text-center break-words"
-              style={{
-                fontFamily: "Gilroy-Medium",
-                fontWeight: 400,
-                fontSize: "14px",
-                lineHeight: "100%",
-                color: "#1B1717",
-              }}
-            >
-              {company?.supportPhoneNumbers &&
-                Array.isArray(company.supportPhoneNumbers) &&
-                company.supportPhoneNumbers.length > 0
-                ? `91- ${company.supportPhoneNumbers.join(", ")}`
-                : "91- 08062179126, 8088651844"}
-            </span>
+            <div className="flex items-center justify-center gap-2 sm:gap-3 mt-2 sm:mt-3 px-2">
+              <img
+                src="/img/PhoneOutgoing.png"
+                alt="Phone"
+                className="object-contain w-5 h-5 sm:w-6 sm:h-6 flex-shrink-0"
+              />
+              <span
+                className="text-center break-words"
+                style={{
+                  fontFamily: "Gilroy-Medium",
+                  fontWeight: 400,
+                  fontSize: "14px",
+                  lineHeight: "100%",
+                  color: "#1B1717",
+                }}
+              >
+                {company?.supportPhoneNumbers &&
+                  Array.isArray(company.supportPhoneNumbers) &&
+                  company.supportPhoneNumbers.length > 0
+                  ? `91- ${company.supportPhoneNumbers.join(", ")}`
+                  : "91- 08062179126, 8088651844"}
+              </span>
+            </div>
           </div>
-        </div>
+        )}
 
         {!shouldHideSignUp && (
           <div className="mt-3 sm:mt-4 md:mt-6 flex justify-center px-2">
