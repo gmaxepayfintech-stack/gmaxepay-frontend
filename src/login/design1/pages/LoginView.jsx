@@ -143,7 +143,7 @@ const LoginView = ({ onSubmit, onForgotPassword, onSignUp = () => { } }) => {
                 </div>
               </div>
 
-              <div>
+              <div className={isSupportSubdomain ? "mb-6 sm:mb-8 md:mb-10" : ""}>
                 <label
                   htmlFor="password"
                   className="block text-gray-700 mb-1.5 sm:mb-2 md:mb-2"
