@@ -998,7 +998,7 @@ const SuperAdmin = () => {
                 label: "Employee",
                 tabName: "Employee",
                 roleNumber: 6,
-                disabled: true,
+                //disabled: true,
               },
               {
                 type: "icon",
