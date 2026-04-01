@@ -20,7 +20,7 @@ import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 import { getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import * as XLSX from "xlsx";
 
-const AepsCWHistory = ({ onBack, type }) => {
+const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -28,12 +28,13 @@ const AepsCWHistory = ({ onBack, type }) => {
   const [toDate, setToDate] = useState("");
   const [showTransactionDetails, setShowTransactionDetails] = useState(false);
   const [selectedTransactionId, setSelectedTransactionId] = useState(null);
+  const [selectedTransactionData, setSelectedTransactionData] = useState(null);
+  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] =
-    useState(false);
+
 
   // Determine whether this is AEPS2 history based on type
   const isAeps2 =
@@ -55,12 +56,9 @@ const AepsCWHistory = ({ onBack, type }) => {
   const paginator = aepsHistoryResponse?.paginator || {};
   const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector((state) => {
-    if (isAeps2) {
-      return state?.aepsTwo?.aeps2CwHistoryTransactionDetails;
-    }
-    return state?.aeps?.transactionDetails;
-  });
+  const transactionDetailsResponse = useSelector(
+    (state) => state?.aeps?.transactionDetails,
+  );
 
   // Transform API response data to table format
   const transformApiData = (dataArray) => {
@@ -82,107 +80,77 @@ const AepsCWHistory = ({ onBack, type }) => {
           .replace(/\//g, "-");
       }
 
-      // --- Amount ---
-      // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
-      const rawAmount = item.transactionAmount ?? item.amount ?? 0;
-      let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+      // Determine if this is AEPS 1 response structure from reports
+      const isAeps1New = !!item.transactionStatus;
 
-      const txnType = item.transactionType || aepsTxnType;
+      // --- Amount ---
+      const amountValue = isAeps1New ? (item.transactionAmount || 0) : (item.amount || 0);
+      let formattedAmount = `₹${amountValue}`;
+
+      const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
         formattedAmount = "₹0";
       }
 
       // --- Status ---
-      // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
-      //         `status` field is a boolean (true/false) on AEPS2 — NOT the display status
-      // AEPS1: `status` = "SUCCESS"/"FAILED" string
-      const getStatusDisplay = (rawStatus) => {
-        if (rawStatus === null || rawStatus === undefined) return "Pending";
-        const s = String(rawStatus).toUpperCase();
-        if (s === "SUCCESS" || s === "SUCCESSFUL") return "Success";
-        if (s === "FAILED" || s === "FAILURE") return "Failed";
-        // Handle boolean true/false (AEPS1 older responses)
-        if (rawStatus === true) return "Success";
-        if (rawStatus === false) return "Failed";
+      const getStatusDisplay = (statusVal) => {
+        if (!statusVal) return "Pending";
+        const s = String(statusVal).toUpperCase();
+        if (s === "SUCCESS" || s === "SUCCESSFUL" || s === "TRUE") return "Success";
+        if (s === "FAILED" || s === "FAILURE" || s === "FALSE") return "Failed";
         return "Pending";
       };
 
-      // Prefer transactionStatus (e.g. "successful") → paymentStatus (e.g. "SUCCESS") → status
-      const statusValue =
-        item.transactionStatus ?? item.paymentStatus ?? item.status;
+      const statusValue = isAeps1New ? item.transactionStatus : item.status;
 
-      // --- VIA / Capture type ---
-      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeUpper = String(captureType).toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return String(captureType);
+      // --- VIA / Capture Type ---
+      const getViaDisplay = (peripheral, device, captureType) => {
+        const val = peripheral || device || captureType || "APP";
+        const valUpper = String(val).toUpperCase();
+        if (valUpper.includes("FINGER")) return "FINGER";
+        if (valUpper.includes("IRIS")) return "IRIS";
+        return valUpper;
       };
 
-      const captureType = item.captureType || item.device || null;
-
-      // Map user role number to text
-      const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        // If it's already a string, return as is
-        return userRole || "N/A";
-      };
-
-      // Extract user details from item
+      // --- User Details ---
       const userDetails = item.userDetails || {};
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        item.merchantLoginId ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
-      const profileImage = userDetails.profileImage || null;
+      const userName = item.name || userDetails.name || "N/A";
+      const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
 
-      // Mobile: prefer userDetails.mobileNo, then top-level fields
-      // AEPS2 also has `mobileNumber` directly on the item
-      const mobileNo =
-        userDetails.mobileNo ||
-        item.mobileNo ||
-        item.mobileNumber ||
-        item.mobile ||
-        "N/A";
-
-      // Consumer number: Aadhaar for AEPS2
-      const consumerNumber =
-        item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+      // --- Commissions (Super Admin shows all) ---
+      const saComm = item.superadminComm || 0;
+      const saCommTDS = item.superadminCommTDS || 0;
+      const wlComm = item.whitelabelComm || 0;
+      const mdComm = item.masterDistributorCom || 0;
+      const distComm = item.distributorCom || 0;
+      const retComm = item.retailerCom || 0;
 
       return {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
-        userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
+        userRole:
+          item.userRole === 5 ? "Retailer" :
+          item.userRole === 4 ? "Distributor" :
+          item.userRole === 3 ? "Master Distributor" :
+          item.userRole === 2 ? "White Label" :
+          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
         mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
-        companyName: item.companyName || "N/A",
-        companyLogo: item.companyLogo || null,
-        // AEPS2 has `bankName` directly; AEPS1 may use bankiin
-        bankName: item.bankName || item.bankIin || item.bankiin || "N/A",
+        consumerNumber: aadhaar,
+        companyId: item.companyId ?? "N/A",
+        companyName: item.companyName || item.operator || "N/A",
+        merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
+        bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
+        refID: item.merchantReferenceId || item.refId || "N/A",
         bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(captureType),
+        via: getViaDisplay(item.peripheral, item.device, item.captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
-        originalItem: item, // Store full item for details
+        commDisplay: `SA: ₹${saComm} | WL: ₹${wlComm} | MD: ₹${mdComm} | DT: ₹${distComm} | RT: ₹${retComm}`,
+        originalItem: item,
       };
     });
   };
@@ -235,7 +203,7 @@ const AepsCWHistory = ({ onBack, type }) => {
   }, [searchQuery]);
 
   // Determine AEPS transaction type (CW, MS, BE) based on view type
-  const aepsTxnType = (() => {
+  const transactionType = (() => {
     if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
     if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
     return "CW"; // default
@@ -252,7 +220,7 @@ const AepsCWHistory = ({ onBack, type }) => {
       return;
     }
 
-    const query = isAeps2 ? { transactionType: aepsTxnType } : { aepsTxnType };
+    const query = isAeps2 ? { transactionType: transactionType } : { transactionType };
 
     // Add date filters only if both dates are selected
     if (fromDate && toDate) {
@@ -298,7 +266,7 @@ const AepsCWHistory = ({ onBack, type }) => {
     debouncedSearchQuery,
     fromDate,
     toDate,
-    aepsTxnType,
+    transactionType,
     isAeps2,
     statusFilter,
   ]);
@@ -382,14 +350,16 @@ const AepsCWHistory = ({ onBack, type }) => {
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle profile click - fetch transaction details first
-  const handleProfileClick = (transactionId) => {
+  // Handle profile click - hit API for both AEPS1 and AEPS2
+  const handleProfileClick = (transaction) => {
+    if (!transaction) return;
+
+    const transactionId = transaction.id;
     if (!transactionId || isLoadingTransactionDetails) return;
 
     setIsLoadingTransactionDetails(true);
     setSelectedTransactionId(transactionId);
 
-    // Dispatch action to fetch transaction details
     if (isAeps2) {
       dispatch(getAeps2TransactionDetails(transactionId));
     } else {
@@ -397,29 +367,32 @@ const AepsCWHistory = ({ onBack, type }) => {
     }
   };
 
-  // Show loading overlay when fetching transaction details
-  if (isLoadingTransactionDetails && selectedTransactionId) {
-    return (
-      <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
-        <div className="flex flex-col items-center gap-4">
-          <ButtonLoader color="#039155" size={40} thickness={4} />
-          <p className="text-base sm:text-lg font-['Gilroy-Medium'] text-[#1B1717]">
-            Loading transaction details...
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Watch for transaction details to be loaded (both AEPS1 & AEPS2 now via API)
+  useEffect(() => {
+    if (selectedTransactionId && isLoadingTransactionDetails) {
+      if (!isLoading) {
+        const timer = setTimeout(() => {
+          setIsLoadingTransactionDetails(false);
+          setShowTransactionDetails(true);
+        }, 100);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
   // If TransactionDetails should be shown, render it
   if (showTransactionDetails) {
+    if (!transactionDetailsResponse) return null;
+
     return (
       <TransactioDetails
+        transactionId={selectedTransactionId}
         transactionData={transactionDetailsResponse}
         isAeps2={isAeps2}
         onBack={() => {
           setShowTransactionDetails(false);
           setSelectedTransactionId(null);
+          setSelectedTransactionData(null);
           setIsLoadingTransactionDetails(false);
         }}
       />
@@ -473,8 +446,8 @@ const AepsCWHistory = ({ onBack, type }) => {
                 setIsReloading(true);
 
                 const query = isAeps2
-                  ? { transactionType: aepsTxnType }
-                  : { aepsTxnType };
+                  ? { transactionType: transactionType }
+                  : { transactionType };
                 const customSearch = debouncedSearchQuery.trim()
                   ? getSearchField(debouncedSearchQuery)
                   : {};
@@ -659,9 +632,8 @@ const AepsCWHistory = ({ onBack, type }) => {
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
-                            onClick={() => handleProfileClick(transaction.id)}
+                            onClick={() => handleProfileClick(transaction)}
                             className="flex items-center cursor-pointer hover:opacity-80 transition-opacity"
-                            disabled={isLoadingTransactionDetails}
                           >
                             <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden">
                               {transaction.profileImage ? (
@@ -864,11 +836,6 @@ const AepsCWHistory = ({ onBack, type }) => {
 AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
   type: PropTypes.string,
-};
-
-AepsCWHistory.defaultProps = {
-  onBack: null,
-  type: "aeps-cw-history",
 };
 
 export default AepsCWHistory;

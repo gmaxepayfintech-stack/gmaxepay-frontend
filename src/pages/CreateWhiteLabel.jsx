@@ -41,6 +41,7 @@ import {
   setSelectedUserRole,
 } from "../redux/action/userProfileAction";
 import { useLocation, useSearchParams } from "react-router-dom";
+import Employee from "./superAdminDashboard/employee";
 
 // Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
@@ -203,6 +204,8 @@ const CreateWhiteLabel = () => {
   // Map navigation to userRole numbers
   const getRoleNumber = (nav) => {
     switch (nav) {
+      case "Employee":
+        return 6;
       case "Retailers":
         return 5;
       case "Distributor":
@@ -645,6 +648,7 @@ const CreateWhiteLabel = () => {
 
       // Some components use mobile/email, others use mobileNumber/emailId
       if (
+        componentType === "employee" ||
         componentType === "masterDistribution" ||
         componentType === "distribution" ||
         componentType === "retailers"
@@ -701,6 +705,8 @@ const CreateWhiteLabel = () => {
       componentType = "distribution";
     } else if (activeNav === "Retailers" && !showOnboardingList) {
       componentType = "retailers";
+    } else if (activeNav === "Employee" && !showOnboardingList) {
+      componentType = "employee";
     }
 
     // Transform the actual API data
@@ -804,6 +810,7 @@ const CreateWhiteLabel = () => {
                 "Master Distributor",
                 "Distributor",
                 "Retailers",
+                "Employee",
               ].map((item) => (
                 <button
                   key={item}
@@ -846,26 +853,28 @@ const CreateWhiteLabel = () => {
         </div>
 
         {/* Top Buttons */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <button
-            onClick={() => setShowOnboardingList(false)}
-            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
-              ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              : "bg-[#039155] text-white"
-              }`}
-          >
-            All List
-          </button>
-          <button
-            onClick={() => setShowOnboardingList(true)}
-            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
-              ? "bg-[#039155] text-white shadow-md"
-              : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-              }`}
-          >
-            Onboarding Process
-          </button>
-        </div>
+        {activeNav !== "Employee" && (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <button
+              onClick={() => setShowOnboardingList(false)}
+              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
+                ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                : "bg-[#039155] text-white"
+                }`}
+            >
+              All List
+            </button>
+            <button
+              onClick={() => setShowOnboardingList(true)}
+              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
+                ? "bg-[#039155] text-white shadow-md"
+                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+                }`}
+            >
+              Onboarding Process
+            </button>
+          </div>
+        )}
 
         {(() => {
           const apiData = getApiDataForComponents();
@@ -918,6 +927,15 @@ const CreateWhiteLabel = () => {
               />
             );
           }
+          if (activeNav === "Employee") {
+            return (
+              <Employee
+                embedded={true}
+                tableData={apiData}
+                isLoading={isTableLoading}
+              />
+            );
+          }
           return (
             <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
@@ -928,6 +946,7 @@ const CreateWhiteLabel = () => {
                     if (activeNav === "Master Distributor")
                       return "Master Distribution";
                     if (activeNav === "Distributor") return "Distributor";
+                    if (activeNav === "Employee") return "Employee";
                     return "Retailers";
                   })()}
                 </h2>

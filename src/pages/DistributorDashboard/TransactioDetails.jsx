@@ -4,7 +4,7 @@ import { FileText } from "lucide-react";
 import MainWalletStatement from "./MainWalletStatement";
 import { HiArrowLeft } from "react-icons/hi2";
 
-const TransactioDetails = ({ transactionData, onBack }) => {
+const TransactioDetails = ({ transactionData, onBack = null }) => {
   const [showMainWalletStatement, setShowMainWalletStatement] = useState(false);
   console.log("TransactioDetails received transactionData:", transactionData);
 
@@ -165,7 +165,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.name || "N/A"}
+                  {payload?.userDetails?.name || payload?.name || "N/A"}
                 </p>
               </div>
               <div>
@@ -173,8 +173,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Role
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.userRole
-                    ? getRoleName(payload.userDetails.userRole)
+                  {payload?.userDetails?.userRole || payload?.userRole
+                    ? getRoleName(payload?.userDetails?.userRole || payload?.userRole)
                     : "N/A"}
                 </p>
               </div>
@@ -183,7 +183,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Agent Code
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.userId || "N/A"}
+                  {payload?.userDetails?.userId || payload?.merchantCode || payload?.subMerchantCode || "N/A"}
                 </p>
               </div>
               <div>
@@ -191,7 +191,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   User Mobile
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.userDetails?.mobileNo || "N/A"}
+                  {payload?.userDetails?.mobileNo || payload?.mobileNumber || payload?.mobileNo || "N/A"}
                 </p>
               </div>
             </div>
@@ -271,7 +271,7 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Bank Name
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.bankName || "N/A"}
+                  {payload?.transactionDetails?.bankName || payload?.bankName || "N/A"}
                 </p>
               </div>
               <div>
@@ -279,8 +279,10 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Aadhar Number
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.aadharNumber
-                    ? `${payload.transactionDetails.aadharNumber.slice(0, 4)} ${payload.transactionDetails.aadharNumber.slice(4, 8)} ${payload.transactionDetails.aadharNumber.slice(8, 12)} ****`
+                  {payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber
+                    ? String(payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber).replace(/\s/g, "").length === 12
+                      ? `${String(payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber).slice(0, 4)} ${String(payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber).slice(4, 8)} ${String(payload?.transactionDetails?.aadharNumber || payload?.aadhaarLastFour || payload?.consumerNumber).slice(8, 12)}`
+                      : payload?.aadhaarLastFour || payload?.consumerNumber || payload?.transactionDetails?.aadharNumber
                     : "N/A"}
                 </p>
               </div>
@@ -289,19 +291,19 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Amount
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.amount !== undefined && payload?.transactionDetails?.amount !== null
-                    ? `₹${parseFloat(payload.transactionDetails.amount).toFixed(2)}`
+                  {payload?.transactionDetails?.amount || payload?.transactionAmount || payload?.amount
+                    ? `₹${parseFloat(payload?.transactionDetails?.amount || payload?.transactionAmount || payload?.amount).toFixed(2)}`
                     : "N/A"}
                 </p>
               </div>
 
-              {payload?.transactionDetails?.balanceAmount !== undefined && payload?.transactionDetails?.balanceAmount !== "N/A" && payload?.transactionDetails?.balanceAmount !== null && (
+              {(payload?.transactionDetails?.balanceAmount || payload?.accountBalance) && (payload?.transactionDetails?.balanceAmount !== "N/A" || payload?.accountBalance !== "N/A") && (
                 <div>
                   <p className="text-xs sm:text-sm text-[#1B1717]/80 font-[Gilroy-Medium] mb-1">
                     Balance Amount
                   </p>
                   <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                    ₹{parseFloat(payload.transactionDetails.balanceAmount).toFixed(2)}
+                    ₹{parseFloat(payload?.transactionDetails?.balanceAmount || payload?.accountBalance || 0).toFixed(2)}
                   </p>
                 </div>
               )}
@@ -311,7 +313,8 @@ const TransactioDetails = ({ transactionData, onBack }) => {
                   Commission
                 </p>
                 <p className="text-sm sm:text-base font-['Gilroy-Semibold'] text-[#1B1717]">
-                  {payload?.transactionDetails?.commission !== undefined && payload?.transactionDetails?.commission !== null
+                  {payload?.transactionDetails?.commission !== undefined &&
+                  payload?.transactionDetails?.commission !== null
                     ? `₹${parseFloat(payload.transactionDetails.commission).toFixed(2)}`
                     : "N/A"}
                 </p>
@@ -449,10 +452,6 @@ const TransactioDetails = ({ transactionData, onBack }) => {
 TransactioDetails.propTypes = {
   transactionData: PropTypes.object.isRequired,
   onBack: PropTypes.func,
-};
-
-TransactioDetails.defaultProps = {
-  onBack: null,
 };
 
 export default TransactioDetails;

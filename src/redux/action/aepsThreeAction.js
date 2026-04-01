@@ -471,14 +471,53 @@ export const aepsThreeFAVerification = (values) => async (dispatch, getState) =>
   }
 };
 
-export const aepsThreeCashWithdrawl = (values) => async (dispatch) => {
+export const aepsThreeCashWithdrawl = (values) => async (dispatch, getState) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const { userProfile } = getState();
+    const deviceMobile = userProfile?.profile?.mobileNo || userProfile?.mobileNo || "";
+    const locationInfo = await getLocationAndIP();
+
+    const getDeviceOS = () => {
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (ua.includes("win")) return "WINDOWS";
+      if (ua.includes("mac")) return "MAC";
+      if (ua.includes("linux")) return "LINUX";
+      if (ua.includes("android")) return "ANDROID";
+      if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ios")) return "IOS";
+      return "UNKNOWN";
+    };
+
+    const base64Pid = values.txtPidData || values.pid_data || values.pid || "";
+
+    const payload = {
+      aadhaar_number: values.aadhaarNumber || values.aadhaar_number || "",
+      pid_data: base64Pid,
+      pid_type: 1,
+      amount: Number(values.transactionAmount || values.amount || 0),
+      bank_iin: values.bankIIN || values.bank_iin || "",
+      mobile_number: values.customerNumber || values.mobileNumber || values.mobile_number || "",
+      bank_name: values.bankName || values.bank_name || "BANK LIMITED",
+      device_serial: values.device_serial || "DEVICE-SN-001",
+      latitude: Number(values.latitude || locationInfo?.location?.latitude || 0),
+      longitude: Number(values.longitude || locationInfo?.location?.longitude || 0),
+      ipAddress: values.ipAddress || locationInfo?.ipAddress || "192.168.1.1",
+      device_type: "WEB",
+      device_os: getDeviceOS(),
+      app_id: window.location.hostname,
+      sdk_version: "1.2.0",
+      device_mobile: deviceMobile ? String(deviceMobile) : String(values.customerNumber || values.mobileNumber || ""),
+      user_agent: window.navigator.userAgent,
+      device_model: "WEB_BROWSER",
+      model_id: "",
+      peripheral: "BIOMETRIC_FINGERPRINT"
+    };
+
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/cash-withdrawal`,
-      values,
+      `${API_ROUTE}/api/v1/user/aeps3/cash-withdrawal`,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -521,14 +560,52 @@ export const aepsThreeCashWithdrawl = (values) => async (dispatch) => {
   }
 };
 
-export const aepsThreeBalanceEnquiry = (values) => async (dispatch) => {
+export const aepsThreeBalanceEnquiry = (values) => async (dispatch, getState) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const { userProfile } = getState();
+    const deviceMobile = userProfile?.profile?.mobileNo || userProfile?.mobileNo || "";
+    const locationInfo = await getLocationAndIP();
+
+    const getDeviceOS = () => {
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (ua.includes("win")) return "WINDOWS";
+      if (ua.includes("mac")) return "MAC";
+      if (ua.includes("linux")) return "LINUX";
+      if (ua.includes("android")) return "ANDROID";
+      if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ios")) return "IOS";
+      return "UNKNOWN";
+    };
+
+    const base64Pid = values.txtPidData || values.pid_data || values.pid || "";
+
+    const payload = {
+      aadhaar_number: values.aadhaarNumber || values.aadhaar_number || "",
+      pid_data: base64Pid,
+      pid_type: 1,
+      bank_iin: values.bankIIN || values.bank_iin || "",
+      mobile_number: values.customerNumber || values.mobileNumber || values.mobile_number || "",
+      bank_name: values.bankName || values.bank_name || "BANK LIMITED",
+      device_serial: values.device_serial || "DEVICE-SN-001",
+      latitude: Number(values.latitude || locationInfo?.location?.latitude || 0),
+      longitude: Number(values.longitude || locationInfo?.location?.longitude || 0),
+      ipAddress: values.ipAddress || locationInfo?.ipAddress || "192.168.1.1",
+      device_type: "WEB",
+      device_os: getDeviceOS(),
+      app_id: window.location.hostname,
+      sdk_version: "1.2.0",
+      device_mobile: deviceMobile ? String(deviceMobile) : String(values.customerNumber || values.mobileNumber || ""),
+      user_agent: window.navigator.userAgent,
+      device_model: "WEB_BROWSER",
+      model_id: "",
+      peripheral: "BIOMETRIC_FINGERPRINT"
+    };
+
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/balance-enquiry`,
-      values,
+      `${API_ROUTE}/api/v1/user/aeps3/balance-enquiry`,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -571,14 +648,52 @@ export const aepsThreeBalanceEnquiry = (values) => async (dispatch) => {
   }
 };
 
-export const aepsThreeMiniStatement = (values) => async (dispatch) => {
+export const aepsThreeMiniStatement = (values) => async (dispatch, getState) => {
   dispatch({ type: LOADING_START });
   try {
     const authToken = secureLocalStorage.getItem("userToken");
 
+    const { userProfile } = getState();
+    const deviceMobile = userProfile?.profile?.mobileNo || userProfile?.mobileNo || "";
+    const locationInfo = await getLocationAndIP();
+
+    const getDeviceOS = () => {
+      const ua = window.navigator.userAgent.toLowerCase();
+      if (ua.includes("win")) return "WINDOWS";
+      if (ua.includes("mac")) return "MAC";
+      if (ua.includes("linux")) return "LINUX";
+      if (ua.includes("android")) return "ANDROID";
+      if (ua.includes("iphone") || ua.includes("ipad") || ua.includes("ios")) return "IOS";
+      return "UNKNOWN";
+    };
+
+    const base64Pid = values.txtPidData || values.pid_data || values.pid || "";
+
+    const payload = {
+      aadhaar_number: values.aadhaarNumber || values.aadhaar_number || "",
+      pid_data: base64Pid,
+      pid_type: 1,
+      bank_iin: values.bankIIN || values.bank_iin || "",
+      mobile_number: values.customerNumber || values.mobileNumber || values.mobile_number || "",
+      bank_name: values.bankName || values.bank_name || "BANK LIMITED",
+      device_serial: values.device_serial || "DEVICE-SN-001",
+      latitude: Number(values.latitude || locationInfo?.location?.latitude || 0),
+      longitude: Number(values.longitude || locationInfo?.location?.longitude || 0),
+      ipAddress: values.ipAddress || locationInfo?.ipAddress || "192.168.1.1",
+      device_type: "WEB",
+      device_os: getDeviceOS(),
+      app_id: window.location.hostname,
+      sdk_version: "1.2.0",
+      device_mobile: deviceMobile ? String(deviceMobile) : String(values.customerNumber || values.mobileNumber || ""),
+      user_agent: window.navigator.userAgent,
+      device_model: "WEB_BROWSER",
+      model_id: "",
+      peripheral: "BIOMETRIC_FINGERPRINT"
+    };
+
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/user/aeps2/mini-statement`,
-      values,
+      `${API_ROUTE}/api/v1/user/aeps3/mini-statement`,
+      payload,
       {
         headers: {
           "Content-Type": "application/json",
@@ -627,7 +742,7 @@ export const aepsThreeBankList = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/user/v1/aeps3/bank-list`,
+      `${API_ROUTE}/api/v1/user/aeps3/bank-list`,
       values,
       {
         headers: {
@@ -677,7 +792,7 @@ export const aepsThreeRecentBankList = (values) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/user/v1/aeps3/recent-banks`,
+      `${API_ROUTE}/api/v1/user/aeps3/recent-banks`,
       values,
       {
         headers: {

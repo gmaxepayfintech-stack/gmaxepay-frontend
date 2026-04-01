@@ -769,6 +769,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 console.log("📤 Sending withdrawal request with payload:", {
@@ -789,14 +790,14 @@ const SelectserviceThree = () => {
                         //   response?.data || response?.cashWithdrawl,
                         // );
 
-                        // The action returns { cashWithdrawl, status, message } where cashWithdrawl = response.data.data
+                        // The action returns { cashWithdrawl, status, message } where cashWithdrawl = API response.data
                         setModal({
                             isOpen: true,
                             title: "Transaction Successful",
                             message: response?.message || "Withdrawal successful!",
                             type: "success",
                             transactionType: "cashWithdrawal",
-                            transactionData: response?.data?.result || response?.cashWithdrawl?.result || response?.cashWithdrawl || null,
+                            transactionData: response?.cashWithdrawl || null,
                         });
                         showNotification({
                             type: "success",
@@ -1124,6 +1125,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 // Call API
@@ -1143,7 +1145,7 @@ const SelectserviceThree = () => {
                             message: response?.message || "Balance enquiry successful!",
                             type: "success",
                             transactionType: "balanceEnquiry",
-                            transactionData: response?.data?.result || response?.balanceEnquiry?.result || response?.balanceEnquiry || null,
+                            transactionData: response?.balanceEnquiry || null,
                         });
                         showNotification({
                             type: "success",
@@ -1460,6 +1462,7 @@ const SelectserviceThree = () => {
                     aadhaarNumber: aadhar,
                     customerNumber: mobile,
                     bankIIN: bank.bankIIN,
+                    bankName: bank.bankName,
                 };
 
                 // Call API
@@ -1479,7 +1482,7 @@ const SelectserviceThree = () => {
                             message: response?.message || "Statement enquiry successful!",
                             type: "success",
                             transactionType: "miniStatement",
-                            transactionData: response?.data?.result || response?.miniStatement?.result || response?.miniStatement || null,
+                            transactionData: response?.miniStatement || null,
                         });
                         showNotification({
                             type: "success",
@@ -1755,14 +1758,14 @@ const SelectserviceThree = () => {
         if (type === "success") {
             return (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-[#D9D9D9CC] overflow-y-auto">
-                    <div className="bg-green-100 rounded-xl relative overflow-hidden max-w-md w-full mx-4 shadow-xl my-auto" ref={receiptRef}>
+                    <div className={`bg-green-100 rounded-xl relative overflow-hidden w-full mx-4 shadow-xl my-auto ${transactionType === 'miniStatement' ? 'max-w-xl' : 'max-w-md'}`} ref={receiptRef}>
                         {/* Notches */}
                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-b-full"></div>
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-16 h-10 bg-[#D9D9D9CC] rounded-t-full"></div>
                         <div className="absolute left-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-r-full"></div>
                         <div className="absolute right-0 top-1/2 -translate-y-1/2 h-16 w-10 bg-[#D9D9D9CC] rounded-l-full"></div>
 
-                        <div className="relative z-10 pt-12 pb-12 px-12">
+                        <div className="relative z-10 pt-12 pb-12 px-8">
                             {/* Success Header */}
                             <div className="text-center mb-6">
                                 <div className="flex justify-center mb-3">
@@ -1800,22 +1803,22 @@ const SelectserviceThree = () => {
                       CASH WITHDRAWAL SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'cashWithdrawal' && (() => {
-                                        // transactionData = response.cashWithdrawl = API's response.data.data
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
 
-                                        // Amount: try transactionAmount, then withdrawalAmount, then amount
-                                        const displayAmount = d?.transactionAmount ?? d?.withdrawalAmount ?? d?.amount ?? null;
+                                        // Amount from new API structure
+                                        const displayAmount = d?.amount ?? null;
 
                                         const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
-                                        if (d?.device) fields.push({ label: 'Device', value: d.device });
-                                        if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
-                                        if (d?.transactionId || d?.merchantTransactionId)
-                                            fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
+                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
+                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
+                                        // if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
+                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
+                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
+                                        if (d?.details?.account_balance) fields.push({ label: 'Account Balance', value: `₹${d.details.account_balance}` });
+                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
+                                        // if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
@@ -1845,22 +1848,21 @@ const SelectserviceThree = () => {
                       BALANCE ENQUIRY SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'balanceEnquiry' && (() => {
-                                        // transactionData = response.balanceEnquiry = API's response.data.data
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
 
-                                        // Balance: try balanceAmount, availableBalance, balance
-                                        const balanceAmt = d?.balanceAmount ?? d?.availableBalance ?? d?.balance ?? null;
+                                        // Balance from details.account_balance
+                                        const balanceAmt = d?.details?.account_balance ?? null;
 
                                         const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionType) fields.push({ label: 'Transaction Type', value: d.transactionType });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
-                                        if (d?.device) fields.push({ label: 'Device', value: d.device });
-                                        if (d?.terminalId) fields.push({ label: 'Terminal ID', value: d.terminalId });
-                                        if (d?.transactionId || d?.merchantTransactionId)
-                                            fields.push({ label: 'Transaction ID', value: d.transactionId || d.merchantTransactionId });
+                                        if (d?.status) fields.push({ label: 'Status', value: d.status, isGreen: true });
+                                        if (d?.transactionId) fields.push({ label: 'Transaction ID', value: d.transactionId });
+                                        // if (d?.transaction_id) fields.push({ label: 'System Txn ID', value: d.transaction_id });
+                                        if (d?.bank_reference_number) fields.push({ label: 'Bank Reference', value: d.bank_reference_number });
+                                        if (d?.details?.bank_rrn) fields.push({ label: 'Bank RRN', value: d.details.bank_rrn });
+                                        if (d?.details?.aadhaar_last_four) fields.push({ label: 'Aadhaar (last 4)', value: `XXXX XXXX ${d.details.aadhaar_last_four}` });
+                                        if (d?.created_at) fields.push({ label: 'Date & Time', value: new Date(d.created_at).toLocaleString('en-IN') });
+                                        // if (d?.merchant_reference_id) fields.push({ label: 'Merchant Ref ID', value: d.merchant_reference_id });
 
                                         return (
                                             <>
@@ -1890,57 +1892,76 @@ const SelectserviceThree = () => {
                       MINI STATEMENT SUCCESS VIEW
                   ══════════════════════════════════════ */}
                                     {transactionType === 'miniStatement' && (() => {
-                                        // transactionData = response.miniStatement = API's response.data.data
-                                        // The ministatement array can be directly on the object or nested
+                                        // transactionData = API response.data (new structure)
                                         const d = transactionData;
-                                        const stmtList =
-                                            (Array.isArray(d) ? d : null) ||
-                                            d?.miniStatement || d?.ministatement ||
-                                            d?.data?.miniStatement || d?.data?.ministatement ||
-                                            d?.result?.miniStatement || d?.result?.ministatement ||
-                                            null;
 
-                                        const fields = [];
-                                        if (d?.fpTransactionId) fields.push({ label: 'FP Transaction ID', value: d.fpTransactionId });
-                                        if (d?.bankRRN) fields.push({ label: 'Bank RRN', value: d.bankRRN });
-                                        if (d?.requestTransactionTime) fields.push({ label: 'Transaction Time', value: d.requestTransactionTime });
-                                        if (d?.transactionStatus) fields.push({ label: 'Status', value: d.transactionStatus, isGreen: true });
+                                        // Parse pipe-delimited mini_statement string
+                                        // Format: "Type|DDMMYYYY|Amount|Narration|0|0~Type|..."
+                                        const parseMiniStatement = (raw) => {
+                                            if (!raw || typeof raw !== 'string') return [];
+                                            return raw.split('~').map((entry) => {
+                                                const parts = entry.split('|');
+                                                const typeRaw = parts[0] || '';
+                                                const dateRaw = parts[1] || '';
+                                                const amount = parts[2] || '';
+                                                const narration = parts[3] || '';
+                                                // Format date from DDMMYYYY to DD/MM/YYYY
+                                                let formattedDate = dateRaw;
+                                                if (dateRaw.length === 8) {
+                                                    formattedDate = `${dateRaw.slice(0, 2)}/${dateRaw.slice(2, 4)}/${dateRaw.slice(4)}`;
+                                                }
+                                                return {
+                                                    txnType: typeRaw.toLowerCase().startsWith('cr') || typeRaw.toLowerCase() === 'credit' ? 'Cr' : 'Dr',
+                                                    date: formattedDate,
+                                                    amount,
+                                                    narration,
+                                                };
+                                            }).filter(e => e.amount);
+                                        };
+
+                                        const stmtList = parseMiniStatement(d?.details?.mini_statement);
+                                        const balanceAmt = d?.details?.account_balance ?? null;
 
                                         return (
                                             <>
-                                                {/* Summary fields */}
-                                                {fields.length > 0 && (
-                                                    <div className="grid grid-cols-2 gap-4 mb-5">
-                                                        {fields.map((f, i) => (
-                                                            <div key={i}>
-                                                                <div className="text-[#121216] font-['Gilroy-Medium'] text-xs">{f.label}</div>
-                                                                <div className={`font-['Gilroy-Medium'] text-sm ${f.isGreen ? 'text-[#039155]' : 'text-[#1B1717]'}`}>{f.value}</div>
-                                                            </div>
-                                                        ))}
+                                                {/* Balance Box */}
+                                                {balanceAmt != null && (
+                                                    <div className="border-2 border-dashed border-[#039155] rounded-lg p-3 text-center mb-5">
+                                                        <div className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60 mb-1">Account Balance</div>
+                                                        <div className="text-[24px] font-['Gilroy-SemiBold'] text-[#039155]">₹{balanceAmt}</div>
                                                     </div>
                                                 )}
 
-                                                {/* Mini Statement Table */}
-                                                {stmtList && Array.isArray(stmtList) && stmtList.length > 0 ? (
+                                                {/* Mini Statement List */}
+                                                {stmtList.length > 0 ? (
                                                     <div className="mt-2 pt-4 border-t border-gray-200">
                                                         <div className="text-sm font-['Gilroy-SemiBold'] text-[#1B1717] mb-3">Mini Statement</div>
-                                                        <div className="bg-gray-50 rounded-lg border border-gray-200 overflow-hidden">
-                                                            <div className="grid grid-cols-4 gap-1 bg-gray-100 px-3 py-2 border-b border-gray-200">
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Date</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Type</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Amount</div>
-                                                                <div className="text-xs font-['Gilroy-SemiBold'] text-[#121216]">Narration</div>
-                                                            </div>
-                                                            <div className="max-h-60 overflow-y-auto">
-                                                                {stmtList.map((stmt, index) => (
-                                                                    <div key={index} className="grid grid-cols-4 gap-1 px-3 py-2 border-b border-gray-200 last:border-b-0 hover:bg-gray-100 items-start">
-                                                                        <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717]">{stmt.date}</div>
-                                                                        <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>{stmt.txnType}</div>
-                                                                        <div className={`text-xs font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>₹{stmt.amount}</div>
-                                                                        <div className="text-xs font-['Gilroy-Medium'] text-[#1B1717] break-words whitespace-normal">{stmt.narration}</div>
+                                                        <div className="flex flex-col gap-2 max-h-72 overflow-y-auto pr-1">
+                                                            {stmtList.map((stmt, index) => (
+                                                                <div
+                                                                    key={index}
+                                                                    className="bg-white rounded-lg border border-gray-200 px-3 py-2.5 hover:bg-gray-50 transition"
+                                                                >
+                                                                    {/* Top row: Date | Type badge | Amount */}
+                                                                    <div className="flex items-center justify-between mb-1">
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-[11px] font-['Gilroy-Medium'] text-[#1B1717]/60">{stmt.date}</span>
+                                                                            <span className={`text-[10px] font-['Gilroy-SemiBold'] px-1.5 py-0.5 rounded-full ${stmt.txnType === 'Cr' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                                                                {stmt.txnType === 'Cr' ? 'Credit' : 'Debit'}
+                                                                            </span>
+                                                                        </div>
+                                                                        <span className={`text-sm font-['Gilroy-SemiBold'] ${stmt.txnType === 'Cr' ? 'text-green-600' : 'text-red-600'}`}>
+                                                                            {stmt.txnType === 'Cr' ? '+' : '-'}₹{stmt.amount}
+                                                                        </span>
                                                                     </div>
-                                                                ))}
-                                                            </div>
+                                                                    {/* Narration — full width, no truncation */}
+                                                                    {stmt.narration && (
+                                                                        <p className="text-[11px] font-['Gilroy-Regular'] text-[#1B1717]/70 leading-relaxed">
+                                                                            {stmt.narration}
+                                                                        </p>
+                                                                    )}
+                                                                </div>
+                                                            ))}
                                                         </div>
                                                     </div>
                                                 ) : (

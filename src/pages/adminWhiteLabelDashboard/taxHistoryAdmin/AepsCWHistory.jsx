@@ -22,7 +22,7 @@ import {
 import * as XLSX from "xlsx";
 import { useNotification } from "../../../context/NotificationContext";
 
-const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) => {
+const AepsCWHistory = ({ onBack = null, apiType = "aeps1", transactionType = "CW" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -37,7 +37,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const [isLoadingTransactionDetails, setIsLoadingTransactionDetails] = useState(false);
   const { showNotification } = useNotification();
 
-  // Determine which Redux state to use based on apiType
   const aepsCwHistoryResponse = useSelector((state) => {
     if (apiType === "aeps2") {
       return state?.aepsTwo?.aeps2CwHistoryCompany;
@@ -48,24 +47,19 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
   const paginator = aepsCwHistoryResponse?.paginator || {};
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
-  // Selector for fetching transaction details from Redux
   const transactionDetailsData = useSelector((state) => state?.aeps?.transactionDetailsCompany);
 
-  // Detect if an item is from the AEPS2 API response shape
-  // AEPS2 items have `transactionStatus` and `mobileNumber` instead of `status`/`mobileNo`
   const isAeps2Item = (item) =>
     apiType === "aeps2" ||
     item.transactionStatus !== undefined ||
     item.mobileNumber !== undefined;
 
-  // Transform API response data to table format
   const transformApiData = (dataArray) => {
     if (!Array.isArray(dataArray) || dataArray.length === 0) {
       return [];
     }
 
     return dataArray.map((item, index) => {
-      // Format date from API
       let formattedDate = "N/A";
       if (item.createdAt) {
         const date = new Date(item.createdAt);
@@ -78,198 +72,109 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
           .replaceAll("/", "-");
       }
 
-      const isAeps2 = isAeps2Item(item);
+      const isAeps1New = !!item.transactionStatus;
 
-      // --- Amount ---
-      // AEPS2 uses `transactionAmount`; AEPS1 uses `amount`
-      const rawAmount = isAeps2
-        ? (item.transactionAmount ?? item.amount ?? 0)
-        : (item.amount ?? 0);
-      let formattedAmount = rawAmount ? `₹${rawAmount}` : "₹0";
+      const amountValue = isAeps1New ? (item.transactionAmount || 0) : (item.amount || 0);
+      let formattedAmount = `₹${amountValue}`;
 
       const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
         formattedAmount = "₹0";
       }
 
-      // --- Status ---
-      // AEPS2: `transactionStatus` = "successful"/"failed"; `paymentStatus` = "SUCCESS"/"FAILED"
-      // AEPS1: `status` = true/false or "SUCCESS"/"FAILED"
-      const getStatusDisplay = (rawStatus) => {
-        if (rawStatus === null || rawStatus === undefined) return "Pending";
-        const s = String(rawStatus).toUpperCase();
-        if (s === "SUCCESS" || s === "SUCCESSFUL") return "Success";
-        if (s === "FAILED" || s === "FAILURE") return "Failed";
-        if (rawStatus === true) return "Success";
-        if (rawStatus === false) return "Failed";
+      const getStatusDisplay = (statusVal) => {
+        if (!statusVal) return "Pending";
+        const s = String(statusVal).toUpperCase();
+        if (s === "SUCCESS" || s === "SUCCESSFUL" || s === "TRUE") return "Success";
+        if (s === "FAILED" || s === "FAILURE" || s === "FALSE") return "Failed";
         return "Pending";
       };
 
-      const statusValue = isAeps2
-        ? (item.transactionStatus ?? item.paymentStatus ?? item.status)
-        : item.status;
+      const statusValue = isAeps1New ? item.transactionStatus : item.status;
 
-      // --- Capture type / VIA ---
-      // AEPS2 uses `device` (e.g. "MANTRA.MSIPL"); AEPS1 uses `captureType`
-      const getViaDisplay = (captureType) => {
-        if (!captureType) return "APP";
-        const typeStr = String(captureType);
-        const typeUpper = typeStr.toUpperCase();
-        if (typeUpper === "FINGER") return "FINGER";
-        if (typeUpper === "IRIS") return "IRIS";
-        return typeStr;
+      const getViaDisplay = (peripheral, device, captureType) => {
+        const val = peripheral || device || captureType || "APP";
+        const valUpper = String(val).toUpperCase();
+        if (valUpper.includes("FINGER")) return "FINGER";
+        if (valUpper.includes("IRIS")) return "IRIS";
+        return valUpper;
       };
 
-      const captureType = isAeps2 ? item.device : item.captureType;
-
-      // Map user role number to text
-      const getUserRoleDisplay = (userRole) => {
-        if (typeof userRole === "number") {
-          if (userRole === 5) return "Retailer";
-          if (userRole === 4) return "Distributor";
-          return `Role ${userRole}`;
-        }
-        return userRole || "N/A";
-      };
-
-      // Extract user details from item
       const userDetails = item.userDetails || {};
+      const userName = item.name || userDetails.name || "N/A";
+      const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
 
-      // --- Bank name ---
-      // AEPS2 may have `bankIin` as a code; AEPS1 may have `bankiin`
-      const bankName =
-        item.responsePayload?.data?.bankName ||
-        item.bankName ||
-        item.bankIin ||
-        item.bankiin ||
-        "N/A";
+      const roleVal = userDetails.userRole ?? item.userRole;
 
-      // --- User name ---
-      const userName =
-        userDetails.name ||
-        item.name ||
-        item.userName ||
-        item.merchantLoginId ||
-        `User ${item.refId || item.addedBy || index + 1}`;
-
-      const userRoleValue =
-        userDetails.userRole !== undefined
-          ? userDetails.userRole
-          : item.userRole !== undefined
-            ? item.userRole
-            : null;
-
-      const profileImage = userDetails.profileImage || null;
-
-      // --- Mobile number ---
-      const mobileNo =
-        userDetails.mobileNo ||
-        item.mobileNumber ||
-        item.mobileNo ||
-        item.mobile ||
-        "N/A";
-
-      // --- Consumer number (Aadhaar) ---
-      const consumerNumber = isAeps2
-        ? (item.consumerAadhaarNumber ||
-          item.requestPayload?.adhaarNumber ||
-          item.requestPayload?.aadhaarNo ||
-          "N/A")
-        : (item.consumerNumber ||
-          item.requestPayload?.consumerNumber ||
-          item.consumerAadhaarNumber ||
-          item.requestPayload?.consumerAadhaarNumber ||
-          "N/A");
-
-      // --- Merchant login ID ---
-      const merchantLoginId = isAeps2
-        ? (item.merchantLoginId ||
-          item.merchantTransactionId ||
-          "N/A")
-        : (item.requestPayload?.merchantLoginId ||
-          item.merchantTransactionId ||
-          "N/A");
+      const wlComm = item.whitelabelComm || 0;
+      const wlTDS = item.whitelabelCommTDS || 0;
 
       return {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
-        userRole: getUserRoleDisplay(userRoleValue),
-        profileImage: profileImage,
+        userRole:
+          roleVal === 5 ? "Retailer" :
+            roleVal === 4 ? "Distributor" :
+              roleVal === 3 ? "Master Distributor" :
+                roleVal === 2 ? "White Label" :
+                  roleVal === 1 ? "Super Admin" : `Role ${roleVal ?? "N/A"}`,
         mobileNo: mobileNo,
-        consumerNumber: consumerNumber,
+        consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
         companyName: item.companyName || item.operator || "N/A",
-        merchantLoginId: merchantLoginId,
-        bankName: bankName,
+        merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
+        bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
-        refID: item.refId || item.addedBy || "N/A",
-        bankRRN:
-          item.bankRRN ||
-          item.responsePayload?.data?.bankRRN ||
-          item.responsePayload?.result?.bankRRN ||
-          "N/A",
+        refID: item.merchantReferenceId || item.refId || "N/A",
+        bankRRN: item.bankRRN || "N/A",
         amount: formattedAmount,
-        via: getViaDisplay(captureType),
+        via: getViaDisplay(item.peripheral, item.device, item.captureType),
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
-        tdsAndComm: `TDS: ₹${item.whitelabelCommTDS ?? 0} | Comm: ₹${item.whitelabelComm ?? 0}`,
+        tdsAndComm: `Comm: ₹${wlComm} | TDS: ₹${wlTDS}`,
         originalItem: item,
       };
     });
   };
 
-  // Function to determine search field based on input pattern
   const getSearchField = (searchValue) => {
     const trimmedValue = searchValue.trim();
     if (!trimmedValue) return null;
 
-    // Check if it starts with "CW" (FP Transaction ID pattern)
     if (/^CW/i.test(trimmedValue)) {
       return { fpTransactionId: trimmedValue };
     }
 
-    // Check if it's a 10-digit phone number
     if (/^\d{10}$/.test(trimmedValue)) {
       return { mobileNo: trimmedValue };
     }
 
-    // Check if it's 11-20 digits (Bank RRN pattern)
     if (/^\d{11,20}$/.test(trimmedValue)) {
       return { bankRRN: trimmedValue };
     }
 
-    // Check if it's all letters and spaces with no numbers (Name pattern)
-    // Must be checked before transaction ID to avoid false matches
     if (/^[A-Za-z\s]+$/.test(trimmedValue)) {
       return { name: trimmedValue };
     }
-
-    // Check if it matches transaction ID pattern (3-4 capital letters at start, then alphanumeric with numbers)
-    // Pattern: 3-4 capital letters at start, followed by alphanumeric that includes numbers
-    // Example: ZPAY2512191006CEEFB5 (ZPAY = 4 caps, then has numbers)
     if (/^[A-Z]{3,4}[A-Za-z0-9]*\d+[A-Za-z0-9]*$/.test(trimmedValue)) {
       return { transactionId: trimmedValue };
     }
 
-    // Default: if pattern doesn't match, try as transactionId
     return { transactionId: trimmedValue };
   };
 
-  // Debounce search query
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchQuery(searchQuery);
-      setCurrentPage(1); // Reset to first page when search changes
+      setCurrentPage(1);
     }, 500);
 
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch data from API
   useEffect(() => {
-    // Only make API call if both dates are selected OR both are null
-    // Don't call if only one date is selected
     const bothDatesSelected = fromDate && toDate;
     const bothDatesNull = !fromDate && !toDate;
 
@@ -277,33 +182,24 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       return;
     }
 
-    // Build query based on API type
     const query = {};
     if (apiType === "aeps1") {
-      // For AEPS 1, use aepsTxnType
-      query.aepsTxnType = transactionType;
+      query.transactionType = transactionType;
     } else if (apiType === "aeps2") {
-      // For AEPS 2, use transactionType
       query.transactionType = transactionType;
     }
 
-    // Add date filters only if both dates are selected
     if (fromDate && toDate) {
-      // Format date as YYYY/MM/DD (input is YYYY-MM-DD, convert to YYYY/MM/DD)
       query.startDate = fromDate.replaceAll("-", "/");
       query.endDate = toDate.replaceAll("-", "/");
     }
 
-    // Build customSearch — merge text search + status filter
     const customSearch = debouncedSearchQuery.trim()
       ? getSearchField(debouncedSearchQuery)
       : {};
 
-    // --- Status filter via customSearch (camelCase values) ---
-    // AEPS2: filter by `transactionStatus` ("successful" / "failed" / "pending")
-    // AEPS1: filter by `paymentStatus`   ("success"    / "failed" / "pending")
     if (statusFilter !== "All") {
-      const camelStatus = statusFilter.toLowerCase(); // "success" | "failed" | "pending"
+      const camelStatus = statusFilter.toLowerCase();
       if (apiType === "aeps2") {
         customSearch.transactionStatus = camelStatus;
       } else {
@@ -321,7 +217,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
       },
     };
 
-    // Dispatch the appropriate API call based on apiType
     if (apiType === "aeps2") {
       dispatch(getAeps2CwHistoryCompany(payload));
     } else {
@@ -329,35 +224,26 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [dispatch, currentPage, debouncedSearchQuery, fromDate, toDate, apiType, transactionType, statusFilter, itemsPerPageState]);
 
-  // Reset isReloading when loading completes
   useEffect(() => {
     if (!isLoading && isReloading) {
       setIsReloading(false);
     }
   }, [isLoading, isReloading]);
 
-  // Transform API data
   const transactions = apiData.length > 0 ? transformApiData(apiData) : [];
 
   const statusFilters = ["All", "Success", "Pending", "Failed"];
 
-  // Status is filtered server-side via customSearch — no client-side filter needed.
   const filteredTransactions = transactions;
 
-  // Pagination settings - Use API pagination data
   const itemsPerPage = paginator.perPage || itemsPerPageState;
-  // Since API handles pagination, we use the filtered transactions directly
   const paginatedTransactions = filteredTransactions;
-  // Use pagination info from API response
   const totalPages = paginator.pageCount || 1;
   const apiCurrentPage = paginator.currentPage || currentPage;
-
-  // Reset to page 1 when filter changes
   useEffect(() => {
     setCurrentPage(1);
   }, [statusFilter, itemsPerPageState]);
 
-  // Export to Excel function
   const handleExportToExcel = () => {
     if (!filteredTransactions || filteredTransactions.length === 0) {
       if (showNotification) showNotification("No data available to export", "error");
@@ -398,10 +284,35 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     XLSX.writeFile(workbook, fileName);
   };
 
-  // Watch for transaction details to be loaded
+  const handleViewClick = (transaction) => {
+    const databaseId = transaction.id;
+    console.log("handleViewClick triggered for:", {
+      transactionId: databaseId,
+      apiType,
+      transaction
+    });
+
+    if (!databaseId || isLoadingTransactionDetails) {
+      console.warn("View click ignored: ID missing or already loading", { databaseId, isLoadingTransactionDetails });
+      return;
+    }
+
+    setIsLoadingTransactionDetails(true);
+    setSelectedTransactionId(databaseId);
+
+    if (apiType === "aeps2") {
+      console.log("Dispatching getAeps2TransactionDetailsCompany for ID:", databaseId);
+      dispatch(getAeps2TransactionDetailsCompany(databaseId));
+    } else {
+      console.log("Dispatching getAepsTransactionDetailsCompany for ID:", databaseId);
+      dispatch(getAepsTransactionDetailsCompany(databaseId));
+    }
+  };
+
   useEffect(() => {
     if (selectedTransactionId && isLoadingTransactionDetails) {
       if (!isLoading) {
+        console.log("Transaction details loading complete for ID:", selectedTransactionId);
         const timer = setTimeout(() => {
           setIsLoadingTransactionDetails(false);
           setShowTransactionDetails(true);
@@ -411,21 +322,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     }
   }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
-  // Handle view button click - fetch transaction details first
-  const handleViewClick = (transactionId) => {
-    if (!transactionId || isLoadingTransactionDetails) return;
-
-    setIsLoadingTransactionDetails(true);
-    setSelectedTransactionId(transactionId);
-
-    if (apiType === "aeps2") {
-      dispatch(getAeps2TransactionDetailsCompany(transactionId));
-    } else {
-      dispatch(getAepsTransactionDetailsCompany(transactionId));
-    }
-  };
-
-  // Show loading overlay when fetching transaction details
   if (isLoadingTransactionDetails && selectedTransactionId) {
     return (
       <div className="min-h-screen bg-[#FAFAFA] p-3 sm:p-4 md:p-6 text-[#1B1717] flex items-center justify-center">
@@ -439,8 +335,12 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
     );
   }
 
-  // If showing transaction details, render TransactioDetails
   if (showTransactionDetails) {
+    if (!transactionDetailsData) {
+      console.error("showTransactionDetails is true but transactionDetailsData is null");
+      return null;
+    }
+
     return (
       <TransactioDetails
         transactionData={transactionDetailsData}
@@ -456,7 +356,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
   return (
     <div className="min-h-screen bg-[#FAFAFA] p-2 sm:p-3 md:p-4 text-[#1B1717] flex flex-col max-w-[1600px] mx-auto">
-      {/* Header Section */}
       <div className="mb-3 sm:mb-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 sm:gap-4 mb-2 sm:mb-3">
           <div className="flex items-start gap-3 sm:gap-5">
@@ -479,7 +378,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             </div>
           </div>
 
-          {/* Status Filter Buttons and Reload Button */}
           <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             {statusFilters.map((status) => (
               <button
@@ -500,10 +398,9 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                 setToDate("");
                 setIsReloading(true);
 
-                // Build query based on API type
                 const query = {};
                 if (apiType === "aeps1") {
-                  query.aepsTxnType = transactionType;
+                  query.transactionType = transactionType;
                 } else if (apiType === "aeps2") {
                   query.transactionType = transactionType;
                 }
@@ -522,7 +419,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
                   },
                 };
 
-                // Dispatch the appropriate API call based on apiType
                 if (apiType === "aeps2") {
                   dispatch(getAeps2CwHistoryCompany(payload));
                 } else {
@@ -541,10 +437,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         </div>
       </div>
 
-      {/* Search and Filter Section */}
       <div className="p-1 mb-2 flex-shrink-0">
         <div className="flex flex-col md:flex-col lg:flex-row items-stretch lg:items-end gap-3 sm:gap-4">
-          {/* Search */}
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-[#1B1717]/80" />
             <input
@@ -556,7 +450,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             />
           </div>
 
-          {/* From Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
             <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               From Date
@@ -569,7 +462,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             />
           </div>
 
-          {/* To Date */}
           <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
             <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
               To Date
@@ -582,7 +474,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
             />
           </div>
 
-          {/* Records per page & Export */}
           <div className="flex items-end gap-3 w-full lg:w-auto">
             <div className="relative flex-1 md:flex-1 lg:flex-initial lg:w-auto">
               <label className="block text-xs sm:text-sm text-[#1B1717]/80 mb-1 ml-1 font-[Gilroy-Medium]">
@@ -615,7 +506,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         </div>
       </div>
 
-      {/* Transaction History Table */}
       <div className="bg-white rounded-xl sm:rounded-3xl shadow-sm mt-6 overflow-hidden">
         <div className="w-full overflow-x-auto overscroll-x-contain">
           <table className="w-full border-collapse min-w-full">
@@ -672,7 +562,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
               <tbody className="bg-white divide-y divide-gray-200">
                 {paginatedTransactions.length > 0 ? (
                   paginatedTransactions.map((transaction, index) => {
-                    // Show API 'id' if present; otherwise fall back to simple ascending SR no
                     const fallbackSrNo =
                       (apiCurrentPage - 1) * itemsPerPage + index + 1;
                     const srNo = transaction.id ?? fallbackSrNo;
@@ -778,9 +667,8 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
-                            onClick={() => handleViewClick(transaction.id)}
+                            onClick={() => handleViewClick(transaction)}
                             className="px-3 py-1.5 sm:px-4 sm:py-2 bg-[#039155] text-white text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg hover:bg-green-700 transition shadow-sm whitespace-nowrap"
-                            disabled={isLoadingTransactionDetails}
                           >
                             View
                           </button>
@@ -803,7 +691,6 @@ const AepsCWHistory = ({ onBack, apiType = "aeps1", transactionType = "CW" }) =>
         </div>
       </div>
 
-      {/* Loading / Pagination (unchanged) */}
       {isLoading ? (
         <div className="flex items-center justify-center gap-3 mt-4 sm:mt-6 pb-2 flex-shrink-0">
           <ButtonLoader color="#039155" size={24} thickness={3} />
@@ -855,12 +742,6 @@ AepsCWHistory.propTypes = {
   onBack: PropTypes.func,
   apiType: PropTypes.string,
   transactionType: PropTypes.string,
-};
-
-AepsCWHistory.defaultProps = {
-  onBack: null,
-  apiType: "aeps1",
-  transactionType: "CW",
 };
 
 export default AepsCWHistory;
