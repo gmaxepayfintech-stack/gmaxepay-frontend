@@ -328,7 +328,7 @@ const Employee = () => {
                   />
                 </div>
 
-                <div className="flex flex-col gap-1 w-full">
+                {/* <div className="flex flex-col gap-1 w-full">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
                     User Role
                   </label>
@@ -337,7 +337,7 @@ const Employee = () => {
                     placeholder="Enter User Role"
                     className="w-full border border-[#1B1717]/80 rounded-lg px-3 py-3 text-sm font-[Gilroy-Medium]"
                   />
-                </div>
+                </div> */}
 
                 <div className="flex flex-col gap-1 w-full">
                   <label className="font-[Gilroy-Medium] text-sm text-[#121216]">
