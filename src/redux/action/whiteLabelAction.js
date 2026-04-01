@@ -45,6 +45,8 @@ import {
   FETCH_KYC_DETAILS_USER_FAILURE,
   REVERT_USER_KYC_DETAILS_SUCCESS,
   REVERT_USER_KYC_DETAILS_FAILURE,
+  CREATE_EMPLOYEE_SUCCESS,
+  CREATE_EMPLOYEE_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -422,7 +424,6 @@ export const kycStatusCheck = (id, body = {}) => async (dispatch) => {
   }
 };
 
-
 export const kycUnlock = (id) => async (dispatch) => {
   dispatch({ type: LOADING_START });
 
@@ -678,7 +679,6 @@ export const getUserDetails = () => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
-
 
 export const getMDDetails = () => async (dispatch) => {
   dispatch({ type: LOADING_START });
@@ -1030,6 +1030,48 @@ export const kycRevertCompany = (id) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: REVERT_USER_KYC_DETAILS_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const createEmployee = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/admin/employee/create`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: EmployeeAdd, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: CREATE_EMPLOYEE_SUCCESS,
+        payload: { EmployeeAdd, message, status },
+      });
+    } else {
+      dispatch({
+        type: CREATE_EMPLOYEE_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: CREATE_EMPLOYEE_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
