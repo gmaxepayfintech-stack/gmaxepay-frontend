@@ -4,20 +4,19 @@ import { useDispatch } from "react-redux";
 import Mobile from "../../../../public/img/Mobile.svg";
 import Daily2FA from "../../../../public/img/DailyF2A.svg";
 import Biometric from "../../../../public/img/Biometric.svg";
-import IdentityVerificationTwo from "./identityVerificationTwo";
-import BiometricVerificationTwo from "./BiometricVerificationTwo";
-import FAVerificationTwo from "./FAVerificationTwo";
-import AEPSAccessConfirmTwo from "./AEPSAccessConfirmTwo";
-import {
-  aepsTwoStatusCheck,
-  aepsTwoOtp,
-  aepsOnboarding,
-} from "../../../redux/action/aepsTwoAction";
+import IdentityVerificationThree from "./IdentityVerificationThree";
+import BiometricVerificationThree from "./BiometricVerificationThree";
+import FAVerificationThree from "./FAVerificationThree";
+import AEPSAccessConfirmThree from "./AEPSAccessConfirmThree";
+import { aepsThreeStatusCheck, aepsThreeOnboarding } from "../../../redux/action/aepsThreeAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { HiArrowLeft } from "react-icons/hi2";
-const AepsAcceptanceTwo = ({ onBack: onBackProp }) => {
+import { useNotification } from "../../../context/NotificationContext";
+
+const AepsAcceptanceThree = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [accepted, setAccepted] = useState(true);
   const [showIdentityVerification, setShowIdentityVerification] =
     useState(false);
@@ -26,95 +25,77 @@ const AepsAcceptanceTwo = ({ onBack: onBackProp }) => {
   const [showFAVerification, setShowFAVerification] = useState(false);
   const [showAccessConfirm, setShowAccessConfirm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const onBack =
-    onBackProp || (() => navigate("/distributerDashboard/services/aeps2/onboarding"));
+  const onBack = () => navigate("/distributerDashboard/services/aeps3/onboarding");
 
   const handleAcceptAndContinue = async () => {
     setIsLoading(true);
     try {
       // First call AEPS onboarding for AEPS-2
-      const onboardResp = await dispatch(aepsOnboarding());
-      // console.log("aepsOnboarding response:", onboardResp);
+      const onboardResp = await dispatch(aepsThreeOnboarding());
+      console.log("aepsThreeOnboarding response:", onboardResp);
 
       // If onboarding succeeded, check status first
       if (onboardResp?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: onboardResp?.message || "AEPS onboarding completed successfully",
+          isCritical: true,
+        });
+
         // Check status to determine next step
-        const statusResponse = await dispatch(aepsTwoStatusCheck());
-        // console.log(
-        //   "aepsTwoStatusCheck response after onboarding:",
-        //   statusResponse,
-        // );
+        const statusResponse = await dispatch(aepsThreeStatusCheck());
+        console.log(
+          "aepsThreeStatusCheck response after onboarding:",
+          statusResponse,
+        );
 
         if (statusResponse?.status === "SUCCESS") {
           const statusData = statusResponse?.aepsStatus;
 
           if (statusData) {
-            const { ekycOtp, ekycBiometric, daily2FAAuthentication } =
-              statusData;
+            const { isOtpVerified, isEkycCompleted, is2faVerified } = statusData;
 
-            // If ekycOtp is pending, send OTP first
-            if (
-              ekycOtp?.status?.toLowerCase() === "pending" ||
-              (typeof ekycOtp?.isCompleted === "boolean" &&
-                ekycOtp.isCompleted === false)
-            ) {
-              // Send OTP for AEPS-2
-              const otpResp = await dispatch(aepsTwoOtp());
-              //console.log("aepsTwoOtp response:", otpResp);
-
-              if (otpResp?.status === "SUCCESS") {
-                // Navigate to identity verification
-                setShowIdentityVerification(true);
-              }
+            // If OTP is pending (onboarding just sent it), go to verification
+            if (!isOtpVerified) {
+              setShowIdentityVerification(true);
             }
-            // If ekycOtp is completed, check next step
-            else if (
-              ekycOtp?.status?.toLowerCase() === "completed" &&
-              ekycOtp?.isCompleted === true
-            ) {
-              // Check if biometric is next
-              if (
-                ekycBiometric?.status?.toLowerCase() === "pending" ||
-                (typeof ekycBiometric?.isCompleted === "boolean" &&
-                  ekycBiometric.isCompleted === false)
-              ) {
+            // If OTP is already completed, check next steps
+            else if (isOtpVerified) {
+              if (!isEkycCompleted) {
                 // Navigate to biometric verification
-                // console.log(
-                //   "ekycOtp completed, navigating to biometric verification",
-                // );
                 setShowBiometricVerification(true);
               }
-              // Check if 2FA is next
-              else if (
-                ekycBiometric?.status?.toLowerCase() === "completed" &&
-                ekycBiometric?.isCompleted === true &&
-                (daily2FAAuthentication?.status?.toLowerCase() === "pending" ||
-                  (typeof daily2FAAuthentication?.isCompleted === "boolean" &&
-                    daily2FAAuthentication.isCompleted === false))
-              ) {
+              else if (!is2faVerified) {
                 // Navigate to 2FA verification
-                // console.log(
-                //   "ekycBiometric completed, navigating to 2FA verification",
-                // );
                 setShowFAVerification(true);
               }
-              // Check if all completed
-              else if (
-                ekycBiometric?.status?.toLowerCase() === "completed" &&
-                ekycBiometric?.isCompleted === true &&
-                daily2FAAuthentication?.status?.toLowerCase() === "completed" &&
-                daily2FAAuthentication?.isCompleted === true
-              ) {
+              else {
                 // All steps completed, show access confirm
-                //console.log("All steps completed, showing access confirm");
                 setShowAccessConfirm(true);
               }
             }
           }
+        } else {
+          showNotification({
+            type: "error",
+            message: statusResponse?.message || "Failed to check AEPS status",
+            isCritical: true,
+          });
         }
+      } else {
+        showNotification({
+          type: "error",
+          message: onboardResp?.message || "AEPS onboarding failed",
+          isCritical: true,
+        });
       }
     } catch (error) {
       console.error("AEPS-2 onboarding/otp error:", error);
+      showNotification({
+        type: "error",
+        message: error?.message || "Something went wrong during AEPS onboarding",
+        isCritical: true,
+      });
     } finally {
       setIsLoading(false);
     }
@@ -140,17 +121,17 @@ const AepsAcceptanceTwo = ({ onBack: onBackProp }) => {
 
   // Conditional rendering based on current step
   if (showAccessConfirm) {
-    return <AEPSAccessConfirmTwo />;
+    return <AEPSAccessConfirmThree />;
   }
   if (showFAVerification) {
-    return <FAVerificationTwo />;
+    return <FAVerificationThree />;
   }
   if (showBiometricVerification) {
-    return <BiometricVerificationTwo />;
+    return <BiometricVerificationThree />;
   }
   if (showIdentityVerification) {
     return (
-      <IdentityVerificationTwo
+      <IdentityVerificationThree
         onBack={() => setShowIdentityVerification(false)}
       />
     );
@@ -339,4 +320,4 @@ const AepsAcceptanceTwo = ({ onBack: onBackProp }) => {
   );
 };
 
-export default AepsAcceptanceTwo;
+export default AepsAcceptanceThree;
