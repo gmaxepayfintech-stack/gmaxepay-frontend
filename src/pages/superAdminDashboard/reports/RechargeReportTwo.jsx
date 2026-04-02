@@ -136,6 +136,18 @@ const RechargeReportTwo = ({ onBack }) => {
             // Get DR amount from apiResponse
             const drAmount = item.apiResponse?.dr_amount || 0;
 
+            // Operator mapping based on opcode
+            const getOperatorName = (opcode, fallback) => {
+                const operatorMap = {
+                    'BT': 'BSNL',
+                    'BR': 'BSNL',
+                    'A': 'AIRTEL',
+                    'RC': 'JIO',
+                    'V': 'VI'
+                };
+                return operatorMap[opcode] || fallback || "N/A";
+            };
+
             return {
                 srNo,
                 id: item.id || `recharge-${index}`,
@@ -144,7 +156,7 @@ const RechargeReportTwo = ({ onBack }) => {
                 name: item.user?.name || "N/A",
                 userId: item.user?.userId || "N/A",
                 mobileNo: item.mobileNumber || "N/A",
-                operator: item.apiResponse?.operatorName || "N/A",
+                operator: getOperatorName(item.opcode, item.apiResponse?.operatorName),
                 opcode: item.opcode || "N/A",
                 circle: item.circle || "N/A",
                 amount: item.amount || 0,
