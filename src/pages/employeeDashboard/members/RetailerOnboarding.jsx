@@ -570,13 +570,13 @@ const RetailerOnboarding = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "mainWallet")}
+                        {getWalletValue(row.wallet?.mainWallet, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes1Wallet")}
+                        {getWalletValue(row.wallet?.apes1Wallet, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes2Wallet")}
+                        {getWalletValue(row.wallet?.apes2Wallet, "apes2Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         <span
