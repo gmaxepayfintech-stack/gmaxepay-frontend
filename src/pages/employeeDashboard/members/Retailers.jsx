@@ -406,9 +406,9 @@ const Retailers = ({
       "Company Name": row.company || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.wallet?.mainWallet ?? "0",
-      "AEPS1 Wallet": row.wallet?.apes1Wallet ?? "0",
-      "AEPS2 Wallet": row.wallet?.apes2Wallet ?? "0",
+      "Main Wallet": getWalletValue(row, "mainWallet"),
+      "AEPS1 Wallet": getWalletValue(row, "apes1Wallet"),
+      "AEPS2 Wallet": getWalletValue(row, "apes2Wallet"),
       Status: row.status || "Active",
     }));
 
@@ -423,13 +423,74 @@ const Retailers = ({
   };
 
   // Helper function to get wallet value
-  const getWalletValue = (wallet, type = "mainWallet") => {
-    if (wallet === null || wallet === undefined) return "0";
-    if (typeof wallet === "object") {
-      const value = wallet[type] ?? 0;
-      return String(value);
+  const getWalletValue = (row, type = "mainWallet") => {
+    if (!row) return "0";
+
+    // Define aliases for the types to handle aeps/apes typos and variations
+    const aliases = {
+      mainWallet: ["mainWallet", "main_wallet", "walletBalance", "balance"],
+      apes1Wallet: [
+        "apes1Wallet",
+        "aeps1Wallet",
+        "aeps1_wallet",
+        "apes1_wallet",
+        "apesWallet1",
+        "aepsWallet1",
+      ],
+      apes2Wallet: [
+        "apes2Wallet",
+        "aeps2Wallet",
+        "aeps2_wallet",
+        "apes2_wallet",
+        "apesWallet2",
+        "aepsWallet2",
+      ],
+    };
+
+    const possibleKeys = aliases[type] || [type];
+
+    // Priority Check:
+    // 1. Check top level of row
+    for (const key of possibleKeys) {
+      if (row[key] !== undefined && row[key] !== null) return String(row[key]);
     }
-    return String(wallet);
+
+    // 2. Check nested wallet object
+    const walletObj = row.wallet || row.wallets || row.walletDetails;
+    if (walletObj && typeof walletObj === "object") {
+      for (const key of possibleKeys) {
+        if (walletObj[key] !== undefined && walletObj[key] !== null)
+          return String(walletObj[key]);
+      }
+    }
+
+    // 3. Check originalItem
+    if (row.originalItem) {
+      // 3.1 Check originalItem top level
+      for (const key of possibleKeys) {
+        if (
+          row.originalItem[key] !== undefined &&
+          row.originalItem[key] !== null
+        )
+          return String(row.originalItem[key]);
+      }
+      // 3.2 Check originalItem nested wallet
+      const origWalletObj =
+        row.originalItem.wallet ||
+        row.originalItem.wallets ||
+        row.originalItem.walletDetails;
+      if (origWalletObj && typeof origWalletObj === "object") {
+        for (const key of possibleKeys) {
+          if (
+            origWalletObj[key] !== undefined &&
+            origWalletObj[key] !== null
+          )
+            return String(origWalletObj[key]);
+        }
+      }
+    }
+
+    return "0";
   };
 
   // Helper function to safely convert any value to string
@@ -681,13 +742,13 @@ const Retailers = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "mainWallet")}
+                        {getWalletValue(row, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "apes1Wallet")}
+                        {getWalletValue(row, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "apes2Wallet")}
+                        {getWalletValue(row, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
