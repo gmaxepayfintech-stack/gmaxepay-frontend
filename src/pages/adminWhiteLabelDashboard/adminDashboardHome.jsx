@@ -9,7 +9,7 @@ import {
   Bar,
   Tooltip,
 } from "recharts";
-import { motion, useSpring, useTransform, animate } from "framer-motion";
+import { animate } from "framer-motion";
 import {
   getCompanyWalletBalance,
   getCompanyDashboardStatistics,
@@ -41,9 +41,9 @@ const AnimatedNumber = ({ value, prefix = "", isCurrency = false }) => {
 
   const formatted = isCurrency
     ? `₹${displayValue.toLocaleString("en-IN", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-      })}`
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`
     : Math.floor(displayValue).toLocaleString("en-IN");
 
   return <span>{prefix}{formatted}</span>;
@@ -354,11 +354,15 @@ const AdminDashboardHome = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-32"></div>
+                <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-16 mb-4"></div>
+                {/* Side-by-side wallet skeleton badges */}
+                <div className="flex flex-row gap-2">
+                  <div className="h-5 bg-gray-200 rounded-2xl w-24"></div>
+                  <div className="h-5 bg-gray-200 rounded-2xl w-24"></div>
+                </div>
               </div>
-              <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+              <div className="w-12 h-12 bg-gray-200 rounded-full shrink-0"></div>
             </div>
           </div>
         ))}
@@ -455,15 +459,15 @@ const AdminDashboardHome = () => {
                   {card.title}
                 </p>
                 <p className="text-[28px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
-                  <AnimatedNumber value={card.value} />
+                  {card.value.toLocaleString("en-IN")}
                 </p>
                 {card.title !== "Today's Earning" && (
-                  <div className="flex flex-col gap-1.5">
-                    <div className="flex items-center gap-1.5 text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit">
+                  <div className="flex flex-row gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
                       <span>Main:</span>
                       <AnimatedNumber value={card.wallets.main} isCurrency={true} />
                     </div>
-                    <div className="flex items-center gap-1.5 text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit">
+                    <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
                       <span>AEPS:</span>
                       <AnimatedNumber value={card.wallets.aeps} isCurrency={true} />
                     </div>
@@ -504,7 +508,7 @@ const AdminDashboardHome = () => {
           <div className="mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
               <p className="text-lg sm:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
-                <AnimatedNumber value={totalCommission} isCurrency={true} />
+                {formatCurrency(totalCommission)}
               </p>
               {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[Gilroy-Medium] flex items-center gap-1">
                 ▲ +0.24% Today
@@ -589,7 +593,7 @@ const AdminDashboardHome = () => {
                 Today's Commission
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  <AnimatedNumber value={totalCommission} isCurrency={true} />
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>
@@ -659,7 +663,7 @@ const AdminDashboardHome = () => {
                 Today's Earning
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  <AnimatedNumber value={totalCommission} isCurrency={true} />
+                  {formatCurrency(totalCommission)}
                 </strong>
               </p>
             </div>
