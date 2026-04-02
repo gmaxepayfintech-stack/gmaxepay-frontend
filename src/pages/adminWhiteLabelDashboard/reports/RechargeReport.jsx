@@ -137,15 +137,29 @@ const RechargeReport = ({ onBack }) => {
       // Get DR amount from apiResponse
       const drAmount = item.apiResponse?.dr_amount || 0;
 
+      // Operator mapping based on opcode
+      const getOperatorName = (opcode, fallback) => {
+        const operatorMap = {
+          'BT': 'BSNL',
+          'BR': 'BSNL',
+          'A': 'AIRTEL',
+          'RC': 'JIO',
+          'V': 'VI'
+        };
+        return operatorMap[opcode] || fallback || "N/A";
+      };
+
+      const userDetails = item.userDetails || item.user || {};
+
       return {
         srNo,
         id: item.id || `recharge-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
         orderId: item.orderid || "N/A",
-        name: item.user?.name || "N/A",
-        userId: item.user?.userId || "N/A",
+        name: userDetails.name || "N/A",
+        userId: userDetails.userId || "N/A",
         mobileNo: item.mobileNumber || "N/A",
-        operator: item.apiResponse?.operatorName || "N/A",
+        operator: getOperatorName(item.opcode, item.apiResponse?.operatorName),
         opcode: item.opcode || "N/A",
         circle: item.circle || "N/A",
         amount: item.amount || 0,
@@ -526,7 +540,7 @@ const RechargeReport = ({ onBack }) => {
                         className="hover:bg-gray-50 transition-colors"
                       >
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          {transaction.id}
+                          {transaction.srNo}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-left whitespace-nowrap">

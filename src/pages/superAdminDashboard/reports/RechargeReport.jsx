@@ -148,13 +148,15 @@ const RechargeReport = ({ onBack }) => {
         return operatorMap[opcode] || fallback || "N/A";
       };
 
+      const userDetails = item.userDetails || item.user || {};
+
       return {
         srNo,
         id: item.id || `recharge-${index}`,
         transactionId: item.transactionId || item.orderid || "N/A",
         orderId: item.orderid || "N/A",
-        name: item.user?.name || "N/A",
-        userId: item.user?.userId || "N/A",
+        name: userDetails.name || "N/A",
+        userId: userDetails.userId || "N/A",
         mobileNo: item.mobileNumber || "N/A",
         operator: getOperatorName(item.opcode, item.apiResponse?.operatorName),
         opcode: item.opcode || "N/A",
