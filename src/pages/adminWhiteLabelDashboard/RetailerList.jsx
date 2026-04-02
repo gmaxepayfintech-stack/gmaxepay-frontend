@@ -2,6 +2,71 @@ import React from "react";
 import PropTypes from "prop-types";
 
 const RetailerList = ({ tableData = [], isLoading = false, onUpgradeClick }) => {
+  // Helper function to get wallet value
+  const getWalletValue = (row, type = "mainWallet") => {
+    if (!row) return "0";
+
+    // Define aliases for the types to handle aeps/apes typos and variations
+    const aliases = {
+      mainWallet: ["mainWallet", "main_wallet", "walletBalance", "balance"],
+      apesWallet: [
+        "apesWallet",
+        "aepsWallet",
+        "apes1Wallet",
+        "aeps1Wallet",
+        "aeps1_wallet",
+        "apes1_wallet",
+        "apesWallet1",
+        "aepsWallet1",
+      ],
+    };
+
+    const possibleKeys = aliases[type] || [type];
+
+    // Priority Check:
+    // 1. Check top level of row
+    for (const key of possibleKeys) {
+      if (row[key] !== undefined && row[key] !== null) return String(row[key]);
+    }
+
+    // 2. Check nested wallet object
+    const walletObj = row.wallet || row.wallets || row.walletDetails;
+    if (walletObj && typeof walletObj === "object") {
+      for (const key of possibleKeys) {
+        if (walletObj[key] !== undefined && walletObj[key] !== null)
+          return String(walletObj[key]);
+      }
+    }
+
+    // 3. Check originalItem
+    if (row.originalItem) {
+      // 3.1 Check originalItem top level
+      for (const key of possibleKeys) {
+        if (
+          row.originalItem[key] !== undefined &&
+          row.originalItem[key] !== null
+        )
+          return String(row.originalItem[key]);
+      }
+      // 3.2 Check originalItem nested wallet
+      const origWalletObj =
+        row.originalItem.wallet ||
+        row.originalItem.wallets ||
+        row.originalItem.walletDetails;
+      if (origWalletObj && typeof origWalletObj === "object") {
+        for (const key of possibleKeys) {
+          if (
+            origWalletObj[key] !== undefined &&
+            origWalletObj[key] !== null
+          )
+            return String(origWalletObj[key]);
+        }
+      }
+    }
+
+    return "0";
+  };
+
   if (isLoading) {
     return (
       <div className="p-8 text-center">
@@ -84,32 +149,68 @@ const RetailerList = ({ tableData = [], isLoading = false, onUpgradeClick }) => 
                 key={row.id ?? index}
                 className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
               >
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.srNo}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.date}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.parentName}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.userName}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.mobileNumber}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.emailId}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.currentRole}</td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.srNo}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.date}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.parentName}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.userName}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.mobileNumber}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.emailId}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.currentRole}
+                </td>
                 <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
                   <button
                     type="button"
                     onClick={() => onUpgradeClick?.(row)}
                     className="px-4 py-2 bg-[#039155] text-white rounded-lg hover:bg-[#027a45] transition cursor-pointer font-[Gilroy-Medium]"
                   >
-                    {row.upgradeRole && row.upgradeRole !== "-" ? row.upgradeRole : "Upgrade"}
+                    {row.upgradeRole && row.upgradeRole !== "-"
+                      ? row.upgradeRole
+                      : "Upgrade"}
                   </button>
                 </td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.userId}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.parentRole}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.company}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.companyId}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.kycStatus}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.kycSteps}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.status}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.lock ? "Yes" : "No"}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.wallet?.mainWallet ?? 0}</td>
-                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">{row.wallet?.apesWallet ?? 0}</td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.userId}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.parentRole}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.company}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.companyId}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.kycStatus}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.kycSteps}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.status}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {row.lock ? "Yes" : "No"}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {getWalletValue(row, "mainWallet")}
+                </td>
+                <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                  {getWalletValue(row, "apesWallet")}
+                </td>
               </tr>
             ))
           )}
