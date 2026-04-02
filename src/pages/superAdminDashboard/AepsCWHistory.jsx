@@ -116,7 +116,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
       const userDetails = item.userDetails || {};
       const userName = item.name || userDetails.name || "N/A";
       const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
-      const aadhaar = item.aadhaarLastFour || item.aadharNumber || item.aadhaarNumber || item.customerNumber || item.consumerNumber || "N/A";
+      const aadhaar = item.consumerAadhaarNumber || item.adhaarNumber || item.aadhaarLastFour || item.aadharNumber || item.aadhaarNumber || item.customerNumber || item.consumerNumber || "N/A";
 
       // --- Commissions (Super Admin shows all) ---
       const saComm = item.superadminComm || 0;
@@ -130,12 +130,16 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
-        userRole:
-          item.userRole === 5 ? "Retailer" :
-          item.userRole === 4 ? "Distributor" :
-          item.userRole === 3 ? "Master Distributor" :
-          item.userRole === 2 ? "White Label" :
-          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+        userRole: (() => {
+          const role = item.userRole ?? userDetails.userRole;
+          const r = role?.toString();
+          if (r === "5") return "Retailer";
+          if (r === "4") return "Distributor";
+          if (r === "3") return "Master Distributor";
+          if (r === "2") return "White Label";
+          if (r === "1") return "Super Admin";
+          return role ? `Role ${role}` : "N/A";
+        })(),
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
