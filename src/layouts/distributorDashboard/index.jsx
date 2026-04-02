@@ -25,6 +25,8 @@ import DTHRecharge from "../../pages/DistributorDashboard/services/DTHRecharge";
 import AOneRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/components/AOneRecharge";
 import AOneDthRecharge from "../../pages/DistributorDashboard/services/MobileRecharge/AOneDthRecharge";
 import AOnePan from "../../pages/DistributorDashboard/services/MobileRecharge/AOnePan";
+import OnBoardingAepsThree from "../../pages/DistributorDashboard/aeps3/OnBoardingAepsThree";
+import SelectserviceThree from "../../pages/DistributorDashboard/aeps3/SelectserviceThree";
 const DistributorDashboard = () => {
   return (
     <DistributorLayout>
@@ -43,6 +45,14 @@ const DistributorDashboard = () => {
         <Route
           path="/services/aeps2/select-service"
           element={<SelectserviceTwo />}
+        />
+        <Route
+          path="/services/aeps3/onboarding"
+          element={<OnBoardingAepsThree />}
+        />
+        <Route
+          path="/services/aeps3/select-service"
+          element={<SelectserviceThree />}
         />
         
         <Route path="/services/bbps-services" element={<BBPSServices />} />

@@ -146,7 +146,7 @@ const Services = () => {
 
   // Handle AEPS-1 card click - show animated popup
   const handleAepsClick = () => {
-    setShowAepsPopup(true);
+    navigate("/distributerDashboard/services/aeps3/onboarding");
   };
 
   // Handle BBPS card click - show BBPS services component
@@ -265,7 +265,7 @@ const Services = () => {
       </div>
 
       {/* AEPS-1 Unavailable Popup */}
-      <AnimatePresence>
+      {/* <AnimatePresence>
         {showAepsPopup && (
           <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm">
             <motion.div
@@ -305,7 +305,7 @@ const Services = () => {
             </motion.div>
           </div>
         )}
-      </AnimatePresence>
+      </AnimatePresence> */}
     </div>
   );
 };
