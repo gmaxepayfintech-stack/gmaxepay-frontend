@@ -154,6 +154,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
         status: getStatusDisplay(statusValue),
         createdAt: formattedDate,
         commDisplay: `SA: ₹${saComm} | WL: ₹${wlComm} | MD: ₹${mdComm} | DT: ₹${distComm} | RT: ₹${retComm}`,
+        profileImage: userDetails.profileImage || null,
+        companyLogo: item.companyLogo || null,
         originalItem: item,
       };
     });
