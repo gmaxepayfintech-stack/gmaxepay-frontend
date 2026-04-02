@@ -116,7 +116,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
       const userDetails = item.userDetails || {};
       const userName = item.name || userDetails.name || "N/A";
       const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
-      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.aadharNumber || item.aadhaarNumber || item.customerNumber || item.consumerNumber || "N/A";
 
       // --- Commissions (Super Admin shows all) ---
       const saComm = item.superadminComm || 0;
@@ -576,7 +576,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
                   Mobile
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
-                  Consumer Number
+                  Aadhaar Number
                 </th>
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Company Name
