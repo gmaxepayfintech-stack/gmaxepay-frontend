@@ -9,7 +9,6 @@ import {
   Bar,
   Tooltip,
 } from "recharts";
-import { animate } from "framer-motion";
 import {
   getCompanyWalletBalance,
   getCompanyDashboardStatistics,
@@ -26,28 +25,6 @@ import { payoutCompanyTransaction } from "../../redux/action/payoutAction";
 const MasterDt = "/img/MMasterD.png";
 const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
-
-const AnimatedNumber = ({ value, prefix = "", isCurrency = false }) => {
-  const [displayValue, setDisplayValue] = useState(0);
-
-  useEffect(() => {
-    const controls = animate(displayValue, value, {
-      duration: 1.5,
-      ease: "easeOut",
-      onUpdate: (latest) => setDisplayValue(latest),
-    });
-    return () => controls.stop();
-  }, [value]);
-
-  const formatted = isCurrency
-    ? `₹${displayValue.toLocaleString("en-IN", {
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    })}`
-    : Math.floor(displayValue).toLocaleString("en-IN");
-
-  return <span>{prefix}{formatted}</span>;
-};
 
 const AdminDashboardHome = () => {
   const dispatch = useDispatch();
@@ -465,11 +442,11 @@ const AdminDashboardHome = () => {
                   <div className="flex flex-row gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
                       <span>Main:</span>
-                      <AnimatedNumber value={card.wallets.main} isCurrency={true} />
+                      {formatCurrency(card.wallets.main)}
                     </div>
                     <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
                       <span>AEPS:</span>
-                      <AnimatedNumber value={card.wallets.aeps} isCurrency={true} />
+                      {formatCurrency(card.wallets.aeps)}
                     </div>
                   </div>
                 )}
@@ -584,7 +561,7 @@ const AdminDashboardHome = () => {
                 Main Wallet
               </h4>
               <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
-                <AnimatedNumber value={walletData.mainWallet} isCurrency={true} />
+                {formatCurrency(walletData.mainWallet)}
               </p>
               <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
                 ▲ 0.45%
@@ -652,7 +629,7 @@ const AdminDashboardHome = () => {
 
               {/* Balance */}
               <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
-                <AnimatedNumber value={walletData[selectedAepsWallet]} isCurrency={true} />
+                {formatCurrency(walletData[selectedAepsWallet])}
               </p>
 
               <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
