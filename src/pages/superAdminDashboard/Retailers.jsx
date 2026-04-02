@@ -296,9 +296,9 @@ const Retailers = ({
       "Company Name": row.company || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
-      "Main Wallet": row.wallet?.mainWallet || "0",
-      "AEPS1 Wallet": row.wallet?.apes1Wallet || "0",
-      "AEPS2 Wallet": row.wallet?.apes2Wallet || "0",
+      "Main Wallet": row.wallet?.mainWallet ?? "0",
+      "AEPS1 Wallet": row.wallet?.apes1Wallet ?? "0",
+      "AEPS2 Wallet": row.wallet?.apes2Wallet ?? "0",
       Status: row.status || "Active",
     }));
 
@@ -314,10 +314,10 @@ const Retailers = ({
 
   // Helper function to get wallet value
   const getWalletValue = (wallet, type = "mainWallet") => {
-    if (!wallet) return "0";
-    if (typeof wallet === "object" && wallet !== null) {
-      if (wallet[type] !== undefined) return String(wallet[type]);
-      return String(wallet.mainWallet || "0");
+    if (wallet === null || wallet === undefined) return "0";
+    if (typeof wallet === "object") {
+      const value = wallet[type] ?? 0;
+      return String(value);
     }
     return String(wallet);
   };
@@ -571,13 +571,13 @@ const Retailers = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row?.wallet?.mainWallet, "mainWallet")}
+                        {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row?.wallet?.apes1Wallet, "apes1Wallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row?.wallet?.apes2Wallet, "apes2Wallet")}
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
@@ -1020,13 +1020,13 @@ const Retailers = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.mainWallet, "mainWallet")}
+                        {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.apes1Wallet, "apes1Wallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.apes2Wallet, "apes2Wallet")}
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span

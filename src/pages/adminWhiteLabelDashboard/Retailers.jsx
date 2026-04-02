@@ -331,10 +331,9 @@ const Retailers = ({
 
   // Helper function to get wallet value
   const getWalletValue = (wallet, type = "mainWallet") => {
-    if (!wallet) return "0";
-    if (typeof wallet === "object" && wallet !== null) {
-      const value =
-        wallet[type] || wallet.mainWallet || wallet.apes1Wallet || "0";
+    if (wallet === null || wallet === undefined) return "0";
+    if (typeof wallet === "object") {
+      const value = wallet[type] ?? 0;
       return String(value);
     }
     return String(wallet);
@@ -593,13 +592,13 @@ const Retailers = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.mainWallet, "mainWallet")}
+                        {getWalletValue(row.wallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.apes1Wallet, "apes1Wallet")}
+                        {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet?.apes2Wallet, "apes2Wallet")}
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
@@ -1048,6 +1047,9 @@ const Retailers = ({
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row.wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
