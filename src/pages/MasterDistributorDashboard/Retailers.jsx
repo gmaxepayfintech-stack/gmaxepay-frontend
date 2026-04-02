@@ -1029,13 +1029,13 @@ const Retailers = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "mainWallet")}
+                        {getWalletValue(row.wallet?.mainWallet, "mainWallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "apes1Wallet")}
+                        {getWalletValue(row.wallet?.apes1Wallet, "apes1Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
-                        {getWalletValue(row.wallet, "apes2Wallet")}
+                        {getWalletValue(row.wallet?.apes2Wallet, "apes2Wallet")}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
