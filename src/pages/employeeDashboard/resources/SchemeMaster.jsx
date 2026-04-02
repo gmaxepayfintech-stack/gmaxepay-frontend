@@ -45,8 +45,8 @@ const SchemeMaster = () => {
   // Redux state
   const slabState = useSelector((state) => state?.slab);
   const {
-    slabs,
-    loading: slabsLoading,
+    // slabs,
+    // loading: slabsLoading,
     createSlabSuccess,
     createSlabMessage,
     createSlabError,
@@ -54,6 +54,7 @@ const SchemeMaster = () => {
     updateSlabMessage,
     updateSlabError,
   } = slabState || {};
+  const slabsLoading = false; // Mock loading state
   const [isCreating, setIsCreating] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -80,19 +81,26 @@ const SchemeMaster = () => {
   const modalRef = useRef(null);
   const userModalRef = useRef(null);
 
-  // Get users list from Redux
+  // Get users list from Redux (Mocked for demo)
+  /*
   const usersListRaw = useSelector(
     (state) => state?.whitelabel?.whitelabelList?.whitelabelList || []
   );
+  */
+  const usersListRaw = DUMMY_USERS;
   const usersList = useMemo(
     () => (Array.isArray(usersListRaw) ? usersListRaw : []),
     [usersListRaw]
   );
-  const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
+  // const usersLoading = useSelector((state) => state?.loading?.isLoading || false);
+  const usersLoading = false;
+  /*
   const usersTotalCount = useSelector((state) => {
     const response = state?.whitelabel?.whitelabelList;
     return response?.totalCount || response?.total || usersList.length || 0;
   });
+  */
+  const usersTotalCount = DUMMY_USERS.length;
   const usersTotalPages = Math.ceil(usersTotalCount / 10) || 1;
 
   // Get company ID
@@ -127,15 +135,17 @@ const SchemeMaster = () => {
       });
       setSelectedUserIds([]);
       setSelectedUsersData([]);
-      // Reset to first page after creating (this will trigger fetch via the other useEffect)
+      // Reset to first page after creating
       if (currentPage !== 1) {
         setCurrentPage(1);
       } else {
-        // If already on page 1, explicitly fetch to refresh
+        // Redux refresh commented out for demo
+        /*
         const companyId = getCompanyId();
         if (companyId) {
           dispatch(getSlabList(companyId, 1, 6));
         }
+        */
       }
     }
   }, [createSlabSuccess, createSlabMessage, dispatch, currentPage, success]);
@@ -162,15 +172,17 @@ const SchemeMaster = () => {
       });
       setSelectedUserIds([]);
       setSelectedUsersData([]);
-      // Reset to first page after updating (this will trigger fetch via the other useEffect)
+      // Reset to first page after updating
       if (currentPage !== 1) {
         setCurrentPage(1);
       } else {
-        // If already on page 1, explicitly fetch to refresh
+        // Redux refresh commented out for demo
+        /*
         const companyId = getCompanyId();
         if (companyId) {
           dispatch(getSlabList(companyId, 1, 6));
         }
+        */
       }
     }
   }, [updateSlabSuccess, updateSlabMessage, dispatch, currentPage, success]);
@@ -204,13 +216,15 @@ const SchemeMaster = () => {
     };
   }, [isModalOpen, isEditModalOpen, showUserSelectionModal]);
 
-  //Reset page when search or filter changes and refetch
+  //Reset page when search or filter changes
   useEffect(() => {
     setCurrentPage(1);
+    /*
     const companyId = getCompanyId();
     if (companyId) {
       dispatch(getSlabList(companyId, 1, 6));
     }
+    */
   }, [searchQuery, activeFilter, dispatch]);
 
   // Debounce user search query

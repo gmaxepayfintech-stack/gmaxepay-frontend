@@ -754,9 +754,9 @@ function App() {
         <Route
           path="/employeeDashboard/*"
           element={
-            // <ProtectedRoute role="employee">
+            <ProtectedRoute role="employee">
               <EmployeeDashboard />
-            // </ProtectedRoute>
+            </ProtectedRoute>
           }
         />
         <Route

@@ -65,7 +65,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
   // Redux state for commissions
-  const { commData } = useSelector((state) => state?.slab || {});
+  // const { commData } = useSelector((state) => state?.slab || {});
+  const commData = DUMMY_COMMISSIONS;
 
   // Local editable commissions state and loading
   const [commissions, setCommissions] = useState([]);
@@ -111,7 +112,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
   // Map API commission data to local editable structure
   useEffect(() => {
-    const dataToUse = DUMMY_COMMISSIONS;
+    const dataToUse = DUMMY_COMMISSIONS; // Forcing dummy data for demo
     if (dataToUse && Array.isArray(dataToUse)) {
       const mapped = dataToUse.map((item, index) => {
         const firstInstrument = item.instruments?.[0];
@@ -206,6 +207,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
       const requests = [];
 
+      /*
       if (isEntChanged && commission.entRoleId) {
         requests.push(
           dispatch(
@@ -229,6 +231,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
           ),
         );
       }
+      */
 
       /*
       const results = await Promise.all(requests);
