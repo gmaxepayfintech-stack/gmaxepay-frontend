@@ -25,9 +25,9 @@ const PayoutSetting = () => {
   const [currentPage, setCurrentPage] = useState(1);
   
   const isLoading = false; // Force false for demo
-  const reduxPayoutSettingList = useSelector((state) => state.payout?.payoutSettingList);
+  // const reduxPayoutSettingList = useSelector((state) => state.payout?.payoutSettingList);
   
-  const payoutSettingList = reduxPayoutSettingList?.data?.length > 0 ? reduxPayoutSettingList : DUMMY_PAYOUTS;
+  const payoutSettingList = DUMMY_PAYOUTS;
   
   const rawPayouts = payoutSettingList?.data || payoutSettingList || [];
   // Backend returns descending arbitrarily sometimes, fixing it by sorting by id ascending
@@ -106,6 +106,7 @@ const PayoutSetting = () => {
     setFormData({ id: "", payoutName: "", active: true });
   };
 
+  const handleToggle = (id) => {
     /*
     dispatch(switchPayoutStatus({ id }))
       .then((res) => {
@@ -137,6 +138,7 @@ const PayoutSetting = () => {
         message: "Payout status updated successfully! (Demo Mode)",
         isCritical: true,
     });
+  };
 
   const handleEdit = (payout) => {
     setIsEditMode(true);
