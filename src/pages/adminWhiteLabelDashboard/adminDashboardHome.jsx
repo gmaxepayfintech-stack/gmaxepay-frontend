@@ -9,6 +9,7 @@ import {
   Bar,
   Tooltip,
 } from "recharts";
+import { motion, useSpring, useTransform, animate } from "framer-motion";
 import {
   getCompanyWalletBalance,
   getCompanyDashboardStatistics,
@@ -25,6 +26,28 @@ import { payoutCompanyTransaction } from "../../redux/action/payoutAction";
 const MasterDt = "/img/MMasterD.png";
 const Distributor = "/img/DistributorM.png";
 const Ratailer = "/img/MRetailer.png";
+
+const AnimatedNumber = ({ value, prefix = "", isCurrency = false }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+
+  useEffect(() => {
+    const controls = animate(displayValue, value, {
+      duration: 1.5,
+      ease: "easeOut",
+      onUpdate: (latest) => setDisplayValue(latest),
+    });
+    return () => controls.stop();
+  }, [value]);
+
+  const formatted = isCurrency
+    ? `₹${displayValue.toLocaleString("en-IN", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      })}`
+    : Math.floor(displayValue).toLocaleString("en-IN");
+
+  return <span>{prefix}{formatted}</span>;
+};
 
 const AdminDashboardHome = () => {
   const dispatch = useDispatch();
@@ -206,25 +229,31 @@ const AdminDashboardHome = () => {
   const kpiCards = (() => {
     const userStats = companyDashboardStatisticsResponse?.data?.userStats;
     const total = userStats?.total;
-    const todayCreated = userStats?.todayCreated;
+    const walletBalances = userStats?.walletBalances;
+
+    const getWalletSub = (type) => {
+      const main = walletBalances?.[type]?.mainWallet ?? 0;
+      const aeps = (walletBalances?.[type]?.aeps1Wallet ?? 0) + (walletBalances?.[type]?.aeps2Wallet ?? 0);
+      return { main, aeps };
+    };
 
     return [
       {
         title: "Master Distributor",
-        value: total?.masterDistributor ?? "0",
-        subtitle: `Today Member + ${todayCreated?.masterDistributor ?? 0}`,
+        value: total?.masterDistributor ?? 0,
+        wallets: getWalletSub("masterDistributor"),
         icon: MasterDt,
       },
       {
         title: "Distributor",
-        value: total?.distributor ?? "0",
-        subtitle: `Today Member + ${todayCreated?.distributor ?? 0}`,
+        value: total?.distributor ?? 0,
+        wallets: getWalletSub("distributor"),
         icon: Distributor,
       },
       {
         title: "Retailer",
-        value: total?.retailer ?? "0",
-        subtitle: `Today Member + ${todayCreated?.retailer ?? 0}`,
+        value: total?.retailer ?? 0,
+        wallets: getWalletSub("retailer"),
         icon: Ratailer,
       },
     ];
@@ -426,12 +455,19 @@ const AdminDashboardHome = () => {
                   {card.title}
                 </p>
                 <p className="text-[28px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
-                  {card.value}
+                  <AnimatedNumber value={card.value} />
                 </p>
                 {card.title !== "Today's Earning" && (
-                  <p className="text-xs text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 sm:py-1.5 w-fit">
-                    {card.subtitle}
-                  </p>
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center gap-1.5 text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit">
+                      <span>Main:</span>
+                      <AnimatedNumber value={card.wallets.main} isCurrency={true} />
+                    </div>
+                    <div className="flex items-center gap-1.5 text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit">
+                      <span>AEPS:</span>
+                      <AnimatedNumber value={card.wallets.aeps} isCurrency={true} />
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex items-center justify-center rounded-full text-[#1B1717] bg-[#E2FAF0] p-3 sm:p-4 lg:p-5 shrink-1">
@@ -468,7 +504,7 @@ const AdminDashboardHome = () => {
           <div className="mb-4">
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
               <p className="text-lg sm:text-xl lg:text-2xl font-[Gilroy-Semibold] text-[#1B1717]">
-                {formatCurrency(totalCommission)}
+                <AnimatedNumber value={totalCommission} isCurrency={true} />
               </p>
               {/* <span className="text-[#039155] text-[10px] sm:text-xs font-[Gilroy-Medium] flex items-center gap-1">
                 ▲ +0.24% Today
@@ -544,7 +580,7 @@ const AdminDashboardHome = () => {
                 Main Wallet
               </h4>
               <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
-                {formatCurrency(walletData.mainWallet)}
+                <AnimatedNumber value={walletData.mainWallet} isCurrency={true} />
               </p>
               <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
                 ▲ 0.45%
@@ -553,7 +589,7 @@ const AdminDashboardHome = () => {
                 Today's Commission
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  {formatCurrency(totalCommission)}
+                  <AnimatedNumber value={totalCommission} isCurrency={true} />
                 </strong>
               </p>
             </div>
@@ -612,7 +648,7 @@ const AdminDashboardHome = () => {
 
               {/* Balance */}
               <p className="text-2xl lg:text-[28px] font-[Gilroy-Semibold] text-[#1B1717] mb-2">
-                {formatCurrency(walletData[selectedAepsWallet])}
+                <AnimatedNumber value={walletData[selectedAepsWallet]} isCurrency={true} />
               </p>
 
               <span className="text-[#039155] text-[10px] lg:text-xs font-[Gilroy-Semibold] flex items-center gap-1 mb-3">
@@ -623,7 +659,7 @@ const AdminDashboardHome = () => {
                 Today's Earning
                 <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
                   {" "}
-                  {formatCurrency(totalCommission)}
+                  <AnimatedNumber value={totalCommission} isCurrency={true} />
                 </strong>
               </p>
             </div>
