@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
 import {
   FaSearch,
+  FaUpload,
   FaCheckCircle,
   FaTimesCircle,
   FaUser,
@@ -10,24 +10,120 @@ import {
   FaBuilding,
   FaUniversity,
   FaExpand,
-  FaUpload,
 } from "react-icons/fa";
+import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
+import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
+  useList as useListAction,
+  kycData as kycDataAction,
+  kycStatusData,
   kycStatusCheck,
   kycUnlock,
+  kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
-  getCompanyAdmin,
-  kycDataCompany,
-  kycRevertCompany,
-} from "../../redux/action/whiteLabelAction";
+} from "../../../redux/action/whiteLabelAction";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import ProfileDetails from "./ProfileDetails";
-import { roleDataCompanyUser } from "../../redux/action/roleAction";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../../../redux/action/userProfileAction";
 
-const RetailerOnboarding = ({
+// ── Dummy data ──────────────────────────────────────────────────────────────
+const DUMMY_RETAILERS = [
+  {
+    id: 1,
+    date: "2026-03-15",
+    userId: "RET001",
+    name: "Rajesh Kumar",
+    userRole: "Retailer",
+    mobileNo: "9876543210",
+    email: "rajesh.k@example.com",
+    parentName: "Amit Sharma",
+    parentRole: "Distributor",
+    company: "Rajesh Telecom",
+    kycStatus: "Completed",
+    kycSteps: "3",
+    wallet: { mainWallet: 5000, apes1Wallet: 1200, apes2Wallet: 800 },
+    status: "Active",
+    lock: false,
+  },
+  {
+    id: 2,
+    date: "2026-03-14",
+    userId: "RET002",
+    name: "Suresh Raina",
+    userRole: "Retailer",
+    mobileNo: "9123456789",
+    email: "suresh.r@example.com",
+    parentName: "Vijay Kumar",
+    parentRole: "Distributor",
+    company: "Raina Enterprises",
+    kycStatus: "Pending",
+    kycSteps: "1",
+    wallet: { mainWallet: 2500, apes1Wallet: 500, apes2Wallet: 200 },
+    status: "Inactive",
+    lock: true,
+  },
+  {
+    id: 3,
+    date: "2026-03-13",
+    userId: "RET003",
+    name: "Anjali Gupta",
+    userRole: "Retailer",
+    mobileNo: "9988776655",
+    email: "anjali.g@example.com",
+    parentName: "Amit Sharma",
+    parentRole: "Distributor",
+    company: "Gupta Store",
+    kycStatus: "Full_KYC",
+    kycSteps: "3",
+    wallet: { mainWallet: 12000, apes1Wallet: 3000, apes2Wallet: 1500 },
+    status: "Active",
+    lock: false,
+  },
+  {
+    id: 4,
+    date: "2026-03-12",
+    userId: "RET004",
+    name: "Mohit Verma",
+    userRole: "Retailer",
+    mobileNo: "9456123789",
+    email: "mohit.v@example.com",
+    parentName: "Vijay Kumar",
+    parentRole: "Distributor",
+    company: "Mohit Services",
+    kycStatus: "Rejected",
+    kycSteps: "2",
+    wallet: { mainWallet: 0, apes1Wallet: 0, apes2Wallet: 0 },
+    status: "Inactive",
+    lock: false,
+  },
+  {
+    id: 5,
+    date: "2026-03-11",
+    userId: "RET005",
+    name: "Pooja Hegde",
+    userRole: "Retailer",
+    mobileNo: "9000100020",
+    email: "pooja.h@example.com",
+    parentName: "Sanjay Singh",
+    parentRole: "Master Distributor",
+    company: "Hegde Solutions",
+    kycStatus: "Completed",
+    kycSteps: "3",
+    wallet: { mainWallet: 8500, apes1Wallet: 2000, apes2Wallet: 1100 },
+    status: "Active",
+    lock: false,
+  },
+];
+
+const Retailers = ({
   embedded = false,
   tableData: propTableData = [],
+  isLoading: propIsLoading = false,
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
@@ -43,14 +139,22 @@ const RetailerOnboarding = ({
   const [zoomedImage, setZoomedImage] = useState(null);
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
-  const [showProfileDetails, setShowProfileDetails] = useState(false);
-  const [selectedUserRole, setSelectedUserRole] = useState(null);
-
+  const [rowLockStatus, setRowLockStatus] = useState({}); // Track lock status per row ID
+  const [lastClickedRowId, setLastClickedRowId] = useState(null);
+  const [isKycModalLoading, setIsKycModalLoading] = useState(false);
   const kycModalRef = useRef(null);
+  const [showProfileDetails, setShowProfileDetails] = useState(false);
 
-  // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
-  const kycRetrieved = kycDetailsState?.data || null;
+  // Loader component for table body
+  const TableBodyLoader = ({ colSpan }) => (
+    <tr>
+      <td colSpan={colSpan} className="relative h-[100px] ">
+        <div className="flex flex-col items-center ">
+          <ButtonLoader size={28} thickness={3} />
+        </div>
+      </td>
+    </tr>
+  );
 
   // Get kycStatusCheck success state to refresh table after update
   const kycStatusCheckResponse = useSelector(
@@ -59,7 +163,7 @@ const RetailerOnboarding = ({
 
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
-    (state) => state?.whitelabel?.kycRevertUSer,
+    (state) => state?.whitelabel?.kycRevert,
   );
 
   // Get kycLockStatus success state to refresh table after unlock
@@ -67,80 +171,107 @@ const RetailerOnboarding = ({
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Use prop data from API - no dummy data
-  // Handle both nested (array of companies with users) and flat (array of users) structures
-  const allTableData = useMemo(() => {
-    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
-    // Check if data is nested (first item has 'users' property)
-    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
-      // Flatten nested structure
-      return propTableData.flatMap((company) => company?.users || []);
+  // Get data from Redux when search is active, otherwise use prop data
+  const responseForTable = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  );
+
+  // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
+  
+  // Simulation of KYC data for demo
+  const DUMMY_KYC_DETAILS = {
+    personal: {
+      firstName: "Rajesh",
+      lastName: "Kumar",
+      dob: "1990-05-15",
+      gender: "Male"
+    },
+    documents: {
+      pan: { number: "ABCDE1234F", status: "Verified" },
+      aadhaar: { number: "123456789012", status: "Verified" }
+    },
+    address: {
+      state: "Maharashtra",
+      city: "Mumbai",
+      pincode: "400001"
     }
-    // Already flat structure
-    return propTableData;
-  }, [propTableData]);
+  };
+
+  const kycRetrieved = DUMMY_KYC_DETAILS;
+
+  // Get lockCheck from Redux state
+  const lockCheck = useSelector((state) => state?.whitelabel?.kycStatusClick);
+
+  // Update row lock status when lockCheck changes for the last clicked row
+  useEffect(() => {
+    if (lastClickedRowId !== null && lockCheck !== undefined) {
+      const isLocked = lockCheck?.kycStatusClick?.isLocked;
+      setRowLockStatus((prev) => ({
+        ...prev,
+        [lastClickedRowId]: isLocked,
+      }));
+    }
+  }, [lockCheck, lastClickedRowId]);
+
+  // Use Dummy data for testing/demo
+  const allTableData = DUMMY_RETAILERS;
+  const isLoading = false; // Always show data for now
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
+    const response = state?.whitelabel?.whitelabelList;
+    return response?.totalCount || response?.total || 0;
   });
 
+  // Use Redux total count if available and search is active, otherwise use current data length
+  const totalCount =
+    debouncedSearchTerm.trim() && totalCountFromRedux > 0
+      ? totalCountFromRedux
+      : allTableData.length;
 
-  // Debounce search term
+  // Calculate total pages based on total count (5 records per page)
+  // If there's at least 1 record, show at least 1 page, otherwise show 0
+  const totalPages = totalCount > 0 ? Math.ceil(totalCount / 5) : 0;
+
+  // Slice data to show only 5 records per page
+  const startIndex = (currentPage - 1) * 5;
+  const endIndex = startIndex + 5;
+  const tableData = allTableData.slice(startIndex, endIndex);
+
+  // Debounce search term to avoid too many API calls
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedSearchTerm(searchTerm);
       setCurrentPage(1); // Reset to first page when search changes
-    }, 500);
+    }, 500); // 500ms delay
+
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API on initial load and when search term or page changes
+  // Fetch data from API when search term changes - DISABLED for demo
   useEffect(() => {
-    const payload = {
-      query: {
-        userRole: 5, // Retailer role
-        kycStatus: "pending",
-      },
-      options: {
-        sort: { id: -1 },
-        page: currentPage,
-        paginate: 5,
-      },
-      customSearch: debouncedSearchTerm.trim()
-        ? {
+    /*
+    if (debouncedSearchTerm.trim()) {
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
-        }
-        : {},
-    };
-    dispatch(roleDataCompanyUser(payload));
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+        },
+      };
 
-  // Use Redux data when available, otherwise use prop data
-  // Flatten the nested structure: data is array of companies, each with users array
-  const reduxTableData = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return [];
-    // Flatten users from all companies
-    return roleData.flatMap((company) => company?.users || []);
-  });
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
-  const finalTableData =
-    Array.isArray(reduxTableData) && reduxTableData.length > 0
-      ? reduxTableData
-      : allTableData;
-  // Use Redux total count if available, otherwise use current data length
-  const finalTotalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
-  const finalTotalPages =
-    finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
-  const finalStartIndex = (currentPage - 1) * 5;
-  const finalEndIndex = finalStartIndex + 5;
-  const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
+      dispatch(useListAction(payload));
+    }
+    */
+  }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -149,6 +280,7 @@ const RetailerOnboarding = ({
       try {
         const deepCopy = structuredClone(kycRetrieved);
         setSelectedKycData(deepCopy);
+        setIsKycModalLoading(false);
       } catch (error) {
         // Fallback to shallow copy if deep copy fails
         console.warn(
@@ -156,12 +288,14 @@ const RetailerOnboarding = ({
           error,
         );
         setSelectedKycData({ ...kycRetrieved });
+        setIsKycModalLoading(false);
       }
     }
   }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
 
-  // Refresh KYC data when revert succeeds
+  // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
+    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -171,62 +305,16 @@ const RetailerOnboarding = ({
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
+        // Force update by incrementing refresh key
+        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataCompany(selectedUserId));
+        dispatch(kycDataAction(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
+    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
-
-  // Refresh table when kycStatusCheck succeeds
-  useEffect(() => {
-    if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching roleDataCompanyUser again
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: debouncedSearchTerm.trim()
-          ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          }
-          : {},
-      };
-      dispatch(roleDataCompanyUser(payload));
-    }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
-
-  // Refresh table when kycUnlock succeeds
-  useEffect(() => {
-    if (kycLockStatusResponse?.status === "SUCCESS") {
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: debouncedSearchTerm.trim()
-          ? {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
-          }
-          : {},
-      };
-      dispatch(roleDataCompanyUser(payload));
-    }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -234,6 +322,9 @@ const RetailerOnboarding = ({
       if (kycModalRef.current && !kycModalRef.current.contains(event.target)) {
         setShowKycModal(false);
         setSelectedKycData(null);
+        setSelectedUserId(null);
+        setActiveTab("overview");
+        setZoomedImage(null);
       }
     };
 
@@ -246,15 +337,63 @@ const RetailerOnboarding = ({
     };
   }, [showKycModal]);
 
+  // Refresh table when kycStatusCheck succeeds - MOCKED for demo
+  useEffect(() => {
+    /*
+    if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Refresh table data by dispatching useList again
+      if (debouncedSearchTerm.trim()) {
+        const payload = {
+          query: {
+            userRole: 5, // Retailer role
+          },
+          options: {
+            sort: { id: -1 },
+            page: currentPage,
+            paginate: 5,
+          },
+          customSearch: {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          },
+        };
+        dispatch(useListAction(payload));
+      }
+    }
+    */
+  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: debouncedSearchTerm.trim()
+          ? {
+            mobileNo: debouncedSearchTerm.trim(),
+            name: debouncedSearchTerm.trim(),
+          }
+          : {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+
   // Export to Excel function
   const handleExportToExcel = () => {
-    if (!finalTableData || finalTableData.length === 0) {
+    if (!allTableData || allTableData.length === 0) {
       alert("No data available to export");
       return;
     }
 
-    // Prepare data for Excel export
-    const excelData = finalTableData.map((row) => ({
+    const excelData = allTableData.map((row) => ({
       ID: row.id || "N/A",
       Date: row.date || "N/A",
       "User ID": row.userId || "N/A",
@@ -264,6 +403,7 @@ const RetailerOnboarding = ({
       "Email Id": row.email || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
+      "Company Name": row.company || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": getWalletValue(row, "mainWallet"),
@@ -275,14 +415,10 @@ const RetailerOnboarding = ({
     // Create a new workbook and worksheet
     const worksheet = XLSX.utils.json_to_sheet(excelData);
     const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(
-      workbook,
-      worksheet,
-      "Retailer Onboarding Data",
-    );
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Retailers Data");
 
     // Generate Excel file and download
-    const fileName = `Retailer_Onboarding_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
+    const fileName = `Retailers_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
 
@@ -292,18 +428,22 @@ const RetailerOnboarding = ({
 
     // Define aliases for the types to handle aeps/apes typos and variations
     const aliases = {
-      mainWallet: ["mainWallet", "main_wallet"],
+      mainWallet: ["mainWallet", "main_wallet", "walletBalance", "balance"],
       apes1Wallet: [
         "apes1Wallet",
         "aeps1Wallet",
         "aeps1_wallet",
         "apes1_wallet",
+        "apesWallet1",
+        "aepsWallet1",
       ],
       apes2Wallet: [
         "apes2Wallet",
         "aeps2Wallet",
         "aeps2_wallet",
         "apes2_wallet",
+        "apesWallet2",
+        "aepsWallet2",
       ],
     };
 
@@ -316,10 +456,11 @@ const RetailerOnboarding = ({
     }
 
     // 2. Check nested wallet object
-    if (row.wallet && typeof row.wallet === "object") {
+    const walletObj = row.wallet || row.wallets || row.walletDetails;
+    if (walletObj && typeof walletObj === "object") {
       for (const key of possibleKeys) {
-        if (row.wallet[key] !== undefined && row.wallet[key] !== null)
-          return String(row.wallet[key]);
+        if (walletObj[key] !== undefined && walletObj[key] !== null)
+          return String(walletObj[key]);
       }
     }
 
@@ -327,20 +468,24 @@ const RetailerOnboarding = ({
     if (row.originalItem) {
       // 3.1 Check originalItem top level
       for (const key of possibleKeys) {
-        if (row.originalItem[key] !== undefined && row.originalItem[key] !== null)
+        if (
+          row.originalItem[key] !== undefined &&
+          row.originalItem[key] !== null
+        )
           return String(row.originalItem[key]);
       }
       // 3.2 Check originalItem nested wallet
-      if (
-        row.originalItem.wallet &&
-        typeof row.originalItem.wallet === "object"
-      ) {
+      const origWalletObj =
+        row.originalItem.wallet ||
+        row.originalItem.wallets ||
+        row.originalItem.walletDetails;
+      if (origWalletObj && typeof origWalletObj === "object") {
         for (const key of possibleKeys) {
           if (
-            row.originalItem.wallet[key] !== undefined &&
-            row.originalItem.wallet[key] !== null
+            origWalletObj[key] !== undefined &&
+            origWalletObj[key] !== null
           )
-            return String(row.originalItem.wallet[key]);
+            return String(origWalletObj[key]);
         }
       }
     }
@@ -373,15 +518,7 @@ const RetailerOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return (
-      <ProfileDetails
-        onBack={() => {
-          setShowProfileDetails(false);
-          setSelectedUserRole(null);
-        }}
-        userRole={selectedUserRole}
-      />
-    );
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
   }
 
   return (
@@ -391,44 +528,46 @@ const RetailerOnboarding = ({
       {embedded ? (
         <div className="flex flex-col min-h-[calc(100vh-300px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
           {/* Header Section */}
-          <div
-            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 ${embedded ? "py-4 mb-0" : "mb-6"}`}
-          >
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-              Retailer Onboarding List
-            </h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+              Retailers
+            </h2>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* From Date */}
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto cursor-pointer"
-              />
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
 
-              {/* To Date */}
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                min={fromDate || undefined}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto cursor-pointer"
-              />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+              </div>
 
-              {/* Search Input */}
               <div className="relative w-full sm:w-48">
                 <input
                   type="text"
                   placeholder="Search by Mobile No or Name"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-4 pr-10 py-2 w-full text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
-                <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
 
-              {/* Export Button */}
               <button
                 onClick={handleExportToExcel}
                 className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
@@ -440,82 +579,82 @@ const RetailerOnboarding = ({
 
           {/* Table */}
           <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <table className="min-w-[720px] sm:min-w-full divide-y">
+            <table className="min-w-[1200px] sm:min-w-full divide-y">
               <thead className="bg-white text-center">
                 <tr>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
-
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4 ml-8  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User
                   </th>
-
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS2 Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Onboarding
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Token Expire
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody className="text-center">
-                {!displayTableData || displayTableData.length === 0 ? (
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
+                {isLoading ? (
+                  <TableBodyLoader colSpan={13} />
+                ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
@@ -524,21 +663,29 @@ const RetailerOnboarding = ({
                     </td>
                   </tr>
                 ) : (
-                  displayTableData.map((row, index) => (
+                  tableData.map((row, index) => (
                     <tr
                       key={row.id || index}
-                      className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50"}`}
+                      className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] ">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              setSelectedUserRole(row.userRole || null);
-                              dispatch(getCompanyAdmin(userId));
+                              // Set role code for ProfileDetails badge
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "R"; // Retailer
+                              // dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              // dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -548,31 +695,31 @@ const RetailerOnboarding = ({
                         </button>
                       </td>
 
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -591,19 +738,19 @@ const RetailerOnboarding = ({
                           );
                         })()}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "mainWallet")}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row, "mainWallet")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes1Wallet")}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row, "apes1Wallet")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes2Wallet")}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row, "apes2Wallet")}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
@@ -613,23 +760,30 @@ const RetailerOnboarding = ({
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(kycDataCompany(userId));
-                              setShowKycModal(true);
+                              setIsKycModalLoading(true);
+                              // dispatch(kycDataAction(userId));
+
+                              // Mock loading delay
+                              setTimeout(() => {
+                                setIsKycModalLoading(false);
+                                setSelectedKycData(DUMMY_KYC_DETAILS);
+                                setShowKycModal(true);
+                              }, 800);
                             }
                           }}
-                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
+                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
                         >
                           KYC Details
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -661,21 +815,18 @@ const RetailerOnboarding = ({
                                     const payload = {
                                       query: {
                                         userRole: 5, // Retailer role
-                                        kycStatus: "pending",
                                       },
                                       options: {
                                         sort: { id: -1 },
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
+                                      customSearch: {
+                                        mobileNo: debouncedSearchTerm.trim(),
+                                        name: debouncedSearchTerm.trim(),
+                                      },
                                     };
-                                    dispatch(roleDataCompanyUser(payload));
+                                    dispatch(useListAction(payload));
                                   }, 500);
                                 }
                               }}
@@ -693,7 +844,7 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -714,6 +865,7 @@ const RetailerOnboarding = ({
                               lockValue === "true" ||
                               lockValue === 1 ||
                               String(lockValue).toLowerCase() === "true");
+
                           return (
                             <button
                               onClick={() => {
@@ -742,14 +894,15 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Onboarding - Re-send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  // dispatch(rescendOnboarding(userId));
+                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -760,7 +913,7 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Deactivation - Send Button */}
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px]">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           return (
@@ -777,7 +930,7 @@ const RetailerOnboarding = ({
                           );
                         })()}
                       </td>
-                      <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -788,26 +941,26 @@ const RetailerOnboarding = ({
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-center mt-auto pt-6 pb-4">
+          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1 || finalTotalPages === 0}
-              className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-whixs text-[#121216] font-[Gilroy-Regular] hover:bg-gray-50"
+              disabled={currentPage === 1 || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <IoIosArrowBack />
             </button>
-            {finalTotalPages > 0 ? (
-              Array.from({ length: finalTotalPages }, (_, i) => i + 1).map(
+            {totalPages > 0 ? (
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -815,145 +968,155 @@ const RetailerOnboarding = ({
                 ),
               )
             ) : (
-              <span className="w-10 h-10 rounded-lg font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
+              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
                 0
               </span>
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(finalTotalPages, currentPage + 1))
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
-              disabled={
-                currentPage === finalTotalPages || finalTotalPages === 0
-              }
-              className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === finalTotalPages || finalTotalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-white text-[#1B1717] hover:bg-gray-50"
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
-              <ChevronRight className="w-5 h-5" />
+              <IoIosArrowForward />
             </button>
           </div>
         </div>
       ) : (
         <div className="bg-white rounded-xl shadow-sm p-4 sm:p-6 flex flex-col min-h-[calc(100vh-300px)]">
           {/* Header Section */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
-            <h1 className="text-lg sm:text-2xl lg:text-2xl font-[Gilroy-Medium] text-[#1B1717]">
-              Retailer Onboarding List
-            </h1>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4 mb-6">
+            <h2 className="text-xl sm:text-2xl font-normal text-gray-800">
+              Retailers
+            </h2>
 
-            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
-              {/* From Date */}
-              <input
-                type="date"
-                value={fromDate}
-                onChange={(e) => setFromDate(e.target.value)}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto cursor-pointer"
-              />
+            <div className="flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center justify-end gap-3">
+              <div className="flex flex-col xs:flex-row gap-3">
+                <input
+                  type="date"
+                  value={fromDate}
+                  onChange={(e) => {
+                    setFromDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
 
-              {/* To Date */}
-              <input
-                type="date"
-                value={toDate}
-                onChange={(e) => setToDate(e.target.value)}
-                min={fromDate || undefined}
-                className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto cursor-pointer"
-              />
+                <input
+                  type="date"
+                  value={toDate}
+                  onChange={(e) => {
+                    setToDate(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  min={fromDate || undefined}
+                  className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
+                />
+              </div>
 
-              {/* Search Input */}
               <div className="relative w-full sm:w-48">
                 <input
                   type="text"
                   placeholder="Search by Mobile No or Name"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-4 pr-10 py-2 w-full text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white"
+                  className="pl-4 pr-10 py-3 border border-gray-300 rounded-xl w-full text-sm focus:ring-green-500 focus:border-green-500"
                 />
-                <FaSearch className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
+                <FaSearch className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 text-sm pointer-events-none" />
               </div>
 
-              {/* Export Button */}
               <button
                 onClick={handleExportToExcel}
-                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-2 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm"
+                className="flex items-center justify-center gap-2 bg-[#039155] text-white px-4 py-3 rounded-lg font-[Gilroy-Medium] hover:bg-green-700 shadow-md text-sm sm:text-base"
               >
-                Export
+                Export <FaUpload className="text-xs" />
               </button>
             </div>
           </div>
 
           {/* Table */}
-          <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-            <table className="min-w-[720px] sm:min-w-full divide-y">
-              <thead className="bg-white">
+          <div className="flex-1 mb-4 overflow-x-auto rounded-xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
+            <table className="min-w-[1200px] sm:min-w-full divide-y">
+              <thead className="bg-gray-100 text-center">
                 <tr>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     ID
                   </th>
                   <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User
                   </th>
 
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User ID
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     User Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Mobile No
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Email Id
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Name
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Parent Role
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Company
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Steps
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Main Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS1 Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     AEPS2 Wallet
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     KYC Details
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Action
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Lock Status
                   </th>
-                  <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Onboarding
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
+                    Token Expire
+                  </th>
+                  <th className="px-3 py-4  font-[Gilroy-Medium] text-[14px] text-[#1B1717] tracking-wider whitespace-nowrap">
                     Date
                   </th>
                 </tr>
               </thead>
 
-              <tbody>
-                {!displayTableData || displayTableData.length === 0 ? (
+              <tbody className="bg-white divide-y font-normal text-center divide-gray-100">
+                {isLoading ? (
+                  <TableBodyLoader colSpan={13} />
+                ) : !tableData || tableData.length === 0 ? (
                   <tr>
                     <td colSpan={20} className="py-12 text-center">
                       <p className="text-gray-500 text-lg font-[Gilroy-Medium]">
@@ -962,20 +1125,23 @@ const RetailerOnboarding = ({
                     </td>
                   </tr>
                 ) : (
-                  displayTableData.map((row, index) => (
+                  tableData.map((row, index) => (
                     <tr
                       key={row.id || index}
-                      className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-white" : "bg-green-50"}`}
+                      className={`text-sm ${index % 2 === 0 ? "bg-green-50" : "bg-white"}`}
                     >
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.id, "N/A")}
                       </td>
-                      <td className="px-4 py-4 whitespace-nowrap font-[Gilroy-Regular] text-[14px] text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-center">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(getCompanyAdmin(userId));
+                              // Use only admin profile details API (same as CreateWhiteLabel)
+                              const original = row.originalItem || {};
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -985,31 +1151,31 @@ const RetailerOnboarding = ({
                         </button>
                       </td>
 
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userId, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.name, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.userRole, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.mobileNo, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.email, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentName, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.parentRole, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {safeString(row.company, "N/A")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const status = row.kycStatus?.toLowerCase();
                           let className =
@@ -1028,16 +1194,19 @@ const RetailerOnboarding = ({
                           );
                         })()}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {safeString(row.kycSteps, "0")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "mainWallet")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular] text-center">
+                        {getWalletValue(row.wallet, "apes2Wallet")}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
                             ? "bg-green-600"
@@ -1047,22 +1216,23 @@ const RetailerOnboarding = ({
                           {safeString(row.status, "Active")}
                         </span>
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         <button
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(kycDataCompany(userId));
+                              setSelectedUserId(userId);
+                              dispatch(kycDataAction(userId));
                               setShowKycModal(true);
                             }
                           }}
-                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium]"
+                          className="px-3 py-1 border border-black text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
                         >
                           KYC Details
                         </button>
                       </td>
                       {/* Action - Toggle Button */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           const isActive =
@@ -1073,6 +1243,7 @@ const RetailerOnboarding = ({
                               onClick={() => {
                                 if (userId) {
                                   // Handle both cases: active → inactive and inactive → active
+                                  /*
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
@@ -1088,28 +1259,8 @@ const RetailerOnboarding = ({
                                       }),
                                     );
                                   }
-
-                                  // Immediately refresh table data after dispatching
-                                  setTimeout(() => {
-                                    const payload = {
-                                      query: {
-                                        userRole: 5, // Retailer role
-                                        kycStatus: "pending",
-                                      },
-                                      options: {
-                                        sort: { id: -1 },
-                                        page: currentPage,
-                                        paginate: 5,
-                                      },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
-                                    };
-                                    dispatch(roleDataCompanyUser(payload));
-                                  }, 500);
+                                  */
+                                  alert(`Account status updated for ${row.name || "user"}`);
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -1126,7 +1277,7 @@ const RetailerOnboarding = ({
                         })()}
                       </td>
                       {/* Lock Status - Colored Button */}
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {(() => {
                           const userId = row.id || row.originalItem?.id;
                           // Check multiple possible formats for lock status
@@ -1147,15 +1298,15 @@ const RetailerOnboarding = ({
                               lockValue === "true" ||
                               lockValue === 1 ||
                               String(lockValue).toLowerCase() === "true");
+
                           return (
                             <button
                               onClick={() => {
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
-                                  // Dispatch unlock action with the row ID
-                                  // The useEffect hook will automatically refresh the table
-                                  // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                  // Dispatch unlock action with the row ID - MOCKED
+                                  // dispatch(kycUnlock(userId));
+                                  alert("Account access has been enabled successfully.");
                                 }
                               }}
                               disabled={!isLocked}
@@ -1174,7 +1325,45 @@ const RetailerOnboarding = ({
                           );
                         })()}
                       </td>
-                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
+                      {/* Onboarding - Re-send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  // dispatch(rescendOnboarding(userId));
+                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
+                                }
+                              }}
+                              className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Re-send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      {/* Deactivation - Send Button */}
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
+                        {(() => {
+                          const userId = row.id || row.originalItem?.id;
+                          return (
+                            <button
+                              onClick={() => {
+                                if (userId) {
+                                  // dispatch(deActiveOnboarding(userId));
+                                  alert(`Deactivation request sent for ${row.name || "user"}`);
+                                }
+                              }}
+                              className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
+                            >
+                              Send
+                            </button>
+                          );
+                        })()}
+                      </td>
+                      <td className="px-4 py-4 whitespace-nowrap text-[14px] text-[#121216] font-[Gilroy-Regular]">
                         {formatDate(row.date)}
                       </td>
                     </tr>
@@ -1185,26 +1374,26 @@ const RetailerOnboarding = ({
           </div>
 
           {/* Pagination */}
-          <div className="flex items-center justify-center mt-auto pt-6 pb-4">
+          <div className="flex justify-center items-center mt-auto pt-6 pb-4 space-x-2">
             <button
               onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-              disabled={currentPage === 1 || finalTotalPages === 0}
-              className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === 1 || finalTotalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-white text-[#1B1717] hover:bg-gray-50"
+              disabled={currentPage === 1 || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === 1 || totalPages === 0
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
-              <ChevronLeft className="w-5 h-5" />
+              <IoIosArrowBack />
             </button>
-            {finalTotalPages > 0 ? (
-              Array.from({ length: finalTotalPages }, (_, i) => i + 1).map(
+            {totalPages > 0 ? (
+              Array.from({ length: totalPages }, (_, i) => i + 1).map(
                 (page) => (
                   <button
                     key={page}
                     onClick={() => setCurrentPage(page)}
-                    className={`w-10 h-10 rounded-lg font-[Gilroy-Medium] transition ${page === currentPage
-                      ? "bg-[#039155] text-white"
-                      : "bg-white border border-gray-300 text-[#1B1717] hover:bg-gray-50"
+                    className={`w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] ${page === currentPage
+                      ? "bg-green-600 text-white"
+                      : "bg-white text-gray-700 border border-gray-300 hover:bg-gray-100"
                       }`}
                   >
                     {page}
@@ -1212,23 +1401,21 @@ const RetailerOnboarding = ({
                 ),
               )
             ) : (
-              <span className="w-10 h-10 rounded-lg font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
+              <span className="w-8 h-8 rounded-lg text-sm font-[Gilroy-Medium] flex items-center justify-center text-gray-500">
                 0
               </span>
             )}
             <button
               onClick={() =>
-                setCurrentPage(Math.min(finalTotalPages, currentPage + 1))
+                setCurrentPage(Math.min(totalPages, currentPage + 1))
               }
-              disabled={
-                currentPage === finalTotalPages || finalTotalPages === 0
-              }
-              className={`p-2 rounded-lg border border-gray-300 transition ${currentPage === finalTotalPages || finalTotalPages === 0
-                ? "bg-gray-100 border-gray-300 text-gray-400 cursor-not-allowed"
-                : "bg-white text-[#1B1717] hover:bg-gray-50"
+              disabled={currentPage === totalPages || totalPages === 0}
+              className={`p-2 border border-gray-300 rounded-lg ${currentPage === totalPages || totalPages === 0
+                ? "text-gray-400 cursor-not-allowed bg-gray-100"
+                : "text-gray-500 hover:bg-gray-100"
                 }`}
             >
-              <ChevronRight className="w-5 h-5" />
+              <IoIosArrowForward />
             </button>
           </div>
         </div>
@@ -1335,7 +1522,11 @@ const RetailerOnboarding = ({
 
             {/* Modal Content */}
             <div className="p-6 overflow-y-auto max-h-[calc(90vh-250px)] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
-              {selectedKycData ? (
+              {isKycModalLoading ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-4">
+                  <ButtonLoader color="#039155" size={40} thickness={4} />
+                </div>
+              ) : selectedKycData ? (
                 <div className="space-y-6 animate-fadeIn">
                   {/* Overview Tab */}
                   {activeTab === "overview" && (
@@ -1465,7 +1656,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        aadhar: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1591,7 +1786,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        pan: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1717,7 +1916,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        shopImage: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1799,7 +2002,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        bankVerification: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -2173,4 +2380,4 @@ const RetailerOnboarding = ({
   );
 };
 
-export default RetailerOnboarding;
+export default Retailers;

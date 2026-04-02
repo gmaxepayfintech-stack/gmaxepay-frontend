@@ -10,6 +10,7 @@ import { logOut } from "../../redux/action/loginAction";
 import { getGreeting } from "../../utils/getGreeting";
 
 const MaskGroup = "/img/Maskgroup.png";
+const MaskGroup1 = "/img/Maskgroup1.png";
 const MaskGroup2 = "/img/Maskgroup2.png";
 const MaskGroup3 = "/img/Maskgroup3.png";
 const MaskGroup4 = "/img/Maskgroup4.png";
@@ -145,11 +146,56 @@ const EmployeeLayout = ({ children }) => {
       dropdown: false,
     },
     {
-      name: "Reports",
-      icon: MaskGroup5,
-      path: "/employeeDashboard/reports",
-      dropdown: false,
+      name: "Members",
+      icon: MaskGroup1,
+      dropdown: true,
+      path: null,
+      children: [
+        { name: "Users", path: "/employeeDashboard/members/user" },
+        {
+          name: "Role Management",
+          path: "/employeeDashboard/members/rolemanagement",
+        },
+      ],
     },
+    {
+      name: "API Operator",
+      icon: MaskGroup2,
+      dropdown: true,
+      children: [
+        { name: "BBPS Settings", path: "/employeeDashboard/bbps-settings/list" },
+        // { name: "API Settings", path: "/superDashboard/api-operator/settings" },
+        {
+          name: "Operator Settings",
+          path: "/employeeDashboard/api-operator/operator-settings",
+        },
+        {
+          name: "Service Settings",
+          path: "/employeeDashboard/api-operator/service-settings",
+        },
+        {
+          name: "Pay-out Settings",
+          path: "/employeeDashboard/api-operator/payout-settings",
+        },
+      ],
+    },
+     {
+      name: "Resources",
+      icon: MaskGroup3,
+      dropdown: true,
+      children: [
+        {
+          name: "Schema Master",
+          path: "/employeeDashboard/resources/schemamaster",
+        },
+      ],
+    },
+    // {
+    //   name: "Reports",
+    //   icon: MaskGroup5,
+    //   path: "/employeeDashboard/reports",
+    //   dropdown: false,
+    // },
     {
       name: "Fund Manage",
       icon: MaskGroup4,
@@ -157,21 +203,27 @@ const EmployeeLayout = ({ children }) => {
       children: [
         {
           name: "Fund Request",
-          path: "/employeeDashboard/fund-manage/fund-request",
+          path: "/employeeDashboard/fund-management/fund-request",
         },
       ],
     },
     {
-        name: "Help",
-        icon: MaskGroup2,
-        dropdown: true,
-        children: [
-          {
-            name: "Contact Support",
-            path: "/employeeDashboard/contact-support",
-          },
-        ],
-      },
+      name: "Txn History",
+      icon: MaskGroup5,
+      path: "/employeeDashboard/txn-history",
+      dropdown: false,
+    },
+    // {
+    //     name: "Help",
+    //     icon: MaskGroup2,
+    //     dropdown: true,
+    //     children: [
+    //       {
+    //         name: "Contact Support",
+    //         path: "/employeeDashboard/contact-support",
+    //       },
+    //     ],
+    //   },
   ];
 
   return (
@@ -425,4 +477,4 @@ const EmployeeLayout = ({ children }) => {
   );
 };
 
-export default EmployeeLayout;
+export default EmployeeLayout;

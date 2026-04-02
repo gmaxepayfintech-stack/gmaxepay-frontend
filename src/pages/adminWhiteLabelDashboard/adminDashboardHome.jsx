@@ -206,25 +206,31 @@ const AdminDashboardHome = () => {
   const kpiCards = (() => {
     const userStats = companyDashboardStatisticsResponse?.data?.userStats;
     const total = userStats?.total;
-    const todayCreated = userStats?.todayCreated;
+    const walletBalances = userStats?.walletBalances;
+
+    const getWalletSub = (type) => {
+      const main = walletBalances?.[type]?.mainWallet ?? 0;
+      const aeps = (walletBalances?.[type]?.aeps1Wallet ?? 0) + (walletBalances?.[type]?.aeps2Wallet ?? 0);
+      return { main, aeps };
+    };
 
     return [
       {
         title: "Master Distributor",
-        value: total?.masterDistributor ?? "0",
-        subtitle: `Today Member + ${todayCreated?.masterDistributor ?? 0}`,
+        value: total?.masterDistributor ?? 0,
+        wallets: getWalletSub("masterDistributor"),
         icon: MasterDt,
       },
       {
         title: "Distributor",
-        value: total?.distributor ?? "0",
-        subtitle: `Today Member + ${todayCreated?.distributor ?? 0}`,
+        value: total?.distributor ?? 0,
+        wallets: getWalletSub("distributor"),
         icon: Distributor,
       },
       {
         title: "Retailer",
-        value: total?.retailer ?? "0",
-        subtitle: `Today Member + ${todayCreated?.retailer ?? 0}`,
+        value: total?.retailer ?? 0,
+        wallets: getWalletSub("retailer"),
         icon: Ratailer,
       },
     ];
@@ -325,11 +331,15 @@ const AdminDashboardHome = () => {
           >
             <div className="flex items-center justify-between">
               <div className="flex-1">
-                <div className="h-4 bg-gray-200 rounded w-24 mb-2"></div>
-                <div className="h-8 bg-gray-200 rounded w-16 mb-2"></div>
-                <div className="h-6 bg-gray-200 rounded w-32"></div>
+                <div className="h-5 bg-gray-200 rounded w-32 mb-2"></div>
+                <div className="h-8 bg-gray-200 rounded w-16 mb-4"></div>
+                {/* Side-by-side wallet skeleton badges */}
+                <div className="flex flex-row gap-2">
+                  <div className="h-5 bg-gray-200 rounded-2xl w-24"></div>
+                  <div className="h-5 bg-gray-200 rounded-2xl w-24"></div>
+                </div>
               </div>
-              <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
+              <div className="w-12 h-12 bg-gray-200 rounded-full shrink-0"></div>
             </div>
           </div>
         ))}
@@ -426,12 +436,19 @@ const AdminDashboardHome = () => {
                   {card.title}
                 </p>
                 <p className="text-[28px] font-['Gilroy-SemiBold'] text-[#1B1717] mb-2">
-                  {card.value}
+                  {card.value.toLocaleString("en-IN")}
                 </p>
                 {card.title !== "Today's Earning" && (
-                  <p className="text-xs text-white text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 sm:py-1.5 w-fit">
-                    {card.subtitle}
-                  </p>
+                  <div className="flex flex-row gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
+                      <span>Main:</span>
+                      {formatCurrency(card.wallets.main)}
+                    </div>
+                    <div className="flex items-center gap-1.5 text-white text-[10px] sm:text-[12px] font-['Gilroy-Medium'] rounded-2xl bg-[#039155] px-2 sm:px-3 py-1 w-fit whitespace-nowrap">
+                      <span>AEPS:</span>
+                      {formatCurrency(card.wallets.aeps)}
+                    </div>
+                  </div>
                 )}
               </div>
               <div className="flex items-center justify-center rounded-full text-[#1B1717] bg-[#E2FAF0] p-3 sm:p-4 lg:p-5 shrink-1">

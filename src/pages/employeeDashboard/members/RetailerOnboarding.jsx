@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect, useMemo } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ChevronLeft, ChevronRight, User, X, ZoomIn } from "lucide-react";
 import {
@@ -14,16 +14,41 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
+  useList as useListAction,
+  kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
+  kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
   getCompanyAdmin,
-  kycDataCompany,
-  kycRevertCompany,
-} from "../../redux/action/whiteLabelAction";
+} from "../../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
-import { roleDataCompanyUser } from "../../redux/action/roleAction";
+import {
+  getAdminProfileDetails,
+  setSelectedUserRole,
+} from "../../../redux/action/userProfileAction";
+
+// ── Dummy data ──────────────────────────────────────────────────────────────
+const DUMMY_ONBOARDING_RETAILERS = [
+  {
+    id: "RD001",
+    date: "2026-03-27",
+    userId: "RETAIL_PEND_001",
+    name: "Amit Kumar",
+    userRole: "Retailer",
+    mobileNo: "9500011122",
+    email: "amit.k@example.com",
+    parentName: "Vikram Seth",
+    parentRole: "Distributor",
+    company: "Kumar Kirana",
+    kycStatus: "Pending",
+    kycSteps: "2",
+    wallet: { mainWallet: 0, apes1Wallet: 0, apes2Wallet: 0 },
+    status: "Inactive",
+    lock: false,
+  },
+];
 
 const RetailerOnboarding = ({
   embedded = false,
@@ -44,12 +69,11 @@ const RetailerOnboarding = ({
   const [selectedUserId, setSelectedUserId] = useState(null);
   const [kycDataRefreshKey, setKycDataRefreshKey] = useState(0);
   const [showProfileDetails, setShowProfileDetails] = useState(false);
-  const [selectedUserRole, setSelectedUserRole] = useState(null);
 
   const kycModalRef = useRef(null);
 
-  // Get KYC details from Redux state - watch the entire kycDetailsCompany object to detect changes
-  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetailsCompany);
+  // Get KYC details from Redux state - watch the entire kycDetails object to detect changes
+  const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycStatusCheck success state to refresh table after update
@@ -59,7 +83,7 @@ const RetailerOnboarding = ({
 
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
-    (state) => state?.whitelabel?.kycRevertUSer,
+    (state) => state?.whitelabel?.kycRevert,
   );
 
   // Get kycLockStatus success state to refresh table after unlock
@@ -68,26 +92,20 @@ const RetailerOnboarding = ({
   );
 
   // Use prop data from API - no dummy data
-  // Handle both nested (array of companies with users) and flat (array of users) structures
-  const allTableData = useMemo(() => {
-    if (!Array.isArray(propTableData) || propTableData.length === 0) return [];
-    // Check if data is nested (first item has 'users' property)
-    if (propTableData[0]?.users && Array.isArray(propTableData[0].users)) {
-      // Flatten nested structure
-      return propTableData.flatMap((company) => company?.users || []);
-    }
-    // Already flat structure
-    return propTableData;
-  }, [propTableData]);
+  const allTableData =
+    Array.isArray(propTableData) && propTableData.length > 0
+      ? propTableData
+      : [];
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return 0;
-    // Sum all users from all companies
-    return roleData.reduce((total, company) => total + (company?.users?.length || 0), 0);
+    const response = state?.whitelabel?.whitelabelList;
+    return response?.totalCount || response?.total || 0;
   });
 
+  // Use Redux total count if available, otherwise use current data length
+  const totalCount =
+    totalCountFromRedux > 0 ? totalCountFromRedux : allTableData.length;
 
   // Debounce search term
   useEffect(() => {
@@ -98,49 +116,48 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API on initial load and when search term or page changes
+  // Fetch data from API when search term or page changes - DISABLED for demo
   useEffect(() => {
-    const payload = {
-      query: {
-        userRole: 5, // Retailer role
-        kycStatus: "pending",
-      },
-      options: {
-        sort: { id: -1 },
-        page: currentPage,
-        paginate: 5,
-      },
-      customSearch: debouncedSearchTerm.trim()
-        ? {
+    /*
+    if (debouncedSearchTerm.trim()) {
+      const payload = {
+        query: {
+          userRole: 5, // Retailer role
+          kycStatus: "pending",
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
-        }
-        : {},
-    };
-    dispatch(roleDataCompanyUser(payload));
+        },
+      };
+      dispatch(useListAction(payload));
+    }
+    */
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Use Redux data when available, otherwise use prop data
-  // Flatten the nested structure: data is array of companies, each with users array
-  const reduxTableData = useSelector((state) => {
-    const roleData = state?.roles?.roleDataComp?.roleDataComp;
-    if (!Array.isArray(roleData)) return [];
-    // Flatten users from all companies
-    return roleData.flatMap((company) => company?.users || []);
-  });
-  // Prefer Redux data if available (from API calls), otherwise fall back to prop data
-  const finalTableData =
-    Array.isArray(reduxTableData) && reduxTableData.length > 0
-      ? reduxTableData
-      : allTableData;
-  // Use Redux total count if available, otherwise use current data length
+  // Use Redux data when search is active, otherwise use prop data
+  const reduxTableData = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  );
+  const finalTableData = debouncedSearchTerm.trim()
+    ? reduxTableData
+    : allTableData;
   const finalTotalCount =
-    totalCountFromRedux > 0 ? totalCountFromRedux : finalTableData.length;
+    debouncedSearchTerm.trim() && totalCountFromRedux > 0
+      ? totalCountFromRedux
+      : finalTableData.length;
   const finalTotalPages =
     finalTotalCount > 0 ? Math.ceil(finalTotalCount / 5) : 0;
   const finalStartIndex = (currentPage - 1) * 5;
   const finalEndIndex = finalStartIndex + 5;
-  const displayTableData = finalTableData.slice(finalStartIndex, finalEndIndex);
+  // Use Dummy data for testing/demo if prop data is empty
+  const displayTableData =
+    finalTableData.length > 0 ? finalTableData.slice(finalStartIndex, finalEndIndex) : DUMMY_ONBOARDING_RETAILERS;
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -160,8 +177,9 @@ const RetailerOnboarding = ({
     }
   }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
 
-  // Refresh KYC data when revert succeeds
+  // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
+    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -171,37 +189,42 @@ const RetailerOnboarding = ({
       setSelectedKycData(null);
       // Small delay to ensure backend has processed the revert
       const timer = setTimeout(() => {
+        // Force update by incrementing refresh key
+        setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataCompany(selectedUserId));
+        dispatch(kycDataAction(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
+    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
-  // Refresh table when kycStatusCheck succeeds
+  // Refresh table when kycStatusCheck succeeds - MOCKED for demo
   useEffect(() => {
+    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching roleDataCompanyUser again
-      const payload = {
-        query: {
-          userRole: 5, // Retailer role
-          kycStatus: "pending",
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 5,
-        },
-        customSearch: debouncedSearchTerm.trim()
-          ? {
+      // Refresh table data by dispatching useList again
+      if (debouncedSearchTerm.trim()) {
+        const payload = {
+          query: {
+            userRole: 5, // Retailer role
+            kycStatus: "pending",
+          },
+          options: {
+            sort: { id: -1 },
+            page: currentPage,
+            paginate: 5,
+          },
+          customSearch: {
             mobileNo: debouncedSearchTerm.trim(),
             name: debouncedSearchTerm.trim(),
-          }
-          : {},
-      };
-      dispatch(roleDataCompanyUser(payload));
+          },
+        };
+        dispatch(useListAction(payload));
+      }
     }
+    */
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
@@ -224,7 +247,7 @@ const RetailerOnboarding = ({
           }
           : {},
       };
-      dispatch(roleDataCompanyUser(payload));
+      dispatch(useListAction(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -264,6 +287,7 @@ const RetailerOnboarding = ({
       "Email Id": row.email || "N/A",
       "Parent Name": row.parentName || "N/A",
       "Parent Role": row.parentRole || "N/A",
+      "Company Name": row.company || "N/A",
       "KYC Status": row.kycStatus || "N/A",
       "KYC Steps": row.kycSteps || "0",
       "Main Wallet": getWalletValue(row, "mainWallet"),
@@ -292,18 +316,22 @@ const RetailerOnboarding = ({
 
     // Define aliases for the types to handle aeps/apes typos and variations
     const aliases = {
-      mainWallet: ["mainWallet", "main_wallet"],
+      mainWallet: ["mainWallet", "main_wallet", "walletBalance", "balance"],
       apes1Wallet: [
         "apes1Wallet",
         "aeps1Wallet",
         "aeps1_wallet",
         "apes1_wallet",
+        "apesWallet1",
+        "aepsWallet1",
       ],
       apes2Wallet: [
         "apes2Wallet",
         "aeps2Wallet",
         "aeps2_wallet",
         "apes2_wallet",
+        "apesWallet2",
+        "aepsWallet2",
       ],
     };
 
@@ -316,10 +344,11 @@ const RetailerOnboarding = ({
     }
 
     // 2. Check nested wallet object
-    if (row.wallet && typeof row.wallet === "object") {
+    const walletObj = row.wallet || row.wallets || row.walletDetails;
+    if (walletObj && typeof walletObj === "object") {
       for (const key of possibleKeys) {
-        if (row.wallet[key] !== undefined && row.wallet[key] !== null)
-          return String(row.wallet[key]);
+        if (walletObj[key] !== undefined && walletObj[key] !== null)
+          return String(walletObj[key]);
       }
     }
 
@@ -327,20 +356,24 @@ const RetailerOnboarding = ({
     if (row.originalItem) {
       // 3.1 Check originalItem top level
       for (const key of possibleKeys) {
-        if (row.originalItem[key] !== undefined && row.originalItem[key] !== null)
+        if (
+          row.originalItem[key] !== undefined &&
+          row.originalItem[key] !== null
+        )
           return String(row.originalItem[key]);
       }
       // 3.2 Check originalItem nested wallet
-      if (
-        row.originalItem.wallet &&
-        typeof row.originalItem.wallet === "object"
-      ) {
+      const origWalletObj =
+        row.originalItem.wallet ||
+        row.originalItem.wallets ||
+        row.originalItem.walletDetails;
+      if (origWalletObj && typeof origWalletObj === "object") {
         for (const key of possibleKeys) {
           if (
-            row.originalItem.wallet[key] !== undefined &&
-            row.originalItem.wallet[key] !== null
+            origWalletObj[key] !== undefined &&
+            origWalletObj[key] !== null
           )
-            return String(row.originalItem.wallet[key]);
+            return String(origWalletObj[key]);
         }
       }
     }
@@ -373,15 +406,7 @@ const RetailerOnboarding = ({
   };
 
   if (showProfileDetails) {
-    return (
-      <ProfileDetails
-        onBack={() => {
-          setShowProfileDetails(false);
-          setSelectedUserRole(null);
-        }}
-        userRole={selectedUserRole}
-      />
-    );
+    return <ProfileDetails onBack={() => setShowProfileDetails(false)} />;
   }
 
   return (
@@ -537,8 +562,19 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              setSelectedUserRole(row.userRole || null);
-                              dispatch(getCompanyAdmin(userId));
+                              // Set role code for ProfileDetails badge (Retailer)
+                              const roleFromRow =
+                                row.userRole ||
+                                row.originalItem?.userRole ||
+                                "R";
+                              dispatch(setSelectedUserRole(roleFromRow));
+
+                              // Fetch core company admin details
+                              // dispatch(getCompanyAdmin(userId));
+
+                              // Additionally fetch admin profile details (slab visibility, etc.)
+                              // dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -595,13 +631,13 @@ const RetailerOnboarding = ({
                         {safeString(row.kycSteps, "0")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "mainWallet")}
+                        {getWalletValue(row, "mainWallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes1Wallet")}
+                        {getWalletValue(row, "apes1Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap text-center">
-                        {getWalletValue(row.wallet, "apes2Wallet")}
+                        {getWalletValue(row, "apes2Wallet")}
                       </td>
                       <td className="py-3 px-4 text-xs text-[#121216] font-[Gilroy-Regular] whitespace-nowrap">
                         <span
@@ -619,7 +655,17 @@ const RetailerOnboarding = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setSelectedUserId(userId);
-                              dispatch(kycDataCompany(userId));
+                              // dispatch(kycDataAction(userId));
+                              setSelectedKycData({
+                                kycStatus: row.kycStatus || "Pending",
+                                kycSteps: row.kycSteps || "3",
+                                userDetails: {
+                                  userId: row.userId,
+                                  name: row.name,
+                                  mobileNo: row.mobileNo,
+                                  email: row.emailId
+                                }
+                              });
                               setShowKycModal(true);
                             }
                           }}
@@ -668,14 +714,12 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
+                                      customSearch: {
+                                        mobileNo: debouncedSearchTerm.trim(),
+                                        name: debouncedSearchTerm.trim(),
+                                      },
                                     };
-                                    dispatch(roleDataCompanyUser(payload));
+                                    dispatch(useListAction(payload));
                                   }, 500);
                                 }
                               }}
@@ -720,9 +764,8 @@ const RetailerOnboarding = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
-                                  // The useEffect hook will automatically refresh the table
-                                  // when kycLockStatusResponse status becomes "SUCCESS"
-                                  dispatch(kycUnlock(userId));
+                                  // dispatch(kycUnlock(userId));
+                                  alert("Account access has been enabled successfully.");
                                 }
                               }}
                               disabled={!isLocked}
@@ -749,7 +792,8 @@ const RetailerOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(rescendOnboarding(userId));
+                                  // dispatch(rescendOnboarding(userId));
+                                  alert(`Onboarding re-sent to ${row.name || "user"}`);
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -767,7 +811,8 @@ const RetailerOnboarding = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  dispatch(deActiveOnboarding(userId));
+                                  // dispatch(deActiveOnboarding(userId));
+                                  alert(`Deactivation request sent for ${row.name || "user"}`);
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -886,7 +931,7 @@ const RetailerOnboarding = ({
           {/* Table */}
           <div className="flex-1 mb-4 overflow-x-auto rounded-3xl bg-white [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
             <table className="min-w-[720px] sm:min-w-full divide-y">
-              <thead className="bg-white">
+              <thead className="bg-white text-center">
                 <tr>
                   <th className=" py-3 px-4 text-sm font-[Gilroy-Medium] text-[#1B1717] whitespace-nowrap">
                     ID
@@ -975,7 +1020,12 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
+                              // Fetch core company admin details
                               dispatch(getCompanyAdmin(userId));
+
+                              // Additionally fetch admin profile details (slab visibility, etc.)
+                              dispatch(getAdminProfileDetails(userId));
+
                               setShowProfileDetails(true);
                             }
                           }}
@@ -1037,6 +1087,9 @@ const RetailerOnboarding = ({
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
                         {getWalletValue(row.wallet, "apes1Wallet")}
                       </td>
+                      <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap text-center">
+                        {getWalletValue(row.wallet, "apes2Wallet")}
+                      </td>
                       <td className="py-3 px-4 text-sm text-[#1B1717] whitespace-nowrap">
                         <span
                           className={`px-3 py-1 rounded-lg text-white text-xs font-[Gilroy-Medium] ${row.status?.toLowerCase() === "active"
@@ -1052,7 +1105,7 @@ const RetailerOnboarding = ({
                           onClick={() => {
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
-                              dispatch(kycDataCompany(userId));
+                              dispatch(kycDataAction(userId));
                               setShowKycModal(true);
                             }
                           }}
@@ -1101,14 +1154,12 @@ const RetailerOnboarding = ({
                                         page: currentPage,
                                         paginate: 5,
                                       },
-                                      customSearch: debouncedSearchTerm.trim()
-                                        ? {
-                                          mobileNo: debouncedSearchTerm.trim(),
-                                          name: debouncedSearchTerm.trim(),
-                                        }
-                                        : {},
+                                      customSearch: {
+                                        mobileNo: debouncedSearchTerm.trim(),
+                                        name: debouncedSearchTerm.trim(),
+                                      },
                                     };
-                                    dispatch(roleDataCompanyUser(payload));
+                                    dispatch(useListAction(payload));
                                   }, 500);
                                 }
                               }}
@@ -1465,7 +1516,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        aadhar: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1591,7 +1646,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        pan: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1717,7 +1776,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        shopImage: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
@@ -1799,7 +1862,11 @@ const RetailerOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (selectedUserId) {
-                                    dispatch(kycRevertCompany(selectedUserId));
+                                    dispatch(
+                                      kycRevert(selectedUserId, {
+                                        bankVerification: "true",
+                                      }),
+                                    );
                                   }
                                 }}
                                 className="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors text-sm font-[Gilroy-Medium]"
