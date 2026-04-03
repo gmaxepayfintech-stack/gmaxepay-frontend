@@ -15,6 +15,7 @@ import {
   AEPSTHREE_STATUS_CHECK_SUCCESS,
   AEPSTHREE_SUBMIT_OTP_SUCCESS,
   AEPSTHREE_TWO_FA_VERIFICATION_SUCCESS,
+  AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS,
 } from "../actionType/aepsThreeActionType";
 
 const initialState = {
@@ -37,6 +38,7 @@ const initialState = {
   aeps2CwHistoryCompany: null,
   aeps2CwHistoryUsers: null,
   aeps2CwHistoryTransactionDetails: null,
+  aeps2CwHistoryEmployee: null,
 };
 
 const aepsThreeReducer = (state = initialState, action) => {
@@ -171,7 +173,7 @@ const aepsThreeReducer = (state = initialState, action) => {
         aeps2CwHistoryCompany: action?.payload,
         success: action?.payload?.status,
         message: action?.payload?.message,
-      }
+      }  
     case AEPSTHREE_CW_HISTORY_USERS_SUCCESS:
       return {
         ...state,
@@ -187,6 +189,15 @@ const aepsThreeReducer = (state = initialState, action) => {
         loading: false,
         error: null,
         aeps2CwHistoryTransactionDetails: action?.payload,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+      }
+      case AEPSTHREE_CW_HISTORY_EMPLOYEE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        aeps2CwHistoryEmployee: action?.payload,
         success: action?.payload?.status,
         message: action?.payload?.message,
       }
