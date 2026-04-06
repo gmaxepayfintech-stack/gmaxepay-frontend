@@ -20,6 +20,8 @@ const DTHReportTwo = ({ onBack }) => {
     const [statusFilter, setStatusFilter] = useState("All");
     const [fromDate, setFromDate] = useState("");
     const [toDate, setToDate] = useState("");
+    const [debouncedFromDate, setDebouncedFromDate] = useState("");
+    const [debouncedToDate, setDebouncedToDate] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const [itemsPerPage, setItemsPerPage] = useState(10);
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
@@ -34,7 +36,7 @@ const DTHReportTwo = ({ onBack }) => {
     const totalCount = rechargeReportResponse?.total || 0;
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
-    // Debounce search query
+    // Debounce search query (500ms)
     useEffect(() => {
         const timer = setTimeout(() => {
             setDebouncedSearchQuery(searchQuery);
@@ -43,6 +45,16 @@ const DTHReportTwo = ({ onBack }) => {
 
         return () => clearTimeout(timer);
     }, [searchQuery]);
+
+    // Debounce date inputs (1500ms) — standard project pattern
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setDebouncedFromDate(fromDate);
+            setDebouncedToDate(toDate);
+        }, 1500);
+
+        return () => clearTimeout(timer);
+    }, [fromDate, toDate]);
 
     // Helper function to determine search field based on input pattern
     const getSearchField = (query) => {
@@ -65,16 +77,22 @@ const DTHReportTwo = ({ onBack }) => {
 
     // Fetch DTH recharge reports
     useEffect(() => {
+        // Only fire API when BOTH dates are set OR BOTH are empty — never with only one date
+        const bothDatesSelected = debouncedFromDate && debouncedToDate;
+        const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+        if (!bothDatesSelected && !bothDatesNull) {
+            return;
+        }
+
         const query = {
-            // API expects serviceType: "DTHRecharge"
             serviceType: "DTH2Recharge",
         };
 
         // Add date filters only if both dates are selected
-        if (fromDate && toDate) {
-            // Format date as YYYY-MM-DD (backend will handle format)
-            query.startDate = fromDate;
-            query.endDate = toDate;
+        if (bothDatesSelected) {
+            query.startDate = debouncedFromDate;
+            query.endDate = debouncedToDate;
         }
 
         // Get the appropriate search field based on input pattern
@@ -88,13 +106,12 @@ const DTHReportTwo = ({ onBack }) => {
             options: {
                 page: 1,
                 paginate: 1000,
-                // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
         dispatch(rechargeReportsTwoAdmin(payload));
-    }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
+    }, [dispatch, debouncedSearchQuery, debouncedFromDate, debouncedToDate]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -332,6 +349,8 @@ const DTHReportTwo = ({ onBack }) => {
                             onClick={() => {
                                 setFromDate("");
                                 setToDate("");
+                                setDebouncedFromDate("");
+                                setDebouncedToDate("");
                                 setIsReloading(true);
 
                                 const query = { serviceType: "DTH2Recharge" };
