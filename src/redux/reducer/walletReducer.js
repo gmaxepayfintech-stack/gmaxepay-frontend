@@ -1,4 +1,4 @@
-import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS, DELETE_COMPANY_SETTING_SLIDER_SUCCESS, ADMIN_GST_HISTORY_SUCCESS, ADMIN_GST_HISTORY_FAILURE, BBPS_HISTORY_SUCCESS, BBPS_HISTORY_FAILURE, BBPS_COMPANY_HISTORY_SUCCESS, BBPS_USER_HISTORY_SUCCESS, A1_TOPUP_WALLET_SUCCESS, A1_TOPUP_WALLET_FAILURE, PAYNIDI_WALLET_BALANCE_SUCCESS, PAYNIDI_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
+import { WALLET_ALS_SUCCESS, WALLET_ALS_FAILURE, WALLET_BALANCE_SUCCESS, WALLET_BALANCE_FAILURE, COMPANY_WALLET_BALANCE_SUCCESS, COMPANY_WALLET_BALANCE_FAILURE, USER_WALLET_BALANCE_SUCCESS, USER_WALLET_BALANCE_FAILURE, EKYC_HUB_BALANCE_SUCCESS, EKYC_HUB_BALANCE_FAILURE, INSPAY_WALLET_BALANCE_SUCCESS, INSPAY_WALLET_BALANCE_FAILURE, BBPS_WALLET_BALANCE_SUCCESS, BBPS_WALLET_BALANCE_FAILURE, DASHBOARD_STATISTICS_SUCCESS, DASHBOARD_STATISTICS_FAILURE, USER_DASHBOARD_STATISTICS_SUCCESS, USER_DASHBOARD_STATISTICS_FAILURE, UPLOAD_FEVICON_SUCCESS, WALLET_HISTORY_COMPANY_SUCCESS, WALLET_HISTORY_ADMIN_SUCCESS, WALLET_HISTORY_USER_SUCCESS, SURCHARGES_HISTORY_SUCCESS, UPDATE_BANK_DETAILS_SUCCESS, GET_COMPANY_SETTING_IMAGES_SUCCESS, DELETE_COMPANY_SETTING_SLIDER_SUCCESS, ADMIN_GST_HISTORY_SUCCESS, ADMIN_GST_HISTORY_FAILURE, EMPLOYEE_GST_HISTORY_SUCCESS, EMPLOYEE_GST_HISTORY_FAILURE, BBPS_HISTORY_SUCCESS, BBPS_HISTORY_FAILURE, SURCHARGES_EMPLOYEE_HISTORY_SUCCESS, BBPS_EMPLOYEE_HISTORY_SUCCESS, BBPS_EMPLOYEE_HISTORY_FAILURE, BBPS_COMPANY_HISTORY_SUCCESS, BBPS_USER_HISTORY_SUCCESS, A1_TOPUP_WALLET_SUCCESS, A1_TOPUP_WALLET_FAILURE, PAYNIDI_WALLET_BALANCE_SUCCESS, PAYNIDI_WALLET_BALANCE_FAILURE } from "../actionType/walletActionType";
 
 const initialState = {
     loading: false,
@@ -51,6 +51,12 @@ const initialState = {
     a1TopupWalletError: null,
     paynidiWalletBalance: null,
     paynidiWalletBalanceError: null,
+    employeeGstHistoryError: null,
+    employeeGstHistory: null,
+    bbpsEmployeeHistoryError: null,
+    bbpsEmployeeHistory: null,
+    surchargesEmployeeHistory: null,
+    surchargesEmployeeHistoryError: null,
 };
 
 const walletReducer = (state = initialState, action) => {
@@ -303,6 +309,17 @@ const walletReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
             }
 
+        case SURCHARGES_EMPLOYEE_HISTORY_SUCCESS:
+            return {
+                ...state,
+                surchargesEmployeeHistory: action?.payload,
+                surchargesEmployeeHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
         case UPDATE_BANK_DETAILS_SUCCESS:
             return {
                 ...state,
@@ -353,6 +370,26 @@ const walletReducer = (state = initialState, action) => {
                 success: null,
                 message: action?.payload?.message || action?.payload,
             }
+        case EMPLOYEE_GST_HISTORY_SUCCESS:
+            return {
+                ...state,
+                employeeGstHistory: action?.payload,
+                employeeGstHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case EMPLOYEE_GST_HISTORY_FAILURE:
+            return {
+                ...state,
+                employeeGstHistory: null,
+                employeeGstHistoryError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            }
         case BBPS_HISTORY_SUCCESS:
             return {
                 ...state,
@@ -388,6 +425,26 @@ const walletReducer = (state = initialState, action) => {
                 ...state,
                 bbpsHistory: null,
                 bbpsHistoryError: action?.payload,
+                loading: false,
+                error: action?.payload?.message || action?.payload,
+                success: null,
+                message: action?.payload?.message || action?.payload,
+            }
+        case BBPS_EMPLOYEE_HISTORY_SUCCESS:
+            return {
+                ...state,
+                bbpsEmployeeHistory: action?.payload,
+                bbpsEmployeeHistoryError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+        case BBPS_EMPLOYEE_HISTORY_FAILURE:
+            return {
+                ...state,
+                bbpsEmployeeHistory: null,
+                bbpsEmployeeHistoryError: action?.payload,
                 loading: false,
                 error: action?.payload?.message || action?.payload,
                 success: null,

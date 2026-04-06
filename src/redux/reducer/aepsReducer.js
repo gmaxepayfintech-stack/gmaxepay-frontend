@@ -144,6 +144,17 @@ const aepsReducer = (state = initialState, action) => {
                 message: action?.payload?.message || action?.payload,
             }
 
+        case AEPS_CW_HISTORY_EMPLOYEE_SUCCESS:
+            return {
+                ...state,
+                aepsCwHistoryEmployee: action?.payload,
+                aepsCwHistoryEmployeeError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
+            }
+
         case AEPS_TRANSACTION_DETAILS_SUCCESS:
             return {
                 ...state,
@@ -184,6 +195,16 @@ const aepsReducer = (state = initialState, action) => {
                 error: action?.payload?.message || action?.payload,
                 success: null,
                 message: action?.payload?.message || action?.payload,
+            }
+        case AEPS_TRANSACTION_DETAILS_EMPLOYEE_SUCCESS:
+            return {
+                ...state,
+                transactionDetailsEmployee: action?.payload,
+                transactionDetailsEmployeeError: null,
+                loading: false,
+                error: null,
+                success: action?.payload?.status,
+                message: action?.payload?.message,
             }
         case AEPS_BANK_OTP_SUCCESS:
             return {

@@ -1,4 +1,4 @@
-import { CMS_ADMIN_REPORTS_SUCCESS, CMS_COMPANY_REPORTS_SUCCESS, CMS_PROCESS_STATUS_SUCCESS, CMS_REPORTS_SUCCESS, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
+import { CMS_ADMIN_REPORTS_SUCCESS, CMS_COMPANY_REPORTS_SUCCESS, CMS_EMPLOYEE_REPORTS_SUCCESS, CMS_PROCESS_STATUS_SUCCESS, CMS_REPORTS_SUCCESS, DTH_RECHARGE_PLAN_FETCH_SUCCESS, DTH_RECHARGE_SUCCESS, FIND_DTH_OPERATOR_INFO_SUCCESS, FIND_MOBILE_OPERATOR_SUCCESS, FIND_MOBILE_RECHARGE_OFFERS_SUCCESS, FIND_MOBILE_RECHARGE_PLAN_SUCCESS, PAY_RECHARGE_SUCCESS, RECENT_HISTORY_SUCCESS } from "../actionType/rechargeActionType";
 
 const initialState = {
     loading: false,
@@ -13,6 +13,7 @@ const initialState = {
     recentHistory: null,
     cmsProcessStatus: null,
     cmsReports: null,
+    cmsEmployeeReports: null,
 };
 
 const rechargeReducer = (state = initialState, action) => {
@@ -118,6 +119,14 @@ const rechargeReducer = (state = initialState, action) => {
                 message: action?.payload?.message,
                 success: action?.payload?.status,
                 cmsCompanyReports: action?.payload,
+            }
+        case CMS_EMPLOYEE_REPORTS_SUCCESS:
+            return {
+                ...state,
+                error: null,
+                message: action?.payload?.message,
+                success: action?.payload?.status,
+                cmsEmployeeReports: action?.payload,
             }
         default:
             return state;
