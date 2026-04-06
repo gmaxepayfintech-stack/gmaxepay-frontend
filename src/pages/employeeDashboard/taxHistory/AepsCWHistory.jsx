@@ -100,7 +100,7 @@ const DUMMY_AEPS_HISTORY = [
   }
 ];
 
-const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
+const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -214,10 +214,10 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
         name: userName,
         userRole:
           item.userRole === 5 ? "Retailer" :
-          item.userRole === 4 ? "Distributor" :
-          item.userRole === 3 ? "Master Distributor" :
-          item.userRole === 2 ? "White Label" :
-          item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+            item.userRole === 4 ? "Distributor" :
+              item.userRole === 3 ? "Master Distributor" :
+                item.userRole === 2 ? "White Label" :
+                  item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
@@ -286,8 +286,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
 
   // Determine AEPS transaction type (CW, MS, BE) based on view type
   const transactionType = (() => {
-    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
-    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
+    if (type === "aeps1-ms-history" || type === "aeps2-ms-history") return "MS";
+    if (type === "aeps1-be-history" || type === "aeps2-be-history") return "BE";
     return "CW"; // default
   })();
 
@@ -447,7 +447,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
     // } else {
     //   dispatch(getAepsTransactionDetails(transactionId));
     // }
-    
+
     // Simulate API delay for transaction details
     setTimeout(() => {
       setIsLoadingTransactionDetails(false);

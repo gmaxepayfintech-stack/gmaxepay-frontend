@@ -26,12 +26,12 @@ const TaxHistory = () => {
   const viewHistory = searchParams.get("view");
 
   // Parse viewHistory to extract apiType and transactionType
-  // Format: aeps-cw-history, aeps2-ms-history, etc.
+  // Format: aeps1-cw-history, aeps2-ms-history, etc.
   let apiType = null;
   let transactionType = null;
 
   if (viewHistory) {
-    // Match patterns like: aeps-cw-history, aeps2-ms-history, aeps-be-history
+    // Match patterns like: aeps1-cw-history, aeps2-ms-history, aeps1-be-history
     const match = viewHistory.match(/^aeps([12])?-(cw|ms|be)-history$/);
     if (match) {
       apiType = match[1] === "2" ? "aeps2" : "aeps1"; // Default to aeps1 if no number
