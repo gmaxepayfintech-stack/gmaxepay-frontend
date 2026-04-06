@@ -38,9 +38,9 @@ const RetailerOnboarding = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  ); // Default to today's date
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -95,13 +95,33 @@ const RetailerOnboarding = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term or page changes
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Fetch data from API when search term or dates change
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
+    if (debouncedSearchTerm.trim() || bothDatesSelected) {
       const payload = {
         query: {
           userRole: 5, // Retailer role
           kycStatus: "pending",
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -109,13 +129,12 @@ const RetailerOnboarding = ({
           paginate: 5,
         },
         customSearch: {
-          mobileNo: debouncedSearchTerm.trim(),
-          name: debouncedSearchTerm.trim(),
+          ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
         },
       };
       dispatch(useListAction(payload));
     }
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Use Redux data when search is active, otherwise use prop data
   const reduxTableData = useSelector(
@@ -176,12 +195,21 @@ const RetailerOnboarding = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       // Refresh table data by dispatching useList again
-      if (debouncedSearchTerm.trim()) {
+      if (debouncedSearchTerm.trim() || bothDatesSelected || bothDatesNull) {
         const payload = {
           query: {
             userRole: 5, // Retailer role
             kycStatus: "pending",
+            ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
           },
           options: {
             sort: { id: -1 },
@@ -189,22 +217,30 @@ const RetailerOnboarding = ({
             paginate: 5,
           },
           customSearch: {
-            mobileNo: debouncedSearchTerm.trim(),
-            name: debouncedSearchTerm.trim(),
+             ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
           },
         };
         dispatch(useListAction(payload));
       }
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 5, // Retailer role
           kycStatus: "pending",
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -220,7 +256,7 @@ const RetailerOnboarding = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Handle click outside modal
   useEffect(() => {
@@ -660,6 +696,7 @@ const RetailerOnboarding = ({
                                       query: {
                                         userRole: 5, // Retailer role
                                         kycStatus: "pending",
+                                        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
                                       },
                                       options: {
                                         sort: { id: -1 },
@@ -667,8 +704,7 @@ const RetailerOnboarding = ({
                                         paginate: 5,
                                       },
                                       customSearch: {
-                                        mobileNo: debouncedSearchTerm.trim(),
-                                        name: debouncedSearchTerm.trim(),
+                                        ...(debouncedSearchTerm.trim() ? { mobileNo: debouncedSearchTerm.trim(), name: debouncedSearchTerm.trim() } : {}),
                                       },
                                     };
                                     dispatch(useListAction(payload));

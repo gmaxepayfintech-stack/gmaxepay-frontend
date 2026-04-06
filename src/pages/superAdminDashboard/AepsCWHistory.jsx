@@ -20,7 +20,7 @@ import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 import { getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import * as XLSX from "xlsx";
 
-const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
+const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
@@ -210,8 +210,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps-cw-history" }) => {
 
   // Determine AEPS transaction type (CW, MS, BE) based on view type
   const transactionType = (() => {
-    if (type === "aeps-ms-history" || type === "aeps2-ms-history") return "MS";
-    if (type === "aeps-be-history" || type === "aeps2-be-history") return "BE";
+    if (type === "aeps1-ms-history" || type === "aeps2-ms-history") return "MS";
+    if (type === "aeps1-be-history" || type === "aeps2-be-history") return "BE";
     return "CW"; // default
   })();
 

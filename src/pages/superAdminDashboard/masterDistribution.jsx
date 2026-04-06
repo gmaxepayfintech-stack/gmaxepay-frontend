@@ -40,9 +40,9 @@ const MasterDistribution = ({
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [fromDate, setFromDate] = useState("");
-  const [toDate, setToDate] = useState(
-    () => new Date().toISOString().split("T")[0],
-  );
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -128,27 +128,47 @@ const MasterDistribution = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
-    if (debouncedSearchTerm.trim()) {
-      const payload = {
-        query: {
-          userRole: 3, // Master Distributor role
-        },
-        options: {
-          sort: { id: -1 },
-          page: currentPage,
-          paginate: 10,
-        },
-        customSearch: {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Fetch data from API based on role
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
+    const payload = {
+      query: {
+        userRole: 3, // Master Distributor role
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: debouncedSearchTerm.trim()
+        ? {
           mobileNo: debouncedSearchTerm.trim(),
           name: debouncedSearchTerm.trim(),
-        },
-      };
+        }
+        : {},
+    };
 
-      dispatch(useListAction(payload));
-    }
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+    dispatch(useListAction(payload));
+  }, [debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Export to Excel function
   const handleExportToExcel = () => {
@@ -191,10 +211,18 @@ const MasterDistribution = ({
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -210,15 +238,23 @@ const MasterDistribution = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
-      // Refresh table data by dispatching useListAction again
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 3, // Master Distributor role
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -234,7 +270,7 @@ const MasterDistribution = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -319,20 +355,14 @@ const MasterDistribution = ({
                 <input
                   type="date"
                   value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                    setCurrentPage(1); // Reset to first page when date changes
-                  }}
+                  onChange={(e) => setFromDate(e.target.value)}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
 
                 <input
                   type="date"
                   value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                    setCurrentPage(1); // Reset to first page when date changes
-                  }}
+                  onChange={(e) => setToDate(e.target.value)}
                   min={fromDate || undefined}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
@@ -762,20 +792,14 @@ const MasterDistribution = ({
                 <input
                   type="date"
                   value={fromDate}
-                  onChange={(e) => {
-                    setFromDate(e.target.value);
-                    setCurrentPage(1); // Reset to first page when date changes
-                  }}
+                  onChange={(e) => setFromDate(e.target.value)}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />
 
                 <input
                   type="date"
                   value={toDate}
-                  onChange={(e) => {
-                    setToDate(e.target.value);
-                    setCurrentPage(1); // Reset to first page when date changes
-                  }}
+                  onChange={(e) => setToDate(e.target.value)}
                   min={fromDate || undefined}
                   className="pl-3 pr-3 py-3 border border-gray-300 rounded-lg w-full xs:w-32 text-sm focus:ring-green-500 focus:border-green-500 text-center cursor-pointer"
                 />

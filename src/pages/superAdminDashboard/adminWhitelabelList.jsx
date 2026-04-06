@@ -40,9 +40,11 @@ const AdminWhitelabelList = ({
 }) => {
   const dispatch = useDispatch();
   const [currentPage, setCurrentPage] = useState(1);
-  const [selectedKyc, setSelectedKyc] = useState("");
+  const [selectedKyc, setSelectedKyc] = useState("pending");
   const [fromDate, setFromDate] = useState("");
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
@@ -118,12 +120,37 @@ const AdminWhitelabelList = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Reset pagination when KYC filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedKyc]);
+
+  // Fetch data from API when search term or filters change
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
     const payload = {
       query: {
         userRole: 2, // Whitelabel role
-        kycStatus: "pending", // Onboarding process
+        ...(selectedKyc && { kycStatus: selectedKyc }),
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
       },
       options: {
         sort: { id: -1 },
@@ -139,15 +166,24 @@ const AdminWhitelabelList = ({
     };
 
     dispatch(useListAction(payload));
-  }, [debouncedSearchTerm, currentPage, dispatch]);
+  }, [debouncedSearchTerm, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
     if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 2, // Whitelabel role
-          kycStatus: "pending",
+          ...(selectedKyc && { kycStatus: selectedKyc }),
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -163,15 +199,24 @@ const AdminWhitelabelList = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycStatusCheckResponse, debouncedSearchTerm, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Refresh table when kycUnlock succeeds
   useEffect(() => {
     if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
       const payload = {
         query: {
           userRole: 2, // Whitelabel role
-          kycStatus: "pending",
+          ...(selectedKyc && { kycStatus: selectedKyc }),
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
         },
         options: {
           sort: { id: -1 },
@@ -187,7 +232,7 @@ const AdminWhitelabelList = ({
       };
       dispatch(useListAction(payload));
     }
-  }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
+  }, [kycLockStatusResponse, debouncedSearchTerm, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
@@ -296,9 +341,8 @@ const AdminWhitelabelList = ({
               type="date"
               value={fromDate}
               onChange={(e) => setFromDate(e.target.value)}
-              className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
             />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
 
           {/* To Date */}
@@ -307,9 +351,8 @@ const AdminWhitelabelList = ({
               type="date"
               value={toDate}
               onChange={(e) => setToDate(e.target.value)}
-              className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+              className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
             />
-            <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
           </div>
         </div>
       </div>

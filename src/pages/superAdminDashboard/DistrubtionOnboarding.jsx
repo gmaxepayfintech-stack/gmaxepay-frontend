@@ -25,6 +25,7 @@ import {
   kycData as kycDataAction,
   kycStatusCheck,
   kycUnlock,
+  useList as useListAction,
   kycRevert,
   rescendOnboarding,
   deActiveOnboarding,
@@ -44,7 +45,9 @@ const DistrubtionOnboarding = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedKyc, setSelectedKyc] = useState("");
   const [fromDate, setFromDate] = useState("");
+  const [debouncedFromDate, setDebouncedFromDate] = useState("");
   const [toDate, setToDate] = useState("");
+  const [debouncedToDate, setDebouncedToDate] = useState("");
   const [selectedKycData, setSelectedKycData] = useState(null);
   const [showKycModal, setShowKycModal] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
@@ -158,6 +161,105 @@ const DistrubtionOnboarding = ({
     };
   }, [showKycModal]);
 
+  // Debounce date filters to prevent API calls while user is typing/shifting date segments
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedFromDate(fromDate);
+      setDebouncedToDate(toDate);
+      setCurrentPage(1);
+    }, 1500); // 1.5 seconds delay
+
+    return () => clearTimeout(timer);
+  }, [fromDate, toDate]);
+
+  // Reset pagination when KYC filter changes
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [selectedKyc]);
+
+  // Fetch data from API based on role
+  useEffect(() => {
+    // Only fetch if both dates are provided, or if both dates are empty
+    const bothDatesSelected = debouncedFromDate && debouncedToDate;
+    const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+    if (!bothDatesSelected && !bothDatesNull) {
+      return;
+    }
+
+    const payload = {
+      query: {
+        userRole: 4, // Distributor role for onboarding
+        ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
+        ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+      },
+      options: {
+        sort: { id: -1 },
+        page: currentPage,
+        paginate: 10,
+      },
+      customSearch: {},
+    };
+
+    dispatch(useListAction(payload));
+  }, [selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
+  // Refresh table when kycStatusCheck succeeds
+  useEffect(() => {
+    if (kycStatusCheckResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+          ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycStatusCheckResponse, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
+  // Refresh table when kycUnlock succeeds
+  useEffect(() => {
+    if (kycLockStatusResponse?.status === "SUCCESS") {
+      // Only fetch if both dates are provided, or if both dates are empty
+      const bothDatesSelected = debouncedFromDate && debouncedToDate;
+      const bothDatesNull = !debouncedFromDate && !debouncedToDate;
+
+      if (!bothDatesSelected && !bothDatesNull) {
+        return;
+      }
+
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+          ...(selectedKyc ? { kycStatus: selectedKyc } : { kycStatus: "pending" }),
+          ...(debouncedFromDate && debouncedToDate ? { startDate: debouncedFromDate.replace(/-/g, "/"), endDate: debouncedToDate.replace(/-/g, "/") } : {}),
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 10,
+        },
+        customSearch: {},
+      };
+      dispatch(useListAction(payload));
+    }
+  }, [kycLockStatusResponse, selectedKyc, debouncedFromDate, debouncedToDate, currentPage, dispatch]);
+
   // Export to Excel function
   const handleExportToExcel = () => {
     if (!allTableData || allTableData.length === 0) {
@@ -237,9 +339,8 @@ const DistrubtionOnboarding = ({
                     type="date"
                     value={fromDate}
                     onChange={(e) => setFromDate(e.target.value)}
-                    className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
                   />
-                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
 
                 {/* To Date */}
@@ -248,9 +349,8 @@ const DistrubtionOnboarding = ({
                     type="date"
                     value={toDate}
                     onChange={(e) => setToDate(e.target.value)}
-                    className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+                    className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
                   />
-                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
                 </div>
 
                 {/* Export Button */}
@@ -663,9 +763,8 @@ const DistrubtionOnboarding = ({
                   type="date"
                   value={fromDate}
                   onChange={(e) => setFromDate(e.target.value)}
-                  className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
                 />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
 
               {/* To Date */}
@@ -674,9 +773,8 @@ const DistrubtionOnboarding = ({
                   type="date"
                   value={toDate}
                   onChange={(e) => setToDate(e.target.value)}
-                  className="px-3 py-2 pr-10 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
+                  className="px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#039155] bg-white w-full sm:w-auto"
                 />
-                <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
 
               {/* Export Button */}
