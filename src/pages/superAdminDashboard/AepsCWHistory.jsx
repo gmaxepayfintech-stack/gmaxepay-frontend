@@ -14,14 +14,17 @@ import TransactioDetails from "./TransactioDetails";
 import {
   getAepsCwHistory,
   getAepsTransactionDetails,
+  hitAepsCwReconciliation,
 } from "../../redux/action/aepsAction";
 import { ButtonLoader } from "../../widgets/layout/loader";
 import { getAeps2CwHistory } from "../../redux/action/aepsTwoAction";
 import { getAeps2TransactionDetails } from "../../redux/action/aepsAction";
 import * as XLSX from "xlsx";
+import { useNotification } from "../../context/NotificationContext";
 
 const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const dispatch = useDispatch();
+  const { showNotification } = useNotification();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [fromDate, setFromDate] = useState("");
@@ -34,6 +37,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
+  const [reconcilingId, setReconcilingId] = useState(null); // ID of row being reconciled
 
 
   // Determine whether this is AEPS2 history based on type
@@ -58,6 +62,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector(
     (state) => state?.aeps?.transactionDetails,
+  );
+  const reconciliationResponse = useSelector(
+    (state) => state?.aeps?.aepsCwReconciliation,
   );
 
   // Transform API response data to table format
@@ -283,6 +290,48 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       setIsReloading(false);
     }
   }, [isLoading, isReloading]);
+
+  // Handle reconciliation response
+  useEffect(() => {
+    if (reconcilingId && reconciliationResponse) {
+      if (reconciliationResponse?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: reconciliationResponse?.message || "Reconciliation successful!",
+          isCritical: true,
+        });
+      } else if (reconciliationResponse?.status === "FAILURE") {
+        showNotification({
+          type: "error",
+          message: reconciliationResponse?.message || "Reconciliation failed.",
+          isCritical: true,
+        });
+      }
+      setReconcilingId(null);
+    }
+  }, [reconciliationResponse]);
+
+  // Reconcile a transaction (only for aeps1-cw-history)
+  const handleReconcile = async (transaction) => {
+    const merchantRefId = transaction?.originalItem?.merchantReferenceId || transaction?.refID;
+    if (!merchantRefId || merchantRefId === "N/A" || reconcilingId) return;
+    setReconcilingId(transaction.id);
+    const result = await dispatch(hitAepsCwReconciliation({ merchant_reference_id: merchantRefId }));
+    if (result?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: result?.message || "Reconciliation successful!",
+        isCritical: true,
+      });
+    } else {
+      showNotification({
+        type: "error",
+        message: result?.message || "Reconciliation failed.",
+        isCritical: true,
+      });
+    }
+    setReconcilingId(null);
+  };
 
   // Transform API data
   const transactions = apiData.length > 0 ? transformApiData(apiData) : [];
@@ -569,6 +618,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 <th className="px-4 sm:px-5 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   SR No
                 </th>
+                {type === "aeps1-cw-history" && (
+                  <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
+                    Action
+                  </th>
+                )}
                 <th className="px-4 sm:px-6 py-3 sm:py-4 text-left text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717] whitespace-nowrap">
                   Profile
                 </th>
@@ -635,6 +689,23 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                             {srNo}
                           </span>
                         </td>
+
+                        {type === "aeps1-cw-history" && (
+                          <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
+                            <button
+                              onClick={() => handleReconcile(transaction)}
+                              disabled={!!reconcilingId}
+                              title={`Reconcile: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
+                              className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${
+                                reconcilingId === transaction.id
+                                  ? "bg-gray-400 text-white cursor-not-allowed"
+                                  : "bg-blue-600 text-white hover:bg-blue-700"
+                              }`}
+                            >
+                              {reconcilingId === transaction.id ? "..." : "Reconcile"}
+                            </button>
+                          </td>
+                        )}
 
                         <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
                           <button
