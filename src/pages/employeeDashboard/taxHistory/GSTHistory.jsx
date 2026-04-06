@@ -11,44 +11,9 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { adminGstHistory } from "../../../redux/action/walletAction";
+import { employeeGstHistory } from "../../../redux/action/walletAction";
 import * as XLSX from "xlsx";
 
-const DUMMY_GST_HISTORY = [
-    {
-        id: "1",
-        transactionId: "GST1234567890",
-        user: { name: "John Doe" },
-        amount: 100,
-        openingAmt: 1000,
-        closingAmt: 900,
-        status: "SUCCESS",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "2",
-        transactionId: "GST1234567891",
-        user: { name: "Jane Smith" },
-        amount: 100,
-        openingAmt: 900,
-        closingAmt: 800,
-        status: "PENDING",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "3",
-        transactionId: "GST1234567892",
-        user: { name: "Bob Wilson" },
-        amount: 100,
-        openingAmt: 800,
-        closingAmt: 700,
-        status: "FAILED",
-        aepsType: "GST_ENQUIRY",
-        createdAt: new Date().toISOString(),
-    }
-];
 
 const GSTHistory = ({ onBack, type }) => {
     const dispatch = useDispatch();
@@ -62,12 +27,11 @@ const GSTHistory = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get GST history from Redux
+    // Get GST history from Redux — employee-specific state key
     const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.adminGstHistory?.data
+        (state) => state?.wallet?.employeeGstHistory?.data
     );
-    // const apiData = walletHistoryResponse || [];
-    const apiData = DUMMY_GST_HISTORY;
+    const apiData = walletHistoryResponse || [];
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -154,14 +118,8 @@ const GSTHistory = ({ onBack, type }) => {
             }
         };
 
-        // dispatch(adminGstHistory(payload)).then((res) => {
-        //     if (res?.status === "SUCCESS") {
-        //         showNotification("GST history fetched successfully", "success");
-        //     } else {
-        //         showNotification(res?.message || "Failed to fetch GST history", "error");
-        //     }
-        // });
-    }, [dispatch, fromDate, toDate, debouncedSearchQuery, showNotification]);
+        dispatch(employeeGstHistory(payload));
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -277,15 +235,7 @@ const GSTHistory = ({ onBack, type }) => {
                                     }
                                 };
 
-                                // dispatch(adminGstHistory(payload)).then((res) => {
-                                //     if (res?.status === "SUCCESS") {
-                                //         showNotification("GST history refreshed successfully", "success");
-                                //     } else {
-                                //         showNotification(res?.message || "Failed to refresh GST history", "error");
-                                //     }
-                                // });
-                                showNotification("Data refreshed (Demo Mode)", "success");
-                                setIsReloading(false);
+                                dispatch(employeeGstHistory(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

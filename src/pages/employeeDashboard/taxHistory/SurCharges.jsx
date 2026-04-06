@@ -11,41 +11,9 @@ import {
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import { useNotification } from "../../../context/NotificationContext";
-import { surChargesHistory } from "../../../redux/action/walletAction";
+import { surChargesHistoryEmployee } from "../../../redux/action/walletAction";
 import * as XLSX from "xlsx";
 
-const DUMMY_SURCHARGES_HISTORY = [
-    {
-        id: "1",
-        transactionId: "SC1234567890",
-        refId: "REF001",
-        companyId: "COM001",
-        service: "AEPS Payout",
-        operatorType: "SURCHARGE",
-        amount: 10,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "2",
-        transactionId: "SC1234567891",
-        refId: "REF002",
-        companyId: "COM002",
-        service: "DMT Transfer",
-        operatorType: "CONVENIENCE_FEE",
-        amount: 20,
-        createdAt: new Date().toISOString(),
-    },
-    {
-        id: "3",
-        transactionId: "SC1234567892",
-        refId: "REF003",
-        companyId: "COM003",
-        service: "Utility Bill",
-        operatorType: "SURCHARGE",
-        amount: 5,
-        createdAt: new Date().toISOString(),
-    }
-];
 
 const SurCharges = ({ onBack, type }) => {
     const dispatch = useDispatch();
@@ -59,12 +27,11 @@ const SurCharges = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get payout history from Redux
+    // Get surcharges history from Redux — employee-specific state key
     const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.surchargesHistory?.data
+        (state) => state?.wallet?.surchargesHistoryEmployee?.data
     );
-    // const apiData = walletHistoryResponse || [];
-    const apiData = DUMMY_SURCHARGES_HISTORY;
+    const apiData = walletHistoryResponse || [];
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -144,14 +111,8 @@ const SurCharges = ({ onBack, type }) => {
             } : {}
         };
 
-        // dispatch(surChargesHistory(payload)).then((res) => {
-        //     if (res?.status === "SUCCESS") {
-        //         showNotification("Surcharges history fetched successfully", "success");
-        //     } else {
-        //         showNotification(res?.message || "Failed to fetch Surcharges history", "error");
-        //     }
-        // });
-    }, [dispatch, fromDate, toDate, showNotification]);
+        dispatch(surChargesHistoryEmployee(payload));
+    }, [dispatch, fromDate, toDate, debouncedSearchQuery]);
 
     // Reset isReloading when loading completes
     useEffect(() => {
@@ -265,15 +226,7 @@ const SurCharges = ({ onBack, type }) => {
                                     customSearch: {}
                                 };
 
-                                // dispatch(surChargesHistory(payload)).then((res) => {
-                                //     if (res?.status === "SUCCESS") {
-                                //         showNotification("Surcharges history refreshed successfully", "success");
-                                //     } else {
-                                //         showNotification(res?.message || "Failed to refresh Surcharges history", "error");
-                                //     }
-                                // });
-                                showNotification("Data refreshed (Demo Mode)", "success");
-                                setIsReloading(false);
+                                dispatch(surChargesHistoryEmployee(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

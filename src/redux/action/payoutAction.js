@@ -24,6 +24,8 @@ import {
   PAYOUT_SETTING_CREATE_FAILURE,
   PAYOUT_SETTING_SWITCH_SUCCESS,
   PAYOUT_SETTING_SWITCH_FAILURE,
+  EMPLOYEE_PAYOUT_HISTORY_SUCCESS,
+  EMPLOYEE_PAYOUT_HISTORY_FAILURE,
 } from "../actionType/payOutType";
 const commonError = "Something went wrong!";
 
@@ -333,6 +335,96 @@ export const getPayoutHistory = (payload) => async (dispatch) => {
       : error.message;
     dispatch({
       type: PAYOUT_HISTORY_FAILURE,
+      payload: {
+        status: "FAILURE",
+        message: errorMessage,
+      },
+    });
+    return {
+      status: "FAILURE",
+      message: errorMessage,
+    };
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+
+export const employeePayoutHistory = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+
+    const requestPayload = {
+      query: payload?.query || {},
+      customSearch: payload?.customSearch || {},
+      options: {
+        page: payload?.options?.page || 1,
+        paginate: payload?.options?.paginate || 10,
+        sort: payload?.options?.sort || { id: 1 },
+      },
+    };
+
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/payout/history`,
+      requestPayload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+
+    const {
+      data: payoutHistoryEmployee,
+      status,
+      message,
+      total,
+      count,
+      paginator,
+    } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      const dispatchPayload = {
+        data: payoutHistoryEmployee,
+        status,
+        message,
+        total: total || payoutHistoryEmployee?.length || 0,
+        count,
+        paginator: paginator || {
+          currentPage: requestPayload.options.page,
+          perPage: requestPayload.options.paginate,
+          pageCount: Math.ceil(
+            (payoutHistoryEmployee?.length || 0) / requestPayload.options.paginate,
+          ),
+        },
+      };
+
+      dispatch({
+        type: EMPLOYEE_PAYOUT_HISTORY_SUCCESS,
+        payload: dispatchPayload,
+      });
+      return dispatchPayload;
+    } else {
+      dispatch({
+        type: EMPLOYEE_PAYOUT_HISTORY_FAILURE,
+        payload: {
+          status: response?.data?.status ?? "FAILURE",
+          message: response?.data?.message ?? commonError,
+        },
+      });
+      return {
+        status: response?.data?.status ?? "FAILURE",
+        message: response?.data?.message ?? commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage = error.response
+      ? error.response.data.message
+      : error.message;
+    dispatch({
+      type: EMPLOYEE_PAYOUT_HISTORY_FAILURE,
       payload: {
         status: "FAILURE",
         message: errorMessage,

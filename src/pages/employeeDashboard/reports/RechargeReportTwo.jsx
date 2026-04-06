@@ -9,7 +9,7 @@ import {
     RefreshCw,
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import { rechargeReportsTwoAdmin } from "../../../redux/action/reportAction";
+import { rechargeReportsTwoEmployee } from "../../../redux/action/reportAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import * as XLSX from "xlsx";
 
@@ -25,43 +25,11 @@ const RechargeReportTwo = ({ onBack }) => {
     const [isReloading, setIsReloading] = useState(false);
 
     // Get data from Redux
-    /*
     const rechargeReportResponse = useSelector(
-        (state) => state?.reports?.adminTransaction,
+        (state) => state?.reports?.employeeTransaction,
     );
     const apiData = rechargeReportResponse?.data || [];
-    const paginator = rechargeReportResponse?.paginator || {};
-    const totalCount = rechargeReportResponse?.total || 0;
-    */
-
-    // DUMMY DATA FOR RECHARGE HISTORY
-    const apiData = [
-        {
-            id: "rech2-1",
-            transactionId: "RECH2029384756",
-            orderid: "ORD992180",
-            user: { name: "Ramesh Sharma", userId: "AG00123", mobileNo: "9876543210" },
-            mobileNumber: "9876543210",
-            apiResponse: { operatorName: "Jio Prepaid", txid: "TXN1121", opid: "OP0021", message: "Success" },
-            amount: 299,
-            retailerCom: 5.98,
-            status: "SUCCESS",
-            createdAt: "2024-03-13T10:00:00.000Z"
-        },
-        {
-            id: "rech2-2",
-            transactionId: "RECH2029384757",
-            orderid: "ORD992181",
-            user: { name: "Suresh Patel", userId: "AG00100", mobileNo: "9988776655" },
-            mobileNumber: "9988776655",
-            apiResponse: { operatorName: "Airtel Prepaid", txid: "TXN1122", opid: "OP0022", message: "Pending" },
-            amount: 500,
-            retailerCom: 10.00,
-            status: "PENDING",
-            createdAt: "2024-03-13T10:15:22.000Z"
-        }
-    ];
-    const totalCount = apiData.length;
+    const totalCount = rechargeReportResponse?.total || apiData.length;
 
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
@@ -96,38 +64,31 @@ const RechargeReportTwo = ({ onBack }) => {
 
     // Fetch recharge reports
     useEffect(() => {
-        /*
-        const query = {
-            // API expects serviceType: "MobileRecharge"
-            serviceType: "Mobile2Recharge",
-        };
+        const bothDatesSelected = fromDate && toDate;
+        const bothDatesNull = !fromDate && !toDate;
+        if (!bothDatesSelected && !bothDatesNull) return;
 
-        // Add date filters only if both dates are selected
+        const query = { serviceType: "Mobile2Recharge" };
         if (fromDate && toDate) {
-            // Format date as YYYY-MM-DD (backend will handle format)
             query.startDate = fromDate;
             query.endDate = toDate;
         }
 
-        // Get the appropriate search field based on input pattern
         const customSearch = debouncedSearchQuery.trim()
             ? getSearchField(debouncedSearchQuery)
             : {};
 
         const payload = {
-            query: query,
-            customSearch: customSearch,
+            query,
+            customSearch,
             options: {
                 page: 1,
                 paginate: 1000,
-                // As per API contract: sort by id desc
                 sort: { id: -1 },
             },
         };
 
-        dispatch(rechargeReportsTwoAdmin(payload));
-        */
-        console.log("Recharge report 2 fetching disabled in demo mode.");
+        dispatch(rechargeReportsTwoEmployee(payload));
     }, [dispatch, debouncedSearchQuery, fromDate, toDate]);
 
     // Reset isReloading when loading completes
@@ -366,7 +327,7 @@ const RechargeReportTwo = ({ onBack }) => {
                                     },
                                 };
 
-                                dispatch(rechargeReportsTwoAdmin(payload));
+                                dispatch(rechargeReportsTwoEmployee(payload));
                             }}
                             className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
                             disabled={isReloading && isLoading}

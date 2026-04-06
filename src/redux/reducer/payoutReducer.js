@@ -15,6 +15,7 @@ import {
   PAYOUT_SETTING_CREATE_FAILURE,
   PAYOUT_SETTING_SWITCH_SUCCESS,
   PAYOUT_SETTING_SWITCH_FAILURE,
+  EMPLOYEE_PAYOUT_HISTORY_SUCCESS,
 } from "../actionType/payOutType";
 const initialState = {
   loading: false,
@@ -28,6 +29,7 @@ const initialState = {
   payoutCompanyTransaction: null,
   payoutHistory: null,
   payoutSettingList: null,
+  payoutHistoryEmployee: null,
 };
 
 const payoutReducer = (state = initialState, action) => {
@@ -75,6 +77,15 @@ const payoutReducer = (state = initialState, action) => {
         status: action?.payload?.status,
         message: action?.payload?.message,
       };
+    case EMPLOYEE_PAYOUT_HISTORY_SUCCESS:
+      return{
+        ...state,
+        loading: false,
+        error: null,
+        payoutHistoryEmployee: action?.payload,
+        status: action?.payload?.status,
+        message: action?.payload?.message,
+      }
     
     case PAYOUT_HISTORY_FAILURE:
       return {

@@ -10,69 +10,11 @@ import {
 } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { walletHistoryAdmin } from "../../../redux/action/walletAction";
+import { walletHistoryEmployee } from "../../../redux/action/walletAction";
 import { useNotification } from "../../../context/NotificationContext";
 import * as XLSX from "xlsx";
 
-const DUMMY_WALLET_HISTORY = [
-  {
-    id: "1",
-    transactionId: "WLT1234567890",
-    refId: "USER001",
-    user: { name: "John Doe", mobileNo: "9876543210" },
-    company: { companyName: "Gmaxepay" },
-    companyId: "COM001",
-    walletType: "MAIN",
-    amount: 1000,
-    surcharge: 0,
-    comm: 10,
-    debit: 2,
-    paymentStatus: "SUCCESS",
-    operator: "CREDIT",
-    aepsTxnType: "INTERNAL",
-    openingAmt: 5000,
-    closingAmt: 6008,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "2",
-    transactionId: "WLT1234567891",
-    refId: "USER002",
-    user: { name: "Jane Smith", mobileNo: "9876543211" },
-    company: { companyName: "Gmaxepay" },
-    companyId: "COM001",
-    walletType: "MAIN",
-    amount: 500,
-    surcharge: 5,
-    comm: 0,
-    debit: 0,
-    paymentStatus: "PENDING",
-    operator: "DEBIT",
-    aepsTxnType: "INTERNAL",
-    openingAmt: 6008,
-    closingAmt: 5503,
-    createdAt: new Date().toISOString(),
-  },
-  {
-    id: "3",
-    transactionId: "WLT1234567892",
-    refId: "USER003",
-    user: { name: "Bob Wilson", mobileNo: "9876543212" },
-    company: { companyName: "Gmaxepay" },
-    companyId: "COM001",
-    walletType: "MAIN",
-    amount: 200,
-    surcharge: 0,
-    comm: 5,
-    debit: 1,
-    paymentStatus: "FAILED",
-    operator: "CREDIT",
-    aepsTxnType: "INTERNAL",
-    openingAmt: 5503,
-    closingAmt: 5707,
-    createdAt: new Date().toISOString(),
-  }
-];
+
 
 const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
@@ -86,12 +28,11 @@ const WalletHistory = ({ onBack, type }) => {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
 
-  // Get payout history from Redux
+  // Get wallet history from Redux — employee-specific state key
   const walletHistoryResponse = useSelector(
-    (state) => state?.wallet?.walletHistoryAdmin,
+    (state) => state?.wallet?.walletHistoryEmployee,
   );
-  // const apiData = walletHistoryResponse?.data?.docs || [];
-  const apiData = DUMMY_WALLET_HISTORY;
+  const apiData = walletHistoryResponse?.data || [];
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format
@@ -200,14 +141,8 @@ const WalletHistory = ({ onBack, type }) => {
       },
     };
 
-    // dispatch(walletHistoryAdmin(payload)).then((res) => {
-    //   if (res?.status === "SUCCESS") {
-    //     showNotification("Wallet history fetched successfully", "success");
-    //   } else {
-    //     showNotification(res?.message || "Failed to fetch wallet history", "error");
-    //   }
-    // });
-  }, [dispatch, fromDate, toDate, showNotification]);
+    dispatch(walletHistoryEmployee(payload));
+  }, [dispatch, fromDate, toDate]);
 
   // Reset isReloading when loading completes
   useEffect(() => {
@@ -348,15 +283,7 @@ const WalletHistory = ({ onBack, type }) => {
                   },
                 };
 
-                // dispatch(walletHistoryAdmin(payload)).then((res) => {
-                //   if (res?.status === "SUCCESS") {
-                //     showNotification("Wallet history refreshed successfully", "success");
-                //   } else {
-                //     showNotification(res?.message || "Failed to refresh wallet history", "error");
-                //   }
-                // });
-                showNotification("Data refreshed (Demo Mode)", "success");
-                setIsReloading(false);
+                dispatch(walletHistoryEmployee(payload));
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={isReloading && isLoading}
