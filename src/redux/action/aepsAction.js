@@ -3,7 +3,7 @@ import secureLocalStorage from "react-secure-storage";
 import { API_ROUTE } from "../../data/env";
 
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
-import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_CW_HISTORY_EMPLOYEE_SUCCESS, AEPS_CW_HISTORY_EMPLOYEE_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_TRANSACTION_DETAILS_EMPLOYEE_SUCCESS, AEPS_TRANSACTION_DETAILS_EMPLOYEE_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_RESENT_BANK_LIST_FAILURE, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_CW_HISTORY_USER_FAILURE, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_FAILURE, AEPS_TRANSACTION_DETAILS_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_USER_FAILURE } from "../actionType/aepsActionType";
+import { AEPS_RESCEND_OTP_FAILURE, AEPS_RESCEND_OTP_SUCCESS, AEPS_STATUS_CHECK_FAILURE, AEPS_STATUS_CHECK_SUCCESS, AEPS_SUBMIT_OTP_FAILURE, AEPS_SUBMIT_OTP_SUCCESS, AEPS_TERMS_CONDITION_OTP_FAILURE, AEPS_TERMS_CONDITION_OTP_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_SUCCESS, AEPS_ONBOARDING_BIOMETRIC_VERIFICATION_FAILURE, AEPS_ONBOARDING_FA_VERIFICATION_SUCCESS, AEPS_ONBOARDING_FA_VERIFICATION_FAILURE, AEPS_CW_HISTORY_SUCCESS, AEPS_CW_HISTORY_FAILURE, AEPS_BANK_LIST_SUCCESS, AEPS_BANK_LIST_FAILURE, AEPS_WITHDRAWAL_SUCCESS, AEPS_WITHDRAWAL_FAILURE, AEPS_TRANSACTION_DETAILS_SUCCESS, AEPS_TRANSACTION_DETAILS_FAILURE, AEPS_BANK_OTP_SUCCESS, AEPS_BANK_OTP_FAILURE, AEPS_BANK_OTP_SUBMIT_SUCCESS, AEPS_BANK_KYC_SUCCESS, AEPS_BANK_KYC_FAILURE, AEPS_CW_HISTORY_COMPANY_SUCCESS, AEPS_CW_HISTORY_COMPANY_FAILURE, AEPS_RESENT_BANK_LIST_SUCCESS, AEPS_RESENT_BANK_LIST_FAILURE, AEPS_CW_HISTORY_USER_SUCCESS, AEPS_CW_HISTORY_USER_FAILURE, AEPS_TRANSACTION_DETAILS_COMPANY_SUCCESS, AEPS_TRANSACTION_DETAILS_COMPANY_FAILURE, AEPS_TRANSACTION_DETAILS_USER_SUCCESS, AEPS_TRANSACTION_DETAILS_USER_FAILURE, AEPS_CW_RECONCILIATION_SUCCESS, AEPS_CW_RECONCILIATION_FAILURE } from "../actionType/aepsActionType";
 
 const commonError = "Something went wrong!";
 
@@ -1220,6 +1220,57 @@ export const getAepsTransactionDetailsUser = (transactionId) => async (dispatch)
         const errorMessage = error.response ? error.response.data.message : error.message;
         dispatch({
             type: AEPS_TRANSACTION_DETAILS_USER_FAILURE,
+            payload: {
+                status: "FAILURE",
+                message: errorMessage,
+            },
+        });
+        return {
+            status: "FAILURE",
+            message: errorMessage,
+        };
+    } finally {
+        dispatch({ type: LOADING_END });
+    }
+};
+
+export const hitAepsCwReconciliation = (payload) => async (dispatch) => {
+    dispatch({ type: LOADING_START });
+    try {
+        const authToken = secureLocalStorage.getItem("userToken");
+
+        const response = await axios.post(
+            `${API_ROUTE}/api/v1/admin/reports/aeps3/reconcile`,
+            payload,
+            {
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${authToken}`,
+                },
+            }
+        );
+
+        const { data: aepsCwReconciliation, status, message, total, count, paginator } = response?.data ?? {};
+        if (status === "SUCCESS") {
+            dispatch({
+                type: AEPS_CW_RECONCILIATION_SUCCESS,
+                payload: { data: aepsCwReconciliation, status, message, total, count, paginator },
+            });
+            return { data: aepsCwReconciliation, status, message, total, count, paginator };
+        } else {
+            dispatch({
+                type: AEPS_CW_RECONCILIATION_FAILURE,
+                payload: {
+                    status: response?.data?.status ?? "FAILURE",
+                    message: response?.data?.message ?? commonError,
+                },
+            });
+            return { status: response?.data?.status ?? "FAILURE", message: response?.data?.message ?? commonError };
+        }
+    } catch (error) {
+        const errorMessage = error.response ? error.response.data.message : error.message;
+        dispatch({
+            type: AEPS_CW_RECONCILIATION_FAILURE,
             payload: {
                 status: "FAILURE",
                 message: errorMessage,

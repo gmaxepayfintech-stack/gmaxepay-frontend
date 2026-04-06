@@ -59,7 +59,6 @@ const TaxHistory = () => {
     "Verification History",
   ];
 
-  // Each card is tagged with a category matching one of the tabs,
   // so we can segregate the cards per tab.
   const transactionCards = [
     // Banking
