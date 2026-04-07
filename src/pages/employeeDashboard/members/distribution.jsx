@@ -17,6 +17,7 @@ import {
 import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import {
   employeeUseList,
   employeeKycData,

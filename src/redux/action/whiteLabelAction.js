@@ -51,6 +51,8 @@ import {
   RESND_LOGIN_ACCESS_FAILURE,
   EMPLOYEE_LIST_SUCCESS,
   EMPLOYEE_LIST_FAILURE,
+  EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
+  EMPLOYEE_GET_WHITELABEL_LIST_SUCCESS,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";

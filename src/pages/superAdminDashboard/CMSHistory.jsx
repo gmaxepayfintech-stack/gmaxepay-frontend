@@ -3,7 +3,7 @@ import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { Search, Share, ChevronLeft, ChevronRight, RefreshCw } from "lucide-react";
 import { HiArrowLeft } from "react-icons/hi2";
-import ButtonLoader from "../../widgets/layout/loader";
+import { ButtonLoader } from "../../widgets/layout/loader";
 import CMSTransactionDetails from "./reports/CMSTransactionDetails";
 import * as XLSX from "xlsx";
 import { cmsAdminHistory } from "../../redux/action/rechargeAction";

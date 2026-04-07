@@ -10,6 +10,7 @@ import {
   FaUniversity,
   FaExpand,
 } from "react-icons/fa";
+import { ButtonLoader } from "../../../widgets/layout/loader";
 import {
   employeeUseList,
   employeeKycData,
