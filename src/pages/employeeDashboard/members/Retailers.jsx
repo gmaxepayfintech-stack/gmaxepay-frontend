@@ -29,6 +29,7 @@ import {
   employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
+import ProfileDetails from "./ProfileDetails";
 
 
 const Retailers = ({
