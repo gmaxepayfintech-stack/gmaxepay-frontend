@@ -6,8 +6,8 @@ import { useDispatch, useSelector } from "react-redux";
 import { useCompany } from "../../../context/CompanyContext";
 import { useNotification } from "../../../context/NotificationContext";
 import {
-  getSlabCommissionList,
-  updateSlabCommission,
+  EmployeegetSlabCommissionList,
+  EmployeeupdateSlabCommission,
 } from "../../../redux/action/slabAction";
 
 // ── Dummy data ──────────────────────────────────────────────────────────────
@@ -65,8 +65,8 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
   // Redux state for commissions
-  // const { commData } = useSelector((state) => state?.slab || {});
-  const commData = DUMMY_COMMISSIONS;
+  const { EmployeecommData } = useSelector((state) => state?.slab || {});
+  const commData = EmployeecommData || DUMMY_COMMISSIONS;
 
   // Local editable commissions state and loading
   const [commissions, setCommissions] = useState([]);
@@ -87,7 +87,6 @@ const EditMembership = ({ scheme = null, onBack }) => {
   // Fetch commission list when component mounts or scheme changes
   useEffect(() => {
     const fetchComm = async () => {
-      /*
       const companyId = getCompanyId();
       const slabId = scheme?.id || scheme?.slabId;
       if (companyId && slabId) {
@@ -95,24 +94,18 @@ const EditMembership = ({ scheme = null, onBack }) => {
         // Auto-expand first section when loading starts to show skeleton
         setExpandedSections({ aeps: true });
         try {
-          await dispatch(getSlabCommissionList(companyId, slabId, 1, 1));
+          await dispatch(EmployeegetSlabCommissionList(companyId, slabId, 1, 100));
         } finally {
           setCommLoading(false);
         }
       }
-      */
-      setCommLoading(true);
-      setExpandedSections({ aeps: true });
-      setTimeout(() => {
-        setCommLoading(false);
-      }, 500);
     };
     fetchComm();
   }, [dispatch, companyData, scheme]);
 
   // Map API commission data to local editable structure
   useEffect(() => {
-    const dataToUse = DUMMY_COMMISSIONS; // Forcing dummy data for demo
+    const dataToUse = commData;
     if (dataToUse && Array.isArray(dataToUse)) {
       const mapped = dataToUse.map((item, index) => {
         const firstInstrument = item.instruments?.[0];
@@ -207,11 +200,10 @@ const EditMembership = ({ scheme = null, onBack }) => {
 
       const requests = [];
 
-      /*
       if (isEntChanged && commission.entRoleId) {
         requests.push(
           dispatch(
-            updateSlabCommission(companyId, commission.entRoleId, {
+            EmployeeupdateSlabCommission(companyId, commission.entRoleId, {
               commAmt: Number(commission.entMargin) || 0,
               commType: commission.entCommType,
               amtType: commission.entMarginType,
@@ -223,7 +215,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
       if (isWlChanged && commission.wlRoleId) {
         requests.push(
           dispatch(
-            updateSlabCommission(companyId, commission.wlRoleId, {
+            EmployeeupdateSlabCommission(companyId, commission.wlRoleId, {
               commAmt: Number(commission.whitelabel) || 0,
               commType: commission.whitelabelCommType,
               amtType: commission.whitelabelType,
@@ -231,9 +223,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
           ),
         );
       }
-      */
 
-      /*
       const results = await Promise.all(requests);
       const allOk = results.every((r) => r?.success);
 
@@ -245,31 +235,13 @@ const EditMembership = ({ scheme = null, onBack }) => {
         const apiMessage = `${statusText} - ${messageText}`;
         success(apiMessage);
         // refresh list to sync originals
-        await dispatch(getSlabCommissionList(companyId, slabId, 1, 1));
+        await dispatch(EmployeegetSlabCommissionList(companyId, slabId, 1, 100));
       } else {
         const firstError =
           results.find((r) => !r?.success)?.message ||
           "Failed to update slab commission";
         showError(firstError);
       }
-      */
-      setTimeout(() => {
-        success("SUCCESS - Slab commission updated successfully (Demo Mode)");
-        // Update local original values to reflect the "saved" state
-        setCommissions(prev => prev.map(c => 
-          c.id === commission.id ? {
-            ...c,
-            originalEntMargin: c.entMargin,
-            originalEntCommType: c.entCommType,
-            originalEntMarginType: c.entMarginType,
-            originalWhitelabel: c.whitelabel,
-            originalWhitelabelCommType: c.whitelabelCommType,
-            originalWhitelabelType: c.whitelabelType
-          } : c
-        ));
-        setSavingRows((prev) => ({ ...prev, [commission.id]: false }));
-      }, 500);
-      return;
     } catch (err) {
       showError(
         err?.message || "An error occurred while updating slab commission",

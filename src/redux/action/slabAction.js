@@ -34,6 +34,11 @@ import {
   EMPLOYEE_SLAB_LIST_SUCCESS,
   EMPLOYEE_SLAB_LIST_FAILURE,
   EMPLOYEE_SLAB_LIST_START,
+  EMPLOYEE_SLAB_GET_COMM_SUCCESS,
+  EMPLOYEE_SLAB_GET_COMM_FAILURE,
+  EMPLOYEE_SLAB_UPDATE_COMM_START,
+  EMPLOYEE_SLAB_UPDATE_COMM_SUCCESS,
+  EMPLOYEE_SLAB_UPDATE_COMM_FAILURE,
 } from '../actionType/slabActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -932,6 +937,185 @@ export const updateSlabCommission = (companyId, roleId, payload) => async (dispa
 
     dispatch({
       type: SLAB_UPDATE_COMM_FAILURE,
+      payload: errorMessage,
+    });
+
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+
+export const EmployeegetSlabCommissionList = (companyId, slabId, page = 1, paginate = 1) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    if (!slabId) {
+      console.error('No slab ID provided');
+      throw new Error('Slab ID is required');
+    }
+
+    const payload = {
+      query: {},
+      customSearch: {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const url = `${API_ROUTE}/api/v1/employee/slab/slabcomm/${slabId}`;
+    //console.log('Fetching slab commission list:', { url, payload, companyId });
+
+    const response = await api.post(
+      url,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_SLAB_GET_COMM_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          status: data?.status,
+          message: data?.message || 'Slab commission retrieved successfully',
+        },
+      });
+
+      return {
+        success: true,
+        data: data?.data || [],
+        total: data?.total || 0,
+        message: data?.message || 'Slab commission retrieved successfully',
+      };
+    } else {
+      dispatch({
+        type: EMPLOYEE_SLAB_GET_COMM_FAILURE,
+        payload: data?.message || commonError,
+      });
+      return {
+        success: false,
+        message: data?.message || commonError,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+
+    dispatch({
+      type: EMPLOYEE_SLAB_GET_COMM_FAILURE,
+      payload: errorMessage,
+    });
+
+    return {
+      success: false,
+      message: errorMessage,
+    };
+  }
+};
+
+// Update a single slab commission entry (role-level)
+export const EmployeeupdateSlabCommission = (companyId, roleId, payload) => async (dispatch) => {
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+
+    if (!token) {
+      console.error('No token found');
+      throw new Error('Authentication token not found');
+    }
+
+    if (!companyId) {
+      console.error('No company ID provided');
+      throw new Error('Company ID is required');
+    }
+
+    if (!roleId) {
+      console.error('No role ID provided');
+      throw new Error('Role ID is required');
+    }
+
+    dispatch({ type: EMPLOYEE_SLAB_UPDATE_COMM_START, payload: { roleId } });
+
+    const url = `${API_ROUTE}/api/v1/employee/slab/updateSlabComm/${roleId}`;
+    //console.log('Updating slab commission:', { url, payload, companyId });
+
+    const response = await api.put(
+      url,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_SLAB_UPDATE_COMM_SUCCESS,
+        payload: {
+          roleId,
+          data: data?.data,
+          message: data?.message || 'Slab commission updated successfully',
+        },
+      });
+
+      return {
+        success: true,
+        data: data?.data,
+        message: data?.message || 'Slab commission updated successfully',
+        status: data?.status,
+      };
+    } else {
+      const message = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_SLAB_UPDATE_COMM_FAILURE,
+        payload: message,
+      });
+      return {
+        success: false,
+        message,
+        status: data?.status,
+      };
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message ||
+      error?.message ||
+      commonError;
+
+    dispatch({
+      type: EMPLOYEE_SLAB_UPDATE_COMM_FAILURE,
       payload: errorMessage,
     });
 
