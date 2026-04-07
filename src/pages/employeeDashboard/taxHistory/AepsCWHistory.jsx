@@ -68,9 +68,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector((state) =>
-    isAeps2
-      ? state?.aepsTwo?.aeps2CwHistoryTransactionDetails
-      : state?.aeps?.transactionDetailsEmployee
+    state?.aeps?.transactionDetailsEmployee
   );
 
   // Transform API response data to table format
@@ -323,7 +321,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   // Export to Excel function
   const handleExportToExcel = () => {
     if (!filteredTransactions || filteredTransactions.length === 0) {
-      showNotification("No data available to export", "error");
+      // showNotification("No data available to export", "error");
       return;
     }
 
@@ -350,22 +348,6 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
     const fileName = `${type.toUpperCase()}_Export_${new Date().toISOString().split("T")[0]}.xlsx`;
     XLSX.writeFile(workbook, fileName);
   };
-
-  // Watch for transaction details to be loaded
-  useEffect(() => {
-    if (selectedTransactionId && isLoadingTransactionDetails) {
-      // Check if loading has completed (isLoading becomes false)
-      if (!isLoading) {
-        // Wait a small delay to ensure state is updated
-        const timer = setTimeout(() => {
-          setIsLoadingTransactionDetails(false);
-          setShowTransactionDetails(true);
-        }, 100);
-
-        return () => clearTimeout(timer);
-      }
-    }
-  }, [selectedTransactionId, isLoading, isLoadingTransactionDetails]);
 
   // Handle profile click - hit API for both AEPS1 and AEPS2
   const handleProfileClick = (transaction) => {
