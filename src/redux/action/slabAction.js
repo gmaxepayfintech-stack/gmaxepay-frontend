@@ -478,7 +478,7 @@ export const createEmployeeSlab = (slabData, companyId) => async (dispatch) => {
     };
 
     const response = await api.post(
-      `${API_ROUTE}/api/v1/employee/slabs`,
+      `${API_ROUTE}/api/v1/employee/slab`,
       payload,
       {
         headers: {
@@ -620,7 +620,7 @@ export const updateEmployeeSlab = (slabId, slabData, companyId) => async (dispat
     };
 
     const response = await api.put(
-      `${API_ROUTE}/api/v1/employee/slabs/update/${slabId}`,
+      `${API_ROUTE}/api/v1/employee/slab/update/${slabId}`,
       payload,
       {
         headers: {
