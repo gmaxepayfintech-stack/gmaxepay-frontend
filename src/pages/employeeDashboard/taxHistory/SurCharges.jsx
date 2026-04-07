@@ -27,24 +27,29 @@ const SurCharges = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get surcharges history from Redux — employee-specific state key
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.surchargesHistoryEmployee
+    // Corrected Redux selector key to match walletReducer.js
+    const surchargesEmployeeHistoryResponse = useSelector(
+        (state) => state?.wallet?.surchargesEmployeeHistory
     );
     
-    // Safely extract the array data regardless of nesting level
+    // Robust array extraction that handles multiple nesting patterns
     let apiData = [];
-    if (walletHistoryResponse?.data) {
-        if (Array.isArray(walletHistoryResponse.data)) {
-            apiData = walletHistoryResponse.data;
-        } else if (walletHistoryResponse.data.data && Array.isArray(walletHistoryResponse.data.data)) {
-            apiData = walletHistoryResponse.data.data;
-        } else if (walletHistoryResponse.data.data?.data && Array.isArray(walletHistoryResponse.data.data.data)) {
-            apiData = walletHistoryResponse.data.data.data;
+    if (surchargesEmployeeHistoryResponse) {
+        if (Array.isArray(surchargesEmployeeHistoryResponse.data)) {
+            apiData = surchargesEmployeeHistoryResponse.data;
+        } else if (Array.isArray(surchargesEmployeeHistoryResponse.surchargesEmployeeHistory)) {
+            apiData = surchargesEmployeeHistoryResponse.surchargesEmployeeHistory;
+        } else if (Array.isArray(surchargesEmployeeHistoryResponse)) {
+            apiData = surchargesEmployeeHistoryResponse;
+        } else if (surchargesEmployeeHistoryResponse.data?.data && Array.isArray(surchargesEmployeeHistoryResponse.data.data)) {
+            apiData = surchargesEmployeeHistoryResponse.data.data;
         }
-    } else if (Array.isArray(walletHistoryResponse)) {
-        apiData = walletHistoryResponse;
     }
+    
+    // Extract pagination data if available
+    const paginator = surchargesEmployeeHistoryResponse?.paginator || surchargesEmployeeHistoryResponse?.data?.paginator || {};
+    const apiTotalCount = surchargesEmployeeHistoryResponse?.total ?? surchargesEmployeeHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format

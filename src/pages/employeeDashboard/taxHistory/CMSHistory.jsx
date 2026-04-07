@@ -23,10 +23,25 @@ const CMSHistory = ({ onBack }) => {
     const [showTransactionDetails, setShowTransactionDetails] = useState(false);
 
     const cmsEmployeeReportsResponse = useSelector((state) => state?.recharge?.cmsEmployeeReports);
-    const apiData = cmsEmployeeReportsResponse?.data || [];
-    const paginator = cmsEmployeeReportsResponse?.paginator || {};
-    const totalPages = paginator.pageCount || 1;
-    const totalCount = paginator.itemCount || 0;
+    
+    // Robust array extraction
+    let apiData = [];
+    if (cmsEmployeeReportsResponse) {
+        if (Array.isArray(cmsEmployeeReportsResponse.cmsEmployeeReports)) {
+            apiData = cmsEmployeeReportsResponse.cmsEmployeeReports;
+        } else if (Array.isArray(cmsEmployeeReportsResponse.data)) {
+            apiData = cmsEmployeeReportsResponse.data;
+        } else if (Array.isArray(cmsEmployeeReportsResponse)) {
+            apiData = cmsEmployeeReportsResponse;
+        } else if (cmsEmployeeReportsResponse.data?.data && Array.isArray(cmsEmployeeReportsResponse.data.data)) {
+            apiData = cmsEmployeeReportsResponse.data.data;
+        }
+    }
+
+    const paginator = cmsEmployeeReportsResponse?.paginator || cmsEmployeeReportsResponse?.data?.paginator || {};
+    const totalCount = cmsEmployeeReportsResponse?.total ?? cmsEmployeeReportsResponse?.data?.total ?? paginator?.itemCount ?? 0;
+    const totalPages = paginator?.pageCount ?? Math.ceil(totalCount / itemsPerPage) ?? 1;
+    
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     const fetchData = useCallback((page = 1) => {
@@ -71,9 +86,12 @@ const CMSHistory = ({ onBack }) => {
                 txnUser: item.user?.name || "N/A", userId: item.user?.userId || "N/A",
                 mobileNo: item.mobileNo || item.user?.mobileNo || "N/A", event: item.event || "N/A",
                 billerName: item.billerName || "N/A", transactionId: item.referenceId || "N/A",
-                refNo: item.utr || item.ackno || "N/A", amount: `₹${item.amount ?? 0}`,
-                commission: item.commission ?? 0, openingWallet: item.openingWallet, closingWallet: item.closingWallet,
-                debit: item.debit ?? 0, credit: item.credit ?? 0, errorMsg: item.errorMsg || null, status, originalItem: item,
+                refNo: item.utr || item.ackno || "N/A", amount: `₹${Number(item.amount || 0).toFixed(2)}`,
+                commission: item.commission ?? 0, 
+                openingWallet: item.openingWallet !== null ? `₹${Number(item.openingWallet).toFixed(2)}` : "N/A", 
+                closingWallet: item.closingWallet !== null ? `₹${Number(item.closingWallet).toFixed(2)}` : "N/A",
+                debit: `₹${Number(item.debit ?? 0).toFixed(2)}`, credit: `₹${Number(item.credit ?? 0).toFixed(2)}`, 
+                errorMsg: item.errorMsg || null, status, originalItem: item,
             };
         });
     };
