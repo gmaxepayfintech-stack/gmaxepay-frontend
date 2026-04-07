@@ -310,7 +310,7 @@ export const employeeList = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/list`,
+      `${API_ROUTE}/api/v1/employee/user/list`,
       values,
       {
         headers: {
@@ -1383,7 +1383,7 @@ export const employeeUseList = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/list`,
+      `${API_ROUTE}/api/v1/employee/user/list`,
       values,
       {
         headers: {
