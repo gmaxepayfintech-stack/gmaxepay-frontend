@@ -13,7 +13,7 @@ const OperatorSetting = () => {
   const dispatch = useDispatch();
   const { operatorList, loading: operatorsLoading } = useSelector((state) => state.operators);
   const { serviceList, loading: servicesLoading } = useSelector((state) => state.services);
-  
+
   const isLoading = operatorsLoading || servicesLoading;
 
   // Extract the arrays safely
@@ -71,11 +71,27 @@ const OperatorSetting = () => {
     setCurrentPage(1);
   }, [searchQuery, selectedType]);
 
-  // Map operator types from the service list for the filter dropdown
   const operatorTypes = Array.from(
-    new Set(serviceData.map((s) => s.serviceName).filter(Boolean)),
+    new Set(services.map((op) => op.operatorType).filter(Boolean)),
   );
 
+  // // 🔍 Search filter
+  // const searchFilteredServices = services.filter(
+  //   (service) =>
+  //     service.operatorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+  //     service.operatorCode?.toLowerCase().includes(searchQuery.toLowerCase()),
+  // );
+
+  // const typeFilteredServices =
+  //   selectedType === "all"
+  //     ? searchFilteredServices
+  //     : searchFilteredServices.filter(
+  //         (service) => service.operatorType === selectedType,
+  //       );
+
+  // const sortedServices = [...typeFilteredServices].sort((a, b) =>
+  //   (a.operatorName || "").localeCompare(b.operatorName || ""),
+  // );
   const displayedServices = services;
 
   const paginator = operatorList?.paginator || {};
