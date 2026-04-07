@@ -13,7 +13,7 @@ const OperatorSetting = () => {
   const dispatch = useDispatch();
   const { operatorList, loading: operatorsLoading } = useSelector((state) => state.operators);
   const { serviceList, loading: servicesLoading } = useSelector((state) => state.services);
-  
+
   const isLoading = operatorsLoading || servicesLoading;
 
   // Extract the arrays safely
@@ -54,18 +54,36 @@ const OperatorSetting = () => {
     );
   }, [dispatch, searchQuery, selectedType, currentPage]);
 
+  // Fetch services when modal is opened or when user wants to see the filter list
   useEffect(() => {
-    dispatch(
-      listEmployeeServices({
-        query: {},
-        options: {
-          page: 1,
-          paginate: 100, // Fetch enough services
-          sort: { createdAt: 1 },
-        },
-      })
-    );
-  }, [dispatch]);
+    if (isOpen && serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
+    }
+  }, [dispatch, isOpen, serviceData.length]);
+
+  const handleFetchServicesForFilter = () => {
+    if (serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        })
+      );
+    }
+  };
 
   useEffect(() => {
     setCurrentPage(1);
@@ -239,19 +257,20 @@ const OperatorSetting = () => {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
+              onMouseDown={handleFetchServicesForFilter}
               className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[Gilroy-Medium] focus:outline-none appearance-none"
             >
               <option value="all">All</option>
 
-              {operatorTypes.map((type) => (
-                <option
-                  className="font-[Gilroy-Medium]"
-                  key={type}
-                  value={type}
-                >
-                  {type}
-                </option>
-              ))}
+              {operatorTypes.length > 0 ? (
+                operatorTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Loading types...</option>
+              )}
             </select>
 
             <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2" />

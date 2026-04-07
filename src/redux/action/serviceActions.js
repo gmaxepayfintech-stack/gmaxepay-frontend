@@ -155,7 +155,7 @@ export const listEmployeeServices = (payload) => async (dispatch) => {
     const token = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/services/list`,
+      `${API_ROUTE}/api/v1/employee/service/list`,
       payload,
       {
         headers: {
