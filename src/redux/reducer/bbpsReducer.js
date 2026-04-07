@@ -53,6 +53,45 @@ import {
   BBPS_USER_PAY_BILL_START,
   BBPS_USER_PAY_BILL_SUCCESS,
   BBPS_USER_PAY_BILL_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_START,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_FAILURE,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_START,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_START,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_START,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_START,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_START,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_FAILURE,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_START,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_SUCCESS,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_CREATE_BILLER_START,
+  EMPLOYEE_BBPS_CREATE_BILLER_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_BILLER_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_BILLER_START,
+  EMPLOYEE_BBPS_UPDATE_BILLER_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_BILLER_FAILURE,
 } from '../actionType/bbpsActionType';
 
 const initialState = {
@@ -111,9 +150,27 @@ const bbpsReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
+    case EMPLOYEE_BBPS_GET_ALL_CATEGORIES_START:
+    case EMPLOYEE_BBPS_SEARCH_CATEGORIES_START:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
 
     case BBPS_GET_ALL_CATEGORIES_SUCCESS:
     case BBPS_SEARCH_CATEGORIES_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        categories: action.payload.data || [],
+        totalCategories: action.payload.total || 0,
+        currentPage: action.payload.currentPage || 1,
+        totalPages: action.payload.totalPages || 1,
+      };
+    case EMPLOYEE_BBPS_GET_ALL_CATEGORIES_SUCCESS:
+    case EMPLOYEE_BBPS_SEARCH_CATEGORIES_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -132,8 +189,23 @@ const bbpsReducer = (state = initialState, action) => {
         error: action.payload,
         categories: [],
       };
+    case EMPLOYEE_BBPS_GET_ALL_CATEGORIES_FAILURE:
+    case EMPLOYEE_BBPS_SEARCH_CATEGORIES_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        categories: [],
+      };
 
     case BBPS_CREATE_CATEGORY_START:
+      return {
+        ...state,
+        loading: true,
+        createCategorySuccess: false,
+        createCategoryError: null,
+      };
+    case EMPLOYEE_BBPS_CREATE_CATEGORY_START:
       return {
         ...state,
         loading: true,
@@ -148,8 +220,22 @@ const bbpsReducer = (state = initialState, action) => {
         createCategorySuccess: true,
         createCategoryError: null,
       };
+    case EMPLOYEE_BBPS_CREATE_CATEGORY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createCategorySuccess: true,
+        createCategoryError: null,
+      };
 
     case BBPS_CREATE_CATEGORY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        createCategorySuccess: false,
+        createCategoryError: action.payload,
+      };
+    case EMPLOYEE_BBPS_CREATE_CATEGORY_FAILURE:
       return {
         ...state,
         loading: false,
@@ -164,8 +250,22 @@ const bbpsReducer = (state = initialState, action) => {
         createCategorySuccess: false,
         createCategoryError: null,
       };
+    case EMPLOYEE_BBPS_UPDATE_CATEGORY_START:
+      return {
+        ...state,
+        loading: true,
+        createCategorySuccess: false,
+        createCategoryError: null,
+      };
 
     case BBPS_UPDATE_CATEGORY_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createCategorySuccess: true,
+        createCategoryError: null,
+      };
+    case EMPLOYEE_BBPS_UPDATE_CATEGORY_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -180,6 +280,13 @@ const bbpsReducer = (state = initialState, action) => {
         createCategorySuccess: false,
         createCategoryError: action.payload,
       };
+    case EMPLOYEE_BBPS_UPDATE_CATEGORY_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        createCategorySuccess: false,
+        createCategoryError: action.payload,
+      };
 
     case BBPS_GET_ALL_BILLERS_START:
     case BBPS_SEARCH_BILLERS_START:
@@ -188,9 +295,27 @@ const bbpsReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
+    case EMPLOYEE_BBPS_GET_ALL_BILLERS_START:
+    case EMPLOYEE_BBPS_SEARCH_BILLERS_START:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
 
     case BBPS_GET_ALL_BILLERS_SUCCESS:
     case BBPS_SEARCH_BILLERS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        billers: action.payload.data || [],
+        billersTotal: action.payload.total || 0,
+        billersCurrentPage: action.payload.currentPage || 1,
+        billersTotalPages: action.payload.totalPages || 1,
+      };
+    case EMPLOYEE_BBPS_GET_ALL_BILLERS_SUCCESS:
+    case EMPLOYEE_BBPS_SEARCH_BILLERS_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -209,6 +334,14 @@ const bbpsReducer = (state = initialState, action) => {
         error: action.payload,
         billers: [],
       };
+    case EMPLOYEE_BBPS_GET_ALL_BILLERS_FAILURE:
+    case EMPLOYEE_BBPS_SEARCH_BILLERS_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        billers: [],
+      };
 
     case BBPS_GET_CATEGORIES_FOR_DROPDOWN_START:
       return {
@@ -216,8 +349,21 @@ const bbpsReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
+    case EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_START:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
 
     case BBPS_GET_CATEGORIES_FOR_DROPDOWN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        categoriesForDropdown: action.payload || [],
+      };
+    case EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -232,6 +378,13 @@ const bbpsReducer = (state = initialState, action) => {
         error: action.payload,
         categoriesForDropdown: [],
       };
+    case EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        categoriesForDropdown: [],
+      };
 
     case BBPS_GET_ALL_PAYMENT_INFO_START:
     case BBPS_SEARCH_PAYMENT_INFO_START:
@@ -240,9 +393,27 @@ const bbpsReducer = (state = initialState, action) => {
         loading: true,
         error: null,
       };
+    case EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_START:
+    case EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_START:
+      return {
+        ...state,
+        loading: true,
+        error: null,
+      };
 
     case BBPS_GET_ALL_PAYMENT_INFO_SUCCESS:
     case BBPS_SEARCH_PAYMENT_INFO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        paymentInfo: action.payload.data || [],
+        paymentInfoTotal: action.payload.total || 0,
+        paymentInfoCurrentPage: action.payload.currentPage || 1,
+        paymentInfoTotalPages: action.payload.totalPages || 1,
+      };
+    case EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_SUCCESS:
+    case EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -261,8 +432,23 @@ const bbpsReducer = (state = initialState, action) => {
         error: action.payload,
         paymentInfo: [],
       };
+    case EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_FAILURE:
+    case EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        error: action.payload,
+        paymentInfo: [],
+      };
 
     case BBPS_CREATE_PAYMENT_INFO_START:
+      return {
+        ...state,
+        loading: true,
+        createPaymentInfoSuccess: false,
+        createPaymentInfoError: null,
+      };
+    case EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_START:
       return {
         ...state,
         loading: true,
@@ -277,8 +463,22 @@ const bbpsReducer = (state = initialState, action) => {
         createPaymentInfoSuccess: true,
         createPaymentInfoError: null,
       };
+    case EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createPaymentInfoSuccess: true,
+        createPaymentInfoError: null,
+      };
 
     case BBPS_CREATE_PAYMENT_INFO_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        createPaymentInfoSuccess: false,
+        createPaymentInfoError: action.payload,
+      };
+    case EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_FAILURE:
       return {
         ...state,
         loading: false,
@@ -293,8 +493,22 @@ const bbpsReducer = (state = initialState, action) => {
         createPaymentInfoSuccess: false,
         createPaymentInfoError: null,
       };
+    case EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_START:
+      return {
+        ...state,
+        loading: true,
+        createPaymentInfoSuccess: false,
+        createPaymentInfoError: null,
+      };
 
     case BBPS_UPDATE_PAYMENT_INFO_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createPaymentInfoSuccess: true,
+        createPaymentInfoError: null,
+      };
+    case EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_SUCCESS:
       return {
         ...state,
         loading: false,
@@ -309,8 +523,22 @@ const bbpsReducer = (state = initialState, action) => {
         createPaymentInfoSuccess: false,
         createPaymentInfoError: action.payload,
       };
+    case EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        createPaymentInfoSuccess: false,
+        createPaymentInfoError: action.payload,
+      };
 
     case BBPS_CREATE_BILLER_START:
+      return {
+        ...state,
+        loading: true,
+        createBillerSuccess: false,
+        createBillerError: null,
+      };
+    case EMPLOYEE_BBPS_CREATE_BILLER_START:
       return {
         ...state,
         loading: true,
@@ -325,8 +553,22 @@ const bbpsReducer = (state = initialState, action) => {
         createBillerSuccess: true,
         createBillerError: null,
       };
+    case EMPLOYEE_BBPS_CREATE_BILLER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        createBillerSuccess: true,
+        createBillerError: null,
+      };
 
     case BBPS_CREATE_BILLER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        createBillerSuccess: false,
+        createBillerError: action.payload,
+      };
+    case EMPLOYEE_BBPS_CREATE_BILLER_FAILURE:
       return {
         ...state,
         loading: false,
@@ -341,6 +583,13 @@ const bbpsReducer = (state = initialState, action) => {
         updateBillerSuccess: false,
         updateBillerError: null,
       };
+    case EMPLOYEE_BBPS_UPDATE_BILLER_START:
+      return {
+        ...state,
+        loading: true,
+        updateBillerSuccess: false,
+        updateBillerError: null,
+      };
 
     case BBPS_UPDATE_BILLER_SUCCESS:
       return {
@@ -349,8 +598,22 @@ const bbpsReducer = (state = initialState, action) => {
         updateBillerSuccess: true,
         updateBillerError: null,
       };
+    case EMPLOYEE_BBPS_UPDATE_BILLER_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        updateBillerSuccess: true,
+        updateBillerError: null,
+      };
 
     case BBPS_UPDATE_BILLER_FAILURE:
+      return {
+        ...state,
+        loading: false,
+        updateBillerSuccess: false,
+        updateBillerError: action.payload,
+      };
+    case EMPLOYEE_BBPS_UPDATE_BILLER_FAILURE:
       return {
         ...state,
         loading: false,
