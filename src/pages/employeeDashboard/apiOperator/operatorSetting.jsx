@@ -1,14 +1,14 @@
 import { ChevronLeft, ChevronRight, Pencil, Plus, Search } from "lucide-react";
 import { FiChevronDown } from "react-icons/fi";
-import { useDispatch, useSelector } from "react-redux";
 import {
   listEmployeeOperators,
   createEmployeeOperator,
   updateEmployeeOperator,
 } from "../../../redux/action/operatorActions";
 import { listEmployeeServices } from "../../../redux/action/serviceActions";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { ButtonLoader } from "../../../widgets/layout/loader";
+import { useDispatch, useSelector } from "react-redux";
 const OperatorSetting = () => {
   const dispatch = useDispatch();
   const { operatorList, loading: operatorsLoading } = useSelector((state) => state.operators);

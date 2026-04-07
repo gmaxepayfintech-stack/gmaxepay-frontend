@@ -21,6 +21,7 @@ const ServiceSetting = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
+  const dispatch = useDispatch();
 
   const [formData, setFormData] = useState({
     id: "",
