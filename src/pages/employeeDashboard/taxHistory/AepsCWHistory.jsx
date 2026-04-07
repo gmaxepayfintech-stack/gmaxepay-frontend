@@ -48,9 +48,24 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       ? state?.aepsTwo?.aeps2CwHistoryEmployee
       : state?.aeps?.aepsCwHistoryEmployee
   );
-  const apiData = aepsHistoryResponse?.data || [];
-  const paginator = aepsHistoryResponse?.paginator || {};
-  const totalCount = aepsHistoryResponse?.total || 0;
+  
+  // Safely extract the array data regardless of nesting level
+  let apiData = [];
+  if (aepsHistoryResponse?.data) {
+    if (Array.isArray(aepsHistoryResponse.data)) {
+      apiData = aepsHistoryResponse.data;
+    } else if (aepsHistoryResponse.data.data && Array.isArray(aepsHistoryResponse.data.data)) {
+      apiData = aepsHistoryResponse.data.data;
+    } else if (aepsHistoryResponse.data.data?.data && Array.isArray(aepsHistoryResponse.data.data.data)) {
+      apiData = aepsHistoryResponse.data.data.data;
+    }
+  } else if (Array.isArray(aepsHistoryResponse)) {
+    apiData = aepsHistoryResponse;
+  }
+
+  const paginator = aepsHistoryResponse?.paginator || aepsHistoryResponse?.data?.paginator || aepsHistoryResponse?.data?.data?.paginator || {};
+  const totalCount = aepsHistoryResponse?.total || aepsHistoryResponse?.data?.total || aepsHistoryResponse?.data?.data?.total || 0;
+  
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
   const transactionDetailsResponse = useSelector((state) =>
     isAeps2
@@ -83,11 +98,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
 
       // --- Amount ---
       const amountValue = isAeps1New ? (item.transactionAmount || 0) : (item.amount || 0);
-      let formattedAmount = `₹${amountValue}`;
+      let formattedAmount = `₹${Number(amountValue || 0).toFixed(2)}`;
 
       const txnType = item.transactionType || transactionType;
       if (txnType === "BE" || txnType === "MS") {
-        formattedAmount = "₹0";
+        formattedAmount = "₹0.00";
       }
 
       // --- Status ---
