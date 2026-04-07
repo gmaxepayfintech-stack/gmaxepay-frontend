@@ -49,6 +49,8 @@ import {
   CREATE_EMPLOYEE_FAILURE,
   RESND_LOGIN_ACCESS_SUCCESS,
   RESND_LOGIN_ACCESS_FAILURE,
+  EMPLOYEE_LIST_SUCCESS,
+  EMPLOYEE_LIST_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -290,6 +292,48 @@ export const useList = (values) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/users/list`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: employeeList, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_LIST_SUCCESS,
+        payload: { employeeList, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_LIST_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",

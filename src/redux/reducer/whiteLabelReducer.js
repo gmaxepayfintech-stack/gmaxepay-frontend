@@ -27,6 +27,7 @@ import {
   REVERT_USER_KYC_DETAILS_SUCCESS,
   CREATE_EMPLOYEE_SUCCESS,
   RESND_LOGIN_ACCESS_SUCCESS,
+  EMPLOYEE_LIST_SUCCESS,
 } from "../actionType/whiteLabelAction";
 
 const initialState = {
@@ -58,6 +59,7 @@ const initialState = {
   kycRevertUSer: null,
   EmployeeAdd: null,
   resendAccess: null,
+  employeeList: null,
 };
 
 const whiteLabelReducer = (state = initialState, action) => {
@@ -128,6 +130,15 @@ const whiteLabelReducer = (state = initialState, action) => {
         Success: action.payload.status,
         message: action.payload.message,
       }
+
+      case EMPLOYEE_LIST_SUCCESS:
+        return{
+          ...state,
+          loading: false,
+          employeeList: action.payload,
+          Success: action.payload.status,
+          message: action.payload.message,
+        }
     case CREATE_EMPLOYEE_SUCCESS:
       return {
         ...state,
