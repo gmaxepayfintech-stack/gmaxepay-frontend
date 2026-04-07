@@ -18,7 +18,7 @@ import {
 import { getAeps2CwHistoryEmployee } from "../../../redux/action/aepsTwoAction";
 import { ButtonLoader } from "../../../widgets/layout/loader";
 import * as XLSX from "xlsx";
-
+import { getAepsCwHistoryEmployee } from "../../../redux/action/aepsAction";
 
 const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const dispatch = useDispatch();
@@ -110,7 +110,9 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       const userDetails = item.userDetails || {};
       const userName = item.name || userDetails.name || "N/A";
       const mobileNo = item.mobileNumber || item.mobileNo || userDetails.mobileNo || "N/A";
-      const aadhaar = item.aadhaarLastFour || item.consumerNumber || "N/A";
+      const aadhaar = item.aadhaarLastFour || item.consumerNumber || item.consumerAadhaarNumber || "N/A";
+      const profileImg = item.profileImage || userDetails.profileImage || null;
+      const roleId = item.userRole || userDetails.userRole;
 
       // --- Commissions (Super Admin shows all) ---
       const saComm = item.superadminComm || 0;
@@ -124,16 +126,18 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
         id: item.id,
         refId: item.refId || item.addedBy || "N/A",
         name: userName,
+        profileImage: profileImg,
         userRole:
-          item.userRole === 5 ? "Retailer" :
-            item.userRole === 4 ? "Distributor" :
-              item.userRole === 3 ? "Master Distributor" :
-                item.userRole === 2 ? "White Label" :
-                  item.userRole === 1 ? "Super Admin" : `Role ${item.userRole || "N/A"}`,
+          roleId === 5 ? "Retailer" :
+            roleId === 4 ? "Distributor" :
+              roleId === 3 ? "Master Distributor" :
+                roleId === 2 ? "White Label" :
+                  roleId === 1 ? "Super Admin" : `Role ${roleId || "N/A"}`,
         mobileNo: mobileNo,
         consumerNumber: aadhaar,
         companyId: item.companyId ?? "N/A",
         companyName: item.companyName || item.operator || "N/A",
+        companyLogo: item.companyLogo || null,
         merchantLoginId: item.merchantLoginId || item.subMerchantCode || "N/A",
         bankName: item.bankName || "N/A",
         taxId: item.transactionId || "N/A",
@@ -250,7 +254,11 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
       },
     };
 
-    dispatch(getAeps2CwHistoryEmployee(payload));
+    if (isAeps2) {
+      dispatch(getAeps2CwHistoryEmployee(payload));
+    } else {
+      dispatch(getAepsCwHistoryEmployee(payload));
+    }
   }, [
     dispatch,
     debouncedSearchQuery,
@@ -455,7 +463,7 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                 if (isAeps2) {
                   dispatch(getAeps2CwHistoryEmployee(payload));
                 } else {
-                  dispatch(getAeps2CwHistoryEmployee(payload));
+                  dispatch(getAepsCwHistoryEmployee(payload));
                 }
               }}
               className="p-2.5 sm:p-3 rounded-2xl bg-white text-gray-700 border-[0.5px] border-[#1B1717]/80 hover:bg-gray-50 transition disabled:opacity-50 disabled:cursor-not-allowed"
