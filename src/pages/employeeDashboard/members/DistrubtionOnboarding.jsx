@@ -22,42 +22,19 @@ import {
 } from "react-icons/fa";
 import * as XLSX from "xlsx";
 import {
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
-  getCompanyAdmin,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_ONBOARDING_DISTRIBUTORS = [
-  {
-    id: "ONB001",
-    date: "2026-03-28",
-    userAgentCode: "DIST_PEND_001",
-    userName: "Rahul Verma",
-    userRole: "Distributor",
-    mobile: "9600011122",
-    email: "rahul.v@example.com",
-    parentName: "Sanjay Singh",
-    parentRole: "Master Distributor",
-    companyName: "Verma Enterprises",
-    kycStatus: "Pending",
-    kycSteps: "1",
-    mainWallet: 0,
-    apes1Wallet: 0,
-    apes2Wallet: 0,
-    status: "Inactive",
-    lock: false,
-  },
-];
 
 const DistrubtionOnboarding = ({
   embedded = false,
@@ -97,11 +74,10 @@ const DistrubtionOnboarding = ({
     (state) => state?.whitelabel?.kycLockStatus,
   );
 
-  // Use Dummy data for testing/demo if prop data is empty
   const allTableData =
     Array.isArray(propTableData) && propTableData.length > 0
       ? propTableData
-      : DUMMY_ONBOARDING_DISTRIBUTORS;
+      : [];
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -139,9 +115,8 @@ const DistrubtionOnboarding = ({
     }
   }, [kycDetailsState, kycRetrieved, showKycModal, kycDataRefreshKey]);
 
-  // Refresh KYC data when revert succeeds - MOCKED for demo
+  // Refresh KYC data when revert succeeds
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -154,12 +129,11 @@ const DistrubtionOnboarding = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -387,15 +361,10 @@ const DistrubtionOnboarding = ({
                           <button
                             onClick={() => {
                               const userId = row.id || row.originalItem?.id;
-                              if (userId) {
-                                // Fetch core company admin details
-                                // dispatch(getCompanyAdmin(userId));
-
                                 // Additionally fetch admin profile details (slab visibility, etc.)
-                                // dispatch(getAdminProfileDetails(userId));
+                                dispatch(employeeGetAdminProfileDetails(userId));
 
                                 setShowProfileDetails(true);
-                              }
                             }}
                             className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gray-200 flex items-center justify-center hover:bg-gray-300 transition-colors cursor-pointer"
                           >
@@ -493,7 +462,7 @@ const DistrubtionOnboarding = ({
                               const userId = row.id || row.originalItem?.id;
                               if (userId) {
                                 setSelectedUserId(userId);
-                                dispatch(kycDataAction(userId));
+                                dispatch(employeeKycData(userId));
                                 setActiveTab("overview");
                                 setZoomedImage(null);
                                 setShowKycModal(true);
@@ -517,13 +486,13 @@ const DistrubtionOnboarding = ({
                                   if (userId) {
                                     if (isActive) {
                                       dispatch(
-                                        kycStatusCheck(userId, {
+                                        employeeKycStatusCheck(userId, {
                                           isActive: "false",
                                         }),
                                       );
                                     } else {
                                       dispatch(
-                                        kycStatusCheck(userId, {
+                                        employeeKycStatusCheck(userId, {
                                           isActive: "true",
                                         }),
                                       );
@@ -554,8 +523,7 @@ const DistrubtionOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (userId && isLocked) {
-                                    // dispatch(kycUnlock(userId));
-                                    alert("Account access has been enabled successfully.");
+                                    dispatch(employeeKycUnlock(userId));
                                   }
                                 }}
                                 disabled={!isLocked}
@@ -582,7 +550,7 @@ const DistrubtionOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (userId) {
-                                    dispatch(rescendOnboarding(userId));
+                                    dispatch(employeeRescendOnboarding(userId));
                                   }
                                 }}
                                 className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -600,7 +568,7 @@ const DistrubtionOnboarding = ({
                               <button
                                 onClick={() => {
                                   if (userId) {
-                                    dispatch(deActiveOnboarding(userId));
+                                    dispatch(employeeDeActiveOnboarding(userId));
                                   }
                                 }}
                                 className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1240,7 +1208,7 @@ const DistrubtionOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         aadhar: "true",
                                       }),
                                     );
@@ -1370,7 +1338,7 @@ const DistrubtionOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         pan: "true",
                                       }),
                                     );
@@ -1500,7 +1468,7 @@ const DistrubtionOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         shopImage: "true",
                                       }),
                                     );
@@ -1586,7 +1554,7 @@ const DistrubtionOnboarding = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         bankVerification: "true",
                                       }),
                                     );

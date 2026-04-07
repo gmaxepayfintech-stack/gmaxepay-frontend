@@ -18,17 +18,17 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
-import { ButtonLoader } from "../../../widgets/layout/loader";
-import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 
@@ -43,47 +43,6 @@ const TableBodyLoader = ({ colSpan }) => (
   </tr>
 );
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_DISTRIBUTORS = [
-  {
-    id: 1,
-    date: "2026-03-25",
-    userAgentCode: "DIST001",
-    userName: "Vikram Seth",
-    userRole: "Distributor",
-    mobile: "9811122233",
-    email: "vikram.seth@example.com",
-    parentName: "Sanjay Singh",
-    parentRole: "Master Distributor",
-    companyName: "Seth Distribution",
-    kycStatus: "Completed",
-    kycSteps: "3",
-    mainWallet: 20000,
-    aeps1Wallet: 5000,
-    aeps2Wallet: 3000,
-    status: "Active",
-    lock: false,
-  },
-  {
-    id: 2,
-    date: "2026-03-24",
-    userAgentCode: "DIST002",
-    userName: "Meera Singh",
-    userRole: "Distributor",
-    mobile: "9711122233",
-    email: "meera.s@example.com",
-    parentName: "Sanjay Singh",
-    parentRole: "Master Distributor",
-    companyName: "Meera Logistics",
-    kycStatus: "Pending",
-    kycSteps: "2",
-    mainWallet: 15000,
-    aeps1Wallet: 4000,
-    aeps2Wallet: 2000,
-    status: "Inactive",
-    lock: true,
-  },
-];
 
 const Distribution = ({
   embedded = false,
@@ -109,35 +68,24 @@ const Distribution = ({
   // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   
-  // Simulation of KYC data for demo
-  const DUMMY_KYC_DETAILS = {
-    personal: {
-      firstName: "Vikram",
-      lastName: "Seth",
-      dob: "1985-11-10",
-      gender: "Male"
-    },
-    documents: {
-      pan: { number: "ABCDE5678G", status: "Verified" },
-      aadhaar: { number: "987654321098", status: "Verified" }
-    },
-    address: {
-      state: "Delhi",
-      city: "New Delhi",
-      pincode: "110001"
-    }
-  };
 
-  const kycRetrieved = DUMMY_KYC_DETAILS;
+  const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycRevert success state to refresh KYC data after revert
   const kycRevertResponse = useSelector(
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Dummy data for testing/demo
-  const allTableData = DUMMY_DISTRIBUTORS;
-  const isLoading = false;
+  // Get Redux data for search
+  const reduxTableData = useSelector(
+    (state) => state?.whitelabel?.whitelabelList?.whitelabelList || [],
+  );
+
+  // Use API data or prop data
+  const allTableData = debouncedSearchTerm.trim() && reduxTableData.length > 0 
+    ? reduxTableData 
+    : propTableData;
+  const isLoading = propIsLoading;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -192,7 +140,7 @@ const Distribution = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
@@ -426,8 +374,7 @@ const Distribution = ({
                                 "D"; // Distributor
                               // dispatch(setSelectedUserRole(roleFromRow));
 
-                              // Use only admin profile details API (same as CreateWhiteLabel)
-                              // dispatch(getAdminProfileDetails(userId));
+                              // dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -516,7 +463,7 @@ const Distribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setIsKycModalLoading(true);
-                              // dispatch(kycDataAction(userId));
+                              // dispatch(employeeKycData(userId));
                               
                               // Mock loading delay
                               setTimeout(() => {
@@ -583,7 +530,7 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId && isLocked) {
-                                  // dispatch(kycUnlock(userId));
+                                  // dispatch(employeeKycUnlock(userId));
                                   alert("Account access has been enabled successfully.");
                                 }
                               }}
@@ -611,7 +558,7 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
+                                  // dispatch(employeeRescendOnboarding(userId));
                                   alert(`Onboarding re-sent to ${row.name || row.userName || "user"}`);
                                 }
                               }}
@@ -630,7 +577,7 @@ const Distribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
+                                  // dispatch(employeeDeActiveOnboarding(userId));
                                   alert(`Deactivation request sent for ${row.name || row.userName || "user"}`);
                                 }
                               }}
@@ -970,13 +917,13 @@ const Distribution = ({
                                   /*
                                   if (isActive) {
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
@@ -1321,7 +1268,7 @@ const Distribution = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         aadhar: "true",
                                       }),
                                     );
@@ -1451,7 +1398,7 @@ const Distribution = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         pan: "true",
                                       }),
                                     );
@@ -1581,7 +1528,7 @@ const Distribution = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         shopImage: "true",
                                       }),
                                     );
@@ -1667,7 +1614,7 @@ const Distribution = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         bankVerification: "true",
                                       }),
                                     );

@@ -11,11 +11,12 @@ import { getCompanyAdmin } from "../../../redux/action/whiteLabelAction";
 import { getWalletBalance } from "../../../redux/action/walletAction";
 import { useNotification } from "../../../context/NotificationContext";
 import {
-  addBankCompanyDetails,
-  getAdminProfileDetails,
+  employeeAddBankAdminDetails,
+  employeeDeleteAdminBank,
+  employeeGetAdminProfileDetails,
   updateBankDetails,
-  deleteCompanyBank,
 } from "../../../redux/action/userProfileAction";
+
 import PhoneIcon from "../../../../public/img/PhoneIcon.png";
 import EmailIcon from "../../../../public/img/Emailicon.png";
 import Gst from "../../../../public/img/Gst.png";
@@ -197,17 +198,15 @@ const ProfileDetails = ({ onBack = null }) => {
     setImageError(false);
   }, [companyAdminData, adminProfileData]);
 
-  // Ensure admin profile details are fetched when we only have company admin data - DISABLED for demo
+  // Ensure admin profile details are fetched when we only have company admin data
   useEffect(() => {
-    /*
     if (!adminProfileData && companyAdminData) {
       // Get userId from data.id
       const userId = data?.id;
       if (userId) {
-        dispatch(getAdminProfileDetails(userId));
+        dispatch(employeeGetAdminProfileDetails(userId));
       }
     }
-    */
   }, [adminProfileData, companyAdminData, data?.id, dispatch]);
 
   // Set default selected scheme to current slabId
@@ -217,9 +216,8 @@ const ProfileDetails = ({ onBack = null }) => {
     }
   }, [data?.slabId, selectedScheme]);
 
-  // Handle assign slab success - DISABLED for demo
+  // Handle assign slab success
   useEffect(() => {
-    /*
     if (assignSlabSuccess) {
       setShowConfirmModal(false);
       // Refresh company admin data to get updated slabId
@@ -227,16 +225,14 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getCompanyAdmin(data.id));
         // Also refresh admin profile details if available
         if (adminProfileData) {
-          dispatch(getAdminProfileDetails(data.id));
+          dispatch(employeeGetAdminProfileDetails(data.id));
         }
       }
     }
-    */
   }, [assignSlabSuccess, data?.id, dispatch, adminProfileData]);
 
-  // Fetch wallet balance when confirmation modal opens - DISABLED for demo
+  // Fetch wallet balance when confirmation modal opens
   useEffect(() => {
-    /*
     if (showConfirmModal && selectedScheme) {
       const selectedSlab = slabList.find((s) => String(s.id) === selectedScheme);
       const isSubscribed = selectedSlab?.isSubscribed || false;
@@ -245,7 +241,6 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getWalletBalance());
       }
     }
-    */
   }, [showConfirmModal, selectedScheme, slabList, dispatch]);
 
   // Handle ESC key to close image modal
@@ -259,9 +254,8 @@ const ProfileDetails = ({ onBack = null }) => {
     return () => window.removeEventListener("keydown", handleEsc);
   }, [showImageModal]);
 
-  // Fetch slab visibility when company admin data or admin profile data is loaded - DISABLED for demo
+  // Fetch slab visibility when company admin data or admin profile data is loaded
   useEffect(() => {
-    /*
     if (companyAdminData || adminProfileData) {
       // Get userId from data.id and companyId from companyDetails
       const userId = data?.id;
@@ -270,7 +264,6 @@ const ProfileDetails = ({ onBack = null }) => {
         dispatch(getSlabVisibility(userId, companyId));
       }
     }
-    */
   }, [companyAdminData, adminProfileData, companyDetails?.companyId, data?.id, dispatch]);
 
   // Skeleton loader component
@@ -284,12 +277,10 @@ const ProfileDetails = ({ onBack = null }) => {
     if (!selectedBank?.id) return;
 
     try {
-      /*
-      await dispatch(deleteCompanyBank(selectedBank.id));
+      await dispatch(employeeDeleteAdminBank(selectedBank.id));
       if (data?.id) {
         await dispatch(getCompanyAdmin(data.id));
       }
-      */
       showNotification({
         type: "success",
         message: "Bank account deleted successfully",
@@ -1171,12 +1162,10 @@ const ProfileDetails = ({ onBack = null }) => {
                       };
 
                       try {
-                        /*
-                        await dispatch(addBankCompanyDetails(payload));
+                        await dispatch(employeeAddBankAdminDetails(payload));
                         if (data?.id) {
                           await dispatch(getCompanyAdmin(data.id));
                         }
-                        */
                         showNotification({
                           type: "success",
                           message: "Bank details added successfully.",
@@ -1385,11 +1374,9 @@ const ProfileDetails = ({ onBack = null }) => {
                   onClick={async () => {
                     const companyId = companyDetails?.companyId || data?.id;
                     if (selectedScheme && companyId) {
-                      /*
                       const result = await dispatch(
                         assignSlabToCompany(selectedScheme, companyId),
                       );
-                      */
                       showNotification({
                         type: "success",
                         message: "Plan upgraded successfully in demo mode!",
@@ -1502,7 +1489,6 @@ const ProfileDetails = ({ onBack = null }) => {
                   };
 
                   if (selectedBank?.id) {
-                    /*
                     const response = await dispatch(updateBankDetails(payload, selectedBank.id));
                     if (data?.id) {
                       await dispatch(getCompanyAdmin(data.id));
@@ -1514,7 +1500,6 @@ const ProfileDetails = ({ onBack = null }) => {
                         isCritical: true,
                       });
                     }
-                    */
                     showNotification({
                       type: "success",
                       message: "Bank preferences updated successfully!",
