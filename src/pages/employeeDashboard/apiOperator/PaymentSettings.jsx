@@ -3,17 +3,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { Search, Plus, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { useCompany } from "../../../context/CompanyContext";
 import {
-  getAllBBPSPaymentInfo,
-  searchBBPSPaymentInfo,
-  createBBPSPaymentInfo,
-  updateBBPSPaymentInfo,
+  getAllEmployeeBBPSPaymentInfo,
+  searchEmployeeBBPSPaymentInfo,
+  createEmployeeBBPSPaymentInfo,
+  updateEmployeeBBPSPaymentInfo,
 } from "../../../redux/action/bbpsAction";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_PAYMENTS = [
-  { id: "P001", initiatingChannel: "WEB", paymentMethod: { type: "prepaid", allowedTokens: ["UPI", "CARD"] }, paymentInfo: { gateway: "Razorpay", merchantId: "MID_001" } },
-  { id: "P002", initiatingChannel: "MOBILE", paymentMethod: { type: "postpaid", allowedTokens: ["WALLET"] }, paymentInfo: { gateway: "Paytm", merchantId: "MID_002" } },
-];
 
 // Helper function to map API response to payment method format
 const mapPaymentInfoToComponent = (paymentInfo) => {
@@ -312,9 +306,9 @@ const PaymentSettings = () => {
     createPaymentInfoSuccess,
   } = useSelector((state) => state.bbps);
 
-  const loading = false; // Force false for demo
-  const paymentInfo = reduxPaymentInfo?.length > 0 ? reduxPaymentInfo : DUMMY_PAYMENTS;
-  const paymentInfoTotalPages = reduxPaymentInfo?.length > 0 ? apiTotalPages : 1;
+  const loading = reduxLoading;
+  const paymentInfo = reduxPaymentInfo || [];
+  const paymentInfoTotalPages = apiTotalPages || 1;
 
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -345,13 +339,12 @@ const PaymentSettings = () => {
 
   // Fetch payment info - handles initial load, search, and pagination - DISABLED for demo
   useEffect(() => {
-    /*
     const companyId = getCompanyId();
     if (!companyId) return;
 
     if (debouncedSearchQuery.trim()) {
       dispatch(
-        searchBBPSPaymentInfo(
+        searchEmployeeBBPSPaymentInfo(
           companyId,
           debouncedSearchQuery,
           currentPage,
@@ -359,9 +352,8 @@ const PaymentSettings = () => {
         ),
       );
     } else {
-      dispatch(getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
+      dispatch(getAllEmployeeBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
     }
-    */
   }, [debouncedSearchQuery, currentPage, dispatch, company]);
 
   // Map payment info to component format
@@ -390,14 +382,14 @@ const PaymentSettings = () => {
     if (createPaymentInfoSuccess && !loading && isModalOpen && lastOperation) {
       const companyId = getCompanyId();
       if (companyId) {
-        // Always call getAllBBPSPaymentInfo after update
+        // Always call getAllEmployeeBBPSPaymentInfo after update
         if (lastOperation === "update") {
-          dispatch(getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
+          dispatch(getAllEmployeeBBPSPaymentInfo(companyId, currentPage, cardsPerPage));
         } else {
           // For create operation, respect search state
           if (debouncedSearchQuery.trim()) {
             dispatch(
-              searchBBPSPaymentInfo(
+              searchEmployeeBBPSPaymentInfo(
                 companyId,
                 debouncedSearchQuery,
                 currentPage,
@@ -406,7 +398,7 @@ const PaymentSettings = () => {
             );
           } else {
             dispatch(
-              getAllBBPSPaymentInfo(companyId, currentPage, cardsPerPage),
+              getAllEmployeeBBPSPaymentInfo(companyId, currentPage, cardsPerPage),
             );
           }
         }
@@ -428,11 +420,11 @@ const PaymentSettings = () => {
   ]);
 
   const handleAddPaymentMethod = async (formData) => {
-    /*
+    const companyId = getCompanyId();
     if (companyId) {
       setLastOperation("create");
       await dispatch(
-        createBBPSPaymentInfo(companyId, {
+        createEmployeeBBPSPaymentInfo(companyId, {
           initChannel: formData.initChannel,
           initiatingChannel: formData.initChannel,
           paymentMethod: formData.paymentMethod,
@@ -440,18 +432,15 @@ const PaymentSettings = () => {
         }),
       );
     }
-    */
-    console.log("Mock Add Payment Method:", formData);
-    alert("Payment method added successfully! (Demo Mode)");
-    setIsModalOpen(false);
   };
 
   const handleEditPaymentMethod = async (formData) => {
-    /*
+    const companyId = getCompanyId();
+    const paymentInfoId = editingPaymentMethod?.id;
     if (companyId && paymentInfoId) {
       setLastOperation("update");
       await dispatch(
-        updateBBPSPaymentInfo(companyId, paymentInfoId, {
+        updateEmployeeBBPSPaymentInfo(companyId, paymentInfoId, {
           initChannel: formData.initChannel,
           initiatingChannel: formData.initChannel,
           paymentMethod: formData.paymentMethod,
@@ -459,11 +448,6 @@ const PaymentSettings = () => {
         }),
       );
     }
-    */
-    console.log("Mock Edit Payment Method:", formData);
-    alert("Payment method updated successfully! (Demo Mode)");
-    setIsModalOpen(false);
-    setEditingPaymentMethod(null);
   };
 
   const handleEditClick = (paymentMethod) => {
@@ -538,11 +522,10 @@ const PaymentSettings = () => {
           <button
             onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
             disabled={currentPage === 1 || loading}
-            className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === 1 || loading
+            className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === 1 || loading
                 ? "opacity-50 cursor-not-allowed"
                 : ""
-            }`}
+              }`}
           >
             <ChevronLeft className="w-4 h-4" />
           </button>
@@ -551,11 +534,10 @@ const PaymentSettings = () => {
               key={page}
               onClick={() => setCurrentPage(page)}
               disabled={loading}
-              className={`px-4 py-1.5 rounded font-[Gilroy-Medium] transition-colors ${
-                currentPage === page
+              className={`px-4 py-1.5 rounded font-[Gilroy-Medium] transition-colors ${currentPage === page
                   ? "bg-[#039155] text-white"
                   : "border border-gray-300 hover:bg-gray-50"
-              } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
+                } ${loading ? "opacity-50 cursor-not-allowed" : ""}`}
             >
               {page}
             </button>
@@ -567,11 +549,10 @@ const PaymentSettings = () => {
               )
             }
             disabled={currentPage === (paymentInfoTotalPages || 1) || loading}
-            className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${
-              currentPage === (paymentInfoTotalPages || 1) || loading
+            className={`px-3 py-2.5   border-[#1B1717] rounded-[4px] border-opacity-20 border-[0.5px] hover:bg-gray-50 transition-colors ${currentPage === (paymentInfoTotalPages || 1) || loading
                 ? "opacity-50 cursor-not-allowed"
                 : ""
-            }`}
+              }`}
           >
             <ChevronRight className="w-4 h-4" />
           </button>

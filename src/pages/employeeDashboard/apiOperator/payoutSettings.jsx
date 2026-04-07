@@ -2,18 +2,11 @@ import { Plus, Search, Pencil, ChevronLeft, ChevronRight } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { ButtonLoader } from "../../../widgets/layout/loader";
-import { listPayouts, createPayout, switchPayoutStatus } from "../../../redux/action/payoutAction";
-import { useNotification } from "../../../context/NotificationContext";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_PAYOUTS = {
-  data: [
-    { id: 1, payoutName: "Bank Transfer", status: "ACTIVE", createdAt: "2026-03-01T10:00:00Z" },
-    { id: 2, payoutName: "UPI Payout", status: "ACTIVE", createdAt: "2026-03-02T11:00:00Z" },
-    { id: 3, payoutName: "Amazon Pay", status: "INACTIVE", createdAt: "2026-03-03T12:00:00Z" },
-  ],
-  paginator: { pageCount: 1, currentPage: 1 }
-};
+import {
+  listEmployeePayouts,
+  createEmployeePayout,
+  switchEmployeePayoutStatus,
+} from "../../../redux/action/payoutAction";
 
 const PayoutSetting = () => {
   const dispatch = useDispatch();
@@ -24,10 +17,7 @@ const PayoutSetting = () => {
   const [editingId, setEditingId] = useState(null);
   const [currentPage, setCurrentPage] = useState(1);
   
-  const isLoading = false; // Force false for demo
-  // const reduxPayoutSettingList = useSelector((state) => state.payout?.payoutSettingList);
-  
-  const payoutSettingList = DUMMY_PAYOUTS;
+  const { payoutSettingList, loading: isLoading } = useSelector((state) => state.payout);
   
   const rawPayouts = payoutSettingList?.data || payoutSettingList || [];
   // Backend returns descending arbitrarily sometimes, fixing it by sorting by id ascending
@@ -51,19 +41,16 @@ const PayoutSetting = () => {
   };
 
   useEffect(() => {
-    /*
-    dispatch(listPayouts({}));
-    */
+    dispatch(listEmployeePayouts({}));
   }, [dispatch]);
 
   const handleSubmit = () => {
     if (!formData.payoutName) return;
 
-    /*
     if (isEditMode && editingId !== null) {
       console.log("Edit API not implemented yet for:", formData);
     } else {
-      dispatch(createPayout({
+      dispatch(createEmployeePayout({
         payoutName: formData.payoutName,
         name: formData.payoutName,
         isActive: formData.active,
@@ -76,7 +63,7 @@ const PayoutSetting = () => {
               isCritical: true,
             });
             setCurrentPage(1);
-            dispatch(listPayouts({}));
+            dispatch(listEmployeePayouts({}));
           } else {
             showNotification({
               type: "error",
@@ -93,12 +80,6 @@ const PayoutSetting = () => {
           });
         });
     }
-    */
-    showNotification({
-        type: "success",
-        message: `Payout ${isEditMode ? "updated" : "created"} successfully! (Demo Mode)`,
-        isCritical: true,
-    });
 
     setIsOpen(false);
     setIsEditMode(false);
@@ -107,8 +88,7 @@ const PayoutSetting = () => {
   };
 
   const handleToggle = (id) => {
-    /*
-    dispatch(switchPayoutStatus({ id }))
+    dispatch(switchEmployeePayoutStatus({ id }))
       .then((res) => {
         if (res?.status === "SUCCESS") {
           showNotification({
@@ -116,7 +96,7 @@ const PayoutSetting = () => {
             message: res.message || "Payout status updated successfully!",
             isCritical: true,
           });
-          dispatch(listPayouts({}));
+          dispatch(listEmployeePayouts({}));
         } else {
           showNotification({
             type: "error",
@@ -132,12 +112,6 @@ const PayoutSetting = () => {
           isCritical: true,
         });
       });
-    */
-    showNotification({
-        type: "success",
-        message: "Payout status updated successfully! (Demo Mode)",
-        isCritical: true,
-    });
   };
 
   const handleEdit = (payout) => {
