@@ -22,6 +22,9 @@ import {
   SLAB_GET_USERLIST_SUCCESS,
   SLAB_GET_USERLIST_START,
   SLAB_GET_USERLIST_FAILURE,
+  EMPLOYEE_SLAB_LIST_SUCCESS,
+  EMPLOYEE_SLAB_CREATE_SUCCESS,
+  EMPLOYEE_SLAB_UPDATE_SUCCESS,
 } from '../actionType/slabActionType';
 
 const initialState = {
@@ -68,6 +71,13 @@ const initialState = {
     pageCount: 1,
     currentPage: 1,
   },
+
+  EmployeecreateSlabSuccess: false,
+  EmployeecreateSlabError: null,
+  EmployeecreateSlabMessage: null,
+  EmployeeupdateSlabSuccess: false,
+  EmployeeupdateSlabError: null,
+  EmployeeupdateSlabMessage: null,
 };
 
 const slabReducer = (state = initialState, action) => {
@@ -89,6 +99,39 @@ const slabReducer = (state = initialState, action) => {
         createSlabError: null,
         createSlabMessage: action.payload?.message || 'Slab created successfully',
       };
+
+    case EMPLOYEE_SLAB_LIST_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        EmployeeuserList: action.payload?.data || [],
+        EmployeeuserListTotal: action.payload?.total || 0,
+        EmployeeuserListPaginator: action.payload?.paginator || {
+          itemCount: 0,
+          perPage: 6,
+          pageCount: 1,
+          currentPage: 1,
+        }
+      }
+
+    case EMPLOYEE_SLAB_CREATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        EmployeecreateSlabSuccess: true,
+        EmployeecreateSlabError: null,
+        EmployeecreateSlabMessage: action.payload?.message || 'Slab created successfully',
+      }
+
+    case EMPLOYEE_SLAB_UPDATE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        EmployeeupdateSlabSuccess: true,
+        EmployeeupdateSlabError: null,
+        EmployeeupdateSlabMessage: action.payload?.message || 'Slab updated successfully',
+      }
 
     case SLAB_CREATE_FAILURE:
       return {

@@ -37,7 +37,8 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
   const [isReloading, setIsReloading] = useState(false);
-  const [reconcilingId, setReconcilingId] = useState(null); // ID of row being reconciled
+  const [reconcilingId, setReconcilingId] = useState(null); 
+  const [reconcileTracker, setReconcileTracker] = useState({}); 
 
 
   // Determine whether this is AEPS2 history based on type
@@ -315,22 +316,53 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
   const handleReconcile = async (transaction) => {
     const merchantRefId = transaction?.originalItem?.merchantReferenceId || transaction?.refID;
     if (!merchantRefId || merchantRefId === "N/A" || reconcilingId) return;
-    setReconcilingId(transaction.id);
-    const result = await dispatch(hitAepsCwReconciliation({ merchant_reference_id: merchantRefId }));
-    if (result?.status === "SUCCESS") {
-      showNotification({
-        type: "success",
-        message: result?.message || "Reconciliation successful!",
-        isCritical: true,
-      });
-    } else {
+    
+    const transactionId = transaction.id;
+    const now = Date.now();
+    const lastClickTime = reconcileTracker[transactionId]?.clickTime || 0;
+    const fiveMinutes = 5 * 60 * 1000;
+
+    // Don't allow click if still in cooldown
+    if (now - lastClickTime < fiveMinutes) return;
+
+    setReconcilingId(transactionId);
+    
+    // Update click time
+    setReconcileTracker(prev => ({
+      ...prev,
+      [transactionId]: { ...prev[transactionId], clickTime: now }
+    }));
+
+    try {
+      const result = await dispatch(hitAepsCwReconciliation({ merchant_reference_id: merchantRefId }));
+      if (result?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: result?.message || "Reconciliation successful!",
+          isCritical: true,
+        });
+        
+        // Mark as success
+        setReconcileTracker(prev => ({
+          ...prev,
+          [transactionId]: { ...prev[transactionId], isSuccess: true }
+        }));
+      } else {
+        showNotification({
+          type: "error",
+          message: result?.message || "Reconciliation failed.",
+          isCritical: true,
+        });
+      }
+    } catch (error) {
       showNotification({
         type: "error",
-        message: result?.message || "Reconciliation failed.",
+        message: "An error occurred during reconciliation.",
         isCritical: true,
       });
+    } finally {
+      setReconcilingId(null);
     }
-    setReconcilingId(null);
   };
 
   // Transform API data
@@ -692,18 +724,26 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
 
                         {type === "aeps1-cw-history" && (
                           <td className="px-4 sm:px-6 py-3 sm:py-4 whitespace-nowrap">
-                            <button
-                              onClick={() => handleReconcile(transaction)}
-                              disabled={!!reconcilingId}
-                              title={`Reconcile: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
-                              className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${
-                                reconcilingId === transaction.id
-                                  ? "bg-gray-400 text-white cursor-not-allowed"
-                                  : "bg-blue-600 text-white hover:bg-blue-700"
-                              }`}
-                            >
-                              {reconcilingId === transaction.id ? "..." : "Reconcile"}
-                            </button>
+                            {(() => {
+                              const transTracker = reconcileTracker[transaction.id] || {};
+                              const isCooldownActive = transTracker.clickTime && (Date.now() - transTracker.clickTime < 5 * 60 * 1000);
+                              const isSuccess = transTracker.isSuccess;
+                              
+                              return (
+                                <button
+                                  onClick={() => handleReconcile(transaction)}
+                                  disabled={!!reconcilingId || isCooldownActive}
+                                  title={`Reconcile: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
+                                  className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${
+                                    (reconcilingId === transaction.id || isCooldownActive)
+                                      ? "bg-gray-400 text-white cursor-not-allowed"
+                                      : "bg-[#039155] text-white hover:bg-green-700"
+                                  }`}
+                                >
+                                  {reconcilingId === transaction.id ? "..." : (isSuccess ? "CheckStatus" : "Reconcile")}
+                                </button>
+                              );
+                            })()}
                           </td>
                         )}
 

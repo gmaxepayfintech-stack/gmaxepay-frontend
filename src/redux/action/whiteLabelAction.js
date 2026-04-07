@@ -49,54 +49,8 @@ import {
   CREATE_EMPLOYEE_FAILURE,
   RESND_LOGIN_ACCESS_SUCCESS,
   RESND_LOGIN_ACCESS_FAILURE,
-  EMPLOYEE_WHITELABEL_CREATE_SUCCESS,
-  EMPLOYEE_WHITELABEL_CREATE_FAILURE,
-  EMPLOYEE_GET_PINCODE_BY_CITY_SUCCESS,
-  EMPLOYEE_GET_PINCODE_BY_CITY_FAILURE,
-  EMPLOYEE_GET_CITY_BY_PINCODE_SUCCESS,
-  EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
-  EMPLOYEE_GET_IP_CHECK_SUCCESS,
-  EMPLOYEE_GET_IP_CHECK_FAILURE,
-  EMPLOYEE_GET_PANDATA_FETCH_SUCCESS,
-  EMPLOYEE_GET_PANDATA_FETCH_FAILURE,
-  EMPLOYEE_GET_WHITELABEL_LIST_SUCCESS,
-  EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
-  EMPLOYEE_CREATE_EMPLOYEE_SUCCESS,
-  EMPLOYEE_CREATE_EMPLOYEE_FAILURE,
-  EMPLOYEE_RESND_LOGIN_ACCESS_SUCCESS,
-  EMPLOYEE_RESND_LOGIN_ACCESS_FAILURE,
-  EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS,
-  EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
-  EMPLOYEE_GET_KYCSTATUS_SUCCESS,
-  EMPLOYEE_GET_KYCSTATUS_FAILURE,
-  EMPLOYEE_UPDATE_KYCSTATUS_SUCCESS,
-  EMPLOYEE_UPDATE_KYCSTATUS_FAILURE,
-  EMPLOYEE_KYC_LOCK_STATUS_SUCCESS,
-  EMPLOYEE_KYC_LOCK_STATUS_FAILURE,
-  EMPLOYEE_REVERT_KYC_DETAILS_SUCCESS,
-  EMPLOYEE_REVERT_KYC_DETAILS_FAILURE,
-  EMPLOYEE_RESEND_ONBOARDING_LINK_SUCCESS,
-  EMPLOYEE_RESEND_ONBOARDING_LINK_FAILURE,
-  EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_SUCCESS,
-  EMPLOYEE_DEACTIVATE_ONBOARDING_LINK_FAILURE,
-  EMPLOYEE_GET_COMPANY_ADMIN_SUCCESS,
-  EMPLOYEE_GET_COMPANY_ADMIN_FAILURE,
-  EMPLOYEE_GET_USER_DETAILS_SUCCESS,
-  EMPLOYEE_GET_USER_DETAILS_FAILURE,
-  EMPLOYEE_GET_REPORT_TO_USER_LIST_SUCCESS,
-  EMPLOYEE_GET_REPORT_TO_USER_LIST_FAILURE,
-  EMPLOYEE_GET_MD_DETAILS_SUCCESS,
-  EMPLOYEE_GET_MD_DETAILS_FAILURE,
-  EMPLOYEE_GET_REPORT_TO_DOWNLINE_SUCCESS,
-  EMPLOYEE_GET_REPORT_TO_DOWNLINE_FAILURE,
-  EMPLOYEE_GET_USER_ADMIN_SUCCESS,
-  EMPLOYEE_GET_USER_ADMIN_FAILURE,
-  EMPLOYEE_FETCH_KYC_DETAILS_COMPANY_SUCCESS,
-  EMPLOYEE_FETCH_KYC_DETAILS_COMPANY_FAILURE,
-  EMPLOYEE_FETCH_KYC_DETAILS_USER_SUCCESS,
-  EMPLOYEE_FETCH_KYC_DETAILS_USER_FAILURE,
-  EMPLOYEE_REVERT_USER_KYC_DETAILS_SUCCESS,
-  EMPLOYEE_REVERT_USER_KYC_DETAILS_FAILURE,
+  EMPLOYEE_LIST_SUCCESS,
+  EMPLOYEE_LIST_FAILURE,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -338,6 +292,48 @@ export const useList = (values) => async (dispatch) => {
   } catch (error) {
     dispatch({
       type: GET_WHITELABEL_LIST_FAILURE,
+      payload: {
+        message: error.response ? error.response.data.message : error.message,
+        status: "Error",
+      },
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+export const employeeList = (values) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/users/list`,
+      values,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      }
+    );
+
+    const { data: employeeList, message, status } = response?.data ?? {};
+
+    if (status === "SUCCESS") {
+      dispatch({
+        type: EMPLOYEE_LIST_SUCCESS,
+        payload: { employeeList, message, status },
+      });
+    } else {
+      dispatch({
+        type: EMPLOYEE_LIST_FAILURE,
+        payload: { message, status, errorData: response?.data },
+      });
+    }
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_LIST_FAILURE,
       payload: {
         message: error.response ? error.response.data.message : error.message,
         status: "Error",
