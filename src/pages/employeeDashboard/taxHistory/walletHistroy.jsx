@@ -32,7 +32,25 @@ const WalletHistory = ({ onBack, type }) => {
   const walletHistoryResponse = useSelector(
     (state) => state?.wallet?.walletHistoryEmployee,
   );
-  const apiData = walletHistoryResponse?.data || [];
+  
+  // Robust array extraction that handles multiple nesting patterns
+  let apiData = [];
+  if (walletHistoryResponse) {
+    if (Array.isArray(walletHistoryResponse.data)) {
+      apiData = walletHistoryResponse.data;
+    } else if (Array.isArray(walletHistoryResponse.walletHistoryEmployee)) {
+      apiData = walletHistoryResponse.walletHistoryEmployee;
+    } else if (Array.isArray(walletHistoryResponse)) {
+      apiData = walletHistoryResponse;
+    } else if (walletHistoryResponse.data?.data && Array.isArray(walletHistoryResponse.data.data)) {
+      apiData = walletHistoryResponse.data.data;
+    }
+  }
+
+  // Extract pagination data if available
+  const paginator = walletHistoryResponse?.paginator || walletHistoryResponse?.data?.paginator || {};
+  const apiTotalCount = walletHistoryResponse?.total ?? walletHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
   // Transform API response data to table format

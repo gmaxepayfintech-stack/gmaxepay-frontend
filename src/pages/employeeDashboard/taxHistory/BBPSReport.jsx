@@ -27,24 +27,29 @@ const BBPSReport = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get BBPS history from Redux — employee-specific state key
-    const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.bbpsHistoryEmployee
+    // Corrected Redux selector key to match walletReducer.js
+    const bbpsEmployeeHistoryResponse = useSelector(
+        (state) => state?.wallet?.bbpsEmployeeHistory
     );
     
-    // Safely extract the array data regardless of nesting level
+    // Robust array extraction that handles multiple nesting patterns
     let apiData = [];
-    if (walletHistoryResponse?.data) {
-        if (Array.isArray(walletHistoryResponse.data)) {
-            apiData = walletHistoryResponse.data;
-        } else if (walletHistoryResponse.data.data && Array.isArray(walletHistoryResponse.data.data)) {
-            apiData = walletHistoryResponse.data.data;
-        } else if (walletHistoryResponse.data.data?.data && Array.isArray(walletHistoryResponse.data.data.data)) {
-            apiData = walletHistoryResponse.data.data.data;
+    if (bbpsEmployeeHistoryResponse) {
+        if (Array.isArray(bbpsEmployeeHistoryResponse.data)) {
+            apiData = bbpsEmployeeHistoryResponse.data;
+        } else if (Array.isArray(bbpsEmployeeHistoryResponse.bbpsEmployeeHistory)) {
+            apiData = bbpsEmployeeHistoryResponse.bbpsEmployeeHistory;
+        } else if (Array.isArray(bbpsEmployeeHistoryResponse)) {
+            apiData = bbpsEmployeeHistoryResponse;
+        } else if (bbpsEmployeeHistoryResponse.data?.data && Array.isArray(bbpsEmployeeHistoryResponse.data.data)) {
+            apiData = bbpsEmployeeHistoryResponse.data.data;
         }
-    } else if (Array.isArray(walletHistoryResponse)) {
-        apiData = walletHistoryResponse;
     }
+    
+    // Extract pagination data if available
+    const paginator = bbpsEmployeeHistoryResponse?.paginator || bbpsEmployeeHistoryResponse?.data?.paginator || {};
+    const apiTotalCount = bbpsEmployeeHistoryResponse?.total ?? bbpsEmployeeHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format

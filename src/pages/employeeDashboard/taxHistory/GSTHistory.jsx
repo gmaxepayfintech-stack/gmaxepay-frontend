@@ -27,24 +27,29 @@ const GSTHistory = ({ onBack, type }) => {
     const [debouncedSearchQuery, setDebouncedSearchQuery] = useState("");
     const [isReloading, setIsReloading] = useState(false);
 
-    // Get GST history from Redux — employee-specific state key
-    const walletHistoryResponse = useSelector(
+    // Corrected Redux selector key to match walletReducer.js
+    const employeeGstHistoryResponse = useSelector(
         (state) => state?.wallet?.employeeGstHistory
     );
 
-    // Safely extract the array data regardless of nesting level
+    // Robust array extraction that handles multiple nesting patterns
     let apiData = [];
-    if (walletHistoryResponse?.data) {
-        if (Array.isArray(walletHistoryResponse.data)) {
-            apiData = walletHistoryResponse.data;
-        } else if (walletHistoryResponse.data.data && Array.isArray(walletHistoryResponse.data.data)) {
-            apiData = walletHistoryResponse.data.data;
-        } else if (walletHistoryResponse.data.data?.data && Array.isArray(walletHistoryResponse.data.data.data)) {
-            apiData = walletHistoryResponse.data.data.data;
+    if (employeeGstHistoryResponse) {
+        if (Array.isArray(employeeGstHistoryResponse.data)) {
+            apiData = employeeGstHistoryResponse.data;
+        } else if (Array.isArray(employeeGstHistoryResponse.employeeGstHistory)) {
+            apiData = employeeGstHistoryResponse.employeeGstHistory;
+        } else if (Array.isArray(employeeGstHistoryResponse)) {
+            apiData = employeeGstHistoryResponse;
+        } else if (employeeGstHistoryResponse.data?.data && Array.isArray(employeeGstHistoryResponse.data.data)) {
+            apiData = employeeGstHistoryResponse.data.data;
         }
-    } else if (Array.isArray(walletHistoryResponse)) {
-        apiData = walletHistoryResponse;
     }
+    
+    // Extract pagination data if available
+    const paginator = employeeGstHistoryResponse?.paginator || employeeGstHistoryResponse?.data?.paginator || {};
+    const apiTotalCount = employeeGstHistoryResponse?.total ?? employeeGstHistoryResponse?.data?.total ?? paginator?.itemCount ?? 0;
+
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
