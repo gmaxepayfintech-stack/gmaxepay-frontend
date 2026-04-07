@@ -1,8 +1,12 @@
 import React, { useEffect, useRef, useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { HiArrowLeft } from "react-icons/hi2";
 import { FaCloudUploadAlt } from "react-icons/fa";
+import { FiChevronDown } from "react-icons/fi";
 import { useFormik } from "formik";
 import * as Yup from "yup";
+import { useNotification } from "../../../context/NotificationContext";
+import Loader, { ButtonLoader } from "../../../widgets/layout/loader";
 import {
   employeeIpCheckStatus,
   employeeGetPincodeByCity,
