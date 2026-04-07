@@ -32,6 +32,7 @@ import {
   employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
+import ProfileDetails from "./ProfileDetails";
 
 // Loader component for table body
 const TableBodyLoader = ({ colSpan }) => (
@@ -65,6 +66,8 @@ const Distribution = ({
     () => new Date().toISOString().split("T")[0],
   );
   const [showProfileDetails, setShowProfileDetails] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [debouncedSearchTerm, setDebouncedSearchTerm] = useState("");
 
   // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
@@ -105,6 +108,38 @@ const Distribution = ({
   const startIndex = (currentPage - 1) * 10;
   const endIndex = startIndex + 10;
   const tableData = allTableData.slice(startIndex, endIndex);
+
+  // Debounce search term to avoid too many API calls
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearchTerm(searchTerm);
+      setCurrentPage(1); // Reset to first page when search changes
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
+  // Fetch data from API when debouncedSearchTerm or currentPage changes
+  useEffect(() => {
+    if (debouncedSearchTerm.trim()) {
+      const payload = {
+        query: {
+          userRole: 4, // Distributor role
+        },
+        options: {
+          sort: { id: -1 },
+          page: currentPage,
+          paginate: 5,
+        },
+        customSearch: {
+          mobileNo: debouncedSearchTerm.trim(),
+          name: debouncedSearchTerm.trim(),
+        },
+      };
+
+      dispatch(employeeUseList(payload));
+    }
+  }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
   useEffect(() => {
