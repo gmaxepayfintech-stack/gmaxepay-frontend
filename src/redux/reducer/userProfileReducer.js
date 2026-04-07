@@ -19,6 +19,18 @@ import {
   DELETE_BANK_ADMIN_FAILURE,
   SET_SELECTED_USER_ROLE,
   UPDATE_BANK_USER_SUCCESS,
+  EMPLOYEE_ADMIN_ROLES_PERMISSION_SUCCESS,
+  EMPLOYEE_ADMIN_ROLES_PERMISSION_FAILURE,
+  EMPLOYEE_UPDATE_ROLES_PERMISSION_SUCESS,
+  EMPLOYEE_UPDATE_ROLES_PERMISSION_FAILURE,
+  EMPLOYEE_ADD_BANK_ADMIN_SUCCESS,
+  EMPLOYEE_ADD_BANK_ADMIN_FAILURE,
+  EMPLOYEE_GET_ADMIN_DETAILS_SUCCESS,
+  EMPLOYEE_GET_ADMIN_DETAILS_FAILURE,
+  EMPLOYEE_GET_ADMIN_PROFILE_SUCCESS,
+  EMPLOYEE_GET_ADMIN_PROFILE_FAILURE,
+  EMPLOYEE_DELETE_BANK_ADMIN_SUCCESS,
+  EMPLOYEE_DELETE_BANK_ADMIN_FAILURE,
 } from "../actionType/userProfileActionType";
 
 const initialState = {
@@ -232,6 +244,69 @@ const userProfileReducer = (state = initialState, action) => {
           error: null,
           bankUpdateResponse: action?.payload,
         }
+    case EMPLOYEE_ADMIN_ROLES_PERMISSION_SUCCESS:
+      return {
+        ...state,
+        adminRolesPermission: action.payload,
+        loading: false,
+        error: null,
+        success: action.payload.status,
+        message: action.payload.message,
+      };
+
+    case EMPLOYEE_UPDATE_ROLES_PERMISSION_SUCESS:
+      return {
+        ...state,
+        updateRoles: action.payload,
+        success: action.payload.status,
+        message: action.payload.message,
+      };
+    case EMPLOYEE_ADD_BANK_ADMIN_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        error: null,
+        bankAdminResponse: action?.payload,
+      };
+    case EMPLOYEE_DELETE_BANK_ADMIN_SUCCESS:
+      return {
+        ...state,
+        adminProfileResponse: {
+          ...state.adminProfileResponse,
+          bankDetails: state.adminProfileResponse?.bankDetails?.filter(
+            (bank) => bank.id !== action.payload,
+          ),
+        },
+        error: null,
+        success: true,
+      };
+
+    case EMPLOYEE_DELETE_BANK_ADMIN_FAILURE:
+      return {
+        ...state,
+        error: action.payload,
+      };
+
+    case EMPLOYEE_GET_ADMIN_DETAILS_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        error: null,
+        adminDetailsResponse: action?.payload,
+      };
+    case EMPLOYEE_GET_ADMIN_PROFILE_SUCCESS:
+      return {
+        ...state,
+        loading: false,
+        error: null,
+        success: action?.payload?.status,
+        message: action?.payload?.message,
+        adminProfileResponse: action?.payload,
+      };
     default:
       return state;
   }
