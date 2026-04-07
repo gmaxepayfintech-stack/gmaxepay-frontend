@@ -65,7 +65,7 @@ export const PanReportsEmployee = (payload) => async (dispatch) => {
     const authToken = secureLocalStorage.getItem("userToken");
 
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/reports/panReports`,
+      `${API_ROUTE}/api/v1/employee/reports/recharge1Reports`,
       payload,
       {
         headers: {
