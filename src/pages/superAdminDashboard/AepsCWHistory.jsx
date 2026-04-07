@@ -730,18 +730,18 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
                               const isSuccess = transTracker.isSuccess;
                               
                               return (
-                                <button
-                                  onClick={() => handleReconcile(transaction)}
-                                  disabled={!!reconcilingId || isCooldownActive}
-                                  title={`Reconcile: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
-                                  className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${
-                                    (reconcilingId === transaction.id || isCooldownActive)
-                                      ? "bg-gray-400 text-white cursor-not-allowed"
-                                      : "bg-[#039155] text-white hover:bg-green-700"
-                                  }`}
-                                >
-                                  {reconcilingId === transaction.id ? "..." : (isSuccess ? "CheckStatus" : "Reconcile")}
-                                </button>
+                                  <button
+                                    onClick={() => handleReconcile(transaction)}
+                                    disabled={!!reconcilingId || isCooldownActive}
+                                    title={`Check Status: ${transaction?.originalItem?.merchantReferenceId || transaction?.refID || "N/A"}`}
+                                    className={`px-3 py-1.5 sm:px-4 sm:py-2 text-xs sm:text-sm font-['Gilroy-Medium'] rounded-lg transition shadow-sm whitespace-nowrap ${
+                                      (reconcilingId === transaction.id || isCooldownActive)
+                                        ? "bg-gray-400 text-white cursor-not-allowed"
+                                        : "bg-[#039155] text-white hover:bg-green-700"
+                                    }`}
+                                  >
+                                    {reconcilingId === transaction.id ? "..." : "CheckStatus"}
+                                  </button>
                               );
                             })()}
                           </td>
