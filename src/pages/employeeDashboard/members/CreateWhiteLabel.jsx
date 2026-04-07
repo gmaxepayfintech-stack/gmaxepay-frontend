@@ -41,9 +41,7 @@ import {
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 import { useLocation, useSearchParams } from "react-router-dom";
-import Employee from "./employee";
 
-// Stable empty array reference to prevent unnecessary re-renders
 const EMPTY_ARRAY = [];
 
 const generateTableData = (type, count = 12) => {
@@ -834,7 +832,6 @@ const CreateWhiteLabel = () => {
                 "Master Distributor",
                 "Distributor",
                 "Retailers",
-                "Employee",
               ].map((item) => (
                 <button
                   key={item}
@@ -877,28 +874,28 @@ const CreateWhiteLabel = () => {
         </div>
 
         {/* Top Buttons */}
-        {activeNav !== "Employee" && (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <button
-              onClick={() => setShowOnboardingList(false)}
-              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${showOnboardingList
+        <div className="flex flex-wrap gap-3 mb-6">
+          <button
+            onClick={() => setShowOnboardingList(false)}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] shadow-md text-sm sm:text-base ${
+              showOnboardingList
                 ? "bg-gray-200 text-gray-700 hover:bg-gray-300"
                 : "bg-[#039155] text-white"
-                }`}
-            >
-              All List
-            </button>
-            <button
-              onClick={() => setShowOnboardingList(true)}
-              className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${showOnboardingList
+            }`}
+          >
+            All List
+          </button>
+          <button
+            onClick={() => setShowOnboardingList(true)}
+            className={`px-4 py-2 rounded-2xl font-[Gilroy-Medium] text-sm sm:text-base ${
+              showOnboardingList
                 ? "bg-[#039155] text-white shadow-md"
                 : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-                }`}
-            >
-              Onboarding Process
-            </button>
-          </div>
-        )}
+            }`}
+          >
+            Onboarding Process
+          </button>
+        </div>
 
         {(() => {
           const apiData = getApiDataForComponents();
@@ -951,15 +948,6 @@ const CreateWhiteLabel = () => {
               />
             );
           }
-          if (activeNav === "Employee") {
-            return (
-              <Employee
-                embedded={true}
-                tableData={apiData}
-                isLoading={isTableLoading}
-              />
-            );
-          }
           return (
             <div className="flex flex-col min-h-[calc(100vh-300px)]">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 py-4">
@@ -970,7 +958,6 @@ const CreateWhiteLabel = () => {
                     if (activeNav === "Master Distributor")
                       return "Master Distribution";
                     if (activeNav === "Distributor") return "Distributor";
-                    if (activeNav === "Employee") return "Employee";
                     return "Retailers";
                   })()}
                 </h2>

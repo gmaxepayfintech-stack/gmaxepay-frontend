@@ -15,62 +15,20 @@ import { IoIosArrowBack, IoIosArrowForward } from "react-icons/io";
 import { User, X, ZoomIn } from "lucide-react";
 import * as XLSX from "xlsx";
 import {
-  useList as useListAction,
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
-import { ButtonLoader } from "../../../widgets/layout/loader";
-import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_MASTER_DISTRIBUTORS = [
-  {
-    id: 1,
-    date: "2026-03-30",
-    userAgentCode: "MD001",
-    userName: "Sanjay Singh",
-    userRole: "Master Distributor",
-    mobileNumber: "9900011122",
-    email: "sanjay.s@example.com",
-    parentName: "Admin",
-    parentRole: "Super Admin",
-    companyName: "Singh Fintech",
-    kycStatus: "Completed",
-    kycSteps: "3",
-    mainWallet: 100000,
-    aeps1Wallet: 25000,
-    aeps2Wallet: 15000,
-    status: "Active",
-    lock: false,
-  },
-  {
-    id: 2,
-    date: "2026-03-29",
-    userAgentCode: "MD002",
-    userName: "Anita Desai",
-    userRole: "Master Distributor",
-    mobileNumber: "9800011122",
-    email: "anita.d@example.com",
-    parentName: "Admin",
-    parentRole: "Super Admin",
-    companyName: "Desai Solutions",
-    kycStatus: "Pending",
-    kycSteps: "2",
-    mainWallet: 45000,
-    aeps1Wallet: 12000,
-    aeps2Wallet: 8000,
-    status: "Inactive",
-    lock: true,
-  },
-];
 
 const MasterDistribution = ({
   embedded = false,
@@ -103,26 +61,8 @@ const MasterDistribution = ({
   // Get KYC details from Redux state - WATCH the entire kycDetails object to detect changes
   const kycDetailsState = useSelector((state) => state?.whitelabel?.kycDetails);
   
-  // Simulation of KYC data for demo
-  const DUMMY_KYC_DETAILS = {
-    personal: {
-      firstName: "Arun",
-      lastName: "Kumar",
-      dob: "1980-05-15",
-      gender: "Male"
-    },
-    documents: {
-      pan: { number: "PQR ST 1234 H", status: "Verified" },
-      aadhaar: { number: "123456789012", status: "Verified" }
-    },
-    address: {
-      state: "Maharashtra",
-      city: "Mumbai",
-      pincode: "400001"
-    }
-  };
 
-  const kycRetrieved = DUMMY_KYC_DETAILS;
+  const kycRetrieved = kycDetailsState?.data || null;
 
   // Get kycStatusCheck success state to refresh table after update
   const kycStatusCheckResponse = useSelector(
@@ -139,9 +79,11 @@ const MasterDistribution = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Dummy data for testing/demo
-  const allTableData = DUMMY_MASTER_DISTRIBUTORS;
-  const isLoading = false;
+  // Use API data or prop data
+  const allTableData = debouncedSearchTerm.trim() && responseForTable.length > 0 
+    ? responseForTable 
+    : propTableData;
+  const isLoading = propIsLoading;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -187,7 +129,6 @@ const MasterDistribution = ({
 
   // Fetch data from API when search term changes - DISABLED for demo
   useEffect(() => {
-    /*
     if (debouncedSearchTerm.trim()) {
       const payload = {
         query: {
@@ -204,9 +145,8 @@ const MasterDistribution = ({
         },
       };
 
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
   // Export to Excel function
@@ -267,7 +207,7 @@ const MasterDistribution = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -291,7 +231,7 @@ const MasterDistribution = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
@@ -317,7 +257,6 @@ const MasterDistribution = ({
 
   // Refresh KYC data when revert succeeds - MOCKED for demo
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -330,12 +269,11 @@ const MasterDistribution = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -529,10 +467,10 @@ const MasterDistribution = ({
                                 row.userRole ||
                                 row.originalItem?.userRole ||
                                 "MD"; // Master Distributor
-                              // dispatch(setSelectedUserRole(roleFromRow));
+                              dispatch(setSelectedUserRole(roleFromRow));
 
                               // Use only admin profile details API (same as CreateWhiteLabel)
-                              // dispatch(getAdminProfileDetails(userId));
+                              dispatch(employeeGetAdminProfileDetails(userId));
 
                               setShowProfileDetails(true);
                             }
@@ -636,16 +574,15 @@ const MasterDistribution = ({
                             const userId = row.id || row.originalItem?.id;
                             if (userId) {
                               setIsKycModalLoading(true);
-                              // dispatch(kycDataAction(userId));
-                              
-                              // Mock loading delay
+                              dispatch(employeeKycData(userId));
+
+                              // Small delay to allow Redux state update then show modal
                               setTimeout(() => {
                                 setIsKycModalLoading(false);
-                                setSelectedKycData(DUMMY_KYC_DETAILS);
+                                setShowKycModal(true);
                                 setActiveTab("overview");
                                 setZoomedImage(null);
-                                setShowKycModal(true);
-                              }, 800);
+                              }, 500);
                             }
                           }}
                           className="px-3 py-1 border border-green-500 text-green-600 rounded-lg hover:bg-green-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -664,25 +601,22 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  /*
                                   // Handle both cases: active → inactive and inactive → active
                                   if (isActive) {
                                     // Toggling from active to inactive (OFF)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "false",
                                       }),
                                     );
                                   } else {
                                     // Toggling from inactive to active (ON)
                                     dispatch(
-                                      kycStatusCheck(userId, {
+                                      employeeKycStatusCheck(userId, {
                                         isActive: "true",
                                       }),
                                     );
                                   }
-                                  */
-                                  alert(`Account status updated for ${row.userName || row.name || "user"}`);
                                 }
                               }}
                               className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -710,7 +644,7 @@ const MasterDistribution = ({
                                 // Only trigger API when button is in "Locked" state
                                 if (userId && isLocked) {
                                   // Dispatch unlock action with the row ID
-                                  // dispatch(kycUnlock(userId));
+                                  dispatch(employeeKycUnlock(userId));
                                   alert("Account access has been enabled successfully.");
                                 }
                               }}
@@ -738,7 +672,7 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
+                                  dispatch(employeeRescendOnboarding(userId));
                                   alert(`Onboarding re-sent to ${row.userName || row.name || "user"}`);
                                 }
                               }}
@@ -757,7 +691,7 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                   alert(`Deactivation request sent for ${row.userName || row.name || "user"}`);
                                 }
                               }}
@@ -1187,8 +1121,7 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(rescendOnboarding(userId));
-                                  alert(`Onboarding re-sent to ${row.userName || row.name || "user"}`);
+                                  dispatch(employeeRescendOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -1206,8 +1139,7 @@ const MasterDistribution = ({
                             <button
                               onClick={() => {
                                 if (userId) {
-                                  // dispatch(deActiveOnboarding(userId));
-                                  alert(`Deactivation request sent for ${row.userName || row.name || "user"}`);
+                                  dispatch(employeeDeActiveOnboarding(userId));
                                 }
                               }}
                               className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"

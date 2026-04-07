@@ -19,81 +19,20 @@ import {
   FaExpand,
 } from "react-icons/fa";
 import {
-  useList as useListAction,
-  kycData as kycDataAction,
-  kycStatusCheck,
-  kycUnlock,
-  kycRevert,
-  rescendOnboarding,
-  deActiveOnboarding,
-  getCompanyAdmin,
+  employeeUseList,
+  employeeKycData,
+  employeeKycStatusData,
+  employeeKycStatusCheck,
+  employeeKycUnlock,
+  employeeKycRevert,
+  employeeRescendOnboarding,
+  employeeDeActiveOnboarding,
 } from "../../../redux/action/whiteLabelAction";
 import ProfileDetails from "./ProfileDetails";
 import {
-  getAdminProfileDetails,
+  employeeGetAdminProfileDetails,
   setSelectedUserRole,
 } from "../../../redux/action/userProfileAction";
-
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_WHITELABELS = [
-  {
-    id: 1,
-    date: "2026-03-20",
-    userId: "WL001",
-    name: "Apex Solutions",
-    userRole: "White Label",
-    mobileNo: "9887766554",
-    emailId: "support@apex.com",
-    parentName: "Admin",
-    parentRole: "Super Admin",
-    companyName: "Apex Fintech",
-    kycStatus: "Completed",
-    kycSteps: "3",
-    mainWallet: 50000,
-    apes1Wallet: 15000,
-    apes2Wallet: 10000,
-    status: "Active",
-    originalItem: { lock: false },
-  },
-  {
-    id: 2,
-    date: "2026-03-19",
-    userId: "WL002",
-    name: "Zenith Pay",
-    userRole: "White Label",
-    mobileNo: "9776655443",
-    emailId: "contact@zenith.com",
-    parentName: "Admin",
-    parentRole: "Super Admin",
-    companyName: "Zenith Services",
-    kycStatus: "Pending",
-    kycSteps: "2",
-    mainWallet: 25000,
-    apes1Wallet: 8000,
-    apes2Wallet: 5000,
-    status: "Inactive",
-    originalItem: { lock: true },
-  },
-  {
-    id: 3,
-    date: "2026-03-18",
-    userId: "WL003",
-    name: "Global Pay",
-    userRole: "White Label",
-    mobileNo: "9665544332",
-    emailId: "info@globalpay.com",
-    parentName: "Admin",
-    parentRole: "Super Admin",
-    companyName: "Global Fintech",
-    kycStatus: "Full_KYC",
-    kycSteps: "3",
-    mainWallet: 75000,
-    apes1Wallet: 20000,
-    apes2Wallet: 15000,
-    status: "Active",
-    originalItem: { lock: false },
-  },
-];
 
 const AdminWhitelabelList = ({
   embedded = false,
@@ -138,8 +77,10 @@ const AdminWhitelabelList = ({
     (state) => state?.whitelabel?.kycRevert,
   );
 
-  // Use Dummy data for testing/demo
-  const allTableData = DUMMY_WHITELABELS;
+  // Use API data or prop data
+  const allTableData = debouncedSearchTerm.trim() && responseForTable.length > 0
+    ? responseForTable
+    : propTableData;
 
   // Get total count from Redux state (if available) or use current data length
   const totalCountFromRedux = useSelector((state) => {
@@ -148,7 +89,6 @@ const AdminWhitelabelList = ({
     return response?.totalCount || response?.total || 0;
   });
 
-  // Use Redux total count if available and search is active, otherwise use current data length
   const totalCount =
     debouncedSearchTerm.trim() && totalCountFromRedux > 0
       ? totalCountFromRedux
@@ -173,9 +113,7 @@ const AdminWhitelabelList = ({
     return () => clearTimeout(timer);
   }, [searchTerm]);
 
-  // Fetch data from API when search term changes - DISABLED for demo
   useEffect(() => {
-    /*
     const payload = {
       query: {
         userRole: 2, // Whitelabel role
@@ -194,13 +132,11 @@ const AdminWhitelabelList = ({
         : {},
     };
 
-    dispatch(useListAction(payload));
-    */
+    dispatch(employeeUseList(payload));
   }, [debouncedSearchTerm, currentPage, dispatch]);
 
-  // Refresh table when kycStatusCheck succeeds - MOCKED for demo
+  // Refresh table when kycStatusCheck succeeds
   useEffect(() => {
-    /*
     if (kycStatusCheckResponse?.status === "SUCCESS") {
       const payload = {
         query: {
@@ -219,14 +155,12 @@ const AdminWhitelabelList = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [kycStatusCheckResponse, debouncedSearchTerm, currentPage, dispatch]);
 
-  // Refresh table when kycUnlock succeeds - MOCKED for demo
+  // Refresh table when kycUnlock succeeds
   useEffect(() => {
-    /*
     if (kycLockStatusResponse?.status === "SUCCESS") {
       const payload = {
         query: {
@@ -245,9 +179,8 @@ const AdminWhitelabelList = ({
           }
           : {},
       };
-      dispatch(useListAction(payload));
+      dispatch(employeeUseList(payload));
     }
-    */
   }, [kycLockStatusResponse, debouncedSearchTerm, currentPage, dispatch]);
 
   // Update selectedKycData when Redux state changes
@@ -268,9 +201,8 @@ const AdminWhitelabelList = ({
     }
   }, [kycDetailsState, kycDetailsFromRedux, showKycModal, kycDataRefreshKey]);
 
-  // Refresh KYC data when revert succeeds - MOCKED for demo
+  // Refresh KYC data when revert succeeds
   useEffect(() => {
-    /*
     if (
       kycRevertResponse?.status === "SUCCESS" &&
       selectedUserId &&
@@ -283,12 +215,11 @@ const AdminWhitelabelList = ({
         // Force update by incrementing refresh key
         setKycDataRefreshKey((prev) => prev + 1);
         // Refresh KYC data after revert
-        dispatch(kycDataAction(selectedUserId));
+        dispatch(employeeKycData(selectedUserId));
       }, 500);
 
       return () => clearTimeout(timer);
     }
-    */
   }, [kycRevertResponse, selectedUserId, showKycModal, dispatch]);
 
   // Handle click outside modal
@@ -479,7 +410,7 @@ const AdminWhitelabelList = ({
                           // dispatch(getCompanyAdmin(userId));
 
                           // Additionally fetch admin profile details (slab visibility, etc.)
-                          // dispatch(getAdminProfileDetails(userId));
+                          // dispatch(employeeGetAdminProfileDetails(userId));
 
                           setShowProfileDetails(true);
                         }
@@ -560,17 +491,8 @@ const AdminWhitelabelList = ({
                       onClick={() => {
                         const userId = row.id || row.originalItem?.id;
                         if (userId) {
-                          // dispatch(kycDataAction(userId));
-                          setSelectedKycData({
-                            kycStatus: row.kycStatus || "Completed",
-                            kycSteps: row.kycSteps || "3",
-                            userDetails: {
-                              userId: row.userId,
-                              name: row.name,
-                              mobileNo: row.mobileNo,
-                              email: row.emailId
-                            }
-                          });
+                          setSelectedUserId(userId);
+                          dispatch(employeeKycData(userId));
                           setActiveTab("overview");
                           setZoomedImage(null);
                           setShowKycModal(true);
@@ -591,18 +513,19 @@ const AdminWhitelabelList = ({
                         <button
                           onClick={() => {
                             if (userId) {
-                              /*
                               if (isActive) {
                                 dispatch(
-                                  kycStatusCheck(userId, { isActive: "false" }),
+                                  employeeKycStatusCheck(userId, {
+                                    isActive: "false",
+                                  }),
                                 );
                               } else {
                                 dispatch(
-                                  kycStatusCheck(userId, { isActive: "true" }),
+                                  employeeKycStatusCheck(userId, {
+                                    isActive: "true",
+                                  }),
                                 );
                               }
-                              */
-                              alert(`Account status updated for ${row.name || "user"}`);
                             }
                           }}
                           className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -629,8 +552,7 @@ const AdminWhitelabelList = ({
                         <button
                           onClick={() => {
                             if (userId && isLocked) {
-                              // dispatch(kycUnlock(userId));
-                              alert("Account access has been enabled successfully.");
+                              dispatch(employeeKycUnlock(userId));
                             }
                           }}
                           disabled={!isLocked}
@@ -655,8 +577,7 @@ const AdminWhitelabelList = ({
                         <button
                           onClick={() => {
                             if (userId) {
-                              // dispatch(rescendOnboarding(userId));
-                              alert(`Onboarding re-sent to ${row.name || "user"}`);
+                              dispatch(employeeRescendOnboarding(userId));
                             }
                           }}
                           className="px-3 py-1 border border-blue-500 text-blue-600 rounded-lg hover:bg-blue-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -674,8 +595,7 @@ const AdminWhitelabelList = ({
                         <button
                           onClick={() => {
                             if (userId) {
-                              // dispatch(deActiveOnboarding(userId));
-                              alert(`Deactivation request sent for ${row.name || "user"}`);
+                              dispatch(employeeDeActiveOnboarding(userId));
                             }
                           }}
                           className="px-3 py-1 border border-orange-500 text-orange-600 rounded-lg hover:bg-orange-50 text-xs font-[Gilroy-Medium] transition-colors"
@@ -778,7 +698,7 @@ const AdminWhitelabelList = ({
                             // dispatch(getCompanyAdmin(userId));
 
                             // Additionally fetch admin profile details (slab visibility, etc.)
-                            // dispatch(getAdminProfileDetails(userId));
+                            // dispatch(employeeGetAdminProfileDetails(userId));
 
                             setShowProfileDetails(true);
                           }
@@ -862,7 +782,7 @@ const AdminWhitelabelList = ({
                           const userId = row.id || row.originalItem?.id;
                           if (userId) {
                             setSelectedUserId(userId);
-                            dispatch(kycDataAction(userId));
+                            dispatch(employeeKycData(userId));
                             setActiveTab("overview");
                             setZoomedImage(null);
                             setShowKycModal(true);
@@ -883,19 +803,19 @@ const AdminWhitelabelList = ({
                           <button
                             onClick={() => {
                               if (userId) {
-                                if (isActive) {
-                                  dispatch(
-                                    kycStatusCheck(userId, {
-                                      isActive: "false",
-                                    }),
-                                  );
-                                } else {
-                                  dispatch(
-                                    kycStatusCheck(userId, {
-                                      isActive: "true",
-                                    }),
-                                  );
-                                }
+                                  if (isActive) {
+                                    dispatch(
+                                      employeeKycStatusCheck(userId, {
+                                        isActive: "false",
+                                      }),
+                                    );
+                                  } else {
+                                    dispatch(
+                                      employeeKycStatusCheck(userId, {
+                                        isActive: "true",
+                                      }),
+                                    );
+                                  }
                               }
                             }}
                             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-offset-1 ${isActive ? "bg-green-600" : "bg-gray-300"
@@ -922,7 +842,7 @@ const AdminWhitelabelList = ({
                           <button
                             onClick={() => {
                               if (userId && isLocked) {
-                                dispatch(kycUnlock(userId));
+                                dispatch(employeeKycUnlock(userId));
                               }
                             }}
                             disabled={!isLocked}
@@ -1230,7 +1150,7 @@ const AdminWhitelabelList = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         aadhar: "true",
                                       }),
                                     );
@@ -1360,7 +1280,7 @@ const AdminWhitelabelList = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         pan: "true",
                                       }),
                                     );
@@ -1490,7 +1410,7 @@ const AdminWhitelabelList = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         shopImage: "true",
                                       }),
                                     );
@@ -1576,7 +1496,7 @@ const AdminWhitelabelList = ({
                                 onClick={() => {
                                   if (selectedUserId) {
                                     dispatch(
-                                      kycRevert(selectedUserId, {
+                                      employeeKycRevert(selectedUserId, {
                                         bankVerification: "true",
                                       }),
                                     );
