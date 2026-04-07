@@ -25,6 +25,8 @@ import {
   EMPLOYEE_SLAB_LIST_SUCCESS,
   EMPLOYEE_SLAB_CREATE_SUCCESS,
   EMPLOYEE_SLAB_UPDATE_SUCCESS,
+  EMPLOYEE_SLAB_GET_COMM_SUCCESS,
+  EMPLOYEE_SLAB_UPDATE_COMM_SUCCESS,
 } from '../actionType/slabActionType';
 
 const initialState = {
@@ -78,6 +80,12 @@ const initialState = {
   EmployeeupdateSlabSuccess: false,
   EmployeeupdateSlabError: null,
   EmployeeupdateSlabMessage: null,
+  EmployeecommTotal: null,
+  EmployeecommData: null,
+  EmployeecommError: null,
+  EmployeeupdateCommLoading: false,
+  EmployeeupdateCommError: null,
+  EmployeeupdateCommSuccess: false,
 };
 
 const slabReducer = (state = initialState, action) => {
@@ -207,6 +215,22 @@ const slabReducer = (state = initialState, action) => {
         commData: action.payload?.data || [],
         commTotal: action.payload?.total || 0,
       };
+
+      case EMPLOYEE_SLAB_GET_COMM_SUCCESS:
+        return{
+          ...state,
+          commError: null,
+          EmployeecommData: action.payload?.data || [],
+          EmployeecommTotal: action.payload?.total || 0,
+        }
+
+      case EMPLOYEE_SLAB_UPDATE_COMM_SUCCESS:
+        return{
+          ...state,
+          EmployeeupdateCommLoading: false,
+          EmployeeupdateCommError: null,
+          EmployeeupdateCommSuccess: true,
+        }
 
     case SLAB_GET_COMM_FAILURE:
       return {
