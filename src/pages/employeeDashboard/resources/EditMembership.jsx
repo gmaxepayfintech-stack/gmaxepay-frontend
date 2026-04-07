@@ -10,14 +10,6 @@ import {
   EmployeeupdateSlabCommission,
 } from "../../../redux/action/slabAction";
 
-// ── Dummy data ──────────────────────────────────────────────────────────────
-const DUMMY_COMMISSIONS = [
-  { operatorId: "op1", operatorName: "Airtel", operatorType: "RECHARGE", marginCommAmt: 2.5, marginCommType: "com", marginAmtType: "per", instruments: [{ roles: [{ roleName: "WU", commAmt: 1.5, commType: "com", amtType: "per", id: "r1" }, { roleName: "AD", commAmt: 1.0, commType: "com", amtType: "per", id: "r2" }] }] },
-  { operatorId: "op2", operatorName: "Jio", operatorType: "RECHARGE", marginCommAmt: 3.0, marginCommType: "com", marginAmtType: "per", instruments: [{ roles: [{ roleName: "WU", commAmt: 2.0, commType: "com", amtType: "per", id: "r3" }, { roleName: "AD", commAmt: 1.2, commType: "com", amtType: "per", id: "r4" }] }] },
-  { operatorId: "op3", operatorName: "Dish TV", operatorType: "DTH", marginCommAmt: 5.0, marginCommType: "com", marginAmtType: "fix", instruments: [{ roles: [{ roleName: "WU", commAmt: 3.0, commType: "com", amtType: "fix", id: "r5" }, { roleName: "AD", commAmt: 2.0, commType: "com", amtType: "fix", id: "r6" }] }] },
-  { operatorId: "op4", operatorName: "AEPS Cash Withdrawal", operatorType: "AEPS", marginCommAmt: 10.0, marginCommType: "com", marginAmtType: "fix", instruments: [{ roles: [{ roleName: "WU", commAmt: 7.0, commType: "com", amtType: "fix", id: "r7" }, { roleName: "AD", commAmt: 5.0, commType: "com", amtType: "fix", id: "r8" }] }] }
-];
-
 const EditMembership = ({ scheme = null, onBack }) => {
   const dispatch = useDispatch();
   const { company } = useCompany();
@@ -65,8 +57,7 @@ const EditMembership = ({ scheme = null, onBack }) => {
   const [schemeType, setSchemeType] = useState(() => getSchemeType(scheme));
 
   // Redux state for commissions
-  const { EmployeecommData } = useSelector((state) => state?.slab || {});
-  const commData = EmployeecommData || DUMMY_COMMISSIONS;
+  const { EmployeecommData: commData = [] } = useSelector((state) => state?.slab || {});
 
   // Local editable commissions state and loading
   const [commissions, setCommissions] = useState([]);
