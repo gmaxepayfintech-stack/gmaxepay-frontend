@@ -702,7 +702,7 @@ export const employeeSlabList = (companyId, page = 1, paginate = 6) => async (di
     };
 
     const response = await api.post(
-      `${API_ROUTE}/api/v1/Employee/slabs/list`,
+      `${API_ROUTE}/api/v1/employee/slabs/list`,
       payload,
       {
         headers: {
