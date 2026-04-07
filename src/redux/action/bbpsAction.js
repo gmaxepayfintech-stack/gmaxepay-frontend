@@ -56,6 +56,45 @@ import {
   BBPS_USER_PAY_BILL_START,
   BBPS_USER_PAY_BILL_SUCCESS,
   BBPS_USER_PAY_BILL_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_START,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_CATEGORIES_FAILURE,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_START,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_CATEGORY_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_START,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_CATEGORY_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_START,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_CATEGORIES_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_START,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_BILLERS_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_START,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_BILLERS_FAILURE,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_START,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_SUCCESS,
+  EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_FAILURE,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_START,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_FAILURE,
+  EMPLOYEE_BBPS_CREATE_BILLER_START,
+  EMPLOYEE_BBPS_CREATE_BILLER_SUCCESS,
+  EMPLOYEE_BBPS_CREATE_BILLER_FAILURE,
+  EMPLOYEE_BBPS_UPDATE_BILLER_START,
+  EMPLOYEE_BBPS_UPDATE_BILLER_SUCCESS,
+  EMPLOYEE_BBPS_UPDATE_BILLER_FAILURE,
 } from '../actionType/bbpsActionType';
 import { LOADING_START, LOADING_END } from '../actionType/loadingActionType';
 
@@ -1113,3 +1152,801 @@ export const getUserBBPSPayBill = (paymentData) => async (dispatch) => {
     return { status: 'FAILURE', message: errorMessage };
   }
 };
+
+// ================= Employee BBPS Actions =================
+
+// Get all categories for employee
+export const getEmployeeBBPSCategories = (companyId, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_GET_ALL_CATEGORIES_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/categories/all`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_CATEGORIES_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_CATEGORIES_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_GET_ALL_CATEGORIES_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Search categories for employee
+export const searchEmployeeBBPSCategories = (companyId, searchQuery, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_SEARCH_CATEGORIES_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: searchQuery ? { name: searchQuery } : {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/categories/all`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_CATEGORIES_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_CATEGORIES_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_SEARCH_CATEGORIES_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Create category for employee
+export const createEmployeeBBPSCategory = (companyId, categoryData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_CREATE_CATEGORY_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      name: categoryData.category,
+      custConvFee: parseFloat(categoryData.convFee) || 0,
+      flatFee: parseFloat(categoryData.flatFee) || 0,
+      percentFee: parseFloat(categoryData.percentFee) || 0,
+      gstRate: parseFloat(categoryData.gstRate) || 0,
+      isCCF1Category: categoryData.ccfi || false,
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/categories`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_CATEGORY_SUCCESS,
+        payload: data,
+      });
+      // Refresh categories list after successful creation
+      dispatch(getEmployeeBBPSCategories(companyId));
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_CATEGORY_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_CREATE_CATEGORY_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Update category for employee
+export const updateEmployeeBBPSCategory = (companyId, categoryId, categoryData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_UPDATE_CATEGORY_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      name: categoryData.category,
+      isActive: categoryData.active !== undefined ? categoryData.active : true,
+      custConvFee: parseFloat(categoryData.convFee) || 0,
+      flatFee: parseFloat(categoryData.flatFee) || 0,
+      isCCF1Category: categoryData.ccfi || false,
+      percentFee: parseFloat(categoryData.percentFee) || 0,
+      gstRate: parseFloat(categoryData.gstRate) || 0,
+      isDeleted: categoryData.deleted !== undefined ? categoryData.deleted : false,
+    };
+
+    const response = await api.put(
+      `${API_ROUTE}/api/v1/employee/bbps/categories/${categoryId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_CATEGORY_SUCCESS,
+        payload: data,
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_CATEGORY_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_UPDATE_CATEGORY_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Get categories for dropdown for employee
+export const getEmployeeCategoriesForDropdown = (companyId) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: {},
+      options: {
+        page: 1,
+        paginate: 100, // Get all categories for dropdown
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/categories/all`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_SUCCESS,
+        payload: Array.isArray(data?.data) ? data.data : [],
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_GET_CATEGORIES_FOR_DROPDOWN_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Get all billers (operators) for employee
+export const getEmployeeBBPSBillers = (companyId, categoryName = null, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_GET_ALL_BILLERS_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: categoryName ? { operatorService: categoryName } : {},
+      customSearch: {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/operators/list`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_BILLERS_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_BILLERS_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_GET_ALL_BILLERS_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Search billers for employee
+export const searchEmployeeBBPSBillers = (companyId, searchQuery, categoryName = null, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_SEARCH_BILLERS_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: categoryName ? { operatorService: categoryName } : {},
+      customSearch: searchQuery ? { name: searchQuery } : {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/operators/list`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_BILLERS_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_BILLERS_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_SEARCH_BILLERS_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Get all payment info for employee
+export const getAllEmployeeBBPSPaymentInfo = (companyId, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/payment-info/all`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_GET_ALL_PAYMENT_INFO_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Search payment info for employee
+export const searchEmployeeBBPSPaymentInfo = (companyId, initiatingChannel, page = 1, paginate = 6) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    const payload = {
+      query: {},
+      customSearch: initiatingChannel ? { initiatingChannel } : {},
+      options: {
+        page,
+        paginate,
+        sort: { createdAt: -1 },
+      },
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/payment-info/all`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_SUCCESS,
+        payload: {
+          data: data?.data || [],
+          total: data?.total || 0,
+          currentPage: data?.paginator?.currentPage || page,
+          totalPages: data?.paginator?.pageCount || 1,
+        },
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_SEARCH_PAYMENT_INFO_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Create payment info for employee
+export const createEmployeeBBPSPaymentInfo = (companyId, paymentData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    // Parse JSON strings if they are strings, otherwise use as is
+    let paymentMethod = paymentData.paymentMethod;
+    let paymentInfo = paymentData.paymentInfo;
+    
+    if (typeof paymentMethod === 'string') {
+      try {
+        paymentMethod = JSON.parse(paymentMethod);
+      } catch (e) {
+        // If parsing fails, use as string
+      }
+    }
+    
+    if (typeof paymentInfo === 'string') {
+      try {
+        paymentInfo = JSON.parse(paymentInfo);
+      } catch (e) {
+        // If parsing fails, use as string
+      }
+    }
+
+    const payload = {
+      initiatingChannel: paymentData.initiatingChannel || paymentData.initChannel,
+      paymentMethod: paymentMethod,
+      paymentInfo: paymentInfo,
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/payment-info`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_SUCCESS,
+        payload: data,
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_CREATE_PAYMENT_INFO_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Update payment info for employee
+export const updateEmployeeBBPSPaymentInfo = (companyId, paymentInfoId, paymentData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    // Parse JSON strings if they are strings, otherwise use as is
+    let paymentMethod = paymentData.paymentMethod;
+    let paymentInfo = paymentData.paymentInfo;
+    
+    if (typeof paymentMethod === 'string') {
+      try {
+        paymentMethod = JSON.parse(paymentMethod);
+      } catch (e) {
+        // If parsing fails, use as string
+      }
+    }
+    
+    if (typeof paymentInfo === 'string') {
+      try {
+        paymentInfo = JSON.parse(paymentInfo);
+      } catch (e) {
+        // If parsing fails, use as string
+      }
+    }
+
+    const payload = {
+      initiatingChannel: paymentData.initiatingChannel || paymentData.initChannel,
+      paymentMethod: paymentMethod,
+      paymentInfo: paymentInfo,
+    };
+
+    const response = await api.put(
+      `${API_ROUTE}/api/v1/employee/bbps/payment-info/${paymentInfoId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_SUCCESS,
+        payload: data,
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_UPDATE_PAYMENT_INFO_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Create biller/operator for employee
+export const createEmployeeBBPSBiller = (companyId, billerData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_CREATE_BILLER_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    // Find category ID by name
+    const categoryId = billerData.categoryId || null;
+    
+    const payload = {
+      name: billerData.name || billerData.billerName,
+      billerId: billerData.billerId,
+      categoryId: categoryId,
+      initiatingChannel: billerData.initiatingChannel || billerData.initChannel,
+    };
+
+    const response = await api.post(
+      `${API_ROUTE}/api/v1/employee/bbps/operators`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_BILLER_SUCCESS,
+        payload: data,
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_CREATE_BILLER_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_CREATE_BILLER_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Update biller/operator for employee
+export const updateEmployeeBBPSBiller = (companyId, billerId, billerData) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  dispatch({ type: EMPLOYEE_BBPS_UPDATE_BILLER_START });
+
+  try {
+    const token = secureLocalStorage.getItem('userToken');
+    
+    const payload = {
+      name: billerData.name || billerData.billerName,
+      billerId: billerData.billerId,
+      categoryId: billerData.categoryId,
+      isActive: billerData.isActive !== undefined ? billerData.isActive : true,
+      isDeleted: billerData.isDeleted !== undefined ? billerData.isDeleted : false,
+      initiatingChannel: billerData.initiatingChannel || billerData.initChannel,
+    };
+
+    const response = await api.put(
+      `${API_ROUTE}/api/v1/employee/bbps/operators/${billerId}`,
+      payload,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-company-id': companyId,
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data = response?.data;
+    const { status } = data ?? {};
+
+    if (status === 'SUCCESS' || status === 200) {
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_BILLER_SUCCESS,
+        payload: data,
+      });
+    } else {
+      const errorMessage = data?.message || commonError;
+      dispatch({
+        type: EMPLOYEE_BBPS_UPDATE_BILLER_FAILURE,
+        payload: errorMessage,
+      });
+    }
+  } catch (error) {
+    const errorMessage =
+      error?.response?.data?.message || error?.message || commonError;
+    dispatch({
+      type: EMPLOYEE_BBPS_UPDATE_BILLER_FAILURE,
+      payload: errorMessage,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+

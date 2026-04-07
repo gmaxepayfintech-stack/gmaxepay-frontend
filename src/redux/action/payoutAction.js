@@ -26,6 +26,16 @@ import {
   PAYOUT_SETTING_SWITCH_FAILURE,
   EMPLOYEE_PAYOUT_HISTORY_SUCCESS,
   EMPLOYEE_PAYOUT_HISTORY_FAILURE,
+  EMPLOYEE_PAYOUT_BANK_LIST_SUCCESS,
+  EMPLOYEE_PAYOUT_BANK_LIST_FAILURE,
+  EMPLOYEE_PAYOUT_TRANSACTION_SUCCESS,
+  EMPLOYEE_PAYOUT_TRANSACTION_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_LIST_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_LIST_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_CREATE_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_CREATE_FAILURE,
+  EMPLOYEE_PAYOUT_SETTING_SWITCH_SUCCESS,
+  EMPLOYEE_PAYOUT_SETTING_SWITCH_FAILURE,
 } from "../actionType/payOutType";
 const commonError = "Something went wrong!";
 
@@ -713,3 +723,100 @@ export const switchPayoutStatus = (payload) => async (dispatch) => {
     dispatch({ type: LOADING_END });
   }
 };
+
+// ✅ EMPLOYEE PAYOUT ACTIONS
+
+// List Payout Settings for Employee
+export const listEmployeePayouts = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/payout/list`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    if (response?.data?.status === "SUCCESS") {
+      dispatch({ type: EMPLOYEE_PAYOUT_SETTING_LIST_SUCCESS, payload: response.data });
+      return response.data;
+    }
+    dispatch({ type: EMPLOYEE_PAYOUT_SETTING_LIST_FAILURE, payload: response.data });
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_PAYOUT_SETTING_LIST_FAILURE,
+      payload: error.response?.data || error.message,
+    });
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Create Payout Setting for Employee
+export const createEmployeePayout = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/payout/create`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    const { status, message } = response.data || {};
+    if (status === "SUCCESS") {
+      dispatch({ type: EMPLOYEE_PAYOUT_SETTING_CREATE_SUCCESS, payload: { status, message } });
+      return { status, message };
+    }
+    dispatch({ type: EMPLOYEE_PAYOUT_SETTING_CREATE_FAILURE, payload: message || commonError });
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_PAYOUT_SETTING_CREATE_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
+// Switch Payout Status for Employee
+export const switchEmployeePayoutStatus = (payload) => async (dispatch) => {
+  dispatch({ type: LOADING_START });
+  try {
+    const authToken = secureLocalStorage.getItem("userToken");
+    const response = await axios.post(
+      `${API_ROUTE}/api/v1/employee/payout/switch-status`,
+      payload,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${authToken}`,
+        },
+      },
+    );
+    const { status, message } = response.data || {};
+    if (status === "SUCCESS") {
+      dispatch({ type: EMPLOYEE_PAYOUT_SETTING_SWITCH_SUCCESS, payload: { status, message } });
+      return { status, message };
+    }
+    dispatch({ type: EMPLOYEE_PAYOUT_SETTING_SWITCH_FAILURE, payload: message || commonError });
+  } catch (error) {
+    dispatch({
+      type: EMPLOYEE_PAYOUT_SETTING_SWITCH_FAILURE,
+      payload: error.response?.data?.message || error.message,
+    });
+    throw error;
+  } finally {
+    dispatch({ type: LOADING_END });
+  }
+};
+
