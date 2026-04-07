@@ -218,8 +218,6 @@ const CreateWhiteLabel = () => {
 
     setIsTableLoading(true);
     dispatch(employeeUseList(payload));
-
-    return () => clearTimeout(timer);
   }, [
     activeNav,
     currentPage,
