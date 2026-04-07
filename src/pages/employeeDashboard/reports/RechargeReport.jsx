@@ -28,7 +28,21 @@ const RechargeReport = ({ onBack }) => {
   const rechargeReportResponse = useSelector(
     (state) => state?.reports?.employeeTransaction,
   );
-  const apiData = rechargeReportResponse?.data || [];
+  
+  // Safely extract the array data regardless of nesting level
+  let apiData = [];
+  if (rechargeReportResponse?.data) {
+    if (Array.isArray(rechargeReportResponse.data)) {
+      apiData = rechargeReportResponse.data;
+    } else if (rechargeReportResponse.data.data && Array.isArray(rechargeReportResponse.data.data)) {
+      apiData = rechargeReportResponse.data.data;
+    } else if (rechargeReportResponse.data.data?.data && Array.isArray(rechargeReportResponse.data.data.data)) {
+      apiData = rechargeReportResponse.data.data.data;
+    }
+  } else if (Array.isArray(rechargeReportResponse)) {
+    apiData = rechargeReportResponse;
+  }
+
   const totalCount = rechargeReportResponse?.total || apiData.length;
 
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
@@ -561,19 +575,19 @@ const RechargeReport = ({ onBack }) => {
 
                         {/* Amount - Right aligned */}
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
-                          ₹{Number.parseFloat(transaction.amount || 0).toFixed(2)}
+                          ₹{Number(transaction.amount || 0).toFixed(2)}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                           ₹
-                          {Number.parseFloat(transaction.drAmount || 0).toFixed(
+                          {Number(transaction.drAmount || 0).toFixed(
                             2,
                           )}
                         </td>
 
                         <td className="px-4 sm:px-5 py-3 sm:py-4 text-xs sm:text-sm font-['Gilroy-Medium'] text-[#1B1717]/80 text-center whitespace-nowrap">
                           ₹
-                          {Number.parseFloat(transaction.commission || 0).toFixed(
+                          {Number(transaction.commission || 0).toFixed(
                             2,
                           )}
                         </td>

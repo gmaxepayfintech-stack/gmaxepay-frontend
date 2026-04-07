@@ -29,9 +29,22 @@ const SurCharges = ({ onBack, type }) => {
 
     // Get surcharges history from Redux — employee-specific state key
     const walletHistoryResponse = useSelector(
-        (state) => state?.wallet?.surchargesHistoryEmployee?.data
+        (state) => state?.wallet?.surchargesHistoryEmployee
     );
-    const apiData = walletHistoryResponse || [];
+    
+    // Safely extract the array data regardless of nesting level
+    let apiData = [];
+    if (walletHistoryResponse?.data) {
+        if (Array.isArray(walletHistoryResponse.data)) {
+            apiData = walletHistoryResponse.data;
+        } else if (walletHistoryResponse.data.data && Array.isArray(walletHistoryResponse.data.data)) {
+            apiData = walletHistoryResponse.data.data;
+        } else if (walletHistoryResponse.data.data?.data && Array.isArray(walletHistoryResponse.data.data.data)) {
+            apiData = walletHistoryResponse.data.data.data;
+        }
+    } else if (Array.isArray(walletHistoryResponse)) {
+        apiData = walletHistoryResponse;
+    }
     const isLoading = useSelector((state) => state?.loading?.isLoading || false);
 
     // Transform API response data to table format
@@ -54,8 +67,8 @@ const SurCharges = ({ onBack, type }) => {
                     .replace(/\//g, "-");
             }
 
-            // Format amounts with currency symbol
-            const formattedAmount = item.amount ? `₹${item.amount}` : "₹0";
+            // Format amounts with currency symbol safely to two decimals
+            const formattedAmount = `₹${Number(item.amount || 0).toFixed(2)}`;
 
             return {
                 id: item.id,

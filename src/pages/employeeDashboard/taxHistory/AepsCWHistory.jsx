@@ -43,15 +43,19 @@ const AepsCWHistory = ({ onBack = null, type = "aeps1-cw-history" }) => {
     type === "aeps2-be-history";
 
   // Get data from Redux — employee-specific state keys
-  const aepsHistoryResponse = useSelector(
-    (state) => state?.aeps?.aepsCwHistoryEmployee,
+  const aepsHistoryResponse = useSelector((state) =>
+    isAeps2
+      ? state?.aepsTwo?.aeps2CwHistoryEmployee
+      : state?.aeps?.aepsCwHistoryEmployee
   );
   const apiData = aepsHistoryResponse?.data || [];
   const paginator = aepsHistoryResponse?.paginator || {};
   const totalCount = aepsHistoryResponse?.total || 0;
   const isLoading = useSelector((state) => state?.loading?.isLoading || false);
-  const transactionDetailsResponse = useSelector(
-    (state) => state?.aeps?.transactionDetailsEmployee,
+  const transactionDetailsResponse = useSelector((state) =>
+    isAeps2
+      ? state?.aepsTwo?.aeps2CwHistoryTransactionDetails
+      : state?.aeps?.transactionDetailsEmployee
   );
 
   // Transform API response data to table format
