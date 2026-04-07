@@ -54,44 +54,46 @@ const OperatorSetting = () => {
     );
   }, [dispatch, searchQuery, selectedType, currentPage]);
 
+  // Fetch services when modal is opened or when user interacts with the filter
   useEffect(() => {
-    dispatch(
-      listEmployeeServices({
-        query: {},
-        options: {
-          page: 1,
-          paginate: 100, // Fetch enough services
-          sort: { createdAt: 1 },
-        },
-      })
-    );
-  }, [dispatch]);
+    if ((isOpen || selectedType !== "all") && serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        }),
+      );
+    }
+  }, [dispatch, isOpen, selectedType, serviceData.length]);
+
+  const handleFetchServices = () => {
+    if (serviceData.length === 0) {
+      dispatch(
+        listEmployeeServices({
+          query: {},
+          options: {
+            page: 1,
+            paginate: 100,
+            sort: { createdAt: 1 },
+          },
+        }),
+      );
+    }
+  };
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchQuery, selectedType]);
 
+  // Map operator types from the service list for the filter dropdown
   const operatorTypes = Array.from(
-    new Set(services.map((op) => op.operatorType).filter(Boolean)),
+    new Set(serviceData.map((s) => s.serviceName).filter(Boolean)),
   );
 
-  // // 🔍 Search filter
-  // const searchFilteredServices = services.filter(
-  //   (service) =>
-  //     service.operatorName?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-  //     service.operatorCode?.toLowerCase().includes(searchQuery.toLowerCase()),
-  // );
-
-  // const typeFilteredServices =
-  //   selectedType === "all"
-  //     ? searchFilteredServices
-  //     : searchFilteredServices.filter(
-  //         (service) => service.operatorType === selectedType,
-  //       );
-
-  // const sortedServices = [...typeFilteredServices].sort((a, b) =>
-  //   (a.operatorName || "").localeCompare(b.operatorName || ""),
-  // );
   const displayedServices = services;
 
   const paginator = operatorList?.paginator || {};
@@ -255,19 +257,21 @@ const OperatorSetting = () => {
             <select
               value={selectedType}
               onChange={(e) => setSelectedType(e.target.value)}
-              className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[Gilroy-Medium] focus:outline-none appearance-none"
+              onFocus={handleFetchServices}
+              onClick={handleFetchServices}
+              className="h-[44px] border border-[#1B1717]/80 rounded-lg px-5 pr-10 text-sm font-[Gilroy-Medium] focus:outline-none appearance-none cursor-pointer"
             >
               <option value="all">All</option>
 
-              {operatorTypes.map((type) => (
-                <option
-                  className="font-[Gilroy-Medium]"
-                  key={type}
-                  value={type}
-                >
-                  {type}
-                </option>
-              ))}
+              {serviceData.length > 0 ? (
+                operatorTypes.map((type) => (
+                  <option key={type} value={type}>
+                    {type}
+                  </option>
+                ))
+              ) : (
+                <option disabled>Loading types...</option>
+              )}
             </select>
 
             <FiChevronDown className="absolute right-3 top-1/2 -translate-y-1/2" />
