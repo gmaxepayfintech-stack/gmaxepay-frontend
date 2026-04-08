@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { useNavigate } from "react-router-dom";
-import { FiRefreshCw } from "react-icons/fi";
+import { useNavigate, useSearchParams } from "react-router-dom";
+import { FiRefreshCw, FiArrowLeft } from "react-icons/fi";
 import {
   getEmployeeAlsWallet,
   getEmployeeWalletBalance,
@@ -16,6 +16,10 @@ import {
 const EmployeeDash = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const viewHistory = searchParams.get("viewHistory");
+  const showWalletHistory = viewHistory === "wallet-history";
+
   const [refreshingWallet, setRefreshingWallet] = useState(null);
   const [isWalletLoading, setIsWalletLoading] = useState(true);
 
@@ -128,34 +132,48 @@ const EmployeeDash = () => {
     );
   }
 
+  if (showWalletHistory) {
+    return (
+      <div className="min-h-screen text-[#1B1717] space-y-6 py-1">
+        <div className="flex items-center gap-4 mb-4">
+          <button 
+            onClick={() => setSearchParams({})}
+            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
+          >
+            <FiArrowLeft size={24} />
+          </button>
+          <h3 className="text-2xl font-[Gilroy-Medium]">Wallet History</h3>
+        </div>
+        <div className="bg-white rounded-xl shadow-sm p-6">
+          <p className="text-gray-500 text-center py-10">Wallet History component coming soon or integrated here.</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen text-[#1B1717] space-y-6 py-1">
       {/* ── Overall Wallets ── */}
       <div className="bg-white rounded-xl shadow-sm p-4 sm:p-5 lg:p-6">
-        <h3 className="text-xl sm:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-5">
+        <h3 className="text-[24px] sm:text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-5">
           Overall Wallets
         </h3>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
           {overallWallets.map((wallet) => (
             <div
               key={wallet.id}
-              className="bg-white border border-gray-100 rounded-xl p-3 sm:p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow"
+              className="bg-[#FAFAFA] border border-gray-100 rounded-xl p-3 sm:p-4 flex flex-col gap-2 shadow-sm hover:shadow-md transition-shadow"
             >
-              <p className="text-xs sm:text-sm font-[Gilroy-Medium] text-[#1B1717] leading-snug">
+              <p className="text-[14px] sm:text-sm font-[Gilroy-Medium] text-[#1B1717] leading-snug">
                 {wallet.name}
               </p>
-              <p className="text-sm sm:text-[15px] font-[Gilroy-Semibold] text-[#1B1717]">
+              <p className="text-[16px] sm:text-[15px] font-[Gilroy-Semibold] text-[#1B1717]">
                 {formatAmount(wallet.balance)}
               </p>
               <button
                 onClick={() => handleRefreshWallet(wallet.id, wallet.action)}
-                className="flex items-center justify-center gap-1.5 bg-[#039155] hover:bg-[#027a47] text-white text-xs font-[Gilroy-Semibold] py-1.5 rounded-full transition-colors w-full"
+                className="flex items-center justify-center gap-1.5 bg-[#039155] hover:bg-[#027a47] text-white text-[12px] font-[Gilroy-Semibold] py-2 rounded-full transition-colors w-full"
               >
-                <FiRefreshCw
-                  className={`text-[11px] ${
-                    refreshingWallet === wallet.id ? "animate-spin" : ""
-                  }`}
-                />
                 Refresh
               </button>
             </div>
@@ -179,8 +197,8 @@ const EmployeeDash = () => {
               {formatAmount(weeklyRevenue)}
             </strong>
           </p>
-          <button 
-            onClick={() => navigate("/employeeDashboard/wallet-history")}
+          <button
+            onClick={() => setSearchParams({ viewHistory: "wallet-history" })}
             className="mt-1 w-full bg-[#039155] hover:bg-[#027a47] text-white py-2.5 rounded-full font-[Gilroy-Semibold] text-sm transition-colors"
           >
             Payment History
