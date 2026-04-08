@@ -67,9 +67,9 @@ const WhiteLabel = ({ onBack }) => {
   );
   const panDataError = useSelector((state) => state?.error?.message);
 
-  // Clear previous data on mount so fields are empty - DISABLED for demo
+  // Clear previous data on mount so fields are empty
   useEffect(() => {
-    // dispatch({ type: "RESET_WHITELABEL_STATE" });
+    dispatch({ type: "RESET_WHITELABEL_STATE" });
   }, [dispatch]);
 
   const validationSchema = Yup.object({
@@ -143,33 +143,39 @@ const WhiteLabel = ({ onBack }) => {
     },
     validationSchema,
     onSubmit: async (values) => {
-      try {
-        const payload = new FormData();
-        Object.keys(values).forEach((key) => {
-          if (key !== "profilePhoto") {
-            payload.append(key, values[key]);
-          }
-        });
-        if (values.profilePhoto) {
-          payload.append("profilePhoto", values.profilePhoto);
-        }
+      const formData = new FormData();
 
-        const res = await dispatch(employeeCreateWhiteLabel(payload));
-        if (res?.status === "SUCCESS") {
-          showNotification({
-            type: "success",
-            message: res?.message || "Whitelabel created successfully!",
-            isCritical: true,
-          });
-          formik.resetForm();
-          setTimeout(() => {
-            if (onBack) onBack();
-          }, 1500);
-        }
-      } catch (err) {
+      formData.append("BussinessEntity", values.businessEntity);
+      formData.append("MobileNo", values.mobile);
+      formData.append("PanNumber", values.pan);
+      formData.append("PanName", values.name);
+      formData.append("email", values.email);
+      formData.append("address", values.address);
+      formData.append("city", values.city);
+      formData.append("postalCode", values.postalCode);
+      formData.append("state", values.state);
+      formData.append("companyName", values.companyName);
+      formData.append("customDomain", values.companyDomain);
+      formData.append("Remarks", values.remarks || "");
+      formData.append("verificationToken", verificationToken || "");
+      formData.append("companyGst", values.gstin || "");
+      formData.append("profileImage", values.profilePhoto);
+
+      const response = await dispatch(employeeCreateWhiteLabel(formData));
+      if (response?.status === "SUCCESS") {
+        showNotification({
+          type: "success",
+          message: response?.message || "Whitelabel created successfully!",
+          isCritical: true,
+        });
+        formik.resetForm();
+        setTimeout(() => {
+          if (onBack) onBack();
+        }, 1500);
+      } else {
         showNotification({
           type: "error",
-          message: err?.response?.data?.message || "Failed to create whitelabel",
+          message: response?.message || "Failed to create whitelabel",
           isCritical: true,
         });
       }
@@ -312,7 +318,20 @@ const WhiteLabel = ({ onBack }) => {
       });
       return;
     }
-    dispatch(employeeIpCheckStatus({ domain }));
+    const response = await dispatch(employeeIpCheckStatus({ domain }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "IP check completed successfully",
+        isCritical: true,
+      });
+    } else {
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to check IP",
+        isCritical: true,
+      });
+    }
   };
 
   const handleFetchPan = async () => {
@@ -325,7 +344,21 @@ const WhiteLabel = ({ onBack }) => {
       });
       return;
     }
-    dispatch(employeePanDataFetch({ pan }));
+    const response = await dispatch(employeePanDataFetch({ pan }));
+    if (response?.status === "SUCCESS") {
+      showNotification({
+        type: "success",
+        message: response?.message || "PAN data fetched successfully",
+        isCritical: true,
+      });
+    } else {
+      formik.setFieldValue("name", "");
+      showNotification({
+        type: "error",
+        message: response?.message || "Failed to fetch PAN data",
+        isCritical: true,
+      });
+    }
   };
 
   const panname = useSelector(
