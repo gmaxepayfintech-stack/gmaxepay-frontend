@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import {
   XAxis,
   YAxis,
@@ -11,8 +12,19 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useNotification } from "../../context/NotificationContext";
 import { FiChevronDown, FiRefreshCw } from "react-icons/fi";
+import {
+  getEmployeeAlsWallet,
+  getEmployeeWalletBalance,
+  getEmployeeEkycHubBalance,
+  getEmployeeInspayWalletBalance,
+  getEmployeeBbpsWalletBalance,
+  getEmployeeA1TopupWallet,
+  getEmployeePaynidiWalletBalance,
+  getEmployeeDashboardStatistics,
+} from "../../redux/action/walletAction";
 
 const EmployeeDash = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const { showNotification } = useNotification();
   const [payoutOpen, setPayout] = useState(false);
@@ -21,28 +33,15 @@ const EmployeeDash = () => {
   const scrollYRef = useRef(0);
   const [refreshingWallet, setRefreshingWallet] = useState(null);
 
-  // Overall wallets list matching image design
-  const overallWallets = [
-    { id: 1,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 2,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 3,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 4,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 5,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 6,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 7,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 8,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 9,  name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 10, name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 11, name: "Rupaisa Pay Wallet", balance: 42140238 },
-    { id: 12, name: "Rupaisa Pay Wallet", balance: 42140238 },
-  ];
-
-  // Main wallet & AEPS data
-  const [walletData] = useState({
-    mainWallet: 42140238,
-    aeps1: 4200.00,
-    aeps2: 8900.50,
-  });
+  // Redux state selectors
+  const alsWallet = useSelector((state) => state?.wallet?.employeeWalletAls);
+  const mainWalletData = useSelector((state) => state?.wallet?.employeeWalletBalance);
+  const ekycHubBalance = useSelector((state) => state?.wallet?.employeeEkycHubBalance);
+  const inspayWalletBalance = useSelector((state) => state?.wallet?.employeeInspayWalletBalance);
+  const bbpsWalletBalance = useSelector((state) => state?.wallet?.employeeBbpsWalletBalance);
+  const a1TopupWallet = useSelector((state) => state?.wallet?.employeeA1TopupWallet);
+  const paynidiWalletBalance = useSelector((state) => state?.wallet?.employeePaynidiWalletBalance);
+  const statsResponse = useSelector((state) => state?.wallet?.employeeDashboardStatistics);
 
   const [isWalletLoading, setIsWalletLoading] = useState(true);
   const [selectedAepsWallet, setSelectedAepsWallet] = useState("aeps2");
@@ -52,6 +51,29 @@ const EmployeeDash = () => {
     aeps2: "AEPS Wallet 2",
   };
 
+  // Extract balances
+  const getBalance = (response, key = "balance") => {
+    if (!response?.data) return 0;
+    if (typeof response.data === "number" || typeof response.data === "string") return parseFloat(response.data) || 0;
+    return parseFloat(response.data[key]) || 0;
+  };
+
+  const walletData = {
+    mainWallet: mainWalletData?.data?.mainWallet || 0,
+    aeps1: mainWalletData?.data?.apes1Wallet || 0,
+    aeps2: mainWalletData?.data?.apes2Wallet || 0,
+  };
+
+  const overallWallets = [
+    { id: "main", name: "Main Wallet", balance: walletData.mainWallet, action: getEmployeeWalletBalance },
+    { id: "als", name: "Als Wallet", balance: alsWallet?.data?.data?.openingBalance || 0, action: getEmployeeAlsWallet },
+    { id: "ekyc", name: "Ekyc Hub Wallet", balance: getBalance(ekycHubBalance), action: getEmployeeEkycHubBalance },
+    { id: "inspay", name: "Inspay Wallet", balance: getBalance(inspayWalletBalance), action: getEmployeeInspayWalletBalance },
+    { id: "bbps", name: "BBPS Wallet", balance: getBalance(bbpsWalletBalance, "currentBalance") || getBalance(bbpsWalletBalance), action: getEmployeeBbpsWalletBalance },
+    { id: "a1", name: "A1 Topup Wallet", balance: getBalance(a1TopupWallet), action: getEmployeeA1TopupWallet },
+    { id: "paynidi", name: "Paynidi Wallet", balance: paynidiWalletBalance?.data?.message || 0, action: getEmployeePaynidiWalletBalance },
+  ];
+
   // Mock banks list
   const banks = [
     { id: "1", name: "State Bank of India", accountNumber: "XXXXXX1234" },
@@ -59,15 +81,38 @@ const EmployeeDash = () => {
     { id: "3", name: "ICICI Bank",          accountNumber: "XXXXXX9012" },
   ];
 
-  // Simulate initial loading
+  // Initial Data Fetching
   useEffect(() => {
-    const timer = setTimeout(() => setIsWalletLoading(false), 800);
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchData = async () => {
+      setIsWalletLoading(true);
+      try {
+        await Promise.all([
+          dispatch(getEmployeeWalletBalance()),
+          dispatch(getEmployeeAlsWallet()),
+          dispatch(getEmployeeEkycHubBalance()),
+          dispatch(getEmployeeInspayWalletBalance()),
+          dispatch(getEmployeeBbpsWalletBalance()),
+          dispatch(getEmployeeA1TopupWallet()),
+          dispatch(getEmployeePaynidiWalletBalance()),
+        ]);
 
-  // Format with decimals (for smaller amounts)
+        // Fetch statistics for "Today"
+        const today = new Date().toISOString().split("T")[0];
+        const statsPayload = {
+          query: { fromDay: today, toDay: today },
+          options: { sort: { id: -1 }, page: 1, paginate: 25 },
+          customSearch: {},
+        };
+        await dispatch(getEmployeeDashboardStatistics(statsPayload));
+      } finally {
+        setIsWalletLoading(false);
+      }
+    };
+    fetchData();
+  }, [dispatch]);
+
+  // Format currencies
   const formatCurrency = (value) => {
-    if (value === null || value === undefined) return "₹0.00";
     const numValue = parseFloat(value) || 0;
     return `₹${numValue.toLocaleString("en-IN", {
       minimumFractionDigits: 2,
@@ -75,49 +120,49 @@ const EmployeeDash = () => {
     })}`;
   };
 
-  // Format integer amounts (like in the image: ₹4,21,40,238)
   const formatAmount = (value) => {
-    if (value === null || value === undefined) return "₹0";
-    return `₹${parseFloat(value).toLocaleString("en-IN")}`;
+    return `₹${parseFloat(value || 0).toLocaleString("en-IN")}`;
   };
 
-  const handleRefreshWallet = async (walletId) => {
+  const handleRefreshWallet = async (walletId, action) => {
     setRefreshingWallet(walletId);
-    await new Promise((r) => setTimeout(r, 800));
+    if (action) await dispatch(action());
     setRefreshingWallet(null);
   };
 
-  const totalCommission = 1450.25;
-  const weeklyRevenue = 200;
+  const totalCommission = statsResponse?.data?.wallet?.totalEmployeeCommission || 0;
+  const weeklyRevenue = statsResponse?.data?.wallet?.totalSuccessAmount || 0;
 
+  // Map statistics to chart data
+  const modules = statsResponse?.data?.modules || {};
   const chartData = [
-    { name: "AEPS 1",    value: 12500 },
-    { name: "AEPS 2",    value: 18400 },
-    { name: "BBPS",      value: 8500  },
-    { name: "Mobile",    value: 4200  },
-    { name: "DTH",       value: 2100  },
-    { name: "NSDL PAN",  value: 1500  },
-    { name: "Payout",    value: 35000 },
+    { name: "AEPS 1", value: parseFloat(modules.aeps1?.totalAmountSuccess) || 0 },
+    { name: "AEPS 2", value: parseFloat(modules.aeps2?.totalAmountSuccess) || 0 },
+    { name: "BBPS", value: parseFloat(modules.bbps?.totalAmountSuccess) || 0 },
+    { name: "Mobile", value: parseFloat(modules.inspay?.mobile?.totalAmountSuccess) || 0 },
+    { name: "DTH", value: parseFloat(modules.inspay?.dth?.totalAmountSuccess) || 0 },
+    { name: "NSDL PAN", value: parseFloat(modules.inspay?.pan?.totalAmountSuccess) || 0 },
+    { name: "Payout", value: parseFloat(modules.payout?.totalAmountSuccess) || 0 },
   ];
 
   const transactionData = [
-    { service: "AEPS 1",   volume: 12500, success: 45,  failed: 2,  pending: 1 },
-    { service: "AEPS 2",   volume: 18400, success: 62,  failed: 5,  pending: 0 },
-    { service: "BBPS",     volume: 8500,  success: 120, failed: 8,  pending: 3 },
-    { service: "Mobile",   volume: 4200,  success: 85,  failed: 12, pending: 0 },
-    { service: "DTH",      volume: 2100,  success: 32,  failed: 1,  pending: 0 },
-    { service: "NSDL PAN", volume: 1500,  success: 15,  failed: 0,  pending: 2 },
-    { service: "Payout",   volume: 35000, success: 28,  failed: 1,  pending: 1 },
+    { service: "AEPS 1", volume: modules.aeps1?.totalAmountSuccess || 0, success: modules.aeps1?.totalSuccessCount || 0, failed: modules.aeps1?.totalFailedCount || 0, pending: modules.aeps1?.totalPendingCount || 0 },
+    { service: "AEPS 2", volume: modules.aeps2?.totalAmountSuccess || 0, success: modules.aeps2?.totalSuccessCount || 0, failed: modules.aeps2?.totalFailedCount || 0, pending: modules.aeps2?.totalPendingCount || 0 },
+    { service: "BBPS", volume: modules.bbps?.totalAmountSuccess || 0, success: modules.bbps?.totalSuccessCount || 0, failed: modules.bbps?.totalFailedCount || 0, pending: modules.bbps?.totalPendingCount || 0 },
+    { service: "Mobile", volume: modules.inspay?.mobile?.totalAmountSuccess || 0, success: modules.inspay?.mobile?.totalSuccessCount || 0, failed: modules.inspay?.mobile?.totalFailedCount || 0, pending: modules.inspay?.mobile?.totalPendingCount || 0 },
+    { service: "DTH", volume: modules.inspay?.dth?.totalAmountSuccess || 0, success: modules.inspay?.dth?.totalSuccessCount || 0, failed: modules.inspay?.dth?.totalFailedCount || 0, pending: modules.inspay?.dth?.totalPendingCount || 0 },
+    { service: "NSDL PAN", volume: modules.inspay?.pan?.totalAmountSuccess || 0, success: modules.inspay?.pan?.totalSuccessCount || 0, failed: modules.inspay?.pan?.totalFailedCount || 0, pending: modules.inspay?.pan?.totalPendingCount || 0 },
+    { service: "Payout", volume: modules.payout?.totalAmountSuccess || 0, success: modules.payout?.totalSuccessCount || 0, failed: modules.payout?.totalFailedCount || 0, pending: modules.payout?.totalPendingCount || 0 },
   ];
 
   const quickServices = [
-    { name: "AEPS 1",   icon: "/img/AEPS.svg",           amount: formatCurrency(12500) },
-    { name: "AEPS 2",   icon: "/img/AEPS.svg",           amount: formatCurrency(18400) },
-    { name: "BBPS",     icon: "/img/BBPS.svg",           amount: formatCurrency(8500)  },
-    { name: "Mobile",   icon: "/img/MobileRecharge.svg", amount: formatCurrency(4200)  },
-    { name: "DTH",      icon: "/img/DTH1.svg",           amount: formatCurrency(2100)  },
-    { name: "NSDL PAN", icon: "/img/PanCorrection.svg",  amount: formatCurrency(1500)  },
-    { name: "Payout",   icon: "/img/DMT.svg",            amount: formatCurrency(35000) },
+    { name: "AEPS 1", icon: "/img/AEPS.svg", amount: formatCurrency(modules.aeps1?.totalAmountSuccess || 0) },
+    { name: "AEPS 2", icon: "/img/AEPS.svg", amount: formatCurrency(modules.aeps2?.totalAmountSuccess || 0) },
+    { name: "BBPS", icon: "/img/BBPS.svg", amount: formatCurrency(modules.bbps?.totalAmountSuccess || 0) },
+    { name: "Mobile", icon: "/img/MobileRecharge.svg", amount: formatCurrency(modules.inspay?.mobile?.totalAmountSuccess || 0) },
+    { name: "DTH", icon: "/img/DTH1.svg", amount: formatCurrency(modules.inspay?.dth?.totalAmountSuccess || 0) },
+    { name: "NSDL PAN", icon: "/img/PanCorrection.svg", amount: formatCurrency(modules.inspay?.pan?.totalAmountSuccess || 0) },
+    { name: "Payout", icon: "/img/DMT.svg", amount: formatCurrency(modules.payout?.totalAmountSuccess || 0) },
   ];
 
   const handleProcessTransfer = () => {
@@ -160,7 +205,7 @@ const EmployeeDash = () => {
         <div className="bg-white rounded-xl shadow-sm p-5 animate-pulse">
           <div className="h-6 bg-gray-200 rounded w-40 mb-5" />
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-            {[...Array(12)].map((_, i) => (
+            {[...Array(7)].map((_, i) => (
               <div key={i} className="bg-gray-100 rounded-xl p-4 space-y-3">
                 <div className="h-3 bg-gray-200 rounded w-3/4" />
                 <div className="h-5 bg-gray-200 rounded w-full" />
@@ -201,7 +246,7 @@ const EmployeeDash = () => {
                 {formatAmount(wallet.balance)}
               </p>
               <button
-                onClick={() => handleRefreshWallet(wallet.id)}
+                onClick={() => handleRefreshWallet(wallet.id, wallet.action)}
                 className="flex items-center justify-center gap-1.5 bg-[#039155] hover:bg-[#027a47] text-white text-xs font-[Gilroy-Semibold] py-1.5 rounded-full transition-colors w-full"
               >
                 <FiRefreshCw
@@ -216,7 +261,7 @@ const EmployeeDash = () => {
         </div>
       </div>
 
-      {/* ── Main Wallet Card (image style) ── */}
+      {/* ── Main Wallet Card ── */}
       <div>
         <div className="bg-[#E8FBF3] rounded-xl p-5 lg:p-6 w-full sm:max-w-xs flex flex-col gap-2">
           <h4 className="text-xl font-[Gilroy-Medium] text-[#1B1717]">Main Wallet</h4>
@@ -224,14 +269,13 @@ const EmployeeDash = () => {
             {formatAmount(walletData.mainWallet)}
           </p>
           <p className="text-[#039155] text-xs font-[Gilroy-Semibold] flex items-center gap-1">
-            ▲ 4.61%
+            ▲ Live
           </p>
           <p className="text-xs sm:text-sm text-[#1B1717]/70 font-[Gilroy-Medium]">
-            Your Revenue Is{" "}
+            Today's Revenue is{" "}
             <strong className="text-[#1B1717] font-[Gilroy-Semibold]">
-              ${weeklyRevenue}
-            </strong>{" "}
-            For This Week
+              {formatAmount(weeklyRevenue)}
+            </strong>
           </p>
           <button className="mt-1 w-full bg-[#039155] hover:bg-[#027a47] text-white py-2.5 rounded-full font-[Gilroy-Semibold] text-sm transition-colors">
             Payment History
@@ -258,7 +302,7 @@ const EmployeeDash = () => {
                 {formatCurrency(totalCommission)}
               </p>
               <span className="text-[#039155] text-[10px] sm:text-xs font-[Gilroy-Medium]">
-                ▲ +0.24% Today
+                Today's Commission
               </span>
             </div>
           </div>
@@ -283,7 +327,7 @@ const EmployeeDash = () => {
                   />
                   <YAxis
                     tick={{ fontSize: 12, fill: "#1B1717" }}
-                    domain={[0, Math.max(1, Math.max(...chartData.map((d) => d.value || 0)) * 1.5)]}
+                    domain={[0, "auto"]}
                     width={40}
                     axisLine={false}
                     tickLine={false}
@@ -358,7 +402,7 @@ const EmployeeDash = () => {
         </div>
       </div>
 
-      {/* ── Quick Access Services ── */}
+      {/* ── Quick Access Services (Live Data) ── */}
       <div className="py-3">
         <h3 className="text-lg sm:text-xl lg:text-[24px] font-[Gilroy-Medium] text-[#1B1717] mb-4">
           Quick Access Services
@@ -381,7 +425,7 @@ const EmployeeDash = () => {
         </div>
       </div>
 
-      {/* ── Recent Performance Table ── */}
+      {/* ── Recent Performance Table (Live Data) ── */}
       <div className="bg-white rounded-xl shadow-sm p-3 sm:p-4 lg:p-6">
         <h3 className="text-2xl font-[Gilroy-Medium] text-[#1B1717] mb-4">Recent Performance</h3>
         <div className="overflow-x-auto">
