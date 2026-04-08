@@ -396,7 +396,7 @@ const EmployeeLayout = ({ children }) => {
                         />
                       </div>
                       <p className="text-xs sm:text-base font-[Gilroy-Medium] text-[#1B1717]">
-                        {profileDetails?.name || name || email || "Employee"}
+                        {profileDetails?.name || name || email || "Support"}
                       </p>
                     </>
                   );
@@ -421,9 +421,9 @@ const EmployeeLayout = ({ children }) => {
             <div className="flex items-center gap-2" ref={profileDropdownRef}>
               <span
                 className="hidden text-lg font-[Gilroy-Semibold] text-[#1B1717] sm:inline max-w-[150px] md:max-w-[200px] xl:max-w-[250px] truncate"
-                title={`${profileDetails?.companyDetails?.companyName || profile?.name || ''} - Employee`}
+                title={`${profileDetails?.companyDetails?.companyName || profile?.name || ''} - Support`}
               >
-                {profileDetails?.companyDetails?.companyName || profile?.name || ''} - Employee
+                {profileDetails?.companyDetails?.companyName || profile?.name || ''} - Support
               </span>
               <button
                 onClick={toggleProfileDropdown}
