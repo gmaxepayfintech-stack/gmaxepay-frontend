@@ -14,8 +14,6 @@ import { walletHistoryEmployee } from "../../../redux/action/walletAction";
 import { useNotification } from "../../../context/NotificationContext";
 import * as XLSX from "xlsx";
 
-
-
 const WalletHistory = ({ onBack, type }) => {
   const dispatch = useDispatch();
   const [searchQuery, setSearchQuery] = useState("");
