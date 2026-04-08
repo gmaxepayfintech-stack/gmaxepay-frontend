@@ -13,6 +13,7 @@ import {
   getEmployeeDashboardStatistics,
 } from "../../redux/action/walletAction";
 import WalletHistory from "./taxHistory/walletHistroy";
+import { ButtonLoader } from "../../widgets/layout/loader";
 
 const EmployeeDash = () => {
   const dispatch = useDispatch();
@@ -164,7 +165,7 @@ const EmployeeDash = () => {
                 onClick={() => handleRefreshWallet(wallet.id, wallet.action)}
                 className="flex items-center justify-center gap-1.5 bg-[#039155] hover:bg-[#027a47] text-white text-[12px] font-[Gilroy-Semibold] py-2 rounded-full transition-colors w-full"
               >
-                Refresh
+                {refreshingWallet === wallet.id ? <ButtonLoader /> : "Refresh"}
               </button>
             </div>
           ))}
