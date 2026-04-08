@@ -799,7 +799,7 @@ export const employeeGetAdminDetails = (payload) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/getProfile`,
+      `${API_ROUTE}/api/v1/employee/user/getProfile`,
       payload,
       {
         headers: {
