@@ -53,6 +53,10 @@ import {
   EMPLOYEE_LIST_FAILURE,
   EMPLOYEE_GET_WHITELABEL_LIST_FAILURE,
   EMPLOYEE_GET_WHITELABEL_LIST_SUCCESS,
+  EMPLOYEE_GET_CITY_BY_PINCODE_SUCCESS,
+  EMPLOYEE_GET_CITY_BY_PINCODE_FAILURE,
+  EMPLOYEE_FETCH_KYC_DETAILS_FAILURE,
+  EMPLOYEE_FETCH_KYC_DETAILS_SUCCESS,
 } from "../actionType/whiteLabelAction";
 import { API_ROUTE } from "../../data/env";
 import { LOADING_START, LOADING_END } from "../actionType/loadingActionType";
@@ -310,7 +314,7 @@ export const employeeList = (values) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/list`,
+      `${API_ROUTE}/api/v1/employee/user/list`,
       values,
       {
         headers: {
@@ -1425,7 +1429,7 @@ export const employeeKycData = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/kyc/complete/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/kyc/complete/${id}`,
       {},
       {
         headers: {
@@ -1467,7 +1471,7 @@ export const employeeKycStatusData = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/${id}`,
       {},
       {
         headers: {
@@ -1509,7 +1513,7 @@ export const employeeKycStatusCheck = (id, body = {}) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.put(
-      `${API_ROUTE}/api/v1/employee/users/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/${id}`,
       body,
       {
         headers: {
@@ -1551,7 +1555,7 @@ export const employeeKycUnlock = (id) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/unlock/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/unlock/${id}`,
       {},
       {
         headers: {
@@ -1593,7 +1597,7 @@ export const employeeKycRevert = (id, body = {}) => async (dispatch) => {
   try {
     const authToken = secureLocalStorage.getItem("userToken");
     const response = await axios.post(
-      `${API_ROUTE}/api/v1/employee/users/kyc/revert/${id}`,
+      `${API_ROUTE}/api/v1/employee/user/kyc/revert/${id}`,
       body,
       {
         headers: {
