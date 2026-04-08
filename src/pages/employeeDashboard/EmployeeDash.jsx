@@ -12,6 +12,7 @@ import {
   getEmployeePaynidiWalletBalance,
   getEmployeeDashboardStatistics,
 } from "../../redux/action/walletAction";
+import WalletHistory from "./taxHistory/walletHistroy";
 
 const EmployeeDash = () => {
   const dispatch = useDispatch();
@@ -134,20 +135,9 @@ const EmployeeDash = () => {
 
   if (showWalletHistory) {
     return (
-      <div className="min-h-screen text-[#1B1717] space-y-6 py-1">
-        <div className="flex items-center gap-4 mb-4">
-          <button 
-            onClick={() => setSearchParams({})}
-            className="p-2 hover:bg-gray-100 rounded-full transition-colors"
-          >
-            <FiArrowLeft size={24} />
-          </button>
-          <h3 className="text-2xl font-[Gilroy-Medium]">Wallet History</h3>
-        </div>
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-gray-500 text-center py-10">Wallet History component coming soon or integrated here.</p>
-        </div>
-      </div>
+      <WalletHistory 
+        onBack={() => setSearchParams({})} 
+      />
     );
   }
 
