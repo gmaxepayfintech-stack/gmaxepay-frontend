@@ -129,67 +129,50 @@ const AdminDashboardHome = () => {
       maximumFractionDigits: 2,
     })}`;
   };
+  const [serviceFilter, setServiceFilter] = useState("All");
 
   // Build chart and table data from company dashboard statistics
-  const services = companyDashboardStatisticsResponse?.data?.services;
+  const services = companyDashboardStatisticsResponse?.data?.services || {};
 
   const getService = (key) => services?.[key] || {};
   const getVolume = (key) => getService(key).totalVolume || 0;
 
-  // Bar chart order: AEPS 1, AEPS 2, BBPS, Mobile, DTH, NSDL PAN, Payout
+  // Chart data (standard subset)
   const chartData = [
-    {
-      name: getService("aeps1").label || "AEPS 1",
-      value: getVolume("aeps1"),
-    },
-    {
-      name: getService("aeps2").label || "AEPS 2",
-      value: getVolume("aeps2"),
-    },
-    {
-      name: getService("bbps").label || "BBPS",
-      value: getVolume("bbps"),
-    },
-    {
-      name: getService("mobile").label || "Mobile",
-      value: getVolume("mobile"),
-    },
-    {
-      name: getService("dth").label || "DTH",
-      value: getVolume("dth"),
-    },
-    {
-      name: getService("nsdlPan").label || "NSDL PAN",
-      value: getVolume("nsdlPan"),
-    },
-    {
-      name: getService("payout").label || "Payout",
-      value: getVolume("payout"),
-    },
+    { name: getService("aeps1").label || "AEPS 1", value: getVolume("aeps1") },
+    { name: getService("aeps2").label || "AEPS 2", value: getVolume("aeps2") },
+    { name: getService("bbps").label || "BBPS", value: getVolume("bbps") },
+    { name: getService("inspayMobile").label || "Mobile", value: getVolume("inspayMobile") },
+    { name: getService("inspayDth").label || "DTH", value: getVolume("inspayDth") },
+    { name: getService("inspayPan").label || "PAN", value: getVolume("inspayPan") },
+    { name: getService("payout").label || "Payout", value: getVolume("payout") },
   ];
 
-  const transactionData = chartData.map((item) => {
-    const serviceKeyMap = {
-      [getService("aeps1").label || "AEPS 1"]: "aeps1",
-      [getService("aeps2").label || "AEPS 2"]: "aeps2",
-      [getService("bbps").label || "BBPS"]: "bbps",
-      [getService("mobile").label || "Mobile"]: "mobile",
-      [getService("dth").label || "DTH"]: "dth",
-      [getService("nsdlPan").label || "NSDL PAN"]: "nsdlPan",
-      [getService("payout").label || "Payout"]: "payout",
-    };
-
-    const key = serviceKeyMap[item.name] || "";
-    const svc = getService(key);
-
+  // Full table data from all services
+  const allTransactionData = Object.keys(services).map((key) => {
+    const svc = services[key];
     return {
-      service: item.name,
+      key,
+      service: svc.label || key,
       volume: svc.totalVolume || 0,
       count: svc.totalCount || 0,
       success: svc.successCount || 0,
       failed: svc.failedCount || 0,
       pending: svc.pendingCount || 0,
     };
+  });
+
+  // Filtering logic
+  const filteredTransactionData = allTransactionData.filter((item) => {
+    if (serviceFilter === "All") return true;
+    
+    if (serviceFilter === "aeps") return item.key.toLowerCase().includes("aeps");
+    if (serviceFilter === "recharge") return item.key.toLowerCase().includes("mobile") || item.key.toLowerCase().includes("dth");
+    if (serviceFilter === "bbps") return item.key === "bbps";
+    if (serviceFilter === "pan") return item.key.toLowerCase().includes("pan");
+    if (serviceFilter === "payout") return item.key === "payout";
+    
+    return true;
   });
 
   // Total volume for header amount
@@ -664,6 +647,8 @@ const AdminDashboardHome = () => {
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="relative inline-flex items-center">
               <select
+                value={serviceFilter}
+                onChange={(e) => setServiceFilter(e.target.value)}
                 className="
                 appearance-none
                 h-[26px]
@@ -682,10 +667,12 @@ const AdminDashboardHome = () => {
                 flex items-center
                 "
               >
-                <option value="">Select Services</option>
-                <option value="recharge">Recharge</option>
+                <option value="All">All Services</option>
+                <option value="recharge">Recharges</option>
                 <option value="aeps">AEPS</option>
                 <option value="bbps">BBPS</option>
+                <option value="pan">PAN</option>
+                <option value="payout">Payout</option>
               </select>
 
               {/* Chevron icon */}
@@ -739,7 +726,7 @@ const AdminDashboardHome = () => {
                 </tr>
               </thead>
               <tbody>
-                {transactionData.map((row, index) => (
+                {filteredTransactionData.map((row, index) => (
                   <tr
                     key={index}
                     className="border-b border-gray-100 bg-white hover:bg-gray-50"
